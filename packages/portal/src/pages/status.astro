@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
 import { pick } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -128,7 +129,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             <div class="space-y-2 text-sm">
               <div class="flex justify-between"><span class="text-muted-foreground">{t("Endpoint", "Point de terminaison")}</span><code class="text-xs font-mono">{t("TCP reachability", "Joignabilité TCP")}</code></div>
               <div class="flex justify-between"><span class="text-muted-foreground">{t("Latency", "Latence")}</span><span class="service-latency font-mono text-xs">—</span></div>
-              <div class="flex justify-between"><span class="text-muted-foreground">{t("Tools", "Outils")}</span><span class="service-version font-mono text-xs">174</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">{t("Tools", "Outils")}</span><span class="service-version font-mono text-xs">{statsData.tools}</span></div>
               <div class="flex justify-between"><span class="text-muted-foreground">{t("Protocol", "Protocole")}</span><span class="service-deps text-xs">SSE + stdio</span></div>
             </div>
           </CardContent>

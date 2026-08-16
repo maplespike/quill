@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import statsData from "@/data/stats.json";
 import {
   Table,
   TableHeader,
@@ -21,8 +22,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
 <BaseLayout title={i18n.t('explorer.title')} description={t(
-  "Browse and search Canadian government data across all 206 modules",
-  "Parcourez et recherchez les données gouvernementales canadiennes dans les 206 modules",
+  `Browse and search Canadian government data across all ${statsData.modules} modules`,
+  `Parcourez et recherchez les données gouvernementales canadiennes dans les ${statsData.modules} modules`,
 )} lang={lang}>
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
@@ -32,8 +33,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </h1>
       <p class="mt-2 text-lg text-muted-foreground">
         {t(
-          "Search across 206 data modules spanning federal, provincial, and municipal government sources.",
-          "Recherchez dans 206 modules de données couvrant les sources gouvernementales fédérales, provinciales et municipales.",
+          `Search across ${statsData.modules} data modules spanning federal, provincial, and municipal government sources.`,
+          `Recherchez dans ${statsData.modules} modules de données couvrant les sources gouvernementales fédérales, provinciales et municipales.`,
         )}
       </p>
     </div>

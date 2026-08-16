@@ -7,11 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createI18n } from "@maplespike/i18n";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
+import toolsData from "@/data/tools.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
 const t = (en: string, fr: string) => pick(lang, en, fr);
 const tb = (bi: Bi) => pickBi(lang, bi);
+
+const mcpTools: { cat: string; name: string; desc: { en: string; fr: string } }[] = toolsData.tools;
 
 // MCP tool categories — canonical English keys kept for filtering, French labels for display.
 const catFr: Record<string, string> = {
@@ -37,7 +41,7 @@ const sections: { id: string; num: string; label: Bi; badge?: string }[] = [
   { id: "extraction", num: "05", label: { en: "Browser Extraction", fr: "Extraction navigateur" } },
   { id: "token-optimization", num: "06", label: { en: "Token Optimization", fr: "Optimisation des jetons" } },
   { id: "citation-contract", num: "07", label: { en: "Citation Contract", fr: "Contrat de citation" } },
-  { id: "mcp-tools", num: "08", label: { en: "MCP Tools", fr: "Outils MCP" }, badge: "174 TOOLS" },
+  { id: "mcp-tools", num: "08", label: { en: "MCP Tools", fr: "Outils MCP" }, badge: `${mcpTools.length} TOOLS` },
   { id: "rate-limits", num: "09", label: { en: "Rate Limits", fr: "Limites de débit" } },
   { id: "errors", num: "10", label: { en: "Errors", fr: "Erreurs" } },
   { id: "faq", num: "11", label: { en: "FAQ", fr: "FAQ" } },
@@ -78,211 +82,10 @@ const apiEndpoints: { method: string; path: string; desc: Bi }[] = [
   { method: "GET", path: "/v1/extraction/cached/:source_id", desc: { en: "Get cached browser extraction results", fr: "Obtenir les résultats d'extraction navigateur en cache" } },
 ];
 
-const mcpTools = [
-  // ── General (6) ──
-  { cat: "General", name: "query_gov_data", desc: { en: "Search across StatCan, CKAN, provincial portals", fr: "Recherche dans StatCan, CKAN et les portails provinciaux" } },
-  { cat: "General", name: "fact_check", desc: { en: "Verify claims against official government data", fr: "Vérifier des affirmations par rapport aux données gouvernementales officielles" } },
-  { cat: "General", name: "get_citation", desc: { en: "Retrieve citation by SHA-256 hash", fr: "Récupérer une citation par hachage SHA-256" } },
-  { cat: "General", name: "latest_releases", desc: { en: "Recent government data releases by category", fr: "Publications récentes de données gouvernementales par catégorie" } },
-  { cat: "General", name: "smart_search", desc: { en: "Intent-aware search across all sources", fr: "Recherche sensible à l'intention dans toutes les sources" } },
-  { cat: "General", name: "explore_catalog", desc: { en: "Browse available data modules and categories", fr: "Parcourir les modules et catégories de données disponibles" } },
-  // ── Parliament (9) ──
-  { cat: "Parliament", name: "search_committees", desc: { en: "HoC + Senate committee evidence and transcripts", fr: "Témoignages et transcriptions des comités (Chambre + Sénat)" } },
-  { cat: "Parliament", name: "search_committees_op", desc: { en: "Committees via Open Parliament API", fr: "Comités via l'API Open Parliament" } },
-  { cat: "Parliament", name: "search_debates", desc: { en: "House of Commons debates (Hansard) by date or topic", fr: "Débats de la Chambre des communes (Hansard) par date ou sujet" } },
-  { cat: "Parliament", name: "search_bills", desc: { en: "Federal bills via Open Parliament with LEGISinfo IDs", fr: "Projets de loi fédéraux via Open Parliament avec identifiants LEGISinfo" } },
-  { cat: "Parliament", name: "track_bill", desc: { en: "Track a bill through Parliament end-to-end", fr: "Suivre un projet de loi au Parlement de bout en bout" } },
-  { cat: "Parliament", name: "search_votes", desc: { en: "House of Commons voting records via Open Parliament", fr: "Registres de votes de la Chambre des communes via Open Parliament" } },
-  { cat: "Parliament", name: "get_member_info", desc: { en: "MP details: name, party, riding, photo URL", fr: "Détails du député : nom, parti, circonscription, URL de la photo" } },
-  { cat: "Parliament", name: "get_politician_influence", desc: { en: "Influence profile: lobbying, voting, GIC appointments", fr: "Profil d'influence : lobbying, votes, nominations par décret" } },
-  { cat: "Parliament", name: "search_legislation", desc: { en: "Federal acts by name, keyword, or jurisdiction", fr: "Lois fédérales par nom, mot-clé ou compétence" } },
-  // ── Regulatory (5) ──
-  { cat: "Regulatory", name: "search_gazette", desc: { en: "Canada Gazette Parts I, II, III", fr: "Gazette du Canada, parties I, II, III" } },
-  { cat: "Regulatory", name: "search_gazette_part1", desc: { en: "Gazette Part I — notices and proposed regulations", fr: "Gazette, partie I — avis et règlements proposés" } },
-  { cat: "Regulatory", name: "search_gazette_part2", desc: { en: "Gazette Part II — statutory instruments and orders", fr: "Gazette, partie II — textes réglementaires et décrets" } },
-  { cat: "Regulatory", name: "search_gazette_part3", desc: { en: "Gazette Part III — acts of Parliament as enacted", fr: "Gazette, partie III — lois du Parlement telles qu'adoptées" } },
-  { cat: "Regulatory", name: "search_gic", desc: { en: "Governor-in-Council appointments by department", fr: "Nominations par décret en conseil par ministère" } },
-  // ── Elections (1) ──
-  { cat: "Elections", name: "search_elections", desc: { en: "Third-party advertising, election spending data", fr: "Publicité de tiers, données de dépenses électorales" } },
-  // ── Corporate (9) ──
-  { cat: "Corporate", name: "search_corporate", desc: { en: "Lobbying, procurement, exec statements by company", fr: "Lobbying, approvisionnement, déclarations de dirigeants par entreprise" } },
-  { cat: "Corporate", name: "search_corporate_filings", desc: { en: "SEDAR+ filings, insider reports by company or ticker", fr: "Dépôts SEDAR+, rapports d'initiés par entreprise ou symbole" } },
-  { cat: "Corporate", name: "search_sedi", desc: { en: "SEDI insider trading reports by issuer or insider", fr: "Rapports d'opérations d'initiés SEDI par émetteur ou initié" } },
-  { cat: "Corporate", name: "search_cipo", desc: { en: "CIPO patents and trademarks by applicant or tech area", fr: "Brevets et marques de l'OPIC par demandeur ou domaine technique" } },
-  { cat: "Corporate", name: "search_corporate_registry", desc: { en: "Federal corporations registry data from CKAN", fr: "Données du registre fédéral des sociétés via CKAN" } },
-  { cat: "Corporate", name: "search_patents", desc: { en: "Canadian patent data from CIPO via CKAN", fr: "Données de brevets canadiens de l'OPIC via CKAN" } },
-  { cat: "Corporate", name: "search_trademarks", desc: { en: "Canadian trademark data from CIPO via CKAN", fr: "Données de marques de commerce canadiennes de l'OPIC via CKAN" } },
-  { cat: "Corporate", name: "search_financial_regulation", desc: { en: "Financial regulation and oversight data", fr: "Données de réglementation et de surveillance financières" } },
-  { cat: "Corporate", name: "search_provincial_lobbying", desc: { en: "Provincial lobbying registries (ON, BC, QC)", fr: "Registres provinciaux de lobbying (ON, C.-B., QC)" } },
-  // ── Procurement & Budget (6) ──
-  { cat: "Procurement", name: "search_proactive_disclosure", desc: { en: "Proactive disclosure contracts by vendor or department", fr: "Contrats de divulgation proactive par fournisseur ou ministère" } },
-  { cat: "Procurement", name: "search_federal_contracts", desc: { en: "Federal contract awards from CKAN", fr: "Octrois de contrats fédéraux via CKAN" } },
-  { cat: "Procurement", name: "search_federal_grants", desc: { en: "Federal grants and contributions data", fr: "Données de subventions et contributions fédérales" } },
-  { cat: "Procurement", name: "search_goc_spending", desc: { en: "Government spending by vendor, department, program", fr: "Dépenses gouvernementales par fournisseur, ministère, programme" } },
-  { cat: "Procurement", name: "search_federal_budget", desc: { en: "Federal budget by program, department, fiscal year", fr: "Budget fédéral par programme, ministère, exercice financier" } },
-  { cat: "Procurement", name: "search_ati", desc: { en: "Access to Information requests by keyword or department", fr: "Demandes d'accès à l'information par mot-clé ou ministère" } },
-  // ── Oversight & Legal (4) ──
-  { cat: "Oversight", name: "search_oversight", desc: { en: "OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau", fr: "BVG, DPR, commissaire à l'éthique, CRTC, Bureau de la concurrence" } },
-  { cat: "Oversight", name: "search_canlii", desc: { en: "Court decisions and citations via CanLII", fr: "Décisions et citations judiciaires via CanLII" } },
-  { cat: "Oversight", name: "search_a2aj", desc: { en: "Access to justice and legal aid resources", fr: "Accès à la justice et ressources d'aide juridique" } },
-  { cat: "Oversight", name: "search_tribunals", desc: { en: "Federal tribunal appointments and decisions", fr: "Nominations et décisions des tribunaux fédéraux" } },
-  // ── Influence & NGOs (3) ──
-  { cat: "Influence", name: "search_influence", desc: { en: "Tracked IOs, NGOs, think tanks, funding connections", fr: "OI, ONG et groupes de réflexion suivis, liens de financement" } },
-  { cat: "Influence", name: "search_ngo_rss", desc: { en: "NGO and think tank publications via RSS", fr: "Publications des ONG et groupes de réflexion via RSS" } },
-  { cat: "Influence", name: "ngo_narrative_tracker", desc: { en: "Track narratives by NGO or think tank organization", fr: "Suivre les narratifs d'une ONG ou d'un groupe de réflexion" } },
-  // ── Immigration (12) ──
-  { cat: "Immigration", name: "search_immigration", desc: { en: "IRCC data by country, province, category, or year", fr: "Données d'IRCC par pays, province, catégorie ou année" } },
-  { cat: "Immigration", name: "search_lmia", desc: { en: "LMIA quarterly data, TFW program by employer or NOC", fr: "Données trimestrielles des EIMT, programme de PTET par employeur ou CNP" } },
-  { cat: "Immigration", name: "search_ircc-citizenship", desc: { en: "Citizenship statistics and grants by province", fr: "Statistiques de citoyenneté et octrois par province" } },
-  { cat: "Immigration", name: "search_ircc_entry_exit", desc: { en: "Port of entry data by nationality and quarter", fr: "Données des points d'entrée par nationalité et trimestre" } },
-  { cat: "Immigration", name: "search_ircc_express_entry", desc: { en: "CRS scores, program draws, category-based selection", fr: "Scores RC, tirages de programme, sélection par catégorie" } },
-  { cat: "Immigration", name: "search_ircc_family_sponsorship", desc: { en: "Parent and spousal sponsorship by visa office", fr: "Parrainage de parents et d'époux par bureau de visa" } },
-  { cat: "Immigration", name: "search_ircc_pr_admissions", desc: { en: "PR admissions by province, category, or year", fr: "Admissions de RP par province, catégorie ou année" } },
-  { cat: "Immigration", name: "search_ircc_processing_times", desc: { en: "Processing times by application type and country", fr: "Délais de traitement par type de demande et pays" } },
-  { cat: "Immigration", name: "search_ircc_study_permits", desc: { en: "Study permits by institution, province, or country", fr: "Permis d'études par établissement, province ou pays" } },
-  { cat: "Immigration", name: "search_ircc_work_permits", desc: { en: "Work permits by NOC code, province, or country", fr: "Permis de travail par code CNP, province ou pays" } },
-  { cat: "Immigration", name: "search_citizenship_data", desc: { en: "Canadian citizenship statistics from CKAN", fr: "Statistiques de citoyenneté canadienne via CKAN" } },
-  { cat: "Immigration", name: "search_immigration_refugees", desc: { en: "Immigration and refugee data from CKAN", fr: "Données d'immigration et de réfugiés via CKAN" } },
-  // ── Defence & Veterans (2) ──
-  { cat: "Defence", name: "search_defence", desc: { en: "DND personnel, procurement, defence spending", fr: "Personnel du MDN, approvisionnement, dépenses de défense" } },
-  { cat: "Defence", name: "search_veterans", desc: { en: "Veterans Affairs: disability, benefits, wait times", fr: "Anciens combattants : invalidité, prestations, délais d'attente" } },
-  // ── Health (3) ──
-  { cat: "Health", name: "search_health", desc: { en: "Health conditions, drugs, procedures, wait times", fr: "Affections, médicaments, interventions, délais d'attente" } },
-  { cat: "Health", name: "search_health_canada", desc: { en: "Drug recalls, medical device licences, regulations", fr: "Rappels de médicaments, licences de dispositifs médicaux, règlements" } },
-  { cat: "Health", name: "search_pharmaceuticals", desc: { en: "Drug pricing, shortages, PMPRB data", fr: "Prix des médicaments, pénuries, données du CEPMB" } },
-  // ── Transport & Infrastructure (7) ──
-  { cat: "Transport", name: "search_transport_safety", desc: { en: "TSB occurrences, air and rail safety investigations", fr: "Événements du BST, enquêtes de sécurité aérienne et ferroviaire" } },
-  { cat: "Transport", name: "search_transportation_data", desc: { en: "Transportation and infrastructure data from CKAN", fr: "Données de transport et d'infrastructure via CKAN" } },
-  { cat: "Transport", name: "search_geospatial", desc: { en: "Topographic maps, satellite imagery, GIS datasets", fr: "Cartes topographiques, imagerie satellite, ensembles SIG" } },
-  { cat: "Transport", name: "search_arcgis_layers", desc: { en: "ArcGIS feature services for MB, SK, PE", fr: "Services d'entités ArcGIS pour MB, SK, Î.-P.-É." } },
-  { cat: "Transport", name: "search_real_time_feeds", desc: { en: "Real-time alerts: weather, health advisories, amber alerts", fr: "Alertes en temps réel : météo, avis de santé, alertes AMBER" } },
-  { cat: "Transport", name: "search_regional_authorities", desc: { en: "Regional transit and service authorities", fr: "Autorités régionales de transport en commun et de services" } },
-  { cat: "Transport", name: "search_utilities", desc: { en: "Hydro, gas, and water utilities by province", fr: "Services d'électricité, de gaz et d'eau par province" } },
-  // ── Indigenous (3) ──
-  { cat: "Indigenous", name: "search_indigenous_relations", desc: { en: "Specific claims, TRC calls to action, Indigenous services", fr: "Revendications particulières, appels à l'action de la CVR, services autochtones" } },
-  { cat: "Indigenous", name: "search_indigenous_services_directory", desc: { en: "Indigenous services directory and listings", fr: "Annuaire et listes des services autochtones" } },
-  { cat: "Indigenous", name: "search_indigenous_stats", desc: { en: "Indigenous peoples statistics from CKAN", fr: "Statistiques sur les peuples autochtones via CKAN" } },
-  // ── Provincial (10) ──
-  { cat: "Provincial", name: "search_ab_data", desc: { en: "Alberta: AHS health, AAIP immigration, courts, education", fr: "Alberta : santé AHS, immigration AAIP, tribunaux, éducation" } },
-  { cat: "Provincial", name: "search_bc_data", desc: { en: "BC: PharmaCare, BCPNP immigration, courts, education", fr: "C.-B. : PharmaCare, immigration BCPNP, tribunaux, éducation" } },
-  { cat: "Provincial", name: "search_on_data", desc: { en: "Ontario: OHIP claims, OINP immigration, EQAO, courts", fr: "Ontario : demandes SOO, immigration OINP, EQAO, tribunaux" } },
-  { cat: "Provincial", name: "search_qc_data", desc: { en: "Quebec: RAMQ, MIFI immigration, courts, education", fr: "Québec : RAMQ, immigration MIFI, tribunaux, éducation" } },
-  { cat: "Provincial", name: "search_yukon_data", desc: { en: "Yukon open data from open.yukon.ca CKAN portal", fr: "Données ouvertes du Yukon du portail CKAN open.yukon.ca" } },
-  { cat: "Provincial", name: "search_nunavut_data", desc: { en: "Nunavut data from federal CKAN and StatsCan", fr: "Données du Nunavut du CKAN fédéral et de Statistique Canada" } },
-  { cat: "Provincial", name: "search_provincial_data", desc: { en: "All 13 provinces and territories via CKAN and Socrata", fr: "Les 13 provinces et territoires via CKAN et Socrata" } },
-  { cat: "Provincial", name: "search_provincial_legislatures", desc: { en: "Provincial Hansard and legislature debates", fr: "Hansard provincial et débats des assemblées législatives" } },
-  { cat: "Provincial", name: "search_provincial_regulators", desc: { en: "Provincial regulators by profession or province", fr: "Organismes de réglementation provinciaux par profession ou province" } },
-  { cat: "Provincial", name: "search_provincial_orgs", desc: { en: "Provincial organizations and agencies", fr: "Organisations et agences provinciales" } },
-  // ── Municipal (3) ──
-  { cat: "Municipal", name: "search_municipal", desc: { en: "Municipal open data from major Canadian cities", fr: "Données ouvertes municipales des grandes villes canadiennes" } },
-  { cat: "Municipal", name: "search_municipal_data", desc: { en: "Municipal datasets across 10 Canadian cities", fr: "Ensembles de données municipales de 10 villes canadiennes" } },
-  { cat: "Municipal", name: "search_municipal_long_tail", desc: { en: "Long-tail municipal data queries and niche datasets", fr: "Requêtes municipales de longue traîne et ensembles de niche" } },
-  // ── Economic (9) ──
-  { cat: "Economic", name: "query_cpi", desc: { en: "Consumer Price Index (inflation) from StatCan", fr: "Indice des prix à la consommation (inflation) de Statistique Canada" } },
-  { cat: "Economic", name: "query_gdp", desc: { en: "GDP from StatCan with time-series and reference dates", fr: "PIB de Statistique Canada avec séries chronologiques et dates de référence" } },
-  { cat: "Economic", name: "query_labour", desc: { en: "Labour force: employment, unemployment from StatCan", fr: "Population active : emploi, chômage de Statistique Canada" } },
-  { cat: "Economic", name: "query_population", desc: { en: "Population estimates by province and territory", fr: "Estimations de la population par province et territoire" } },
-  { cat: "Economic", name: "query_trade", desc: { en: "International merchandise trade from StatCan", fr: "Commerce international de marchandises de Statistique Canada" } },
-  { cat: "Economic", name: "query_bridges", desc: { en: "Bridge infrastructure conditions by province", fr: "État des ponts par province" } },
-  { cat: "Economic", name: "search_statcan", desc: { en: "Search StatCan datasets by keyword or topic", fr: "Rechercher des ensembles de données de Statistique Canada par mot-clé ou sujet" } },
-  { cat: "Economic", name: "search_bank_of_canada", desc: { en: "Bank of Canada rates, speeches, and policy outlook", fr: "Taux, discours et perspectives de politique de la Banque du Canada" } },
-  { cat: "Economic", name: "compare_regions", desc: { en: "Compare economic indicators across provinces and territories", fr: "Comparer des indicateurs économiques entre provinces et territoires" } },
-  // ── Environment (13) ──
-  { cat: "Environment", name: "search_npri", desc: { en: "National Pollutant Release Inventory by facility or substance", fr: "Inventaire national des rejets de polluants par installation ou substance" } },
-  { cat: "Environment", name: "search_nrcan", desc: { en: "Natural Resources Canada: commodities, regions, resources", fr: "Ressources naturelles Canada : produits, régions, ressources" } },
-  { cat: "Environment", name: "search_nrcan_renewable", desc: { en: "Renewable energy data from NRCAN", fr: "Données sur les énergies renouvelables de RNCan" } },
-  { cat: "Environment", name: "search_nrcan_fires", desc: { en: "Wildfire data and fire monitoring from NRCAN", fr: "Données sur les feux de forêt et suivi des incendies de RNCan" } },
-  { cat: "Environment", name: "search_nrcan_forests", desc: { en: "Forestry data and forest inventory from NRCAN", fr: "Données forestières et inventaire forestier de RNCan" } },
-  { cat: "Environment", name: "search_nrcan_minerals", desc: { en: "Mineral and mining data from NRCAN", fr: "Données minérales et minières de RNCan" } },
-  { cat: "Environment", name: "search_impact_assessment", desc: { en: "Environmental impact assessments by project or sector", fr: "Évaluations d'impact environnemental par projet ou secteur" } },
-  { cat: "Environment", name: "search_species_at_risk", desc: { en: "Species at risk registry by species name or status", fr: "Registre des espèces en péril par nom ou statut" } },
-  { cat: "Environment", name: "search_fisheries", desc: { en: "Fisheries: species, regions, aquaculture, licenses", fr: "Pêches : espèces, régions, aquaculture, permis" } },
-  { cat: "Environment", name: "search_agriculture", desc: { en: "Agriculture: commodities, provinces, farm income", fr: "Agriculture : produits, provinces, revenus agricoles" } },
-  { cat: "Environment", name: "search_agriculture_data", desc: { en: "Agriculture and agri-food data from CKAN", fr: "Données agricoles et agroalimentaires via CKAN" } },
-  { cat: "Environment", name: "search_energy_data", desc: { en: "Energy production and consumption from CKAN", fr: "Production et consommation d'énergie via CKAN" } },
-  { cat: "Environment", name: "search_climate_data", desc: { en: "Climate change and weather data from CKAN", fr: "Données sur les changements climatiques et la météo via CKAN" } },
-  // ── Housing (4) ──
-  { cat: "Housing", name: "search_housing_cmhc", desc: { en: "CMHC housing starts, vacancy rates, affordable housing", fr: "SCHL : mises en chantier, taux d'inoccupation, logement abordable" } },
-  { cat: "Housing", name: "search_housing_data", desc: { en: "Housing and rental market data from CKAN", fr: "Données sur le logement et le marché locatif via CKAN" } },
-  { cat: "Housing", name: "search_cmhc", desc: { en: "CMHC metrics by city, province, or year", fr: "Indicateurs de la SCHL par ville, province ou année" } },
-  { cat: "Housing", name: "search_real_estate", desc: { en: "Real estate market data and trends", fr: "Données et tendances du marché immobilier" } },
-  // ── International (20) ──
-  { cat: "International", name: "get_wdi_indicator", desc: { en: "World Bank Development Indicators by country", fr: "Indicateurs de développement de la Banque mondiale par pays" } },
-  { cat: "International", name: "compare_wdi_countries", desc: { en: "Compare a WDI indicator across multiple countries", fr: "Comparer un indicateur IDM entre plusieurs pays" } },
-  { cat: "International", name: "get_country_wdi_profile", desc: { en: "Country profile with key development indicators", fr: "Profil de pays avec indicateurs de développement clés" } },
-  { cat: "International", name: "analyze_indicator_trend", desc: { en: "Analyze WDI indicator trend over time", fr: "Analyser la tendance d'un indicateur IDM dans le temps" } },
-  { cat: "International", name: "fetch_topic_indicators", desc: { en: "All indicators for a WDI topic (economy, health, social)", fr: "Tous les indicateurs d'un thème IDM (économie, santé, social)" } },
-  { cat: "International", name: "get_indicator_metadata", desc: { en: "Metadata for a World Bank indicator", fr: "Métadonnées d'un indicateur de la Banque mondiale" } },
-  { cat: "International", name: "get_comtrade_by_partner", desc: { en: "UN Comtrade trade data by partner country", fr: "Données commerciales UN Comtrade par pays partenaire" } },
-  { cat: "International", name: "get_comtrade_by_commodity", desc: { en: "UN Comtrade trade data by commodity", fr: "Données commerciales UN Comtrade par produit" } },
-  { cat: "International", name: "get_comtrade_trends", desc: { en: "UN Comtrade trade trends over time", fr: "Tendances commerciales UN Comtrade dans le temps" } },
-  { cat: "International", name: "search_oecd_stat", desc: { en: "OECD statistics and indicators", fr: "Statistiques et indicateurs de l'OCDE" } },
-  { cat: "International", name: "search_undp_hdi", desc: { en: "UNDP Human Development Index data", fr: "Données de l'indice de développement humain du PNUD" } },
-  { cat: "International", name: "search_unhcr_refugees", desc: { en: "UNHCR refugee statistics and displacement data", fr: "Statistiques des réfugiés et données de déplacement du HCR" } },
-  { cat: "International", name: "search_us_cia", desc: { en: "CIA World Factbook country data", fr: "Données pays du CIA World Factbook" } },
-  { cat: "International", name: "search_au_abs", desc: { en: "Australian Bureau of Statistics", fr: "Bureau australien des statistiques" } },
-  { cat: "International", name: "search_nz_stats", desc: { en: "Statistics New Zealand", fr: "Statistiques de la Nouvelle-Zélande" } },
-  { cat: "International", name: "search_uk_ons", desc: { en: "UK Office for National Statistics", fr: "Office britannique des statistiques nationales" } },
-  { cat: "International", name: "search_who_gho", desc: { en: "WHO Global Health Observatory", fr: "Observatoire mondial de la santé de l'OMS" } },
-  { cat: "International", name: "search_eurostat", desc: { en: "Eurostat European statistics", fr: "Statistiques européennes d'Eurostat" } },
-  { cat: "International", name: "search_un", desc: { en: "UN SDMX data by dimension key", fr: "Données SDMX de l'ONU par clé de dimension" } },
-  { cat: "International", name: "search_ilo", desc: { en: "ILO labour statistics by indicator or country", fr: "Statistiques du travail de l'OIT par indicateur ou pays" } },
-  // ── Social & Cultural (7) ──
-  { cat: "Social", name: "search_social_programs", desc: { en: "EI claims, CCB payments, poverty rates by province", fr: "Demandes d'AE, paiements de l'ACE, taux de pauvreté par province" } },
-  { cat: "Social", name: "search_education_research", desc: { en: "NSERC, SSHRC, Canada Research Chairs by institution", fr: "CRSNG, CRSH, chaires de recherche du Canada par établissement" } },
-  { cat: "Social", name: "search_education_stats", desc: { en: "Education enrolment statistics from CKAN", fr: "Statistiques d'inscription scolaire via CKAN" } },
-  { cat: "Social", name: "search_gender_stats", desc: { en: "Gender-based statistics and equality data from CKAN", fr: "Statistiques fondées sur le genre et données d'égalité via CKAN" } },
-  { cat: "Social", name: "search_official_languages", desc: { en: "Official languages data from CKAN", fr: "Données sur les langues officielles via CKAN" } },
-  { cat: "Social", name: "search_culture", desc: { en: "Canada Council grants, heritage funding, arts programs", fr: "Subventions du Conseil des arts, financement du patrimoine, programmes artistiques" } },
-  { cat: "Social", name: "search_culture_data", desc: { en: "Culture, arts, and heritage data from CKAN", fr: "Données culturelles, artistiques et patrimoniales via CKAN" } },
-  // ── Public Safety (4) ──
-  { cat: "Public Safety", name: "search_public_safety", desc: { en: "Public safety and emergency management from CKAN", fr: "Sécurité publique et gestion des urgences via CKAN" } },
-  { cat: "Public Safety", name: "search_emergency_management", desc: { en: "Emergency management and disaster response data", fr: "Données de gestion des urgences et d'intervention en cas de catastrophe" } },
-  { cat: "Public Safety", name: "search_policing_security", desc: { en: "Policing and security data", fr: "Données policières et de sécurité" } },
-  { cat: "Public Safety", name: "search_criminal_justice", desc: { en: "Prison populations, hate crimes, parole data", fr: "Populations carcérales, crimes haineux, données de libération conditionnelle" } },
-  // ── Media & Telecom (4) ──
-  { cat: "Media", name: "search_media_broadcasting", desc: { en: "Media and broadcasting data", fr: "Données médiatiques et de radiodiffusion" } },
-  { cat: "Media", name: "search_telecommunications", desc: { en: "Broadband, spectrum auctions, telecom by provider", fr: "Large bande, enchères de spectre, télécoms par fournisseur" } },
-  { cat: "Media", name: "search_crtc", desc: { en: "CRTC decisions, licences, net neutrality rulings", fr: "Décisions, licences et décisions sur la neutralité du Net du CRTC" } },
-  { cat: "Media", name: "search_crtc_decisions", desc: { en: "CRTC decision numbers and broadcasting rulings", fr: "Numéros de décision et décisions de radiodiffusion du CRTC" } },
-  // ── Science & Technology (4) ──
-  { cat: "Science", name: "search_science", desc: { en: "CSA missions, Mitacs grants, Ocean Networks, Polar Data", fr: "Missions de l'ASC, subventions Mitacs, Ocean Networks, données polaires" } },
-  { cat: "Science", name: "search_technology_data", desc: { en: "Technology, innovation, and telecom data from CKAN", fr: "Données technologiques, d'innovation et de télécoms via CKAN" } },
-  { cat: "Science", name: "search_knowledge_fabric", desc: { en: "Knowledge Fabric data portal queries", fr: "Requêtes du portail de données Knowledge Fabric" } },
-  { cat: "Science", name: "search_mining_data", desc: { en: "Mining and mineral production data from CKAN", fr: "Données minières et de production minérale via CKAN" } },
-  // ── Community (5) ──
-  { cat: "Community", name: "search_parks", desc: { en: "Parks and recreation facilities in 12 Canadian cities", fr: "Parcs et installations récréatives de 12 villes canadiennes" } },
-  { cat: "Community", name: "search_libraries", desc: { en: "Public library systems in 15 Canadian cities", fr: "Réseaux de bibliothèques publiques de 15 villes canadiennes" } },
-  { cat: "Community", name: "search_universities", desc: { en: "Universities by institution, program, or metric", fr: "Universités par établissement, programme ou indicateur" } },
-  { cat: "Community", name: "search_unions", desc: { en: "Labour unions by name, sector, or province", fr: "Syndicats par nom, secteur ou province" } },
-  { cat: "Community", name: "search_crown_corporations", desc: { en: "CBC, Canada Post, EDC and other crown corp financials", fr: "CBC, Postes Canada, EDC et données financières des autres sociétés d'État" } },
-  // ── Charity (2) ──
-  { cat: "Charity", name: "search_charity_t3010", desc: { en: "T3010 charity filings by name or category", fr: "Déclarations T3010 des organismes de bienfaisance par nom ou catégorie" } },
-  { cat: "Charity", name: "search_cra_charity", desc: { en: "CRA registered charities by name or BN", fr: "Organismes de bienfaisance enregistrés de l'ARC par nom ou NE" } },
-  // ── Global Affairs (2) ──
-  { cat: "Global Affairs", name: "search_global_canada", desc: { en: "Global Affairs: trade agreements, climate, emissions", fr: "Affaires mondiales : accords commerciaux, climat, émissions" } },
-  { cat: "Global Affairs", name: "search_lode", desc: { en: "Open Database of Addresses: 10M+ civic addresses", fr: "Base ouverte d'adresses : plus de 10 M d'adresses civiques" } },
-  // ── AI (3) ──
-  { cat: "AI", name: "ai_ask", desc: { en: "Ask a natural language question, get a sourced answer", fr: "Poser une question en langage naturel, obtenir une réponse sourcée" } },
-  { cat: "AI", name: "ai_analyze", desc: { en: "Analyze a document or transcript for topics, entities, and summary", fr: "Analyser un document ou une transcription : sujets, entités et résumé" } },
-  { cat: "AI", name: "ai_search_semantic", desc: { en: "Semantic search with edge embeddings", fr: "Recherche sémantique avec plongements de périphérie" } },
-  // ── Entity Resolution (5) ──
-  { cat: "Entity", name: "resolve_entity", desc: { en: "Resolve a person or organization name to canonical entity", fr: "Résoudre un nom de personne ou d'organisation en entité canonique" } },
-  { cat: "Entity", name: "find_connections", desc: { en: "Find network connections between entities", fr: "Trouver les connexions de réseau entre entités" } },
-  { cat: "Entity", name: "get_entity_profile", desc: { en: "Cross-reference a person across MP, lobbying, and GIC", fr: "Recouper une personne entre député, lobbying et décrets" } },
-  { cat: "Entity", name: "get_annotations", desc: { en: "Entity annotations and metadata by type", fr: "Annotations et métadonnées d'entités par type" } },
-  { cat: "Entity", name: "search_cross_reference", desc: { en: "Cross-reference all modules at once — unified entity timeline", fr: "Recouper tous les modules à la fois — chronologie d'entité unifiée" } },
-  // ── System & QA (9) ──
-  { cat: "System", name: "cache_clear", desc: { en: "Clear tool response cache", fr: "Vider le cache des réponses d'outils" } },
-  { cat: "System", name: "cache_status", desc: { en: "Check cache status and hit rates", fr: "Vérifier l'état du cache et les taux de réussite" } },
-  { cat: "System", name: "system_health", desc: { en: "System health check and diagnostics", fr: "Vérification de l'état du système et diagnostics" } },
-  { cat: "System", name: "get_module_health", desc: { en: "Health check for a specific data module", fr: "Vérification de l'état d'un module de données précis" } },
-  { cat: "System", name: "get_pipeline_health", desc: { en: "Pipeline ingestion health and status", fr: "État et statut de l'ingestion du pipeline" } },
-  { cat: "System", name: "signal_check", desc: { en: "Check watched source signals for changes", fr: "Vérifier les signaux des sources suivies pour détecter des changements" } },
-  { cat: "System", name: "searxng_health", desc: { en: "SearXNG engine health: failures, suspensions, errors", fr: "État des moteurs SearXNG : échecs, suspensions, erreurs" } },
-  { cat: "System", name: "qa_schema", desc: { en: "Query module schemas by name", fr: "Interroger les schémas de modules par nom" } },
-  { cat: "System", name: "qa_validate_module", desc: { en: "Validate module data quality and integrity", fr: "Valider la qualité et l'intégrité des données d'un module" } },
-];
+// MCP tool catalog — generated by scripts/generate-plans.mjs into
+// src/data/tools.json (curated base + quill-mcp tool index + fr translations).
+// NEVER hardcode tools here; edit src/data/tools-base.json or quill-mcp and re-run `pnpm gen:plans`.
+
 
 const rateLimits = [
   { plan: { en: "Free", fr: "Gratuit" }, perSec: "2/s", perMonth: "1,000", overage: { en: "Hard cap (402)", fr: "Plafond strict (402)" } },
@@ -343,7 +146,7 @@ const errorCodes = [
           <Badge variant="default" class="text-[10px] px-1.5 py-0.5">LIVE</Badge>
         </div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-          {t("One API key.", "Une seule clé API.")}<br />{t("206 Canadian government data modules. Every response cited.", "206 modules de données gouvernementales canadiennes. Chaque réponse est citée.")}
+          {t("One API key.", "Une seule clé API.")}<br />{t(` ${statsData.modules} Canadian government data modules. Every response cited.`, ` ${statsData.modules} modules de données gouvernementales canadiennes. Chaque réponse est citée.`)}
         </h1>
         <p class="text-muted-foreground mb-8">{t(
           "Get an API key, make your first call, and see the citation contract — in under 5 minutes.",
@@ -901,7 +704,7 @@ const errorCodes = [
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">08</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("MCP Tools", "Outils MCP")}</span>
-          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">174 {t("TOOLS", "OUTILS")}</Badge>
+          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">{mcpTools.length} {t("TOOLS", "OUTILS")}</Badge>
         </div>
         <h2 class="text-2xl font-bold mb-4">{t("Data tools for AI agents", "Outils de données pour agents IA")}</h2>
         <p class="text-muted-foreground mb-6">{t(
@@ -927,7 +730,7 @@ const errorCodes = [
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <div class="relative flex-1">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <Input id="mcp-search" placeholder={t("Filter 174 tools by name or description...", "Filtrer 174 outils par nom ou description…")} class="pl-9 text-sm" />
+            <Input id="mcp-search" placeholder={t(`Filter ${statsData.tools} tools by name or description...`, `Filtrer ${statsData.tools} outils par nom ou description…`)} class="pl-9 text-sm" />
           </div>
           <select id="mcp-category" class="text-sm border rounded-md px-3 py-2 bg-background">
             <option value="">{t("All categories", "Toutes les catégories")}</option>
@@ -962,7 +765,7 @@ const errorCodes = [
         </Card>
 
         <p class="text-xs text-muted-foreground mt-3">{t(
-          "Showing all",
+          "Showing",
           "Affichage de",
         )} {mcpTools.length} MCP {t(
           "tools. Use the search box or category dropdown to filter. The full tool list is also available in",

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import statsData from "@/data/stats.json";
 
 const themes = [
   {
@@ -40,9 +41,9 @@ const themes = [
 ];
 
 const stats = [
-  { value: "208", label: "Data modules" },
-  { value: "175", label: "MCP tools" },
-  { value: "13", label: "Jurisdictions" },
+  { value: String(statsData.modules), label: "Data modules" },
+  { value: String(statsData.tools), label: "MCP tools" },
+  { value: String(statsData.jurisdictions), label: "Jurisdictions" },
 ];
 
 const features = [
