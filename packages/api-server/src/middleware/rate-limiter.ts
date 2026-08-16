@@ -214,16 +214,15 @@ export class RateLimiter {
    * Call this to create a middleware handler compatible with connect/express patterns.
    */
   middleware() {
-    const self = this;
     return async (req: any, res: any, next: () => void): Promise<void> => {
       // Exempt health endpoint
       if (req.url?.startsWith('/v1/health')) {
         return next();
       }
 
-      const ip = self.extractIP(req);
-      const tier = self.extractTier(req);
-      const result = await self.check(ip, tier);
+      const ip = this.extractIP(req);
+      const tier = this.extractTier(req);
+      const result = await this.check(ip, tier);
 
       // Graceful degradation — if Redis is down, allow
       if (result === null) {

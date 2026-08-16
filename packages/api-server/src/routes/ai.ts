@@ -47,7 +47,9 @@ function sanitizeString(val: string): string {
     // (also strips "Java script:" prose — an acceptable tradeoff for catching
     // `java\tscript:` obfuscation; the regex requires a trailing colon, so
     // plain mentions of "javascript" in text are untouched).
+    // eslint-disable-next-line no-control-regex -- control chars are intentional: stripping obfuscated scheme names
     .replace(/j[\s\u0000-\u001f]*a[\s\u0000-\u001f]*v[\s\u0000-\u001f]*a[\s\u0000-\u001f]*s[\s\u0000-\u001f]*c[\s\u0000-\u001f]*r[\s\u0000-\u001f]*i[\s\u0000-\u001f]*p[\s\u0000-\u001f]*t[\s\u0000-\u001f]*:/gi, '')
+    // eslint-disable-next-line no-control-regex -- control chars are intentional: stripping obfuscated scheme names
     .replace(/v[\s\u0000-\u001f]*b[\s\u0000-\u001f]*s[\s\u0000-\u001f]*c[\s\u0000-\u001f]*r[\s\u0000-\u001f]*i[\s\u0000-\u001f]*p[\s\u0000-\u001f]*t[\s\u0000-\u001f]*:/gi, '');
 }
 

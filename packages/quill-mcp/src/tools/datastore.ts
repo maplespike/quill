@@ -19,7 +19,7 @@ const DATA_DIR = join(homedir(), '.quill', 'datastore');
 const CACHE_FILE = join(DATA_DIR, 'cache.json');
 
 async function ensureDir(): Promise<void> {
-  try { await mkdir(DATA_DIR, { recursive: true }); } catch {}
+  try { await mkdir(DATA_DIR, { recursive: true }); } catch { /* dir may already exist */ }
 }
 
 async function loadCache(): Promise<Record<string, DataStoreEntry>> {

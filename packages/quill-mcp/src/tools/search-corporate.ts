@@ -65,8 +65,8 @@ export const handler: ToolHandler = async (args) => {
 
   const sourceKeys = datasetSourceMap[dataset] || datasetSourceMap.all;
 
-  let results: Record<string, unknown>[] = [];
-  let total = 0;
+  let results: Record<string, unknown>[];
+  let total: number;
   try {
     const result = await fetchCorporate(query, limit);
     results = result.results;
