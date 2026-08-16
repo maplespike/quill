@@ -118,6 +118,8 @@ export const fr: Partial<TranslationMap> = {
   'dashboard.tab.api_keys': 'Clés API',
   'dashboard.tab.watcher': 'Surveillance',
   'dashboard.tab.owasp': 'Sécurité',
+  'dashboard.billing.title': 'Facturation',
+  'dashboard.billing.success_title': 'Paiement réussi',
 
   // Home/Landing
   'home.hero.title': 'Intelligence des données canadiennes',
