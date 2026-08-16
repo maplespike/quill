@@ -63,6 +63,7 @@ import { auditQueryHandler } from './routes/audit.js';
 import { auditGetHandler } from './routes/audit-get.js';
 import { securityAuditSummaryHandler } from './routes/security-audit.js';
 import { usageHandler } from './routes/usage.js';
+import { llmsTxtHandler, llmsFullTxtHandler } from './routes/llms.js';
 import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
@@ -218,6 +219,9 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },
   { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: withRouteCache(openApiHandler, 3600) },
   { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: withRouteCache(openApiHandler, 3600) }, // Root redirect to spec
+  // AI-visibility discovery surfaces (llms.txt standard) — public, machine-consumed
+  { pattern: /^\/v1\/llms\.txt\/?$/, method: 'GET', params: [], handler: withRouteCache(llmsTxtHandler, 3600) },
+  { pattern: /^\/v1\/llms-full\.txt\/?$/, method: 'GET', params: [], handler: withRouteCache(llmsFullTxtHandler, 3600) },
 
   // --- Auth routes ---
   // Generic OAuth
@@ -559,6 +563,7 @@ export async function handleRequest(
     // provenance, no payloads) exists so the ecosystem can find something to
     // verify. Same trust-primitive rationale.
     || path.startsWith('/v1/claims/latest')
+    || path.startsWith('/v1/llms')
     || path.startsWith('/v1/auth/')
     || path.startsWith('/v1/register')
     || path.startsWith('/v1/verify/')
