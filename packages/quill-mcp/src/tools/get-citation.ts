@@ -73,7 +73,7 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const cleanHash = rawHash.toLowerCase().replace(/^sha256[:\-]/, '');
+  const cleanHash = rawHash.toLowerCase().replace(/^sha256[:-]/, '');
   if (!/^[a-f0-9]{64}$/.test(cleanHash)) {
     return {
       content: {

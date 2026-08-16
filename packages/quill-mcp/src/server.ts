@@ -377,7 +377,7 @@ export class McpServer {
       // quill://citations/{hash}
       const citationMatch = uri.match(/^quill:\/\/citations\/(.+)$/);
       if (citationMatch) {
-        const hash = citationMatch[1].toLowerCase().replace(/^sha256[:\-]/, '');
+        const hash = citationMatch[1].toLowerCase().replace(/^sha256[:-]/, '');
         const stored = citationStore.get(hash);
         if (!stored) {
           send(this.error(id ?? null, -32602, `Citation not found: ${hash}`));

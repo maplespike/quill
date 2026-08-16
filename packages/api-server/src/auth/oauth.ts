@@ -222,12 +222,12 @@ export async function loginWithOAuth(
 
   // Create or get user (adapt OAuth profile to existing createUser interface)
   const userId = `${profile.provider}:${profile.providerId}`;
-  let user = getUser(userId);
+  const user = getUser(userId);
 
   let isNewUser = false;
   if (!user) {
     isNewUser = true;
-    user = createUser({
+    createUser({
       id: Number(profile.providerId) || Date.now(),
       login: profile.name ?? profile.providerId,
       name: profile.name,

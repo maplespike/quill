@@ -106,7 +106,7 @@ export async function verifyAndLogin(
       signature: req.signature as `0x${string}`,
     });
   } catch (err) {
-    throw new Error(`Signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    throw new Error(`Signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`, { cause: err });
   }
 
   if (!isValid) {
