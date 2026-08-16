@@ -311,7 +311,7 @@ export const postVerifyClaimHandler: RouteHandler = async (request, ctx) => {
   if (contentLength > 1024 * 1024) {
     return jsonResponse(buildError('INVALID_BODY', 'Request body exceeds the 1 MiB limit', ctx), 413);
   }
-  let body: { data?: unknown; sha256?: string } = {};
+  let body: { data?: unknown; sha256?: string };
   try {
     body = await request.json() as { data?: unknown; sha256?: string };
   } catch {
@@ -325,7 +325,7 @@ export const postVerifyClaimHandler: RouteHandler = async (request, ctx) => {
   try {
     const serialized = canonicalJson(body.data);
     const recomputed = await computeHash(serialized, 'sha256');
-    const claimed = (body.sha256 ?? '').toLowerCase().replace(/^sha256[:\-]/, '');
+    const claimed = (body.sha256 ?? '').toLowerCase().replace(/^sha256[:-]/, '');
     const matches = claimed.length === 64 ? recomputed === claimed : null;
     return jsonResponse(buildSuccess({
       verified: matches === true,

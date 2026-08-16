@@ -50,7 +50,7 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const cleanHash = rawHash.toLowerCase().replace(/^sha256[:\-]/, '');
+  const cleanHash = rawHash.toLowerCase().replace(/^sha256[:-]/, '');
 
   // 1. If data is provided, recompute and compare locally — this is the
   //    strongest check (does not trust Quill's stored record).

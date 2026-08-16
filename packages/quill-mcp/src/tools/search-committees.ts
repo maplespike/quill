@@ -65,8 +65,8 @@ export const handler: ToolHandler = async (args) => {
   if (chamber === 'house' || chamber === 'all') sourceKeys.push('hoc');
   if (chamber === 'senate' || chamber === 'all') sourceKeys.push('senate');
 
-  let results: Record<string, unknown>[] = [];
-  let total = 0;
+  let results: Record<string, unknown>[];
+  let total: number;
   try {
     const result = await fetchCommittees(query, limit);
     results = result.results;

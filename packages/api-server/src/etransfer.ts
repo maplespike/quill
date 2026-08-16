@@ -91,17 +91,12 @@ export async function processTransfer(transfer: ETransferNotification): Promise<
     `[etransfer] Reconciling order ${transfer.orderId}: ` +
       `$${(transfer.amountCents / 100).toFixed(2)} CAD (ref ${transfer.referenceNumber})`,
   );
-  let planId = 'free';
-  let requests = 1000;
-  if (transfer.amountCents >= 19900) {
-    planId = 'business';
-    requests = 500_000;
-  } else if (transfer.amountCents >= 4900) {
-    planId = 'pro';
-    requests = 100_000;
-  } else {
-    requests = Math.floor((transfer.amountCents / 4900) * 100_000);
-  }
+  const planId = transfer.amountCents >= 19900
+    ? 'business'
+    : transfer.amountCents >= 4900 ? 'pro' : 'free';
+  const requests = transfer.amountCents >= 19900
+    ? 500_000
+    : transfer.amountCents >= 4900 ? 100_000 : Math.floor((transfer.amountCents / 4900) * 100_000);
   console.log(`[etransfer] Would upgrade ${transfer.orderId} to ${planId} (${requests} requests)`);
   return true;
 }

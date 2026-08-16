@@ -671,7 +671,7 @@ export async function handleRequest(
   const creditsCharged = tier === 'free' ? 0 : 1;
 
   // Rate limit (skip for health, data quality, and spec)
-  let rateCheck: { allowed: boolean; remaining: number; resetTime: number; reason?: 'burst' | 'daily' | 'monthly' } | null = null;
+  let rateCheck: { allowed: boolean; remaining: number; resetTime: number; reason?: 'burst' | 'daily' | 'monthly' } | null;
   if (!path.startsWith('/v1/health') && path !== '/v1/data/quality' && route.handler !== openApiHandler) {
     const isAuthenticated = tenant !== null;
 
