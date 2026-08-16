@@ -34,6 +34,7 @@ import {
   scoreToDbRecord,
   scoreToLevel,
 } from '../index.ts';
+import { buildClaimBundle } from '../../claims/index.ts';
 
 /* ================================================================== */
 /*  Types & Helpers                                                    */
@@ -498,5 +499,50 @@ describe('edge cases', () => {
   it('batch freshness with no sources returns empty array', () => {
     const results = scoreFreshnessBatch([]);
     assert.deepEqual(results, []);
+  });
+});
+
+/* ================================================================== */
+/*  Claim-bundle integration (WS-1e)                                   */
+/* ================================================================== */
+
+describe('buildClaimBundle quality integration', () => {
+  it('attaches a bounded provenance score derived from bundle fields', async () => {
+    const bundle = await buildClaimBundle({
+      claim: 'Unemployment rate was 6.5% in Jan 2025',
+      value: { unemploymentRate: 6.5, month: '2025-01' },
+      sourceName: 'Statistics Canada',
+      sourceUrl: 'https://www.statcan.gc.ca',
+      retrievedAt: '2025-02-01T00:00:00.000Z',
+      license: 'Open Government Licence – Canada',
+    });
+
+    assert.ok(bundle.quality, 'quality should be present on built bundles');
+    assert.ok(bundle.quality.score >= 0 && bundle.quality.score <= 1, 'score must be in [0, 1]');
+    assert.ok(bundle.quality.sourceTrustScore >= 0 && bundle.quality.sourceTrustScore <= 100);
+    assert.equal(bundle.quality.hashChainVerified, true, 'hash was just recomputed at build time');
+    assert.ok(bundle.quality.citationVerified, 'full citation fields were supplied');
+    assert.ok(bundle.quality.score > 0.5, 'trusted gov source + full citation should score high');
+  });
+
+  it('scores unknown sources lower than trusted ones', async () => {
+    const [gov, unknown] = await Promise.all([
+      buildClaimBundle({
+        claim: 'c1',
+        value: { a: 1 },
+        sourceName: 'Statistics Canada',
+        sourceUrl: 'https://www.statcan.gc.ca',
+      }),
+      buildClaimBundle({
+        claim: 'c2',
+        value: { b: 2 },
+        sourceName: 'random-blog.example',
+        sourceUrl: '',
+      }),
+    ]);
+    assert.ok(
+      (gov.quality?.score ?? 0) > (unknown.quality?.score ?? 1),
+      'trusted sources should outscore unknown ones',
+    );
   });
 });

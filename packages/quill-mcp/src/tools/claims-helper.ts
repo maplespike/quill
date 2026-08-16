@@ -9,7 +9,7 @@
  */
 
 import { buildClaimBundle, citationStore } from '@maplespike/pipeline-core';
-import type { ClaimBundle } from '@maplespike/pipeline-core';
+import type { ClaimBundle, ProvenanceScore } from '@maplespike/pipeline-core';
 
 export interface Claimable {
   claim: string;
@@ -29,6 +29,8 @@ export interface PublicClaim {
   license: string;
   transformations: string[];
   merkleRoot?: string;
+  /** Data-quality provenance score (0–1) + level, from the quality scorer */
+  quality?: ProvenanceScore;
 }
 
 function toPublicClaim(b: ClaimBundle): PublicClaim {
@@ -41,6 +43,7 @@ function toPublicClaim(b: ClaimBundle): PublicClaim {
     license: b.license ?? '',
     transformations: b.transformations ?? [],
     merkleRoot: b.merkleRoot,
+    quality: b.quality,
   };
 }
 
