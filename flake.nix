@@ -275,10 +275,10 @@
       saas-manifests = saasManifests {
         inherit pkgs;
         registry = "nexus:5000";
-        tag = "fe9c1e54";
-        apiTag = "fe9c1e54";
-        mcpTag = "fe9c1e54";
-        portalTag = "fe9c1e54";
+        tag = "52ef870";
+        apiTag = "52ef870";
+        mcpTag = "52ef870";
+        portalTag = "52ef870";
         domain = "maplespike.ca";
       };
 
@@ -407,7 +407,7 @@
           kubectl rollout status deployment/quill-api -n maplespike --timeout=120s || true
           kubectl rollout status deployment/quill-portal -n maplespike --timeout=120s || true
           kubectl rollout status deployment/quill-mcp -n maplespike --timeout=120s || true
-          echo "✓ SaaS deploy complete — https://quill.$MAPLESPIKE_DOMAIN"
+          echo "✓ SaaS deploy complete — https://quill.''${MAPLESPIKE_DOMAIN:-maplespike.ca}"
         ''}/bin/quill-deploy-saas";
       };
 
