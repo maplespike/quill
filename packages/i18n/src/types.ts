@@ -96,6 +96,7 @@ export type TranslationKeys =
   | 'billing.cta.get_started' | 'billing.cta.contact'
   | 'billing.monthly' | 'billing.yearly' | 'billing.save'
   | 'billing.faq.title' | 'billing.credits_remaining'
+  | 'dashboard.billing.title' | 'dashboard.billing.success_title'
 
   // Extraction
   | 'extraction.title'
@@ -254,7 +255,11 @@ export type TranslationMap = Record<TranslationKeys, string>;
 
 export interface AppI18n {
   lang: Locale;
-  t: (key: TranslationKeys, fallbackLang?: Locale) => string;
+  /**
+   * Translate a key, optionally interpolating `{param}` placeholders
+   * (e.g. t('privacy.last_updated', { date: 'July 1, 2026' })).
+   */
+  t: (key: TranslationKeys, params?: Record<string, string | number>) => string;
   formatCurrency: (amount: number) => string;
   formatDate: (date: Date | string, style?: 'short' | 'long') => string;
   formatNumber: (n: number, opts?: Intl.NumberFormatOptions) => string;

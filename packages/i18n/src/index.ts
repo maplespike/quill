@@ -15,11 +15,22 @@ const STRING_MAPS: Record<Locale, Partial<Record<TranslationKeys, string>>> = {
 };
 
 /**
+ * Replace `{param}` placeholders in a translation template.
+ * Unknown placeholders are left as-is.
+ */
+function interpolate(template: string, params: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (m, k: string) =>
+    k in params ? String(params[k]) : m,
+  );
+}
+
+/**
  * Create an AppI18n instance for a given locale.
  *
  * @example
  * const i18n = createI18n('fr');
  * i18n.t('nav.home')        // "Accueil"
+ * i18n.t('privacy.last_updated', { date: '1 juillet 2026' })  // "Dernière mise à jour : …"
  * i18n.formatCurrency(50)   // "50 $ CA"
  */
 export function createI18n(lang: Locale): AppI18n {
@@ -28,18 +39,9 @@ export function createI18n(lang: Locale): AppI18n {
   return {
     lang,
 
-    t(key: TranslationKeys, fallbackLang?: Locale): string {
-      const str = map[key];
-      if (str !== undefined) return str;
-
-      // Try fallback locale
-      if (fallbackLang && fallbackLang !== lang) {
-        const fallback = STRING_MAPS[fallbackLang]?.[key];
-        if (fallback !== undefined) return fallback;
-      }
-
-      // Ultimate fallback: English
-      return en[key] ?? key;
+    t(key: TranslationKeys, params?: Record<string, string | number>): string {
+      const str = map[key] ?? en[key] ?? key;
+      return params ? interpolate(str, params) : str;
     },
 
     formatCurrency(amount: number): string {
