@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
 
 const platforms: { name: string; icon: string; description: Bi; setup: string }[] = [
   {
@@ -125,8 +126,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
 <BaseLayout
   title={i18n.t('agents.title')}
   description={t(
-    "Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, 174 tools, every major AI platform supported.",
-    "Connectez n'importe quel chatbot IA aux données gouvernementales canadiennes de MapleSpike. Une config MCP, 174 outils, toutes les grandes plateformes IA prises en charge.",
+    `Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, ${statsData.tools} tools, every major AI platform supported.`,
+    `Connectez n'importe quel chatbot IA aux données gouvernementales canadiennes de MapleSpike. Une config MCP, ${statsData.tools} outils, toutes les grandes plateformes IA prises en charge.`,
   )}
   ogImage="/og-image-agents.png"
   lang={lang}
@@ -141,8 +142,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           {t(
-            "One config file. 174 tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP — instantly gains access to all Canadian government data: committees, lobbying, court cases, regulations, budgets, and more.",
-            "Un fichier de configuration. 174 outils. Votre chatbot IA — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, ou tout ce qui parle MCP — accède instantanément à toutes les données gouvernementales canadiennes : comités, lobbyisme, décisions judiciaires, règlements, budgets, et plus.",
+            `One config file. ${statsData.tools} tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP — instantly gains access to all Canadian government data: committees, lobbying, court cases, regulations, budgets, and more.`,
+            `Un fichier de configuration. ${statsData.tools} outils. Votre chatbot IA — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, ou tout ce qui parle MCP — accède instantanément à toutes les données gouvernementales canadiennes : comités, lobbyisme, décisions judiciaires, règlements, budgets, et plus.`,
           )}
         </p>
       </div>
@@ -212,8 +213,9 @@ const tb = (bi: Bi) => pickBi(lang, bi);
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
         {t(
-          "Free tier includes access to all 174 MCP tools. No credit card required. Your chatbot will be answering questions about Canadian government data in under 60 seconds.",
-          "Le forfait gratuit comprend l'accès aux 174 outils MCP. Sans carte de crédit. Votre chatbot répondra à des questions sur les données gouvernementales canadiennes en moins de 60 secondes.",
+          `Free tier includes access to all ${statsData.tools} MCP tools. No credit card required. Your chatbot will be answering questions about Canadian government data in under 60 seconds.`,
+          `Le forfait gratuit comprend l'accès aux ${statsData.tools} outils MCP. Sans carte de crédit. Votre chatbot répondra à des questions sur les données gouvernementales canadiennes en moins de 60 secondes.`,
+          
         )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">

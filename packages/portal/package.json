@@ -22,7 +22,9 @@
     "gen:pipeline": "timeout 60 node scripts/generate-pipeline-data.mjs || true",
     "gen:icons": "node scripts/gen-icons.mjs",
     "gen:og-image": "node scripts/gen-og-image.mjs",
-    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && timeout 60 node scripts/generate-pipeline-data.mjs || true && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs"
+    "gen:plans": "node scripts/generate-plans.mjs",
+    "smoke:dist": "node scripts/smoke-test-dist.mjs",
+    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-plans.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && timeout 60 node scripts/generate-pipeline-data.mjs || true && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.0",

@@ -19,7 +19,15 @@ const targetLang = currentLang === 'en' ? 'fr' : 'en';
 // French subpages now exist via fr/[...page].astro, so FR targets the same
 // page under /fr (or /fr at root), and EN targets /en at root or the bare
 // English path on subpages. Never navigates to a 404.
-const cleanPath = stripLangPrefix(currentPath);
+// Normalize the build-time `.html` suffix the same way BaseLayout does for
+// canonical URLs (build.format: 'file' makes Astro.url.pathname carry e.g.
+// `/pricing.html` or `/index.html` at build). Without this, the toggle
+// targets /fr/index.html (404 — fr.html lives at the root) on the home page
+// and /fr.html (self-loop) on /fr in production builds; dev is fine because
+// the dev server reports extensionless paths.
+const cleanPath = stripLangPrefix(
+  currentPath.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/+$/, '') || '/'
+);
 const isRoot = cleanPath === '/';
 const targetUrl = targetLang === 'fr'
   ? (isRoot ? '/fr' : `/fr${cleanPath}`)

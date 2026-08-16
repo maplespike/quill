@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import LandingBody from "@/components/LandingBody.astro";
+import statsData from "@/data/stats.json";
 
 export function getStaticPaths() {
   return [
@@ -18,8 +19,8 @@ const isFr = locale === "fr";
     ? "Quill · Les données publiques du Canada, à portée de toute IA"
     : "Quill · Canada's open data, on tap for any AI"}
   description={isFr
-    ? "Connectez n'importe quel chatbot IA à toutes les données gouvernementales canadiennes — 174 outils MCP, cités et vérifiables. Une ligne de configuration."
-    : "Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config."}
+    ? `Connectez n'importe quel chatbot IA à toutes les données gouvernementales canadiennes — ${statsData.tools} outils MCP, cités et vérifiables. Une ligne de configuration.`
+    : `Connect any AI chatbot to all Canadian government data — ${statsData.tools} MCP tools, cited and verifiable. One line of config.`}
   lang={locale as "en" | "fr"}
 >
   <LandingBody lang={locale} />

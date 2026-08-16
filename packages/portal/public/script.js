@@ -156,6 +156,11 @@
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
     // Legacy emoji buttons (class .theme-toggle).
     document.querySelectorAll('.theme-toggle').forEach(btn => {
+      // dataset guard: astro:page-load fires on initial load AND every SPA
+      // navigation; without it each navigation stacks another listener. The
+      // header is re-rendered per navigation so a fresh node re-binds once.
+      if (btn.dataset.themeBound) return;
+      btn.dataset.themeBound = '1';
       btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
       btn.addEventListener('click', toggleTheme);
     });
@@ -163,7 +168,8 @@
     // the .dark class — dark:hidden / hidden dark:block). Wire the click
     // WITHOUT clobbering its innerHTML.
     const navToggle = document.getElementById('theme-toggle');
-    if (navToggle) {
+    if (navToggle && !navToggle.dataset.themeBound) {
+      navToggle.dataset.themeBound = '1';
       navToggle.addEventListener('click', toggleTheme);
     }
   }
@@ -255,23 +261,37 @@
   // ── Scroll-Reveal (IntersectionObserver) ─────────────────────
   // Supports both [data-reveal] attr (cleaner) and .fade-in classes (legacy)
 
+  // One persistent observer, reused across SPA navigations. Handles the
+  // legacy `[data-reveal]` / `.fade-in*` hooks AND `.reveal-on-scroll`
+  // (pricing, dashboard, explorer, …) so no section stays invisible after a
+  // ClientRouter navigation. Already-revealed elements are skipped, making
+  // re-runs idempotent.
+  let revealObserver = null;
   function setupScrollReveal() {
     if (!('IntersectionObserver' in window)) return;
-    const attrEls = document.querySelectorAll('[data-reveal]');
-    const classEls = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
-    if (!attrEls.length && !classEls.length) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add(entry.target.hasAttribute('data-reveal') ? 'revealed' : 'visible');
-          observer.unobserve(entry.target);
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            if (el.classList.contains('reveal-on-scroll') || el.classList.contains('clip-reveal')) {
+              el.classList.add('is-visible');
+            } else {
+              el.classList.add(el.hasAttribute('data-reveal') ? 'revealed' : 'visible');
+            }
+            revealObserver.unobserve(el);
+          }
         }
-      }
-    }, { threshold: 0.15 });
-
-    for (const el of attrEls) observer.observe(el);
-    for (const el of classEls) observer.observe(el);
+      }, { threshold: 0.15 });
+    }
+    const attrEls = document.querySelectorAll('[data-reveal]');
+    const classEls = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right, .reveal-on-scroll, .clip-reveal');
+    for (const el of attrEls) {
+      if (!el.classList.contains('revealed')) revealObserver.observe(el);
+    }
+    for (const el of classEls) {
+      if (!el.classList.contains('is-visible') && !el.classList.contains('visible')) revealObserver.observe(el);
+    }
   }
 
   // ── Stat Counter Animation ───────────────────────────────────
@@ -730,6 +750,15 @@
     setupPricingToggle();
     setupSdkTabs();
     setupCodeDemo();
+
+    // Astro ClientRouter re-renders the header + page sections on every
+    // navigation, which orphans handlers bound once at init (theme toggle
+    // died after the first click-through). Re-run the guarded setups on
+    // every astro:page-load; dataset markers keep bindings single-per-node.
+    document.addEventListener('astro:page-load', () => {
+      setupThemeToggle();
+      setupScrollReveal();
+    });
 
     console.log('[Init] Complete. Locale:', currentLocale);
   }

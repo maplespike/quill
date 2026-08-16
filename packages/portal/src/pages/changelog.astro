@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import ChangelogAccordion from "@/components/ChangelogAccordion";
 import { createI18n } from "@maplespike/i18n";
 import { pick } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -12,8 +13,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 <BaseLayout
   title={i18n.t('changelog.title')}
   description={t(
-    "Complete changelog for MapleSpike — 267 commits, 5 releases, 206 ingestion modules, 174 MCP tools. Every change tracked from April 2026.",
-    "Journal des modifications complet de MapleSpike — 267 validations, 5 versions, 206 modules d'ingestion, 174 outils MCP. Chaque changement suivi depuis avril 2026.",
+    `Complete changelog for MapleSpike — 267 commits, 5 releases, ${statsData.modules} ingestion modules, ${statsData.tools} MCP tools. Every change tracked from April 2026.`,
+    `Journal des modifications complet de MapleSpike — 267 validations, 5 versions, ${statsData.modules} modules d'ingestion, ${statsData.tools} outils MCP. Chaque changement suivi depuis avril 2026.`,
   )}
   lang={lang}
 >
@@ -49,8 +50,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
         {t(
-          "Free tier includes 1,000 API calls per month and full access to all 174 MCP tools. No credit card required.",
-          "Le palier gratuit inclut 1 000 appels API par mois et un accès complet aux 174 outils MCP. Aucune carte de crédit requise.",
+          `Free tier includes 1,000 API calls per month and full access to all ${statsData.tools} MCP tools. No credit card required.`,
+          `Le palier gratuit inclut 1 000 appels API par mois et un accès complet aux ${statsData.tools} outils MCP. Aucune carte de crédit requise.`,
+          
         )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">

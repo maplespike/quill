@@ -10,6 +10,7 @@ import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescri
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
 import { pick } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -101,7 +102,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                 <span class="check-icon text-lg">⬜</span>
                 <div>
                   <div class="font-medium text-sm">{t("Explore the data catalog", "Explorez le catalogue de données")}</div>
-                  <div class="text-xs text-muted-foreground">{t("Browse 206 modules covering all Canadian government data.", "Parcourez les 206 modules couvrant toutes les données gouvernementales canadiennes.")}</div>
+                  <div class="text-xs text-muted-foreground">{t(`Browse ${statsData.modules} modules covering all Canadian government data.`, `Parcourez les ${statsData.modules} modules couvrant toutes les données gouvernementales canadiennes.`)}</div>
                 </div>
               </div>
             </div>
@@ -463,6 +464,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       const visibleEl = document.getElementById("api-key-visible");
 
       document.getElementById("toggle-key-visibility")?.addEventListener("click", function () {
+        if (!maskedEl || !visibleEl) return;
         const hidden = maskedEl.style.display !== "none";
         maskedEl.style.display = hidden ? "none" : "";
         visibleEl.style.display = hidden ? "" : "none";
@@ -494,14 +496,17 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       document.getElementById("sign-out-btn")?.addEventListener("click", function () {
         document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         localStorage.removeItem("quill-api-key");
-        document.getElementById("auth-unsigned").style.display = "";
-        document.getElementById("auth-signed").style.display = "none";
-        document.getElementById("auth-status-badge").textContent = L("Not signed in", "Non connecté");
+        const unsigned = document.getElementById("auth-unsigned") as HTMLElement | null;
+        const signed = document.getElementById("auth-signed") as HTMLElement | null;
+        const badge = document.getElementById("auth-status-badge");
+        if (unsigned) unsigned.style.display = "";
+        if (signed) signed.style.display = "none";
+        if (badge) badge.textContent = L("Not signed in", "Non connecté");
         showToast(L("Signed out", "Déconnecté"), "success");
       });
 
       // ── Toast ──
-      function showToast(msg, type) {
+      function showToast(msg: string, type: "success" | "error") {
         var toast = document.getElementById("toast");
         if (!toast) {
           toast = document.createElement("div");
@@ -510,16 +515,17 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
             "fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-md text-sm font-mono z-50 transition-opacity duration-300 pointer-events-none";
           document.body.appendChild(toast);
         }
-        toast.textContent = msg;
-        toast.className =
+        const toastEl = toast;
+        toastEl.textContent = msg;
+        toastEl.className =
           "fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-md text-sm font-mono z-50 transition-opacity duration-300 pointer-events-none ";
-        toast.className +=
+        toastEl.className +=
           type === "success"
             ? "bg-green-500/10 text-green-600 border border-green-500/20"
             : "bg-destructive/10 text-destructive border border-destructive/20";
-        toast.style.opacity = "1";
+        toastEl.style.opacity = "1";
         setTimeout(function () {
-          toast.style.opacity = "0";
+          toastEl.style.opacity = "0";
         }, 3000);
       }
 
@@ -527,7 +533,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       async function fetchUsage() {
         try {
           const apiKey = localStorage.getItem("quill-api-key");
-          const headers = {};
+          const headers: Record<string, string> = {};
           if (apiKey) headers["X-API-Key"] = apiKey;
           const resp = await fetch(base + "/v1/me", { headers });
           if (!resp.ok) return;
@@ -538,24 +544,24 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
             const daily = usage.daily || {};
             const monthly = usage.monthly || {};
 
-            document.getElementById("usage-daily").textContent = daily.calls ?? 0;
-            document.getElementById("usage-monthly").textContent = monthly.calls ?? 0;
+            document.getElementById("usage-daily")!.textContent = daily.calls ?? 0;
+            document.getElementById("usage-monthly")!.textContent = monthly.calls ?? 0;
 
             const monthlyLimit = monthly.limit || 1000;
             const dailyLimit = daily.limit || 1000;
-            document.getElementById("usage-monthly-limit").textContent = monthlyLimit.toLocaleString();
-            document.getElementById("usage-daily-limit").textContent = dailyLimit.toLocaleString();
+            document.getElementById("usage-monthly-limit")!.textContent = monthlyLimit.toLocaleString();
+            document.getElementById("usage-daily-limit")!.textContent = dailyLimit.toLocaleString();
 
             const tier = tenant.tier || "free";
-            document.getElementById("usage-tier").textContent =
+            document.getElementById("usage-tier")!.textContent =
               tier === "free" ? L("Public (Free)", "Public (gratuit)") : tier.charAt(0).toUpperCase() + tier.slice(1);
-            document.getElementById("billing-remaining").textContent =
+            document.getElementById("billing-remaining")!.textContent =
               monthly.remaining ?? (monthlyLimit - (monthly.calls || 0)).toLocaleString();
 
             const dailyPct = Math.min(((daily.calls || 0) / (dailyLimit || 1)) * 100, 100);
             const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
-            document.getElementById("bar-daily").style.width = dailyPct + "%";
-            document.getElementById("bar-monthly").style.width = monthlyPct + "%";
+            document.getElementById("bar-daily")!.style.width = dailyPct + "%";
+            document.getElementById("bar-monthly")!.style.width = monthlyPct + "%";
           }
         } catch (_) {
           // API unavailable, use defaults
@@ -567,12 +573,15 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
         const apiKey = localStorage.getItem("quill-api-key");
         const steps = document.querySelectorAll(".checklist-step");
         if (steps.length > 0 && apiKey) {
-          const first = steps[0];
+          const first = steps[0] as HTMLElement;
           first.setAttribute("data-done", "true");
-          first.querySelector(".check-icon").textContent = "✅";
+          const icon = first.querySelector(".check-icon");
+          if (icon) icon.textContent = "✅";
           first.style.opacity = "1";
-          first.querySelector(".border-l-primary").className =
-            "flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-green-500";
+          const border = first.querySelector(".border-l-primary");
+          if (border)
+            border.className =
+              "flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-green-500";
         }
       }
 
@@ -583,12 +592,14 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       const keysClose = document.getElementById("api-keys-close");
 
       function openKeysPanel() {
+        if (!keysPanel || !keysOverlay) return;
         keysPanel.classList.remove("hidden");
         keysOverlay.classList.remove("hidden");
         document.body.style.overflow = "hidden";
       }
 
       function closeKeysPanel() {
+        if (!keysPanel || !keysOverlay) return;
         keysPanel.classList.add("hidden");
         keysOverlay.classList.add("hidden");
         document.body.style.overflow = "";
