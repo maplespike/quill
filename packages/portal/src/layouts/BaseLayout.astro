@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
+import statsData from "@/data/stats.json";
 
 export interface Props {
   title: string;
@@ -17,7 +18,9 @@ export interface Props {
 // default `description` get a brand-aligned meta description automatically.
 const {
   title,
-  description = "MapleSpike: open-source self-sovereign infrastructure for Canada's public record. 208 modules · 165 MCP tools. Forkable. Reproducible end to end.",
+  // Module/tool counts come from src/data/stats.json (single source — see
+  // scripts/generate-plans.mjs). Never hardcode them in descriptions.
+  description = `MapleSpike: open-source self-sovereign infrastructure for Canada's public record. ${statsData.modules} modules · ${statsData.tools} MCP tools. Forkable. Reproducible end to end.`,
   ogImage = '/og-image.png',
   lang = "en",
 } = Astro.props;
@@ -53,7 +56,7 @@ const ogImageUrl = lang === 'fr' ? ogImage.replace(/\.png$/, '-fr.png') : ogImag
 // One French description for meta + og + twitter (pages still pass English
 // descriptions; the French surface uses a single brand-aligned string).
 const descriptionResolved = lang === 'fr'
-  ? "Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes — comités, lobbyisme, décisions judiciaires, règlements, et plus. 174+ outils MCP, offre gratuite disponible."
+  ? `Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes — comités, lobbyisme, décisions judiciaires, règlements, et plus. ${statsData.tools}+ outils MCP, offre gratuite disponible.`
   : description;
 
 const navLinks = [
@@ -351,7 +354,7 @@ const isActive = (match: string) =>
                   rel="noopener noreferrer"
                   class="transition-colors hover:text-foreground inline-flex items-center gap-1.5"
                 >
-                  Brand story
+                  {lang === 'fr' ? 'Notre histoire' : 'Brand story'}
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M7 17 17 7" />
                     <path d="M7 7h10v10" />
@@ -404,6 +407,12 @@ const isActive = (match: string) =>
           var iconOpen = document.getElementById("menu-icon-open");
           var iconClose = document.getElementById("menu-icon-close");
           if (!toggle || !nav) return;
+          // Dedup: astro:page-load fires on initial load AND every SPA
+          // navigation. Without a marker, each navigation stacks another
+          // listener on the same button — one click then toggles `hidden`
+          // twice, a visible no-op (the "hamburger doesn't work" bug).
+          if (toggle.dataset.menuBound) return;
+          toggle.dataset.menuBound = "1";
           toggle.addEventListener("click", function () {
             var isHidden = nav.classList.contains("hidden");
             nav.classList.toggle("hidden");
@@ -508,7 +517,7 @@ const isActive = (match: string) =>
   register({
     name: 'searchGovernmentData',
     title: 'Search Government Data',
-    description: 'Search across 206 Canadian government datasets — federal, provincial, territorial, and municipal sources including Statistics Canada, open.canada.ca, and provincial portals.',
+    description: 'Search across {statsData.modules} Canadian government datasets — federal, provincial, territorial, and municipal sources including Statistics Canada, open.canada.ca, and provincial portals.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -530,7 +539,7 @@ const isActive = (match: string) =>
   register({
     name: 'askMapleSpike',
     title: 'Ask MapleSpike AI',
-    description: 'Ask a natural language question about Canadian government data, policy, legislation, or statistics. Returns a cited answer drawn from 206 data modules.',
+    description: 'Ask a natural language question about Canadian government data, policy, legislation, or statistics. Returns a cited answer drawn from {statsData.modules} data modules.',
     inputSchema: { type: 'object', properties: { question: { type: 'string', description: 'Your question about Canadian government data or policy' } }, required: ['question'] },
     annotations: { readOnlyHint: true },
     execute: async function (input) {
@@ -564,7 +573,7 @@ const isActive = (match: string) =>
   register({
     name: 'listDataModules',
     title: 'List Data Modules',
-    description: 'List all 206 Canadian government data modules available in MapleSpike, organized by category and jurisdiction.',
+    description: 'List all {statsData.modules} Canadian government data modules available in MapleSpike, organized by category and jurisdiction.',
     inputSchema: { type: 'object', properties: { category: { type: 'string', description: 'Filter by category', enum: ['federal', 'provincial', 'territorial', 'municipal', 'health', 'education', 'economy', 'environment', 'immigration', 'transport'] } }, required: [] },
     annotations: { readOnlyHint: true },
     execute: async function (input) {

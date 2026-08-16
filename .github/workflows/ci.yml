@@ -47,6 +47,17 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
+      # Design-logic invariants that historically broke only in prod builds
+      # (lang-toggle .html targets, dashboard tab, reveal-on-scroll observer,
+      # plans.json drift). Fails the build when dist regresses.
+      - name: Portal prod-build smoke test
+        run: node packages/portal/scripts/smoke-test-dist.mjs
+
+      # Secret key-name drift between sops-sync-k8s.sh and deployment
+      # secretKeyRefs caused a prod crash-loop incident (2026-08-15).
+      - name: Secret key lockstep check
+        run: bash scripts/check-secret-lockstep.sh
+
       - name: Run api-server unit tests
         run: pnpm --filter @maplespike/api-server test:unit
 

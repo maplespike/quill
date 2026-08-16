@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import statsData from "@/data/stats.json";
 
 interface Citation {
   source: string;
@@ -161,7 +162,7 @@ export default function AgentChat({ lang: propLang }: { lang?: Locale }) {
                 Ask anything about Canadian government
               </h3>
               <p className="text-sm text-muted-foreground max-w-md mb-6">
-                Questions answered using MapleSpike's 206 data modules. Every
+                Questions answered using MapleSpike's {statsData.modules} data modules. Every
                 response includes citations for verification.
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
