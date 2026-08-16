@@ -175,11 +175,12 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       "use strict";
 
       const sendBtn = document.getElementById("send-request-btn");
-      const endpointInput = document.getElementById("api-endpoint");
-      const apiKeyInput = document.getElementById("api-key-input");
-      const responseBody = document.getElementById("response-body");
-      const statusCode = document.getElementById("status-code");
-      const responseTime = document.getElementById("response-time");
+      const endpointInput = document.getElementById("api-endpoint") as HTMLInputElement | null;
+      const apiKeyInput = document.getElementById("api-key-input") as HTMLInputElement | null;
+      // These four are rendered unconditionally by this page's template.
+      const responseBody = document.getElementById("response-body")!;
+      const statusCode = document.getElementById("status-code")!;
+      const responseTime = document.getElementById("response-time")!;
       const methodBadge = document.getElementById("method-badge");
 
       // Restore saved API key
@@ -187,26 +188,26 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
 
       if (apiKeyInput) {
-        apiKeyInput.addEventListener("input", function () {
-          localStorage.setItem("quill-api-key", this.value);
+        apiKeyInput.addEventListener("input", () => {
+          if (apiKeyInput) localStorage.setItem("quill-api-key", apiKeyInput.value);
         });
       }
 
       // Tab switching
-      document.querySelectorAll("[data-tab]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var tab = this.getAttribute("data-tab");
-          document.querySelectorAll("[data-tab]").forEach(function (b) {
+      document.querySelectorAll("[data-tab]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tab = btn.getAttribute("data-tab");
+          document.querySelectorAll("[data-tab]").forEach((b) => {
             b.className =
               "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
               (b === btn
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground");
           });
-          document.querySelectorAll(".tab-panel").forEach(function (p) {
+          document.querySelectorAll(".tab-panel").forEach((p) => {
             p.classList.toggle("hidden", p.getAttribute("data-tab") !== tab);
           });
-          if (methodBadge) methodBadge.textContent = tab.toUpperCase();
+          if (methodBadge && tab) methodBadge.textContent = tab.toUpperCase();
         });
       });
 
@@ -229,12 +230,12 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
           const start = performance.now();
 
           try {
-            const headers = { "Content-Type": "application/json" };
+            const headers: Record<string, string> = { "Content-Type": "application/json" };
             if (key) headers["Authorization"] = "Bearer " + key;
 
-            const options = { method: isPost ? "POST" : "GET", headers };
+            const options: RequestInit = { method: isPost ? "POST" : "GET", headers };
             if (isPost) {
-              const bodyEl = document.getElementById("request-body");
+              const bodyEl = document.getElementById("request-body") as HTMLTextAreaElement | null;
               options.body = bodyEl ? bodyEl.value : "{}";
             }
 
@@ -259,28 +260,29 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             responseTime.textContent = elapsed + "ms";
             responseTime.classList.remove("hidden");
           } catch (e) {
-            responseBody.innerHTML = `<code class="text-destructive">Error: ${escapeHtml(e.message)}</code>`;
+            const msg = e instanceof Error ? e.message : String(e);
+            responseBody.innerHTML = `<code class="text-destructive">Error: ${escapeHtml(msg)}</code>`;
           }
         });
       }
 
       // Copy sample requests
-      document.querySelectorAll(".copy-sample").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          const code = this.getAttribute("data-code");
+      document.querySelectorAll(".copy-sample").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn.getAttribute("data-code");
           if (code) {
-            navigator.clipboard.writeText(code).then(function () {
-              const orig = this.textContent;
-              this.textContent = "Copied!";
+            navigator.clipboard.writeText(code).then(() => {
+              const orig = btn.textContent;
+              btn.textContent = "Copied!";
               setTimeout(() => {
-                this.textContent = orig;
+                btn.textContent = orig;
               }, 2000);
-            }.bind(this));
+            });
           }
         });
       });
 
-      function escapeHtml(str) {
+      function escapeHtml(str: string) {
         const div = document.createElement("div");
         div.textContent = str;
         return div.innerHTML;
