@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "generatedAt": "2026-08-16T01:25:12.161Z",
+    "source": "https://api.maplespike.ca/v1/billing/plans"
+  },
+  "plans": [
+    {
+      "plan_id": "community",
+      "name": "Community",
+      "price_cents": 0,
+      "credits_per_month": null,
+      "rate_limit_per_min": null
+    },
+    {
+      "plan_id": "free",
+      "name": "Free",
+      "price_cents": 0,
+      "credits_per_month": 1000,
+      "rate_limit_per_min": 10
+    },
+    {
+      "plan_id": "pro",
+      "name": "Pro",
+      "price_cents": 5000,
+      "credits_per_month": 50000,
+      "rate_limit_per_min": 60
+    },
+    {
+      "plan_id": "business",
+      "name": "Business",
+      "price_cents": 20000,
+      "credits_per_month": 250000,
+      "rate_limit_per_min": 300
+    },
+    {
+      "plan_id": "enterprise",
+      "name": "Enterprise",
+      "price_cents": 0,
+      "credits_per_month": 1000000,
+      "rate_limit_per_min": 1000
+    }
+  ]
+}
