@@ -118,6 +118,8 @@ export const en: TranslationMap = {
   'dashboard.tab.api_keys': 'API Keys',
   'dashboard.tab.watcher': 'Watcher',
   'dashboard.tab.owasp': 'Security',
+  'dashboard.billing.title': 'Billing',
+  'dashboard.billing.success_title': 'Checkout Complete',
 
   // Home/Landing
   'home.hero.title': 'Canada\'s Data Intelligence',
