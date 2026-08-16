@@ -320,7 +320,7 @@ export class PgStorage implements QuillStorage {
       params.push(filter.until);
     }
 
-    sql += ` ORDER BY created_at DESC LIMIT $${n++} OFFSET $${n++}`;
+    sql += ` ORDER BY created_at DESC LIMIT $${n} OFFSET $${n + 1}`;
     params.push(filter.limit || 50, filter.offset || 0);
 
     const { rows } = await this.pool.query(sql, params);
