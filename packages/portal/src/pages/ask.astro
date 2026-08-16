@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import AgentChat from "@/components/dashboard/AgentChat";
 import { createI18n } from "@maplespike/i18n";
 import { pick } from "@/utils/bilingual";
+import statsData from "@/data/stats.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -24,8 +25,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         {t(
-          "Natural language queries across 206 government data modules. Every answer includes verified citations and SHA-256 source hashes.",
-          "Requêtes en langage naturel dans 206 modules de données gouvernementales. Chaque réponse inclut des citations vérifiées et des hachages de source SHA-256.",
+          `Natural language queries across ${statsData.modules} government data modules. Every answer includes verified citations and SHA-256 source hashes.`,
+          `Requêtes en langage naturel dans ${statsData.modules} modules de données gouvernementales. Chaque réponse inclut des citations vérifiées et des hachages de source SHA-256.`,
         )}
       </p>
     </div>
@@ -72,10 +73,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       "use strict";
 
       // Tab switching — preserved from original ask page
-      document.querySelectorAll("[data-asktab]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var tab = this.getAttribute("data-asktab");
-          document.querySelectorAll("[data-asktab]").forEach(function (b) {
+      document.querySelectorAll("[data-asktab]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tab = btn.getAttribute("data-asktab");
+          document.querySelectorAll("[data-asktab]").forEach((b) => {
             b.className =
               "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
               (b === btn

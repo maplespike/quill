@@ -224,6 +224,15 @@ export default function SignupForm() {
   async function handlePasskeyLogin() {
     setBusy("passkey-login");
     setError(null);
+    // login/begin REQUIRES a userId (api-server validateBody marks it
+    // required) and the UI never collects one — for a fresh visitor there is
+    // no credential to assert. Fail with a clear instruction instead of a
+    // server error, and point them at registration (which auto-logs-in).
+    if (!authState.userId) {
+      setError("No passkey account found on this device. Create a passkey first to get your API key.");
+      setBusy(null);
+      return;
+    }
     try {
       const base = getApiBase();
 
@@ -267,12 +276,15 @@ export default function SignupForm() {
 
       const base = getApiBase();
 
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = (await window.ethereum.request({ method: "eth_requestAccounts" })) as string[];
       const address = accounts[0];
       if (!address) throw new Error("No account returned from wallet");
 
-      const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
-      const chainId = parseInt(chainIdHex[0], 16);
+      const chainIdHex = (await window.ethereum.request({ method: "eth_chainId" })) as unknown as string;
+      // eth_chainId returns a hex STRING ("0x1"); indexing it with [0]
+      // yielded "0" → parseInt("0", 16) = 0, so every nonce request sent
+      // chainId 0. Parse the whole string.
+      const chainId = parseInt(chainIdHex, 16);
 
       const challengeResp = await fetch(`${base}/v1/astral/web3/nonce`, {
         method: "POST",
@@ -333,8 +345,8 @@ export default function SignupForm() {
       const encoded = new TextEncoder().encode(message);
       const { signature } = await window.solana.signMessage(encoded, "utf8");
 
-      // Convert signature to base58
-      const bs58 = await import("bs58");
+      // Convert signature to base58 (bs58@6 cjs types omit encode — cast)
+      const bs58 = (await import("bs58")) as unknown as { encode: (b: Uint8Array) => string };
       const sigBase58 = bs58.encode(signature);
 
       // Verify
@@ -373,6 +385,14 @@ export default function SignupForm() {
   /*  Render                                                            */
   /* ------------------------------------------------------------------ */
 
+  // The passkey flow stores the real API key separately from the session
+  // JWT (authState.token). Show the API key when available — it is what
+  // callers actually send as `x-api-key`; the JWT is only a session
+  // credential and must be sent as `Authorization: Bearer <token>`.
+  const storedApiKey = typeof window !== "undefined" ? localStorage.getItem("quill-api-key") : null;
+  const shownKey = storedApiKey || authState.token;
+  const isApiKey = !!storedApiKey;
+
   if (authState.token || authState.method === "passkey") {
     return (
       <Card>
@@ -389,24 +409,28 @@ export default function SignupForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {authState.token && (
+          {shownKey && (
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wider text-primary">Your API Key</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary">{isApiKey ? "Your API Key" : "Session token"}</div>
                 <button
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => {
-                    navigator.clipboard?.writeText(authState.token || "");
+                    navigator.clipboard?.writeText(shownKey || "");
                   }}
                 >
                   Copy
                 </button>
               </div>
               <code className="block break-all font-mono text-sm">
-                {authState.token.slice(0, 20)}...{authState.token.slice(-8)}
+                {shownKey.slice(0, 20)}...{shownKey.slice(-8)}
               </code>
               <p className="mt-2 text-xs text-muted-foreground">
-                Use this as the <code className="font-mono">x-api-key</code> header in API calls.
+                {isApiKey ? (
+                  <>Use this as the <code className="font-mono">x-api-key</code> header in API calls.</>
+                ) : (
+                  <>Use this as the <code className="font-mono">Authorization: Bearer &lt;token&gt;</code> header in API calls.</>
+                )}
               </p>
             </div>
           )}

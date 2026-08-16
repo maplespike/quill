@@ -11,6 +11,10 @@ import { localeUrl } from "@/utils/localeUrl";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+// build.format: 'file' makes Astro.url.pathname carry a `.html` suffix
+// (/dashboard.html) in production — normalize so the active-tab check works
+// in both dev and prod, and handle the /fr mirror.
+const pathname = Astro.url.pathname.replace(/\.html$/, '');
 ---
 
 <BaseLayout title={i18n.t('dashboard.title')} description="Live MapleSpike API dashboard with usage stats and billing" lang={lang}>
@@ -18,7 +22,7 @@ const i18n = createI18n(lang);
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 reveal-on-scroll">
       <div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-          Developer <span class="text-gradient">{i18n.t('dashboard.title')}</span>
+          {lang === 'fr' ? 'Développeur' : 'Developer'} <span class="text-gradient">{i18n.t('dashboard.title')}</span>
         </h1>
         <p class="mt-1.5 text-muted-foreground">
           {i18n.t('dashboard.overview')}
@@ -36,7 +40,7 @@ const i18n = createI18n(lang);
         href={localeUrl('/dashboard', lang)}
         class:list={[
           "rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 ease-out",
-          Astro.url.pathname === "/dashboard" || Astro.url.pathname.startsWith('/en/dashboard')
+          pathname === "/dashboard" || pathname === "/en/dashboard" || pathname === "/fr/dashboard"
             ? "bg-primary text-primary-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-accent",
         ]}
@@ -80,7 +84,7 @@ const i18n = createI18n(lang);
     <Card className="card-hover reveal-on-scroll">
       <CardHeader>
         <CardTitle>{i18n.t('settings.ai.title')}</CardTitle>
-        <CardDescription>Bring your own AI key or use the cluster's hosted model</CardDescription>
+        <CardDescription>{lang === 'fr' ? "Apportez votre propre clé IA ou utilisez le modèle hébergé du cluster" : "Bring your own AI key or use the cluster's hosted model"}</CardDescription>
       </CardHeader>
       <CardContent>
         <AISettings client:load lang={lang} />
