@@ -4,9 +4,14 @@ dist/
 data/
 # The municipal-discovered-ids registry IS checked in — it's the build-time
 # cache that eliminates first-call discovery latency on every pod restart.
-# Without this exception the root-level `data/` rule swallows it (git treats
-# that pattern as `**/data/`, so any nested data/ directory would be ignored).
+# Without these exceptions the root-level `data/` rule swallows nested data/
+# dirs (git treats that pattern as `**/data/`, so any nested data/ directory
+# would be ignored).
 !packages/pipeline-core/data/municipal-discovered-ids.json
+# The portal's generated plans/stats/tools catalogs (gen:plans) are checked in
+# so nix/CI builds have a hermetic fallback when live APIs are unreachable.
+!packages/portal/src/data/
+!packages/portal/src/data/*.json
 *.db
 *.db-shm
 *.db-wal
