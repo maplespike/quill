@@ -394,6 +394,18 @@ let
                   name: maplespike-stripe-secrets
                   key: stripe-publishable-key
                   optional: true
+            # Billing admin secret — gates the /v1/billing/* admin endpoints
+            # (reconcile-expiry etc.). MUST stay in lockstep with
+            # k8s/maplespike/quill-api-deployment.yaml: read from
+            # `maplespike-secrets/quill-billing-secret` (synced by
+            # scripts/sops-sync-k8s.sh from secrets/runtime.yaml). Optional
+            # so dev boots without it.
+            - name: QUILL_BILLING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ${secretsRef}
+                  key: quill-billing-secret
+                  optional: true
             - name: PORT
               value: "8082"
             - name: NODE_ENV

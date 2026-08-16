@@ -118,8 +118,8 @@ if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-
       echo "[sops-sync] ⚠ QUILL_API_KEY missing from SOPS — reusing in-cluster value"
     fi
     apply_secret maplespike-secrets \
-      "JWT_SECRET=${JWT_SECRET}" \
-      "QUILL_BILLING_SECRET=${BILLING_SECRET}" \
+      "jwt-secret=${JWT_SECRET}" \
+      "quill-billing-secret=${BILLING_SECRET}" \
       "pii-hash-secret=${PII_HASH_SECRET}" \
       "quill-api-key=${QUILL_API_KEY}"
     echo "[sops-sync] ✓ maplespike-secrets synced"
