@@ -72,6 +72,13 @@ interface CitationResult {
   updateFrequency?: string;
   claim?: string;
   sourceUrl?: string;
+  /** Data-quality provenance score from the claim bundle (store-backed hits). */
+  quality?: {
+    score: number;
+    level: string;
+    sourceTrustScore: number;
+    citationVerified: boolean;
+  };
 }
 
 // Lazy hash index over the pipeline data file (built once on first miss).
@@ -144,6 +151,14 @@ async function findRecordByHash(targetHash: string): Promise<CitationResult | nu
       updateFrequency: stored.bundle.updateFrequency,
       claim: stored.bundle.claim,
       sourceUrl: stored.bundle.sourceUrl,
+      quality: stored.bundle.quality
+        ? {
+            score: stored.bundle.quality.score,
+            level: stored.bundle.quality.level,
+            sourceTrustScore: stored.bundle.quality.sourceTrustScore,
+            citationVerified: stored.bundle.quality.citationVerified,
+          }
+        : undefined,
     };
   }
 
@@ -194,16 +209,21 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
 
     const sourceConfig = getSourceConfig(result.source);
 
+    const citation: Record<string, unknown> = {
+      source_name: result.source || 'Government of Canada',
+      source_url: result.record.source_url || result.record.url || '',
+      license: 'Open Government Licence – Canada',
+      data_hash: targetHash,
+      retrieved_at: new Date().toISOString(),
+      update_frequency: 'unknown',
+    };
+    if (result.quality) {
+      citation.quality = result.quality;
+    }
+
     return jsonResponse(buildSuccess({
       verified: true,
-      citation: {
-        source_name: result.source || 'Government of Canada',
-        source_url: result.record.source_url || result.record.url || '',
-        license: 'Open Government Licence – Canada',
-        data_hash: targetHash,
-        retrieved_at: new Date().toISOString(),
-        update_frequency: 'unknown',
-      },
+      citation,
       verify_command: `echo -n '${canonicalJson(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
     }, ctx));
   } catch (err) {
@@ -268,6 +288,7 @@ export const getVerifyClaimHandler: RouteHandler = async (_request, ctx, params)
       license: result.license ?? 'Open Government Licence – Canada',
       update_frequency: result.updateFrequency ?? 'unknown',
       claim: result.claim ?? '',
+      quality: result.quality ?? null,
       verify_command: `echo -n '${canonicalJson(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
     }, ctx));
   } catch (err) {

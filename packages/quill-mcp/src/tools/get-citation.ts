@@ -105,6 +105,9 @@ export const handler: ToolHandler = async (args) => {
           source: stored.bundle.sourceName,
           license: stored.bundle.license,
           verified,
+          // Data-quality provenance score — the same 0–1 score attached to
+          // claim bundles at build time, so agents can weigh trustworthiness.
+          quality: stored.bundle.quality ?? null,
           data: data.length > 500
             ? data.slice(0, 500) + '... [truncated — use verify command for full verification]'
             : data,
