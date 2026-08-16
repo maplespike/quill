@@ -38,6 +38,12 @@
 //   DRY_RUN=2  —  "No API calls at all" mode. Skips even auth probes. Prints
 //                 "would create N CNAMEs" with no zone lookup. Use only when
 //                 you already KNOW the zone_id and want a pure smoke test.
+//
+// Single-file typecheck (requires --ignoreConfig: tsc refuses to load the
+// repo tsconfig when an explicit file is given on the command line, TS5112):
+//   npx tsc --noEmit --ignoreConfig --types node --strict --target ES2022 \
+//     --module ESNext --moduleResolution bundler --skipLibCheck \
+//     --allowImportingTsExtensions scripts/ops/wire-tunnel-dns.mts
 //   Any other value (e.g. 99) silently falls through to a real write.
 //
 // Prerequisites for a non-dry run:
@@ -244,6 +250,11 @@ const main = async (): Promise<void> => {
 
   // ── Upsert CNAMEs ────────────────────────────────────────────────────────
   const target = `${tunnel}.cfargotunnel.com`;
+  // Cloudflare canonicalizes CNAME targets with a trailing dot (FQDN form); the
+  // target we build here has none. Normalize both sides so records added via the
+  // Dashboard (which CF stores with the trailing dot) are recognized as already
+  // correct instead of being rewritten on every run (#785).
+  const norm = (s: string) => (s.endsWith('.') ? s.slice(0, -1) : s);
   let created = 0, updated = 0, unchanged = 0, failed = 0;
   for (const sub of subdomains) {
     const name = `${sub}.${zoneName}`;
@@ -262,7 +273,7 @@ const main = async (): Promise<void> => {
     // points at the right target AND it's already proxied, don't write. The CF
     // DNS write rate-limit is ~1200/5min on free tier; this keeps CI re-runs
     // (and the success-summary) from thrashing on records that are already correct.
-    if (existing && existing.content === target && existing.proxied === true) {
+    if (existing && norm(existing.content) === norm(target) && existing.proxied === true) {
       console.log(`✓ unchanged ${name} → ${target}`);
       unchanged++;
       continue;
@@ -275,8 +286,9 @@ const main = async (): Promise<void> => {
       comment: 'Wired to maplespike-k8s Cloudflare Tunnel via scripts/ops/wire-tunnel-dns.mts',
     };
     if (dryRunLevel === 1) {
-      if (existing && existing.content === target && existing.proxied === true) {
+      if (existing && norm(existing.content) === norm(target) && existing.proxied === true) {
         console.log(`  would leave unchanged ${name} → ${target}`);
+        unchanged++; // keep the dry-run summary truthful (#784)
       } else {
         console.log(`  would ${existing ? 'update' : 'create'} ${name} → ${target}`);
       }
