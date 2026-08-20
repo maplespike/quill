@@ -144,6 +144,9 @@ export function parseGtfsZip(zipBuf: Buffer, agencyName: string): {
   let calendars: GTFSCalendar[] = [];
 
   const findEntry = (name: string, required = false): string | null => {
+    // Exact match first, then subdirectory entries (name inside a nested
+    // folder). The exact match prevents mis-matching stops.txt when looking
+    // for routes.txt, etc.
     const entry = entries.find(e => e.name === name || e.name.endsWith('/' + name));
     if (!entry) {
       if (required) errors.push(`Missing required GTFS file: ${name}`);
