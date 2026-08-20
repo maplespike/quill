@@ -12,8 +12,8 @@ def http_json(url, method="GET", data=None, headers=None):
     if data is not None:
         req.data = json.dumps(data).encode()
     try:
-        resp = urllib.request.urlopen(req, timeout=30)
-        return json.loads(resp.read())
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         return {"status": "error", "detail": str(e)}
 
