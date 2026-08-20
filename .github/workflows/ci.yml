@@ -114,13 +114,45 @@ jobs:
           QUILL_HTTP_MAX_RETRIES: '1'
           QUILL_HTTP_TIMEOUT_MS: '15000'
 
+  audit:
+    needs: build-and-test
+    runs-on: [self-hosted, nixos]
+    # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
+    # advisory by default; we tolerate the 5 known High findings (tracked in
+    # portal/public/data/security/audit.json, 0C/5H) but fail on CRITICALs so
+    # a new critical blocks the PR. The JSON snapshot lands in the job log for
+    # review; bump --audit-level back to high when the 5 Highs are closed.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: pnpm audit (fail on critical only)
+        run: |
+          set +e
+          pnpm audit --audit-level=critical > /tmp/audit.txt 2>&1
+          rc=$?
+          set -e
+          echo "pnpm audit exit code: $rc"
+          cat /tmp/audit.txt
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::CRITICAL dependency advisory found -- see pnpm audit output above"
+            exit 1
+          fi
+
+      - name: Emit audit.json snapshot
+        run: |
+          pnpm audit --json > packages/portal/public/data/security/audit.json 2>/dev/null || true
+          echo "audit.json refreshed (non-fatal on audit error -- file may be empty)"
+
   docker:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/prod'
     # GHCR push is RETIRED post-flip (2026-07-10 systemic registry flip).
     # The default target is the operator-host nexus:5000 registry. The self-hosted
-    # NixOS runner can `nix run .#push-images` directly (operator-side) — no GHCR
+    # NixOS runner can `nix run .#push-images` directly (operator-side); no GHCR
     # auth, no public-internet push, much faster. This job now builds only;
     # `push:` is intentionally false. To restore GHCR push when PAT scope is
     # bumped, replace the login + flip `push: true` + retarget tags to ghcr.io.
@@ -131,7 +163,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: "Build Portal image (push: false — operator-side nix run .#push-images)"
+      - name: 'Build Portal image (push: false; operator-side nix run .#push-images)'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -141,7 +173,7 @@ jobs:
           tags: |
             nexus:5000/quill-portal:${{ github.sha }}
 
-      - name: "Build API image (push: false)"
+      - name: 'Build API image (push: false)'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -151,7 +183,7 @@ jobs:
           tags: |
             nexus:5000/quill-api:${{ github.sha }}
 
-      - name: "Build MCP image (push: false)"
+      - name: 'Build MCP image (push: false)'
         uses: docker/build-push-action@v5
         with:
           context: .
