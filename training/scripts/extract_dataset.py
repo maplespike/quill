@@ -26,18 +26,39 @@ from typing import Any
 def fetch_json(api_base: str, path: str, retries: int = 3) -> list[dict] | dict | None:
     """Fetch JSON from the MapleSpike API with retries."""
     url = f"{api_base.rstrip('/')}{path}"
+    # Validate URL scheme to prevent SSRF / unexpected protocols
+    if url.lower().startswith(('http://', 'https://')) is False:
+        print(f"  [skip] non-HTTP URL: {url}")
+        return None
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, headers={"Accept": "application/json"})
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            timeout = min(60, max(10, retries * 5))
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                # Dominating guard: verify HTTP status and content type
+                if resp.status != 200:
+                    print(f"  [warn] HTTP {resp.status} for {url}")
+                    return None
+                content_type = resp.getheader('Content-Type') or ""
+                if "application/json" not in content_type:
+                    print(f"  [warn] non-JSON content type: {content_type}")
+                    return None
                 return json.loads(resp.read())
-        except Exception as e:
+        except urllib.error.URLError as e:
             if attempt < retries - 1:
                 wait = 2 ** attempt
                 print(f"  [retry {attempt + 1}] {url}: {e} — waiting {wait}s")
                 time.sleep(wait)
             else:
                 print(f"  [FAIL] {url}: {e}")
+                return None
+        except Exception as e:
+            if attempt < retries - 1:
+                wait = 2 ** attempt
+                print(f"  [retry {attempt + 1}] {url}: unexpected {e} — waiting {wait}s")
+                time.sleep(wait)
+            else:
+                print(f"  [FAIL] {url}: unexpected {e}")
                 return None
 
 
