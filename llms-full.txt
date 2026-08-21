@@ -1,0 +1,185 @@
+# Quill (MapleSpike) — Full Documentation Archive
+
+> Version: 1.0.0
+> License: AGPL-3.0 (pipeline-core) / MIT (packages). Government data under OGL-C.
+> API Base URL: https://api.maplespike.ca/v1
+> MCP Server: https://mcp.maplespike.ca/sse
+> Source: https://github.com/reverb256/quill
+
+## Summary
+
+Quill is Canada's sovereign, AI-native government data pipeline — a single
+unified layer for government data, corporate influence tracking, committee
+surveillance, regulatory intelligence, and policy actor tracking. It ingests,
+verifies, and surfaces 208 data modules of Canadian public-domain government
+data across every sector, with SHA-256 citation hashes, source provenance, and
+audit trails for independent verification.
+
+The product name is Quill: a data-layer MCP server that reads Canada so AI
+agents don't have to lie about it. Built with zero external cloud spend,
+deployed on a K3s cluster.
+
+## Architecture
+
+```
+Internet → Cloudflare Tunnel (cloudflared pod in k3s)
+  ├→ maplespike.ca / quill.maplespike.ca → Portal (:8080) — Astro static + server.py
+  ├→ api.maplespike.ca                   → API    (:8082) — Node.js API server (SQLite/PostgreSQL)
+  │   ├→ AI Gateway — glm-5.2 via AI Inference Gateway
+  │   ├→ Qdrant — vector search for RAG
+  │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
+  │   └→ BYOK middleware — users bring their own AI key
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (175 tools)
+```
+
+## Packages
+
+- `pipeline-core` — Ingestion, verification, audit (shared library)
+- `engine` — Entity resolution, graph building, signals, briefs
+- `portal` — Developer portal & landing page (Astro + React + Tailwind)
+- `api-server` — REST API gateway (auth, rate limits, usage)
+- `quill-mcp` — Quill — data-layer MCP server (175 tools)
+- `sdk` — TypeScript client library (@maplespike/sdk)
+- `sdk-python` — Python client library (quill-sdk on PyPI)
+- `legal-core` — Legal data SDK
+- `legislation` — Legislation XML parser
+- `database` — SQLite storage (node:sqlite)
+- `notification-service` — Notifications
+- `create-module` — Module scaffolding CLI
+- `docs` — VitePress documentation
+
+## Quick Start
+
+```bash
+git clone git@github.com:reverb256/quill.git
+cd quill
+pnpm install
+pnpm run build
+
+# Start MCP server (local stdio)
+cd packages/quill-mcp
+pnpm start
+```
+
+All 175 MCP tools return real data — committees, corporate, influence, and
+government data are all searchable via the SQLite database. No external
+database configuration required for MCP tools.
+
+For the full local dev stack (API + MCP + Portal):
+
+```bash
+./scripts/dev-up.sh
+./scripts/e2e-smoke.sh --mode=compose --up --down
+```
+
+## Data Coverage
+
+- **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade),
+  Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI,
+  Species at Risk, Impact Assessment, CIPO, CMHC
+- **Parliament & committees**: House and Senate committees, Hansard, Canada
+  Gazette, LEGISinfo
+- **Regulatory & oversight**: OAG, PBO, Ethics Commissioner, Lobbying
+  Commissioner, Competition Bureau, CRTC, Privacy Commissioner, Information
+  Commissioner, Official Languages, CHRC, OSFI, FCAC, FINTRAC, CDIC
+- **Corporate & influence**: Lobbying registry, procurement, SEDI insider
+  trades, SEDAR+ filings, corporations Canada, NGO/think tank RSS feeds
+- **Provincial**: All 13 legislatures, 13 CKAN portals, 273 regulators
+- **Municipal**: 19 cities with direct open data fetchers, 3,490+ via
+  provincial CKAN federation
+- **Justice & legal**: CanLII case law, Justice Canada legislation XML,
+  federal tribunals, Ontario e-Laws, BC Laws
+- **Real-time**: ECCC weather alerts (CAP-CP), CBSA border wait times
+- **International**: World Bank WDI, UN Comtrade, OECD, Eurostat, WHO, UNDP, UNHCR
+
+## REST API
+
+Base URL: https://api.maplespike.ca/v1
+Auth: Send `Authorization: Bearer *** or `X-API-Key: *** header.
+All responses follow the MapleSpike envelope: { success, data, error, meta, quality, citation }
+
+### Endpoints
+
+#### GET /v1/health
+API health check with usage stats
+
+#### GET /v1/openapi.json
+Full OpenAPI 3.1 specification
+
+#### GET /v1/me
+Current tenant info and API keys
+
+#### GET /v1/usage
+Current billing period usage
+
+#### GET /v1/gov/releases
+Latest government data releases
+
+#### GET /v1/gov/search
+Full-text search across all sources
+
+#### GET /v1/citation/:hash
+Retrieve citation by SHA-256 hash
+
+#### POST /v1/register
+Create account and API key
+
+#### GET /v1/verify/:token
+Verify email address
+
+#### POST /v1/ai/ask
+Ask a question, get a sourced answer (edge AI)
+
+#### POST /v1/ai/search
+Semantic search with edge embeddings
+
+#### GET /v1/ai/models
+List available AI models
+
+#### POST /v1/ai/analyze
+Analyze text for bias, sentiment, claims
+
+#### POST /v1/auth/refresh
+Refresh JWT token
+
+#### POST /v1/auth/logout
+Clear session
+
+#### POST /v1/billing/checkout
+Create checkout session
+
+#### GET /v1/billing/plans
+Available pricing plans
+
+#### GET /v1/keys
+List API keys
+
+#### POST /v1/keys
+Create API key
+
+#### DELETE /v1/keys/:id
+Delete API key
+
+#### POST /v1/keys/:id/rotate
+Rotate API key
+
+#### GET /v1/signals
+Cross-reference signals (requires engine)
+
+## MCP Server
+
+- Endpoint: https://mcp.maplespike.ca/sse (auth-gated)
+- 175 tools (incl. x402-deposit), all returning real DB results
+- Every record includes SHA-256 citation hashes, source provenance, audit trails
+
+## License
+
+- Core library (packages/pipeline-core): AGPL-3.0
+- MCP server (packages/quill-mcp): MIT
+- Engine (packages/engine): MIT
+- Portal (packages/portal): MIT
+- Government data retains its original license (primarily Open Government
+  Licence – Canada)
+
+Copyright © MapleSpike / reverb256. The @maplespike/* npm scope is the
+organizational scope; the product name is Quill.

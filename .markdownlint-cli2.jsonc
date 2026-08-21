@@ -1,0 +1,33 @@
+{
+  // README-lint gate configuration (markdownlint-cli2).
+  // The repo has no ESLint/Prettier; this is the docs lint gate only.
+  //
+  // Mode: allowlist. All stylistic rules are disabled because the codebase
+  // (300+ docs files) predates this gate and mixes styles freely. The gate
+  // enforces STRUCTURAL quality only: valid ATX headings, correct link
+  // syntax, no bare-image-without-alt. Dead links are caught by lychee in
+  // the same workflow, so link syntax here is the markdownlint half.
+  "config": {
+    "default": false,
+    "MD003": true,  // heading-style — enforce consistent ATX headings
+    "MD007": true,  // ul-indent — enforce consistent list indentation
+    "MD009": true,  // trailing-spaces — no trailing whitespace
+    "MD025": true,  // single-title — exactly one top-level heading per file
+    "MD026": false, // no-trailing-punctuation — headings may end with : or . (existing docs)
+    "MD045": true,  // no-alt-text — images must have alt text
+    "MD046": true,  // code-block-style — consistent fenced code block style
+    "MD048": true,  // code-fence-style — backticks for fences
+    "MD053": true,  // link-image-style — consistent reference link style
+    "MD012": false, // no-multiple-blanks — legacy docs use double blank lines
+    "MD018": false  // no-missing-space-atx — legacy docs use #808 as text
+  },
+  "ignores": [
+    "node_modules",
+    "dist",
+    "packages/portal/dist",
+    "docs/grafana",
+    "training",
+    "openspec",
+    ".git"
+  ]
+}
