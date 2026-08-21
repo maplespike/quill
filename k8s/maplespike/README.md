@@ -7,7 +7,7 @@ manifests for the `maplespike` namespace. Quill owns its full runtime here.
 
 Quill's deploy is **self-sufficient**:
 
-- **Images** come from Quill's own registry namespace `nexus:5000/quill-*`
+- **Images** come from Quill's own registry namespace `quill-*`
   (built by `flake.nix`, pushed via `nix run .#push-images`). No dependency on
   nixos-config for image provenance.
 - **Secrets** are delivered into the `quill-runtime-secrets` k8s Secret which
