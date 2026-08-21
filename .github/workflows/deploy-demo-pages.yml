@@ -1,0 +1,78 @@
+# =============================================================================
+# Quill — Deploy Demo Portal to GitHub Pages
+#
+# Free-tier cloud demo: the static Astro portal built for GitHub Pages at
+# https://reverb256.github.io/quill/. No Cloudflare token needed — GitHub
+# Pages deploys with the built-in GITHUB_TOKEN.
+#
+# What works on Pages (static): index, explorer, docs, pricing, verify UI,
+# claims, changelog, blog, contact, citation, signal, watcher, status, terms,
+# privacy, signup, workspace shell. API-backed widgets (AgentChat, ask,
+# dashboard) call PUBLIC_API_BASE and show their real state (online when
+# api.maplespike.ca is up, offline state when not).
+#
+# Trigger: workflow_dispatch (manual) + push to main touching portal.
+# =============================================================================
+name: Deploy Demo Portal to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/portal/**"
+      - "scripts/gh-pages-rewrite-links.mjs"
+      - ".github/workflows/deploy-demo-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-demo
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build portal (GitHub Pages base)
+        run: pnpm --filter @maplespike/portal build
+        env:
+          GH_PAGES: "true"
+          PUBLIC_API_BASE: "https://api.maplespike.ca/v1"
+
+      - name: Rewrite root-absolute links for /quill/ base
+        run: node scripts/gh-pages-rewrite-links.mjs packages/portal/dist /quill/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/portal/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

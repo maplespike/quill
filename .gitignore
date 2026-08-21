@@ -17,9 +17,35 @@ data/
 *.db-wal
 .env
 .env.*
-
+!.env.example
 # Age private key for MapleSpike Secret Vault
 .secrets/key.txt
+# Internal agent working dirs (kept out of the public repo)
+.sisyphus/
+.kelos/
+.freebuff/
+.hermes/
+# Internal audit / ops reports (kept out of the public repo)
+CODEBASE_AUDIT_REPORT.md
+SECURITY-AUDIT.md
+SECURITY-AUDIT-v0.3.0.md
+STRATEGIC-ASSESSMENT-STATUS.md
+DEPLOY-CHECKLIST.md
+docs/CRITICAL-ISSUES-FOUND.md
+docs/DOCUMENTATION-FIX-SUMMARY.md
+docs/GHCR-CLEANUP.md
+docs/HARSH-REALITY-AUDIT-COMPLETE.md
+docs/K8S-NIX-MANIFESTS.md
+docs/MAPLESPIKE-TESTS.md
+docs/MCP-SERVER-ISSUES.md
+docs/NIX-IMAGES.md
+docs/SSE-INVESTIGATION.md
+docs/STALE-CONTENT-SUMMARY.md
+docs/audit-buildcanada-govtrace.md
+docs/audit-lode-ecdo-gap-analysis.md
+docs/audit-portal-coverage-map.md
+docs/data-coverage-gaps.md
+docs/quill-production-income-report.md
 
 # SOPS — encrypted .yaml files ARE safe to commit (that's the point).
 # Only ignore decrypted/plaintext artifacts:

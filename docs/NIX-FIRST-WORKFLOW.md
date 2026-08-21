@@ -132,7 +132,7 @@ steps:
   - uses: cachix/install-nix-action@v25
   - run: nix build .#quill-mcp-image -L
   - run: podman load < result
-  - run: podman push nexus:5000/quill-mcp:${{ github.sha }}
+  - run: podman push $REGISTRY/quill-mcp:${{ github.sha }}
 ```
 
 ### Image Builds

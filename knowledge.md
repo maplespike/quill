@@ -45,7 +45,7 @@ Most packages use `node --test` (via tsx). The `engine` package uses `vitest`.
 - **OpenSpec mandatory** — every feature/change uses `propose → apply → archive` cycle via `/opsx:*` commands (exceptions: trivial one-line fixes)
 - **Changesets baseBranch**: `prod`, not `main`
 - **Nix-first build** — `flake.nix` is source of truth for OCI images; secondary paths: Docker Compose, `selfhost.sh`, Helm chart, Cloudflare Pages, `nix run .#push-images`
-- **Canonical registry**: `nexus:5000/quill-<svc>` (not GHCR anymore)
+- **Canonical registry**: operator-host `quill-<svc>` (not GHCR anymore)
 - **Portal runtime is Python** (`server.py`), not nginx — Astro `format: 'file'` means pages are `<page>.html`, served extensionless
 - **`AGENTS.md` is the authoritative ops reference** — cluster topology, routing matrix, rebuild/rollout recipes, known issues
 - **Secrets**: SOPS + age, synced via `scripts/sops-sync-k8s.sh`
