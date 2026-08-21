@@ -75,7 +75,7 @@ The plan depends on dependable public endpoints. Finish the existing deploy path
 advertising ecosystem surfaces.
 
 - [ ] Complete ROADMAP Phase 4: K3s secrets (`maplespike-secrets`, `cloudflared-creds` rotation),
-      `forge` node recovery, cronjob images `nexus:5000/quill-ingest`, DB migrations `002_*`.
+      `forge` node recovery, cronjob images `quill-ingest`, DB migrations `002_*`.
       *(Files: `charts/quill/*`, `k8s/base/*`, `secrets/*`)* *(operator track — ongoing)*
 - [x] **Informal free-tier SLA + status surface** — `/v1/status` endpoint live
       (`packages/api-server/src/routes/status.ts`: 99% best-effort uptime, freshness windows,

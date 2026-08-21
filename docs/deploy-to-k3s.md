@@ -96,7 +96,7 @@ podman load < result
 
 The images are tagged `quill-<svc>:latest` locally after `podman load`. Push
 them to a registry your cluster can pull from (production uses the local
-`nexus:5000` registry — see `docs/GHCR-CLEANUP.md` for the retired GHCR path):
+`registry` — see `docs/GHCR-CLEANUP.md` for the retired GHCR path):
 
 ```bash
 REGISTRY=registry.example.com TAG=stable \
@@ -150,7 +150,7 @@ The generated manifest uses these Service names:
 | `quill-mcp`    | 3001 | MCP server (SSE)   |
 | `quill-portal` | 8080 | Developer portal   |
 
-> The production cluster pins its Service ClusterIPs (`10.43.100.10/11/12`)
+> The production cluster pins its Service ClusterIPs (cloudflared dials IPs directly).
 > because cloudflared dials literal IPs, not DNS names — cloudflared's Go
 > resolver NXDOMAINs `*.svc.cluster.local`, which regresses the tunnel to edge
 > 502s. If you change the Service specs, update the `cloudflared-config`

@@ -69,7 +69,7 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 
 | Threat | Mitigation | Status |
 |--------|-----------|--------|
-| Unauthorized cluster access | K3s on private network (10.1.1.0/24), Tailscale mesh for remote access | Active |
+| Unauthorized cluster access | K3s on private network, Tailscale mesh for remote access | Active |
 | Secret exposure | agenix-encrypted .age files, decrypted at deploy time only | Active |
 | Pod escape / privilege escalation | K8s manifests validated by scripts/validate-k8s-manifests.sh in CI | Active |
 | Unverified container images | Nix-built images with reproducible closures | Active |
