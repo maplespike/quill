@@ -167,7 +167,7 @@ hard-coding tool names.
 
 | Surface | URI / name | Returns |
 |---------|------------|---------|
-| Resource | `quill://tool-index` | Live list of every registered tool (~175) |
+| Resource | `quill://tool-index` | Live list of every registered tool (~182) |
 | Resource | `quill://schemas` | Module schema index — name, file, field count, required fields per module |
 | Resource (template) | `quill://schemas/{module}` | Versioned field-level schema for one module (name, type, required, description per field) |
 | Resource (template) | `quill://entities/{name}` | Resolved entity profile (name → canonical id + aliases + appearances) |

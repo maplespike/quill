@@ -9,7 +9,7 @@ Live at [quill.maplespike.ca](https://quill.maplespike.ca/).
 ## What it is
 
 - **An ingestion pipeline** (`pipeline-core`) — 200+ modules covering parliament, lobbying, committees, GIC appointments, elections, courts (CanLII), corporate registries, municipalities, provinces, and more, with provenance scoring and per-module update cadence.
-- **An MCP server** (`quill-mcp`) — 170+ tools over stdio and SSE, plus MCP resources (`quill://entities/{id}`, `quill://citations/{hash}`, `quill://tool-index`) and curated prompts (influence-map, provenance-brief, narrative-shift). Bilingual (en/fr).
+- **An MCP server** (`quill-mcp`) — 182 tools over stdio and SSE, plus MCP resources (`quill://entities/{id}`, `quill://citations/{hash}`, `quill://tool-index`) and curated prompts (influence-map, provenance-brief, narrative-shift). Bilingual (en/fr).
 - **A REST API gateway** (`api-server`) — multi-tenant, with auth, rate limits, billing (Stripe + e-Transfer + x402 micropayments), citations, and a free discovery tier.
 - **An entity resolution engine** (`engine`) — fuzzy matching, alias management, and a cross-registry relationship graph (lobbying ↔ committees ↔ GIC ↔ corporate ↔ elections).
 - **SDKs** — `@maplespike/sdk` (TypeScript, npm) and `@maplespike/sdk-python` (PyPI).
