@@ -20,10 +20,10 @@ specific modules to build; the STFC case shows the *consumer* of the verificatio
 
 | Research finding | Quill reality | Verdict |
 |---|---|---|
-| "No unified Canadian data backbone exists" | Quill: 200+ modules, one API (166 registered MCP tools per ROADMAP; products doc says 170+ — repo-internal drift to reconcile) | ✅ Lane confirmed |
+| "No unified Canadian data backbone exists" | Quill: 200+ modules, one API (182 registered MCP tools per ROADMAP/metrics.json) | ✅ Lane confirmed |
 | "Katzilla-level citation discipline missing in Canada" | Claim bundles (SHA-256 + source + retrieved-at + license), `/v1/claims/verify`, `verify_claim`, `get_citation` | 🟡 Code-complete (ROADMAP Phase 7 M1, 2026-08-09); **live-endpoint verification still blocked** (image churn → PVC Pending → nexus outage). The moat is real but unproven until claims survive a rollout publicly |
 | "Provenance/quality metadata missing" | Hashes exist; **quality/confidence score missing** | 🟡 Extend claim envelope (cheap, high value) |
-| "MCP tooling is fragmented experiments" | mcp-canada (266–295 tools, no citation discipline) vs Quill (166 registered tools per ROADMAP; products doc says 170+ — repo-internal drift to reconcile) with citations, resources, prompts | ✅ Compose, don't compete on raw tool count |
+| "MCP tooling is fragmented experiments" | mcp-canada (266–295 tools, no citation discipline) vs Quill (182 registered tools per metrics.json) with citations, resources, prompts | ✅ Compose, don't compete on raw tool count |
 | "FOI/ATI system is the biggest structural barrier" | OIC module only in gap list (Tier 2 P3) | 🔴 **Biggest new opportunity** — nobody owns it |
 | "Local-first / sovereign readiness is weak in ecosystem" | Nix-first images, K3s, SQLite, Quill Lite, zero-cloud posture | ✅ Already the moat — double down |
 | "Cross-domain joins are hard" | Engine entity graph, `search_cross_reference`, `linked_entities`, Phase 5.3 §Ph10 | 🟡 Needs populated graph (WS-1b ingestion) |
