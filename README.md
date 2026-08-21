@@ -3,9 +3,21 @@ last-reviewed: 2026-07-07
 status: active
 ---
 
-# MapleSpike
+# MapleSpike — Quill
 
-> **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
+<p align="center">
+  <img src="assets/logo/logo.svg" alt="Quill logo" width="120" />
+</p>
+
+<p align="center">
+  <strong>Canada's sovereign, AI-native government data pipeline</strong> — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
+</p>
+
+<p align="center">
+  <a href="https://github.com/reverb256/quill"><img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status: active"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0%20%7C%20MIT-blue" alt="License: AGPL-3.0 | MIT"></a>
+  <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/reverb256/quill/ci.yml" alt="CI"></a>
+</p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
 
