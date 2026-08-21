@@ -2,9 +2,14 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
+// GitHub Pages demo deploy: set GH_PAGES=true (or PUBLIC_BASE_PATH=/quill/)
+// to build under a subpath. Default: root (quill.maplespike.ca / local preview).
+const basePath = process.env.PUBLIC_BASE_PATH || (process.env.GH_PAGES === 'true' ? '/quill/' : '/');
+
 export default defineConfig({
   output: 'static',
-  site: 'https://quill.maplespike.ca',
+  site: process.env.GH_PAGES === 'true' ? 'https://reverb256.github.io' : 'https://quill.maplespike.ca',
+  base: basePath,
   build: { format: 'file' },
   compressHTML: true,
   integrations: [react()],

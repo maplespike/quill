@@ -178,10 +178,10 @@ Key operational facts (2026-08-10):
 
 - **Image tags are pinned per service in `flake.nix`** (`apiTag`/`mcpTag`/`portalTag`), NOT `latest`. The cluster's `deny-latest-tag-deployments` ValidatingAdmissionPolicy rejects `:latest`. Push new images operator-side with `nix run .#push-images` before applying.
 - **All Deployments carry `securityContext`** (`runAsNonRoot: true`, `runAsUser/Group: 1001`, `allowPrivilegeEscalation: false`) — required by the `require-resources-and-security-deployments` admission policy.
-- **Cloudflared upstreams are literal pinned ClusterIPs** (`10.43.100.10/11/12`), NOT DNS names — cloudflared's Go resolver NXDOMAINs `*.svc.cluster.local`, which regresses the tunnel to edge 502s.
+- **Cloudflared upstreams are literal pinned ClusterIPs**, NOT DNS names — cloudflared's Go resolver NXDOMAINs `*.svc.cluster.local`, which regresses the tunnel to edge 502s.
 - `cloudflared` runs in its own `cloudflared` namespace (label `app.kubernetes.io/name: cloudflared` gates API NetworkPolicy ingress).
 
-See `docs/K8S-NIX-MANIFESTS.md` for the full resource inventory and `docs/deploy-to-k3s.md` for the from-scratch walkthrough. CI enforces manifest correctness in `.github/workflows/nix-build.yml` (job `saas-manifests`) and deploys via `.github/workflows/deploy-prod.yml`.
+See `docs/deploy-to-k3s.md` for the from-scratch walkthrough. CI enforces manifest correctness in `.github/workflows/nix-build.yml` (job `saas-manifests`) and deploys via `.github/workflows/deploy-prod.yml`.
 
 ## Monitoring and Logs
 

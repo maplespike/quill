@@ -215,7 +215,7 @@ cd packages/sdk && pnpm build && pnpm test
 
 ## Deployment Architecture
 
-> **K8s production track (LIVE):** the canonical deploy path is Nix-first — `nix build .#saas-manifests` generates the bundle from `flake.nix` + `nix/saas-manifests.nix` (single source of truth), applied via `kubectl apply -f result/manifests.yaml`. The `cloudflared` tunnel `66d76492-...` (namespace `cloudflared`, protocol http2, pinned ClusterIP upstreams) exposes `api`/`mcp`/`quill` subdomains through Cloudflare DNS. Local development uses Docker Compose via `scripts/dev-up.sh` (see [README.md §Running the local development stack](../README.md)).
+> **K8s production track (LIVE):** the canonical deploy path is Nix-first — `nix build .#saas-manifests` generates the bundle from `flake.nix` + `nix/saas-manifests.nix` (single source of truth), applied via `kubectl apply -f result/manifests.yaml`. The `cloudflared` tunnel (namespace `cloudflared`, protocol http2, pinned ClusterIP upstreams) exposes `api`/`mcp`/`quill` subdomains through Cloudflare DNS. Local development uses Docker Compose via `scripts/dev-up.sh` (see [README.md §Running the local development stack](../README.md)).
 
 MapleSpike is designed to run on a K3s cluster with two environments isolated by namespace and ingress hostname. All backend data stays on Canadian infrastructure with zero external cloud spend.
 

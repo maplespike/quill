@@ -74,10 +74,10 @@ kubectl apply -k k8s/mosiac/
 
 | Service        | Type       | Port | ClusterIP (pinned)  | Image tag (flake.nix)     |
 |----------------|------------|------|---------------------|---------------------------|
-| quill-api      | ClusterIP  | 8082 | 10.43.100.10        | nexus:5000/quill-api:2026-08-10-3 |
-| quill-mcp      | ClusterIP  | 3001 | 10.43.100.11        | nexus:5000/quill-mcp:2026-08-10-3 |
-| quill-portal   | ClusterIP  | 8080 | 10.43.100.12        | nexus:5000/quill-portal:2026-08-10 |
-| mosiac-server  | ClusterIP  | 8080 | dynamic             | nexus:5000/mosiac-server:latest |
+| quill-api      | ClusterIP  | 8082 | pinned              | quill-api:2026-08-10-3 |
+| quill-mcp      | ClusterIP  | 3001 | pinned              | quill-mcp:2026-08-10-3 |
+| quill-portal   | ClusterIP  | 8080 | pinned              | quill-portal:2026-08-10 |
+| mosiac-server  | ClusterIP  | 8080 | dynamic             | mosiac-server:latest |
 
 > The ClusterIPs are **pinned** because cloudflared dials literal IPs (NOT DNS
 > names — its Go resolver NXDOMAINs `*.svc.cluster.local` → edge 502s). Update
@@ -108,11 +108,11 @@ Nix manifests pin `replicas: 1` as the safe default.
 
 ## Images
 
-All container images are hosted on the local registry at `nexus:5000`.
+All container images are hosted on the operator's local registry.
 Images are rebuilt and pushed via the Nix path:
 
 ```bash
-nix run .#push-images    # defaults REGISTRY=nexus:5000 TAG=stable COMMIT=<sha>
+nix run .#push-images    # defaults REGISTRY=<operator-registry> TAG=stable COMMIT=<sha>
 ```
 
 GHCR push is RETIRED (2026-07-10 flip) — see docs/GHCR-CLEANUP.md.
