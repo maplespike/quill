@@ -1,0 +1,58 @@
+name: "README Lint"
+
+on:
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - "*.md"
+      - "packages/*/README.md"
+      - "docs/**/*.md"
+      - "assets/**"
+      - ".github/workflows/readme-lint.yml"
+  push:
+    branches: [main, prod]
+    paths:
+      - "*.md"
+      - "packages/*/README.md"
+      - "docs/**/*.md"
+      - "assets/**"
+      - ".github/workflows/readme-lint.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readme-lint:
+    name: "Check documentation links and markdown formatting"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Check dead links (lychee)"
+        uses: lycheeverse/lychee-action@v1
+        with:
+          # Non-HTTP schemes (gitlawb://, did:key:) are intentionally excluded.
+          args: --verbose --no-progress --exclude 'gitlawb://' --exclude 'did:key:' --exclude '^https://github.com/reverb256/quill/(blob|tree)/' --exclude-mail ./README.md ./docs ./packages/*/README.md ./llms.txt ./llms-full.txt
+          fail: true
+
+      - name: "Lint markdown (markdownlint-cli2)"
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          # Scope: the files this gate owns (root docs + new standard files).
+          # The legacy docs/ tree (300+ files) predates the gate and mixes
+          # styles; it is link-checked by lychee but not style-gated.
+          globs: |
+            README.md
+            CONTRIBUTING.md
+            CODE_OF_CONDUCT.md
+            SECURITY.md
+            CHANGELOG.md
+            AGENTS.md
+            CREDITS.md
+            docs/VISION.md
+            packages/*/README.md
+            llms.txt
+            llms-full.txt
+          config: .markdownlint-cli2.jsonc
+          fix: false
