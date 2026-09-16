@@ -149,6 +149,20 @@ const isActive = (match: string) =>
     </script>
     <!-- Plausible Analytics — privacy-first, no cookies, no cross-site tracking -->
     <script defer is:inline data-domain="quill.maplespike.ca" src="https://plausible.io/js/script.js"></script>
+    <!-- #788 AI-search visibility: structured data so answer engines can cite
+         the product correctly. Stats come from stats.json (single source). -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "MapleSpike Quill",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "description": descriptionResolved,
+      "url": canonical,
+      "inLanguage": lang === "fr" ? "fr-CA" : "en-CA",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
+      "featureList": `${statsData.modules} Canadian government data modules, ${statsData.tools} MCP tools, SHA-256 verifiable citations`,
+    })} />
   </head>
   <!-- Unified layout: all pages (including landing) use BaseLayout for
        consistent nav, footer, auth, and i18n chrome. The landing page's
