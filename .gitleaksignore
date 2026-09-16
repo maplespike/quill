@@ -1,0 +1,29 @@
+# gitleaks allowlist — baseline from docs/SECRETS-AUDIT-2026-09-16.md (#854)
+#
+# The two REAL findings (age private keys in .secrets/, commits d3526781 and
+# a1cabade) are NOT ignored — they are remediated by history rewrite tracked
+# in #854. Everything below is a verified false positive: documentation
+# placeholders, test fixtures, and example curl commands.
+
+# ── Doc placeholders (curl examples, "REDACTED"/<token> patterns) ──
+paths = '''
+(?i)(docs/journalist-quickstart\.md|
+packages/docs/|
+docs/DEPLOYMENT\.md|
+DEPLOY-CHECKLIST\.md|
+KANBAN-AUTOMATION\.md|
+packages/api-server/src/dev-server\.ts|
+packages/api-server/src/routes/billing\.ts|
+packages/portal/src/pages/workspace\.astro)
+'''
+
+# ── Test fixtures (placeholder credentials in test suites) ──
+paths = '''
+packages/api-server/src/__tests__/
+packages/quill-mcp/src/__tests__/
+'''
+
+# ── Stopwords that trip generic-api-key on example values ──
+regexes = '''
+(?i)(REDACTED|REPLACE_ME|REPLACE_WITH|YOUR_API_KEY|<token>|sk_test_REPLACE|sk_live_REPLACE)
+'''
