@@ -194,6 +194,10 @@ import * as linkedEntities from './linked-entities.js';
 // ── Claim Stack (WS-1) — verification & provenance ──────────────
 import * as verifyClaim from './verify-claim.js';
 
+// ── Context7-shape shell (#803/master plan): resolve → query → verify ──
+import * as resolveQuillId from './resolve-quill-id.js';
+import * as queryQuill from './query-quill.js';
+
 // ── x402 payments (Phase 3) ──────────────────────────────────
 import * as x402Deposit from './x402-deposit.js';
 
@@ -461,6 +465,10 @@ export function getAllTools(): ToolModule[] {
 
     // Claim Stack: independent claim verification (free tier)
     verifyClaim,
+
+    // Context7-shape shell: 2-call entry points over the full registry
+    resolveQuillId,
+    queryQuill,
 
     // x402 deposit tool (Phase 3). Always available; deposit is a no-op
     // when X402_ENABLED is unset — see x402-deposit.ts.
