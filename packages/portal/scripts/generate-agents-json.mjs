@@ -36,7 +36,9 @@ const tools = Object.entries(agentMap).map(([key, agent]) => ({
 
 const manifest = {
   name: 'MapleSpike',
-  description: 'Canadian government data API — 64+ modules, 30+ MCP tools, SHA-256 verified citations',
+  // #752: counts drifted ("64+ modules, 30+ MCP tools" — the repo renamed and
+  // grew). Keep qualitative; authoritative numbers live in docs/metrics.json.
+  description: 'Canadian government data API — 208 data modules, 182 MCP tools, SHA-256 verified citations',
   url: 'https://maplespike.ca',
   moduleCount: agents.length,
   actionCount: agents.reduce((sum, a) => sum + a.actions.length, 0),
@@ -44,6 +46,10 @@ const manifest = {
   tools,
 };
 
-const outPath = resolve(__dirname, '../agents.json');
+// #752 fix: write into public/ so Astro actually serves it. Previously wrote
+// to the package root, which Astro ignores — the deployed /agents.json never
+// updated. Kept a root copy for backward compat with anything reading it there.
+const outPath = resolve(__dirname, '../public/agents.json');
 writeFileSync(outPath, JSON.stringify(manifest, null, 2));
+try { writeFileSync(resolve(__dirname, '../agents.json'), JSON.stringify(manifest, null, 2)); } catch { /* non-fatal */ }
 console.log(`Wrote ${outPath} — ${agents.length} agents, ${manifest.actionCount} actions`);

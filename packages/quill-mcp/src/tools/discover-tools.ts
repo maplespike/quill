@@ -1,5 +1,31 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 
+// ── #838 Tool-index hygiene ──────────────────────────────────────────────
+// Cross-reference/influence tools are the composition-hub surface — promote
+// them in discovery. Thin CKAN wrappers are demoted unless named exactly.
+
+/** High-signal tools promoted by #838 (issue acceptance list). */
+export const FEATURED_TOOLS: readonly string[] = [
+  'linked_entities',
+  'search_cross_reference',
+  'find_connections',
+  'resolve_entity',
+  'get_politician_influence',
+  'fact_check',
+  'track_bill',
+];
+
+/**
+ * Heuristic: thin CKAN wrappers. Long-tail per-source tools whose
+ * descriptions are short/generic. They remain fully callable — discovery
+ * just ranks them below curated/composition tools for broad queries.
+ */
+function isThinWrapper(entry: { toolName: string; description: string }): boolean {
+  if (FEATURED_TOOLS.includes(entry.toolName)) return false;
+  if (!/^search_[a-z0-9_]+$/.test(entry.toolName)) return false;
+  return entry.description.length < 90;
+}
+
 // Tool search index — built from all registered tool definitions
 const toolIndex: Array<{ toolName: string; description: string }> = [
   {
@@ -726,7 +752,16 @@ function bm25(
   }
 
   scores.sort((a, b) => b.score - a.score);
-  return scores.slice(0, limit).map(s => s.entry);
+  return scores
+    .map(s => ({
+      entry: s.entry,
+      score: isThinWrapper(s.entry) && !query.toLowerCase().includes(s.entry.toolName)
+        ? s.score * 0.6 // #838: demote thin wrappers on broad queries
+        : s.score,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(s => s.entry);
 }
 
 export const definition: ToolDefinition = {
@@ -793,12 +828,26 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
 
   const effective = await getEffectiveIndex();
   const results = bm25(query, limit, effective);
+  const lowered = query.toLowerCase();
+
+  // #838: meta-queries ("what can you do", "overview", "featured") lead with
+  // the cross-reference/influence composition surface.
+  const wantsFeatured = results.length === 0
+    || /what (can|tools)|overview|featured|cross.?ref|influence|connections|verify/i.test(query);
+  const featuredList = wantsFeatured
+    ? effective.filter(e => FEATURED_TOOLS.includes(e.toolName))
+    : [];
 
   return {
     content: {
       tool: 'discover_tools',
       query,
-      results: results.map(r => ({ tool_name: r.toolName, description: r.description })),
+      featured: featuredList.map(r => ({ tool_name: r.toolName, description: r.description })),
+      results: results.map(r => ({
+        tool_name: r.toolName,
+        description: r.description,
+        featured: FEATURED_TOOLS.includes(r.toolName) || undefined,
+      })),
       total: results.length,
     },
   };
