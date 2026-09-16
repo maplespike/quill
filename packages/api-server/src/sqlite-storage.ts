@@ -6,7 +6,7 @@
  */
 
 import Database from 'better-sqlite3';
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 
 
@@ -471,6 +471,73 @@ export class SqliteStorage implements QuillStorage {
       stripe_current_period_end: r.stripe_current_period_end,
       tier: r.tier as ExpiringTier['tier'],
     }));
+  }
+
+  /* ── Tax ledger (#811 — better-sqlite3) ── */
+
+  async ensureTaxLedgerSchema(): Promise<void> {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tax_ledger (
+        id TEXT PRIMARY KEY NOT NULL,
+        entry_type TEXT NOT NULL,
+        amount_cents INTEGER NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'CAD',
+        order_id TEXT,
+        tenant_id TEXT,
+        stripe_event_id TEXT UNIQUE,
+        note TEXT,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_tax_ledger_created ON tax_ledger(created_at);
+    `);
+  }
+
+  async insertTaxLedgerEntry(entry: TaxLedgerEntryInsert): Promise<void> {
+    await this.ensureTaxLedgerSchema();
+    this.db.prepare(
+      `INSERT INTO tax_ledger (id, entry_type, amount_cents, currency, order_id, tenant_id, stripe_event_id, note, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      entry.id,
+      entry.entryType,
+      entry.amountCents,
+      entry.currency,
+      entry.orderId ?? null,
+      entry.tenantId ?? null,
+      entry.stripeEventId ?? null,
+      entry.note ?? null,
+      entry.createdAt ?? Math.floor(Date.now() / 1000),
+    );
+  }
+
+  async hasTaxLedgerEntry(id: string): Promise<boolean> {
+    await this.ensureTaxLedgerSchema();
+    const row = this.db.prepare('SELECT id FROM tax_ledger WHERE id = ?').get(id) as { id: string } | undefined;
+    return row !== undefined;
+  }
+
+  async getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary> {
+    await this.ensureTaxLedgerSchema();
+    const agg = this.db.prepare(
+      `SELECT
+         COALESCE(SUM(CASE WHEN amount_cents > 0 THEN amount_cents ELSE 0 END), 0) AS gross_cents,
+         COALESCE(SUM(CASE WHEN amount_cents < 0 THEN -amount_cents ELSE 0 END), 0) AS refunds_cents,
+         COUNT(*) AS entry_count
+       FROM tax_ledger WHERE created_at >= ?`,
+    ).get(windowStartUnix) as { gross_cents: number; refunds_cents: number; entry_count: number };
+    const last = this.db.prepare(
+      'SELECT id FROM tax_ledger ORDER BY created_at DESC, rowid DESC LIMIT 1',
+    ).get() as { id: string } | undefined;
+    const net = (agg.gross_cents ?? 0) - (agg.refunds_cents ?? 0);
+    return {
+      grossCents: agg.gross_cents ?? 0,
+      refundsCents: agg.refunds_cents ?? 0,
+      netCents: net,
+      netCad: net / 100,
+      windowStartUnix,
+      lastEventId: last?.id ?? null,
+      entryCount: agg.entry_count ?? 0,
+    };
   }
 
   /** Map raw sqlite row -> StripeOrder (column-name canonicalisation). */
