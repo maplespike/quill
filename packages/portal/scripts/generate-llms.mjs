@@ -18,22 +18,33 @@ const PUBLIC_DIR = resolve(PORTAL_DIR, 'public');
 const ROOT_DIR = resolve(__dirname, '../../..');
 
 // ── MCP tools catalog — use the authoritative getToolNames() ──
+// #752: the package was renamed mcp-server → quill-mcp (2026-07 repo rename,
+// ADR 0007). The old path silently 404'd and generation went stale.
 let tools = [];
-try {
-  const toolsIndexPath = resolve(ROOT_DIR, 'packages/mcp-server/dist/tools/index.js');
-  if (existsSync(toolsIndexPath)) {
-    const toolsModule = await import(toolsIndexPath);
-    if (typeof toolsModule.getToolNames === 'function') {
-      tools = toolsModule.getToolNames();
+const MCP_PKG_DIRS = [
+  resolve(ROOT_DIR, 'packages/quill-mcp'),
+  resolve(ROOT_DIR, 'packages/mcp-server'), // pre-rename fallback
+];
+const mcpPkgDir = MCP_PKG_DIRS.find((d) => existsSync(d));
+if (mcpPkgDir) {
+  try {
+    const toolsIndexPath = resolve(mcpPkgDir, 'dist/tools/index.js');
+    if (existsSync(toolsIndexPath)) {
+      const toolsModule = await import(toolsIndexPath);
+      if (typeof toolsModule.getToolNames === 'function') {
+        tools = toolsModule.getToolNames();
+      }
     }
+  } catch (err) {
+    console.warn(`[generate-llms] Could not import getToolNames from built MCP server: ${err instanceof Error ? err.message : String(err)}`);
   }
-} catch (err) {
-  console.warn(`[generate-llms] Could not import getToolNames from built MCP server: ${err instanceof Error ? err.message : String(err)}`);
+}
+if (tools.length === 0) {
   console.warn('[generate-llms] Falling back to filesystem scan (may include internal modules)');
   // Fallback: scan dist/tools and exclude known internal files
   try {
     const fs = await import('fs');
-    const toolsDir = resolve(ROOT_DIR, 'packages/mcp-server/dist/tools');
+    const toolsDir = resolve(mcpPkgDir ?? ROOT_DIR, 'dist/tools');
     if (existsSync(toolsDir)) {
       const INTERNAL = new Set([
         'api-client', 'citation', 'entity-resolver-lib', 'index', 'types',
