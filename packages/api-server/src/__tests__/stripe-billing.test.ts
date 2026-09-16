@@ -420,6 +420,10 @@ describe('stripeCheckoutHandler', () => {
     assert.equal(body.data.plan_id, 'pro');
     assert.equal(body.data.amount_cents, 5000);
     assert.equal(body.data.currency, 'CAD');
+    // #811: checkout exposes the tax computation; unregistered = zero tax.
+    assert.equal(body.data.tax.registered, false);
+    assert.equal(body.data.tax.tax_cents, 0);
+    assert.equal(body.data.amount_before_tax_cents, 5000);
 
     // Phase-1 persistence: order is now in MemoryStorage (proxies for D1/sqlite).
     const stored = await _testDb.getStripeOrderById(body.data.order_id);
