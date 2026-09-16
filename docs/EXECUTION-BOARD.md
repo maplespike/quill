@@ -41,7 +41,10 @@ Everything needed to flip Stripe live. Nothing else on this board matters until 
 - **#788 + #752 done:** robots.txt rewritten (citing AI crawlers allowed explicitly, Bytespider blocked, private surfaces disallowed); JSON-LD SoftwareApplication in BaseLayout; generate-llms.mjs dead `mcp-server` path fixed → `quill-mcp`; generate-agents-json.mjs now writes into `public/` (was package root — Astro never served it) with reconciled counts. Generators verified end-to-end (182 tools, fresh agents.json). astro check 0 errors. Evidence posted on issues.
 - **Stale issues closed with evidence:** #740, #739 (bilingual verified implemented: 176 FR tool descriptions + 24 API error codes), #747 (self-marked DONE), #730 (dup of #731).
 - **Labels live:** ws0–ws5 applied across all open issues → `gh issue list -l ws0` is the queue.
-- **All work currently UNCOMMITTED on the working tree** — commit in labeled batches (tax-ledger / discover-tools / ai-visibility) before PR #826 review.
+- **All work committed** in labeled batches: `feat(billing)` (#811 + operator-route fix), `feat(mcp)` (#838 + #752), `feat(portal)` (#788), `ci(security)` (#854 gate), `docs` (master plan/board/audit).
+- **ROUTER SHIPPED (WS1 capstone):** `resolve_quill_id` + `query_quill` — 2-call Context7-shape shell over the live registry; auto-built route table; `_quill_route` envelope + SHA-256 verify recipe on cited results; 16 tests, suite 79/79, tsc clean. The master plan's Phase-1 transformation is now real.
+- **Issues closed with evidence:** #838, #752, #788, #740, #739, #747, #730. **#854 filed** (history-rewrite blocker).
+- **Next up:** #831 Quill Lite productization → #845 citecheck → `npx setup` → PR #826 review → #854 history rewrite (needs operator sign-off — force-push) → live platform recovery (530s; #781) → #823 go-live.
 
 ## WS1 — Agent surface + public flip (P1 · weeks 2–8 · the multiplier)
 
