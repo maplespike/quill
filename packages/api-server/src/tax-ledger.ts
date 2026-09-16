@@ -149,7 +149,6 @@ export function assessTaxThreshold(summary: TaxLedgerSummary, previousNetCents?:
  * Returns the message so callers can include it in API responses.
  */
 export function fireTaxAlert(assessment: TaxThresholdAssessment): string {
-  // eslint-disable-next-line no-console
   console.error(`[TAX-ALERT][${assessment.status}] ${assessment.message}`);
   return assessment.message;
 }

@@ -19,6 +19,7 @@ data/
 .env.*
 !.env.example
 # Age private key for MapleSpike Secret Vault
+.secrets/
 .secrets/key.txt
 # Internal agent working dirs (kept out of the public repo)
 .sisyphus/
