@@ -21,6 +21,7 @@ import type { RouteHandler, PaymentReconciliationInsert } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { nanoid } from 'nanoid';
 import * as stripe from '../services/stripe.js';
+import { recordTaxEvent, computeHst } from '../tax-ledger.js';
 import type { StripeOrder } from '../types.js';
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -210,9 +211,13 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
     }
 
     const baseUrl = appBaseUrl().replace(/\/$/, '');
+    // #811: GST/HST is ONLY added once the operator flips GST_HST_REGISTERED=true.
+    // While unregistered the charged amount is exactly the plan price — charging
+    // tax unregistered is non-compliant (CRA small-supplier rules).
+    const tax = computeHst(plan.amount_cents);
     const session = await stripe.createCheckoutSession({
       customerId,
-      amountCents: plan.amount_cents,
+      amountCents: tax.totalCents,
       currency: plan.currency,
       productName: plan.product_name,
       description: plan.description,
@@ -251,7 +256,9 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
         {
           order_id: orderId,
           plan_id: plan.tier,
-          amount_cents: plan.amount_cents,
+          amount_cents: tax.totalCents,
+          amount_before_tax_cents: plan.amount_cents,
+          tax: { registered: tax.registered, rate: tax.rate, tax_cents: tax.taxCents },
           currency: plan.currency.toUpperCase(),
           checkout_url: session.url,
           stripe_checkout_session_id: session.id,
@@ -512,8 +519,51 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
 
       case 'invoice.payment_succeeded': {
         // Renewal confirmation — tier is already set by subscription.updated.
+        // #811: this is also the canonical charge event for the tax ledger —
+        // subscriptions bill via invoices, so recording checkout sessions here
+        // too would double-count the first period.
+        try {
+          const amountTotal = typeof obj.amount_paid === 'number' ? obj.amount_paid : undefined;
+          if (amountTotal !== undefined && amountTotal > 0) {
+            const ledgerResult = await recordTaxEvent(_ctx.db, {
+              eventId: event.id,
+              entryType: 'charge',
+              amountCents: amountTotal,
+              currency: (obj.currency ?? 'cad').toUpperCase(),
+              tenantId: stripe.tenantIdFromMetadata(obj.metadata) ?? null,
+            });
+            result.action = `renewal_logged;tax_${ledgerResult}`;
+          } else {
+            result.action = 'renewal_logged';
+          }
+        } catch (e) {
+          webhookLog.warn({ err: (e as Error).message, eventId: event.id }, 'tax ledger charge recording failed');
+          result.action = 'renewal_logged;tax_error';
+        }
         result.processed = true;
-        result.action = 'renewal_logged';
+        break;
+      }
+
+      case 'charge.refunded': {
+        // #811: net refunds out of taxable revenue. Idempotent by event ID.
+        try {
+          const refundedCents = typeof obj.amount_refunded === 'number' ? obj.amount_refunded : undefined;
+          if (refundedCents !== undefined && refundedCents > 0) {
+            const ledgerResult = await recordTaxEvent(_ctx.db, {
+              eventId: event.id,
+              entryType: 'refund',
+              amountCents: -refundedCents,
+              currency: (obj.currency ?? 'cad').toUpperCase(),
+            });
+            result.action = `refund_${ledgerResult}`;
+          } else {
+            result.action = 'refund_skipped';
+          }
+        } catch (e) {
+          webhookLog.warn({ err: (e as Error).message, eventId: event.id }, 'tax ledger refund recording failed');
+          result.action = 'refund_error';
+        }
+        result.processed = true;
         break;
       }
 
