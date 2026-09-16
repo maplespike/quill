@@ -114,6 +114,23 @@ jobs:
           QUILL_HTTP_MAX_RETRIES: '1'
           QUILL_HTTP_TIMEOUT_MS: '15000'
 
+  secrets:
+    needs: build-and-test
+    # Runs anywhere (no cluster dependency): full-history gitleaks scan.
+    # Baseline: docs/SECRETS-AUDIT-2026-09-16.md / issue #854 — the two real
+    # age-key findings are remediated by history rewrite before public flip;
+    # doc/test placeholders are excluded via .gitleaksignore.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history — gitleaks must see every commit
+
+      - name: gitleaks (full history)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   audit:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
