@@ -81,6 +81,16 @@ export interface User {
 /*  Usage / Rate Limits                                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * TIER_LIMITS — quota axis for the Stripe subscription tiers (#803).
+ *
+ * TWO-AXIS MODEL (resolved by #803 — do not conflate):
+ *   Axis 1 (this): Stripe subscription quotas — monthly/daily call caps per
+ *   tier, enforced by enforceRateLimit() against storage-backed counters.
+ *   Axis 2: x402 per-call pricing (pricing.ts in quill-mcp) — the agent-native
+ *   pay-per-call rail. A tenant can be Free on axis 1 and still pay x402 per
+ *   call on axis 2; they are independent surfaces.
+ */
 export const TIER_LIMITS: Record<Tier, { monthly: number; daily: number }> = {
   free:      { monthly: 1_000,  daily: 35 },
   pro:       { monthly: 50_000, daily: 1_700 },
@@ -294,6 +304,42 @@ export interface StripeOrder {
   cancelled_at?: number;
 }
 
+/* ── Tax ledger (#811 — GST/HST tracker) ─────────────────────────── */
+
+export type TaxLedgerEntryType = 'charge' | 'refund' | 'adjustment';
+
+export interface TaxLedgerEntryInsert {
+  /** Idempotency key — the Stripe event ID (or a deterministic operator key). */
+  id: string;
+  entryType: TaxLedgerEntryType;
+  /** Signed cents: +charge, −refund. */
+  amountCents: number;
+  currency: string;
+  orderId?: string | null;
+  tenantId?: string | null;
+  /** Stripe event ID when sourced from a webhook; UNIQUE. */
+  stripeEventId?: string | null;
+  note?: string | null;
+  /** Unix seconds. Defaults to now. */
+  createdAt?: number;
+}
+
+export interface TaxLedgerSummary {
+  /** Gross charges in the window (positive cents). */
+  grossCents: number;
+  /** Absolute value of refunds in the window (positive cents). */
+  refundsCents: number;
+  /** Net taxable revenue = gross − refunds (cents). */
+  netCents: number;
+  /** Net as CAD dollars, for display. */
+  netCad: number;
+  /** Unix seconds of window start. */
+  windowStartUnix: number;
+  /** Most recent ledger event ID processed (dedupe cursor). */
+  lastEventId: string | null;
+  entryCount: number;
+}
+
 export interface StripeOrderInsert {
   order_id: string;
   tenant_id: string;
@@ -415,6 +461,16 @@ export interface QuillStorage {
   /* ── STRIPE-1: tier-expiry sweep for cron reconciler ── */
   /** Tenants whose stripe_current_period_end is past AND tier is non-free. */
   findTenantsForTierExpiry(nowUnix: number): Promise<ExpiringTier[]>;
+
+  /* ── Tax ledger (#811 — GST/HST taxable-revenue tracker) ── */
+  /** Create the tax_ledger table if missing (idempotent, lazy). */
+  ensureTaxLedgerSchema(): Promise<void>;
+  /** Append a ledger entry. Throws on UNIQUE(id) violation (replay). */
+  insertTaxLedgerEntry(entry: TaxLedgerEntryInsert): Promise<void>;
+  /** True if a ledger entry with this idempotency key exists. */
+  hasTaxLedgerEntry(id: string): Promise<boolean>;
+  /** Rolling-window summary: charges net of refunds since windowStartUnix. */
+  getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary>;
 }
 
 export interface QuillCache {

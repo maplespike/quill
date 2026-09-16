@@ -21,7 +21,7 @@ import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
 import { enforceRateLimit } from './rate-limit.js';
-import { isFreeTierRoute } from './feature-gates.js';
+import { isFreeTierRoute, isOperatorRoute } from './feature-gates.js';
 import {
   buildError,
   buildSuccess,
@@ -69,6 +69,7 @@ import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler } from './routes/billing.js';
+import { taxStatusHandler, taxAdjustmentHandler } from './routes/tax-status.js';
 import {
   stripeCheckoutHandler,
   stripeWebhookHandler,
@@ -179,6 +180,10 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/stripe\/status\/?$/, method: 'GET', params: [], handler: stripeStatusHandler },
   // STRIPE-1: cron reconciler — shared-secret auth (X-Billing-Secret); route-level authExempt false; handler enforces secret.
   { pattern: /^\/v1\/billing\/reconcile-expiry\/?$/, method: 'POST', params: [], handler: reconcileExpiryHandler },
+
+  // #811 GST/HST tracker — operator routes (X-Billing-Secret enforced in-handler; bypass Free-tier gate via isOperatorRoute)
+  { pattern: /^\/v1\/billing\/tax\/status\/?$/, method: 'GET', params: [], handler: taxStatusHandler },
+  { pattern: /^\/v1\/billing\/tax\/adjustment\/?$/, method: 'POST', params: [], handler: taxAdjustmentHandler },
 
   // Extraction — client-side browser extraction system
   { pattern: /^\/v1\/extraction\/tasks\/?$/, method: 'GET', params: [], handler: withRouteCache(extractionTasksHandler, 300) },
@@ -624,7 +629,7 @@ export async function handleRequest(
   // Single-place enforcement: anything not on the Free whitelist is blocked
   // for free tenants with UPGRADE_REQUIRED. (Pro+ gating per-route still
   // applies via canAccess for individual features.)
-  if (ctx.tenant.tier === 'free' && !isFreeTierRoute(path)) {
+  if (ctx.tenant.tier === 'free' && !isFreeTierRoute(path) && !isOperatorRoute(path)) {
     const bc: BuildContext = {
       tenant: ctx.tenant,
       requestId,

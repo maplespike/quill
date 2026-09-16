@@ -6,7 +6,7 @@
  */
 
 import pg from 'pg';
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 import pino from 'pino';
 
@@ -546,6 +546,76 @@ export class PgStorage implements QuillStorage {
       stripe_current_period_end: r.stripe_current_period_end,
       tier: r.tier as ExpiringTier['tier'],
     }));
+  }
+
+  /* ── Tax ledger (#811 — Postgres) ── */
+
+  async ensureTaxLedgerSchema(): Promise<void> {
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS tax_ledger (
+        id TEXT PRIMARY KEY,
+        entry_type TEXT NOT NULL,
+        amount_cents INTEGER NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'CAD',
+        order_id TEXT,
+        tenant_id TEXT,
+        stripe_event_id TEXT UNIQUE,
+        note TEXT,
+        created_at BIGINT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_tax_ledger_created ON tax_ledger(created_at);
+    `);
+  }
+
+  async insertTaxLedgerEntry(entry: TaxLedgerEntryInsert): Promise<void> {
+    await this.ensureTaxLedgerSchema();
+    await this.pool.query(
+      `INSERT INTO tax_ledger (id, entry_type, amount_cents, currency, order_id, tenant_id, stripe_event_id, note, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        entry.id,
+        entry.entryType,
+        entry.amountCents,
+        entry.currency,
+        entry.orderId ?? null,
+        entry.tenantId ?? null,
+        entry.stripeEventId ?? null,
+        entry.note ?? null,
+        entry.createdAt ?? Math.floor(Date.now() / 1000),
+      ],
+    );
+  }
+
+  async hasTaxLedgerEntry(id: string): Promise<boolean> {
+    await this.ensureTaxLedgerSchema();
+    const { rows } = await this.pool.query('SELECT 1 FROM tax_ledger WHERE id = $1', [id]);
+    return rows.length > 0;
+  }
+
+  async getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary> {
+    await this.ensureTaxLedgerSchema();
+    const { rows } = await this.pool.query(
+      `SELECT
+         COALESCE(SUM(CASE WHEN amount_cents > 0 THEN amount_cents ELSE 0 END), 0) AS gross_cents,
+         COALESCE(SUM(CASE WHEN amount_cents < 0 THEN -amount_cents ELSE 0 END), 0) AS refunds_cents,
+         COUNT(*)::int AS entry_count
+       FROM tax_ledger WHERE created_at >= $1`,
+      [windowStartUnix],
+    );
+    const lastRes = await this.pool.query('SELECT id FROM tax_ledger ORDER BY created_at DESC LIMIT 1');
+    const agg = rows[0] as { gross_cents: string | number; refunds_cents: string | number; entry_count: number };
+    const gross = Number(agg.gross_cents ?? 0);
+    const refunds = Number(agg.refunds_cents ?? 0);
+    const net = gross - refunds;
+    return {
+      grossCents: gross,
+      refundsCents: refunds,
+      netCents: net,
+      netCad: net / 100,
+      windowStartUnix,
+      lastEventId: (lastRes.rows[0] as { id: string } | undefined)?.id ?? null,
+      entryCount: agg.entry_count ?? 0,
+    };
   }
 }
 

@@ -5,7 +5,7 @@
  * of the QuillStorage interface.
  */
 
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, StripeOrder, StripeOrderInsert, StripeOrderUpdates, TenantStripeUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, StripeOrder, StripeOrderInsert, StripeOrderUpdates, TenantStripeUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary } from './types.js';
 import { hashApiKey } from './auth.js';
 import type { Env } from './types.js';
 
@@ -286,6 +286,74 @@ export class D1Storage implements QuillStorage {
       tier: r.tier as ExpiringTier['tier'],
     }));
   }
+
+  /* ── Tax ledger (#811 — D1) ── */
+
+  async ensureTaxLedgerSchema(): Promise<void> {
+    await this.db.prepare(`
+      CREATE TABLE IF NOT EXISTS tax_ledger (
+        id TEXT PRIMARY KEY NOT NULL,
+        entry_type TEXT NOT NULL,
+        amount_cents INTEGER NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'CAD',
+        order_id TEXT,
+        tenant_id TEXT,
+        stripe_event_id TEXT UNIQUE,
+        note TEXT,
+        created_at INTEGER NOT NULL
+      )
+    `).bind().run();
+    await this.db.prepare(`CREATE INDEX IF NOT EXISTS idx_tax_ledger_created ON tax_ledger(created_at)`).bind().run();
+  }
+
+  async insertTaxLedgerEntry(entry: TaxLedgerEntryInsert): Promise<void> {
+    await this.ensureTaxLedgerSchema();
+    await this.db.prepare(
+      `INSERT INTO tax_ledger (id, entry_type, amount_cents, currency, order_id, tenant_id, stripe_event_id, note, created_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+    ).bind(
+      entry.id,
+      entry.entryType,
+      entry.amountCents,
+      entry.currency,
+      entry.orderId ?? null,
+      entry.tenantId ?? null,
+      entry.stripeEventId ?? null,
+      entry.note ?? null,
+      entry.createdAt ?? Math.floor(Date.now() / 1000),
+    ).run();
+  }
+
+  async hasTaxLedgerEntry(id: string): Promise<boolean> {
+    await this.ensureTaxLedgerSchema();
+    const row = await this.db.prepare('SELECT id FROM tax_ledger WHERE id = ?1').bind(id).first<{ id: string }>();
+    return row !== null;
+  }
+
+  async getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary> {
+    await this.ensureTaxLedgerSchema();
+    const agg = await this.db.prepare(
+      `SELECT
+         COALESCE(SUM(CASE WHEN amount_cents > 0 THEN amount_cents ELSE 0 END), 0) AS gross_cents,
+         COALESCE(SUM(CASE WHEN amount_cents < 0 THEN -amount_cents ELSE 0 END), 0) AS refunds_cents,
+         COUNT(*) AS entry_count
+       FROM tax_ledger WHERE created_at >= ?1`,
+    ).bind(windowStartUnix).first<{ gross_cents: number; refunds_cents: number; entry_count: number }>();
+    const lastResult = await this.db.prepare('SELECT id FROM tax_ledger ORDER BY created_at DESC LIMIT 1').bind().all<{ id: string }>();
+    const last = (lastResult.results && lastResult.results[0]) || null;
+    const gross = agg?.gross_cents ?? 0;
+    const refunds = agg?.refunds_cents ?? 0;
+    const net = gross - refunds;
+    return {
+      grossCents: gross,
+      refundsCents: refunds,
+      netCents: net,
+      netCad: net / 100,
+      windowStartUnix,
+      lastEventId: last?.id ?? null,
+      entryCount: agg?.entry_count ?? 0,
+    };
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -486,6 +554,53 @@ export class MemoryStorage implements QuillStorage {
       }
     }
     return out;
+  }
+
+  /* ── Tax ledger (#811 — MemoryStorage) ── */
+
+  private taxLedger: Map<string, TaxLedgerEntryInsert & { createdAt: number }> = new Map();
+
+  async ensureTaxLedgerSchema(): Promise<void> {
+    // In-memory: schema is implicit.
+  }
+
+  async insertTaxLedgerEntry(entry: TaxLedgerEntryInsert): Promise<void> {
+    if (this.taxLedger.has(entry.id)) {
+      throw new Error(`UNIQUE constraint: tax_ledger.id=${entry.id} already exists`);
+    }
+    this.taxLedger.set(entry.id, { ...entry, createdAt: entry.createdAt ?? Math.floor(Date.now() / 1000) });
+  }
+
+  async hasTaxLedgerEntry(id: string): Promise<boolean> {
+    return this.taxLedger.has(id);
+  }
+
+  async getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary> {
+    let gross = 0;
+    let refunds = 0;
+    let lastEventId: string | null = null;
+    let lastCreatedAt = 0;
+    let count = 0;
+    for (const e of this.taxLedger.values()) {
+      if (e.createdAt < windowStartUnix) continue;
+      count++;
+      if (e.amountCents > 0) gross += e.amountCents;
+      else refunds += Math.abs(e.amountCents);
+      if (e.createdAt >= lastCreatedAt) {
+        lastCreatedAt = e.createdAt;
+        lastEventId = e.id;
+      }
+    }
+    const net = gross - refunds;
+    return {
+      grossCents: gross,
+      refundsCents: refunds,
+      netCents: net,
+      netCad: net / 100,
+      windowStartUnix,
+      lastEventId,
+      entryCount: count,
+    };
   }
 }
 

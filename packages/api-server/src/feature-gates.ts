@@ -178,6 +178,26 @@ export function isFreeTierRoute(path: string): boolean {
   return FREE_TIER_ALLOWED_PREFIXES.some((p) => path.startsWith(p));
 }
 
+// ─── Operator routes (shared-secret, not tenant surface) ────────────────
+//
+// These routes authenticate via X-Billing-Secret (operator/cron only) and
+// are enforced inside their handlers. They must bypass the Free-tier gate —
+// the cron caller is anonymous and would otherwise be 402'd by the Free
+// boundary before its secret was ever checked (latent bug found while
+// wiring #811: reconcile-expiry was already affected).
+
+export const OPERATOR_ROUTE_PREFIXES: readonly string[] = [
+  '/v1/billing/reconcile',
+  '/v1/billing/reconcile-expiry',
+  '/v1/billing/verify',
+  '/v1/billing/tax/',
+];
+
+/** True for operator/cron routes (X-Billing-Secret enforced in-handler). */
+export function isOperatorRoute(path: string): boolean {
+  return OPERATOR_ROUTE_PREFIXES.some((p) => path.startsWith(p));
+}
+
 // ─── Tier Metadata ───────────────────────────────────────────────────────
 
 export const TIER_METADATA: Record<Tier, { name: string; description: string; isSelfHosted: boolean }> = {
