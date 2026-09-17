@@ -105,3 +105,39 @@ required** — watch the boot, complete any fsck, and check `systemctl`
 While blocked, the cluster remains safely degraded on nexus + sentry (2/3
 etcd voters). The moment forge comes back it should rejoin via Step 2; if it
 presents a conflicting member, use the member-remove + clean-db sequence.
+
+---
+
+## UPDATE 2026-09-17 (later): forge was RE-IMAGED — fresh-join path
+
+SSH returned via Tailscale (new IP `100.85.63.36`, LAN :22 still refused).
+Recon findings that invalidate the "restart the old install" plan:
+
+- forge is a **fresh Omarchy install** (~30 min uptime): no k3s binary, no
+  `/var/lib/rancher`, no unit, `~/quill-build` gone, Tailscale re-keyed
+- **sentry-agent's node-args are the proven post-reimage join template**
+  (it rejoined successfully after its own reimage): token at
+  `/var/lib/rancher/k3s/server/token`, flannel none (Calico), encryption
+  config at `server/cred/encryption-config.yaml`, no nix/audit flags
+- forge's ORIGINAL nixos-era args (extracted from its node object) are
+  preserved above; the nix/audit/etcd-tuning bits are intentionally dropped
+
+### Done (staged on forge, secrets 0600 in `~/k3s-join/`)
+
+1. `ops/install-k3s-forge.sh` (committed) — full join script, sentry-template
+2. `k3s-cluster-token` — copied from nexus (never displayed)
+3. `encryption-config.yaml` — copied from nexus (must match cluster key)
+4. Zombie pods purged; k3s managed-etcd controller will handle the stale
+   `forge-98da13e8` member on same-name rejoin (no manual etcdctl surgery)
+
+### The ONE remaining step (needs sudo password — interactive)
+
+```bash
+ssh 100.85.63.36                      # or: ssh forge once LAN sshd returns
+sudo bash ~/k3s-join/install-k3s-forge.sh
+```
+
+Then verify: `kubectl get nodes` → forge Ready; `EtcdIsVoter=True`.
+
+Optional (lets the agent finish future ops unattended):
+`echo 'j_kro ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/j_kro`
