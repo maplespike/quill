@@ -24,6 +24,13 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+      {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+      # SQLite on PVC → the pod must stay on the node holding its volume.
+      # (Single-replica-per-node constraint; replicas>1 needs a shared FS or PG.)
+      {{- if .Values.api.storage.nodeName }}
+      nodeName: {{ .Values.api.storage.nodeName }}
+      {{- end }}
+      {{- end }}
       containers:
       - name: api
         image: "{{ .Values.image.registry }}/quill-api:{{ .Values.image.tag }}"
@@ -35,6 +42,10 @@ spec:
           value: "{{ .Values.api.env.NODE_ENV }}"
         - name: QUILL_STORAGE
           value: "{{ .Values.api.env.QUILL_STORAGE | default "memory" }}"
+        {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+        - name: QUILL_DB_PATH
+          value: /data/quill/maplespike.db
+        {{- end }}
         - name: QUILL_API_URL
           value: "{{ .Values.api.env.QUILL_API_URL }}"
         - name: QUILL_QDRANT_ENDPOINT
@@ -118,6 +129,11 @@ spec:
               optional: true
         - name: STRIPE_ENV
           value: "{{ .Values.api.env.STRIPE_ENV | default "test" }}"
+        {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+        volumeMounts:
+        - name: data
+          mountPath: /data/quill
+        {{- end }}
         resources:
           requests:
             cpu: {{ .Values.api.resources.requests.cpu }}
@@ -125,6 +141,12 @@ spec:
           limits:
             cpu: {{ .Values.api.resources.limits.cpu }}
             memory: {{ .Values.api.resources.limits.memory }}
+      {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "quill.fullname" . }}-api-data
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
