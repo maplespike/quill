@@ -1,7 +1,7 @@
 {{/*
   Quill — Portal Deployment + Service
 */}}
-{{- if .Values.portal.enabled }}
+{{- if (.Values.portal | default dict).enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

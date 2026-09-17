@@ -1,14 +1,21 @@
-# Quill — Production Values
-# helm upgrade --install quill charts/quill -n maplespike -f charts/quill/values-prod.yaml
+# Quill — Production Values (2026-09-17 rev2)
+# nexus:5000 registry is DEAD and forge is FLAPPING (reboot → offline within
+# the hour). Images are now built ON nexus (docker) and imported directly into
+# its k3s containerd as docker.io/library/quill-*:local via
+# `k3s ctr images import`. The whole stack is pinned to nexus — the only node
+# with 4+ days of uptime. registry: prefix = docker.io/library so the full
+# image refs match the imported tags; pullPolicy Never forbids network pulls.
 
 image:
-  registry: nexus:5000
-  tag: stable
-  pullPolicy: Always
+  registry: "docker.io/library"
+  tag: "local"
+  pullPolicy: Never   # images preloaded into nexus containerd; Never forbids network pulls
 
 # API Server
 api:
-  replicas: 2
+  # SQLite + RWO PVC → exactly 1 replica (both pods would fight over one
+  # volume). Move to postgres + replicas 2 when write volume warrants it.
+  replicas: 1
   port: 8082
   resources:
     requests:
@@ -20,26 +27,29 @@ api:
   env:
     QUILL_API_URL: "http://quill-api:8082/v1"
     NODE_ENV: "production"
-    QUILL_STORAGE: "postgres"
-    QUILL_DB_HOST: "quill-db"
-    QUILL_DB_PORT: "5432"
-    QUILL_DB_NAME: "maplespike"
-    QUILL_QDRANT_ENDPOINT: "http://qdrant:6333"
-    QUILL_QDRANT_COLLECTION: "maplespike"
-    QUILL_EMBED_MODEL: "nvidia/llama-3.2-nv-embedqa-1b-v2"
+    # SQLite on a PVC (node:sqlite, no native compile) — simpler than PG for
+    # the current scale; flip QUILL_STORAGE to postgres + database.enabled
+    # when write volume warrants it.
+    QUILL_STORAGE: "sqlite"
     # WebAuthn / passkey — rp.id must match the browser origin domain
     MAPLESPIKE_DOMAIN: "maplespike.ca"
     MAPLESPIKE_ORIGIN: "https://quill.maplespike.ca"
-    # Portal URL for OAuth callback redirects
     PORTAL_URL: "https://quill.maplespike.ca"
     APP_URL: "https://quill.maplespike.ca"
-    # GitHub OAuth callback — must match GitHub App registration
     GITHUB_REDIRECT_URI: "https://api.maplespike.ca/v1/auth/github/callback"
-    # Trust proxy headers from cloudflared tunnel
     TRUST_PROXY: "true"
+    # #806: Stripe environment. 'test' until the go-live secret-swap.
+    STRIPE_ENV: "test"
   ingress:
     host: api.maplespike.ca
     tls: true
+  # Persistent storage for the SQLite DB (api writes billing/tenants/claims)
+  storage:
+    size: 5Gi
+    storageClass: local-path
+    # Pin to nexus: images are imported per-node, the DB must stay with its
+    # pod's node, and nexus is the only node with demonstrated uptime.
+    nodeName: nexus
 
 # MCP Server
 mcp:
@@ -56,10 +66,10 @@ mcp:
     host: mcp.maplespike.ca
     tls: true
 
-# PostgreSQL Database
+# PostgreSQL Database (disabled: sqlite mode is the current storage backend)
 database:
-  enabled: true
-  image: postgres:17-alpine
+  enabled: false
+  image: docker.io/library/postgres:17-alpine
   user: maplespike
   database: maplespike
   storage: 5Gi
@@ -72,7 +82,7 @@ database:
       memory: 512Mi
   nodeName: nexus
 
-# Portal (static HTML)
+# Portal (static Astro build served by python server.py)
 portal:
   enabled: true
   replicas: 1
@@ -88,12 +98,14 @@ portal:
     host: maplespike.ca
     tls: true
 
-# Cloudflare Tunnel (cloudflared)
+# Cloudflare Tunnel — DISABLED until the operator supplies the tunnel
+# credential (Secret `cloudflared-creds`, key credentials.json). Everything
+# else is verifiable in-cluster without it; flip enabled=true to go public.
 cloudflared:
-  enabled: true
-  image: cloudflare/cloudflared
-  tag: latest
-  pullPolicy: Always
+  enabled: false
+  image: docker.io/cloudflare/cloudflared
+  tag: "2026.8.2"
+  pullPolicy: IfNotPresent
   replicas: 1
   tunnelId: "cec1b070-796f-4524-b43e-9b05c32af906"
   nodeSelector:
@@ -105,8 +117,6 @@ cloudflared:
     limits:
       cpu: 200m
       memory: 128Mi
-  # quill.maplespike.ca is now served by Cloudflare Pages (free tier)
-  # — no tunnel ingress needed for the portal
   ingress:
     - hostname: api.maplespike.ca
       service: http://quill-api.maplespike.svc.cluster.local:8082
@@ -115,15 +125,22 @@ cloudflared:
     - hostname: kanban.maplespike.ca
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
-# Secrets (override via --set or external secret management)
+# Secrets — NEVER put real values here. Create the referenced K8s Secrets
+# before install (see docs/STANDUP-2026-09-17.md):
+#   quill-secrets:        apiKey, jwtSecret (+ optional github*)
+#   cloudflared-creds:    credentials.json (operator-gated)
 secrets:
+  # Empty here → secrets.yaml only emits keys for provided values; the api
+  # reads from pre-created Secrets with optional:true where possible.
   apiKey: ""
   jwtSecret: ""
   dbPassword: ""
-  # Stripe keys → injected via externalSecretRef in templates/secrets.yaml.
-  # Do NOT put real keys here; populate the K8s Secret `maplespike-stripe-secrets`
-  # via sops-sync-k8s.sh from the SOPS-encrypted `quill/secrets/runtime.yaml`.
   stripeSecretKey: ""
   stripeWebhookSecret: ""
   stripeAccountId: ""
   stripePublishableKey: ""
+
+# Ingestion CronJobs — disabled by default in this stand-up wave (they hammer
+# upstreams; re-enable per-module after the services verify healthy).
+ingestion:
+  enabled: false

@@ -17,6 +17,16 @@
 .env.*
 !.env.example
 
+# Local databases — must never bake into images (sizes + sensitive seeds)
+**/*.sqlite
+**/*.sqlite-shm
+**/*.sqlite-wal
+**/*.db
+
+# Secrets
+secrets/
+.secrets/
+
 # IDE
 .idea/
 .vscode/
