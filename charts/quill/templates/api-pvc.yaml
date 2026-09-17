@@ -1,0 +1,21 @@
+{{/*
+  Quill — API SQLite persistence (PVC)
+  Only rendered when QUILL_STORAGE=sqlite and api.storage is configured.
+*/}}
+{{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-api-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-api
+    component: api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.api.storage.storageClass | default "local-path" }}
+  resources:
+    requests:
+      storage: {{ .Values.api.storage.size | default "5Gi" }}
+{{- end }}
