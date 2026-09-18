@@ -33,7 +33,10 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           # Non-HTTP schemes (gitlawb://, did:key:) are intentionally excluded.
-          args: --verbose --no-progress --exclude 'gitlawb://' --exclude 'did:key:' --exclude '^https://github.com/reverb256/quill/(blob|tree)/' --exclude-mail ./README.md ./docs ./packages/*/README.md ./llms.txt ./llms-full.txt
+          # 401 is accepted: auth-gated API endpoints (/v1, /sse) are alive by design.
+          # *.lan hosts are excluded: CI cannot resolve the private LAN.
+          # nixos.wiki 403s bots.
+          args: --verbose --no-progress --accept 200,206,401 --exclude 'gitlawb://' --exclude 'did:key:' --exclude '^https://github.com/reverb256/quill/(blob|tree)/' --exclude 'https?://[a-zA-Z0-9.-]+\.lan(/|$)' --exclude 'https://nixos.wiki' --exclude-mail ./README.md ./docs ./packages/*/README.md ./llms.txt ./llms-full.txt
           fail: true
 
       - name: "Lint markdown (markdownlint-cli2)"
