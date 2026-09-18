@@ -173,6 +173,45 @@ try {
   fail(`could not read stats.json for positive checks: ${e.message}`);
 }
 
+// ── 8. Agent discovery artifacts (MCP server cards, agent card, llms pointers) ──
+try {
+  const metrics = JSON.parse(readFileSync(resolve(__dirname, "../../../docs/metrics.json"), "utf8"));
+
+  const cardsRaw = read(".well-known/mcp/server-cards.json");
+  if (!cardsRaw) {
+    fail("dist/.well-known/mcp/server-cards.json missing — run scripts/sync-discovery.mjs after build");
+  } else {
+    const card = JSON.parse(cardsRaw);
+    if (card.name === "ca.maplespike/quill") pass("MCP server card present with canonical name");
+    else fail(`MCP server card name drifted: ${card.name}`);
+    if ((card.remotes?.[0]?.url ?? "") === "https://mcp.maplespike.ca/sse") pass("MCP server card points at the SSE endpoint");
+    else fail("MCP server card remote url missing/incorrect");
+  }
+
+  if (read(".well-known/mcp/server-card.json")) pass("singular server-card.json alias shipped");
+  else fail("dist/.well-known/mcp/server-card.json missing");
+
+  const agentCardRaw = read("agent-card.json");
+  if (!agentCardRaw) {
+    fail("dist/agent-card.json missing");
+  } else {
+    const agentCard = JSON.parse(agentCardRaw);
+    if (agentCard.counts?.modules === metrics.modules.registryCount && agentCard.counts?.mcpTools === metrics.mcpTools.count) {
+      pass("agent-card.json counts match docs/metrics.json");
+    } else {
+      fail(`agent-card.json counts drifted (got ${agentCard.counts?.modules}/${agentCard.counts?.mcpTools}, want ${metrics.modules.registryCount}/${metrics.mcpTools.count})`);
+    }
+  }
+
+  const llms = read("llms.txt") ?? "";
+  for (const needle of ["mcp.maplespike.ca/sse", ".well-known/mcp/server-cards.json", "/v1/claims/latest"]) {
+    if (llms.includes(needle)) pass(`dist/llms.txt references ${needle}`);
+    else fail(`dist/llms.txt missing ${needle}`);
+  }
+} catch (e) {
+  fail(`discovery artifact checks errored: ${e.message}`);
+}
+
 // ── Report ────────────────────────────────────────────────────────
 console.log("smoke-test-dist:" );
 console.log(checks.join("\n"));

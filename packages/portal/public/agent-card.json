@@ -1,15 +1,47 @@
 {
-  "name": "MapleSpike",
-  "description": "Canadian government data pipeline — 65+ modules, 30+ MCP tools, SHA-256 verified citations across federal, provincial, and municipal sources",
-  "url": "https://maplespike.ca",
+  "name": "Quill (MapleSpike)",
+  "description": "Canadian government data API — 208 data modules, 182 MCP tools, federal, provincial, territorial, and municipal coverage",
+  "url": "https://quill.maplespike.ca",
   "author": {
     "name": "Reverb256",
     "url": "https://github.com/reverb256"
   },
-  "capabilities": {
-    "dataSources": ["Parliament", "Lobbying", "Procurement", "Gazette", "Courts", "Oversight", "Immigration", "Indigenous", "Criminal Justice", "Defence", "Health", "Environment", "Energy", "Transport", "Trade", "Elections", "Corporate"],
-    "apiStyles": ["REST", "MCP"],
-    "verification": "SHA-256 citation hashes on every response"
+  "counts": {
+    "modules": 208,
+    "mcpTools": 182,
+    "asOf": "2026-08-21"
   },
-  "updatedAt": "2026-05-14T05:32:37.765Z"
+  "mcp": {
+    "endpoint": "https://mcp.maplespike.ca/sse",
+    "transport": "sse",
+    "auth": "Authorization: Bearer <api key>",
+    "serverCard": "https://quill.maplespike.ca/.well-known/mcp/server-cards.json"
+  },
+  "capabilities": {
+    "dataSources": [
+      "Parliament",
+      "Lobbying",
+      "Procurement",
+      "Gazette",
+      "Courts",
+      "Oversight",
+      "Immigration",
+      "Indigenous",
+      "Criminal Justice",
+      "Defence",
+      "Health",
+      "Environment",
+      "Energy",
+      "Transport",
+      "Trade",
+      "Elections",
+      "Corporate"
+    ],
+    "apiStyles": [
+      "REST",
+      "MCP"
+    ],
+    "verification": "SHA-256 claim bundles on cross-reference tools; verify any hash publicly via GET /v1/claims/verify/{hash} or the get_citation MCP tool"
+  },
+  "updatedAt": "2026-08-21"
 }
