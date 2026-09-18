@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-01
+last-reviewed: 2026-09-18
 status: active
 ---
 
@@ -11,7 +11,7 @@ Operator-facing quick reference. The rationale lives in [decisions/0004-split-ho
 
 | Host family | Entry point | Backends |
 |---|---|---|
-| `*.maplespike.lan` | k3s Traefik Ingress on the LAN | `quill-portal:8080`, `quill-api:8082`, `quill-mcp:3001` |
+| `quill.lan` (product LAN identity) | nginx-rp reverse proxy on nexus (:443, wildcard `*.lan` cert) | `quill-portal:8080` · `api.quill.lan` → `quill-api:8082` · `mcp.quill.lan` → `quill-mcp:3001` |
 | `*.maplespike.ca` | Cloudflare Edge → Tunnel → `cloudflared` pod in k3s | same three Services |
 
 Both entry points terminate at the SAME three k3s Services — there is one upstream to maintain.
@@ -20,33 +20,43 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 
 | Host | Service |
 |---|---|
-| `maplespike.lan` | `quill-portal:8080` |
-| `portal.maplespike.lan` | `quill-portal:8080` |
-| `dev.maplespike.lan` | `quill-portal:8080` (dev layout) |
-| `api.maplespike.lan`, `dev-api.maplespike.lan` | `quill-api:8082` |
-| `mcp.maplespike.lan`, `dev-mcp.maplespike.lan` | `quill-mcp:3001` *(Phase D: 301 redirect to `quill.maplespike.lan`; keep for backward compat)* |
-| `quill.maplespike.lan` | `quill-mcp:3001` *(canonical LAN hostname; Phase D)* |
+| `quill.lan` | `quill-portal:8080` — Quill's LAN identity (product, not the brand) |
+| `api.quill.lan` | `quill-api:8082` |
+| `mcp.quill.lan` | `quill-mcp:3001` (SSE: proxy buffering off, 3600s timeouts) |
 | `maplespike.ca` | Cloudflare Pages (landing — out of cluster scope) |
 | `api.maplespike.ca` | `cloudflared` → `quill-api:8082` |
 | `mcp.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(Phase D: 301 redirect to `quill.maplespike.ca`; keep for backward compat)* |
 | `data.maplespike.ca` | `cloudflared` → `quill-portal:8080` *(Phase D: 301 redirect to `quill.maplespike.ca`; legacy alias)* |
 | `quill.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(canonical public hostname; see [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md))* |
 
+> **LAN edge (verified 2026-09-18):** LAN traffic enters the `nginx-rp` pod
+> (ns `media-reverse-proxy`, hostNetwork on nexus, :80/:443) which serves every
+> `.lan` vhost from one `nginx.conf` (source of truth:
+> `media-k8s/configmap-nginx.yaml`; DNS: unbound `local-dns.conf` on nexus,
+> records → `10.1.1.120`). The cert is the homelab wildcard `CN=*.lan`
+> (Homelab Root CA, `O=Reverb256`). `subPath` mounts mean ConfigMap edits need
+> a pod restart; validate with `nginx -t` in-pod before reloading.
+
 ## TLS strategy
 
-- **`.lan`** — cert-manager + step-issuer plugin issues a 90d wildcard `*.maplespike.lan` cert signed by a **local step-ca**. Same trusted root as the rest of the LAN. Auto-renewed at 30d.
+- **`.lan`** — wildcard `CN=*.lan` cert (Homelab Root CA) mounted into `nginx-rp` at `/etc/nginx/tls/`. All `*.lan` hosts share it; no per-host cert work.
 - **`.ca`** — issued and rotated by Cloudflare itself (Cloudflare Universal SSL). No cluster-side cert work.
 
 ## Hostname aliases (Phase D)
 
-The legacy `mcp.maplespike.{ca,lan}` and `data.maplespike.ca` hostnames 301-redirect to the canonical `quill.maplespike.{ca,lan}` to preserve bookmarks and external integrations while completing the Quill rename (ADR 0005, Phase D). Drop-in configs are in [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md).
+The product name is **Quill** (ADR 0005). On the LAN the product owns its own identity: **`quill.lan` / `api.quill.lan` / `mcp.quill.lan`**. Public addresses stay under the MapleSpike brand domain: `quill.maplespike.ca` (canonical), `mcp.maplespike.ca` and `data.maplespike.ca` (live legacy aliases). See [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md).
 
 | Status | Hostname pattern | Behavior |
 |---|---|---|
-| **Canonical · Live** | `quill.maplespike.ca` · `quill.maplespike.lan` | All real traffic |
-| **Alias · Live (Phase D)** | `mcp.maplespike.ca` · `mcp.maplespike.lan` · `data.maplespike.ca` | 301 redirect → canonical |
+| **Canonical · Public** | `quill.maplespike.ca` · `api.maplespike.ca` · `mcp.maplespike.ca` | Cloudflare Tunnel → k3s Services |
+| **Canonical · LAN** | `quill.lan` · `api.quill.lan` · `mcp.quill.lan` | nginx-rp on nexus → k3s Services |
 
 ## One-time bootstrap order
+
+> **⚠️ SUPERSEDED (2026-09-18):** the cert-manager / step-ca / Traefik-Ingress
+> bootstrap below was **never deployed** — the k3s LAN ingress plan was retired
+> (the only k3s Ingress is `mosaic`, class Tailscale). The live LAN edge is
+> `nginx-rp` (see the LAN edge note above). Kept for historical context only.
 
 > **Strict dependency:** only step 4 (`kubectl apply`) requires all of
 > steps 0–3 to be complete. Steps 0–3 (prereqs + cert-manager install +
