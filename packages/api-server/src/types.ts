@@ -471,6 +471,94 @@ export interface QuillStorage {
   hasTaxLedgerEntry(id: string): Promise<boolean>;
   /** Rolling-window summary: charges net of refunds since windowStartUnix. */
   getTaxLedgerSummary(windowStartUnix: number): Promise<TaxLedgerSummary>;
+
+  /* ── Watchlist alerts (watchlist-alerts-v1) ── */
+  /** Create the watches/watch_events tables if missing (idempotent, lazy). */
+  ensureWatchSchema(): Promise<void>;
+  /** Create a watch for a tenant. */
+  createWatch(input: WatchInsert): Promise<Watch>;
+  /** List a tenant's watches (active and inactive). */
+  listWatches(tenantId: string): Promise<Watch[]>;
+  /** Active watches across all tenants — the matching engine's read path. */
+  listAllActiveWatches(): Promise<Watch[]>;
+  /** Get one watch, tenant-scoped. */
+  getWatch(id: string, tenantId: string): Promise<Watch | null>;
+  /** Delete a watch, tenant-scoped. Returns false when nothing matched. */
+  deleteWatch(id: string, tenantId: string): Promise<boolean>;
+  /** Count a tenant's active watches (plan-limit enforcement). */
+  countActiveWatches(tenantId: string): Promise<number>;
+  /** Record a watch event. Returns null when the (watch,change) pair already exists. */
+  insertWatchEvent(event: WatchEventInsert): Promise<WatchEvent | null>;
+  /** Recent events for one watch, tenant-scoped, newest first. */
+  listWatchEvents(watchId: string, tenantId: string, limit: number): Promise<WatchEvent[]>;
+  /** Update delivery status for an event. */
+  updateWatchEventStatus(id: string, status: WatchEvent['status'], error?: string): Promise<void>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Watchlist alerts (watchlist-alerts-v1)                             */
+/* ------------------------------------------------------------------ */
+
+export type WatchDelivery = 'events' | 'webhook';
+
+export interface Watch {
+  id: string;
+  tenantId: string;
+  /** Source ids to watch; empty array = every source. */
+  sources: string[];
+  /** Event types to watch; empty array = every type. */
+  events: string[];
+  /** Optional case-insensitive substring match on the change summary. */
+  keyword?: string;
+  /** 'events' records to the event log only; 'webhook' also dispatches. */
+  delivery: WatchDelivery;
+  label?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WatchInsert {
+  tenantId: string;
+  sources: string[];
+  events: string[];
+  keyword?: string;
+  delivery?: WatchDelivery;
+  label?: string;
+}
+
+export interface WatchEventEvidence {
+  /** Upstream source URL from the watched-source registry, when known. */
+  sourceUrl: string | null;
+  detectedAt: string;
+  previousHash: string;
+  currentHash: string;
+  recordCount: number;
+}
+
+export interface WatchEvent {
+  id: string;
+  watchId: string;
+  tenantId: string;
+  /** `${sourceId}:${currentHash}` — stable dedupe key. */
+  changeKey: string;
+  sourceId: string;
+  sourceName: string;
+  summary: string;
+  evidence: WatchEventEvidence;
+  status: 'recorded' | 'delivered' | 'failed';
+  deliveryError?: string;
+  createdAt: string;
+}
+
+export interface WatchEventInsert {
+  watchId: string;
+  tenantId: string;
+  changeKey: string;
+  sourceId: string;
+  sourceName: string;
+  summary: string;
+  evidence: WatchEventEvidence;
 }
 
 export interface QuillCache {
