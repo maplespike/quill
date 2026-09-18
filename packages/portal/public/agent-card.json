@@ -1,13 +1,13 @@
 {
   "name": "Quill (MapleSpike)",
-  "description": "Canadian government data API — 208 data modules, 182 MCP tools, federal, provincial, territorial, and municipal coverage",
+  "description": "Canadian government data API — 207 data modules, 182 MCP tools, federal, provincial, territorial, and municipal coverage",
   "url": "https://quill.maplespike.ca",
   "author": {
     "name": "Reverb256",
     "url": "https://github.com/reverb256"
   },
   "counts": {
-    "modules": 208,
+    "modules": 207,
     "mcpTools": 182,
     "asOf": "2026-08-21"
   },

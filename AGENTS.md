@@ -7,7 +7,7 @@ status: active
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Data-layer MCP product:** [Quill](./docs/products/quill.md) (see ADR [0005](./docs/decisions/0005-quill-product-name.md)).
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 208 modules, **182 MCP tools** (runtime `getAllTools()` in `packages/quill-mcp/src/tools/index.ts` + 6 WDI + 3 Comtrade adapter expansions), **~220K lines TS** (219,808 exactly — see metrics.json), 14 packages. The auto-generator `scripts/generate-metrics.mjs` now parses `getAllTools()` directly post-fix; prior runs underreported.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 207 modules, **182 MCP tools** (runtime `getAllTools()` in `packages/quill-mcp/src/tools/index.ts` + 6 WDI + 3 Comtrade adapter expansions), **~220K lines TS** (219,808 exactly — see metrics.json), 14 packages. The auto-generator `scripts/generate-metrics.mjs` now parses `getAllTools()` directly post-fix; prior runs underreported.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -385,7 +385,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 ## Document hygiene
 
 - **`AGENTS.md` is the source of truth.** Sibling `AGENTS.html` is an outdated static snapshot (Jul 3, 2026); do not edit.
-- **Counts that align (as of 2026-08-21):** `docs/metrics.json.mcpTools.count` reads **182** from a fresh `scripts/generate-metrics.mjs` run; the script now parses `getAllTools()` directly (173 single-tool entries) and adds 6 WDI + 3 Comtrade adapter expansions. `README.md`, `AGENTS.md` repository-identity line, and `docs/metrics.json` all reflect **182**. If a future caller sees drift, the cause is no longer the script — it would be a real change in `tools/index.ts`.
+- **Counts that align (as of 2026-09-17):** module count **207** — `scripts/generate-metrics.mjs` now prefers the runtime `getAllModules()` count; previously it counted the unquoted `modulePath: string;` interface field in `registry.ts`, overstating the total by one (correction detailed in CHANGELOG [Unreleased] and `docs/metrics.json`). MCP tool count **182** from `getAllTools()`. `README.md`, `AGENTS.md`, `ROADMAP.md`, `docs/metrics.json`, and the generated discovery artifacts (`agent-card.json`, `server-cards.json`, `agents.json`) all reflect these numbers. Enforcement: `node scripts/check-count-consistency.mjs` fails if any published count disagrees with `docs/metrics.json` or the runtime registry; `node packages/portal/scripts/check-agent-discovery.mjs` validates the discovery artifacts. If a caller sees drift, run both first.
 - **Live route / pod state** changes between probes (cloudflared flap, etcd flap). Treat the Status section as a *recent snapshot*. To refresh: `curl -sI https://quill.maplespike.ca/<route>` + `kubectl get pods -n maplespike -o wide`.
 
 

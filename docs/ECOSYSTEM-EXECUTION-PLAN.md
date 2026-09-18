@@ -40,7 +40,7 @@ is the least-real part of the stack.** It must be made real first; everything el
 | 4 | Quill Lite / read-replica mode | Implicit (stdio `npx` = no DB). Not documented as a product | ⚠️ Implicit |
 | 5 | Reliability / go-live | ROADMAP Phase 4 in progress; Cloudflare tunnel DNS wired (quill/api/mcp/data/datafabric.maplespike.ca); K3s drift items tracked (forge node, sops secrets, cloudflared-creds); MVP tracker #665 at ~30% | 🔄 In flight |
 | 5 | Informal SLA / status page | None | ❌ Absent |
-| 6 | Focus on influence/parliament depth | 182 tools, 208 modules; `get_politician_influence`, `track_bill`, `signal_check`, `get_entity_profile` | ✅ Real |
+| 6 | Focus on influence/parliament depth | 182 tools, 207 modules; `get_politician_influence`, `track_bill`, `signal_check`, `get_entity_profile` | ✅ Real |
 | — | MCP protocol version | From-scratch JSON-RPC, `2025-03-26` handshake. Ecosystem moved to 2026-07-28 spec (stateless, resources w/ `ttlMs`, `subscriptions/listen`, MRTR) | ⚠️ 2 majors behind |
 | — | x402 payment shape | `x402-middleware.ts` extracts payment from tool args; spec-standard places proof in `_meta["x402/payment"]` and PaymentRequired in an `isError` tool result | ⚠️ Partial alignment |
 

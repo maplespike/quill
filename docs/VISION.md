@@ -24,7 +24,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
 
 The system is a pipeline: **ingest → verify → surface**.
 
-1. **Ingest** — 208 modules pull from federal, provincial, territorial, and
+1. **Ingest** — 207 modules pull from federal, provincial, territorial, and
    municipal sources: CKAN portals, RSS feeds, XML/JSON APIs, HTML scraping,
    and browser rendering (lightpanda) for JS-only sites.
 2. **Verify** — every record carries a SHA-256 citation hash, source

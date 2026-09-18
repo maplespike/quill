@@ -7,7 +7,7 @@ status: active
 
 > **Product:** Quill is the canonical product name for this server. See the full product brief: [`docs/products/quill.md`](../../docs/products/quill.md) and the naming decision: [ADR 0005](../../docs/decisions/0005-quill-product-name.md).
 
-Model Context Protocol server for Canadian government data. **182 tools** (incl. `x402-deposit`) (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **208 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
+Model Context Protocol server for Canadian government data. **182 tools** (incl. `x402-deposit`) (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **207 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
 
 > **Quickstart:** `npx @maplespike/quill-mcp` and it just works. The first **1,000 calls/month are free**, regardless of which tool you use. After that, paid tools charge per-call via x402 (Solana USDC) — see [Pricing](#pricing) below.
 
