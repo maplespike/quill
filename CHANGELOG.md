@@ -3,6 +3,7 @@
 ## [Unreleased] — 2026-09-17
 
 ### Fixed
+- **MCP tool count corrected (184, was 182):** `docs/metrics.json` had been stale since the 2026-08-21 era (173-entry parse = 182). A fresh `scripts/generate-metrics.mjs` run parses 175 single-tool entries + 6 WDI + 3 Comtrade = **184** — matching the deployed MCP `/health` (which was already correct; the repo was the stale side). Discovery artifacts, `stats.json`, `agents.json`, and all current-claim prose were updated to 184; TypeScript totals refreshed to 221,431 lines / 1,622 files. `AGENTS.md` still shows the old 182 in three spots — that file is owner-write-protected; the fix is pending owner approval.
 - **Module count corrected (207, was 208):** `scripts/generate-metrics.mjs` counted the unquoted `modulePath: string;` interface field in `pipeline-core/src/ingestion/registry.ts` alongside real registry entries, overstating the total by one. The generator now prefers the runtime `getAllModules()` count (quote-aware literal fallback when dist is absent); `docs/metrics.json` and every current-claim surface (`README.md`, `AGENTS.md`, `ROADMAP.md`, `knowledge.md`, `DESIGN.md`, `docs/*`) now report **207 modules**, and the generated discovery artifacts were regenerated from the corrected metrics (`agent-card.json`, `.well-known/mcp/server-cards.json`, `agents.json`).
 
 ### Added

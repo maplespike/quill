@@ -6,7 +6,7 @@
 
 ## 0. Executive Summary
 
-**What Quill is today:** a privately-held, 14-package, ~220K-line TS monorepo with 207 ingestion modules, a 182-tool MCP server, a REST gateway, SDKs, a portal, x402/Stripe/quota billing plumbing, and a genuinely differentiated trust primitive (SHA-256 claim bundles verifiable without trusting Quill). Pushed actively since May 2026.
+**What Quill is today:** a privately-held, 14-package, ~220K-line TS monorepo with 207 ingestion modules, a 184-tool MCP server, a REST gateway, SDKs, a portal, x402/Stripe/quota billing plumbing, and a genuinely differentiated trust primitive (SHA-256 claim bundles verifiable without trusting Quill). Pushed actively since May 2026.
 
 **What the market says:** verified-government-data delivery commands premium prices (OpenCorporates: **£2,250–£12,000/yr** for 500–5,000 API calls/mo on *free public* registry data; 80% of large NA/EU banks as buyers). Policy-intelligence seats run **$2k–$7k/seat/yr** (Quorum median contract $23.5k/yr, FiscalNote $24k/yr). Free gov-data APIs die (ProPublica Congress API retired July 2024) — subscription delivery is the durable model.
 

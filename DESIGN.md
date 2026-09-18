@@ -177,7 +177,7 @@ The product landing page at `quill.maplespike.ca` follows a single-scroll narrat
 ### Section Sequence
 1. **TopBar** — JetBrains Mono nav links, GitHub + Sign-in CTAs
 2. **QuillHero** — Product name, one-line value prop, terminal-style install snippet, aurora + bg-grid effects
-3. **Stats bar** — Key metrics (207 modules, 182 tools, 13 jurisdictions, ~220K lines TS) as stat cards with tabular counters
+3. **Stats bar** — Key metrics (207 modules, 184 tools, 13 jurisdictions, ~220K lines TS) as stat cards with tabular counters
 4. **McpServerBlock** — Claude Desktop config JSON snippet, MCP SSE endpoint, REST base URL, platform integration grid
 5. **ToolGrid** — 6-column responsive grid of module categories (Parliamentary, Federal open data, Oversight, Corporate + influence, Provincial + municipal, Justice + CanLII)
 6. **Sovereignty** — Tech stack badges: Nix, Cloudflare Pages, AGPL-3.0, SHA-256 provenance

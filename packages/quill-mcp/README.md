@@ -7,7 +7,7 @@ status: active
 
 > **Product:** Quill is the canonical product name for this server. See the full product brief: [`docs/products/quill.md`](../../docs/products/quill.md) and the naming decision: [ADR 0005](../../docs/decisions/0005-quill-product-name.md).
 
-Model Context Protocol server for Canadian government data. **182 tools** (incl. `x402-deposit`) (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **207 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
+Model Context Protocol server for Canadian government data. **184 tools** (incl. `x402-deposit`) (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **207 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
 
 > **Quickstart:** `npx @maplespike/quill-mcp` and it just works. The first **1,000 calls/month are free**, regardless of which tool you use. After that, paid tools charge per-call via x402 (Solana USDC) — see [Pricing](#pricing) below.
 
@@ -77,7 +77,7 @@ No API key, no config file. Just `npx`. (Stdio calls are tagged `self-hosted` an
 cd packages/quill-mcp
 QUOTA_ENABLED=true QUILL_FREE_QUOTA=1000 QUOTA_PERSIST_PATH=./.quota-state.json pnpm start
 # → 🍁 MapleSpike MCP Server ready
-# → Tools: 182 registered
+# → Tools: 184 registered
 # → Mode:  standalone (no API server needed)
 # → Cache: in-memory (5 min TTL)
 # → Quota: enabled (1000/mo/identity then x402)
@@ -123,7 +123,7 @@ Source of truth: [`docs/metrics.json`](../../docs/metrics.json) → `mcpTools.co
 ### Utility / Health (free)
 * `system_health` — health + local quota + cache stats
 * `cache_status` / `cache_clear` — in-memory cache management
-* `explore_catalog` — browse all 182 tools by category
+* `explore_catalog` — browse all 184 tools by category
 * `searxng_health`, `get_module_health`, `get_pipeline_health` — pipeline diagnostics
 * `qa_validate_module`, `qa_schema` — schema QA
 
