@@ -86,7 +86,7 @@ The **Quill Portal** (`packages/portal/`) is a statically-generated product dash
 The portal sits within the **quill monorepo** alongside the MCP server (`packages/quill-mcp/`), REST API (`packages/quill-api/`), and shared packages (`sdk`, `i18n`, `pipeline-core`). It is deployed to **Cloudflare Pages** (dev) and the **K3s cluster** (production), both serving the same pre-built static assets.
 
 **Key surfaces:**
-- Landing page hero with aurora glow + bg-grid effects, MCP config JSON snippets, and 207-module/182-tool stats
+- Landing page hero with aurora glow + bg-grid effects, MCP config JSON snippets, and 207-module/184-tool stats
 - Data explorer (`/explorer`) with full-text search across Canada's public record
 - MCP agent directory (`/agents`) documenting every tool with per-client setup snippets
 - Developer dashboard (`/dashboard`) with API key management, usage stats, billing, AI settings, browser extraction, and OWASP LLM compliance
@@ -107,7 +107,7 @@ packages/portal/src/
 │   ├── index.astro                 ← "/" — client-side redirect to /en or /fr
 │   ├── [locale].astro              ← "/en", "/fr" — landing page
 │   ├── 404.astro                   ← Custom error page
-│   ├── agents.astro                ← MCP agent directory (182 tools)
+│   ├── agents.astro                ← MCP agent directory (184 tools)
 │   ├── api-explorer.astro          ← Interactive API playground
 │   ├── ask.astro                   ← AI Q&A (client:load AgentChat)
 │   ├── blog.astro                  ← Blog listing
@@ -437,7 +437,7 @@ Three stable vendor chunks: `vendor-react` (React 19.2.7, React DOM, scheduler),
 ### `gen:all` Pipeline
 
 The build script runs `pnpm gen:all && astro build`. The `gen:all` script sequentially generates:
-1. `generate-agents-json.mjs` — builds `/agents` page data (182 MCP tools)
+1. `generate-agents-json.mjs` — builds `/agents` page data (184 MCP tools)
 2. `generate-openapi.mjs` — fetches OpenAPI 3.1 spec for `/api-explorer`
 3. `generate-pipeline-data.mjs` — fetches pipeline metrics (wrapped in `timeout 60`)
 4. `generate-llms.mjs` — generates `/llms.txt` and `/llms-full.txt`
@@ -462,9 +462,9 @@ Step 3 has a **60-second timeout guard** (`timeout 60`) to prevent CI hangs if t
 **Bias:** Dark canvas (`hsl 240 10% 4%`), maple red primary (`hsl 0 72% 51%`), parliament cyan ring (`hsl 191 96% 42%`), JetBrains Mono for nav/code/labels, Inter for body/headings, tabular numerals on all stats. Text gradient (`red → ember`) on hero titles. Aurora glow + bg-grid on landing. Card hover lift with primary-tinted shadow.
 
 **Page structure:**
-- **Landing** (`/en`, `/fr`): Hero with `.aurora` + `.bg-grid` → stat bar (207 modules · 182 tools · 13 jurisdictions) → MCP config JSON -> ToolGrid (6 categories) → platform badges
+- **Landing** (`/en`, `/fr`): Hero with `.aurora` + `.bg-grid` → stat bar (207 modules · 184 tools · 13 jurisdictions) → MCP config JSON -> ToolGrid (6 categories) → platform badges
 - **Dashboard** (`/dashboard`): Full-width, tabbed interface (Overview, API Keys, Billing, AI Settings, OWASP, Extraction)
-- **Agents** (`/agents`): 182 tools listed with per-client setup code blocks
+- **Agents** (`/agents`): 184 tools listed with per-client setup code blocks
 - **Docs** (`/docs`): Monospaced API reference with curl examples
 
 **CSS utility patterns:**
