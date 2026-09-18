@@ -223,27 +223,32 @@ MapleSpike is designed to run on a K3s cluster with two environments isolated by
 
 | Environment | Namespace | Hostname | Purpose |
 |-------------|-----------|----------|---------|
-| Production | `maplespike` | `maplespike.lan` | Live production deployment |
-| Development | `maplespike-dev` | `dev.maplespike.lan` | Development and testing |
+| Production | `maplespike` | `quill.lan` (LAN) · `quill.maplespike.ca` (public) | Live production deployment |
+| Development | — | local stack via `scripts/dev-up.sh` | Development and testing |
 
 ### Services
 
 | Service | Platform | Stack | Port |
 |---------|----------|-------|------|
-| Portal | K3s (nginx) | Static HTML/CSS/JS | NodePort 30965 |
-| API Server | K3s | Node.js, Bearer auth | NodePort 31284 |
-| Quill (MCP Server) | K3s | Node.js, SSE transport | NodePort 31746 |
+| Portal | K3s (python server.py) | Static HTML/CSS/JS | Service :8080 |
+| API Server | K3s | Node.js, Bearer auth | Service :8082 |
+| Quill (MCP Server) | K3s | Node.js, SSE transport | Service :3001 |
 | Engine/CronJobs | K3s | Node.js, scheduled pipelines | — |
 
 ### Ingress
 
-A Caddy ingress controller routes both `.lan` domains to the correct services and namespaces. Environment-specific manifests live in `k8s/dev/` and `k8s/prod/`. The portal uses environment-specific configuration (`config.dev.js` / `config.prod.js`) mounted via ConfigMap per environment.
+LAN traffic enters the `nginx-rp` reverse proxy on nexus (hostNetwork :80/:443,
+wildcard `*.lan` cert) which routes the `.lan` vhosts to the k3s Services;
+public traffic enters via the Cloudflare Tunnel (`cloudflared` pod) with
+split-hostname routing. See [ROUTING.md](./ROUTING.md).
 
 ### Development Endpoints
 
-- Portal: https://dev.maplespike.lan
-- API: https://dev-quill-api.lan
-- MCP: https://dev-quill-mcp.lan
+The local dev stack (`scripts/dev-up.sh`) runs:
+
+- Portal: `http://localhost:8080`
+- API: `http://localhost:8082`
+- MCP: `http://localhost:3001`
 
 ### CI/CD Pipeline
 
