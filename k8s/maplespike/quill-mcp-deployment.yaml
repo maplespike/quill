@@ -20,6 +20,9 @@ spec:
       labels:
         app: quill-mcp
     spec:
+      # Images are imported per-node into containerd (registry-free flow);
+      # the MCP image lives on nexus only.
+      nodeName: nexus
       containers:
       - name: mcp
         image: nexus:5000/quill-mcp:2026-08-13-14aef96c
