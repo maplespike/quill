@@ -91,6 +91,10 @@ const endpoints = [
   { method: 'GET', path: '/v1/extraction/tasks', desc: 'List browser extraction tasks for no-API portals' },
   { method: 'POST', path: '/v1/extraction/results', desc: 'Submit extracted data from browser client' },
   { method: 'GET', path: '/v1/extraction/cached/:source_id', desc: 'Get cached browser extraction results' },
+  { method: 'GET', path: '/v1/claims/latest', desc: 'Index of verifiable SHA-256 claim bundles (public)' },
+  { method: 'GET', path: '/v1/claims/verify/:hash', desc: 'Verify a SHA-256 claim hash (public)' },
+  { method: 'POST', path: '/v1/claims/verify', desc: 'Recompute the SHA-256 of a payload and compare (public)' },
+  { method: 'GET', path: '/v1/data/quality', desc: 'Module health, freshness, and error tracking' },
 ];
 
 const categories = [
@@ -121,6 +125,9 @@ const categories = [
 function buildLlmsTxt() {
   let out = `# MapleSpike — Canadian Government Data API\n`;
   out += `> Primary-source infrastructure for AI agents that cite.\n\n`;
+  out += `> MCP server: https://mcp.maplespike.ca/sse${tools.length > 0 ? ` (${tools.length} tools)` : ''}\n`;
+  out += `> MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json\n`;
+  out += `> Agent card: https://quill.maplespike.ca/agent-card.json · Agents index: https://quill.maplespike.ca/agents.json\n\n`;
   out += `## API\n`;
   out += `Base URL: https://api.maplespike.ca/v1\n`;
   out += `Auth: Authorization: Bearer header or X-API-Key header\n`;
@@ -148,6 +155,8 @@ function buildLlmsFull() {
   out += `> License: AGPL-3.0 / MIT. Government data under OGL-C.\n`;
   out += `> API Base URL: https://api.maplespike.ca/v1\n`;
   out += `> MCP Server: https://mcp.maplespike.ca/sse\n`;
+  out += `> MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json\n`;
+  out += `> Agent card: https://quill.maplespike.ca/agent-card.json\n`;
   out += `> Source: https://github.com/reverb256/quill\n\n`;
 
   out += `## REST API\n\n`;

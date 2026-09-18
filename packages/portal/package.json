@@ -6,13 +6,15 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "pnpm gen:all && astro build",
+    "build": "pnpm gen:all && astro build && node scripts/sync-discovery.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "pages:dev": "wrangler pages dev dist",
-    "pages:build": "pnpm gen:all && astro build",
+    "pages:build": "pnpm gen:all && astro build && node scripts/sync-discovery.mjs",
     "pages:deploy": "wrangler pages deploy dist --project-name=maplespike-quill",
     "gen:agents": "node scripts/generate-agents-json.mjs",
+    "gen:discovery": "node scripts/generate-agent-discovery.mjs",
+    "sync:discovery": "node scripts/sync-discovery.mjs",
     "gen:openapi": "node scripts/generate-openapi.mjs",
     "gen:data": "node scripts/generate-pipeline-data.mjs",
     "gen:real-data": "node scripts/generate-real-data.mjs",
@@ -24,7 +26,7 @@
     "gen:og-image": "node scripts/gen-og-image.mjs",
     "gen:plans": "node scripts/generate-plans.mjs",
     "smoke:dist": "node scripts/smoke-test-dist.mjs",
-    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-plans.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && timeout 60 node scripts/generate-pipeline-data.mjs || true && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs"
+    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-plans.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-agent-discovery.mjs && node scripts/generate-openapi.mjs && timeout 60 node scripts/generate-pipeline-data.mjs || true && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.0",

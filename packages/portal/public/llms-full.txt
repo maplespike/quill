@@ -1,10 +1,12 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-09-16
+> Auto-generated: 2026-09-18
 > License: AGPL-3.0 / MIT. Government data under OGL-C.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
+> MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json
+> Agent card: https://quill.maplespike.ca/agent-card.json
 > Source: https://github.com/reverb256/quill
 
 ## REST API
@@ -89,6 +91,18 @@ Submit extracted data from browser client
 
 #### GET /v1/extraction/cached/:source_id
 Get cached browser extraction results
+
+#### GET /v1/claims/latest
+Index of verifiable SHA-256 claim bundles (public)
+
+#### GET /v1/claims/verify/:hash
+Verify a SHA-256 claim hash (public)
+
+#### POST /v1/claims/verify
+Recompute the SHA-256 of a payload and compare (public)
+
+#### GET /v1/data/quality
+Module health, freshness, and error tracking
 
 ## MCP Tools (182 total)
 
