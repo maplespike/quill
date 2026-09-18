@@ -20,7 +20,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 | **Supabase** | Full Postgres engine (Docker); community support | Backups, PITR, branching, SSO, SLA |
 | **Airbyte** | Full pipeline engine (MIT); all connectors | RBAC, SSO, PII masking, enterprise connectors |
 | **dbt Labs** | Full transformation engine (CLI) | IDE, scheduler, CI/CD, governance, collaboration |
-| **MapleSpike** | Full pipeline + 208 modules + 182 MCP tools (AGPL/Apache/MIT) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
+| **MapleSpike** | Full pipeline + 207 modules + 182 MCP tools (AGPL/Apache/MIT) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
 
 **The pattern:** The community version is the full engine — never crippled. The SaaS version removes operational toil and adds governance features that organizations need for compliance.
 
@@ -32,7 +32,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 ┌─────────────────────────────────────────────────────────────┐
 │  COMMUNITY (self-hosted)          │  MAPLESPIKE SaaS        │
 │  ──────────────────────────────── │  ─────────────────────  │
-│  ✓ All 208 data modules           │  ✓ Everything in        │
+│  ✓ All 207 data modules           │  ✓ Everything in        │
 │  ✓ All 182 MCP tools              │    Community            │
 │  ✓ Entity resolution engine       │  + Managed hosting      │
 │  ✓ Cross-reference queries        │  + Multi-tenant         │
@@ -79,7 +79,7 @@ docker compose up
 | Attribute | Value |
 |---|---|
 | **Price** | Free, forever |
-| **Data modules** | All 208 |
+| **Data modules** | All 207 |
 | **MCP tools** | All 182 |
 | **API calls** | Unlimited (your infra) |
 | **AI / RAG** | BYOK only (bring your own AI key) |
@@ -106,7 +106,7 @@ docker compose up
 | Attribute | Value |
 |---|---|
 | **Price** | $50/mo CAD (~$35 USD) |
-| **Data modules** | All 208 |
+| **Data modules** | All 207 |
 | **MCP tools** | All 182 |
 | **API calls** | 50,000/month |
 | **Rate limit** | 60/min |
@@ -253,7 +253,7 @@ An Enterprise customer who wants to embed MapleSpike's ingestion engine in a pro
 ## FAQ
 
 **Q: Can I run the full platform without ever paying MapleSpike?**
-A: Yes. `git clone` + `docker compose up` gives you everything — 208 modules, 182 MCP tools, entity resolution, cross-reference queries. You run the infrastructure. The AGPL license applies to any modifications you distribute.
+A: Yes. `git clone` + `docker compose up` gives you everything — 207 modules, 182 MCP tools, entity resolution, cross-reference queries. You run the infrastructure. The AGPL license applies to any modifications you distribute.
 
 **Q: What happens if I hit my API limit?**
 A: Requests return `429 Rate Limited` until the next billing period. You can upgrade instantly in the developer console — no downtime.

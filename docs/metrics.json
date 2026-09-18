@@ -3,9 +3,9 @@
   "//_generated": "2026-08-21",
   "version": "2026-08-21",
   "modules": {
-    "registryCount": 208,
+    "registryCount": 207,
     "ingestionDirs": 203,
-    "description": "208 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "description": "207 modules registered at runtime (getAllModules()); includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines. (Prior value 208 counted an interface type field; fixed in scripts/generate-metrics.mjs 2026-09-17.)"
   },
   "mcpTools": {
     "count": 182,

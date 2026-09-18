@@ -21,9 +21,28 @@ function run(cmd) {
 }
 
 // ── 1. Registry count ────────────────────────────────────────
+// Prefer the runtime registry when pipeline-core is built: getAllModules()
+// is what module consumers actually receive. Fall back to counting quoted
+// modulePath literals in registry.ts. The file also declares an unquoted
+// `modulePath: string;` interface field — counting it inflated the total
+// by one (208 vs the true 207) until 2026-09-17.
 const registryPath = join(ROOT, 'packages/pipeline-core/src/ingestion/registry.ts');
 const registryContent = readFileSync(registryPath, 'utf-8');
-const registryCount = (registryContent.match(/modulePath:/g) || []).length;
+let registryCount = 0;
+let registrySource = 'runtime';
+try {
+  const core = await import(join(ROOT, 'packages/pipeline-core/dist/index.js'));
+  if (typeof core.getAllModules === 'function') {
+    const mods = core.getAllModules();
+    if (Array.isArray(mods) && mods.length > 0) registryCount = mods.length;
+  }
+} catch {
+  // dist not built — fall through to the source parse
+}
+if (registryCount === 0) {
+  registrySource = 'source-literals';
+  registryCount = (registryContent.match(/modulePath:\s*['"]/g) || []).length;
+}
 
 // ── 2. Ingestion subdirectories ──────────────────────────────
 const ingestionDir = join(ROOT, 'packages/pipeline-core/src/ingestion');
@@ -135,7 +154,7 @@ const metrics = {
   modules: {
     registryCount,
     ingestionDirs,
-    description: `${registryCount} entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). ${ingestionDirs} ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines.`,
+    description: `${registryCount} modules registered at runtime (getAllModules()${registrySource === 'runtime' ? '' : '; counted from quoted registry.ts literals because dist was not built'}). Includes attestation, gc-standards, cross-reference utilities. ${ingestionDirs} ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines.`,
   },
   mcpTools: {
     count: mcpToolCount,
