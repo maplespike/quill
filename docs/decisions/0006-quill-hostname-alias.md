@@ -247,3 +247,13 @@ dig quill.maplespike.ca +short             # expect CNAME → <tunnel-id>.cfargo
 - `docs/ROUTING.md` — operative routing matrix with Phase D status markers
 - `docs/products/quill.md` — Quill product brief
 - `config/Caddyfile.deprecated` — historical host-side proxy, updated for Phase D
+
+---
+
+## Update — 2026-09-18: LAN identity is `quill.lan` (owner direction)
+
+j_kro direction: *"make sure quill is KNOWN as its own (except for the address) — use quill.lan specifically, because maplespike is the brand not the product."*
+
+- **LAN identity (live, verified):** `quill.lan` → portal · `api.quill.lan` → API · `mcp.quill.lan` → MCP. Served by the `nginx-rp` edge (ns `media-reverse-proxy`, hostNetwork on nexus); DNS via nexus unbound; wildcard `CN=*.lan` cert. Source of truth: `media-k8s/configmap-nginx.yaml`.
+- **Public addresses are unchanged** (the "except for the address" carve-out): `quill.maplespike.ca`, `api.maplespike.ca`, `mcp.maplespike.ca` stay under the brand domain.
+- **Superseded:** the `*.maplespike.lan` Traefik/step-ca LAN plan and the `quill.maplespike.lan` canonical-LAN hostname from the original Phase D table. Note the original Phase D table also mis-slotted `quill.maplespike.ca` to `quill-mcp:3001` — live routing sends it to the portal, with `mcp.maplespike.ca` serving the MCP server directly.
