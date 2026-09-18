@@ -20,6 +20,9 @@ spec:
       labels:
         app: quill-portal
     spec:
+      # Images are imported per-node into containerd (registry-free flow);
+      # the portal image lives on nexus only.
+      nodeName: nexus
       containers:
       - name: portal
         image: nexus:5000/quill-portal:2026-08-13-14aef96c
