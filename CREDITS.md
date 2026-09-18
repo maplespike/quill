@@ -47,7 +47,7 @@ patterns only — no code copied.
 | Repository | License | Relationship |
 |------------|---------|--------------|
 | [reverb256/mcp-canada](https://github.com/reverb256/mcp-canada) | MIT (verified) | Precursor to MapleSpike — Canadian government MCP tools |
-| [reverb256/Frostbite-Gazette](https://github.com/reverb256/Frostbite-Gazette) | No LICENSE file (all rights reserved) | AI-curated Canadian political journalism — first-class consumer of Quill's data; referenced for integration, no code vendored |
+| [reverb256/Frostbite-Gazette](https://github.com/reverb256/Frostbite-Gazette) | No LICENSE file (all rights reserved; private repo) | AI-curated Canadian political journalism — first-class consumer of Quill's data; referenced for integration, no code vendored |
 | [reverb256/ai-inference-gateway](https://github.com/reverb256/ai-inference-gateway) | MIT (verified) | AI gateway, model routing, RAG |
 | [reverb256/astral-key](https://github.com/reverb256/astral-key) | MIT (verified) | Rust Web3/FIDO2/passkey auth microservice |
 
