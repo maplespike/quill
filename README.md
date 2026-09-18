@@ -25,13 +25,13 @@ status: active
 
 > **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:reverb256/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 208 modules, **182 MCP tools** (incl. `x402-deposit`), ~220K lines TS, 14 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 207 modules, **182 MCP tools** (incl. `x402-deposit`), ~220K lines TS, 14 packages.
 
 ---
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **208 data modules** of Canadian public-domain government data across every sector.
+MapleSpike ingests, verifies, and surfaces **207 data modules** of Canadian public-domain government data across every sector.
 
 **Coverage:**
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC

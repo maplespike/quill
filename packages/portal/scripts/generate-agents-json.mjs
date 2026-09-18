@@ -7,13 +7,18 @@
  * This ensures the portal always reflects the actual SDK agent catalog.
  */
 
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
+
+// Counts come from the canonical metrics file — never hardcode them here.
+const metrics = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../docs/metrics.json'), 'utf8')
+);
 
 // Read the built SDK CJS output
 const sdkPath = resolve(__dirname, '../../sdk/dist/index.cjs');
@@ -37,8 +42,9 @@ const tools = Object.entries(agentMap).map(([key, agent]) => ({
 const manifest = {
   name: 'MapleSpike',
   // #752: counts drifted ("64+ modules, 30+ MCP tools" — the repo renamed and
-  // grew). Keep qualitative; authoritative numbers live in docs/metrics.json.
-  description: 'Canadian government data API — 208 data modules, 182 MCP tools, SHA-256 verified citations',
+  // grew). Counts now come from docs/metrics.json at generation time (2026-09-17)
+  // so they cannot drift again.
+  description: `Canadian government data API — ${metrics.modules.registryCount} data modules, ${metrics.mcpTools.count} MCP tools, SHA-256 verified citations`,
   url: 'https://maplespike.ca',
   moduleCount: agents.length,
   actionCount: agents.reduce((sum, a) => sum + a.actions.length, 0),

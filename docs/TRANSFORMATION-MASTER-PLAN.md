@@ -6,11 +6,11 @@
 
 ## 0. Executive Summary
 
-**What Quill is today:** a privately-held, 14-package, ~220K-line TS monorepo with 208 ingestion modules, a 199-tool MCP server, a REST gateway, SDKs, a portal, x402/Stripe/quota billing plumbing, and a genuinely differentiated trust primitive (SHA-256 claim bundles verifiable without trusting Quill). Pushed actively since May 2026.
+**What Quill is today:** a privately-held, 14-package, ~220K-line TS monorepo with 207 ingestion modules, a 182-tool MCP server, a REST gateway, SDKs, a portal, x402/Stripe/quota billing plumbing, and a genuinely differentiated trust primitive (SHA-256 claim bundles verifiable without trusting Quill). Pushed actively since May 2026.
 
 **What the market says:** verified-government-data delivery commands premium prices (OpenCorporates: **£2,250–£12,000/yr** for 500–5,000 API calls/mo on *free public* registry data; 80% of large NA/EU banks as buyers). Policy-intelligence seats run **$2k–$7k/seat/yr** (Quorum median contract $23.5k/yr, FiscalNote $24k/yr). Free gov-data APIs die (ProPublica Congress API retired July 2024) — subscription delivery is the durable model.
 
-**The correction that matters:** the Canadian niche is **not empty**. Five live Canadian competitors verified (§3). None match Quill's breadth (208 modules), entity graph, or verification layer — but PoliticalData.ca is already MCP-native with nearly identical pricing shape, and Gnowit already owns GR monitoring seats. **The window is open but not empty; speed on distribution matters more than depth on data.**
+**The correction that matters:** the Canadian niche is **not empty**. Five live Canadian competitors verified (§3). None match Quill's breadth (207 modules), entity graph, or verification layer — but PoliticalData.ca is already MCP-native with nearly identical pricing shape, and Gnowit already owns GR monitoring seats. **The window is open but not empty; speed on distribution matters more than depth on data.**
 
 **The recommendation:** keep the entire data stack. Rebuild the *surface* into a 3-tool Context7-shaped shell, flip the repo public after a secrets audit, ship `npx` onboarding + an activation skill, reprice upward against verified benchmarks, and sequence revenue: briefs → API subs → macro feeds → GR seats → compliance. Details in §5–§7.
 
@@ -67,7 +67,7 @@ Positioning sentence: **"The verified Canadian data layer for AI — every answe
 | Player | What they sell | Pricing | Gap vs Quill |
 |---|---|---|---|
 | **PoliticalData.ca** | Canadian law graph (federal+ON), REST + **remote MCP** | Free 250 credits → **$9.99–$499 CAD/mo** | Law-only; no influence/committee/procurement depth; no verification |
-| **NorthAxium Data** | 12 Canadian datasets (CanadaBuys, LobbyCan, LEGISinfo, Elections, municipal permits) + MCP | Subscription tiers | 12 datasets vs 208 modules; no entity graph |
+| **NorthAxium Data** | 12 Canadian datasets (CanadaBuys, LobbyCan, LEGISinfo, Elections, municipal permits) + MCP | Subscription tiers | 12 datasets vs 207 modules; no entity graph |
 | **RegMap Canada** | 27,644 regulation records, feed + change stream | Feed licensing | Regulations only; no provenance hashing |
 | **Nimbus/ProcureData + GrantData** | Procurement ($49/mo Pro) + grants APIs | Self-serve | Single-vertical |
 | **Gnowit vAnalyst** | GR monitoring: federal, 13 legislatures, 700+ municipalities, Gazette | Enterprise | The "Canadian Quorum" seat incumbent — owns GR monitoring already |
@@ -94,7 +94,7 @@ Full vendor-by-vendor research with live-site verification (HTTP checks, pricing
 ### Structural read
 
 1. **The market is bimodal**: under-monetized API startups ($9.99–$499/mo, no traction) vs a seat-software incumbent ($500–4,000/mo, real revenue, no API). **The money is in the middle**: agent-native verified data delivery priced between them. Nobody occupies it.
-2. **The verification claim needs precision**: PoliticalData.ca *does* hash legal text in its vertical. Quill's differentiation is not "only one with hashes" — it's **breadth (208 modules vs one corpus) + cross-registry graph + verification applied to influence/procurement/committee data**, where nobody hashes.
+2. **The verification claim needs precision**: PoliticalData.ca *does* hash legal text in its vertical. Quill's differentiation is not "only one with hashes" — it's **breadth (207 modules vs one corpus) + cross-registry graph + verification applied to influence/procurement/committee data**, where nobody hashes.
 3. **Provincial coverage is Quill's unfair advantage**: NorthAxium has *zero* provincial data; PoliticalData has ON only; Nimbus has fragments. Quill has all 13 legislatures + 273 regulators + CKAN federation. Only Gnowit matches provincial breadth — and Gnowit has no API.
 4. **The cohort's shared anti-patterns** (publish against these): stale pricing pages, 404 product domains, conflicting record counts, no SLA/status page, one-quote enterprise tiers, ad-supported consumer framing.
 
@@ -114,7 +114,7 @@ Full vendor-by-vendor research with live-site verification (HTTP checks, pricing
 | Option | Description | Verdict |
 |---|---|---|
 | **A. Vertical GR product** ("Quorum for Canada") | Build alerts/reports/CRM on Quill's data, sell seats vs Gnowit | Highest LTV but entrenched incumbent, slow sales, product surface Quill doesn't have. **Phase 3, not first.** |
-| **B. Data-layer API company** ("OpenCorporates of Canada") | Sell metered API + bulk + feeds on the 208 modules | Proven model on free data; OpenCorporates pricing shows massive headroom. **Core.** |
+| **B. Data-layer API company** ("OpenCorporates of Canada") | Sell metered API + bulk + feeds on the 207 modules | Proven model on free data; OpenCorporates pricing shows massive headroom. **Core.** |
 | **C. Agent-native platform** ("Context7 of Canadian data") | 3-tool MCP shell + activation skill + npx onboarding; free→pro→enterprise | The distribution wedge nobody local has matched; cheap to build on existing stack. **Core.** |
 | **D. Verified-AI analyst** ("AlphaSense for Canadian public data") | `ai_ask` + claim bundles = sourced, checkable answers | Differentiated AI product; needs eval quality work. **Phase 3 feature.** |
 | **E. Compliance/KYB entity verification** | Beneficial-ownership checks for banks | Highest ceiling, 12–24mo, regulation tailwind ("snow-washing"). **Phase 4 ceiling.** |
