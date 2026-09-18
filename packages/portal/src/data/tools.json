@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-08-16T01:25:12.362Z",
+    "generatedAt": "2026-09-18T00:48:42.990Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -1454,6 +1454,22 @@
       "desc": {
         "en": "Verify a Quill claim bundle. Provide a sha256 hash to check it exists in the claim store, and optionally the original data to recompute the hash locally and confirm integrity. Returns { verified, matches, recomputedSha256 }. Use this to audit any hash you received from Quill.",
         "fr": "Verify a Quill claim bundle. Provide a sha256 hash to check it exists in the claim store, and optionally the original data to recompute the hash locally and confirm integrity. Returns { verified, matches, recomputedSha256 }. Use this to audit any hash you received from Quill."
+      }
+    },
+    {
+      "cat": "General",
+      "name": "resolve_quill_id",
+      "desc": {
+        "en": "Resolve a question about Canadian public data into canonical Quill IDs you can pass to query_quill. Returns ranked IDs (e.g. /committees, /ircc/study-permits, quill://entity) with descriptions, provenance scores, update cadence, and the underlying tool each ID routes to. You MUST call this before query_quill unless the user provided an ID directly. Do not call more than 3 times per question.",
+        "fr": "Resolve a question about Canadian public data into canonical Quill IDs you can pass to query_quill. Returns ranked IDs (e.g. /committees, /ircc/study-permits, quill://entity) with descriptions, provenance scores, update cadence, and the underlying tool each ID routes to. You MUST call this before query_quill unless the user provided an ID directly. Do not call more than 3 times per question."
+      }
+    },
+    {
+      "cat": "General",
+      "name": "query_quill",
+      "desc": {
+        "en": "Execute a Canadian public data query by Quill ID. You MUST call resolve_quill_id first to obtain a valid ID (format: /category, /category/dataset, or quill://entity) UNLESS the user provided one directly. Every result carries the routed tool name and — for cited records — a SHA-256 claim hash with a ready verify_claim recipe so answers are independently checkable. Do not call this tool more than 3 times per question.",
+        "fr": "Execute a Canadian public data query by Quill ID. You MUST call resolve_quill_id first to obtain a valid ID (format: /category, /category/dataset, or quill://entity) UNLESS the user provided one directly. Every result carries the routed tool name and — for cited records — a SHA-256 claim hash with a ready verify_claim recipe so answers are independently checkable. Do not call this tool more than 3 times per question."
       }
     },
     {
