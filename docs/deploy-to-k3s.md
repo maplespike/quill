@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-10
+last-reviewed: 2026-09-17
 status: active
 ---
 
@@ -29,6 +29,7 @@ infrastructure with zero external cloud spend.
 6. [Verify the Deployment](#verify-the-deployment)
 7. [Alternative — One-Touch Self-Host](#alternative--one-touch-self-host-podman-quadlets)
 8. [Maintenance](#maintenance)
+9. [Production Redeploy — Registry-Free Operator Flow (Nexus)](#production-redeploy--registry-free-operator-flow-nexus)
 
 ---
 
@@ -264,3 +265,91 @@ kubectl apply -f result/manifests.yaml
 # Roll out
 kubectl rollout restart deployment/quill-api deployment/quill-mcp deployment/quill-portal -n maplespike
 ```
+
+---
+
+## Production Redeploy — Registry-Free Operator Flow (Nexus)
+
+> **The platform of record is K3s.** Docker and Podman appear in this repo only
+> as build-time tooling or as *self-host product* paths (Compose, Quadlets).
+> The production runtime is the K3s **containerd** store on `nexus` — images go
+> straight into containerd; no registry is involved.
+
+This is the flow the Quill production cluster actually runs (verified live
+2026-09-17). It assumes: the cluster runs on `nexus`, deployments carry
+`nodeName: nexus` pins for image locality, and `kubectl` points at that cluster.
+
+### 1. Sync + build (on the build host, not a workstation)
+
+```bash
+rsync -a --exclude node_modules --exclude dist --exclude .git \
+  <checkout>/ nexus:~/quill-build/
+
+ssh nexus 'cd ~/quill-build && \
+  npx pnpm@10.32.1 install --frozen-lockfile --ignore-scripts && \
+  npx pnpm@10.32.1 -r build'
+```
+
+Build the FULL workspace (`-r build`), not only the portal: the portal's
+`gen:plans` step reads the live MCP `/health` endpoint and `gen:all` reads the
+`quill-mcp` dist. On a stale dist the docs catalog disagrees with the live tool
+count and the smoke test fails — by design.
+
+### 2. Gate: smoke test
+
+```bash
+ssh nexus 'cd ~/quill-build && node packages/portal/scripts/smoke-test-dist.mjs'
+# must print: All assertions passed.
+```
+
+Do not import or roll out a build that fails the smoke test.
+
+### 3. Build images (docker = builder only) + import into K3s containerd
+
+```bash
+ssh nexus 'cd ~/quill-build && \
+  docker build -f Dockerfile.mcp    --target quill-mcp -t docker.io/library/quill-mcp:local . && \
+  docker build -f Dockerfile.portal --target portal    -t docker.io/library/quill-portal:local .'
+
+ssh nexus 'docker save docker.io/library/quill-mcp:local -o /tmp/mcp-local.tar && \
+  sudo k3s ctr -n k8s.io images import /tmp/mcp-local.tar && \
+  docker save docker.io/library/quill-portal:local -o /tmp/portal-local.tar && \
+  sudo k3s ctr -n k8s.io images import /tmp/portal-local.tar'
+```
+
+### 4. Roll out (pods stay on nexus)
+
+```bash
+kubectl -n maplespike rollout restart deployment/quill-mcp deployment/quill-portal
+kubectl -n maplespike rollout status  deployment/quill-mcp    --timeout=120s
+kubectl -n maplespike rollout status  deployment/quill-portal --timeout=120s
+```
+
+If a new pod lands on another node it fails with `ErrImageNeverPull` — images
+are imported per-node, so deployments carry `nodeName: nexus`. Keep that pin in
+the live deployment AND in `k8s/maplespike/*-deployment.yaml`.
+
+### 5. Verify
+
+```bash
+kubectl -n maplespike port-forward deployment/quill-mcp 13001:3001 &
+curl -s http://127.0.0.1:13001/health                     # {"tools": <canon>}
+
+kubectl -n maplespike port-forward deployment/quill-portal 18080:8080 &
+curl -s http://127.0.0.1:18080/.well-known/mcp/server-cards.json   # moduleCount
+curl -s http://127.0.0.1:18080/agent-card.json                     # counts.modules
+```
+
+Public checks (through the Cloudflare Tunnel):
+
+```bash
+curl -s https://mcp.maplespike.ca/health
+curl -s https://quill.maplespike.ca/.well-known/mcp/server-cards.json
+```
+
+### Ordering rule
+
+Rebuild **MCP before the portal**. The portal's `gen:plans` fetches
+`https://mcp.maplespike.ca/health` for its tools count, so an older deployed MCP
+image poisons the portal's stats — exactly the cluster-vs-repo drift the smoke
+test catches.
