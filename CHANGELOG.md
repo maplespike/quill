@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased] — 2026-09-17
+
+### Fixed
+- **Module count corrected (207, was 208):** `scripts/generate-metrics.mjs` counted the unquoted `modulePath: string;` interface field in `pipeline-core/src/ingestion/registry.ts` alongside real registry entries, overstating the total by one. The generator now prefers the runtime `getAllModules()` count (quote-aware literal fallback when dist is absent); `docs/metrics.json` and every current-claim surface (`README.md`, `AGENTS.md`, `ROADMAP.md`, `knowledge.md`, `DESIGN.md`, `docs/*`) now report **207 modules**, and the generated discovery artifacts were regenerated from the corrected metrics (`agent-card.json`, `.well-known/mcp/server-cards.json`, `agents.json`).
+
+### Added
+- **Count drift is now enforced:** new `scripts/check-count-consistency.mjs` fails when any published count disagrees with `docs/metrics.json` or the runtime registry; new `scripts/check-lockfile-specifiers.mjs` verifies lockfile specifiers against workspace manifests plus pnpm overrides (fails on unexplained mismatch).
+- **OpenSpec lifecycle:** change `agent-discovery-surface` archived; merged capability spec at `openspec/specs/agent-discovery/spec.md`.
+- **Next changes proposed:** `watchlist-alerts-v1` (user-facing watch CRUD + email/webhook delivery with provenance on every event) and `pricing-transparency` (public operation rate card + pre-run cost estimates; see Decision 0008).
+
 ## [Unreleased] — 2026-07-07
 
 ### Added

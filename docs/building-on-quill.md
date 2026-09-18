@@ -279,7 +279,7 @@ re-verify independently of either server.
   resources), `qa_schema` (MCP tool), or `GET /v1/export` (REST). Read the
   schema resource before composing so your field names match.
 - Registry of modules: `packages/pipeline-core/src/ingestion/registry.ts`
-  (208 modules).
+  (207 modules).
 - SDK: `@maplespike/sdk` (TS) + `sdk-python` (PyPI) — typed clients with
   entity resolution built in. See `packages/sdk/examples/`.
 

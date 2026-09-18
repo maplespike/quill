@@ -212,7 +212,7 @@ async function main() {
     modules,
     // Manual (review at commit time — see DESIGN.md stats section):
     jurisdictions: prevStats?.jurisdictions ?? 13,
-    linesOfTs: prevStats?.linesOfTs ?? "~199K",
+    linesOfTs: prevStats?.linesOfTs ?? "~220K",
   };
 
   writeFileSync(resolve(DATA_DIR, "plans.json"), JSON.stringify(plansOut, null, 2) + "\n");

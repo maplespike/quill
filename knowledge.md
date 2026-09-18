@@ -1,13 +1,13 @@
 # MapleSpike (Quill) — Project Knowledge
 
-> **Mission**: Build the Library of Alexandria for Canadian public data — 208+ modules, 175 MCP tools, ~200K lines TS, 14 packages.
+> **Mission**: Build the Library of Alexandria for Canadian public data — 207 modules, 182 MCP tools, ~220K lines TS, 14 packages.
 
 ## What it is
 
 An AI-native government data pipeline that ingests, verifies, and surfaces Canadian public-domain data (federal, provincial, territorial, municipal) across every sector. Ships as:
 
 - **pipeline-core** — ingestion/verification/audit library
-- **quill-mcp** — MCP server (175 tools, incl. `x402-deposit`)
+- **quill-mcp** — MCP server (182 tools, incl. `x402-deposit`)
 - **api-server** — REST API gateway (auth, rate limits, billing, AI)
 - **portal** — Astro + React + Tailwind v4 static site served by Python
 - **engine** — entity resolution, graph building, signals

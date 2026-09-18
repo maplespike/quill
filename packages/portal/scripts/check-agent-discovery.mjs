@@ -178,16 +178,27 @@ if (llms !== null) {
   else bad(`llms.txt missing pointers: ${missing.join(', ')}`);
 }
 
-// OpenSpec change structure (CLI not installed in this environment).
-const changeDir = resolve(REPO_DIR, 'openspec/changes/agent-discovery-surface');
-for (const f of ['proposal.md', 'tasks.md', '.openspec.yaml']) {
-  if (existsSync(resolve(changeDir, f))) ok(`openspec change file present: ${f}`);
-  else bad(`openspec change file missing: ${f}`);
+// OpenSpec lifecycle: the change is archived and its delta spec is merged.
+const archiveDir = resolve(REPO_DIR, 'openspec/changes/archive/2026-09-17-agent-discovery-surface');
+for (const f of ['proposal.md', 'tasks.md', '.openspec.yaml', 'specs/agent-discovery/spec.md']) {
+  if (existsSync(resolve(archiveDir, f))) ok(`archived change file present: ${f}`);
+  else bad(`archived change file missing: ${f}`);
 }
-if (existsSync(resolve(changeDir, '.openspec.yaml'))) {
-  const y = readFileSync(resolve(changeDir, '.openspec.yaml'), 'utf8');
-  if (y.includes('schema:')) ok('openspec change .openspec.yaml declares a schema');
-  else bad('openspec change .openspec.yaml has no schema field');
+const mergedSpec = resolve(REPO_DIR, 'openspec/specs/agent-discovery/spec.md');
+if (existsSync(mergedSpec)) {
+  const s = readFileSync(mergedSpec, 'utf8');
+  if (s.includes('Requirement:') && s.includes('MCP server card')) {
+    ok('merged agent-discovery spec present with requirements');
+  } else {
+    bad('merged agent-discovery spec lacks expected requirements');
+  }
+} else {
+  bad('merged spec missing: openspec/specs/agent-discovery/spec.md');
+}
+if (!existsSync(resolve(REPO_DIR, 'openspec/changes/agent-discovery-surface'))) {
+  ok('change no longer in the active changes directory');
+} else {
+  bad('change folder still exists in active changes');
 }
 
 // ── Verdict ──────────────────────────────────────────────────────────
