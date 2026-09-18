@@ -203,7 +203,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (184 tools, incl. `x402-deposit`)
 ```
 
-For LAN access: substitute `*.maplespike.lan` everywhere `*.maplespike.ca` appears above.
+For LAN access: **`quill.lan`** (portal), **`api.quill.lan`** (API), **`mcp.quill.lan`** (MCP) — the product's own LAN identity, served by the nexus `nginx-rp` edge (wildcard `CN=*.lan` cert; source `media-k8s/configmap-nginx.yaml`; DNS in nexus unbound `local-dns.conf`). Public addresses stay under the MapleSpike brand (`quill.maplespike.ca`, `api.maplespike.ca`, `mcp.maplespike.ca`). See [docs/ROUTING.md](./docs/ROUTING.md).
 
 ---
 
