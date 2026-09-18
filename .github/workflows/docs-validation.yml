@@ -100,7 +100,8 @@ jobs:
           # Security docs get stricter treatment
           for f in packages/docs/**/owasp-*.md; do
             [ -f "$f" ] || continue
-            TODO_COUNT=$(grep -ci "TODO\|FIXME" "$f" 2>/dev/null || echo 0)
+            TODO_COUNT=$(grep -ci "TODO\|FIXME" "$f" 2>/dev/null || true)
+            TODO_COUNT=${TODO_COUNT:-0}
             if [ "$TODO_COUNT" -gt 0 ]; then
               echo "❌ $f: $TODO_COUNT TODOs in security docs (target: 0)" >> $GITHUB_STEP_SUMMARY
               echo "::error::$f has $TODO_COUNT TODOs (security docs must have 0)"
@@ -108,10 +109,10 @@ jobs:
           done
 
       # ── Check 3: Validate metrics alignment ────────────────────
-      - name: "Validate metrics.json alignment"
+      - name: "Check metrics.json claims"
         id: metrics-check
         run: |
-          echo "## 📊 Metrics Alignment Check" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Metrics Claims Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ ! -f "docs/metrics.json" ]; then
@@ -119,26 +120,25 @@ jobs:
             exit 0
           fi
 
-          # Count MCP tools from quill-mcp package
-          MCP_TOOLS_CLAIMED=$(jq -r '.mcpTools.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
-          echo "📌 Claimed MCP tools: $MCP_TOOLS_CLAIMED" >> $GITHUB_STEP_SUMMARY
+          # Deep count verification (runtime registry vs claims) lives in the
+          # Metrics Drift Check workflow; here we only assert that each claim
+          # is present and numeric so the summary never silently rots.
+          MISSING=""
+          for key in ".modules.registryCount" ".mcpTools.count" ".packages.total" ".typescript.totalLines" ".typescript.totalFiles"; do
+            VALUE=$(jq -r "$key // empty" docs/metrics.json 2>/dev/null)
+            case "$VALUE" in
+              ""|"null")
+                MISSING="$MISSING $key"
+                echo "❌ $key: missing" >> $GITHUB_STEP_SUMMARY
+                ;;
+              *)
+                echo "✅ $key = $VALUE" >> $GITHUB_STEP_SUMMARY
+                ;;
+            esac
+          done
 
-          # Count modules from docs
-          MODULE_COUNT=$(ls -d packages/docs/modules/*.md 2>/dev/null | wc -l)
-          MODULES_CLAIMED=$(jq -r '.modules.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
-          echo "📌 Claimed modules: $MODULES_CLAIMED (actual: $MODULE_COUNT)" >> $GITHUB_STEP_SUMMARY
-          if [ "$MODULE_COUNT" -ne "$MODULES_CLAIMED" ] 2>/dev/null; then
-            echo "⚠️ Module count mismatch: actual=$MODULE_COUNT claimed=$MODULES_CLAIMED" >> $GITHUB_STEP_SUMMARY
-            echo "::warning::module count mismatch: actual=$MODULE_COUNT ≠ claimed=$MODULES_CLAIMED"
-          fi
-
-          # Count packages
-          PACKAGE_COUNT=$(ls -d packages/*/package.json 2>/dev/null | wc -l)
-          PACKAGES_CLAIMED=$(jq -r '.packages.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
-          echo "📌 Claimed packages: $PACKAGES_CLAIMED (actual: $PACKAGE_COUNT)" >> $GITHUB_STEP_SUMMARY
-          if [ "$PACKAGE_COUNT" -ne "$PACKAGES_CLAIMED" ] 2>/dev/null; then
-            echo "⚠️ Package count mismatch: actual=$PACKAGE_COUNT claimed=$PACKAGES_CLAIMED" >> $GITHUB_STEP_SUMMARY
-            echo "::warning::package count mismatch: actual=$PACKAGE_COUNT ≠ claimed=$PACKAGES_CLAIMED"
+          if [ -n "$MISSING" ]; then
+            echo "::warning::metrics.json missing claims:$MISSING"
           fi
 
       # ── Check 4: Status field in AGENTS.md ──────────────────────
