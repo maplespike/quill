@@ -348,6 +348,13 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             self.send_header("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
             self.send_header("Last-Modified", self.date_time_string())
             self.send_header("Pragma", "no-cache")
+        elif self.path.startswith("/.well-known/"):
+            # Discovery documents (MCP server cards, SEP-2127): CORS for
+            # browser-based clients and a modest cache window for CDNs.
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Cache-Control", "public, max-age=3600")
         else:
             # Static assets (js/css/svg/fonts) must revalidate too: without a
             # Cache-Control header browsers heuristically cache by Last-Modified
