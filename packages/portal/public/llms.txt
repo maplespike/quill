@@ -1,6 +1,10 @@
 # MapleSpike — Canadian Government Data API
 > Primary-source infrastructure for AI agents that cite.
 
+> MCP server: https://mcp.maplespike.ca/sse (182 tools)
+> MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json
+> Agent card: https://quill.maplespike.ca/agent-card.json · Agents index: https://quill.maplespike.ca/agents.json
+
 ## API
 Base URL: https://api.maplespike.ca/v1
 Auth: Authorization: Bearer header or X-API-Key header
@@ -32,6 +36,10 @@ Response: { success, data, quality, citation, meta }
 - GET /v1/extraction/tasks — List browser extraction tasks for no-API portals
 - POST /v1/extraction/results — Submit extracted data from browser client
 - GET /v1/extraction/cached/:source_id — Get cached browser extraction results
+- GET /v1/claims/latest — Index of verifiable SHA-256 claim bundles (public)
+- GET /v1/claims/verify/:hash — Verify a SHA-256 claim hash (public)
+- POST /v1/claims/verify — Recompute the SHA-256 of a payload and compare (public)
+- GET /v1/data/quality — Module health, freshness, and error tracking
 
 ### Data Categories
 - committees — House of Commons and Senate committee evidence
