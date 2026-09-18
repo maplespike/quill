@@ -382,6 +382,6 @@ MIT — see [LICENSE](../../LICENSE)
 ## Links
 
 - [MapleSpike Portal](https://maplespike.ca)
-- [API Docs](https://maplespike.ca/docs.html)
+- [API Docs](https://quill.maplespike.ca/docs)
 - [GitHub](https://github.com/reverb256/quill)
 - [Issues](https://github.com/reverb256/quill/issues)
