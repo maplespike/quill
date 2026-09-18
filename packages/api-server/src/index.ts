@@ -119,6 +119,7 @@ import { energyDataHandler } from './routes/energy.js';
 import { realEstateDataHandler } from './routes/real-estate.js';
 import { finRegDataHandler, finRegCrossRefHandler } from './routes/financial-regulation.js';
 import { watcherStatusHandler, watcherEventsHandler } from './routes/watcher.js';
+import { watchCreateHandler, watchListHandler, watchDeleteHandler, watchEventsHandler } from './routes/watches.js';
 import {
   webhookListHandler, webhookGetHandler, webhookCreateHandler,
   webhookUpdateHandler, webhookDeleteHandler, webhookTestHandler,
@@ -294,6 +295,12 @@ const ROUTES: Route[] = [
   // Watcher (real-time monitoring)
   { pattern: /^\/v1\/watcher\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(watcherStatusHandler, 60) },
   { pattern: /^\/v1\/watcher\/events\/?$/, method: 'GET', params: [], handler: withRouteCache(watcherEventsHandler, 60) },
+
+  // Watchlist alerts (watchlist-alerts-v1) — tenant-scoped, deliberately uncached.
+  { pattern: /^\/v1\/watches\/?$/, method: 'GET', params: [], handler: watchListHandler },
+  { pattern: /^\/v1\/watches\/?$/, method: 'POST', params: [], handler: watchCreateHandler },
+  { pattern: /^\/v1\/watches\/([^/]+)\/events\/?$/, method: 'GET', params: ['id'], handler: watchEventsHandler },
+  { pattern: /^\/v1\/watches\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: watchDeleteHandler },
 
   // Webhook notifications
   { pattern: /^\/v1\/webhooks\/?$/, method: 'GET', params: [], handler: withRouteCache(webhookListHandler, 60) },
