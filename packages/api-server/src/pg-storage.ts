@@ -6,7 +6,8 @@
  */
 
 import pg from 'pg';
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
+import { randomUUID } from 'node:crypto';
 import { hashApiKey, generateApiKey } from './auth.js';
 import pino from 'pino';
 
@@ -616,6 +617,196 @@ export class PgStorage implements QuillStorage {
       lastEventId: (lastRes.rows[0] as { id: string } | undefined)?.id ?? null,
       entryCount: agg.entry_count ?? 0,
     };
+  }
+
+  /* ── Watchlist alerts (watchlist-alerts-v1) ─────────────────── */
+
+  private watchSchemaReady = false;
+
+  async ensureWatchSchema(): Promise<void> {
+    if (this.watchSchemaReady) return;
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS watches (
+        id TEXT PRIMARY KEY,
+        tenant_id TEXT NOT NULL,
+        sources TEXT NOT NULL DEFAULT '[]',
+        events TEXT NOT NULL DEFAULT '[]',
+        keyword TEXT,
+        delivery TEXT NOT NULL DEFAULT 'events',
+        label TEXT,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_watches_tenant ON watches(tenant_id);
+
+      CREATE TABLE IF NOT EXISTS watch_events (
+        id TEXT PRIMARY KEY,
+        watch_id TEXT NOT NULL,
+        tenant_id TEXT NOT NULL,
+        change_key TEXT NOT NULL,
+        source_id TEXT NOT NULL,
+        source_name TEXT NOT NULL DEFAULT '',
+        summary TEXT NOT NULL,
+        evidence TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'recorded',
+        delivery_error TEXT,
+        created_at TEXT NOT NULL,
+        UNIQUE(watch_id, change_key)
+      );
+      CREATE INDEX IF NOT EXISTS idx_watch_events_watch ON watch_events(watch_id);
+    `);
+    this.watchSchemaReady = true;
+  }
+
+  private mapWatchRow(row: Record<string, unknown>): Watch {
+    return {
+      id: row.id as string,
+      tenantId: row.tenant_id as string,
+      sources: JSON.parse((row.sources as string) || '[]'),
+      events: JSON.parse((row.events as string) || '[]'),
+      keyword: (row.keyword as string | null) ?? undefined,
+      delivery: (row.delivery as Watch['delivery']) || 'events',
+      label: (row.label as string | null) ?? undefined,
+      active: Boolean(row.active),
+      createdAt: row.created_at as string,
+      updatedAt: row.updated_at as string,
+    };
+  }
+
+  private mapWatchEventRow(row: Record<string, unknown>): WatchEvent {
+    return {
+      id: row.id as string,
+      watchId: row.watch_id as string,
+      tenantId: row.tenant_id as string,
+      changeKey: row.change_key as string,
+      sourceId: row.source_id as string,
+      sourceName: row.source_name as string,
+      summary: row.summary as string,
+      evidence: JSON.parse((row.evidence as string) || '{}'),
+      status: row.status as WatchEvent['status'],
+      deliveryError: (row.delivery_error as string | null) ?? undefined,
+      createdAt: row.created_at as string,
+    };
+  }
+
+  async createWatch(input: WatchInsert): Promise<Watch> {
+    await this.ensureWatchSchema();
+    const now = new Date().toISOString();
+    const watch: Watch = {
+      id: randomUUID(),
+      tenantId: input.tenantId,
+      sources: input.sources,
+      events: input.events,
+      keyword: input.keyword,
+      delivery: input.delivery ?? 'events',
+      label: input.label,
+      active: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await this.pool.query(
+      `INSERT INTO watches (id, tenant_id, sources, events, keyword, delivery, label, active, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 1, $8, $9)`,
+      [
+        watch.id,
+        watch.tenantId,
+        JSON.stringify(watch.sources),
+        JSON.stringify(watch.events),
+        watch.keyword ?? null,
+        watch.delivery,
+        watch.label ?? null,
+        now,
+        now,
+      ],
+    );
+    return watch;
+  }
+
+  async listWatches(tenantId: string): Promise<Watch[]> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query(
+      'SELECT * FROM watches WHERE tenant_id = $1 ORDER BY created_at DESC',
+      [tenantId],
+    );
+    return res.rows.map((r) => this.mapWatchRow(r as Record<string, unknown>));
+  }
+
+  async listAllActiveWatches(): Promise<Watch[]> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query('SELECT * FROM watches WHERE active = 1');
+    return res.rows.map((r) => this.mapWatchRow(r as Record<string, unknown>));
+  }
+
+  async getWatch(id: string, tenantId: string): Promise<Watch | null> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query(
+      'SELECT * FROM watches WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId],
+    );
+    const row = res.rows[0] as Record<string, unknown> | undefined;
+    return row ? this.mapWatchRow(row) : null;
+  }
+
+  async deleteWatch(id: string, tenantId: string): Promise<boolean> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query(
+      'DELETE FROM watches WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId],
+    );
+    return Number(res.rowCount) > 0;
+  }
+
+  async countActiveWatches(tenantId: string): Promise<number> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query(
+      'SELECT COUNT(*)::int AS n FROM watches WHERE tenant_id = $1 AND active = 1',
+      [tenantId],
+    );
+    return Number((res.rows[0] as { n: number }).n);
+  }
+
+  async insertWatchEvent(event: WatchEventInsert): Promise<WatchEvent | null> {
+    await this.ensureWatchSchema();
+    const id = randomUUID();
+    const createdAt = new Date().toISOString();
+    const res = await this.pool.query(
+      `INSERT INTO watch_events
+         (id, watch_id, tenant_id, change_key, source_id, source_name, summary, evidence, status, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'recorded', $9)
+       ON CONFLICT (watch_id, change_key) DO NOTHING
+       RETURNING id`,
+      [
+        id,
+        event.watchId,
+        event.tenantId,
+        event.changeKey,
+        event.sourceId,
+        event.sourceName,
+        event.summary,
+        JSON.stringify(event.evidence),
+        createdAt,
+      ],
+    );
+    if (res.rows.length === 0) return null;
+    return { id, ...event, status: 'recorded', createdAt };
+  }
+
+  async listWatchEvents(watchId: string, tenantId: string, limit: number): Promise<WatchEvent[]> {
+    await this.ensureWatchSchema();
+    const res = await this.pool.query(
+      'SELECT * FROM watch_events WHERE watch_id = $1 AND tenant_id = $2 ORDER BY created_at DESC LIMIT $3',
+      [watchId, tenantId, limit],
+    );
+    return res.rows.map((r) => this.mapWatchEventRow(r as Record<string, unknown>));
+  }
+
+  async updateWatchEventStatus(id: string, status: WatchEvent['status'], error?: string): Promise<void> {
+    await this.ensureWatchSchema();
+    await this.pool.query(
+      'UPDATE watch_events SET status = $1, delivery_error = $2 WHERE id = $3',
+      [status, error ?? null, id],
+    );
   }
 }
 
