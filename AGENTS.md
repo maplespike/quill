@@ -200,7 +200,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (182 tools, incl. `x402-deposit`)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (184 tools, incl. `x402-deposit`)
 ```
 
 For LAN access: substitute `*.maplespike.lan` everywhere `*.maplespike.ca` appears above.
