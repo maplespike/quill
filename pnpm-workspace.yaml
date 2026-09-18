@@ -23,6 +23,9 @@ overrides:
   "ws@>=8.0.0 <8.20.1": ">=8.20.1"
   "protobufjs@<=7.5.7": ">=7.5.8"
   "uuid@<11.1.1": ">=11.1.1"
+  # 1.1.6 was unpublished from npm (tarball 404) while @dexterai/x402@5.1.0
+  # still requests it, which blocked every lockfile resolution. Force 1.1.5.
+  "bigint-buffer@1.1.6": "1.1.5"
   "esbuild@>=0.27.3 <0.28.1": ">=0.28.1"
   "tar@<=7.5.15": ">=7.5.16"
   "@opentelemetry/core@<2.8.0": ">=2.8.0"
@@ -31,7 +34,7 @@ overrides:
   "protobufjs@<=7.6.2": ">=7.6.3"
   "brace-expansion@>=2.0.0 <2.1.2": ">=2.1.2"
   "brace-expansion@<1.1.16": ">=1.1.16"
-  "astro@>=2.9.0 <=7.0.9": ">=7.1.0"
+  "astro@>=2.9.0 <=7.0.9": ">=7.2.8"
   "tar@<=7.5.17": ">=7.5.18"
   "tar@<=7.5.18": ">=7.5.19"
   "tar@<=7.5.16": ">=7.5.17"
