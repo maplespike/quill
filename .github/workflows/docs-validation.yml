@@ -84,10 +84,11 @@ jobs:
           for f in packages/docs/**/*.md; do
             [ -f "$f" ] || continue
             TOTAL_LINES=$(wc -l < "$f")
-            TODO_COUNT=$(grep -ci "TODO\|FIXME\|HACK\|XXX" "$f" 2>/dev/null || echo 0)
+            TODO_COUNT=$(grep -ci "TODO\|FIXME\|HACK\|XXX" "$f" 2>/dev/null || true)
+            TODO_COUNT=${TODO_COUNT:-0}
             if [ "$TOTAL_LINES" -gt 0 ] && [ "$TODO_COUNT" -gt 0 ]; then
-              DENSITY=$(echo "scale=1; $TODO_COUNT * 100 / $TOTAL_LINES" | bc)
-              if [ "$(echo "$DENSITY > 5" | bc)" -eq 1 ]; then
+              DENSITY=$(awk -v t="$TOTAL_LINES" -v c="$TODO_COUNT" 'BEGIN { printf "%.1f", c * 100 / t }')
+              if awk -v d="$DENSITY" 'BEGIN { exit !(d > 5) }'; then
                 echo "⚠️ $f: $TODO_COUNT TODOs in $TOTAL_LINES lines ($DENSITY%)" >> $GITHUB_STEP_SUMMARY
                 echo "::warning::$f has $TODO_COUNT TODOs ($DENSITY% density, threshold 5%)"
               else
