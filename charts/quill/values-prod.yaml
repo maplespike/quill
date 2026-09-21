@@ -107,7 +107,7 @@ cloudflared:
   tag: "2026.8.2"
   pullPolicy: IfNotPresent
   replicas: 1
-  tunnelId: "cec1b070-796f-4524-b43e-9b05c32af906"
+  tunnelId: "66d76492-036b-4177-8fac-8682e0eda37e"
   nodeSelector:
     kubernetes.io/hostname: nexus
   resources:
