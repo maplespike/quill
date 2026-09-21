@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-11
+last-reviewed: 2026-09-21
 status: active
 ---
 
@@ -168,7 +168,16 @@ Production secrets are managed with **SOPS + age**. Plaintext templates live in 
 
 See [./secrets/README.md](./secrets/README.md) for the full workflow (encrypt, decrypt, rotate, the per-file age recipients).
 
-### Rebuild & roll out (canonical Nix deploy path)
+### Rebuild & roll out (ArgoCD — current)
+
+Production is GitOps-managed: the ArgoCD Application `quill` (defined in
+`reverb256/media-k8s` → `helm/apps/quill.yaml`) renders this repo's chart
+(`charts/quill` + `values-prod.yaml`) into the `maplespike` namespace.
+**Chart or values change = commit to `main`; ArgoCD syncs automatically.**
+Verify: `kubectl get app -n argocd quill` → Synced / Healthy.
+ArgoCD reads this repo with a read-only deploy key (ArgoCD secret `quill-repo`).
+
+Legacy (Nix-era — no longer the deploy path, kept for reference):
 
 ```bash
 # Build and apply all manifests from Nix (single command):
