@@ -64,6 +64,8 @@ spec:
           value: "{{ .Values.api.env.APP_URL | default "https://quill.maplespike.ca" }}"
         - name: GITHUB_REDIRECT_URI
           value: "{{ .Values.api.env.GITHUB_REDIRECT_URI | default "https://api.maplespike.ca/v1/auth/github/callback" }}"
+        - name: MAPLESPIKE_OAUTH_REDIRECT_BASE
+          value: "{{ .Values.api.env.MAPLESPIKE_OAUTH_REDIRECT_BASE | default "https://api.maplespike.ca/v1/auth/oauth" }}"
         - name: TRUST_PROXY
           value: "{{ .Values.api.env.TRUST_PROXY | default "true" }}"
         - name: GITHUB_CLIENT_ID
