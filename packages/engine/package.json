@@ -16,7 +16,7 @@
     "@maplespike/database": "workspace:*",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2",
-    "fuse.js": "^7.0.0",
+    "fuse.js": "^7.5.0",
     "pg": "^8.20.0",
     "zod": "^4.6.5"
   },
