@@ -1,69 +1,69 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T19:26:42.720Z",
+  "generatedAt": "2026-09-21T20:08:19.977Z",
   "source": "discover-municipal-ids",
   "discoveries": 12,
   "keptFromPrevious": 0,
   "entries": {
     "https://data.winnipeg.ca|permits": {
-      "id": "e29y-me8j",
+      "id": "2df6-k8j2",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:40.128Z"
+      "discoveredAt": "2026-09-21T20:08:13.646Z"
     },
     "https://data.winnipeg.ca|budget": {
-      "id": "e29y-me8j",
+      "id": "2df6-k8j2",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:40.283Z"
+      "discoveredAt": "2026-09-21T20:08:13.961Z"
     },
     "https://data.edmonton.ca|building-permits": {
-      "id": "jh8a-ipea",
+      "id": "y9xt-s3ub",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:40.284Z"
+      "discoveredAt": "2026-09-21T20:08:16.427Z"
     },
     "https://data.edmonton.ca|budget": {
-      "id": "jh8a-ipea",
+      "id": "y9xt-s3ub",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:40.313Z"
+      "discoveredAt": "2026-09-21T20:08:19.977Z"
     },
     "https://donnees.montreal.ca|transport": {
       "id": "ac3515d6-2753-47a5-8575-35be7d127f43",
       "portalType": "ckan",
-      "discoveredAt": "2026-07-28T19:26:41.296Z"
+      "discoveredAt": "2026-09-21T20:08:14.543Z"
     },
     "https://donnees.montreal.ca|budget": {
       "id": "2b7dcae7-a3e5-4f5d-81de-ccde2c518e55",
       "portalType": "ckan",
-      "discoveredAt": "2026-07-28T19:26:41.400Z"
+      "discoveredAt": "2026-09-21T20:08:14.519Z"
     },
     "https://donnees.montreal.ca|permits": {
       "id": "667342f7-f667-4c3c-9837-65e81312cd8d",
       "portalType": "ckan",
-      "discoveredAt": "2026-07-28T19:26:41.484Z"
+      "discoveredAt": "2026-09-21T20:08:14.542Z"
     },
     "https://data.edmonton.ca|311-calls": {
-      "id": "jh8a-ipea",
+      "id": "y9xt-s3ub",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:41.687Z"
+      "discoveredAt": "2026-09-21T20:08:15.532Z"
     },
     "https://data.calgary.ca|budget": {
-      "id": "3u7d-jj5c",
+      "id": "gjub-9i7m",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:42.495Z"
+      "discoveredAt": "2026-09-21T20:08:16.631Z"
     },
     "https://data.winnipeg.ca|311-calls": {
-      "id": "e29y-me8j",
+      "id": "2df6-k8j2",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:42.543Z"
+      "discoveredAt": "2026-09-21T20:08:14.020Z"
     },
     "https://data.calgary.ca|transit": {
-      "id": "3u7d-jj5c",
+      "id": "gjub-9i7m",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:42.580Z"
+      "discoveredAt": "2026-09-21T20:08:15.903Z"
     },
     "https://data.calgary.ca|permits": {
-      "id": "3u7d-jj5c",
+      "id": "gjub-9i7m",
       "portalType": "socrata",
-      "discoveredAt": "2026-07-28T19:26:42.706Z"
+      "discoveredAt": "2026-09-21T20:08:16.402Z"
     }
   }
 }
