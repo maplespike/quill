@@ -128,6 +128,30 @@ else
   echo "[sops-sync] ⚠ JWT_SECRET is placeholder — skipping maplespike-secrets"
 fi
 
+# ── Sync quill-secrets (apiKey + jwtSecret + GitHub OAuth) ──
+# OPERATOR-MANAGED (2026-09-21): the Helm chart deliberately does NOT render
+# this Secret — ArgoCD selfHeal reconciles out-of-band keys away (it emptied
+# the secret and dropped GitHub OAuth + JWT_SECRET from the pod env). Values
+# MUST mirror production: changing JWT_SECRET invalidates live sessions —
+# update runtime.yaml first, then let this sync apply.
+GH_CLIENT_ID=$(read_secret GITHUB_CLIENT_ID runtime)
+GH_CLIENT_SECRET=$(read_secret GITHUB_CLIENT_SECRET runtime)
+
+if [ -n "${QUILL_API_KEY}" ] && [ "${QUILL_API_KEY}" != "null" ] && \
+   [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-value" ]; then
+  quill_secret_pairs=("apiKey=${QUILL_API_KEY}" "jwtSecret=${JWT_SECRET}")
+  if [ -n "${GH_CLIENT_ID}" ] && [ "${GH_CLIENT_ID}" != "null" ] && \
+     [ -n "${GH_CLIENT_SECRET}" ] && [ "${GH_CLIENT_SECRET}" != "null" ]; then
+    quill_secret_pairs+=("githubClientId=${GH_CLIENT_ID}" "githubClientSecret=${GH_CLIENT_SECRET}")
+  else
+    echo "[sops-sync] ⚠ GitHub OAuth creds incomplete — syncing quill-secrets without github* keys"
+  fi
+  apply_secret quill-secrets "${quill_secret_pairs[@]}"
+  echo "[sops-sync] ✓ quill-secrets synced"
+else
+  echo "[sops-sync] ⚠ JWT_SECRET/QUILL_API_KEY unavailable — skipping quill-secrets"
+fi
+
 # ── Sync maplespike-stripe-secrets (Stripe monetization) ──
 # Stripe keys live in secrets/billing.yaml (NOT runtime.yaml). Read from there.
 STRIPE_SECRET_KEY=$(read_secret STRIPE_SECRET_KEY billing)
