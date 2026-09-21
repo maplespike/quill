@@ -6,7 +6,15 @@
  * network is unavailable — we test the error path instead.
  */
 
-import { describe, it } from 'node:test';
+// Must be imported FIRST — before any tool imports — to intercept fetch.
+// Without the mock, the no-network handler suite hits live government APIs;
+// truncated responses throw asynchronously and flaked the coverage job (#859).
+import { mockUpstream } from './__tests__/helpers/mock-upstream.js';
+
+const mock = mockUpstream();
+mock.start();
+
+import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { getToolNames, getAllTools } from './tools/index.js';
@@ -61,6 +69,8 @@ describe('MCP Server — tool definitions', () => {
 
 describe('MCP Server — tool handlers (no-network mode)', () => {
   const tools = getAllTools();
+  // Stop the upstream mock once the handler suite finishes.
+  after(() => mock.stop());
   // Tools that don't require a query parameter
   const queryless = new Set([
     'system_health', 'get_tool_health', 'cache_status',
