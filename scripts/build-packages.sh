@@ -12,9 +12,10 @@ pnpm --filter @maplespike/sdk build
 
 # Layer 1: tsc -b packages — built via root tsconfig project references.
 # tsc -b handles the dependency graph automatically (database → pipeline-core → quill-mcp/api-server).
-tsc -b
+# NOTE: use `pnpm exec` — bare `tsc` is NOT on PATH on the self-hosted runner
+# (exit 127 broke the Live Data Check lane nightly, 2026-09-18 → 09-21).
+pnpm exec tsc -b
 
 # Layer 2: standalone builds
 pnpm --filter @maplespike/docs build
 pnpm --filter @maplespike/portal build
-pnpm --filter @maplespike/dashboard build
