@@ -1,118 +1,33 @@
-# MapleSpike Kubernetes Manifests
+# MapleSpike Kubernetes Manifests (reference)
 
-This directory contains the Kubernetes manifests for deploying
-the MapleSpike suite on the homelab k3s cluster (`nexus`).
-
-> **CANONICAL DEPLOY PATH (2026-08-10):** the single source of truth for the
-> live cluster is **Nix** — `nix build .#saas-manifests && kubectl apply -f
-> result/manifests.yaml` generates the bundle from `flake.nix` +
-> `nix/saas-manifests.nix` (per-service pinned image tags, pinned ClusterIPs,
-> canonical GNP via `builtins.readFile ../k8s/gnp-default-deny.yaml`). The
-> hand-maintained files in this directory are a human-readable reference and
-> are kept in lockstep with the Nix generator; the Nix generator wins on
-> conflict.
+> **CANONICAL DEPLOY PATH (2026-09-21):** the live cluster state is owned by the
+> **Helm chart in this repo** (`charts/quill` + `values-prod.yaml`), rendered by the
+> **ArgoCD app `quill`** (hub: `media-k8s/helm/apps/quill.yaml`). Change the chart →
+> push → ArgoCD syncs. Do not `kubectl apply` these files against the live cluster,
+> and never hand-edit live resources (permanent rule).
 
 ## Structure
 
-```
-k8s/
-├── README.md                   # This file
-├── gnp-default-deny.yaml       # Canonical Calico GlobalNetworkPolicy (default-deny-enforced, 7844 for cloudflared edge)
-├── maplespike/                 # Core MapleSpike services (reference manifests)
-│   ├── kustomization.yaml
-│   ├── quill-api-deployment.yaml
-│   ├── quill-api-service.yaml
-│   ├── quill-mcp-deployment.yaml
-│   ├── quill-mcp-service.yaml
-│   ├── quill-portal-deployment.yaml
-│   ├── quill-portal-service.yaml
-│   ├── quill-hpa.yaml
-│   ├── quill-networkpolicy.yaml
-│   └── quill-service-networkpolicies.yaml
-├── cloudflared/
-│   └── cloudflared.yaml        # Tunnel Deployment + ConfigMap (namespace `cloudflared`)
-└── mosiac/                     # Mosiac server
-    ├── kustomization.yaml
-    ├── mosiac-deployment.yaml
-    ├── mosiac-service.yaml
-    └── mosiac-networkpolicy.yaml
-```
+- `maplespike/` — reference manifests for the core services. Consumed today by
+  `scripts/check-secret-lockstep.sh` (key-name drift guard). Files such as
+  `quill-hpa.yaml`, `quill-networkpolicy.yaml`, `quill-service-networkpolicies.yaml`
+  and `vap-require-resources-and-security.yaml` are NOT applied — move them into
+  the chart when wanted (HPA needs the metrics API first: see #757).
+- `cloudflared/cloudflared.yaml` — historical raw deployment for the tunnel
+  connectors (namespace `cloudflared`); the live connectors predate the chart and
+  are managed manually (see the `cloudflare` / `haven-deploy` skills).
+- `gnp-default-deny.yaml` — canonical Calico default-deny policy reference.
+- Ingest cronjobs, `kanban-cronjob.yaml`, `canary-prometheusrule.yaml`,
+  `grafana-dashboard.json`, health scripts — reference/aspirational; verify against
+  the live cluster before relying on any of them.
 
-## Namespace
+## Removed (2026-09-21, #777)
 
-All prod app manifests deploy to the `maplespike` namespace. `cloudflared` runs in
-its own `cloudflared` namespace (must carry label
-`app.kubernetes.io/name: cloudflared` for the API NetworkPolicy).
+- `mosiac/` — Mosaic-era manifests; the app is upstream Haven now, deployed via the
+  `haven-k8s` chart (ArgoCD app `haven`).
+- `prod/ghcr-secret.nix` — nix-era artifact (no nix on the fleet).
 
-A **dev/staging namespace `quill-dev`** is generated from the same Nix generator
-(`nix build .#dev-manifests` / `nix run .#deploy-dev`) — LAN-only, dynamic
-ClusterIPs, dev.* ingress hosts, no tunnel/GNP/VAP. See
-`docs/K8S-NIX-MANIFESTS.md` § Dev call site.
+## History
 
-## Applying
-
-```bash
-# CANONICAL: generate + apply from Nix (single command)
-nix build .#saas-manifests -L
-kubectl apply -f result/manifests.yaml
-
-# Convenience app (same thing)
-nix run .#deploy-saas
-
-# DEV namespace (quill-dev): same generator, dev call site. Push images
-# first (the bundle pins the git short-sha tag):
-#   nix run .#push-images
-#   nix run .#deploy-dev          # generate + apply + bootstrap dev secret
-#   nix build .#dev-manifests -L  # render-only, inspect result/manifests.yaml
-
-# Kustomize reference path (dev only — the Nix bundle is canonical for prod)
-kubectl apply -k k8s/maplespike/
-kubectl apply -k k8s/mosiac/
-```
-
-## Services
-
-| Service        | Type       | Port | ClusterIP (pinned)  | Image tag (flake.nix)     |
-|----------------|------------|------|---------------------|---------------------------|
-| quill-api      | ClusterIP  | 8082 | pinned              | quill-api:2026-08-10-3 |
-| quill-mcp      | ClusterIP  | 3001 | pinned              | quill-mcp:2026-08-10-3 |
-| quill-portal   | ClusterIP  | 8080 | pinned              | quill-portal:2026-08-10 |
-| mosiac-server  | ClusterIP  | 8080 | dynamic             | mosiac-server:latest |
-
-> The ClusterIPs are **pinned** because cloudflared dials literal IPs (NOT DNS
-> names — its Go resolver NXDOMAINs `*.svc.cluster.local` → edge 502s). Update
-> the pins in BOTH `k8s/maplespike/*-service.yaml` AND `nix/saas-manifests.nix`
-> + the `cloudflared-config` ConfigMap whenever they change. The cluster's
-> `deny-latest-tag-deployments` admission policy forbids `:latest` for the
-> quill-* services.
-
-## Autoscaling
-
-quill-api and quill-portal have HPA manifests (`quill-hpa.yaml`) with
-minReplicas 2 / maxReplicas 6 / targetCPU 70%. NOTE: the metrics server has
-been flaky on this cluster (see k3s etcd/encryption incident 2026-08-10); the
-Nix manifests pin `replicas: 1` as the safe default.
-
-## Network Policies
-
-- **quill-network-policy**: Restricts ingress to quill-api pods from the
-  `cloudflared` namespace. Allows DNS (port 53) and HTTP/S (80/443) egress.
-- **quill-service-networkpolicies**: quill-mcp + quill-portal NetworkPolicies.
-- **gnp-default-deny.yaml** (cluster-scoped, applied separately — NOT in the
-  kustomization): default-deny-enforced GlobalNetworkPolicy with allows for
-  pod/svc/CGNAT CIDRs, ports 30080/80/30443/443/6443/53, plus TCP+UDP 7844
-  for the cloudflared edge. This file is `builtins.readFile`-d by
-  `nix/saas-manifests.nix` (single source of truth).
-- **mosiac-network-policy**: Restricts ingress to mosiac pods from the
-  `maplespike` namespace. Allows DNS egress.
-
-## Images
-
-All container images are hosted on the operator's local registry.
-Images are rebuilt and pushed via the Nix path:
-
-```bash
-nix run .#push-images    # defaults REGISTRY=<operator-registry> TAG=stable COMMIT=<sha>
-```
-
-GHCR push is RETIRED (2026-07-10 flip) — see docs/GHCR-CLEANUP.md.
+The 2026-08 era generated a Nix manifest bundle (`nix build .#saas-manifests`);
+that path is retired. The chart + ArgoCD is the only live path.
