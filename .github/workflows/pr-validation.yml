@@ -20,10 +20,16 @@ jobs:
           fetch-depth: 0
 
       # ── Check 1: Branch name follows convention ───────────────────
+      # NOTE: all PR-derived strings reach step scripts via `env:` — never
+      # interpolate ${{ }} directly into `run:` bodies. Direct interpolation
+      # breaks the shell on quotes/HTML and is a script-injection surface
+      # (2026-09-21: a Dependabot PR body containing <details> crashed the
+      # linked-issue check with `syntax error near unexpected token '<'`).
       - name: "Branch naming convention"
         id: branch-name
+        env:
+          BRANCH: ${{ github.head_ref }}
         run: |
-          BRANCH="${{ github.head_ref }}"
           if [[ "$BRANCH" =~ ^(issue|feat|fix|chore|dependabot)/[a-z0-9._-]+$ ]]; then
             echo "✅ Branch name: $BRANCH"
           elif [[ "$BRANCH" =~ ^dependabot/ ]]; then
@@ -36,9 +42,10 @@ jobs:
       # ── Check 2: PR has linked issue ──────────────────────────────
       - name: "Linked issue check"
         id: linked-issue
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          BODY='${{ toJSON(github.event.pull_request.body) }}'
-          if echo "$BODY" | grep -qiE "(Closes|Fixes|Resolves|Related to) #[0-9]+"; then
+          if echo "$PR_BODY" | grep -qiE "(Closes|Fixes|Resolves|Related to) #[0-9]+"; then
             echo "✅ PR references an issue"
           else
             echo "::warning::PR body should contain 'Closes #NNN' or 'Related to #NNN'"
@@ -47,8 +54,10 @@ jobs:
       # ── Check 3: Commit messages reference issue numbers ───────────
       - name: "Commit message check"
         id: commit-msgs
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].messageHeadline')
+          COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageHeadline')
           FAILED=0
           while IFS= read -r msg; do
             if echo "$msg" | grep -qiE '#[0-9]+'; then
@@ -65,9 +74,10 @@ jobs:
       # ── Check 4: Title starts with conventional commit type ───────
       - name: "Conventional commit title check"
         id: title-check
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TITLE="${{ github.event.pull_request.title }}"
-          if echo "$TITLE" | grep -qiE "^(feat|fix|chore|refactor|docs|test|ci)(\([a-z]+\))?:"; then
+          if echo "$PR_TITLE" | grep -qiE "^(feat|fix|chore|refactor|docs|test|ci)(\([a-z]+\))?:"; then
             echo "✅ Title follows conventional commits"
           else
             echo "::warning::PR title should start with type: e.g. 'feat: add X (#NNN)'"
@@ -75,8 +85,9 @@ jobs:
 
       # ── Check 5: No direct pushes to main ─────────────────────────
       - name: "Target branch check"
+        env:
+          BASE: ${{ github.base_ref }}
         run: |
-          BASE="${{ github.base_ref }}"
           if [ "$BASE" = "main" ] || [ "$BASE" = "prod" ]; then
             echo "✅ PR targets $BASE — correct"
           else
