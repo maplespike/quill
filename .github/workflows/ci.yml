@@ -121,6 +121,12 @@ jobs:
     # age-key findings are remediated by history rewrite before public flip;
     # doc/test placeholders are excluded via .gitleaksignore.
     runs-on: ubuntu-latest
+    # gitleaks-action lists PR commits via the API on pull_request events —
+    # without pull-requests:read the token 403s ("Resource not accessible by
+    # integration") and the job fails regardless of findings.
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
