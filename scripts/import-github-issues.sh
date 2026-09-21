@@ -13,7 +13,10 @@ echo "   Mode: $MODE"
 echo ""
 
 # Ensure we're on the maplespike board
-hermes kanban boards switch maplespike 2>/dev/null || hermes kanban switch maplespike 2>/dev/null || true
+# Target the maplespike board explicitly via --board (stateless). Do NOT use
+# `boards switch`: runner hosts serve multiple boards (nexus runs
+# faceless-youtube) and a global switch pollutes their board targeting.
+KB="hermes kanban --board maplespike"
 
 # Single issue import (for GitHub Actions)
 if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
@@ -31,7 +34,7 @@ if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
     [[ "$labels" == *"p1"* ]] && priority=1
     [[ "$labels" == *"p3"* ]] && priority=3
     
-    hermes kanban create "$title (GH#$SINGLE_NUMBER)" \
+    $KB create "$title (GH#$SINGLE_NUMBER)" \
         --assignee "$assignee" \
         --priority $priority \
         --workspace worktree \
@@ -69,7 +72,7 @@ if [ "$MODE" = "foundation" ]; then
         priority=1
         
         # Create kanban task
-        task_id=$(hermes kanban create "$title" \
+        task_id=$($KB create "$title" \
             --assignee "$assignee" \
             --priority $priority \
             --idempotency-key "gh-maplespike-$num" \
@@ -134,7 +137,7 @@ if [ "$MODE" = "agent-ready" ]; then
         
         echo "   Importing #$number: $title (p$priority, $assignee)..."
         
-        task_id=$(hermes kanban create "$title" \
+        task_id=$($KB create "$title" \
             $workspace_arg \
             --assignee "$assignee" \
             --priority $priority \
@@ -182,7 +185,7 @@ if [ "$MODE" = "all" ]; then
         
         echo "   Importing #$number: $title..."
         
-        hermes kanban create "$title" \
+        $KB create "$title" \
             --assignee "$assignee" \
             --idempotency-key "gh-maplespike-$num" \
             --created-by "gh-import" \
