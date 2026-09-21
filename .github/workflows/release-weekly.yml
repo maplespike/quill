@@ -33,6 +33,10 @@ jobs:
 
       - name: Version packages
         if: steps.check-changesets.outputs.has_changesets == 'true'
+        env:
+          # changesets' changelog generation reads GITHUB_TOKEN; without it the
+          # step dies with "Please create a GitHub personal access token ..."
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm changeset version
           echo "## 📦 Release Packages" >> $GITHUB_STEP_SUMMARY
