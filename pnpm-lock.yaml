@@ -120,7 +120,7 @@ importers:
         version: 0.2.2(hono@4.13.0)(zod@4.6.5)
       '@maplespike/engine':
         specifier: workspace:*
-        version: file:packages/engine(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(gel@2.2.0)
+        version: link:../engine
       '@maplespike/pipeline-core':
         specifier: workspace:*
         version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(gel@2.2.0)(typescript@7.0.2)
@@ -271,8 +271,8 @@ importers:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(better-sqlite3@13.0.3)(gel@2.2.0)(pg@8.20.0)
       fuse.js:
-        specifier: ^7.0.0
-        version: 7.3.0
+        specifier: ^7.5.0
+        version: 7.5.0
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -1707,9 +1707,6 @@ packages:
 
   '@maplespike/database@file:packages/database':
     resolution: {directory: packages/database, type: directory}
-
-  '@maplespike/engine@file:packages/engine':
-    resolution: {directory: packages/engine, type: directory}
 
   '@maplespike/pipeline-core@file:packages/pipeline-core':
     resolution: {directory: packages/pipeline-core, type: directory}
@@ -4699,12 +4696,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fuse.js@7.3.0:
-    resolution: {integrity: sha512-plz8RVjfcDedTGfVngWH1jmJvBvAwi1v2jecfDerbEnMcmOYUEEwKFTHbNoCiYyzaK2Ws8lABkTCcRSqCY1q4w==}
-    engines: {node: '>=10'}
-
-  fuse.js@7.4.2:
-    resolution: {integrity: sha512-LVbzjD4WA6UP5B1UnP8wuaXJiLnqMdM/E4fiJXTJ5haJ5b/MBNsK29h2fm6swEoQaVQjvYFWKLE2RanyZIoRVQ==}
+  fuse.js@7.5.0:
+    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
     engines: {node: '>=10'}
 
   gel@2.2.0:
@@ -7686,44 +7679,6 @@ snapshots:
       better-sqlite3: 13.0.3
       drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(better-sqlite3@13.0.3)(gel@2.2.0)(pg@8.20.0)
       pg: 8.20.0
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@maplespike/engine@file:packages/engine(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(gel@2.2.0)':
-    dependencies:
-      '@maplespike/database': file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(gel@2.2.0)
-      better-sqlite3: 13.0.3
-      drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(@types/pg@8.20.0)(better-sqlite3@13.0.3)(gel@2.2.0)(pg@8.20.0)
-      fuse.js: 7.4.2
-      pg: 8.20.0
-      zod: 4.6.5
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -11080,9 +11035,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fuse.js@7.3.0: {}
-
-  fuse.js@7.4.2: {}
+  fuse.js@7.5.0: {}
 
   gel@2.2.0:
     dependencies:
