@@ -37,6 +37,10 @@ api:
     PORTAL_URL: "https://quill.maplespike.ca"
     APP_URL: "https://quill.maplespike.ca"
     GITHUB_REDIRECT_URI: "https://api.maplespike.ca/v1/auth/github/callback"
+    # Generic OAuth flow (portal links to /v1/auth/oauth/<provider>); the
+    # callback becomes ${BASE}/<provider>/callback. Without this the flow
+    # builds a localhost redirect_uri in production.
+    MAPLESPIKE_OAUTH_REDIRECT_BASE: "https://api.maplespike.ca/v1/auth/oauth"
     TRUST_PROXY: "true"
     # #806: Stripe environment. 'test' until the go-live secret-swap.
     STRIPE_ENV: "test"
