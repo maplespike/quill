@@ -54,6 +54,7 @@ curl -sfL https://get.k3s.io | \
   --disable traefik \
   --disable metrics-server \
   --flannel-backend none \
+  --disable-network-policy \
   --tls-san 10.1.1.100 \
   --tls-san 10.1.1.110 \
   --tls-san 10.1.1.120 \
