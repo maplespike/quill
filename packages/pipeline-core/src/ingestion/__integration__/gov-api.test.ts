@@ -18,8 +18,13 @@ describe('gov-api Module', () => {
     it('each source has required fields', () => {
       for (const source of GOV_DATA_SOURCES) {
         assert.ok(typeof source.name === 'string', `Missing name in source`);
-        assert.ok(typeof source.endpoint === 'string' && source.endpoint.length > 0, `Missing endpoint in ${source.name}`);
         assert.ok(typeof source.jurisdiction === 'string', `Missing jurisdiction in ${source.name}`);
+        // api:'NONE' sources are documented-decommissioned portals (SK, MB)
+        // that intentionally carry endpoint:null — see the notes on each entry.
+        // API-backed sources must still declare a usable endpoint.
+        if (source.api !== 'NONE') {
+          assert.ok(typeof source.endpoint === 'string' && source.endpoint.length > 0, `Missing endpoint in ${source.name}`);
+        }
       }
     });
 
