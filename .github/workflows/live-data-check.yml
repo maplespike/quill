@@ -40,24 +40,39 @@ jobs:
           # Dummy OAuth creds so the provider registers (no network calls in the smoke).
           GITHUB_CLIENT_ID: 'ci-smoke-client'
           GITHUB_CLIENT_SECRET: 'ci-smoke-secret'
+          # 18082 — 8082 collides with nginx on the nexus runner (2026-09-22).
+          PORT: '18082'
+          MAPLESPIKE_OAUTH_REDIRECT_BASE: 'http://localhost:18082/v1/auth/oauth'
         run: |
-          node packages/api-server/dist/dev-server.js &
+          # Kill any orphaned server from a previous run — self-hosted runners
+          # leak background processes, and a stale listener on 8082 made this
+          # workflow silently test the WRONG server (2026-09-22 incident).
+          pkill -f "dist/dev-server.js" 2>/dev/null || true
+          sleep 1
+          node packages/api-server/dist/dev-server.js > /tmp/quill-ci-server.log 2>&1 &
+          READY=0
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:8082/v1/health > /dev/null 2>&1; then
-              echo "API server ready on port 8082"
+            if curl -sf http://localhost:18082/v1/health > /dev/null 2>&1; then
+              echo "API server ready on port 18082"
+              READY=1
               break
             fi
             echo "Waiting for API server... ($i/30)"
             sleep 1
           done
+          if [ "$READY" != "1" ]; then
+            echo "::error::API server never became ready"
+            tail -30 /tmp/quill-ci-server.log || true
+            exit 1
+          fi
 
       - name: "Auth-lane smoke (regressions 2026-09-21)"
         run: |
           set -euo pipefail
-          API=http://localhost:8082
+          API=http://localhost:18082
           # OAuth start must 302 with the LOWERCASE callback (redirect_uri case regression)
           LOC=$(curl -s -o /dev/null -w '%{redirect_url}' "$API/v1/auth/oauth/github")
-          echo "$LOC" | grep -q 'redirect_uri=http://localhost:8082/v1/auth/oauth/github/callback' \
+          echo "$LOC" | grep -q 'redirect_uri=http://localhost:18082/v1/auth/oauth/github/callback' \
             || { echo "FAIL: oauth redirect_uri: $LOC"; exit 1; }
           # /exchange must reach its handler (route-shadow regression)
           curl -s "$API/v1/auth/oauth/exchange?code=ci-smoke" | grep -q 'INVALID_CODE' \
@@ -107,3 +122,7 @@ jobs:
               body: summary,
               labels: ['bug', 'p2']
             })
+
+      - name: Stop API server
+        if: always()
+        run: pkill -f "dist/dev-server.js" 2>/dev/null || true
