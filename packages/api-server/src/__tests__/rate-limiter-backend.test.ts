@@ -25,6 +25,7 @@ import {
   RateLimiter,
   TIER_LIMITS,
   WINDOW_SECONDS,
+  normalizeIp,
   type RedisLikeClient,
 } from '../middleware/rate-limiter.js';
 import { resolveRedisUrl, redisHostOf } from '../cache/redis-url.js';
@@ -320,5 +321,51 @@ describe('RateLimiter — recovery after a failed start (A2-REDIS regression)', 
     assert.equal(rl.backendMode(), 'memory');
     // Still a decision, never a pass-through null.
     assert.ok((await rl.check(uniqueIp(), 'FREE')) !== null);
+  });
+});
+
+describe('RateLimiter — client identity (A2-REDIS: everyone shared one bucket)', () => {
+  it('falls back to the socket peer address when there is no XFF and no req.ip', () => {
+    const rl = new RateLimiter();
+    // A raw Node IncomingMessage: no `ip` property at all.
+    const req = { headers: {}, socket: { remoteAddress: '10.42.0.7' } };
+
+    assert.equal(rl.extractIP(req), '10.42.0.7');
+  });
+
+  it('still prefers x-forwarded-for when a proxy sets it', () => {
+    const rl = new RateLimiter();
+    const req = {
+      headers: { 'x-forwarded-for': '203.0.113.9, 10.42.0.1' },
+      socket: { remoteAddress: '10.42.0.1' },
+    };
+
+    assert.equal(rl.extractIP(req), '203.0.113.9');
+  });
+
+  it('normalises ports and IPv4-mapped IPv6 addresses', () => {
+    assert.equal(normalizeIp('::ffff:10.42.0.7'), '10.42.0.7');
+    assert.equal(normalizeIp('10.42.0.7:5555'), '10.42.0.7');
+    assert.equal(normalizeIp('[::1]:5555'), '::1');
+    assert.equal(normalizeIp('  10.42.0.7  '), '10.42.0.7');
+    assert.equal(normalizeIp(''), null);
+    assert.equal(normalizeIp(undefined), null);
+  });
+
+  it('gives two in-cluster peers two different counters', async () => {
+    const fake = new FakeRedis([1, 1, 1_700_000_060]);
+    const rl = new RateLimiter(fake);
+    await rl.init('redis://quill-redis:6379');
+
+    const peerA = { headers: {}, socket: { remoteAddress: '::ffff:10.42.0.7' } };
+    const peerB = { headers: {}, socket: { remoteAddress: '10.42.0.8' } };
+
+    await rl.check(rl.extractIP(peerA), 'FREE');
+    await rl.check(rl.extractIP(peerB), 'FREE');
+
+    assert.deepEqual(
+      fake.calls.map((call) => call.args[0]),
+      ['ratelimit:FREE:10.42.0.7', 'ratelimit:FREE:10.42.0.8'],
+    );
   });
 });
