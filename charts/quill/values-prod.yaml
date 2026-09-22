@@ -31,8 +31,8 @@ image:
 # Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
 images:
   api:
-    digest: "sha256:5f5a1d8619c1416f5616a7c1a69dbaf384e98251fbe9a37d6cc3eccdac41cf1a"
-    tag: "2026-09-21-847944c"
+    digest: "sha256:fd6a62226f251ef143913a5893d620aa30a9df2b23b9fb485eb4e4b471313217"
+    tag: "2026-09-21-sha.fd6a62226f25"
   mcp:
     digest: "sha256:0b0eb61bc5b00fa4a8ecf4123dfc7b04300b9d1e7266d823bb50dfcf89402208"
     tag: "2026-09-21-sha.0b0eb61bc5b0"
@@ -43,8 +43,8 @@ images:
   # chart-wide tag cannot supply one, and an empty tag renders an invalid
   # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
   ingest:
-    digest: "sha256:2f80a073d1b7dd768016a1d547748b826cd51a0ef0e82d9a7579d0d5a0d02e6b"
-    tag: "2026-09-21-sha.2f80a073d1b7"
+    digest: "sha256:17eab81984d89884a76d3fc12a71dc664c9fd98676680b3769a7de6480e525dd"
+    tag: "2026-09-21-sha.17eab81984d8"
 
 # API Server
 api:
