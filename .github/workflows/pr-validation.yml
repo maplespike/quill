@@ -52,9 +52,16 @@ jobs:
           fi
 
       # ── Check 3: Commit messages reference issue numbers ───────────
+      # `gh` needs a token. Without GH_TOKEN the step inherits the runner's
+      # own `gh auth` state: the nexus runners hold an interactive login, the
+      # forge runner does not. Run 35679142663 (PR #893) therefore failed on
+      # forge with "set the GH_TOKEN environment variable" while the same
+      # commit passed on nexus. Pass github.token explicitly so the verdict
+      # does not depend on which runner picks up the job.
       - name: "Commit message check"
         id: commit-msgs
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageHeadline')
