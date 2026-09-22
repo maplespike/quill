@@ -89,8 +89,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build pipeline-core
-        run: pnpm --filter @maplespike/pipeline-core build
+      - name: Build workspace packages (dist + injected-copy repair)
+        # Same lane family as the two jobs above: this job imports built
+        # @maplespike/pipeline-core at runtime, and pipeline-core's dist
+        # imports @maplespike/database — which exists in pnpm's injected copy
+        # WITHOUT dist/ unless scripts/build-packages.sh repairs it
+        # (ERR_MODULE_NOT_FOUND, run 35678550390; #859 class).
+        run: bash scripts/build-packages.sh
 
       - name: Verify attestation module exports
         run: |
@@ -138,3 +143,16 @@ jobs:
 
       - name: Run quill-mcp unit tests
         run: pnpm --filter @maplespike/quill-mcp test:unit
+
+  ci-lane-guard:
+    # Cheap, install-free guard: any lane that imports a built workspace
+    # package at runtime must run scripts/build-packages.sh first. Without it
+    # pnpm's injected copies resolve to a dist/ that does not exist
+    # (ERR_MODULE_NOT_FOUND, #859 class) — it silently cost the attestation
+    # lane a red run (35678550390) after the other two QA lanes were fixed.
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guard — workspace-dist imports must follow the shared build
+        run: node scripts/check-ci-build-lanes.mjs
