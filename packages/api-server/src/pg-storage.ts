@@ -10,12 +10,11 @@ import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, Te
 import { randomUUID } from 'node:crypto';
 import { hashApiKey, generateApiKey } from './auth.js';
 import pino from 'pino';
+import { loggerTransport } from './logging.js';
 
 const log = pino({
   level: process.env.QUILL_LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
+  transport: loggerTransport(),
 });
 
 const { Pool } = pg;

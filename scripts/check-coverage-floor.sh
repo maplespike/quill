@@ -6,20 +6,26 @@
 # nothing failed. This makes the number visible and the floor binding, so
 # "everything still works" is measured rather than assumed.
 #
-# Usage: check-coverage-floor.sh <package-filter> <coverage-script> <min-lines> <min-branch>
-# Example: check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+# Usage: check-coverage-floor.sh <package-filter> <coverage-script> <min-lines> <min-branch> [extra script args...]
+# Example: check-coverage-floor.sh @maplespike/api-server test:coverage 71 65 -- --test-timeout=30000
+#
+# Anything after the four positionals is forwarded verbatim to the package
+# script, so a caller can bound the test run (e.g. --test-timeout=30000)
+# without a second way to invoke the suite.
 set -uo pipefail
 
 FILTER="${1:?package filter required (e.g. @maplespike/api-server)}"
 SCRIPT="${2:?coverage script required (e.g. test:coverage)}"
 MIN_LINES="${3:?minimum line coverage required}"
 MIN_BRANCH="${4:?minimum branch coverage required}"
+shift 4
+EXTRA_ARGS=("$@")
 
 LOG="$(mktemp)"
 trap 'rm -f "$LOG"' EXIT
 
-echo "::group::coverage — $FILTER ($SCRIPT)"
-if ! pnpm --filter "$FILTER" "$SCRIPT" >"$LOG" 2>&1; then
+echo "::group::coverage — $FILTER ($SCRIPT) ${EXTRA_ARGS[*]-}"
+if ! pnpm --filter "$FILTER" "$SCRIPT" "${EXTRA_ARGS[@]}" >"$LOG" 2>&1; then
   echo "FAIL: $FILTER $SCRIPT exited non-zero"
   tail -40 "$LOG"
   echo "::endgroup::"

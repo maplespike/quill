@@ -1,6 +1,24 @@
-import { describe, it } from 'node:test';
+import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCtx as makeBaseCtx } from './_helpers.js';
+import { mockNetwork } from './helpers/mock-network.js';
+
+/**
+ * This lane is hermetic: every outbound HTTP call the route handlers make is
+ * intercepted (see helpers/mock-network.ts). Without it, `searchGovHandler`
+ * and `complianceHandler` delegate to @maplespike/pipeline-core, which would
+ * reach the live StatCan WDS / CKAN portals — a blackholed connection used to
+ * hang the CI runner for hours (t_b0989a3d).
+ */
+const net = mockNetwork();
+
+before(() => {
+  net.start();
+});
+
+after(() => {
+  net.stop();
+});
 
 function makeCtx(tier: 'free' | 'pro' | 'business' = 'free') {
   return makeBaseCtx({ tenant: { tier } });
@@ -80,7 +98,58 @@ describe('API Server Routes', () => {
     const { searchGovHandler } = await import('../routes/gov.js');
     const ctx = makeCtx();
     const resp = await searchGovHandler(new Request('http://localhost/v1/gov/search'), ctx as any, {});
-    assert.ok([200, 400].includes(resp.status));
+    assert.equal(resp.status, 400);
+    const body = await resp.json();
+    assert.equal(body.success, false);
+    assert.equal(body.error.code, 'MISSING_QUERY');
+  });
+
+  it('gov search queries the CKAN portal through the intercepted network', async () => {
+    const { searchGovHandler } = await import('../routes/gov.js');
+    const ctx = makeCtx();
+    net.reset();
+    const resp = await searchGovHandler(
+      new Request('http://localhost/v1/gov/search?q=housing'),
+      ctx as any,
+      {},
+    );
+    assert.equal(resp.status, 200);
+
+    // The handler must have gone out through the mock, never the live network.
+    const calls = net.calls();
+    assert.equal(calls.length, 1, `expected exactly one intercepted call, got ${JSON.stringify(calls)}`);
+    assert.ok(calls[0]!.url.includes('open.canada.ca'), `unexpected upstream: ${calls[0]!.url}`);
+    assert.ok(calls[0]!.url.includes('q=housing'), 'the query must reach the portal');
+    assert.deepEqual(net.unhandled(), [], 'the CKAN upstream must be modelled by the mock');
+
+    const body = await resp.json();
+    assert.ok(body.success);
+    assert.deepEqual(body.data.results, []);
+    assert.equal(body.data.total, 0);
+    assert.equal(body.data.query, 'housing');
+    assert.equal(body.data.provenance.status, 'unavailable');
+    assert.deepEqual(body.data.provenance.errors, []);
+  });
+
+  it('gov search degrades to an empty result set when the CKAN portal fails', async () => {
+    const { searchGovHandler } = await import('../routes/gov.js');
+    const ctx = makeCtx();
+    net.reset();
+    net.respond(/open\.canada\.ca/, 500, { success: false });
+    const resp = await searchGovHandler(
+      new Request('http://localhost/v1/gov/search?q=housing'),
+      ctx as any,
+      {},
+    );
+    assert.equal(resp.status, 200);
+    const body = await resp.json();
+    // Honest-data policy: an upstream failure is an empty set, never fabricated rows.
+    assert.deepEqual(body.data.results, []);
+    assert.equal(body.data.total, 0);
+    assert.equal(body.data.provenance.status, 'unavailable');
+    assert.equal(body.data.provenance.source_count, 1);
+    // The call still went through the intercepted network, not the live portal.
+    assert.equal(net.calls().length, 1);
   });
 
   it('citation handler returns 404 for unknown hash', async () => {
@@ -91,23 +160,33 @@ describe('API Server Routes', () => {
     assert.ok([404, 500].includes(resp.status));
   });
 
-  it('compliance endpoint returns 200 or 503', async () => {
+  it('compliance endpoint returns 200 or 503 and never touches the network', async () => {
     const { complianceHandler } = await import('../routes/compliance.js');
     const ctx = makeCtx();
+    net.reset();
     const resp = await complianceHandler(new Request('http://localhost/v1/compliance?package=pipeline-core'), ctx as any, {});
     assert.ok([200, 503].includes(resp.status));
+    assert.deepEqual(net.calls(), [], 'compliance is a local (filesystem) check — no upstream call');
     if (resp.status === 200) {
       const body = await resp.json();
       assert.ok(body.success);
       assert.ok(body.data);
+      assert.equal(body.data.query.package, 'pipeline-core');
+      assert.ok(body.data.totalCount >= 1);
     }
   });
 
   it('compliance endpoint with no package returns all', async () => {
     const { complianceHandler } = await import('../routes/compliance.js');
     const ctx = makeCtx();
+    net.reset();
     const resp = await complianceHandler(new Request('http://localhost/v1/compliance'), ctx as any, {});
     assert.ok([200, 503].includes(resp.status));
+    assert.deepEqual(net.calls(), [], 'compliance is a local (filesystem) check — no upstream call');
+    if (resp.status === 200) {
+      const body = await resp.json();
+      assert.equal(body.data.query.package, 'all');
+    }
   });
 
   it('keys CRUD flow works correctly', async () => {

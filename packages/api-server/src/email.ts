@@ -10,12 +10,11 @@
  */
 
 import pino from 'pino';
+import { loggerTransport } from './logging.js';
 
 const log = pino({
   level: process.env.QUILL_LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
+  transport: loggerTransport(),
 });
 
 export interface EmailConfig {

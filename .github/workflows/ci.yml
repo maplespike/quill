@@ -68,11 +68,16 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # --test-timeout bounds every test in the lane. Node's default is no
+      # timeout at all, so a blackholed upstream, or a leaked worker-thread
+      # handle that stops the test-runner child from exiting, holds the
+      # runner for hours instead of failing (t_b0989a3d, t_be4a5e32).
+      # Passed through pnpm after `--` so it lands on the `tsx --test` argv.
       - name: Run api-server unit tests
-        run: pnpm --filter @maplespike/api-server test:unit
+        run: pnpm --filter @maplespike/api-server test:unit -- --test-timeout=30000
 
       - name: Run quill-mcp unit tests
-        run: pnpm --filter @maplespike/quill-mcp test:unit
+        run: pnpm --filter @maplespike/quill-mcp test:unit -- --test-timeout=30000
 
       - name: Run api-server integration tests
         run: pnpm --filter @maplespike/api-server test:integration
@@ -99,12 +104,15 @@ jobs:
           pnpm --filter @maplespike/quill-mcp build
 
       - name: Run api-server coverage (floor-enforced)
-        run: bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+        # Extra args after the four positionals are forwarded to the package
+        # script, so the coverage lane gets the same bounded test timeout as
+        # the unit lane above.
+        run: bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65 -- --test-timeout=30000
 
       - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
+        run: bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65 -- --test-timeout=30000
 
   integration-test:
     needs: build-and-test

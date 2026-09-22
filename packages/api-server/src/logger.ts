@@ -7,6 +7,7 @@
  */
 import pino from 'pino';
 import { hostname } from 'node:os';
+import { loggerTransport } from './logging.js';
 
 const SERVICE_NAME = 'quill-api';
 
@@ -18,16 +19,11 @@ const logger = pino({
     hostname: hostname(),
     service: SERVICE_NAME,
   },
-  transport: process.env.NODE_ENV !== 'production'
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'HH:MM:ss',
-          ignore: 'pid,hostname,service',
-        },
-      }
-    : undefined,
+  transport: loggerTransport({
+    colorize: true,
+    translateTime: 'HH:MM:ss',
+    ignore: 'pid,hostname,service',
+  }),
   serializers: {
     err: pino.stdSerializers.err,
     req: pino.stdSerializers.req,
