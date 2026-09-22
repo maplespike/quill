@@ -67,6 +67,27 @@ describe('MCP Server — tool definitions', () => {
   }
 });
 
+describe('MCP Server — hermetic upstream contract', () => {
+  // Regression for #859: the StatCan CSV download path must work against the
+  // mock (a real ZIP), and no tool may fall through to an unmodelled family.
+  it('StatCan CSV table downloads parse from the mocked ZIP', async () => {
+    const { fetchStatCanTable } = await import('./tools/statcan-helper.js');
+    const { header, rows } = await fetchStatCanTable('17100009');
+    assert.ok(header.length >= 3, `header too short: ${header.join(',')}`);
+    assert.ok(rows.length >= 2, `expected >=2 data rows, got ${rows.length}`);
+    console.log(`[hermetic] statcan zip parsed rows=${rows.length}`);
+  });
+
+  it('no tool calls an unmodelled upstream family', () => {
+    const un = mock.getUnhandledCalls();
+    console.log(`hermetic upstream: ${un.length} unhandled`);
+    if (un.length) {
+      console.log(un.slice(0, 12).map((c) => `  ${c.method} ${c.url}`).join('\n'));
+    }
+    assert.equal(un.length, 0, `${un.length} unhandled upstream URLs`);
+  });
+});
+
 describe('MCP Server — tool handlers (no-network mode)', () => {
   const tools = getAllTools();
   // Stop the upstream mock once the handler suite finishes.
