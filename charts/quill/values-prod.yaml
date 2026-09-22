@@ -1,15 +1,44 @@
-# Quill — Production Values (2026-09-17 rev2)
+# Quill — Production Values (2026-09-22 rev3)
 # nexus:5000 registry is DEAD and forge is FLAPPING (reboot → offline within
-# the hour). Images are now built ON nexus (docker) and imported directly into
-# its k3s containerd as docker.io/library/quill-*:local via
-# `k3s ctr images import`. The whole stack is pinned to nexus — the only node
-# with 4+ days of uptime. registry: prefix = docker.io/library so the full
-# image refs match the imported tags; pullPolicy Never forbids network pulls.
+# the hour). Images are built ON nexus (docker) and imported directly into its
+# k3s containerd store. The whole stack is pinned to nexus — the only node with
+# 4+ days of uptime. registry: prefix = docker.io/library so the full image refs
+# match the imported names; pullPolicy Never forbids network pulls.
+#
+# EVERY workload image is pinned to a content digest (gate A3-IMAGEPIN / #755):
+#   <registry>/quill-<svc>@sha256:<digest>
+# A digest cannot be re-pointed, so no rollout can serve the stale layers a
+# rebuilt `:local` tag used to leave behind. One reproducible step builds,
+# imports and reports the pin:
+#
+#   scripts/pin-images.sh              # build from HEAD, import, print this block
+#   scripts/pin-images.sh --existing   # pin what the node store already holds
+#
+# `tag` is provenance only (the immutable store tag the digest was read from);
+# the chart stamps it on the pod template as quill.maplespike.ca/image-build-tag
+# so a live pod always traces back to a build. See docs/IMAGE-PINNING.md.
 
 image:
+  # Registry prefix for every workload image. The local import path keeps
+  # `docker.io/library` so the refs match the imported names exactly.
   registry: "docker.io/library"
-  tag: "local"
+  # No chart-wide tag on purpose: production names a digest (or an immutable
+  # tag) per service. The `image.tag` fallback in values.yaml only serves
+  # dev/self-host renders, never this file.
+  tag: ""
   pullPolicy: Never   # images preloaded into nexus containerd; Never forbids network pulls
+
+# Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
+images:
+  api:
+    digest: "sha256:aa7a2c64b55decce21f8724037e773549b3e6926b74582aa32097cb5a7fc8638"
+    tag: "2026-09-21-sha.aa7a2c64b55d"
+  mcp:
+    digest: "sha256:0b0eb61bc5b00fa4a8ecf4123dfc7b04300b9d1e7266d823bb50dfcf89402208"
+    tag: "2026-09-21-sha.0b0eb61bc5b0"
+  portal:
+    digest: "sha256:d178d2fb125243a49b3ac2ccc8a3fd1d7e99956a6c7268f452f09c0ead1418f9"
+    tag: "2026-09-21-sha.d178d2fb1252"
 
 # API Server
 api:
@@ -65,12 +94,14 @@ api:
 mcp:
   replicas: 1
   port: 3001
-  # REVERTED (2026-09-22): moving this off nexus failed — pods were created with
-  # nodeName=nexus already set by a cluster-wide admission policy, so the kubelet
-  # rejected them against nodeSelector=forge ("Predicate NodeAffinity failed")
-  # and the rollout spawned replacements in a loop. The template now supports
-  # nodeSelector, so this becomes a one-line values change once that policy is
-  # identified and corrected.
+  # Images are imported per node (nexus containerd store). Without this pin a
+  # rescheduled pod lands on a node with no store and dies with
+  # ErrImageNeverPull — the failure the digest pin cannot fix by itself.
+  # Moving mcp off nexus was tried on 2026-09-22 and REVERTED: a cluster-wide
+  # admission policy already sets nodeName=nexus, so the kubelet rejected pods
+  # created against nodeSelector=forge in a rollout loop. The template supports
+  # nodeSelector as the fallback; flip this once that policy is corrected.
+  nodeName: nexus
   resources:
     requests:
       cpu: 100m
@@ -125,7 +156,8 @@ portal:
   enabled: true
   replicas: 1
   port: 8080
-  # REVERTED for the same reason as mcp (see above).
+  # Same local-import constraint and the same 2026-09-22 revert note as mcp.
+  nodeName: nexus
   resources:
     requests:
       cpu: 50m
