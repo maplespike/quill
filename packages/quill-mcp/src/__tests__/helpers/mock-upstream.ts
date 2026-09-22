@@ -14,6 +14,17 @@
 
 const ORIGINAL_FETCH = globalThis.fetch;
 
+// Minimal valid ZIP (deflate) carrying a 3-line StatCan-style CSV. Embedded so
+// the mocked StatCan CSV download exercises the real extractFromZip path:
+// previously the generic `{}` default was fed to the unzipper, which threw
+// "unexpected end of file" (zlib) and flaked the coverage job (#859).
+const STATCAN_ZIP_B64 =
+  'UEsDBBQAAAAIAG+nNV0yApqCOAAAAEIAAAAMAAAAMTcxMDAwMDkuY3N2C3J1i3dxDHHVcXf113HOzy9KycxLLEnVCXP0CXXlMjIwMtFxTsxLTEnUMdQxNDBAETHSMQKKAABQSwECFAMUAAAACABvpzVdMgKagjgAAABCAAAADAAAAAAAAAAAAAAAgAEAAAAAMTcxMDAwMDkuY3N2UEsFBgAAAAABAAEAOgAAAGIAAAAAAA==';
+
+function statcanZip(): Uint8Array {
+  return Uint8Array.from(atob(STATCAN_ZIP_B64), (c) => c.charCodeAt(0));
+}
+
 export interface MockCall {
   url: string;
   method: string;
@@ -23,16 +34,38 @@ export interface MockUpstream {
   start(): void;
   stop(): void;
   getCalls(): MockCall[];
+  /** URLs that fell through to the generic default — a new upstream family
+   *  the mock does not model yet (empty = fully modelled). */
+  getUnhandledCalls(): MockCall[];
   /** Override the response for URLs matching a pattern */
   setResponse(urlPattern: RegExp, status: number, body: unknown): void;
 }
 
-function makeResponse(url: string, overrides: { pattern: RegExp; status: number; body: unknown }[]): { statusCode: number; body: string; contentType: string } {
+interface MockResponse {
+  statusCode: number;
+  body: string;
+  contentType: string;
+  binary?: Uint8Array;
+  unhandled?: boolean;
+}
+
+function makeResponse(url: string, overrides: { pattern: RegExp; status: number; body: unknown }[]): MockResponse {
   for (const o of overrides) {
     if (o.pattern.test(url)) {
       const body = typeof o.body === 'string' ? o.body : JSON.stringify(o.body);
       return { statusCode: o.status, body, contentType: 'application/json' };
     }
+  }
+
+  // StatCan table CSV downloads are ZIPs — serve a real one so the handler
+  // path (fetch -> arrayBuffer -> extractFromZip -> CSV parse) works mocked.
+  if (url.includes('www150.statcan.gc.ca/n1/tbl/csv/')) {
+    return { statusCode: 200, body: '', contentType: 'application/zip', binary: statcanZip() };
+  }
+
+  // StatCan WDS REST endpoints return JSON arrays.
+  if (url.includes('www150.statcan.gc.ca/t1/wds/rest/') || url.includes('/t1/wds/rest/')) {
+    return { statusCode: 200, body: JSON.stringify([]), contentType: 'application/json' };
   }
 
   // Return empty CKAN-style result for API calls
@@ -50,12 +83,14 @@ function makeResponse(url: string, overrides: { pattern: RegExp; status: number;
     return { statusCode: 200, body: '<?xml version="1.0"?><rss><channel></channel></rss>', contentType: 'application/xml' };
   }
 
-  // Default: empty JSON object
-  return { statusCode: 200, body: JSON.stringify({}), contentType: 'application/json' };
+  // Default: empty JSON object — record as unhandled so tests can flag a new
+  // upstream family the mock does not model yet.
+  return { statusCode: 200, body: JSON.stringify({}), contentType: 'application/json', unhandled: true };
 }
 
 export function mockUpstream(): MockUpstream {
   const calls: MockCall[] = [];
+  const unhandled: MockCall[] = [];
   const overrides: { pattern: RegExp; status: number; body: unknown }[] = [];
 
   // Intercept undici.request (used by pipeline-core httpGet)
@@ -71,7 +106,8 @@ export function mockUpstream(): MockUpstream {
         const method = init?.method ?? 'GET';
         calls.push({ url, method });
         const resp = makeResponse(url, overrides);
-        return Promise.resolve(new Response(resp.body, {
+        if (resp.unhandled) unhandled.push({ url, method });
+        return Promise.resolve(new Response(resp.binary ?? resp.body, {
           status: resp.statusCode,
           headers: { 'Content-Type': resp.contentType },
         }));
@@ -88,6 +124,9 @@ export function mockUpstream(): MockUpstream {
     },
     getCalls() {
       return [...calls];
+    },
+    getUnhandledCalls() {
+      return [...unhandled];
     },
     setResponse(urlPattern: RegExp, status: number, body: unknown) {
       overrides.push({ pattern: urlPattern, status, body });

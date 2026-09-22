@@ -53,6 +53,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { validateCandidate } from './lib/municipal-candidate-validation.js';
+
 // Resolve the registry path relative to this file so it works both at
 // the monorepo root (when invoked via `tsx scripts/discover-municipal-ids.ts`)
 // and from inside CI's checkout-of-the-repo-on-self-hosted-runner setup.
@@ -97,6 +99,12 @@ interface RegistryEntry {
   id: string;
   portalType: 'ckan' | 'socrata';
   discoveredAt: string;
+  /** Dataset name as returned by the portal — validation evidence (#872). */
+  name?: string;
+  /** Row count from the live $limit=1 probe (Socrata). -1 = probe failed. */
+  rowsProbed?: number;
+  /** true only when validateCandidate accepted this candidate. */
+  validated?: boolean;
 }
 
 interface Registry {
@@ -107,6 +115,10 @@ interface Registry {
   keptFromPrevious: number;
   entries: Record<string, RegistryEntry>;
 }
+
+// Acceptance (#872): `--dry-run` performs the full probe + validation pass but
+// never writes the registry.
+const DRY_RUN = process.argv.includes('--dry-run');
 
 const SCHEMA_VERSION = 1 as const;
 const SOURCE = 'discover-municipal-ids' as const;
@@ -161,25 +173,99 @@ function loadExistingRegistry(): Registry {
 // (string) OR null on any failure mode. Returning null PRESERVES last-known
 // values in the registry (additive semantics).
 
-async function discoverCkan(baseUrl: string, slug: string): Promise<string | null> {
-  const url = `${baseUrl}/api/3/action/package_search?q=${encodeURIComponent(slug)}&rows=1`;
+interface Candidate {
+  id: string;
+  name: string;
+}
+
+async function discoverCkan(baseUrl: string, slug: string): Promise<Candidate[]> {
+  const url = `${baseUrl}/api/3/action/package_search?q=${encodeURIComponent(slug)}&rows=5`;
   try {
     const resp = await fetch(url, {
       headers: { 'User-Agent': 'MapleSpike-Municipal/1.0 (+discover-municipal-ids)' },
       signal: AbortSignal.timeout(10_000),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) return [];
     const body = (await resp.json()) as {
-      result?: { results?: Array<{ id?: string; name?: string }> };
+      result?: {
+        results?: Array<{
+          id?: string;
+          name?: string;
+          title?: string;
+          resources?: Array<{ format?: string; datastore_active?: boolean }>;
+        }>;
+      };
     };
-    return body?.result?.results?.[0]?.id ?? body?.result?.results?.[0]?.name ?? null;
+    const results = body?.result?.results ?? [];
+    return results
+      .map((r) => {
+        const id = r?.id ?? r?.name;
+        if (!id) return null;
+        // Acceptance (#872): a CKAN hit must expose a usable data resource —
+        // an active datastore or a CSV/JSON resource — before it is considered.
+        const hasData = (r?.resources ?? []).some(
+          (res) => res?.datastore_active === true || /^(csv|json)$/i.test(res?.format ?? ''),
+        );
+        if (!hasData) return null;
+        return { id, name: r?.title ?? r?.name ?? id };
+      })
+      .filter((c): c is Candidate => c !== null)
+      .slice(0, 5);
   } catch {
-    return null;
+    return [];
   }
 }
 
-async function discoverSocrata(baseUrl: string, slug: string): Promise<string | null> {
-  const url = `${baseUrl}/api/views.json?search=${encodeURIComponent(slug)}&limit=1`;
+/**
+ * Socrata candidate discovery.
+ *
+ * PRIMARY: the global Socrata Discovery catalog
+ *   https://api.us.socrata.com/api/catalog/v1?domains=<host>&q=<slug>&limit=10
+ * The per-portal /api/views.json endpoint does NOT filter by its query
+ * parameter — it returns the portal's default ordering, which is exactly how
+ * "Map of Downtown Boundary" (2df6-k8j2) became the id for `permits` on
+ * Winnipeg and a "Speed Check Sign" became `building-permits` on Edmonton
+ * (#872). The Discovery catalog is query-capable and indexes every Socrata
+ * portal, so it is the primary source; the per-portal endpoint stays only as a
+ * fallback for portals the global catalog has not indexed.
+ */
+async function discoverSocrata(baseUrl: string, slug: string): Promise<Candidate[]> {
+  // ── Primary: global Discovery catalog ────────────────────────────────
+  let host = '';
+  try {
+    host = new URL(baseUrl).host;
+  } catch {
+    host = baseUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  }
+  if (host) {
+    try {
+      const url =
+        `https://api.us.socrata.com/api/catalog/v1?domains=${encodeURIComponent(host)}` +
+        `&q=${encodeURIComponent(slug)}&limit=10`;
+      const resp = await fetch(url, {
+        headers: { 'User-Agent': 'MapleSpike-Municipal/1.0 (+discover-municipal-ids)', Accept: 'application/json' },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (resp.ok) {
+        const body = (await resp.json()) as {
+          results?: Array<{ resource?: { id?: string; name?: string } }>;
+        };
+        const candidates = (body.results ?? [])
+          .map((r) => {
+            const id = r?.resource?.id;
+            return id ? { id, name: r?.resource?.name ?? id } : null;
+          })
+          .filter((c): c is Candidate => c !== null)
+          .slice(0, 5);
+        if (candidates.length > 0) return candidates;
+      }
+    } catch {
+      // fall through to the per-portal endpoint
+    }
+  }
+
+  // ── Fallback: the portal's own views endpoint ────────────────────────
+  const url = `${baseUrl}/api/views.json?q=${encodeURIComponent(slug)}&limit=5`;
   try {
     const resp = await fetch(url, {
       headers: {
@@ -188,7 +274,7 @@ async function discoverSocrata(baseUrl: string, slug: string): Promise<string | 
       },
       signal: AbortSignal.timeout(10_000),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) return [];
     const body = await resp.json();
     const flat: unknown[] = Array.isArray(body)
       ? body
@@ -199,10 +285,38 @@ async function discoverSocrata(baseUrl: string, slug: string): Promise<string | 
           : Array.isArray((body as { datasets?: unknown[] })?.datasets)
             ? (body as { datasets: unknown[] }).datasets
             : [];
-    const top = flat[0] as { id?: string; name?: string } | undefined;
-    return top?.id ?? top?.name ?? null;
+    return flat
+      .map((raw) => {
+        const t = raw as { id?: string; name?: string; title?: string } | undefined;
+        const id = t?.id ?? t?.name;
+        return id ? { id, name: t?.name ?? t?.title ?? id } : null;
+      })
+      .filter((c): c is Candidate => c !== null)
+      .slice(0, 5);
   } catch {
-    return null;
+    return [];
+  }
+}
+
+/**
+ * Live row probe (Socrata only) — issue #872 requires that an id actually
+ * returns rows before it is written to the registry. Returns the row count for
+ * a `?$limit=1` query, or -1 when the probe itself could not complete.
+ */
+async function probeSocrataRows(baseUrl: string, id: string): Promise<number> {
+  try {
+    const resp = await fetch(`${baseUrl}/resource/${id}.json?$limit=1`, {
+      headers: {
+        'User-Agent': 'MapleSpike-Municipal/1.0 (+discover-municipal-ids)',
+        Accept: 'application/json',
+      },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!resp.ok) return -1;
+    const body = await resp.json();
+    return Array.isArray(body) ? body.length : -1;
+  } catch {
+    return -1;
   }
 }
 
@@ -276,32 +390,62 @@ const main = async (): Promise<void> => {
 
   // Track which slots actually got discovered vs kept from previous run.
   const discovered: Array<{ key: string; entry: RegistryEntry } | { key: string; kept: true }> = [];
+  // Candidates rejected by validation (#872) — surfaced in the summary so a
+  // silent "kept previous value" is never mistaken for a clean run.
+  const rejections: Array<{ key: string; name: string; reason: string }> = [];
+  // Legacy entries written before validation existed are dropped when nothing
+  // validates — "keep previous" must never preserve known-garbage (#872).
+  const purged: string[] = [];
 
   await runWithConcurrency(
     jobs,
     async (job) => {
       const compositeKey = `${job.baseUrl}|${job.dataset}`;
-      const id =
+      const candidates =
         job.portalType === 'ckan'
           ? await discoverCkan(job.baseUrl, job.dataset)
           : await discoverSocrata(job.baseUrl, job.dataset);
-      if (id) {
+
+      // Walk the top candidates and take the FIRST one that validates
+      // (#872): topic fit, plus live row presence on Socrata.
+      let accepted: { candidate: Candidate; rowsProbed: number | null } | null = null;
+      for (const candidate of candidates) {
+        const rowsProbed =
+          job.portalType === 'socrata' ? await probeSocrataRows(job.baseUrl, candidate.id) : null;
+        const verdict = validateCandidate(job.dataset, candidate, rowsProbed, job.portalType);
+        if (verdict.ok) {
+          accepted = { candidate, rowsProbed };
+          break;
+        }
+        rejections.push({ key: compositeKey, name: candidate.name, reason: verdict.reason });
+        console.warn(
+          `[discover-municipal-ids] REJECTED ${compositeKey} -> ${candidate.id} "${candidate.name}" (${verdict.reason})`,
+        );
+      }
+
+      if (accepted) {
         discovered.push({
           key: compositeKey,
           entry: {
-            id,
+            id: accepted.candidate.id,
             portalType: job.portalType,
             discoveredAt: nowIso(),
+            name: accepted.candidate.name,
+            ...(accepted.rowsProbed === null ? {} : { rowsProbed: accepted.rowsProbed }),
+            validated: true,
           },
         });
-      } else {
-        // null result: keep whatever was there before (or skip if absent).
-        const existing = registry.entries[compositeKey];
-        if (existing) {
-          discovered.push({ key: compositeKey, kept: true });
-        }
-        // If no prior value and the probe returns null, we add NOTHING.
-        // The next successful run can still discover it then.
+        return;
+      }
+
+      // Nothing validated: keep a previously-VALIDATED value, drop legacy
+      // unvalidated entries so bad ids cannot survive a refresh.
+      const existing = registry.entries[compositeKey];
+      if (existing?.validated === true) {
+        discovered.push({ key: compositeKey, kept: true });
+      } else if (existing) {
+        purged.push(compositeKey);
+        console.warn(`[discover-municipal-ids] PURGED unvalidated legacy entry ${compositeKey} -> ${existing.id}`);
       }
     },
     8,
@@ -319,19 +463,32 @@ const main = async (): Promise<void> => {
     }
   }
 
+  for (const key of purged) {
+    delete registry.entries[key];
+  }
+
   registry.generatedAt = nowIso();
   registry.discoveries = newDiscoveries;
   registry.keptFromPrevious = kept;
 
-  fs.mkdirSync(path.dirname(REGISTRY_PATH), { recursive: true });
-  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2) + '\n', 'utf8');
+  if (DRY_RUN) {
+    console.log('[discover-municipal-ids] --dry-run: registry NOT written');
+  } else {
+    fs.mkdirSync(path.dirname(REGISTRY_PATH), { recursive: true });
+    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2) + '\n', 'utf8');
+  }
 
   console.log('');
   console.log('────────────── SUMMARY ──────────────');
-  console.log(`[discover-municipal-ids] wrote registry to ${REGISTRY_PATH}`);
+  console.log(`[discover-municipal-ids] ${DRY_RUN ? 'DRY RUN — would write' : 'wrote registry to'} ${REGISTRY_PATH}`);
   console.log(`[discover-municipal-ids] new discoveries  : ${newDiscoveries}`);
   console.log(`[discover-municipal-ids] kept from previous: ${kept}`);
   console.log(`[discover-municipal-ids] total entries now : ${Object.keys(registry.entries).length}`);
+  console.log(`[discover-municipal-ids] rejected candidates: ${rejections.length}`);
+  console.log(`[discover-municipal-ids] purged legacy entries: ${purged.length}`);
+  for (const r of rejections.slice(0, 20)) {
+    console.log(`   - ${r.key} -> "${r.name}" (${r.reason})`);
+  }
   console.log(`[discover-municipal-ids] jobs probed       : ${jobs.length}`);
   console.log('─────────────────────────────────────');
 };
