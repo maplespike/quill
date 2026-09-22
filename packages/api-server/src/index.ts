@@ -142,7 +142,7 @@ import {
   extractionCachedHandler,
 } from './routes/extraction.js';
 
-const ROUTES: Route[] = [
+export const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
   { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(statusHandler, 30) },
