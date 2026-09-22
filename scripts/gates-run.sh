@@ -129,8 +129,14 @@ cid() { # $1 = gate id
       # The node store must resolve each pinned digest (that is what pullPolicy
       # Never needs); only checkable where the containerd socket lives.
       if [ -S /run/k3s/containerd/containerd.sock ]; then
-        for svc in api mcp portal; do
-          ref="$(kubectl -n maplespike get deploy "quill-$svc" -o jsonpath='{.spec.template.spec.containers[0].image}')"
+        DEPLOY_REFS="$(kubectl -n maplespike get deploy -o jsonpath='{range .items[*]}{.spec.template.spec.containers[0].image}{"\n"}{end}')"
+        CRON_REFS="$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.spec.jobTemplate.spec.template.spec.containers[0].image}{"\n"}{end}')"
+        LIVE_REFS="$(printf '%s\n%s\n' "$DEPLOY_REFS" "$CRON_REFS" | sort -u)"
+        for ref in $LIVE_REFS; do
+          case "$ref" in
+            docker.io/library/quill-*) ;;
+            *) continue ;;
+          esac
           # grep without -q: with pipefail, -q SIGPIPEs the writer (a121365).
           if ! sudo k3s ctr -n k8s.io images ls -q | grep -Fx -- "$ref" >/dev/null; then
             echo "A3 FAIL: $ref is not resolvable in the local containerd store"; exit 1
