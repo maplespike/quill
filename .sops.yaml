@@ -1,46 +1,24 @@
-# SOPS creation rules — Quill (hybrid namespace-split)
+# SOPS creation rules — Quill
 #
-# Two age recipients, split by secret class:
+# HISTORY: this file used to seal secrets/runtime.yaml to 'nexus-prod' and
+# 'homelab-dev'. Both private keys are gone (the nexus-prod key file is absent
+# from nexus; the homelab key lived at /etc/nixos/.age/key.txt and no NixOS hosts
+# remain), so the file could not be decrypted by any host. Re-sealed 2026-09-22
+# to recipients that exist, mirroring the nixos-secrets repo:
 #
-#   secrets/runtime.yaml    → nexus-prod key  (decrypted on the K3s host at boot)
-#   secrets/build.yaml      → homelab-dev key (decrypted on dev workstations + CI)
-#   secrets/cloudflared.yaml → both keys      (needed at build-time deploy + runtime tunnel)
+#   cluster_age   — private key rescued to zephyr:~/.config/sops/age/cluster-age-key.txt (0600)
+#   zephyr_age_v2 — same file carries both cluster_age and zephyr_age_v2
+#   yubikey_nano  — YubiKey 5 Nano, serial 11115841 slot 1; needs pcscd.socket
+#                   and the plugin identity stub in ~/.config/sops/age/keys.txt
 #
-# Key rotation: add the new recipient to the `age:` list, then run
-#   `sops updatekeys secrets/<file>.yaml`
-# to re-encrypt to all recipients. Remove the old key from .sops.yaml
-# and run updatekeys again to drop it.
+# Decrypt from zephyr:
+#   SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt sops -d secrets/runtime.yaml
 #
-# NEVER commit the private keys. The nexus-prod private key lives at
-# /etc/nixos/.age/nexus-prod-key.txt on the nexus host only; the homelab
-# key lives at /etc/nixos/.age/key.txt.
-#
-# 2026-08-15: nexus-prod key rotated (old key age1rx6cf98... was lost;
-# runtime.yaml was unsealable). New nexus-prod pubkey:
-# age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd.
-# The matching private key was written to /etc/nixos/.age/nexus-prod-key.txt
-# on nexus (chmod 600). runtime.yaml was re-sealed to BOTH the new
-# nexus-prod key and the homelab-dev key (see secrets/README.md).
-
+# Rotation: add the new recipient below, then `sops updatekeys secrets/runtime.yaml`.
 creation_rules:
-  # Runtime secrets — decrypted by sops-nix on nexus at boot
-  - path_regex: secrets/runtime\.yaml$
-    age: >-
-      age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd,
-      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
-
-  # Build-time secrets — decrypted on dev workstations + CI runners
-  - path_regex: secrets/build\.yaml$
-    age: age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
-
-  # Cloudflared tunnel credentials — needed at both build + runtime
-  - path_regex: secrets/cloudflared\.yaml$
-    age: >-
-      age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd,
-      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
-
-  # Billing/runtime secrets — both keys (dev workstations + nexus boot)
-  - path_regex: secrets/billing\.yaml$
-    age: >-
-      age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd,
-      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - age1567g6raae4adh97lrfhalc9wwhmtsulh89k9pkx24m5ezfh8a4xqndrt6l
+          - age12k7ch5r9sczu42zc6eutxtl6leudn47uv5fvsjrlq5ms0f0hz9nshm3t7q
+          - age1yubikey1qtrfqkheehc6dlyux9stwq67dq3kcledlwzzrckx0wk639mh0wqh54auh7v
