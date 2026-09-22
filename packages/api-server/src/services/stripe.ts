@@ -177,6 +177,8 @@ export interface StripeCheckoutSession {
   status: 'open' | 'complete' | 'expired';
   expires_at: number;
   metadata: Record<string, string>;
+  /** Present only for embedded sessions — the browser needs it to mount the form. */
+  client_secret?: string | null;
 }
 
 export async function createCheckoutSession(args: {
@@ -192,9 +194,20 @@ export async function createCheckoutSession(args: {
   successUrl: string;
   cancelUrl: string;
   expiresAtUnix: number;
+  /**
+   * 'embedded' mounts Stripe's payment form inside our own page (needs the
+   * publishable key in the browser). Embedded sessions take `return_url` and
+   * reject `success_url`/`cancel_url`, so the three are mutually exclusive.
+   */
+  uiMode?: 'hosted' | 'embedded';
+  returnUrl?: string;
 }): Promise<StripeCheckoutSession> {
+  const embedded = args.uiMode === 'embedded';
   return stripeFetch<StripeCheckoutSession>('POST', '/checkout/sessions', {
     mode: 'subscription',
+    ...(embedded
+      ? { ui_mode: 'embedded', return_url: args.returnUrl ?? args.successUrl }
+      : { success_url: args.successUrl, cancel_url: args.cancelUrl }),
     customer: args.customerId,
     'line_items[0][quantity]': 1,
     'line_items[0][price_data][currency]': args.currency,
@@ -205,8 +218,6 @@ export async function createCheckoutSession(args: {
     ...(args.description
       ? { 'line_items[0][price_data][product_data][description]': args.description }
       : {}),
-    success_url: args.successUrl,
-    cancel_url: args.cancelUrl,
     expires_at: args.expiresAtUnix,
     'metadata[tenant_id]': args.tenantId,
     'metadata[plan_id]': args.planId,
