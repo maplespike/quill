@@ -10,7 +10,9 @@
  * deployments without REDIS_URL logged connection errors forever and the
  * cache silently ran in bypass. The endpoint is now configuration-only (see
  * cache/redis-url.ts); "no REDIS_URL" is logged once at startup and is a
- * deliberate state, not a failure loop.
+ * deliberate state, not a failure loop. The client also reconnects in the
+ * background, so a Redis restart — or losing the start-up race with it — does
+ * not leave the API cache-less until someone restarts the pod.
  *
  * Usage:
  *   const redis = new RedisClient();
@@ -31,9 +33,15 @@ export interface CacheEntry<T> {
   expiresAt: number;
 }
 
+/** Ceiling for the reconnect backoff, in milliseconds. */
+const RECONNECT_MAX_MS = 5_000;
+
 export class RedisClient {
   private client: Redis | null = null;
   private connected = false;
+
+  /** One warn per process on Redis failure; repeats are debug. */
+  private errorReported = false;
 
   /**
    * Connect to Redis using REDIS_URL.
@@ -42,7 +50,7 @@ export class RedisClient {
    *            force "no cache in this process".
    */
   async connect(url?: string): Promise<void> {
-    if (this.connected) return;
+    if (this.client) return;
 
     const redisUrl = resolveRedisUrl(url);
 
@@ -54,45 +62,65 @@ export class RedisClient {
       return;
     }
 
-    try {
-      this.client = new Redis(redisUrl, {
-        lazyConnect: true,
-        enableOfflineQueue: false,
-        maxRetriesPerRequest: 3,
-        retryStrategy(times: number): number | null {
-          if (times > 3) {
-            log.warn('[redis] Redis unreachable — serving without cache');
-            return null;
-          }
-          return Math.min(times * 200, 2000);
-        },
-      });
+    const host = redisHostOf(redisUrl);
+    const client = new Redis(redisUrl, {
+      lazyConnect: true,
+      // Fail fast while Redis is down so callers fetch directly instead of
+      // queueing commands for a host that may never answer.
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: 1,
+      // Reconnect forever, backing off to a 5s ceiling. Giving up here
+      // (returning null) is what left a pod that lost the start-up race with
+      // Redis serving without a cache until its next restart — 2026-09-22.
+      retryStrategy: (times: number) => Math.min(times * 200, RECONNECT_MAX_MS),
+    });
 
-      let reported = false;
-      this.client.on('error', (err: Error) => {
-        // One warn per process, then debug: a flapping Redis must not flood logs.
-        if (!reported) {
-          reported = true;
-          log.warn(
-            { err, host: redisHostOf(redisUrl) },
-            '[redis] Redis error — falling back to direct fetch',
-          );
-        } else {
-          log.debug({ err }, '[redis] Redis error (repeat)');
-        }
-      });
+    // Keep the client attached across failures: ioredis reconnects behind it.
+    this.client = client;
 
-      await this.client.connect();
-      this.connected = true;
-      log.info({ host: redisHostOf(redisUrl) }, '[redis] Connected successfully');
-    } catch (err) {
+    client.on('ready', () => {
+      this.markConnected(host);
+    });
+
+    client.on('error', (err: Error) => {
       this.connected = false;
-      this.client = null;
+      // One warn per process, then debug: a flapping Redis must not flood logs.
+      if (!this.errorReported) {
+        this.errorReported = true;
+        log.warn(
+          { err, host },
+          '[redis] Redis is not answering — serving without cache and retrying',
+        );
+      } else {
+        log.debug({ err }, '[redis] Redis error (repeat)');
+      }
+    });
+
+    client.on('close', () => {
+      this.connected = false;
+    });
+
+    try {
+      await client.connect();
+      // A resolved connect() means the socket is up. ioredis also emits
+      // 'ready'; markConnected() keeps exactly one log line either way.
+      this.markConnected(host);
+    } catch (err) {
       log.warn(
-        { err, host: redisHostOf(redisUrl) },
-        '[redis] Connection failed — serving without cache',
+        { err, host },
+        '[redis] Redis not reachable yet — serving without cache until it answers',
       );
     }
+  }
+
+  /**
+   * Record a live connection. Idempotent: every later transition is owned by
+   * the client's own 'error' / 'close' handlers.
+   */
+  private markConnected(host: string): void {
+    if (this.connected) return;
+    this.connected = true;
+    log.info({ host }, '[redis] Connected successfully');
   }
 
   /**

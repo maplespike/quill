@@ -50,19 +50,34 @@ function uniqueIp(): string {
   return `10.0.0.${ipCounter}`;
 }
 
-/** Minimal Redis stand-in that records the eval call. */
+/** Minimal Redis stand-in that records the eval call and emits events. */
 class FakeRedis implements RedisLikeClient {
   readonly calls: { script: string; args: (string | number)[] }[] = [];
   connectCalls = 0;
+  /** When true, connect() rejects — a Redis that is not up yet. */
+  failConnect = false;
+
+  private handlers = new Map<string, ((...args: any[]) => void)[]>();
 
   constructor(private readonly reply: unknown, private readonly fail = false) {}
 
   async connect(): Promise<void> {
     this.connectCalls += 1;
+    if (this.failConnect) throw new Error('connect ECONNREFUSED (simulated)');
   }
 
-  on(): unknown {
+  on(event: string, listener: (...args: any[]) => void): unknown {
+    const list = this.handlers.get(event) ?? [];
+    list.push(listener);
+    this.handlers.set(event, list);
     return this;
+  }
+
+  /** Drive the limiter the way ioredis would. */
+  emit(event: string, ...args: unknown[]): void {
+    for (const listener of this.handlers.get(event) ?? []) {
+      listener(...args);
+    }
   }
 
   async eval(script: string, _numKeys: number, ...args: (string | number)[]): Promise<unknown> {
@@ -263,5 +278,47 @@ describe('RateLimiter — Redis result mapping', () => {
     }
 
     assert.equal(blocked, 1, 'the (limit + 1)-th request must be blocked even with Redis down');
+  });
+});
+
+describe('RateLimiter — recovery after a failed start (A2-REDIS regression)', () => {
+  it('keeps reconnecting: a Redis that was down does not leave the limiter degraded', async () => {
+    const now = 1_700_000_000;
+    const fake = new FakeRedis([1, 1, now + WINDOW_SECONDS]);
+    fake.failConnect = true;
+
+    const rl = new RateLimiter(fake);
+    await rl.init('redis://quill-redis:6379');
+
+    // Not connected — but enforcing, not passing requests through.
+    assert.equal(rl.isConnected(), false);
+    assert.equal(rl.backendMode(), 'memory');
+    const ip = uniqueIp();
+    assert.equal((await rl.check(ip, 'FREE')).allowed, true);
+    assert.equal(fake.calls.length, 0, 'no evals while the connection is down');
+
+    // Redis answers later (the pod lost the start-up race, or it restarted).
+    fake.emit('ready');
+    assert.equal(rl.isConnected(), true);
+    assert.equal(rl.backendMode(), 'redis');
+
+    await rl.check(ip, 'FREE', now * 1000);
+    assert.equal(fake.calls.length, 1, 'the cluster-wide counter takes over again');
+    assert.equal(fake.calls[0].args[0], `ratelimit:FREE:${ip}`);
+  });
+
+  it('drops back to the in-process window when the connection closes', async () => {
+    const fake = new FakeRedis([1, 1, 1_700_000_060]);
+
+    const rl = new RateLimiter(fake);
+    await rl.init('redis://quill-redis:6379');
+    fake.emit('ready');
+    assert.equal(rl.backendMode(), 'redis');
+
+    fake.emit('close');
+    assert.equal(rl.isConnected(), false);
+    assert.equal(rl.backendMode(), 'memory');
+    // Still a decision, never a pass-through null.
+    assert.ok((await rl.check(uniqueIp(), 'FREE')) !== null);
   });
 });
