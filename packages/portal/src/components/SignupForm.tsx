@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { getApiBase } from "@/lib/api-base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -29,23 +30,6 @@ interface AuthState {
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
 
-function getApiBase(): string {
-  if (typeof window !== "undefined") {
-    if (window.MAPLESPIKE?.apiBase) {
-      return window.MAPLESPIKE.apiBase;
-    }
-    const host = window.location.hostname;
-    const parts = host.split(".");
-    let baseDomain;
-    if (parts.length > 2 && ["api", "portal", "www", "mcp", "dev", "data", "quill"].includes(parts[0])) {
-      baseDomain = parts.slice(1).join(".");
-    } else {
-      baseDomain = host;
-    }
-    return `${window.location.protocol}//api.${baseDomain}`;
-  }
-  return "https://api.maplespike.ca";
-}
 
 function getAuthState(): AuthState {
   if (typeof window === "undefined") return { token: null, userId: null, method: null };

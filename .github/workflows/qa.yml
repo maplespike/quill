@@ -124,6 +124,9 @@ jobs:
       - name: Typecheck api-server
         run: pnpm --filter @maplespike/api-server typecheck
 
+        # Surface has its own suite now (api-base routing rule + built-dist smoke).
+        run: pnpm --filter @maplespike/portal test
+
       - name: Typecheck quill-mcp
         run: pnpm --filter @maplespike/quill-mcp typecheck
 
