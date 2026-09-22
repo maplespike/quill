@@ -433,7 +433,9 @@
         });
         const data = await resp.json();
         if (data?.success && data?.data) {
-          const usage = data.data;
+          // The API nests the counters under data.usage (routes/usage.ts).
+          // Accept a flat shape too, so /v1/me-style bodies keep working.
+          const usage = data.data.usage || data.data;
           const daily = usage.daily || {};
           const monthly = usage.monthly || {};
           if (callsEl) callsEl.textContent = daily.calls || 0;
