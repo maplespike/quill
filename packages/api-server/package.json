@@ -13,10 +13,10 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "node dist/dev-server.js",
     "dev:watch": "tsc --watch & node --watch dist/dev-server.js",
-    "test": "pnpm build && QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/*.test.ts\" \"src/**/*.test.ts\"",
-    "test:unit": "QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/*.test.ts\" \"src/**/*.test.ts\"",
+    "test": "pnpm build && QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/**/*.test.ts\"",
+    "test:unit": "QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/**/*.test.ts\"",
     "test:integration": "QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/__integration__/**/*.test.ts\"",
-    "test:coverage": "QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --experimental-test-coverage --test \"src/*.test.ts\" \"src/**/*.test.ts\""
+    "test:coverage": "QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --experimental-test-coverage --test \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@dexterai/x402": "^5.1.0",
