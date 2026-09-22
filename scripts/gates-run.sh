@@ -148,6 +148,25 @@ cid() { # $1 = gate id
       fi
       echo "A3 PASS: rendered + live refs are digest-pinned (no ':local'), digests resolvable in the node store"
       ;;
+    A1)
+      # A1-INGEST (GATES-gaps-20260922.md / #889): production ingestion must be
+      # deployed AND running. scripts/quill-health-check.sh carries the three
+      # probes — CronJobs present, every scheduled pipeline leaving a run row the
+      # API reads back, none stale — and tags each ingestion finding with
+      # "gate A1-INGEST", so this gate fails on ingestion only, never on
+      # unrelated cluster noise.
+      sync_to_nexus || { echo "sync to nexus failed"; exit 2; }
+      OUT=$(ssh -o BatchMode=yes nexus "cd $NEXUS_DIR && bash scripts/quill-health-check.sh 2>&1" || true)
+      printf '%s\n' "$OUT" | tail -4
+      case "$OUT" in
+        *"has_issues"*) : ;;
+        *) echo "A1 FAIL: the health check produced no verdict"; exit 1 ;;
+      esac
+      case "$OUT" in
+        *"gate A1-INGEST"*) echo "A1 FAIL: an ingestion probe reported an issue (see above)"; exit 1 ;;
+      esac
+      echo "A1 PASS: CronJobs deployed, run log readable through the API, no stale pipeline"
+      ;;
     *)
       echo "unknown gate: $1"; exit 2
       ;;
@@ -155,13 +174,13 @@ cid() { # $1 = gate id
 }
 
 case "${1:-}" in
-  G1|G2|G3|G4|G5|A3) cid "$1" ;;
+  G1|G2|G3|G4|G5|A1|A3) cid "$1" ;;
   all)
     rc=0
-    for g in G1 G2 G3 G4 G5 A3; do
+    for g in G1 G2 G3 G4 G5 A1 A3; do
       bash "$0" "$g" || rc=1
     done
     exit $rc
     ;;
-  *) echo "usage: $0 G1|G2|G3|G4|G5|A3|all"; exit 2 ;;
+  *) echo "usage: $0 G1|G2|G3|G4|G5|A1|A3|all"; exit 2 ;;
 esac
