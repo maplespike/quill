@@ -31,8 +31,8 @@ image:
 # Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
 images:
   api:
-    digest: "sha256:99b119af31229beacd7990adcf3afafba974c8d8aa782e429ff19e291e744e74"
-    tag: "2026-09-22-sha.99b119af3122"
+    digest: "sha256:8d59a88dd2e7d988faf0e95b35078b2483644d9420dd019b7cc90e456d9ed0f3"
+    tag: "2026-09-22-sha.8d59a88dd2e7"
   mcp:
     digest: "sha256:0b0eb61bc5b00fa4a8ecf4123dfc7b04300b9d1e7266d823bb50dfcf89402208"
     tag: "2026-09-21-sha.0b0eb61bc5b0"
