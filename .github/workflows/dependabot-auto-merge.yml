@@ -20,7 +20,7 @@ jobs:
       - name: Wait for CI checks
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           # Hardcoded display name (NOT `github.workflow`, which resolves to
           # the workflow FILE basename — `gh pr checks --json name` returns the
           # DISPLAY name, so only the literal matches).
@@ -28,24 +28,36 @@ jobs:
         run: |
           # Native replacement for the unmaintained lewagon/wait-on-check-action.
           # Polls `gh pr checks` until every required check reports success.
-          # Inline `--jq` (with `--arg wf`) keeps a single gh invocation per
-          # check so we don't depend on shell-quoted NDJSON handling.
-          echo "Waiting for CI checks on SHA $PR_SHA…"
+          #
+          # IMPORTANT: resolve by PR NUMBER, never by head SHA — `gh pr checks
+          # <sha>` does not resolve raw commit SHAs; the previous version's
+          # `|| echo '[]'` fallback then read "no checks found" as "all checks
+          # passed" and merged RED dependabot PRs (zod 4, TS 7, ioredis 6 all
+          # merged red on 2026-09-21 and broke main).
+          echo "Waiting for CI checks on PR #$PR_NUMBER…"
           for i in $(seq 1 60); do
-            # Capture inline; pipe through `jq` so we keep stable flag-parsing
-            # semantics and avoid gh-cli quirks around `--jq` + `--arg`.
-            CHECKS=$(gh pr checks "$PR_SHA" --json name,bucket 2>/dev/null || echo '[]')
+            CHECKS=$(gh pr checks "$PR_NUMBER" --json name,bucket 2>/dev/null) || CHECKS=""
+            if [ -z "$CHECKS" ]; then
+              echo "($i/60) checks not resolvable yet…"
+              sleep 30
+              continue
+            fi
             PENDING=$(jq --arg wf "$WORKFLOW_NAME" \
               '[.[] | select(.bucket == "pending" and .name != $wf)] | length' \
               <<<"$CHECKS")
             FAILURES=$(jq --arg wf "$WORKFLOW_NAME" \
               '[.[] | select(.bucket == "fail" and .name != $wf)] | length' \
               <<<"$CHECKS")
+            NONOWN=$(jq --arg wf "$WORKFLOW_NAME" \
+              '[.[] | select(.name != $wf)] | length' \
+              <<<"$CHECKS")
             if [ "$FAILURES" -gt 0 ]; then
               echo "::error::A required check failed before timeout."
               exit 1
             fi
-            if [ "$PENDING" -eq 0 ]; then
+            # Require at least one non-own check to exist AND none pending —
+            # an empty/absent check list must never count as success.
+            if [ "$PENDING" -eq 0 ] && [ "$NONOWN" -gt 0 ]; then
               echo "All required checks passed."
               exit 0
             fi
