@@ -8,8 +8,9 @@
 ### Added
 - **`packages/api-server/src/cache/redis-url.ts`** — single source of truth for Redis endpoint resolution (`resolveRedisUrl`, `redisHostOf`; credentials never logged), used by both `cache/redis.ts` and `middleware/rate-limiter.ts`.
 - **In-process sliding-window fallback** in `middleware/rate-limiter.ts` (`backendMode()` reports `redis` | `memory`; `check()` always returns a decision and never a pass-through `null`), plus a log-spam guard: the first Redis error warns, repeats drop to `debug`.
+- **Redis clients reconnect instead of giving up:** the retry strategy used to return `null` after 2–3 attempts, so a pod that lost the start-up race with Redis stayed degraded (`connect ECONNREFUSED …:6379`, limiter in pass-through) until a human restarted it — reproduced live during this rollout. Both clients now keep the connection object, reconnect forever with a 5s backoff ceiling, and track `ready`/`error`/`close`, so an outage heals by itself.
 - **`REDIS_URL` documented and wired for local dev:** `docker-compose.yml` starts a `quill-redis` service and passes `REDIS_URL` to the API; `.env.example` documents the variable and its "unset is valid" semantics.
-- **Tests:** `packages/api-server/src/__tests__/rate-limiter-backend.test.ts` — 15 tests covering endpoint resolution, a source guard against any new hardcoded `redis://` host, in-process enforcement at the tier limit, window rollover, Redis result mapping (allowed / remaining / reset / retryAfter) and the regression case "Redis fails mid-flight ⇒ still enforced".
+- **Tests:** `packages/api-server/src/__tests__/rate-limiter-backend.test.ts` — 17 tests covering endpoint resolution, a source guard against any new hardcoded `redis://` host, in-process enforcement at the tier limit, window rollover, Redis result mapping (allowed / remaining / reset / retryAfter), the incident regression "Redis fails mid-flight — the limit still holds", and "a Redis that was down at boot does not leave the limiter degraded" (recovery through `ready` / `close`).
 
 ## [Unreleased] — 2026-09-17
 
