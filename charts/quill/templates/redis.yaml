@@ -44,7 +44,7 @@ spec:
       securityContext:
         # The upstream redis image runs as root by default; the redis account
         # baked into the image is uid 999 / gid 1000 (verified against
-        # docker.io/library/redis@sha256:becdda6c...). fsGroup makes the
+        # public.ecr.aws/docker/library/redis:8.2.3-alpine). fsGroup makes the
         # emptyDir group-writable for that account.
         runAsNonRoot: true
         runAsUser: {{ .Values.redis.runAsUser | default 999 }}

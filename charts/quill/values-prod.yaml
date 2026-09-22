@@ -117,14 +117,15 @@ mcp:
 # Rendered by this chart (templates/redis.yaml); api.env.REDIS_URL above
 # points at the Service it creates. Deliberately ephemeral (emptyDir, no RDB):
 # a restart resets counters and cached bodies, which is correct for both.
-# The image is pinned by DIGEST because the digest — not a floating tag — is
-# what already sits in the nexus containerd store (`k3s ctr images list`), and
-# pullPolicy Never forbids a network pull.
+# Version-pinned (not `:alpine`, not `:latest`) and already present in the
+# nexus containerd store, so IfNotPresent never needs the network. A digest
+# reference was tried first and kubelet could not resolve it through the CRI
+# (ErrImageNeverPull) — see the A2-REDIS card for the probe output.
 redis:
   enabled: true
   replicas: 1
-  image: "docker.io/library/redis@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576"
-  pullPolicy: Never
+  image: "public.ecr.aws/docker/library/redis:8.2.3-alpine"
+  pullPolicy: IfNotPresent
   nodeName: nexus
   maxmemory: 128mb
   resources:

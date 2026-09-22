@@ -64,7 +64,7 @@ services:
   # no RDB snapshots, no AOF. A restart resets cached bodies and counters,
   # which is correct for both.
   quill-redis:
-    image: redis:8-alpine
+    image: public.ecr.aws/docker/library/redis:8.2.3-alpine
     container_name: quill-redis
     restart: unless-stopped
     command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no"]
