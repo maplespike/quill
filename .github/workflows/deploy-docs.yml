@@ -11,6 +11,11 @@
 # Required Secrets:
 #   None — the GITHUB_TOKEN used by actions/deploy-pages is auto-provided.
 # =============================================================================
+# NOTE (2026-09-22): these runs fail until the repository is public. GitHub Pages
+# is not enabled on it (`has_pages: false`, /pages returns 404) and private-repo
+# Pages needs a paid plan, so the failure is a repo setting, not this code. The
+# build itself is verified locally with GH_PAGES=true. Re-run after the flip.
+
 name: Deploy Docs to GitHub Pages
 
 on:
