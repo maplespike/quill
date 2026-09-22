@@ -1,15 +1,50 @@
-# Quill — Production Values (2026-09-17 rev2)
+# Quill — Production Values (2026-09-22 rev3)
 # nexus:5000 registry is DEAD and forge is FLAPPING (reboot → offline within
-# the hour). Images are now built ON nexus (docker) and imported directly into
-# its k3s containerd as docker.io/library/quill-*:local via
-# `k3s ctr images import`. The whole stack is pinned to nexus — the only node
-# with 4+ days of uptime. registry: prefix = docker.io/library so the full
-# image refs match the imported tags; pullPolicy Never forbids network pulls.
+# the hour). Images are built ON nexus (docker) and imported directly into its
+# k3s containerd store. The whole stack is pinned to nexus — the only node with
+# 4+ days of uptime. registry: prefix = docker.io/library so the full image refs
+# match the imported names; pullPolicy Never forbids network pulls.
+#
+# EVERY workload image is pinned to a content digest (gate A3-IMAGEPIN / #755):
+#   <registry>/quill-<svc>@sha256:<digest>
+# A digest cannot be re-pointed, so no rollout can serve the stale layers a
+# rebuilt `:local` tag used to leave behind. One reproducible step builds,
+# imports and reports the pin:
+#
+#   scripts/pin-images.sh              # build from HEAD, import, print this block
+#   scripts/pin-images.sh --existing   # pin what the node store already holds
+#
+# `tag` is provenance only (the immutable store tag the digest was read from);
+# the chart stamps it on the pod template as quill.maplespike.ca/image-build-tag
+# so a live pod always traces back to a build. See docs/IMAGE-PINNING.md.
 
 image:
+  # Registry prefix for every workload image. The local import path keeps
+  # `docker.io/library` so the refs match the imported names exactly.
   registry: "docker.io/library"
-  tag: "local"
+  # No chart-wide tag on purpose: production names a digest (or an immutable
+  # tag) per service. The `image.tag` fallback in values.yaml only serves
+  # dev/self-host renders, never this file.
+  tag: ""
   pullPolicy: Never   # images preloaded into nexus containerd; Never forbids network pulls
+
+# Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
+images:
+  api:
+    digest: "sha256:ef8f5f89ccd1b7c6b39b82b895c40ac531d677bec5d4e6efc761663d322f963a"
+    tag: "2026-09-21-ffd59fe"
+  mcp:
+    digest: "sha256:0b0eb61bc5b00fa4a8ecf4123dfc7b04300b9d1e7266d823bb50dfcf89402208"
+    tag: "2026-09-21-sha.0b0eb61bc5b0"
+  portal:
+    digest: "sha256:d178d2fb125243a49b3ac2ccc8a3fd1d7e99956a6c7268f452f09c0ead1418f9"
+    tag: "2026-09-21-sha.d178d2fb1252"
+  # Ingestion CronJobs. The runner must be in the store like the services: a
+  # chart-wide tag cannot supply one, and an empty tag renders an invalid
+  # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
+  ingest:
+    digest: "sha256:2f80a073d1b7dd768016a1d547748b826cd51a0ef0e82d9a7579d0d5a0d02e6b"
+    tag: "2026-09-21-sha.2f80a073d1b7"
 
 # API Server
 api:
@@ -42,6 +77,12 @@ api:
     # builds a localhost redirect_uri in production.
     MAPLESPIKE_OAUTH_REDIRECT_BASE: "https://api.maplespike.ca/v1/auth/oauth"
     TRUST_PROXY: "true"
+    # A2-REDIS (#764, #770): the real cache + rate-limit backend. Before this
+    # the API fell back to a hardcoded `redis.ai-inference` default — a
+    # namespace that has never existed — so the limiter ran in pass-through
+    # and the logs filled with connection errors. This Service is rendered by
+    # this chart (see templates/redis.yaml + the redis: block below).
+    REDIS_URL: "redis://quill-redis:6379"
     # #806: Stripe environment. 'test' until the go-live secret-swap.
     STRIPE_ENV: "test"
   ingress:
@@ -59,6 +100,14 @@ api:
 mcp:
   replicas: 1
   port: 3001
+  # Images are imported per node (nexus containerd store). Without this pin a
+  # rescheduled pod lands on a node with no store and dies with
+  # ErrImageNeverPull — the failure the digest pin cannot fix by itself.
+  # Moving mcp off nexus was tried on 2026-09-22 and REVERTED: a cluster-wide
+  # admission policy already sets nodeName=nexus, so the kubelet rejected pods
+  # created against nodeSelector=forge in a rollout loop. The template supports
+  # nodeSelector as the fallback; flip this once that policy is corrected.
+  nodeName: nexus
   resources:
     requests:
       cpu: 100m
@@ -69,6 +118,29 @@ mcp:
   ingress:
     host: mcp.maplespike.ca
     tls: true
+
+# Redis — real cache + rate-limit backend (gate A2-REDIS, #764 / #770).
+# Rendered by this chart (templates/redis.yaml); api.env.REDIS_URL above
+# points at the Service it creates. Deliberately ephemeral (emptyDir, no RDB):
+# a restart resets counters and cached bodies, which is correct for both.
+# Version-pinned (not `:alpine`, not `:latest`) and already present in the
+# nexus containerd store, so IfNotPresent never needs the network. A digest
+# reference was tried first and kubelet could not resolve it through the CRI
+# (ErrImageNeverPull) — see the A2-REDIS card for the probe output.
+redis:
+  enabled: true
+  replicas: 1
+  image: "public.ecr.aws/docker/library/redis:8.2.3-alpine"
+  pullPolicy: IfNotPresent
+  nodeName: nexus
+  maxmemory: 128mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
 
 # PostgreSQL Database (disabled: sqlite mode is the current storage backend)
 database:
@@ -91,6 +163,8 @@ portal:
   enabled: true
   replicas: 1
   port: 8080
+  # Same local-import constraint and the same 2026-09-22 revert note as mcp.
+  nodeName: nexus
   resources:
     requests:
       cpu: 50m
@@ -144,7 +218,54 @@ secrets:
   stripeAccountId: ""
   stripePublishableKey: ""
 
-# Ingestion CronJobs — disabled by default in this stand-up wave (they hammer
-# upstreams; re-enable per-module after the services verify healthy).
+# Ingestion CronJobs (gate A1-INGEST, 2026-09-22).
+#
+# Enabled with the pipelines that carry the public claim/discovery surface.
+# They write into the api pod's SQLite volume (QUILL_DB_PATH) and record a run
+# row in `ingest_runs`, which GET /v1/ingest/status reads back — the health
+# monitor alerts when a pipeline stops. The image must exist in nexus
+# containerd as docker.io/library/quill-ingest:local before the first tick:
+#   ssh nexus 'cd ~/quill-build && docker build -f Dockerfile.ingest -t \
+#     docker.io/library/quill-ingest:local . && docker save ... | k3s ctr images import -'
+# Add a pipeline by adding a schedule key here; the key must be a CLI alias
+# (see packages/pipeline-core/src/cli/run-pipeline.ts PIPELINE_CONFIG).
 ingestion:
-  enabled: false
+  enabled: true
+  # RWO PVC pinning: matches api.storage.nodeName — ingestion cannot run on a
+  # node that does not hold the api's SQLite volume.
+  nodeName: nexus
+  activeDeadlineSeconds: 1800
+  schedules:
+    # Helm merges maps recursively: values.yaml's catalogue survives unless a
+    # key is nulled here. Production schedules only these seven pipelines —
+    # the rest stay in the chart as opt-in cadences (nothing runs unless it is
+    # named below, so enabling one is a one-line change either way).
+    committees: "0 */6 * * *"
+    gazette: "0 */12 * * *"
+    oversight: "0 */12 * * *"
+    corporate: "0 2 * * *"
+    influence: "0 4 * * *"
+    ngo-rss: "*/15 * * * *"
+    realtime: "*/30 * * * *"
+    # Not scheduled in production yet (null removes the values.yaml default).
+    a2aj: null
+    canlii: null
+    culture: null
+    defence: null
+    gic: null
+    immigration: null
+    indigenous: null
+    legislation: null
+    lmia: null
+    media: null
+    provincial: null
+    social: null
+    unions: null
+    universities: null
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

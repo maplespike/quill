@@ -42,8 +42,38 @@ mcp:
     host: mcp.maplespike.ca
     tls: true
 
+# Redis — cache + distributed rate-limit state (gate A2-REDIS, #764 / #770).
+# Disabled here so a bare `helm install` stays self-contained; the production
+# values enable it and point api.env.REDIS_URL at the Service this renders.
+redis:
+  enabled: false
+  replicas: 1
+  image: public.ecr.aws/docker/library/redis:8.2.3-alpine
+  # Mirrors api.storage.nodeName: keep the cache beside the API pod.
+  nodeName: nexus
+  maxmemory: 128mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
+
 # Ingestion Runner (CronJobs)
+# `enabled` defaults to false: CronJobs fetch from live upstreams, so an
+# environment opts in explicitly (values-prod.yaml does). Schedule keys are
+# QUILL_PIPELINE aliases — see
+# packages/pipeline-core/src/cli/run-pipeline.ts (PIPELINE_CONFIG).
 ingestion:
+  enabled: false
+  # Node holding the api pod's SQLite volume (RWO PVC) when QUILL_STORAGE=sqlite.
+  nodeName: ""
+  activeDeadlineSeconds: 1800
+  backoffLimit: 1
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
   schedules:
     committees: "0 */6 * * *"
     corporate: "0 2 * * *"
