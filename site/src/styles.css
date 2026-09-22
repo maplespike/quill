@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Source Sans 3", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-paper: #f4f2ec;
+  --color-paper-deep: #e7e3d8;
+  --color-surface: #fbfaf6;
+  --color-ink: #161614;
+  --color-ink-soft: #2c2c28;
+  --color-muted: #534f46;
+  --color-line: #ddd8cc;
+  --color-line-strong: #cfc8b8;
+  --color-chip: #ece8de;
+  --color-on-ink: #f6f4ef;
+  --color-on-ink-muted: #b9b5aa;
+  --color-on-ink-line: #3a3a34;
+
+  --radius-control: 0.5rem;
+  --radius-panel: 2rem;
+  --radius-console: 1.75rem;
+
+  --shadow-panel: 0 24px 60px -36px rgb(22 22 20 / 0.4);
+
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --text-hero: clamp(2.75rem, 1.15rem + 4.4vw, 4.85rem);
+  --text-hero--line-height: 1.02;
+  --text-hero--letter-spacing: -0.03em;
+  --text-hero--font-weight: 500;
+
+  --text-section: clamp(2rem, 1.15rem + 2.1vw, 3.05rem);
+  --text-section--line-height: 1.08;
+  --text-section--letter-spacing: -0.03em;
+  --text-section--font-weight: 500;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
