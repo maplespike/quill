@@ -123,6 +123,15 @@ spec:
               name: quill-secrets
               key: jwtSecret
               optional: true
+        # Internal service RPC: HMAC secret signing the short-lived X-Internal-Token
+        # JWTs (audience quill-internal) for service-to-service calls incl. the
+        # ingest ledger endpoint.
+        - name: INTERNAL_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: quill-secrets
+              key: internalJwtSecret
+              optional: true
         # Decision 0002: stable 64-hex PII hash. Without it, register
         # refuses and OAuth user-dedupe degrades to per-boot hashing.
         - name: QUILL_PII_HASH_SECRET
