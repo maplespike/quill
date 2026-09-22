@@ -13,10 +13,12 @@ Gate: **A3-IMAGEPIN** (issue #755, ledger `GATES-gaps-20260922.md`).
 
 ## The rule
 
-1. `charts/quill/values-prod.yaml` pins each service in `images.<svc>`:
-   `digest` (the pin) plus `tag` (the immutable build tag it was read from).
+1. `charts/quill/values-prod.yaml` pins each image in `images.<svc>` —
+   `api`, `mcp`, `portal`, and `ingest` (the CronJob runner): `digest` (the pin)
+   plus `tag` (the immutable build tag it was read from).
 2. The chart renders `<registry>/quill-<svc>@sha256:<digest>`. See
-   `templates/_helpers.tpl` → `quill.image`.
+   `templates/_helpers.tpl` → `quill.image`. The ingest CronJobs use the same
+   helper, so no chart-wide tag can leave their reference blank.
 3. `image.pullPolicy` is `Never`. The image must already exist in the node
    containerd store. A network pull is a bug, not a fallback.
 4. Every workload with `imagePullPolicy: Never` needs a node pin
@@ -80,6 +82,7 @@ CI runs the chart check and `scripts/test-image-pins.mts`
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | Pod stuck `ErrImageNeverPull` | The digest name is absent from that node's store, or the pod scheduled onto a node without the store | Run `pin-images.sh` on the node, and keep the `nodeName: nexus` pin |
+| Pod stuck `InvalidImageName` | The reference has no tag and no digest — an empty chart-wide `image.tag` left `quill-ingest:` behind on 2026-09-22 | Pin the workload in `images.<svc>` and render it with the `quill.image` helper |
 | `A3 FAIL: … does not match the pinned digest` | A live deployment drifted from `values-prod.yaml` | Commit the intended pin; let ArgoCD sync |
 | Rollout stalls, old pod keeps serving | New digest is not resolvable | `maxUnavailable: 0` keeps the old pod up. Fix the store, push again |
 

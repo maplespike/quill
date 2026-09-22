@@ -26,7 +26,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const QUILL_SERVICES = ['api', 'mcp', 'portal'];
+export const QUILL_SERVICES = ['api', 'mcp', 'portal', 'ingest'];
 
 // Rolling tags that must never reach a manifest.
 export const MUTABLE_TAGS = new Set([
@@ -42,7 +42,7 @@ export const DIGEST_REF_RE = /@sha256:[0-9a-f]{64}$/;
 export const IMMUTABLE_TAG_RE =
   /^(?:\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
 
-export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal)(?:$|[:@])/;
+export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal|ingest)(?:$|[:@])/;
 
 const strip = (s) => String(s ?? '').trim().replace(/^["']/, '').replace(/["']$/, '');
 
@@ -199,11 +199,18 @@ export function checkTemplates(dir) {
 
 /** Read the live workload image references back from the cluster. */
 export function readLiveRefs(namespace = 'maplespike') {
-  const out = execFileSync(
-    'kubectl',
-    ['-n', namespace, 'get', 'deploy,statefulset,daemonset,cronjob', '-o', 'jsonpath={range .items[*]}{.metadata.name}{"\\t"}{range .spec.template.spec.containers[*]}{.image}{"\\n"}{end}{end}'],
-    { encoding: 'utf8' },
-  );
+  // Workloads and CronJobs carry the spec in different places; ask separately
+  // (a jsonpath that reaches into a field the kind does not have reports
+  // nothing, which would silently hide the ingestion CronJobs).
+  const collect = (kinds, path) =>
+    execFileSync(
+      'kubectl',
+      ['-n', namespace, 'get', kinds, '-o', `jsonpath={range .items[*]}{.metadata.name}{"\\t"}${path}{"\\n"}{end}`],
+      { encoding: 'utf8' },
+    );
+  const out =
+    collect('deploy,statefulset,daemonset', '{.spec.template.spec.containers[*].image}') +
+    collect('cronjob', '{.spec.jobTemplate.spec.template.spec.containers[*].image}');
   return out
     .split('\n')
     .map((l) => l.trim())
