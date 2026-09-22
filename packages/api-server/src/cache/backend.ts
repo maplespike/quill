@@ -7,7 +7,9 @@
  *
  * Factory is config-gated via CACHE_BACKEND or QUILL_CACHE env var:
  *   - "memory" (default): in-memory TTL map (no external deps)
- *   - "redis": Redis-backed via ioredis (requires REDIS_URL)
+ *   - "redis": Redis-backed via ioredis (requires REDIS_URL — see
+ *     cache/redis-url.ts; a missing REDIS_URL means "no Redis", never a
+ *     guessed endpoint)
  *
  * Graceful degradation: if Redis is unavailable the factory falls
  * back to memory automatically.
