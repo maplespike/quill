@@ -24,6 +24,7 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/billing/stripe/portal',
     '/v1/billing/stripe/status',
     '/v1/billing/stripe/order/abc',
+    '/v1/billing/stripe/webhook',
     '/v1/billing/seed-plans',
     '/v1/auth/oauth/providers',
     '/v1/astral/web3/nonce',
@@ -39,6 +40,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/security/audit-summary',
     '/v1/engine/status',
     '/v1/data/quality',
+    '/v1/llms.txt',
+    '/v1/llms-full.txt',
   ];
 
   const blocked: string[] = [
