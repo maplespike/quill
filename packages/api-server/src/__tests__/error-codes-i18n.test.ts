@@ -64,7 +64,7 @@ test('the tier boundary a free customer hits is bilingual and self-explanatory',
   const err = buildBilingualError('UPGRADE_REQUIRED');
   assert.match(err.en, /plan|upgrade|tier/i, 'EN must name the plan boundary');
   assert.match(err.fr, /offre|plan|supérieure/i, 'FR must name the plan boundary');
-  assert.notMatch(err.fr, /inconnue/i, 'FR must never be the placeholder');
+  assert.doesNotMatch(err.fr, /inconnue/i, 'FR must never be the placeholder');
 });
 
 test('an unknown code falls back to the caller sentence, never a placeholder', () => {

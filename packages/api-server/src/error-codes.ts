@@ -444,6 +444,31 @@ export const ERROR_CODES: Record<string, BilingualError> = {
     en: 'Webhook processing error',
     fr: 'Erreur de traitement du webhook',
   },
+  INVALID_PLAN: {
+    code: 'INVALID_PLAN',
+    en: 'Invalid plan',
+    fr: 'Offre invalide',
+  },
+  MODULE_NOT_FOUND: {
+    code: 'MODULE_NOT_FOUND',
+    en: 'Module not found',
+    fr: 'Module introuvable',
+  },
+  NO_STRIPE_CUSTOMER: {
+    code: 'NO_STRIPE_CUSTOMER',
+    en: 'No Stripe customer on file',
+    fr: 'Aucun client Stripe enregistré',
+  },
+  RECORD_NOT_FOUND: {
+    code: 'RECORD_NOT_FOUND',
+    en: 'Record not found',
+    fr: 'Enregistrement introuvable',
+  },
+  STALE: {
+    code: 'STALE',
+    en: 'Data is stale',
+    fr: 'Données périmées',
+  },
 };
 
 /**
