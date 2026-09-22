@@ -616,6 +616,12 @@ export async function handleRequest(
     || path.startsWith('/v1/ai/ask')
     || path.startsWith('/v1/ai_ask')
     || path.startsWith('/v1/astral/')
+    // Internal service RPC (e.g. the ingest ledger). Guarded by its own signed
+    // JWT check (X-Internal-Token, audience quill-internal) inside the handler —
+    // never authorized by a customer key. Exempt from the public API-key gate so
+    // the internal guard is what decides, not this one. A request without a valid
+    // internal token still gets 401 from requireInternalAuth.
+    || path.startsWith('/v1/internal/')
     ;
 
   const tenant = authExempt
