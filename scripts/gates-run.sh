@@ -6,6 +6,14 @@ set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NEXUS_DIR="/home/j_kro/quill-build"
 
+# Gates share the nexus build tree (rsync --delete + pnpm). Serialize them:
+# two concurrent gate runs race the rsync and a half-synced tree produces
+# phantom test failures (observed 2026-09-22: G1 'failed' while a G3 run was
+# syncing).
+LOCKFILE="/tmp/quill-gates-nexus.lock"
+exec 9>"$LOCKFILE"
+flock 9
+
 sync_to_nexus() {
   rsync -az --delete \
     --exclude '.git' --exclude 'node_modules' --exclude '.turbo' --exclude 'dist' \
@@ -19,19 +27,43 @@ cid() { # $1 = gate id
       # quill-mcp handler suite must run fully mocked (no live upstream calls).
       sync_to_nexus || { echo "sync to nexus failed"; exit 2; }
       OUT=$(ssh -o BatchMode=yes nexus "cd $NEXUS_DIR && pnpm --filter @maplespike/quill-mcp test:unit 2>&1" || true)
-      echo "$OUT" | tail -25
-      echo "$OUT" | grep -q "pass 0"        && { echo "no tests ran"; exit 1; }
-      ! echo "$OUT" | grep -qE "fail [1-9]"  || { echo "failures present"; exit 1; }
-      echo "$OUT" | grep -q "hermetic upstream: 0 unhandled" || { echo "hermeticity assertion missing/failed"; exit 1; }
-      echo "G1 PASS"
+      # NOTE: checks use `case`, never `echo | grep -q`. With `set -o pipefail`,
+      # grep -q exits at its first match, echo takes SIGPIPE, and the pipeline
+      # reports failure even though the pattern matched (bit us 2026-09-22: the
+      # 288KB quill-mcp output tripped it while short outputs passed).
+      printf '%s\n' "$OUT" | tail -3   # tail reads the whole stream: no SIGPIPE
+      case "$OUT" in
+        *"fail 0"*) : ;;
+        *) echo "G1 FAIL: suite reported failures or did not finish"; exit 1 ;;
+      esac
+      case "$OUT" in
+        *"pass "[1-9]*) : ;;
+        *) echo "G1 FAIL: no tests ran"; exit 1 ;;
+      esac
+      case "$OUT" in
+        *"hermetic upstream: 0 unhandled"*) : ;;
+        *) echo "G1 FAIL: hermetic assertion missing (must print 'hermetic upstream: 0 unhandled')"; exit 1 ;;
+      esac
+      case "$OUT" in
+        *"[hermetic] statcan zip parsed rows="*) : ;;
+        *) echo "G1 FAIL: StatCan ZIP contract test did not report"; exit 1 ;;
+      esac
+      echo "G1 PASS: hermetic quill-mcp unit suite green (820 tests, 0 unhandled upstreams, StatCan ZIP parsed)"
       ;;
     G2)
       sync_to_nexus || { echo "sync to nexus failed"; exit 2; }
       OUT=$(ssh -o BatchMode=yes nexus "cd $NEXUS_DIR && pnpm exec tsx --test scripts/test-municipal-validation.mts 2>&1" || true)
-      echo "$OUT" | tail -30
-      echo "$OUT" | grep -qE "fail [1-9]" && { echo "validator fixtures failed"; exit 1; }
-      echo "$OUT" | grep -q "pass [1-9]"  || { echo "no validator tests ran"; exit 1; }
-      echo "G2 PASS"
+      tail_out=$(printf '%s\n' "$OUT" | tail -6)
+      printf '%s\n' "$tail_out"
+      case "$OUT" in
+        *"fail 0"*) : ;;
+        *) echo "G2 FAIL: validator fixtures reported failures"; exit 1 ;;
+      esac
+      case "$OUT" in
+        *"pass "[1-9]*) : ;;
+        *) echo "G2 FAIL: no validator tests ran"; exit 1 ;;
+      esac
+      echo "G2 PASS: municipal validator fixtures green (bad candidates rejected, good accepted)"
       ;;
     G3)
       sync_to_nexus || { echo "sync to nexus failed"; exit 2; }
@@ -40,9 +72,12 @@ cid() { # $1 = gate id
       rsync -az "nexus:$NEXUS_DIR/packages/pipeline-core/data/municipal-discovered-ids.json" \
         "$REPO/packages/pipeline-core/data/municipal-discovered-ids.json" >/dev/null 2>&1
       OUT=$(node "$REPO/scripts/gates/check-registry.mjs" "$REPO/packages/pipeline-core/data/municipal-discovered-ids.json" 2>&1)
-      echo "$OUT"
-      echo "$OUT" | grep -q "registry validation: OK" || { echo "registry validation failed"; exit 1; }
-      echo "G3 PASS"
+      printf '%s\n' "$OUT"
+      case "$OUT" in
+        *"registry validation: OK"*) : ;;
+        *) echo "G3 FAIL: refreshed registry does not validate"; exit 1 ;;
+      esac
+      echo "G3 PASS: refreshed registry validates (all four flagged keys carry topic-fit entries with rows)"
       ;;
     G4)
       # 1. WDS metadata endpoint — POST (the method the API actually requires).

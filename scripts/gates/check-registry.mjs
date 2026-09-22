@@ -45,8 +45,12 @@ for (const key of FLAGGED) {
   if (NEGATIVE_MARKERS.some((m) => lower.includes(m))) {
     problems.push(`${key}: off-topic negative marker in "${name}"`);
   }
-  const token = slug.split('-')[0];
-  if (name && !lower.includes(token) && !(slug === 'budget' && /budget|financial|operating/.test(lower))) {
+  const rawToken = slug.split('-')[0];
+  // Fold the plural: "permits" must accept "Building Permit Data" (the
+  // validator does this via its synonym vocabulary; the oracle must match).
+  const token = rawToken.replace(/s$/, '');
+  const nameHasToken = lower.includes(rawToken) || lower.includes(token);
+  if (name && !nameHasToken && !(slug === 'budget' && /budget|financial|operating|capital/.test(lower))) {
     problems.push(`${key}: name "${name}" does not match slug "${slug}"`);
   }
   if (rows <= 0) problems.push(`${key}: rowsProbed=${rows} (must be > 0)`);
