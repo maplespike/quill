@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — 2026-09-22
+
+### Fixed
+- **Phantom Redis backend (gate A2-REDIS, [#764](https://github.com/reverb256/quill/issues/764) / [#770](https://github.com/reverb256/quill/issues/770)):** the API cache and rate limiter fell back to a hardcoded `redis://redis.ai-inference:6379` — a namespace that has never existed in the cluster — so the cache ran in bypass, the limiter ran in pass-through (i.e. no rate limiting at all) and the pod logs filled with connection errors. A real `quill-redis` (Deployment + ClusterIP Service, digest-pinned, non-root, ephemeral) now ships in `charts/quill/templates/redis.yaml`, `values-prod.yaml` points `api.env.REDIS_URL` at it, and the code reads the endpoint from configuration only: no `REDIS_URL` means "no Redis here", which selects an in-process sliding window instead of dialling a guessed host. A Redis that dies mid-flight now falls back to that window rather than allowing every request.
+
+### Added
+- **`packages/api-server/src/cache/redis-url.ts`** — single source of truth for Redis endpoint resolution (`resolveRedisUrl`, `redisHostOf`; credentials never logged), used by both `cache/redis.ts` and `middleware/rate-limiter.ts`.
+- **In-process sliding-window fallback** in `middleware/rate-limiter.ts` (`backendMode()` reports `redis` | `memory`; `check()` always returns a decision and never a pass-through `null`), plus a log-spam guard: the first Redis error warns, repeats drop to `debug`.
+- **`REDIS_URL` documented and wired for local dev:** `docker-compose.yml` starts a `quill-redis` service and passes `REDIS_URL` to the API; `.env.example` documents the variable and its "unset is valid" semantics.
+- **Tests:** `packages/api-server/src/__tests__/rate-limiter-backend.test.ts` — 15 tests covering endpoint resolution, a source guard against any new hardcoded `redis://` host, in-process enforcement at the tier limit, window rollover, Redis result mapping (allowed / remaining / reset / retryAfter) and the regression case "Redis fails mid-flight ⇒ still enforced".
+
 ## [Unreleased] — 2026-09-17
 
 ### Fixed
