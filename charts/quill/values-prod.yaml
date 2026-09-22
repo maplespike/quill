@@ -43,8 +43,8 @@ images:
   # chart-wide tag cannot supply one, and an empty tag renders an invalid
   # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
   ingest:
-    digest: "sha256:17eab81984d89884a76d3fc12a71dc664c9fd98676680b3769a7de6480e525dd"
-    tag: "2026-09-21-sha.17eab81984d8"
+    digest: "sha256:a76f693392bb224af7854bdbfe38e830079d50ca030c9c88d703d47f893ce7a2"
+    tag: "2026-09-22-sha.a76f693392bb"
 
 # API Server
 api:
