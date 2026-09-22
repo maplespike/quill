@@ -25,14 +25,24 @@ spec:
     metadata:
       labels:
         app: quill-portal
+      {{- with include "quill.imageAnnotations" (dict "svc" "portal" "ctx" $) }}
+      {{- . | nindent 6 }}
+      {{- end }}
     spec:
-      {{- with (.Values.portal | default dict).nodeSelector }}
+      {{- if .Values.portal.nodeName }}
+      # Local-import images live per node: keep the pod on the node whose
+      # containerd store holds the pinned digest (docs/IMAGE-PINNING.md).
+      nodeName: {{ .Values.portal.nodeName }}
+      {{- else if (.Values.portal | default dict).nodeSelector }}
+      # nodeSelector is the registry-based alternative to the local nodeName pin.
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml (.Values.portal | default dict).nodeSelector | nindent 8 }}
       {{- end }}
       containers:
       - name: portal
-        image: {{ printf "%s/quill-portal:%s" .Values.image.registry .Values.image.tag | quote }}
+        # Digest-pinned import from the node containerd store — see
+        # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
+        image: {{ include "quill.image" (dict "svc" "portal" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: API_UPSTREAM

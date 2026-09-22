@@ -21,6 +21,9 @@ spec:
     metadata:
       labels:
         app: quill-api
+      {{- with include "quill.imageAnnotations" (dict "svc" "api" "ctx" $) }}
+      {{- . | nindent 6 }}
+      {{- end }}
     spec:
       securityContext:
         runAsNonRoot: true
@@ -33,7 +36,9 @@ spec:
       {{- end }}
       containers:
       - name: api
-        image: "{{ .Values.image.registry }}/quill-api:{{ .Values.image.tag }}"
+        # Digest-pinned import from the node containerd store — see
+        # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
+        image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.api.port }}
@@ -189,16 +194,26 @@ spec:
     metadata:
       labels:
         app: quill-mcp
+      {{- with include "quill.imageAnnotations" (dict "svc" "mcp" "ctx" $) }}
+      {{- . | nindent 6 }}
+      {{- end }}
     spec:
       securityContext:
         runAsNonRoot: true
-      {{- with .Values.mcp.nodeSelector }}
+      {{- if .Values.mcp.nodeName }}
+      # Local-import images live per node: keep the pod on the node whose
+      # containerd store holds the pinned digest (docs/IMAGE-PINNING.md).
+      nodeName: {{ .Values.mcp.nodeName }}
+      {{- else if .Values.mcp.nodeSelector }}
+      # nodeSelector is the registry-based alternative to the local nodeName pin.
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.mcp.nodeSelector | nindent 8 }}
       {{- end }}
       containers:
       - name: mcp
-        image: "{{ .Values.image.registry }}/quill-mcp:{{ .Values.image.tag }}"
+        # Digest-pinned import from the node containerd store — see
+        # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
+        image: {{ include "quill.image" (dict "svc" "mcp" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.mcp.port }}
