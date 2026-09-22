@@ -28,10 +28,18 @@ pnpm --filter @maplespike/portal build
 # ERR_MODULE_NOT_FOUND — the api server could never start in the Live Data
 # Check lane (2026-09-22). The image builds are unaffected because
 # Dockerfile.api/.mcp repair the same copies post-build; this mirrors that.
+# The leaf set is derived from packages/* instead of a hardcoded list: the
+# hand-maintained list drifted (this script had 7 packages, Dockerfile.api 3,
+# Dockerfile.mcp 2) and each omission is an ERR_MODULE_NOT_FOUND waiting for
+# the first node step that resolves it — quill-mcp's leaf was the last one
+# left stale (2026-09-22). scripts/gates/check-injected-copies.mjs enforces
+# the invariant in CI.
 for d in node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do
   [ -d "$d" ] || continue
-  for p in database pipeline-core engine i18n legal-core legislation sdk; do
+  for pkgdir in packages/*/; do
+    p="${pkgdir%/}"; p="${p#packages/}"
     [ -d "packages/$p/dist" ] || continue
+    [ -e "$d/$p" ] || continue
     rm -rf "$d/$p"
     ln -s "$PWD/packages/$p" "$d/$p"
   done

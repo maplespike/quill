@@ -31,6 +31,11 @@ jobs:
         # repairs those copies (#859 class).
         run: bash scripts/build-packages.sh
 
+      - name: Verify workspace package resolution (injected-copy guard)
+        # Fails here, with the stale leaf named, instead of letting a later
+        # node step die with ERR_MODULE_NOT_FOUND.
+        run: node scripts/gates/check-injected-copies.mjs
+
       - name: Run QA framework tests
         run: pnpm --filter @maplespike/pipeline-core test
         working-directory: packages/pipeline-core
@@ -61,6 +66,11 @@ jobs:
         # everything AND repairs those copies.
         run: bash scripts/build-packages.sh
 
+      - name: Verify workspace package resolution (injected-copy guard)
+        # Fails here, with the stale leaf named, instead of letting the step
+        # below die with ERR_MODULE_NOT_FOUND.
+        run: node scripts/gates/check-injected-copies.mjs
+
       - name: Run QA validation on registered modules
         run: |
           node --input-type=module -e "
@@ -89,8 +99,20 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build pipeline-core
-        run: pnpm --filter @maplespike/pipeline-core build
+      - name: Build workspace packages (dist + injected-copy repair)
+        # This job executes built workspace ESM (`import ... from
+        # '@maplespike/pipeline-core'`, whose dist imports @maplespike/database
+        # from packages/pipeline-core/dist/claims/store.js). A per-package
+        # `pnpm --filter X build` leaves pnpm's injected copy of that dep stale
+        # (never recopied, pnpm #4407), so node dies ERR_MODULE_NOT_FOUND — the
+        # cause of run 35677618009. The shared script builds everything AND
+        # repairs those copies.
+        run: bash scripts/build-packages.sh
+
+      - name: Verify workspace package resolution (injected-copy guard)
+        # Fails here, with the stale leaf named, instead of letting the step
+        # below die with ERR_MODULE_NOT_FOUND.
+        run: node scripts/gates/check-injected-copies.mjs
 
       - name: Verify attestation module exports
         run: |
