@@ -1,221 +1,128 @@
 #!/usr/bin/env bash
-# sops-sync-k8s.sh — sync decrypted Quill secrets to K8s Secret resources.
+# sops-sync-k8s.sh — deliver Quill secrets from git to the cluster, declaratively.
 #
-# Called by:
-#   - systemd timer quill-sops-sync (every 5min on nexus)
-#   - scripts/deploy.sh (one-shot at deploy time)
+# SOURCE OF TRUTH: secrets/runtime.yaml (sops-encrypted, committed). The cluster
+# is a *rendering* of that file; nothing secret is ever typed into kubectl by
+# hand. That is the whole point: `git log` on runtime.yaml is the changelog of
+# every credential, and a lost cluster is recoverable by running this script.
 #
-# Reads decrypted secrets from /run/secrets/* (sops-nix mounts) and
-# creates/updates K8s Secret resources in the maplespike namespace.
-# If a secret value hasn't changed, kubectl apply is a no-op.
+# WHY A SCRIPT AND NOT A CHART SECRET: charts/quill/templates/secrets.yaml
+# deliberately does not render quill-secrets / maplespike-secrets. ArgoCD
+# selfHeal owns that chart, and it syncs on every change; if the chart rendered
+# these keys, a sync would blank any value written out of band (it did, on
+# 2026-09-21: the secret was emptied and GitHub OAuth + JWT vanished from the
+# pod env). So: db/user keys come from the chart, credentials come from here.
 #
-# Env vars:
-#   KUBECONFIG         — path to k3s kubeconfig (default /etc/rancher/k3s/k3s.yaml)
-#   QUILL_REPO         — path to quill repo checkout (default /opt/quill)
-#   SOPS_AGE_KEY_FILE  — path to age private key (for sops -d fallback)
-#   NAMESPACE          — K8s namespace (default maplespike)
+# Usage:
+#   scripts/sops-sync-k8s.sh            # apply sops -> cluster (idempotent)
+#   scripts/sops-sync-k8s.sh --check    # report drift, change nothing (exit 1 on drift)
+#   scripts/sops-sync-k8s.sh --dry-run  # show what would change
+#
+# Requires: sops, kubectl, and an age key that can decrypt runtime.yaml.
+#   SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt scripts/sops-sync-k8s.sh
 
 set -euo pipefail
 
-KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
-QUILL_REPO="${QUILL_REPO:-/opt/quill}"
-SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-/etc/nixos/.age/nexus-prod-key.txt}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SECRETS_FILE="${SECRETS_FILE:-$REPO_ROOT/secrets/runtime.yaml}"
 NAMESPACE="${NAMESPACE:-maplespike}"
 
-# Use kubectl with TLS skip (k3s self-signed cert)
-KUBECTL="kubectl --kubeconfig=${KUBECONFIG} --insecure-skip-tls-verify"
+MODE="apply"
+case "${1:-}" in
+  --check)   MODE="check" ;;
+  --dry-run) MODE="dry-run" ;;
+  "")        ;;
+  -h|--help) sed -n '2,26p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "unknown argument: $1" >&2; exit 2 ;;
+esac
 
-# ── Helper: read a secret value from /run/secrets or sops -d fallback ──
-read_secret() {
-  local key="$1"
-  local sops_file="$2"
+command -v sops   >/dev/null || { echo "ERROR: sops not found" >&2; exit 2; }
+command -v kubectl >/dev/null || { echo "ERROR: kubectl not found" >&2; exit 2; }
+[ -f "$SECRETS_FILE" ] || { echo "ERROR: $SECRETS_FILE not found" >&2; exit 2; }
 
-  # Try sops-nix mount first (runtime-decrypted at /run/secrets/<key>)
-  if [ -r "/run/secrets/${key}" ]; then
-    cat "/run/secrets/${key}"
-    return 0
-  fi
+# sops key -> <k8s secret name>.<data key>
+# Only credentials live here. postgres-* is chart-rendered from values (see
+# charts/quill/templates/secrets.yaml); QUILL_GATEWAY_API_KEY has no consumer in
+# this namespace. Add a row when a new credential appears — never a kubectl patch.
+MAPPING=(
+  "JWT_SECRET|quill-secrets|jwtSecret"
+  "QUILL_API_KEY|quill-secrets|apiKey"
+  "GITHUB_CLIENT_ID|quill-secrets|githubClientId"
+  "GITHUB_CLIENT_SECRET|quill-secrets|githubClientSecret"
+  "INTERNAL_JWT_SECRET|quill-secrets|internalJwtSecret"
+  "QUILL_PII_HASH_SECRET|maplespike-secrets|pii-hash-secret"
+  "QUILL_BILLING_SECRET|maplespike-secrets|quill-billing-secret"
+  "STRIPE_SECRET_KEY|maplespike-secrets|stripe-secret-key"
+  "STRIPE_WEBHOOK_SECRET|maplespike-secrets|stripe-webhook-secret"
+)
 
-  # Fallback: sops -d the encrypted file directly
-  if [ -f "${QUILL_REPO}/secrets/${sops_file}.yaml" ]; then
-    SOPS_AGE_KEY="$(cat "${SOPS_AGE_KEY_FILE}")" \
-      sops -d "${QUILL_REPO}/secrets/${sops_file}.yaml" \
-      | yq -r ".${key}" 2>/dev/null
-    return $?
-  fi
+echo "== quill sops sync ($MODE) =="
+echo "  source: $SECRETS_FILE"
+echo "  namespace: $NAMESPACE"
 
-  echo "ERROR: cannot read secret ${key} from /run/secrets or sops file" >&2
-  return 1
+# Decrypt once, into a private temp dir, and shred on exit. Values are never echoed.
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+PLAIN="$WORK/runtime.yaml"
+if ! sops -d "$SECRETS_FILE" > "$PLAIN" 2>"$WORK/err"; then
+  echo "  ERROR: sops could not decrypt $SECRETS_FILE" >&2
+  sed 's/^/    /' "$WORK/err" >&2
+  exit 3
+fi
+chmod 600 "$PLAIN"
+
+get() { # get VAR -> value (empty if absent)
+  awk -v k="$1" 'BEGIN{FS=": "} $1==k {sub(/^[^:]*: /,""); print; exit}' "$PLAIN"
 }
 
-# ── Helper: create or update a K8s Secret from key-value pairs ──
-# Writes each value to a temp file, builds one kubectl command with all
-# --from-file=KEY=/tmp/file args in a single call (avoids multi-key
-# clobbering from separate applies), then shreds temp files on exit.
-# This keeps values out of the process table (--from-literal leaks to
-# argv) and out of persistent disk (shred -u on EXIT trap).
-apply_secret() {
-  local secret_name="$1"
-  shift
-  local pairs=("$@")
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  trap "shred -u ${tmpdir}/* 2>/dev/null; rmdir ${tmpdir} 2>/dev/null" RETURN
+# Group the mapping by secret so we patch each Secret once.
+declare -A BY_SECRET
+for row in "${MAPPING[@]}"; do
+  IFS='|' read -r var sec key <<< "$row"
+  val="$(get "$var")"
+  if [ -z "$val" ]; then
+    printf '  %-24s -> %s/%s  SKIP (not in sops)\n' "$var" "$sec" "$key"
+    continue
+  fi
+  BY_SECRET["$sec"]+="$key=$var "
+done
 
-  local args=()
-  for pair in "${pairs[@]}"; do
-    local key="${pair%%=*}"
-    local value="${pair#*=}"
-    echo -n "${value}" > "${tmpdir}/${key}"
-    chmod 600 "${tmpdir}/${key}"
-    args+=(--from-file="${key}=${tmpdir}/${key}")
+drift=0
+for sec in "${!BY_SECRET[@]}"; do
+  args=()
+  for pair in ${BY_SECRET[$sec]}; do
+    key="${pair%%=*}"; var="${pair##*=}"
+    args+=(--from-literal="$key=$(get "$var")")
   done
 
-  ${KUBECTL} create secret generic "${secret_name}" \
-    --namespace="${NAMESPACE}" \
-    --dry-run=client -o yaml \
-    "${args[@]}" \
-  | ${KUBECTL} apply -f -
-}
-
-# ── Sync maplespike-secrets (JWT + billing + PII hash + MCP API key) ──
-JWT_SECRET=$(read_secret JWT_SECRET runtime)
-BILLING_SECRET=$(read_secret QUILL_BILLING_SECRET runtime)
-PII_HASH_SECRET=$(read_secret QUILL_PII_HASH_SECRET runtime)
-# QUILL_API_KEY gates the MCP gateway (auth audit 2026-08-15): without it
-# the server accepts the well-known default 'dev-key'.
-QUILL_API_KEY=$(read_secret QUILL_API_KEY runtime)
-
-if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-value" ]; then
-  # QUILL_PII_HASH_SECRET is REQUIRED (Decision 0002): the api-server refuses
-  # the register flow in production without a stable 64-char hex secret.
-  # read_secret pipes through `yq -r`, which prints the literal string
-  # `null` for a missing key — treat that as missing. If SOPS lacks the
-  # key, fall back to the in-cluster value so a sync never clears it.
-  if [ -z "${PII_HASH_SECRET}" ] || [ "${PII_HASH_SECRET}" = "null" ]; then
-    PII_HASH_SECRET=$(${KUBECTL} -n "${NAMESPACE}" get secret maplespike-secrets \
-      -o jsonpath='{.data.pii-hash-secret}' 2>/dev/null | base64 -d 2>/dev/null)
-    echo "[sops-sync] ⚠ QUILL_PII_HASH_SECRET missing from SOPS — reusing in-cluster value"
-  fi
-  if [ -z "${PII_HASH_SECRET}" ] || [ "${PII_HASH_SECRET}" = "null" ]; then
-    # Neither SOPS nor the cluster has a usable value. Applying a partial
-    # secret could drop the key via 3-way merge, so refuse the sync and
-    # leave the cluster untouched. Add QUILL_PII_HASH_SECRET to
-    # secrets/runtime.yaml first, then re-run.
-    echo "[sops-sync] ⚠ pii-hash-secret empty in SOPS and cluster — skipping maplespike-secrets (add QUILL_PII_HASH_SECRET to runtime.yaml first)"
-  elif ! echo "${PII_HASH_SECRET}" | grep -qE '^[0-9a-f]{64}$'; then
-    # The api-server (Decision 0002) only accepts a 64-char hex secret.
-    # Refuse to apply an invalid value (e.g. the legacy 44-char base64-ish
-    # value found on the live cluster 2026-08-10) — that would silently
-    # preserve the exact bug this sync exists to fix.
-    echo "[sops-sync] ⚠ pii-hash-secret is NOT a 64-char hex string (len=${#PII_HASH_SECRET}) — refusing to apply; fix runtime.yaml with a valid value first"
+  if [ "$MODE" = "check" ]; then
+    # Compare in-cluster values against sops without printing either.
+    cur="$(kubectl -n "$NAMESPACE" get secret "$sec" -o json 2>/dev/null \
+           | python3 -c 'import json,sys,base64
+d=json.load(sys.stdin)
+for k,v in sorted((d.get("data") or {}).items()): print(k+"="+base64.b64decode(v).decode())' 2>/dev/null || true)"
+    for pair in ${BY_SECRET[$sec]}; do
+      key="${pair%%=*}"; var="${pair##*=}"; want="$(get "$var")"
+      got="$(printf '%s\n' "$cur" | awk -F= -v k="$key" '$1==k {sub(/^[^=]*=/,""); print; exit}')"
+      if [ "$got" != "$want" ]; then
+        printf '  DRIFT  %s/%s  (sops %s: %d chars, cluster: %s)\n' "$sec" "$key" "$var" "${#want}" \
+          "$([ -z "$got" ] && echo 'absent' || echo "${#got} chars")"
+        drift=1
+      else
+        printf '  ok     %s/%s\n' "$sec" "$key"
+      fi
+    done
   else
-    # QUILL_API_KEY: if SOPS lacks it, reuse the in-cluster value (same
-    # guard as pii-hash) so a sync never clears the MCP gateway key.
-    if [ -z "${QUILL_API_KEY}" ] || [ "${QUILL_API_KEY}" = "null" ]; then
-      QUILL_API_KEY=$(${KUBECTL} -n "${NAMESPACE}" get secret maplespike-secrets \
-        -o jsonpath='{.data.quill-api-key}' 2>/dev/null | base64 -d 2>/dev/null)
-      echo "[sops-sync] ⚠ QUILL_API_KEY missing from SOPS — reusing in-cluster value"
+    printf '  %s %s (%d keys)\n' "$([ "$MODE" = dry-run ] && echo 'would update' || echo 'updating')" "$sec" "$(wc -w <<< "${BY_SECRET[$sec]}")"
+    if [ "$MODE" = "apply" ]; then
+      kubectl -n "$NAMESPACE" create secret generic "$sec" "${args[@]}" \
+        --dry-run=client -o yaml | kubectl apply -f - >/dev/null
     fi
-    apply_secret maplespike-secrets \
-      "jwt-secret=${JWT_SECRET}" \
-      "quill-billing-secret=${BILLING_SECRET}" \
-      "pii-hash-secret=${PII_HASH_SECRET}" \
-      "quill-api-key=${QUILL_API_KEY}"
-    echo "[sops-sync] ✓ maplespike-secrets synced"
   fi
-else
-  echo "[sops-sync] ⚠ JWT_SECRET is placeholder — skipping maplespike-secrets"
+done
+
+if [ "$MODE" = "check" ] && [ "$drift" != "0" ]; then
+  echo "  RESULT: drift detected — run without --check to converge"
+  exit 1
 fi
-
-# ── Sync quill-secrets (apiKey + jwtSecret + GitHub OAuth) ──
-# OPERATOR-MANAGED (2026-09-21): the Helm chart deliberately does NOT render
-# this Secret — ArgoCD selfHeal reconciles out-of-band keys away (it emptied
-# the secret and dropped GitHub OAuth + JWT_SECRET from the pod env). Values
-# MUST mirror production: changing JWT_SECRET invalidates live sessions —
-# update runtime.yaml first, then let this sync apply.
-GH_CLIENT_ID=$(read_secret GITHUB_CLIENT_ID runtime)
-GH_CLIENT_SECRET=$(read_secret GITHUB_CLIENT_SECRET runtime)
-
-if [ -n "${QUILL_API_KEY}" ] && [ "${QUILL_API_KEY}" != "null" ] && \
-   [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-value" ]; then
-  quill_secret_pairs=("apiKey=${QUILL_API_KEY}" "jwtSecret=${JWT_SECRET}")
-  if [ -n "${GH_CLIENT_ID}" ] && [ "${GH_CLIENT_ID}" != "null" ] && \
-     [ -n "${GH_CLIENT_SECRET}" ] && [ "${GH_CLIENT_SECRET}" != "null" ]; then
-    quill_secret_pairs+=("githubClientId=${GH_CLIENT_ID}" "githubClientSecret=${GH_CLIENT_SECRET}")
-  else
-    echo "[sops-sync] ⚠ GitHub OAuth creds incomplete — syncing quill-secrets without github* keys"
-  fi
-  apply_secret quill-secrets "${quill_secret_pairs[@]}"
-  echo "[sops-sync] ✓ quill-secrets synced"
-else
-  echo "[sops-sync] ⚠ JWT_SECRET/QUILL_API_KEY unavailable — skipping quill-secrets"
-fi
-
-# ── Sync maplespike-stripe-secrets (Stripe monetization) ──
-# Stripe keys live in secrets/billing.yaml (NOT runtime.yaml). Read from there.
-STRIPE_SECRET_KEY=$(read_secret STRIPE_SECRET_KEY billing)
-STRIPE_WEBHOOK_SECRET=$(read_secret STRIPE_WEBHOOK_SECRET billing)
-STRIPE_ACCOUNT_ID=$(read_secret STRIPE_ACCOUNT_ID billing)
-STRIPE_PUBLISHABLE_KEY=$(read_secret STRIPE_PUBLISHABLE_KEY billing)
-
-# Only sync if at least one real Stripe key has been provisioned. We accept
-# "sk_live_..." / "whsec_..." / "acct_..." / "pk_live_..." values. Placeholder
-# strings ("REPLACE_…" in runtime.yaml.example) are rejected so the Secret
-# is never created with empty/garbage values — that would cause a silent
-# 503 on /v1/billing/stripe/checkout.
-if echo "${STRIPE_SECRET_KEY:-}" | grep -qE '^sk_(live|test)_[A-Za-z0-9]{10,}'; then
-  apply_secret maplespike-stripe-secrets \
-    "stripe-secret-key=${STRIPE_SECRET_KEY}" \
-    "stripe-webhook-secret=${STRIPE_WEBHOOK_SECRET}" \
-    "stripe-account-id=${STRIPE_ACCOUNT_ID}" \
-    "stripe-publishable-key=${STRIPE_PUBLISHABLE_KEY}"
-  echo "[sops-sync] ✓ maplespike-stripe-secrets synced"
-else
-  echo "[sops-sync] ⚠ STRIPE_SECRET_KEY missing or placeholder — skipping maplespike-stripe-secrets (checkout will return 503)"
-fi
-
-# ── Sync postgres-secret ──
-PG_PASS=$(read_secret POSTGRES_PASSWORD runtime)
-
-if [ -n "${PG_PASS}" ] && [ "${PG_PASS}" != "change-me-to-a-secure-random-value" ]; then
-  apply_secret postgres-secret \
-    "POSTGRES_PASSWORD=${PG_PASS}"
-  echo "[sops-sync] ✓ postgres-secret synced"
-else
-  echo "[sops-sync] ⚠ POSTGRES_PASSWORD is placeholder — skipping"
-fi
-
-# ── Sync cloudflared-token ──
-TUNNEL_TOKEN=$(read_secret TUNNEL_TOKEN cloudflared)
-
-if [ -n "${TUNNEL_TOKEN}" ]; then
-  apply_secret cloudflared-token \
-    "TUNNEL_TOKEN=${TUNNEL_TOKEN}"
-  echo "[sops-sync] ✓ cloudflared-token synced"
-else
-  echo "[sops-sync] ⚠ TUNNEL_TOKEN empty — skipping"
-fi
-
-# ── Sync cloudflared-creds (credentials.json) ──
-# This is a file-based secret, not a key-value pair.
-TUNNEL_ID=$(read_secret TUNNEL_ID cloudflared)
-ACCOUNT_TAG=$(read_secret TUNNEL_ACCOUNT_TAG cloudflared)
-TUNNEL_SECRET=$(read_secret TUNNEL_SECRET cloudflared)
-
-if [ -n "${TUNNEL_ID}" ] && [ -n "${ACCOUNT_TAG}" ] && [ -n "${TUNNEL_SECRET}" ]; then
-  CRED_JSON=$(cat <<EOF
-{"AccountTag":"${ACCOUNT_TAG}","TunnelSecret":"${TUNNEL_SECRET}","TunnelID":"${TUNNEL_ID}"}
-EOF
-)
-  echo "${CRED_JSON}" | ${KUBECTL} create secret generic cloudflared-creds \
-    --namespace="${NAMESPACE}" \
-    --from-file=credentials.json=/dev/stdin \
-    --dry-run=client -o yaml \
-  | ${KUBECTL} apply -f -
-  echo "[sops-sync] ✓ cloudflared-creds synced"
-else
-  echo "[sops-sync] ⚠ cloudflared credentials incomplete — skipping"
-fi
-
-echo "[sops-sync] Done."
+echo "  RESULT: $([ "$MODE" = check ] && echo 'cluster matches sops' || echo 'done')"
