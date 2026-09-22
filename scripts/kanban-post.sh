@@ -15,7 +15,7 @@
 set -euo pipefail
 
 BOARD="${KANBAN_BOARD:-maplespike}"
-TITLE="" BODY_FILE="" ASSIGNEE="backend-eng" PRIORITY=2 IDEM=""
+TITLE="" BODY_FILE="" ASSIGNEE="backend-eng" PRIORITY=2 IDEM="" WORKSPACE="" BRANCH=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --title) TITLE="$2"; shift 2;;
@@ -23,6 +23,8 @@ while [ $# -gt 0 ]; do
     --assignee) ASSIGNEE="$2"; shift 2;;
     --priority) PRIORITY="$2"; shift 2;;
     --idem) IDEM="$2"; shift 2;;
+    --workspace) WORKSPACE="$2"; shift 2;;
+    --branch) BRANCH="$2"; shift 2;;
     *) echo "unknown arg: $1" >&2; exit 2;;
   esac
 done
@@ -33,6 +35,8 @@ if [ "$(hostname -s)" = "nexus" ]; then
   hermes kanban --board "$BOARD" create "$TITLE" \
     --body "$BODY" --assignee "$ASSIGNEE" --priority "$PRIORITY" \
     ${IDEM:+--idempotency-key "$IDEM"} \
+    ${WORKSPACE:+--workspace "$WORKSPACE"} \
+    ${BRANCH:+--branch "$BRANCH"} \
     --created-by gh-ci-doctor --json | head -c 400
 else
   BODY_B64=$(base64 -w0 "$BODY_FILE")
@@ -42,6 +46,8 @@ BODY=\$(echo '$BODY_B64' | base64 -d)
 hermes kanban --board '$BOARD' create '$TITLE' \
   --body "\$BODY" --assignee '$ASSIGNEE' --priority '$PRIORITY' \
   ${IDEM:+--idempotency-key '$IDEM'} \
+  ${WORKSPACE:+--workspace '$WORKSPACE'} \
+  ${BRANCH:+--branch '$BRANCH'} \
   --created-by gh-ci-doctor --json | head -c 400
 REMOTE
 fi
