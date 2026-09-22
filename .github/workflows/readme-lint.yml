@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: "Check dead links (lychee)"
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2.0.2
         with:
           # Non-HTTP schemes (gitlawb://, did:key:) are intentionally excluded.
           # 401 is accepted: auth-gated API endpoints (/v1, /sse) are alive by design.
