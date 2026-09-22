@@ -75,6 +75,35 @@ const MEMORY_SWEEP_THRESHOLD = 10_000;
 /** Ceiling for the reconnect backoff, in milliseconds. */
 const RECONNECT_MAX_MS = 5_000;
 
+/**
+ * Normalise a peer address for use as a rate-limit key.
+ *
+ * Handles the three shapes a Node server actually sees: a bare IPv4 or IPv6
+ * literal, an IPv4 address with a port (`1.2.3.4:5678`), and the IPv4-mapped
+ * IPv6 form the kernel reports for dual-stack sockets (`::ffff:1.2.3.4`).
+ * Returns null when there is nothing usable, so callers can fall through.
+ */
+export function normalizeIp(value: string | undefined | null): string | null {
+  if (typeof value !== 'string') return null;
+
+  let ip = value.trim();
+  if (ip === '') return null;
+
+  // [::1]:5678 — bracketed IPv6 with a port.
+  const bracketed = /^\[([^\]]+)\](?::\d+)?$/.exec(ip);
+  if (bracketed) ip = bracketed[1];
+
+  // 1.2.3.4:5678 — IPv4 with a port.
+  const v4WithPort = /^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/.exec(ip);
+  if (v4WithPort) ip = v4WithPort[1];
+
+  // ::ffff:1.2.3.4 — IPv4-mapped IPv6 (dual-stack sockets).
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip);
+  if (mapped) ip = mapped[1];
+
+  return ip === '' ? null : ip;
+}
+
 export class RateLimiter {
   private client: RedisLikeClient | null = null;
   private connected = false;
@@ -185,15 +214,35 @@ export class RateLimiter {
   }
 
   /**
-   * Extract the client IP from request headers, falling back to a default.
+   * Extract the client IP from request headers, falling back to the peer
+   * address of the socket.
+   *
+   * `req.ip` is an Express property; the dev server hands over a raw Node
+   * IncomingMessage, which carries the peer only as `socket.remoteAddress`.
+   * Reading `req.ip` alone silently collapsed every request without an
+   * X-Forwarded-For header (in-cluster callers, port-forwards, health probes)
+   * into one shared `unknown` bucket — found live while verifying gate
+   * A2-REDIS: the only key Redis held was `ratelimit:FREE:unknown`.
    */
-  extractIP(req: { headers: Record<string, string | string[] | undefined>; ip?: string }): string {
+  extractIP(req: {
+    headers: Record<string, string | string[] | undefined>;
+    ip?: string;
+    socket?: { remoteAddress?: string };
+    connection?: { remoteAddress?: string };
+  }): string {
     const forwarded = req.headers['x-forwarded-for'];
     if (forwarded) {
       const ip = Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0];
-      return ip?.trim() || 'unknown';
+      const normalized = normalizeIp(ip);
+      if (normalized) return normalized;
     }
-    return req.ip || 'unknown';
+
+    return (
+      normalizeIp(req.ip) ||
+      normalizeIp(req.socket?.remoteAddress) ||
+      normalizeIp(req.connection?.remoteAddress) ||
+      'unknown'
+    );
   }
 
   /**
