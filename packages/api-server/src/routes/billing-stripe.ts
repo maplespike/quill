@@ -177,7 +177,9 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
     );
   }
 
-  let body: { plan_id?: string; customer_id?: string } = {};
+  // `embedded: true` asks for Stripe Embedded Checkout (the portal mounts the
+  // form in-page and receives client_secret) instead of the hosted redirect.
+  let body: { plan_id?: string; customer_id?: string; embedded?: boolean } = {};
   try {
     body = (await request.json()) as typeof body;
   } catch {
