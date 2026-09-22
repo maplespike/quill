@@ -192,6 +192,10 @@ if (!canAccess(ctx.tenant.tier, 'aiRag')) {
 | `prioritySupport` | — | — | ✅ | ✅ |
 | `enterpriseSla` | — | — | — | ✅ |
 
+> `usageAnalytics` gates tenant-WIDE analytics (aggregate dashboards, cross-tenant
+> reporting). Reading your OWN consumption is not gated: `GET /v1/usage` is
+> self-scoped for every tier, and `meta.usage` rides on every response (#891).
+
 ---
 
 ## Licensing Alignment
