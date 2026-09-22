@@ -122,6 +122,30 @@ check_statcan_wds() {
   fi
 }
 
+# ── Tier-boundary honesty probe (2026-09-22) ──────────────────────────
+# A free customer who hits a paid endpoint must get a 402 that explains the
+# boundary in BOTH languages. The error-code table was missing 61 codes that
+# call sites emit, so those bodies shipped message_fr "Erreur inconnue"
+# (= "unknown error") on a bilingual product. This keeps the live surface
+# honest — the incident's regression guard at the deployed layer, next to the
+# unit-level error-codes-i18n.test.ts.
+check_tier_boundary() {
+  local body
+  body=$(curl -s --connect-timeout 5 --max-time 15 \
+    "https://api.maplespike.ca/v1/gov/search?q=health-probe" 2>/dev/null || true)
+
+  echo "$body" | grep -q 'UPGRADE_REQUIRED' \
+    || ISSUES="${ISSUES}Tier boundary: 402 body missing UPGRADE_REQUIRED code\n"
+  echo "$body" | grep -qiE 'plan|tier|upgrade' \
+    || ISSUES="${ISSUES}Tier boundary: 402 body does not explain the plan boundary\n"
+  if echo "$body" | grep -q 'Erreur inconnue'; then
+    ISSUES="${ISSUES}Tier boundary: French message is still the 'Erreur inconnue' placeholder\n"
+  fi
+  if ! echo "$body" | grep -q 'message_fr'; then
+    ISSUES="${ISSUES}Tier boundary: 402 body carries no French message at all\n"
+  fi
+}
+
 # Only ever match the monitor's own issue, by exact title.
 find_monitor_issue() {
   gh issue list --repo "$REPO" --state open --json number,title \
@@ -135,6 +159,7 @@ check_pod "monitoring" || true
 check_http "https://quill.maplespike.ca/" "Public portal" || true
 check_http "https://api.maplespike.ca/v1/health" "Public API" || true
 check_auth_lane || true
+check_tier_boundary || true
 check_statcan_wds || true
 
 if [ -n "$ISSUES" ]; then
