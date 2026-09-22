@@ -157,8 +157,12 @@ check_tier_boundary() {
 # A job that exists but never completes (image missing, DB unwritable, module
 # crash) leaves no run row, so probe 3 catches it as "never reported a run".
 check_ingestion() {
+  # name + lastScheduleTime per CronJob: a pipeline whose CronJob has never been
+  # scheduled (lastScheduleTime unset) is not yet due, so it cannot be "not
+  # completing" — flagging it would be a false positive for up to one full
+  # period after the chart ships (6h for `0 */6 * * *`).
   local cjs
-  cjs=$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)
+  cjs=$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.lastScheduleTime}{"\n"}{end}' 2>/dev/null || true)
   if [ -z "$cjs" ]; then
     ISSUES="${ISSUES}No ingestion CronJobs in namespace maplespike — no data is being ingested (gate A1-INGEST)\n"
     return 0
@@ -171,26 +175,39 @@ check_ingestion() {
     return 0
   fi
 
-  case "$body" in
+  # The API pretty-prints its JSON. Flatten whitespace once, so the pipeline
+  # list, the stale array and the status field all match one compact pattern —
+  # a compact-only matcher reported "never reported a run" for pipelines that
+  # HAD run, a false negative in the very check that exists to catch silent
+  # no-ops (found live 2026-09-22, first run of this probe).
+  local flat
+  flat=$(printf '%s' "$body" | tr -d '[:space:]')
+
+  case "$flat" in
     *'"status":"unknown"'*)
       ISSUES="${ISSUES}Ingest run log empty — no pipeline has ever recorded a run (gate A1-INGEST)\n" ;;
   esac
 
-  # stalePipelines: ["committees","gazette"] — extract the array body for matching.
+  # stalePipelines: ["committees","gazette"] — extract the array body.
   local stale
-  stale=$(printf '%s\n' "$body" | sed -n 's/.*"stalePipelines":\[\([^]]*\)\].*/\1/p')
+  stale=$(printf '%s' "$flat" | sed -n 's/.*"stalePipelines":\[\([^]]*\)\].*/\1/p')
 
-  local name pipeline
-  for name in $cjs; do
+  local name pipeline last
+  while read -r name last; do
+    [ -n "$name" ] || continue
     pipeline=${name##*-ingest-}
-    case "$body" in
+    # Never scheduled yet → not due → nothing to report.
+    [ -n "$last" ] || continue
+    case "$flat" in
       *"\"pipeline\":\"$pipeline\""*) : ;;
-      *) ISSUES="${ISSUES}Ingest pipeline '$pipeline' has never reported a run — CronJob $name is not completing (gate A1-INGEST)\n" ;;
+      *) ISSUES="${ISSUES}Ingest pipeline '$pipeline' has never reported a run — CronJob $name ran at $last without leaving a run row (gate A1-INGEST)\n" ;;
     esac
     case "$stale" in
       *"\"$pipeline\""*) ISSUES="${ISSUES}Ingest pipeline '$pipeline' is stale — last run is older than its schedule allows (gate A1-INGEST)\n" ;;
     esac
-  done
+  done <<EOF
+$cjs
+EOF
 }
 
 # Only ever match the monitor's own issue, by exact title.
