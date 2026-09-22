@@ -1,7 +1,7 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-09-18
+> Auto-generated: 2026-09-22
 > License: AGPL-3.0 / MIT. Government data under OGL-C.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
@@ -104,7 +104,7 @@ Recompute the SHA-256 of a payload and compare (public)
 #### GET /v1/data/quality
 Module health, freshness, and error tracking
 
-## MCP Tools (182 total)
+## MCP Tools (184 total)
 
 The MCP server exposes the following tools for AI agent use:
 
@@ -289,6 +289,8 @@ The MCP server exposes the following tools for AI agent use:
 - `find_connections`
 - `linked_entities`
 - `verify_claim`
+- `resolve_quill_id`
+- `query_quill`
 - `x402-deposit`
 
 ## Data Categories
