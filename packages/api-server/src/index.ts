@@ -232,10 +232,14 @@ const ROUTES: Route[] = [
   // --- Auth routes ---
   // Generic OAuth
   { pattern: /^\/v1\/auth\/oauth\/providers\/?$/, method: 'GET', params: [], handler: withRouteCache(oauthProvidersHandler, 3600) },
+  // NOTE: /exchange MUST precede the /:provider wildcard — the router takes
+  // the first match, so the wildcard would otherwise swallow "exchange" as
+  // a provider name (found live 2026-09-21: every browser OAuth login died
+  // at redemption with OAUTH_PROVIDER_NOT_FOUND).
+  { pattern: /^\/v1\/auth\/oauth\/exchange\/?$/, method: 'GET', params: [], handler: oauthExchangeHandler },
   // OAuth login/callback redirects — no cache (user-specific redirects)
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/?$/, method: 'GET', params: ['provider'], handler: oauthLoginHandler },
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/callback\/?$/, method: 'GET', params: ['provider'], handler: oauthCallbackHandler },
-  { pattern: /^\/v1\/auth\/oauth\/exchange\/?$/, method: 'GET', params: [], handler: oauthExchangeHandler },
   // Legacy GitHub-specific (kept for backward compat)
   { pattern: /^\/v1\/auth\/github\/?$/, method: 'GET', params: [], handler: githubLoginHandler },
   { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: githubCallbackHandler },
