@@ -1,0 +1,102 @@
+# GATES — quill issues & gaps (2026-09-22)
+
+Scope: every open issue + every gap logged this session. Each gate states one observable
+outcome. `CHECK:` is runnable; `EXPECT:` is the decisive evidence. j_kro directive:
+"address all issues and gaps."
+
+Owner key: **[A]** agent-executable (dispatched to the kanban board / done here),
+**[J]** needs j_kro (money, pricing, destructive, or direction),
+**[L]** another lane (not quill — flag only).
+
+---
+
+## A. Production gaps — the system is not yet serving its purpose
+
+- [ ] **A1 · Production ingestion is deployed and running** (#889)
+      CHECK: `ssh nexus 'kubectl -n maplespike get cronjobs'`
+      EXPECT: ingest job(s) present, last schedule `True`/recent, and a finished Job pod `Completed`
+      Owner: [A] — blocked the whole time by "pipelines tested, never scheduled".
+
+- [ ] **A2 · A real cache/rate-limit backend answers** (#764, #770)
+      CHECK: `ssh nexus 'kubectl get svc -A | grep -i redis'` + api env/logs
+      EXPECT: the endpoint the API is configured with resolves AND the rate limiter stops
+      running in pass-through/degraded mode. Today: only `argocd-redis` + `media/redis` exist;
+      the API points at a service that does not exist (phantom).
+      Owner: [A]
+
+- [ ] **A3 · Container images are pinned, not `:local`** (#755)
+      CHECK: chart values + `kubectl -n maplespike get deploy -o jsonpath` image fields
+      EXPECT: every workload references a digest or immutable version tag; no `:local`.
+      Owner: [A]
+
+## B. Customer-experience gaps (found by the new journey tests)
+
+- [ ] **B1 · The API key is revealed once at signup** (#890)
+      EXPECT: portal shows the minted key with a copy affordance + a "this is the only time" note.
+      Owner: [A]
+- [ ] **B2 · A free tenant can read its own usage** (#891)
+      EXPECT: `/v1/usage` (or `meta.usage` on 402) answers for the key's own tenant; journey test updated.
+      Owner: [A]
+- [ ] **B3 · The identity model is documented** (#892) — passkeys are device-bound; what a second
+      key means; how tiers interact. EXPECT: docs page exists and is linked from onboarding.
+      Owner: [A]
+- [ ] **B4 · The portal has tests** (#897)
+      EXPECT: `pnpm --filter @maplespike/portal test` runs a real suite (SignupForm key reveal,
+      402 rendering) and the coverage floor script covers the portal.
+      Owner: [A]
+
+## C. Verification integrity
+
+- [ ] **C1 · #859 closed with evidence** — the reported coverage failure must be re-verified green
+      (the root cause fixed tonight: mock ZIP fixture + test glob). EXPECT: issue closed + CI green.
+      Owner: [A]
+- [ ] **C2 · CI + QA green on current main** (the coverage floor + quoted globs are new gates)
+      CHECK: `gh run list --limit 10`
+      EXPECT: CI, QA, Live Data Check all success on the HEAD that carries the floor change.
+      Owner: [A]
+- [ ] **C3 · Function coverage ratcheted up** (api 39.9%, mcp 48.5%) — raise the floors once
+      dead helpers are exercised or removed. EXPECT: floors raised with the numbers to match.
+      Owner: [A]
+
+## D. Housekeeping / honesty
+
+- [ ] **D1 · #731 closed** — the onboarding psychology audit was delivered tonight (artifact exists).
+      Owner: [A]
+- [ ] **D2 · #825 DRY consolidation** — single manifest source, single secret-sync path.
+      Owner: [A]
+- [ ] **D3 · `astral-key-jwt` is in sops** — it exists in-cluster only (a rebuilt cluster loses it).
+      EXPECT: `sops -d secrets/runtime.yaml | grep astral` returns the key material path.
+      Owner: [A]
+- [ ] **D4 · The OWASP/audit page tells the truth** — real `audit.json` baked into the image (today:
+      empty fallback + false "No known CVEs"; real count 28), no epoch-zero timestamp, the
+      `@simplewebauthn/server` bump applied. Owner: [A]
+
+## E. Needs j_kro — do not self-authorize
+
+- [ ] **E1 · #854 history rewrite** (age keys in git history). Destructive: rewrites every SHA;
+      it is the public-flip gate. Needs a coordinated window + explicit GO. [J]
+- [ ] **E2 · Money/pricing/direction**: #811 (taxable-revenue tracker + GST/HST threshold),
+      #814 (production + live income spec), #790 (MapleSpike MVP scope), #798 (wayfinder map),
+      #827 (Phase 7 gap map). These define what "done" means commercially — j_kro's call. [J]
+- [ ] **E3 · Public flip / launch** — gated on E1 + E2. [J]
+
+## F. Other lanes — flagged, not touched (quill is not the owner)
+
+- [ ] **F1 · ArgoCD drift (11 apps)**: `trading-*` ×7 (Progressing/Degraded), `csi-driver-smb`
+      (Progressing), `media-helm` + `trading-helm` (OutOfSync parents), **`activepieces` = Unknown**
+      (app status unreadable — worth a look by whoever owns it).
+- [ ] **F2 · Longhorn admission webhook has no backend** — intercepts PVC ops cluster-wide.
+
+## G. Long-tail roadmap (ws1/ws2/ws3/ws5 — ~25 enhancement issues)
+
+Modules, MCP features, i18n phases, docs passes (#741–#849). Not gaps in what exists — they are
+unbuilt features. Disposition: keep `agent-ready` ones flowing through the board; the rest stay
+deferred until E2 fixes the definition of done. No silent closing.
+
+---
+
+### Amended gates
+(none yet)
+
+### Abandoned gates
+(none yet)
