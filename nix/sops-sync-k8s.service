@@ -1,3 +1,8 @@
+# DEPRECATED (2026-09-22): the sops-nix module and the systemd unit below belong
+# to the retired NixOS deploy path. No NixOS host remains (Omarchy migration,
+# 2026-09-17) and no quill-sops-sync unit is installed on the current cluster.
+# The key paths in these files (/etc/nixos/.age/...) no longer exist. Key
+# management now lives in secrets/README.md (sops + age on Arch/k3s).
 [Unit]
 Description=Sync sops-decrypted Quill secrets to K8s
 After=network-online.target

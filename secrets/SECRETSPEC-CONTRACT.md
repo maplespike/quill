@@ -12,7 +12,8 @@ and the deployment's `secretKeyRef`s.
 | `secrets/billing.yaml` | `STRIPE_SECRET_KEY`, `STRIPE_TEST_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_ACCOUNT_ID`, `STRIPE_ENV`, `QUILL_BILLING_SECRET`, `MAPLESPIKE_BILLING_EMAIL`, treasury keys |
 | `secrets/runtime.yaml` | `JWT_SECRET`, `QUILL_BILLING_SECRET`, `ASTRAL_KEY_URL`, `MAPLESPIKE_BILLING_EMAIL` |
 
-All sops-encrypted (age, dual-recipient: nexus-prod + homelab-dev).
+All sops-encrypted (age). The recipient set is the fleet set in `.sops.yaml` —
+`cluster_age`, `zephyr_age_v2` and `yubikey_nano`; see `secrets/README.md`.
 
 ## What quill-api mounts (deployment `secretKeyRef`s)
 
@@ -37,8 +38,8 @@ All sops-encrypted (age, dual-recipient: nexus-prod + homelab-dev).
 `STRIPE_SECRET_KEY` value prefix is self-describing: `sk_live_…` = live, `sk_test_…` = test.
 To check without exposing the key:
 ```bash
-# on nexus (has the age key)
-SOPS_AGE_KEY_FILE=/etc/nixos/.age/nexus-prod-key.txt sops -d secrets/billing.yaml \
+# on a host that holds an age identity (e.g. zephyr)
+SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt sops -d secrets/billing.yaml \
   | grep -E "STRIPE_SECRET_KEY|STRIPE_TEST_SECRET_KEY" | sed 's/\(sk_..._\).*/\1.../'
 ```
 Go-live requires `STRIPE_SECRET_KEY` to be `sk_live_…` and `STRIPE_ENV=live` (flip in
