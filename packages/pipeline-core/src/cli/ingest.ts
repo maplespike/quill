@@ -107,9 +107,9 @@ async function main() {
 
     // Record each module's outcome in the API freshness ledger. Best-effort:
     // reportIngest never throws, and a reporting failure must not fail the run.
+    const allResults = (Array.isArray(results) ? results : []) as Array<Record<string, unknown>>;
     await Promise.all(
-      (results ?? []).map((result) => {
-        const rec = result as unknown as Record<string, unknown>;
+      allResults.map((rec) => {
         const name = String(rec['module'] ?? rec['name'] ?? rec['alias'] ?? 'unknown');
         const runFailed = rec['status'] === 'failed' || rec['status'] === 'failure' || rec['success'] === false;
         return reportIngest({
