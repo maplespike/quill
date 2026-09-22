@@ -174,6 +174,11 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/security/audit-summary',
   '/v1/engine/status',
   '/v1/data/quality',
+  // Ingestion liveness: the cluster health check reads it anonymously, and a
+  // pipeline name + timestamp is cluster observability, not tenant data. The
+  // route ships auth-exempt too (src/index.ts) — without this entry the Free
+  // boundary 402'd it (found live on 2026-09-22).
+  '/v1/ingest/status',
   '/v1/status',
   '/v1/openapi',
   // AI-discovery docs (llms.txt / llms-full.txt) — same class as openapi.
