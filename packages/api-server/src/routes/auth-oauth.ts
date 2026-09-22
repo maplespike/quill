@@ -225,6 +225,8 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'OAuth login failed';
+    // Log before redirecting — without this the failure is invisible in logs.
+    console.error(`[oauth] callback login failed (${ctx.requestId}): ${message}`);
     if (isBrowserRequest(request)) {
       return new Response(null, {
         status: 302,
