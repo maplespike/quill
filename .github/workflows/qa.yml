@@ -89,8 +89,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build pipeline-core
-        run: pnpm --filter @maplespike/pipeline-core build
+      - name: Build workspace packages (dist + injected-copy repair)
+        # `pnpm --filter pipeline-core build` alone leaves pnpm's injected copies
+        # of workspace deps stale, so importing @maplespike/database/dist fails
+        # (ERR_MODULE_NOT_FOUND, #859 class — this job kept the old single-filter
+        # build after the other two jobs were fixed). The shared script builds
+        # everything AND repairs those copies.
+        run: bash scripts/build-packages.sh
 
       - name: Verify attestation module exports
         run: |
