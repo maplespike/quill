@@ -1,0 +1,19 @@
+[Unit]
+Description=Quill — verify k8s secrets match sops (drift check)
+Documentation=https://github.com/reverb256/quill/blob/main/scripts/sops-sync-k8s.sh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# The host must already hold an age key that can decrypt secrets/runtime.yaml.
+# The install script verifies that before enabling this timer.
+Environment=SOPS_AGE_KEY_FILE=%h/.config/sops/age/cluster-age-key.txt
+Environment=KUBECONFIG=%h/.kube/config
+WorkingDirectory=%h/Work/Projects/quill
+# Read-only: reports drift and exits non-zero. It never writes to the cluster, so
+# a misconfigured key or a moved repo cannot corrupt live secrets.
+ExecStart=%h/Work/Projects/quill/scripts/sops-sync-k8s.sh --check
+
+[Install]
+WantedBy=default.target
