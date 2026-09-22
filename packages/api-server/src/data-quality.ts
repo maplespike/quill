@@ -19,6 +19,7 @@
 import type { ModuleInfo } from './registry-snapshot.js';
 import { getAllModules } from './registry-snapshot.js';
 import { globalCache } from './cache.js';
+import { getIngestRecord } from './ingest-ledger.js';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -60,6 +61,9 @@ export interface ModuleQualityReport {
   successRate: number;
   /** Consecutive failures */
   consecutiveFailures: number;
+  /** Where freshness came from: the persisted ingest ledger, the in-process
+   *  monitor, or nowhere (which is why freshnessStatus is 'unknown'). */
+  freshnessSource: 'ledger' | 'monitor' | 'none';
 }
 
 export interface DataQualitySummary {
@@ -296,40 +300,51 @@ function getModuleIngestionData(moduleName: string): {
   totalRuns: number;
   successRate: number;
   consecutiveFailures: number;
+  source: 'ledger' | 'monitor' | 'none';
 } {
   const monitor = getMonitor();
   if (!monitor) {
+    // The deployed API has no in-process monitor (it never ingests), so the
+    // ledger is the only source that can answer "is this data current?".
+    const ledger = getIngestRecord(moduleName);
     return {
-      lastSuccess: null,
-      lastError: null,
-      lastErrorMessage: null,
-      recordsFound: 0,
-      totalRuns: 0,
-      successRate: 0,
+      lastSuccess: ledger?.lastSuccess ?? null,
+      lastError: ledger?.lastError ?? null,
+      lastErrorMessage: ledger?.lastErrorMessage ?? null,
+      recordsFound: ledger?.records ?? 0,
+      totalRuns: ledger?.runs ?? 0,
+      successRate: ledger && ledger.runs > 0 ? (ledger.runs - ledger.failures) / ledger.runs : 0,
       consecutiveFailures: 0,
+      source: ledger ? 'ledger' : 'none',
     };
   }
 
   try {
     const health = monitor.getModuleHealth(moduleName);
+    const ledger = getIngestRecord(moduleName);
     return {
-      lastSuccess: health.lastSuccessAt,
-      lastError: health.lastFailureAt,
-      lastErrorMessage: health.lastError,
-      recordsFound: health.successCount,
-      totalRuns: health.totalRuns,
+      // Ledger first: it is the cross-process record written by the ingest runs.
+      lastSuccess: ledger?.lastSuccess ?? health.lastSuccessAt,
+      lastError: ledger?.lastError ?? health.lastFailureAt,
+      lastErrorMessage: ledger?.lastErrorMessage ?? health.lastError,
+      recordsFound: ledger?.records ?? health.successCount,
+      totalRuns: ledger ? Math.max(ledger.runs, health.totalRuns) : health.totalRuns,
       successRate: health.successRate,
       consecutiveFailures: health.consecutiveFailures,
+      source: ledger ? 'ledger' : 'monitor',
     };
   } catch {
+    // The monitor exists but threw — still prefer the shared ledger.
+    const ledger = getIngestRecord(moduleName);
     return {
-      lastSuccess: null,
-      lastError: null,
-      lastErrorMessage: null,
-      recordsFound: 0,
-      totalRuns: 0,
-      successRate: 0,
+      lastSuccess: ledger?.lastSuccess ?? null,
+      lastError: ledger?.lastError ?? null,
+      lastErrorMessage: ledger?.lastErrorMessage ?? null,
+      recordsFound: ledger?.records ?? 0,
+      totalRuns: ledger?.runs ?? 0,
+      successRate: ledger && ledger.runs > 0 ? (ledger.runs - ledger.failures) / ledger.runs : 0,
       consecutiveFailures: 0,
+      source: ledger ? 'ledger' : 'none',
     };
   }
 }
@@ -476,6 +491,7 @@ export async function getDataQualityReport(): Promise<DataQualitySummary> {
       totalRuns: ingestion.totalRuns,
       successRate: ingestion.successRate,
       consecutiveFailures: ingestion.consecutiveFailures,
+      freshnessSource: ingestion.source,
     });
   }
 

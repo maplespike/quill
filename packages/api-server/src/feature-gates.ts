@@ -147,6 +147,8 @@ export function isHostedTier(_tier: Tier): boolean {
 
 export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/health',
+  // Internal service-to-service only; the X-Internal-Token check is the real gate.
+  '/v1/internal/',
   '/v1/version',
   '/v1/onboarding',
   '/v1/compliance',
