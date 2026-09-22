@@ -26,6 +26,10 @@ spec:
       labels:
         app: quill-portal
     spec:
+      {{- with (.Values.portal | default dict).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: portal
         image: {{ printf "%s/quill-portal:%s" .Values.image.registry .Values.image.tag | quote }}
