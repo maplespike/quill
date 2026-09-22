@@ -212,7 +212,54 @@ secrets:
   stripeAccountId: ""
   stripePublishableKey: ""
 
-# Ingestion CronJobs — disabled by default in this stand-up wave (they hammer
-# upstreams; re-enable per-module after the services verify healthy).
+# Ingestion CronJobs (gate A1-INGEST, 2026-09-22).
+#
+# Enabled with the pipelines that carry the public claim/discovery surface.
+# They write into the api pod's SQLite volume (QUILL_DB_PATH) and record a run
+# row in `ingest_runs`, which GET /v1/ingest/status reads back — the health
+# monitor alerts when a pipeline stops. The image must exist in nexus
+# containerd as docker.io/library/quill-ingest:local before the first tick:
+#   ssh nexus 'cd ~/quill-build && docker build -f Dockerfile.ingest -t \
+#     docker.io/library/quill-ingest:local . && docker save ... | k3s ctr images import -'
+# Add a pipeline by adding a schedule key here; the key must be a CLI alias
+# (see packages/pipeline-core/src/cli/run-pipeline.ts PIPELINE_CONFIG).
 ingestion:
-  enabled: false
+  enabled: true
+  # RWO PVC pinning: matches api.storage.nodeName — ingestion cannot run on a
+  # node that does not hold the api's SQLite volume.
+  nodeName: nexus
+  activeDeadlineSeconds: 1800
+  schedules:
+    # Helm merges maps recursively: values.yaml's catalogue survives unless a
+    # key is nulled here. Production schedules only these seven pipelines —
+    # the rest stay in the chart as opt-in cadences (nothing runs unless it is
+    # named below, so enabling one is a one-line change either way).
+    committees: "0 */6 * * *"
+    gazette: "0 */12 * * *"
+    oversight: "0 */12 * * *"
+    corporate: "0 2 * * *"
+    influence: "0 4 * * *"
+    ngo-rss: "*/15 * * * *"
+    realtime: "*/30 * * * *"
+    # Not scheduled in production yet (null removes the values.yaml default).
+    a2aj: null
+    canlii: null
+    culture: null
+    defence: null
+    gic: null
+    immigration: null
+    indigenous: null
+    legislation: null
+    lmia: null
+    media: null
+    provincial: null
+    social: null
+    unions: null
+    universities: null
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

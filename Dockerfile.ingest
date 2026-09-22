@@ -1,23 +1,73 @@
-# MapleSpike Quill Ingestion Runner (CronJob)
-# Uses pre-built dist/ from host — no need to rebuild in container
-FROM docker.io/library/node:24-alpine
-
-RUN apk add --no-cache ca-certificates
-
+# Quill ingestion runner — CronJob image.
+#
+# Multi-stage build, mirroring Dockerfile.api: the workspace is installed and
+# compiled INSIDE the container so the native better-sqlite3 binding matches
+# the image's Node ABI and libc. The previous version copied host-built
+# node_modules into an Alpine (musl) image — the glibc-built binding cannot
+# load there, so the runner could not open the shared SQLite store at all.
+#
+# The runner also writes to the store the api-server reads (QUILL_DB_PATH), so
+# it must not run as root: USER 1001 matches the api's file ownership.
+FROM docker.io/library/node:22-bookworm-slim AS builder
 WORKDIR /app
 
-# Copy pre-built dist and node_modules from local build
-COPY packages/pipeline-core/dist/ /app/packages/pipeline-core/dist/
-COPY packages/pipeline-core/package.json /app/packages/pipeline-core/
-COPY packages/database/ /app/packages/database/
-COPY packages/engine/ /app/packages/engine/
-COPY packages/legal-core/ /app/packages/legal-core/
-COPY packages/legislation/ /app/packages/legislation/
-COPY packages/sdk/ /app/packages/sdk/
-COPY node_modules/ /app/node_modules/
-COPY package.json /app/package.json
+# pnpm + native build deps (better-sqlite3 needs python3/make/g++)
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends \
+      ca-certificates \
+      python3 \
+      make \
+      g++ && \
+    corepack enable && corepack prepare pnpm@10.32.1 --activate && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy entire workspace (respects .dockerignore — excludes node_modules, dist, .git)
+COPY . .
+
+# Install all workspace dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build pipeline-core and its workspace dependency chain (database → pipeline-core)
+RUN pnpm --filter @maplespike/pipeline-core... build
+
+# ─── Runtime stage ───────────────────────────────────────────────────────────
+FROM docker.io/library/node:22-bookworm-slim AS ingest
+WORKDIR /app
+
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/package.json /app/
+COPY --from=builder /app/packages/pipeline-core/dist/ /app/packages/pipeline-core/dist/
+COPY --from=builder /app/packages/pipeline-core/package.json /app/packages/pipeline-core/
+COPY --from=builder /app/packages/database/dist/ /app/packages/database/dist/
+COPY --from=builder /app/packages/database/package.json /app/packages/database/
+COPY --from=builder /app/node_modules/ /app/node_modules/
+
+# pnpm workspaces with inject-workspace-packages=true: each package's runtime
+# deps live as symlinks under the *per-package* node_modules dir, pointing into
+# the .pnpm store at the workspace root. ESM resolution starts at the importing
+# file's own node_modules, so those trees must be copied too (see Dockerfile.api).
+COPY --from=builder /app/packages/pipeline-core/node_modules/ /app/packages/pipeline-core/node_modules/
+COPY --from=builder /app/packages/database/node_modules/ /app/packages/database/node_modules/
+
+# Recreate the @maplespike/* links the runtime stage drops…
+RUN mkdir -p /app/node_modules/@maplespike \
+ && ln -s /app/packages/pipeline-core /app/node_modules/@maplespike/pipeline-core \
+ && ln -s /app/packages/database /app/node_modules/@maplespike/database
+
+# …and replace pnpm's *injected copies* (taken at install time, before tsc ran,
+# so they carry no dist/) with symlinks to the built packages.
+RUN set -e; for d in /app/node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do \
+      [ -d "$d" ] || continue; \
+      for p in database pipeline-core; do \
+        rm -rf "$d/$p"; ln -s "/app/packages/$p" "$d/$p"; \
+      done; \
+    done
 
 ENV NODE_ENV=production
+ENV QUILL_DB_PATH=/data/quill/maplespike.db
 
 USER 1001
 ENTRYPOINT ["node", "packages/pipeline-core/dist/cli/ingest.js"]

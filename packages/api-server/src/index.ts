@@ -129,6 +129,7 @@ import { entityResolveHandler, entityConnectionsHandler } from './routes/entity.
 import { entityByIdHandler, entityLinksHandler } from './routes/entities-detail.js';
 import { municipalDataHandler, municipalCityHandler, municipalCoverageHandler, municipalFacetsHandler, municipalHealthHandler, municipalSearchHandler } from './routes/municipal.js';
 import { dataQualityHandler } from './routes/data-quality.js';
+import { ingestStatusHandler } from './routes/ingest-status.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -444,6 +445,15 @@ ROUTES.push({
   handler: withRouteCache(dataQualityHandler, 300),
 });
 
+// Ingest CronJob liveness — read by scripts/quill-health-check.sh so a stopped
+// pipeline raises a stale-ingest alert instead of failing silently.
+ROUTES.push({
+  pattern: /^\/v1\/ingest\/status\/?$/,
+  method: 'GET',
+  params: [],
+  handler: withRouteCache(ingestStatusHandler, 30),
+});
+
 function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
   const pathname = new URL(url, 'http://localhost').pathname;
 
@@ -590,6 +600,9 @@ export async function handleRequest(
     || path.startsWith('/v1/contact')
     || path.startsWith('/v1/engine/status')
     || path.startsWith('/v1/data/quality')
+    // Ingest liveness is public observability: the cluster health check reads
+    // it without a key, and pipeline names + timestamps are not tenant data.
+    || path.startsWith('/v1/ingest/status')
     || path.startsWith('/v1/security/') // currently only /v1/security/audit-summary (public observability); tighten if more routes added under /v1/security/ need auth
     || path.startsWith('/v1/ai/ask')
     || path.startsWith('/v1/ai_ask')

@@ -1,5 +1,20 @@
+# Quill — ingestion CronJobs (one per pipeline in .Values.ingestion.schedules)
+#
+# Every job:
+#   - runs the quill-ingest image (the CLI runner in pipeline-core),
+#   - mounts the SAME PVC as the api pod and points QUILL_DB_PATH at the api's
+#     SQLite file, so ingested rows and claim bundles land in the store the API
+#     reads (a job writing to an ephemeral path is invisible to /v1/claims/latest),
+#   - records its run in the shared `ingest_runs` table, which
+#     /v1/ingest/status reads back — a stopped pipeline raises a stale signal
+#     instead of failing silently.
+#
+# The PVC is ReadWriteOnce, so ingestion.nodeName MUST match the node that
+# holds the api pod's volume (api.storage.nodeName in sqlite mode).
 {{- if .Values.ingestion.enabled }}
+{{- $sqlite := and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
 {{- range $name, $schedule := .Values.ingestion.schedules }}
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -7,28 +22,49 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     app: quill-ingest
+    component: ingestion
     pipeline: {{ $name }}
 spec:
   schedule: "{{ $schedule }}"
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: {{ $.Values.ingestion.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $.Values.ingestion.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: {{ $.Values.ingestion.startingDeadlineSeconds | default 600 }}
   jobTemplate:
     spec:
+      backoffLimit: {{ $.Values.ingestion.backoffLimit | default 1 }}
+      activeDeadlineSeconds: {{ $.Values.ingestion.activeDeadlineSeconds | default 1800 }}
       template:
+        metadata:
+          labels:
+            app: quill-ingest
+            pipeline: {{ $name }}
         spec:
           restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          {{- if $.Values.ingestion.nodeName }}
+          # Pin to the node holding the api's SQLite volume (RWO PVC).
+          nodeName: {{ $.Values.ingestion.nodeName }}
+          {{- end }}
           containers:
           - name: ingest
             image: "{{ $.Values.image.registry }}/quill-ingest:{{ $.Values.image.tag }}"
             imagePullPolicy: {{ $.Values.image.pullPolicy }}
             env:
-            - name: QUILL_PIPELINE
-              value: {{ $name }}
             - name: NODE_ENV
               value: production
-            - name: PROMETHEUS_PUSHGATEWAY
-              value: "http://prometheus-pushgateway.observability:9091"
+            - name: QUILL_PIPELINE
+              value: {{ $name | quote }}
+            # Read back by the API to derive the staleness bound (2x the period).
+            - name: QUILL_INGEST_SCHEDULE
+              value: {{ $schedule | quote }}
+            {{- if $sqlite }}
+            # Same file the api-server opens — see templates/deployments.yaml.
+            - name: QUILL_DB_PATH
+              value: /data/quill/maplespike.db
+            {{- end }}
             {{- if eq $.Values.api.env.QUILL_STORAGE "postgres" }}
             - name: QUILL_DB_HOST
               value: "{{ $.Values.api.env.QUILL_DB_HOST | default "quill-db" }}"
@@ -47,6 +83,14 @@ spec:
                   name: quill-db-secret
                   key: postgres-password
             {{- end }}
+            # Only modules that need a data-source key read these; optional so a
+            # missing key degrades one pipeline instead of blocking the job.
+            - name: OPENCORPORATES_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quill-secrets
+                  key: opencorporatesApiKey
+                  optional: true
             resources:
               requests:
                 cpu: {{ $.Values.ingestion.resources.requests.cpu }}
@@ -54,10 +98,16 @@ spec:
               limits:
                 cpu: {{ $.Values.ingestion.resources.limits.cpu }}
                 memory: {{ $.Values.ingestion.resources.limits.memory }}
-          {{- if $.Values.secrets.canliiApiKey }}
-            envFrom:
-            - secretRef:
-                name: quill-secrets
+            {{- if $sqlite }}
+            volumeMounts:
+            - name: data
+              mountPath: /data/quill
+            {{- end }}
+          {{- if $sqlite }}
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" $ }}-api-data
           {{- end }}
 {{- end }}
 {{- end }}
