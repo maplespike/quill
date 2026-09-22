@@ -250,6 +250,7 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
   const code = url.searchParams.get('code');
 
   if (!code) {
+    console.warn(`[oauth] exchange missing code (${ctx.requestId})`);
     return jsonResponse(buildError('MISSING_CODE', 'Exchange code is required', ctx), 400);
   }
 
@@ -260,6 +261,7 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
     // Sentinel hit: another request already consumed this code (or is
     // mid-consumption on an eventually-consistent backend). Reject
     // explicitly so the caller knows the code is single-use.
+    console.warn(`[oauth] exchange replay attempt (${ctx.requestId})`);
     return jsonResponse(
       buildError('ALREADY_CONSUMED', 'Exchange code has already been used', ctx),
       400,
@@ -267,6 +269,7 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
   }
 
   if (!cached) {
+    console.warn(`[oauth] exchange invalid/expired code (${ctx.requestId})`);
     return jsonResponse(
       buildError('INVALID_CODE', 'Exchange code is invalid, expired, or already used', ctx),
       400,
@@ -287,11 +290,14 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
   try {
     entry = JSON.parse(cached) as ExchangeEntry;
   } catch {
+    console.warn(`[oauth] exchange malformed payload (${ctx.requestId})`);
     return jsonResponse(
       buildError('INVALID_CODE', 'Exchange code payload is malformed', ctx),
       400,
     );
   }
+
+  console.log(`[oauth] exchange ok (${ctx.requestId}) provider=${entry.provider} isNewUser=${entry.isNewUser}`);
 
   return jsonResponse(buildSuccess({
     token: entry.token,
