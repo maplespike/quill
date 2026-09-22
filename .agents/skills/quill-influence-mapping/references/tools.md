@@ -1,3 +1,9 @@
+---
+title: "tools"
+last-reviewed: 2026-09-22
+status: active
+---
+
 # Quill MCP tools used by influence-mapping
 
 | Tool | Purpose | Key args |
