@@ -135,8 +135,10 @@ export function isHostedTier(_tier: Tier): boolean {
 //
 // Allowed: health, version, spec, onboarding, catalog/compliance (metadata),
 // citations, gov releases/list (discovery), billing portal/checkout/plans
-// (so Free users can upgrade), auth/register/verify, usage (see own limit),
-// contact, security audit-summary (observability).
+// (so Free users can upgrade), auth/register/verify — including wallet and
+// passkey auth via the /v1/astral proxy (auth must work on Free so users can
+// sign up and log in), usage (see own limit), contact, security audit-summary
+// (observability).
 //
 // Blocked: all data-query routes (gov/search, entity, energy, real-estate,
 // financial-regulation, municipal, audit/query, watcher, extraction,
@@ -159,6 +161,9 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/billing/stripe/order',
   '/v1/billing/seed-plans',
   '/v1/auth/',
+  '/v1/astral/web3/',
+  '/v1/astral/fido2/',
+  '/v1/astral/health',
   '/v1/register',
   '/v1/verify/',
   '/v1/usage',
