@@ -48,7 +48,7 @@ mcp:
 redis:
   enabled: false
   replicas: 1
-  image: docker.io/library/redis:alpine
+  image: public.ecr.aws/docker/library/redis:8.2.3-alpine
   # Mirrors api.storage.nodeName: keep the cache beside the API pod.
   nodeName: nexus
   maxmemory: 128mb
