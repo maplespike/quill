@@ -17,11 +17,30 @@ Owner key: **[A]** agent-executable (dispatched to the kanban board / done here)
       EXPECT: ingest job(s) present, last schedule `True`/recent, and a finished Job pod `Completed`
       Owner: [A] — blocked the whole time by "pipelines tested, never scheduled".
 
-- [ ] **A2 · A real cache/rate-limit backend answers** (#764, #770)
+- [x] **A2 · A real cache/rate-limit backend answers** (#764, #770) — DONE 2026-09-22
       CHECK: `ssh nexus 'kubectl get svc -A | grep -i redis'` + api env/logs
       EXPECT: the endpoint the API is configured with resolves AND the rate limiter stops
-      running in pass-through/degraded mode. Today: only `argocd-redis` + `media/redis` exist;
-      the API points at a service that does not exist (phantom).
+      running in pass-through/degraded mode.
+      Evidence: `kubectl get svc -A | grep -i redis` → `maplespike quill-redis ClusterIP
+      10.43.131.229 6379/TCP`; `REDIS_URL=redis://quill-redis:6379` on the api Deployment;
+      `getent hosts quill-redis` from inside the pod → `10.43.131.229
+      quill-redis.maplespike.svc.cluster.local`; api banner `Cache: Redis / Rate-limit: Redis`
+      and `[rate-limiter] Connected to Redis`; 0 connection-failure lines in 10m of logs.
+      Burst test (115 requests, one IP): 30×200 + 85×429, `X-RateLimit-Limit: 100`,
+      `x-ratelimit-remaining: 0`, `retry-after: 57`; Redis held `ratelimit:FREE:127.0.0.1`
+      and a real tunnel client's key. Cache: MISS then HIT with `v1:GET:/v1/health` present
+      in Redis. Chose option (a) — a dedicated Redis in `maplespike`, rendered by
+      `charts/quill/templates/redis.yaml` and synced by ArgoCD — not (b) `media/redis`
+      (another app's lifecycle, wrong blast radius) and not (c) alone (#764/#770 ask for a
+      distributed backend; the chart defaults to `api.replicas: 2`). The phantom default is
+      gone from the code, and no `REDIS_URL` now means an explicit in-process window instead
+      of a guessed host.
+      Two real bugs surfaced while verifying, both fixed with regression tests in the same
+      change: the clients gave up reconnecting after 2–3 attempts (a pod that lost the
+      start-up race stayed in pass-through until a manual restart), and `extractIP()` read
+      the Express-only `req.ip`, so every request without `X-Forwarded-For` shared one
+      `ratelimit:FREE:unknown` bucket.
+      #899 + #900 + #901 + #903 (chart, code, tests); api image re-pinned in #902 and #906.
       Owner: [A]
 
 - [x] **A3 · Container images are pinned, not `:local`** (#755) — DONE 2026-09-22
