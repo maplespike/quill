@@ -15,7 +15,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 ## Status (live as of 2026-08-11)
 
-> **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in test mode.
+> **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in **live** mode (STRIPE_ENV=live since 2026-09-22).
 
 **Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/v1/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
 
@@ -262,7 +262,7 @@ Auth state is managed globally via `packages/portal/public/auth.js` — it injec
 
 ## Billing
 
-Three payment methods implemented, all in **test mode** via Stripe.
+Three payment methods implemented. **Live** mode is active since 2026-09-22 (`STRIPE_ENV=live`); test keys remain available for local work.
 
 **Stripe routes:**
 - `GET /v1/billing/plans` — Returns Free/Pro/Enterprise tier data (public)
@@ -272,7 +272,7 @@ Three payment methods implemented, all in **test mode** via Stripe.
 - `GET /v1/billing/orders` — Create/query payment orders
 - `POST /v1/billing/reconcile` — Manual reconciliation
 
-**Env vars (from k8s `quill-billing-secrets` via secretKeyRef):**
+**Env vars (delivered to `maplespike-secrets` — keys `stripe-secret-key` / `stripe-webhook-secret` — and injected into the api via secretKeyRef):**
 
 | Variable | Source |
 |----------|--------|
@@ -280,9 +280,9 @@ Three payment methods implemented, all in **test mode** via Stripe.
 | `STRIPE_PUBLISHABLE_KEY` | `pk_live_51TXKNt...` (live) |
 | `STRIPE_TEST_SECRET_KEY` | `sk_test_51TXKNt...` (test) |
 | `STRIPE_TEST_PUBLISHABLE_KEY` | `pk_test_51TXKNt...` (test) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_oBBRFm3d...` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
 | `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` |
-| `STRIPE_ENV` | `test` (switch to `live` for production) |
+| `STRIPE_ENV` | `live` (since 2026-09-22; set in `charts/quill/values-prod.yaml`) |
 | `QUILL_BILLING_SECRET` | 256-bit HMAC for order signing |
 | `MAPLESPIKE_BILLING_EMAIL` | `billing@maplespike.ca` |
 
