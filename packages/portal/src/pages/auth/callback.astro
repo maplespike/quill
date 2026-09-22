@@ -37,6 +37,8 @@ if (Astro.url.searchParams.has("error")) {
   </section>
 
   <script>
+    import { saveApiKey, stashPendingReveal } from "@/lib/api-key";
+
     (function () {
       "use strict";
 
@@ -118,7 +120,10 @@ if (Astro.url.searchParams.has("error")) {
 
           // Also store API key if provided
           if (payload?.apiKey?.key) {
-            localStorage.setItem("quill-api-key", payload.apiKey.key);
+            saveApiKey(window.localStorage, payload.apiKey.key);
+            // This page redirects immediately, so the key cannot be revealed
+            // here. Hand it to /workspace, which shows it once (#890).
+            stashPendingReveal(window.localStorage, payload.apiKey.key);
           }
 
           if (!statusEl) return;

@@ -5,6 +5,10 @@ import { getApiBase } from "@/lib/api-base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import ApiKeyReveal from "@/components/ApiKeyReveal";
+import { mintedKeyFromEnvelope, saveApiKey } from "@/lib/api-key";
+import { getApiBase } from "@/lib/api-base";
+import type { Locale } from "@maplespike/i18n";
 import {
   startRegistration,
   startAuthentication,
@@ -29,7 +33,6 @@ interface AuthState {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
-
 
 function getAuthState(): AuthState {
   if (typeof window === "undefined") return { token: null, userId: null, method: null };
@@ -88,7 +91,11 @@ declare global {
 /*  Component                                                         */
 /* ------------------------------------------------------------------ */
 
-export default function SignupForm() {
+export default function SignupForm({ lang: propLang }: { lang?: Locale }) {
+  const lang: Locale = propLang
+    || (typeof window !== "undefined"
+      ? (((window as unknown as Record<string, string>).__LANG as Locale) || "en")
+      : "en");
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [authState, setAuth] = useState<AuthState>({ token: null, userId: null, method: null });
@@ -97,6 +104,9 @@ export default function SignupForm() {
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
   const [hasSolanaWallet, setHasSolanaWallet] = useState(false);
+  // The minted key, held only long enough to show it once (#890). Null again
+  // once the customer dismisses the reveal.
+  const [revealedKey, setRevealedKey] = useState<string | null>(null);
 
   useEffect(() => {
     setAuth(getAuthState());
@@ -153,11 +163,16 @@ export default function SignupForm() {
       const completeData = await completeResp.json();
       if (!completeData.success) throw new Error(completeData.error?.message || "Registration failed");
 
-      const { apiKey } = completeData.data;
+      const apiKey = mintedKeyFromEnvelope(completeData);
 
-      // Store API key for API calls
-      if (apiKey?.key) {
-        localStorage.setItem("quill-api-key", apiKey.key);
+      // PRIMARY (#890 / gate B1-KEYREVEAL): hand the key to the one-time
+      // reveal below. This is the only moment the customer sees it in full.
+      // Set before the login round-trip so a login failure cannot hide it.
+      // SECONDARY: keep it in the browser for the surfaces that read the slot
+      // — API explorer prefill, /workspace, dashboard/AgentChat.
+      if (apiKey) {
+        setRevealedKey(apiKey);
+        saveApiKey(window.localStorage, apiKey);
       }
 
       // Immediately log in with the passkey to get a JWT for Convex auth.
@@ -192,7 +207,7 @@ export default function SignupForm() {
       } catch {
         // Login after registration failed — store API key as fallback.
         // Convex features won't work until the user signs in with their passkey.
-        const fallbackToken = apiKey?.key || "";
+        const fallbackToken = apiKey || "";
         setAuthState(fallbackToken, userId, "passkey");
         setAuth({ token: fallbackToken, userId, method: "passkey" });
       }
@@ -342,8 +357,11 @@ export default function SignupForm() {
       const verifyData = await verifyResp.json();
       if (!verifyData.success) throw new Error(verifyData.error?.message || "Solana login failed");
 
-      const apiKey = verifyData.data?.apiKey?.key || "";
-      if (apiKey) localStorage.setItem("quill-api-key", apiKey);
+      const apiKey = mintedKeyFromEnvelope(verifyData) || "";
+      if (apiKey) {
+        setRevealedKey(apiKey);
+        saveApiKey(window.localStorage, apiKey);
+      }
       setAuthState(apiKey, publicKey, "solana");
       setAuth({ token: apiKey, userId: publicKey, method: "solana" });
     } catch (e) {
@@ -373,6 +391,13 @@ export default function SignupForm() {
   // JWT (authState.token). Show the API key when available — it is what
   // callers actually send as `x-api-key`; the JWT is only a session
   // credential and must be sent as `Authorization: Bearer <token>`.
+  // One-time reveal (#890 / gate B1-KEYREVEAL): show the minted key before
+  // anything else, and only here. Dismissing drops it from component state,
+  // so the account card below can only ever show a truncated key.
+  if (revealedKey) {
+    return <ApiKeyReveal apiKey={revealedKey} lang={lang} onDismiss={() => setRevealedKey(null)} />;
+  }
+
   const storedApiKey = typeof window !== "undefined" ? localStorage.getItem("quill-api-key") : null;
   const shownKey = storedApiKey || authState.token;
   const isApiKey = !!storedApiKey;

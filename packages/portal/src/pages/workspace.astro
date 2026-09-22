@@ -10,6 +10,7 @@ import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescri
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
 import { pick } from "@/utils/bilingual";
+import KeyRevealNotice from "@/components/KeyRevealNotice";
 import statsData from "@/data/stats.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
@@ -40,6 +41,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       aria-label={t("Dismiss welcome banner", "Fermer la bannière de bienvenue")}>×</button>
   </div>
 </div>
+
+<!-- One-time API key reveal for the OAuth signup path (#890 / B1-KEYREVEAL) -->
+<KeyRevealNotice client:load lang={lang} />
 
 <!-- Header -->
   <section class="border-b py-12 md:py-16">
