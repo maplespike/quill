@@ -58,6 +58,16 @@ jobs:
       - name: Secret key lockstep check
         run: bash scripts/check-secret-lockstep.sh
 
+      # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
+      # workload pinned by digest, and no `imagePullPolicy: Never` workload
+      # without a node pin. Pure Node — no cluster, no helm required.
+      # docs/IMAGE-PINNING.md
+      - name: Image pin check (chart values + templates)
+        run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
+
+      - name: Image pin unit tests
+        run: pnpm exec tsx --test scripts/test-image-pins.mts
+
       - name: Run api-server unit tests
         run: pnpm --filter @maplespike/api-server test:unit
 
