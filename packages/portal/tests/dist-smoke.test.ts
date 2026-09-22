@@ -20,6 +20,8 @@ const REQUIRED_FILES = [
   "llms.txt",
   "robots.txt",
   "sitemap.xml",
+  "checkout.html",
+  "checkout/return.html",
 ];
 
 describe.skipIf(!built)("portal dist", () => {
