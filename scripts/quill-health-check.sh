@@ -171,7 +171,7 @@ check_ingestion() {
   local body
   body=$(curl -s --connect-timeout 5 --max-time 20 "https://api.maplespike.ca/v1/ingest/status" 2>/dev/null || true)
   if [ -z "$body" ]; then
-    ISSUES="${ISSUES}/v1/ingest/status unreachable — ingestion liveness unknown\n"
+    ISSUES="${ISSUES}/v1/ingest/status unreachable — ingestion liveness unknown (gate A1-INGEST)\n"
     return 0
   fi
 
