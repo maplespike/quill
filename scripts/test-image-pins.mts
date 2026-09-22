@@ -58,6 +58,28 @@ test('classifyRef rejects a malformed digest', () => {
   assert.equal(c.kind, 'digest');
 });
 
+// Regression: 2026-09-22. `image.tag: ""` in values-prod made the ingestion
+// CronJobs render `docker.io/library/quill-ingest:` — an invalid reference, so
+// every ingest pod died with `InvalidImageName: invalid reference format`. The
+// ingest image is part of the pinned set precisely so no chart-wide tag can
+// leave it blank.
+test('classifyRef rejects an empty tag (the ingest CronJob InvalidImageName bug)', () => {
+  const c = classifyRef('docker.io/library/quill-ingest:');
+  assert.equal(c.ok, false, 'an empty tag must never be accepted');
+  assert.notEqual(c.kind, 'digest');
+});
+
+test('checkRefs catches a quill-ingest reference with no tag', () => {
+  const violations = checkRefs(['docker.io/library/quill-ingest:']);
+  assert.equal(violations.length, 1);
+  assert.match(violations[0].reason, /quill-ingest|no tag/);
+});
+
+test('the ingest CronJob workload is digest-pinned in the rendered chart', () => {
+  const violations = checkRefs(['docker.io/library/quill-ingest@' + DIGEST]);
+  assert.deepEqual(violations, []);
+});
+
 test('checkRefs: quill workloads must be digest-pinned, third-party images version-pinned', () => {
   const violations = checkRefs([
     'docker.io/library/quill-api:local',

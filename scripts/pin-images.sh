@@ -42,7 +42,7 @@ EXISTING=false
 VERIFY_ONLY=false
 SRC_REF="local"
 DATE="$(date +%Y-%m-%d)"
-SERVICES="api mcp portal"
+SERVICES="api mcp portal ingest"
 
 usage() { grep '^#' "${BASH_SOURCE[0]}" | sed -n '2,32p' | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
@@ -65,6 +65,7 @@ dockerfile_for() {
     api)    echo "Dockerfile.api --target api-server" ;;
     mcp)    echo "Dockerfile.mcp --target quill-mcp" ;;
     portal) echo "Dockerfile.portal --target portal" ;;
+    ingest) echo "Dockerfile.ingest --target ingest" ;;
     *) echo "unknown service: $1" >&2; exit 2 ;;
   esac
 }

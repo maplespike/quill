@@ -50,7 +50,10 @@ spec:
           {{- end }}
           containers:
           - name: ingest
-            image: "{{ $.Values.image.registry }}/quill-ingest:{{ $.Values.image.tag }}"
+            # Digest-pinned from the node containerd store, like the services
+            # (docs/IMAGE-PINNING.md). Never render a bare registry/tag here:
+            # an unset tag makes the reference invalid (InvalidImageName).
+            image: {{ include "quill.image" (dict "svc" "ingest" "ctx" $) | quote }}
             imagePullPolicy: {{ $.Values.image.pullPolicy }}
             env:
             - name: NODE_ENV
