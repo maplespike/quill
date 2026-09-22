@@ -67,8 +67,21 @@ jobs:
       - name: Build docs (MD → HTML)
         run: node scripts/build-docs.mjs
 
+      - name: Build workspace packages
+        # The portal imports @maplespike/i18n and @maplespike/sdk from the
+        # workspace. Without this their dist/ does not exist and the portal
+        # build dies on an unresolved import — which is exactly how these
+        # Pages deploys have been failing.
+        run: pnpm build
+        env:
+          # Publishable by design: ships in the portal's client bundle anyway.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+
       - name: Build portal (Astro)
         run: pnpm --filter @maplespike/portal build
+        env:
+          # Publishable by design: ships in the portal's client bundle anyway.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
       - name: Copy docs and legacy assets into portal dist
         run: |

@@ -52,8 +52,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Build workspace packages
+        # The portal imports @maplespike/i18n and @maplespike/sdk from the
+        # workspace. Without this their dist/ does not exist and the portal
+        # build dies on an unresolved import — which is exactly how these
+        # Pages deploys have been failing.
+        run: pnpm build
+        env:
+          # Publishable by design: ships in the portal's client bundle anyway.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+
       - name: Build portal (GitHub Pages base)
         run: pnpm --filter @maplespike/portal build
+        env:
+          # Publishable by design: ships in the portal's client bundle anyway.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
         env:
           GH_PAGES: "true"
           PUBLIC_API_BASE: "https://api.maplespike.ca/v1"
