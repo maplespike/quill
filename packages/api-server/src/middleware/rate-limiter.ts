@@ -1,11 +1,20 @@
 /**
- * Quill — Redis-backed Rate Limiter
+ * Quill — Rate Limiter (Redis-backed, with an in-memory sliding window)
  *
- * Sliding window counter using Redis for distributed rate limiting.
- * Tier-based limits, graceful degradation, and standard rate-limit headers.
+ * Sliding-window counter using Redis for distributed rate limiting, with an
+ * in-process sliding window as the fallback. Tier-based limits, standard
+ * rate-limit headers, and no pass-through.
  *
- * Usage (Express-style):
- *   app.use(rateLimiter);
+ * Gate A2-REDIS (#764, #770): the limiter used to fall back to a hardcoded
+ * `redis://redis.ai-inference:6379` — a host that does not exist — and
+ * answered `null` ("allow, do not enforce") whenever Redis was unreachable.
+ * A misconfigured or briefly unavailable Redis therefore disabled rate
+ * limiting entirely. Now:
+ *   - the endpoint comes from REDIS_URL only (see cache/redis-url.ts);
+ *   - when Redis is not configured, the limiter enforces the same limits
+ *     in-process and says so once, at startup;
+ *   - when Redis is configured but drops out, requests fall back to the
+ *     in-process window instead of going unlimited.
  *
  * Usage (Node http / dev-server):
  *   import { rateLimiter } from './middleware/rate-limiter.js';
@@ -16,6 +25,7 @@
 
 import Redis from 'ioredis';
 import logger from '../logger.js';
+import { resolveRedisUrl, redisHostOf } from '../cache/redis-url.js';
 
 const log = logger;
 
@@ -28,6 +38,12 @@ export const TIER_LIMITS: Record<Tier, number> = {
   PREMIUM: 10000,
 };
 
+/** Sliding-window width, in seconds. */
+export const WINDOW_SECONDS = 60;
+
+/** Which backend is enforcing limits right now. */
+export type LimiterBackend = 'redis' | 'memory';
+
 export interface RateLimitResult {
   allowed: boolean;
   limit: number;
@@ -36,57 +52,114 @@ export interface RateLimitResult {
   retryAfter: number; // seconds
 }
 
+/**
+ * The subset of ioredis this limiter uses. Injectable so the result-mapping
+ * path can be tested without a live server.
+ */
+export interface RedisLikeClient {
+  connect(): Promise<void>;
+  on(event: 'error', listener: (err: Error) => void): unknown;
+  eval(script: string, numKeys: number, ...args: (string | number)[]): Promise<unknown>;
+  quit(): Promise<unknown>;
+  disconnect(): void;
+}
+
+/**
+ * Cap on distinct keys held by the in-process window before expired ones are
+ * swept, so a flood of unique client IPs cannot grow the map without bound.
+ */
+const MEMORY_SWEEP_THRESHOLD = 10_000;
+
 export class RateLimiter {
-  private client: Redis | null = null;
+  private client: RedisLikeClient | null = null;
   private connected = false;
+  private backend: LimiterBackend = 'memory';
+
+  /** In-process sliding window: key -> request timestamps (ms). */
+  private memory = new Map<string, number[]>();
+
+  /** One warn per process on Redis eval failure; repeats are debug. */
+  private evalFailureReported = false;
+
+  constructor(private readonly injectedClient?: RedisLikeClient) {}
 
   /**
-   * Default Redis URL. Override via REDIS_URL env var.
-   */
-  static readonly DEFAULT_URL = 'redis://redis.ai-inference:6379';
-
-  /**
-   * Initialize the Redis connection. If it fails, the limiter operates
-   * in pass-through mode (all requests allowed, graceful degradation).
+   * Initialize the backend.
+   *
+   * @param url Explicit Redis URL. Defaults to REDIS_URL. Pass an empty
+   *            string to force the in-process window.
    */
   async init(url?: string): Promise<void> {
     if (this.connected) return;
 
-    const redisUrl = url || process.env.REDIS_URL || RateLimiter.DEFAULT_URL;
+    const redisUrl = resolveRedisUrl(url);
+
+    if (redisUrl === null) {
+      this.backend = 'memory';
+      log.info(
+        '[rate-limiter] REDIS_URL is not set — enforcing tier limits in-process (per pod). ' +
+        'Set REDIS_URL for cluster-wide counters.',
+      );
+      return;
+    }
 
     try {
-      this.client = new Redis(redisUrl, {
+      const client = this.injectedClient ?? new Redis(redisUrl, {
         lazyConnect: true,
         enableOfflineQueue: false,
         maxRetriesPerRequest: 2,
         retryStrategy(times: number): number | null {
           if (times > 2) {
-            log.warn('[rate-limiter] Max retries reached — operating in pass-through mode');
+            log.warn('[rate-limiter] Redis unreachable — enforcing limits in-process');
             return null;
           }
           return Math.min(times * 200, 1000);
         },
+      }) as RedisLikeClient;
+
+      let reported = false;
+      client.on('error', (err: Error) => {
+        // One warn per process, then debug: a flapping Redis must not flood logs.
+        if (!reported) {
+          reported = true;
+          log.warn(
+            { err, host: redisHostOf(redisUrl) },
+            '[rate-limiter] Redis error — requests fall back to the in-process window',
+          );
+        } else {
+          log.debug({ err }, '[rate-limiter] Redis error (repeat)');
+        }
       });
 
-      this.client.on('error', (err: Error) => {
-        log.warn({ err }, '[rate-limiter] Redis error — allowing request');
-      });
-
-      await this.client.connect();
+      await client.connect();
+      this.client = client;
       this.connected = true;
-      log.info('[rate-limiter] Connected to Redis');
+      this.backend = 'redis';
+      log.info({ host: redisHostOf(redisUrl) }, '[rate-limiter] Connected to Redis');
     } catch (err) {
       this.connected = false;
       this.client = null;
-      log.warn({ err }, '[rate-limiter] Connection failed — pass-through mode');
+      this.backend = 'memory';
+      log.warn(
+        { err, host: redisHostOf(redisUrl) },
+        '[rate-limiter] Redis connection failed — enforcing limits in-process',
+      );
     }
   }
 
   /**
-   * Check if Redis is connected.
+   * Check if the Redis backend is connected.
    */
   isConnected(): boolean {
     return this.connected && this.client !== null;
+  }
+
+  /**
+   * Which backend is enforcing limits: 'redis' (cluster-wide counters) or
+   * 'memory' (in-process window).
+   */
+  backendMode(): LimiterBackend {
+    return this.backend;
   }
 
   /**
@@ -170,42 +243,106 @@ export class RateLimiter {
   /**
    * Run a rate-limit check for the given request.
    *
-   * @returns RateLimitResult with status info, or null if Redis is down
-   *          (graceful degradation — allow request).
+   * Always returns a decision: Redis when it is connected, the in-process
+   * sliding window otherwise. Never returns null — a limiter that answers
+   * "no opinion" is not a limiter.
+   *
+   * @param nowMs Injectable clock (tests); defaults to Date.now().
    */
-  async check(
-    ip: string,
-    tier: Tier,
-  ): Promise<RateLimitResult | null> {
-    if (!this.isConnected()) return null; // pass-through
-
+  async check(ip: string, tier: Tier, nowMs: number = Date.now()): Promise<RateLimitResult> {
     const limit = TIER_LIMITS[tier];
-    const windowSeconds = 60;
-    const now = Math.floor(Date.now() / 1000);
     const key = `ratelimit:${tier}:${ip}`;
 
-    try {
-      const result = await this.client!.eval(
-        this.slidingWindowLua,
-        1,
-        key,
-        String(limit),
-        String(windowSeconds),
-        String(now),
-      ) as [number, number, number];
+    if (this.connected && this.client) {
+      const now = Math.floor(nowMs / 1000);
 
-      const [allowed, count, resetTime] = result;
+      try {
+        const result = await this.client.eval(
+          this.slidingWindowLua,
+          1,
+          key,
+          String(limit),
+          String(WINDOW_SECONDS),
+          String(now),
+        ) as [number, number, number];
 
+        const [allowed, count, resetTime] = result;
+
+        return {
+          allowed: allowed === 1,
+          limit,
+          remaining: Math.max(0, limit - count),
+          resetTime,
+          retryAfter: Math.max(0, resetTime - now),
+        };
+      } catch (err) {
+        // First failure gets a warn; repeats drop to debug so a dead Redis
+        // does not turn every request into a log line.
+        if (!this.evalFailureReported) {
+          this.evalFailureReported = true;
+          log.warn(
+            { err, key },
+            '[rate-limiter] Redis eval failed — falling back to the in-process window',
+          );
+        } else {
+          log.debug({ err, key }, '[rate-limiter] Redis eval failed (repeat)');
+        }
+      }
+    }
+
+    return this.checkInProcess(key, limit, nowMs);
+  }
+
+  /**
+   * In-process sliding window. Same semantics as the Lua script: entries
+   * older than the window are dropped, the window is full at `limit`, and
+   * `resetTime` is when the oldest surviving entry ages out.
+   */
+  private checkInProcess(key: string, limit: number, nowMs: number): RateLimitResult {
+    if (this.memory.size > MEMORY_SWEEP_THRESHOLD) {
+      this.sweep(nowMs);
+    }
+
+    const cutoff = nowMs - WINDOW_SECONDS * 1000;
+    const entries = (this.memory.get(key) ?? []).filter((ts) => ts > cutoff);
+
+    const now = Math.floor(nowMs / 1000);
+    const oldest = entries.length > 0 ? entries[0] : nowMs;
+    const resetTime = Math.floor((oldest + WINDOW_SECONDS * 1000) / 1000);
+
+    if (entries.length >= limit) {
+      this.memory.set(key, entries);
       return {
-        allowed: allowed === 1,
+        allowed: false,
         limit,
-        remaining: Math.max(0, limit - count),
+        remaining: 0,
         resetTime,
         retryAfter: Math.max(0, resetTime - now),
       };
-    } catch (err) {
-      log.warn({ err }, '[rate-limiter] Redis eval failed — allowing request');
-      return null; // graceful degradation
+    }
+
+    entries.push(nowMs);
+    this.memory.set(key, entries);
+
+    return {
+      allowed: true,
+      limit,
+      remaining: Math.max(0, limit - entries.length),
+      resetTime,
+      retryAfter: 0,
+    };
+  }
+
+  /** Drop keys whose entries have all aged out of the window. */
+  private sweep(nowMs: number): void {
+    const cutoff = nowMs - WINDOW_SECONDS * 1000;
+    for (const [key, entries] of this.memory) {
+      const live = entries.filter((ts) => ts > cutoff);
+      if (live.length === 0) {
+        this.memory.delete(key);
+      } else {
+        this.memory.set(key, live);
+      }
     }
   }
 
@@ -223,11 +360,6 @@ export class RateLimiter {
       const ip = this.extractIP(req);
       const tier = this.extractTier(req);
       const result = await this.check(ip, tier);
-
-      // Graceful degradation — if Redis is down, allow
-      if (result === null) {
-        return next();
-      }
 
       // Set rate-limit headers
       if (res.setHeader) {
@@ -266,6 +398,8 @@ export class RateLimiter {
       this.client = null;
       this.connected = false;
     }
+    this.backend = 'memory';
+    this.memory.clear();
   }
 }
 

@@ -68,6 +68,14 @@ spec:
           value: "{{ .Values.api.env.MAPLESPIKE_OAUTH_REDIRECT_BASE | default "https://api.maplespike.ca/v1/auth/oauth" }}"
         - name: TRUST_PROXY
           value: "{{ .Values.api.env.TRUST_PROXY | default "true" }}"
+        # A2-REDIS (#764, #770): the cache + distributed rate-limit endpoint.
+        # Only injected when configured — an unset REDIS_URL is better than an
+        # empty one, because the client reads "unset" as "no Redis, use the
+        # in-memory fallback" instead of dialling a host nobody provisioned.
+        {{- if .Values.api.env.REDIS_URL }}
+        - name: REDIS_URL
+          value: "{{ .Values.api.env.REDIS_URL }}"
+        {{- end }}
         - name: GITHUB_CLIENT_ID
           valueFrom:
             secretKeyRef:

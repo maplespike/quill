@@ -20,8 +20,9 @@ export class RedisBackend implements CacheBackend {
   }
 
   /**
-   * Connect to Redis. Defaults to REDIS_URL env var or
-   * RedisClient.DEFAULT_URL.
+   * Connect to Redis using REDIS_URL (see cache/redis-url.ts).
+   * Omitting the URL and leaving REDIS_URL unset leaves the client
+   * disconnected: every operation no-ops.
    */
   async connect(url?: string): Promise<void> {
     await this.client.connect(url);

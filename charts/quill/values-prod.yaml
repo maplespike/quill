@@ -42,6 +42,12 @@ api:
     # builds a localhost redirect_uri in production.
     MAPLESPIKE_OAUTH_REDIRECT_BASE: "https://api.maplespike.ca/v1/auth/oauth"
     TRUST_PROXY: "true"
+    # A2-REDIS (#764, #770): the real cache + rate-limit backend. Before this
+    # the API fell back to a hardcoded `redis.ai-inference` default — a
+    # namespace that has never existed — so the limiter ran in pass-through
+    # and the logs filled with connection errors. This Service is rendered by
+    # this chart (see templates/redis.yaml + the redis: block below).
+    REDIS_URL: "redis://quill-redis:6379"
     # #806: Stripe environment. 'test' until the go-live secret-swap.
     STRIPE_ENV: "test"
   ingress:
@@ -75,6 +81,28 @@ mcp:
   ingress:
     host: mcp.maplespike.ca
     tls: true
+
+# Redis — real cache + rate-limit backend (gate A2-REDIS, #764 / #770).
+# Rendered by this chart (templates/redis.yaml); api.env.REDIS_URL above
+# points at the Service it creates. Deliberately ephemeral (emptyDir, no RDB):
+# a restart resets counters and cached bodies, which is correct for both.
+# The image is pinned by DIGEST because the digest — not a floating tag — is
+# what already sits in the nexus containerd store (`k3s ctr images list`), and
+# pullPolicy Never forbids a network pull.
+redis:
+  enabled: true
+  replicas: 1
+  image: "docker.io/library/redis@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576"
+  pullPolicy: Never
+  nodeName: nexus
+  maxmemory: 128mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
 
 # PostgreSQL Database (disabled: sqlite mode is the current storage backend)
 database:

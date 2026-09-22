@@ -1,9 +1,16 @@
 /**
  * Quill — Redis Cache Client
  *
- * Production Redis caching layer with cache-aside pattern and graceful
- * degradation. When Redis is unavailable, all operations fall through
- * without throwing — the caller always gets a usable result.
+ * Production Redis caching layer with cache-aside pattern. When Redis is not
+ * configured (no REDIS_URL) or is unreachable, every operation is a no-op and
+ * callers fetch directly — the caller always gets a usable result.
+ *
+ * Gate A2-REDIS (#764, #770): the endpoint used to come from a hardcoded
+ * `redis://redis.ai-inference:6379` default. That namespace does not exist, so
+ * deployments without REDIS_URL logged connection errors forever and the
+ * cache silently ran in bypass. The endpoint is now configuration-only (see
+ * cache/redis-url.ts); "no REDIS_URL" is logged once at startup and is a
+ * deliberate state, not a failure loop.
  *
  * Usage:
  *   const redis = new RedisClient();
@@ -15,6 +22,7 @@
 
 import Redis from 'ioredis';
 import logger from '../logger.js';
+import { resolveRedisUrl, redisHostOf } from './redis-url.js';
 
 const log = logger;
 
@@ -28,18 +36,23 @@ export class RedisClient {
   private connected = false;
 
   /**
-   * Default Redis URL. Override via REDIS_URL env var.
-   */
-  static readonly DEFAULT_URL = 'redis://redis.ai-inference:6379';
-
-  /**
-   * Connect to Redis. Errors are logged — the client operates in
-   * degraded mode (all operations no-op) if the connection fails.
+   * Connect to Redis using REDIS_URL.
+   *
+   * @param url Explicit URL; defaults to REDIS_URL. Pass an empty string to
+   *            force "no cache in this process".
    */
   async connect(url?: string): Promise<void> {
     if (this.connected) return;
 
-    const redisUrl = url || process.env.REDIS_URL || RedisClient.DEFAULT_URL;
+    const redisUrl = resolveRedisUrl(url);
+
+    if (redisUrl === null) {
+      log.info(
+        '[redis] REDIS_URL is not set — response cache disabled in this process. ' +
+        'Set REDIS_URL to enable it.',
+      );
+      return;
+    }
 
     try {
       this.client = new Redis(redisUrl, {
@@ -48,24 +61,37 @@ export class RedisClient {
         maxRetriesPerRequest: 3,
         retryStrategy(times: number): number | null {
           if (times > 3) {
-            log.warn('[redis] Max connection retries reached — operating without cache');
+            log.warn('[redis] Redis unreachable — serving without cache');
             return null;
           }
           return Math.min(times * 200, 2000);
         },
       });
 
+      let reported = false;
       this.client.on('error', (err: Error) => {
-        log.warn({ err }, '[redis] Connection error — falling back to direct fetch');
+        // One warn per process, then debug: a flapping Redis must not flood logs.
+        if (!reported) {
+          reported = true;
+          log.warn(
+            { err, host: redisHostOf(redisUrl) },
+            '[redis] Redis error — falling back to direct fetch',
+          );
+        } else {
+          log.debug({ err }, '[redis] Redis error (repeat)');
+        }
       });
 
       await this.client.connect();
       this.connected = true;
-      log.info('[redis] Connected successfully');
+      log.info({ host: redisHostOf(redisUrl) }, '[redis] Connected successfully');
     } catch (err) {
       this.connected = false;
       this.client = null;
-      log.warn({ err }, '[redis] Connection failed — operating without cache');
+      log.warn(
+        { err, host: redisHostOf(redisUrl) },
+        '[redis] Connection failed — serving without cache',
+      );
     }
   }
 
@@ -128,8 +154,8 @@ export class RedisClient {
    * Cache-aside pattern: check cache first; on miss, call fetchFn,
    * store the result with the given TTL, and return it.
    *
-   * If Redis is unavailable or throws at any point, fetchFn is called
-   * directly (graceful degradation).
+   * If Redis is not configured or throws at any point, fetchFn is called
+   * directly.
    *
    * @returns An object with `value` (the fetched/cached data) and
    *          `cacheStatus` ('hit' | 'miss' | 'bypass').
