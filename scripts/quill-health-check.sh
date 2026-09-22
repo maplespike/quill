@@ -18,13 +18,17 @@ TITLE="fix: Cluster Health Issues Detected"
 ISSUES=""
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Nodes: report any node the cluster actually has that is not Ready.
+# Nodes: report any node that is genuinely NotReady.
+# Use the Ready CONDITION, never the STATUS column: a cordoned node renders as
+# "Ready,SchedulingDisabled" and is healthy by design — the old `$2 != "Ready"`
+# comparison filed a false p1 the moment zephyr was cordoned (issue #888,
+# 2026-09-22).
 check_nodes() {
   local bad
-  bad=$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 != "Ready" {print $1 " (" $2 ")"}' || true)
+  bad=$(kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' 2>/dev/null \
+    | awk '$2 != "True" {print $1 " (NotReady)"}' || true)
   if [ -n "$bad" ]; then
-    ISSUES="${ISSUES}Nodes not Ready: $bad
-"
+    ISSUES="${ISSUES}Nodes not Ready: $bad\n"
   fi
 }
 
