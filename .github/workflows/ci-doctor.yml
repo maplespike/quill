@@ -1,0 +1,62 @@
+name: CI Doctor
+# Failure → Hermes triage pipeline (quill, 2026-09-22).
+#
+# Every failed run of a watched workflow becomes a kanban card on the
+# maplespike board (nexus DB). The dispatcher claims it (≤60s) and a worker
+# diagnoses with the failure context attached. Gates in the card: the fix
+# must make the workflow green on a re-run + a regression test for real bugs
+# (incident rule). Loop cap: 3 attempts, then blocked for human triage.
+#
+# Companion to the in-workflow "Create issue on failure" steps (Ring 1
+# record); this is the Hermes assist path.
+on:
+  workflow_run:
+    workflows: ["CI", "Live Data Check", "QA", "Health Monitor", "Docs Validation", "PR validation"]
+    types: [completed]
+permissions:
+  actions: read
+  contents: read
+  issues: write
+jobs:
+  doctor:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Build failure context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID=${{ github.event.workflow_run.id }}
+          NAME="${{ github.event.workflow_run.name }}"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          URL="${{ github.event.workflow_run.html_url }}"
+          FAILED=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs" \
+            --jq '[.jobs[] | select(.conclusion=="failure") | .name + " [" + ([.steps[] | select(.conclusion=="failure") | .name] | join(", ")) + "]"] | join("\n")' \
+            2>/dev/null | head -30 || true)
+          {
+            echo "**Source:** $URL"
+            echo "**Workflow:** $NAME | **Branch:** $BRANCH | **SHA:** $SHA"
+            echo ""
+            echo "**Failed jobs/steps:**"
+            echo '```'
+            echo "${FAILED:-(none reported by API — see run log)}"
+            echo '```'
+            echo ""
+            echo "**Ask (error/triage path):**"
+            echo "1. Diagnose the root cause from the run log (gh run view $RUN_ID --log)."
+            echo "2. Fix it on a branch, push, and VERIFY the failing workflow goes green."
+            echo "3. Real bug → add a regression test in the same change (incident rule)."
+            echo "4. Max 3 attempts; if blocked, comment the blocker and stop."
+          } > /tmp/ci-doctor-body.md
+          echo "TITLE=CI failure: $NAME ($BRANCH, run $RUN_ID)" >> "$GITHUB_ENV"
+      - name: Post to kanban (nexus dispatcher)
+        run: |
+          chmod +x scripts/kanban-post.sh
+          scripts/kanban-post.sh --title "$TITLE" --body-file /tmp/ci-doctor-body.md \
+            --assignee backend-eng --priority 1 \
+            --idem "ci-fail-${{ github.event.workflow_run.id }}"
