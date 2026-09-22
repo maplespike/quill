@@ -1,9 +1,18 @@
 /**
  * Quill — Redis Cache Client
  *
- * Production Redis caching layer with cache-aside pattern and graceful
- * degradation. When Redis is unavailable, all operations fall through
- * without throwing — the caller always gets a usable result.
+ * Production Redis caching layer with cache-aside pattern. When Redis is not
+ * configured (no REDIS_URL) or is unreachable, every operation is a no-op and
+ * callers fetch directly — the caller always gets a usable result.
+ *
+ * Gate A2-REDIS (#764, #770): the endpoint used to come from a hardcoded
+ * `redis://redis.ai-inference:6379` default. That namespace does not exist, so
+ * deployments without REDIS_URL logged connection errors forever and the
+ * cache silently ran in bypass. The endpoint is now configuration-only (see
+ * cache/redis-url.ts); "no REDIS_URL" is logged once at startup and is a
+ * deliberate state, not a failure loop. The client also reconnects in the
+ * background, so a Redis restart — or losing the start-up race with it — does
+ * not leave the API cache-less until someone restarts the pod.
  *
  * Usage:
  *   const redis = new RedisClient();
@@ -15,6 +24,7 @@
 
 import Redis from 'ioredis';
 import logger from '../logger.js';
+import { resolveRedisUrl, redisHostOf } from './redis-url.js';
 
 const log = logger;
 
@@ -23,50 +33,94 @@ export interface CacheEntry<T> {
   expiresAt: number;
 }
 
+/** Ceiling for the reconnect backoff, in milliseconds. */
+const RECONNECT_MAX_MS = 5_000;
+
 export class RedisClient {
   private client: Redis | null = null;
   private connected = false;
 
-  /**
-   * Default Redis URL. Override via REDIS_URL env var.
-   */
-  static readonly DEFAULT_URL = 'redis://redis.ai-inference:6379';
+  /** One warn per process on Redis failure; repeats are debug. */
+  private errorReported = false;
 
   /**
-   * Connect to Redis. Errors are logged — the client operates in
-   * degraded mode (all operations no-op) if the connection fails.
+   * Connect to Redis using REDIS_URL.
+   *
+   * @param url Explicit URL; defaults to REDIS_URL. Pass an empty string to
+   *            force "no cache in this process".
    */
   async connect(url?: string): Promise<void> {
-    if (this.connected) return;
+    if (this.client) return;
 
-    const redisUrl = url || process.env.REDIS_URL || RedisClient.DEFAULT_URL;
+    const redisUrl = resolveRedisUrl(url);
+
+    if (redisUrl === null) {
+      log.info(
+        '[redis] REDIS_URL is not set — response cache disabled in this process. ' +
+        'Set REDIS_URL to enable it.',
+      );
+      return;
+    }
+
+    const host = redisHostOf(redisUrl);
+    const client = new Redis(redisUrl, {
+      lazyConnect: true,
+      // Fail fast while Redis is down so callers fetch directly instead of
+      // queueing commands for a host that may never answer.
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: 1,
+      // Reconnect forever, backing off to a 5s ceiling. Giving up here
+      // (returning null) is what left a pod that lost the start-up race with
+      // Redis serving without a cache until its next restart — 2026-09-22.
+      retryStrategy: (times: number) => Math.min(times * 200, RECONNECT_MAX_MS),
+    });
+
+    // Keep the client attached across failures: ioredis reconnects behind it.
+    this.client = client;
+
+    client.on('ready', () => {
+      this.markConnected(host);
+    });
+
+    client.on('error', (err: Error) => {
+      this.connected = false;
+      // One warn per process, then debug: a flapping Redis must not flood logs.
+      if (!this.errorReported) {
+        this.errorReported = true;
+        log.warn(
+          { err, host },
+          '[redis] Redis is not answering — serving without cache and retrying',
+        );
+      } else {
+        log.debug({ err }, '[redis] Redis error (repeat)');
+      }
+    });
+
+    client.on('close', () => {
+      this.connected = false;
+    });
 
     try {
-      this.client = new Redis(redisUrl, {
-        lazyConnect: true,
-        enableOfflineQueue: false,
-        maxRetriesPerRequest: 3,
-        retryStrategy(times: number): number | null {
-          if (times > 3) {
-            log.warn('[redis] Max connection retries reached — operating without cache');
-            return null;
-          }
-          return Math.min(times * 200, 2000);
-        },
-      });
-
-      this.client.on('error', (err: Error) => {
-        log.warn({ err }, '[redis] Connection error — falling back to direct fetch');
-      });
-
-      await this.client.connect();
-      this.connected = true;
-      log.info('[redis] Connected successfully');
+      await client.connect();
+      // A resolved connect() means the socket is up. ioredis also emits
+      // 'ready'; markConnected() keeps exactly one log line either way.
+      this.markConnected(host);
     } catch (err) {
-      this.connected = false;
-      this.client = null;
-      log.warn({ err }, '[redis] Connection failed — operating without cache');
+      log.warn(
+        { err, host },
+        '[redis] Redis not reachable yet — serving without cache until it answers',
+      );
     }
+  }
+
+  /**
+   * Record a live connection. Idempotent: every later transition is owned by
+   * the client's own 'error' / 'close' handlers.
+   */
+  private markConnected(host: string): void {
+    if (this.connected) return;
+    this.connected = true;
+    log.info({ host }, '[redis] Connected successfully');
   }
 
   /**
@@ -128,8 +182,8 @@ export class RedisClient {
    * Cache-aside pattern: check cache first; on miss, call fetchFn,
    * store the result with the given TTL, and return it.
    *
-   * If Redis is unavailable or throws at any point, fetchFn is called
-   * directly (graceful degradation).
+   * If Redis is not configured or throws at any point, fetchFn is called
+   * directly.
    *
    * @returns An object with `value` (the fetched/cached data) and
    *          `cacheStatus` ('hit' | 'miss' | 'bypass').

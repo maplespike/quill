@@ -23,6 +23,25 @@ export type {
   ModuleCategory,
 } from './registry.js';
 
+// ── Ingest Run Log (CronJob liveness) ───────────────────────────────
+// Cross-process evidence that an ingest CronJob ran: written by the CLI in
+// the job pod, read by the API pod, both over the shared QUILL_DB_PATH file.
+export {
+  recordIngestRun,
+  getIngestRuns,
+  getLatestIngestRuns,
+  cronPeriodSeconds,
+  maxAgeSecondsFor,
+  INGEST_RUNS_DDL,
+  DEFAULT_MAX_AGE_SECONDS,
+  STALE_GRACE_MULTIPLIER,
+} from './run-log.js';
+export type {
+  IngestRunRecord,
+  IngestRunStatus,
+  RecordIngestRunInput,
+} from './run-log.js';
+
 // ── Entity Resolution ───────────────────────────────────────────────
 export {
   EntityResolutionService,
