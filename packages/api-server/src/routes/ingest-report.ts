@@ -14,7 +14,10 @@ import { requireInternalAuth } from '../middleware/internal-auth.js';
 import { recordIngest } from '../ingest-ledger.js';
 
 export const ingestReportHandler: RouteHandler = async (request, ctx) => {
-  const guard = requireInternalAuth(ctx.env?.['INTERNAL_JWT_SECRET']);
+  // ctx.env is the Workers-style env object; on Node the container value sits in
+  // process.env (same idiom as the rest of index.ts: env.X || process.env.X).
+  const internalSecret = ctx.env?.['INTERNAL_JWT_SECRET'] || process.env['INTERNAL_JWT_SECRET'];
+  const guard = requireInternalAuth(internalSecret);
   const auth = guard(request);
   if (!auth.ok) return auth.response;
 
