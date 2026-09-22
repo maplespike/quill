@@ -1,12 +1,35 @@
 {
-  "generatedAt": "2026-08-13T11:01:39.487Z",
+  "generatedAt": "2026-09-22T07:34:08.072Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
-      "status": "error",
-      "records": 0,
-      "errors": 12,
-      "data": []
+      "status": "ok",
+      "records": 2,
+      "errors": 16,
+      "data": [
+        {
+          "committee": "ETHI",
+          "name": "Access to Information, Privacy and Ethics",
+          "meeting": 49,
+          "date": null,
+          "inCamera": false,
+          "witnesses": [],
+          "interventionCount": 0,
+          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-49/evidence",
+          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14220180/ETHIEV49-E.XML"
+        },
+        {
+          "committee": "ETHI",
+          "name": "Access to Information, Privacy and Ethics",
+          "meeting": 48,
+          "date": null,
+          "inCamera": true,
+          "witnesses": [],
+          "interventionCount": 0,
+          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-48/evidence",
+          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14194137/ETHIEV48-E.XML"
+        }
+      ]
     },
     "senate": {
       "status": "error",
@@ -375,27 +398,6 @@
           "resourceDescription": ""
         },
         {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "GEOJSON",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "HTML",
-          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceDescription": ""
-        },
-        {
           "packageTitle": "Municipal elections - Electoral areas",
           "packageId": "c4a55dcc-531d-4f5c-b3c2-de73fac021f5",
           "resourceFormat": "CSV",
@@ -435,6 +437,27 @@
           "packageId": "7ff4b7d8-bdab-4292-a161-4edb426ff53c",
           "resourceFormat": "HTML",
           "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/7ff4b7d8-bdab-4292-a161-4edb426ff53c",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of the electoral districts of the last municipal elections",
+          "packageId": "89be7457-81b2-4200-9d50-f9ee9fe94fc0",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/dataset/89be7457-81b2-4200-9d50-f9ee9fe94fc0/resource/4e671806-4947-4577-afc2-574d1b45da63/download/limite-district-electoral.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of the electoral districts of the last municipal elections",
+          "packageId": "89be7457-81b2-4200-9d50-f9ee9fe94fc0",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/dataset/89be7457-81b2-4200-9d50-f9ee9fe94fc0/resource/1ca8ac31-396b-4a45-9e33-7090448a0130/download/limite-district-electoral.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of the electoral districts of the last municipal elections",
+          "packageId": "89be7457-81b2-4200-9d50-f9ee9fe94fc0",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/89be7457-81b2-4200-9d50-f9ee9fe94fc0",
           "resourceDescription": ""
         }
       ]
@@ -509,16 +532,16 @@
           "notes": "Grants and Contributions: All institutions subject to the Policy on Transfer Payments are required to publish reports on Grants and Contributions within the Government of Canada. This dataset consolid"
         },
         {
+          "dataset": "Audit of Grants and Contributions ",
+          "packageId": "c9625a8e-df06-435d-bc64-0380bd4a97d4",
+          "resourceCount": 10,
+          "notes": "Global Affairs Canada uses the audit process as an important way to ensure the efficient use of public funds. The Office of the Chief Audit Executive leads this work by reviewing and assessing managem"
+        },
+        {
           "dataset": "Evaluation of the Class Grant and Contribution Program",
           "packageId": "3648d7fe-d98b-4af0-805f-8e94d3621e9e",
           "resourceCount": 8,
           "notes": "the Canadian Space Agency's Class Grant and Contribution Program promotes space-related research and development to support knowledge development and innovation to address Canada's space priorities.\r\n"
-        },
-        {
-          "dataset": "Audit of Grants and Contributions - Oversight and Monitoring",
-          "packageId": "c9625a8e-df06-435d-bc64-0380bd4a97d4",
-          "resourceCount": 2,
-          "notes": "Global Affairs Canada uses the audit process as an important way to ensure the efficient use of public funds. The Office of the Chief Audit Executive leads this work by reviewing and assessing managem"
         },
         {
           "dataset": "Review of Evidence of the Effectiveness of CIDA's Grants and Contributions",
@@ -527,10 +550,10 @@
           "notes": "Evaluation reports\r\nThe department periodically conducts evaluations of Global Affairs Canada priorities, programs and projects. Evaluation serves as a practical management tool for reviewing performa"
         },
         {
-          "dataset": "Audit of the Harmonization of Grant and Contribution Program Administration at Global Affairs Canada",
-          "packageId": "f5ba40f7-b248-46d9-897c-3e61d6f8bc70",
+          "dataset": "Synthesis of Evaluations of Grants and Contributions Programming funded by the International Assistance Envelope, 2011-2016",
+          "packageId": "0f06f00f-0d8e-4d69-8790-f234664cecd8",
           "resourceCount": 2,
-          "notes": "Global Affairs Canada uses the audit process as an important way to ensure the efficient use of public funds. The Office of the Chief Audit Executive leads this work by reviewing and assessing managem"
+          "notes": "Evaluation reports\r\nThe department periodically conducts evaluations of Global Affairs Canada priorities, programs and projects. Evaluation serves as a practical management tool for reviewing performa"
         }
       ]
     },
@@ -569,7 +592,7 @@
         },
         {
           "dataset": "Refugee Protection Division (RPD) Decisions",
-          "resources": 29,
+          "resources": 33,
           "source": "RPD Decisions"
         }
       ]
@@ -640,7 +663,7 @@
         },
         {
           "dataset": "CIHR Grants and Awards",
-          "resources": 28
+          "resources": 29
         },
         {
           "dataset": "Key Funding Data on Canada Council for the Arts Grant Recipients",
@@ -689,8 +712,8 @@
     }
   },
   "stats": {
-    "totalRecords": 84,
-    "hoc": 0,
+    "totalRecords": 86,
+    "hoc": 2,
     "senate": 0,
     "gazette": 0,
     "gic": 12,
@@ -713,202 +736,208 @@
   },
   "activity": [
     {
+      "action": "Hoc: ETHI #49 — 2 meetings",
+      "type": "hoc",
+      "time": "2026-09-22T07:34:08.046Z",
+      "count": 2
+    },
+    {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 15
     },
     {
       "action": "Elections: \"2021 Municipal Election — Sections (polling day offices)\" — 15 resources",
       "type": "elections",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 15
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 1
     },
     {
       "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
       "type": "immigration",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 4
     },
     {
       "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
       "type": "transport",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 5
     },
     {
       "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
       "type": "defence",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 1
     },
     {
       "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
       "type": "education",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 5
     },
     {
       "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
       "type": "science",
-      "time": "2026-08-13T11:01:39.480Z",
+      "time": "2026-09-22T07:34:08.046Z",
       "count": 6
     }
   ],
   "pipeline": {
     "hoc": {
-      "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
-      "records": 0,
-      "errors": 12
+      "status": "ok",
+      "lastRun": "2026-09-22T07:34:08.073Z",
+      "records": 2,
+      "errors": 16
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 15,
       "errors": 1
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 15,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 2,
       "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 1,
       "errors": 0
     },
     "immigration": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 4,
       "errors": 0
     },
     "indigenous": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 2
     },
     "transport": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 5,
       "errors": 0
     },
     "defence": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 1,
       "errors": 1
     },
     "health": {
       "status": "error",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 0,
       "errors": 2
     },
     "education": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 5,
       "errors": 0
     },
     "science": {
       "status": "ok",
-      "lastRun": "2026-08-13T11:01:39.487Z",
+      "lastRun": "2026-09-22T07:34:08.073Z",
       "records": 6,
       "errors": 0
     }
@@ -1103,6 +1132,6 @@
         "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
       }
     ],
-    "ingestedAt": "2026-08-13T11:01:39.487Z"
+    "ingestedAt": "2026-09-22T07:34:08.072Z"
   }
 }
