@@ -19,3 +19,20 @@ pnpm exec tsc -b
 # Layer 2: standalone builds
 pnpm --filter @maplespike/docs build
 pnpm --filter @maplespike/portal build
+
+# Layer 3: repair injected workspace copies.
+# inject-workspace-packages=true: pnpm materializes *injected copies* of
+# workspace deps inside each .pnpm store package's node_modules/@maplespike/
+# at `pnpm install` time — BEFORE tsc builds dist/. They are never recopied
+# (pnpm #4407), so runtime ESM resolution through the store fails with
+# ERR_MODULE_NOT_FOUND — the api server could never start in the Live Data
+# Check lane (2026-09-22). The image builds are unaffected because
+# Dockerfile.api/.mcp repair the same copies post-build; this mirrors that.
+for d in node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do
+  [ -d "$d" ] || continue
+  for p in database pipeline-core engine i18n legal-core legislation sdk; do
+    [ -d "packages/$p/dist" ] || continue
+    rm -rf "$d/$p"
+    ln -s "$PWD/packages/$p" "$d/$p"
+  done
+done
