@@ -474,8 +474,28 @@ const main = async (): Promise<void> => {
   if (DRY_RUN) {
     console.log('[discover-municipal-ids] --dry-run: registry NOT written');
   } else {
+    // Fail closed (#872 follow-up, 2026-09-22): a refresh must never replace a
+    // good registry with one the gate would reject. The 21:06 run wrote 10
+    // entries and THEN reported "registry validation: FAILED" — the file was
+    // already overwritten. Now: write a temp candidate, run the SAME oracle the
+    // gate runs, and only then move it into place.
     fs.mkdirSync(path.dirname(REGISTRY_PATH), { recursive: true });
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2) + '\n', 'utf8');
+    const tmp = `${REGISTRY_PATH}.candidate`;
+    fs.writeFileSync(tmp, JSON.stringify(registry, null, 2) + '\n', 'utf8');
+    const { spawnSync } = await import('node:child_process');
+    const { fileURLToPath } = await import('node:url');
+    const oracle = path.join(path.dirname(fileURLToPath(import.meta.url)), 'gates', 'check-registry.mjs');
+    const verdict = spawnSync(process.execPath, [oracle, tmp], { encoding: 'utf8' });
+    process.stdout.write(verdict.stdout ?? '');
+    process.stderr.write(verdict.stderr ?? '');
+    if (verdict.status !== 0) {
+      fs.rmSync(tmp, { force: true });
+      console.error(
+        '[discover-municipal-ids] REFUSING to write: the refreshed registry failed the oracle — existing registry left unchanged',
+      );
+      process.exit(1);
+    }
+    fs.renameSync(tmp, REGISTRY_PATH);
   }
 
   console.log('');
