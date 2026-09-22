@@ -39,6 +39,7 @@ import { getModule, runAllModules } from '../ingestion/registry.js';
 import { recordIngestRun, type IngestRunStatus } from '../ingestion/run-log.js';
 import { citationStore } from '../claims/store.js';
 import { countRecords, openDb, PIPELINE_CONFIG, runOne, SCHEDULE } from './run-pipeline.js';
+import { reportIngest } from '../shared/ledger-report.js';
 
 async function main() {
   const pipeline = process.env.QUILL_PIPELINE?.trim().toLowerCase() || 'help';
@@ -104,6 +105,22 @@ async function main() {
       error: failed > 0 ? `${failed} module(s) failed` : null,
     });
 
+    // Record each module's outcome in the API freshness ledger. Best-effort:
+    // reportIngest never throws, and a reporting failure must not fail the run.
+    await Promise.all(
+      (results ?? []).map((result) => {
+        const rec = result as unknown as Record<string, unknown>;
+        const name = String(rec['module'] ?? rec['name'] ?? rec['alias'] ?? 'unknown');
+        const runFailed = rec['status'] === 'failed' || rec['status'] === 'failure' || rec['success'] === false;
+        return reportIngest({
+          module: name,
+          status: runFailed ? 'failure' : 'success',
+          records: Number(rec['records'] ?? rec['count'] ?? 0) || 0,
+          ...(typeof rec['error'] === 'string' ? { error: rec['error'] } : {}),
+        });
+      }),
+    );
+
     console.log(`\n[CLI] Done: ${passed} passed, ${failed} failed, ${records} records, ${claimed} claims`);
     process.exit(failed > 0 ? 1 : 0);
   }
@@ -121,6 +138,13 @@ async function main() {
   }
 
   const outcome = await runOne(pipeline, moduleName, db);
+  const out = outcome as unknown as Record<string, unknown>;
+  await reportIngest({
+    module: moduleName,
+    status: outcome.status === 'success' ? 'success' : 'failure',
+    records: Number(out['records'] ?? out['count'] ?? 0) || 0,
+    ...(typeof out['error'] === 'string' ? { error: out['error'] } : {}),
+  });
   process.exit(outcome.status === 'success' ? 0 : 1);
 }
 

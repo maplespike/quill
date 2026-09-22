@@ -97,6 +97,16 @@ spec:
                   name: quill-secrets
                   key: opencorporatesApiKey
                   optional: true
+            # Freshness ledger: the cronjob reports each run's outcome to the API,
+            # which owns the ledger file the quality report reads.
+            - name: QUILL_API_URL
+              value: "http://{{ include \"quill.fullname\" $ }}-api:{{ $.Values.api.port }}"
+            - name: INTERNAL_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quill-secrets
+                  key: internalJwtSecret
+                  optional: true
             resources:
               requests:
                 cpu: {{ $.Values.ingestion.resources.requests.cpu }}
