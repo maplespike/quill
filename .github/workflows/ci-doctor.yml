@@ -13,6 +13,14 @@ on:
   workflow_run:
     workflows: ["CI", "Live Data Check", "QA", "Health Monitor", "Docs Validation", "PR validation"]
     types: [completed]
+# Collapse duplicate events for the same workflow+SHA. Without this the doctor
+# queues one job per watched-workflow event on a single-runner pool (2026-09-22:
+# four queued doctor jobs for one SHA), starving the CI/QA runs it exists to
+# report on. Grouped per workflow name so two different workflows failing on the
+# same SHA still each get their own card.
+concurrency:
+  group: ci-doctor-${{ github.event.workflow_run.head_sha }}-${{ github.event.workflow_run.name }}
+  cancel-in-progress: true
 permissions:
   actions: read
   contents: read
