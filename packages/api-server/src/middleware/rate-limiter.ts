@@ -14,7 +14,9 @@
  *   - when Redis is not configured, the limiter enforces the same limits
  *     in-process and says so once, at startup;
  *   - when Redis is configured but drops out, requests fall back to the
- *     in-process window instead of going unlimited.
+ *     in-process window instead of going unlimited, and the client keeps
+ *     reconnecting — so an outage (or losing the start-up race with Redis)
+ *     heals by itself instead of leaving the pod degraded until a restart.
  *
  * Usage (Node http / dev-server):
  *   import { rateLimiter } from './middleware/rate-limiter.js';
@@ -58,7 +60,7 @@ export interface RateLimitResult {
  */
 export interface RedisLikeClient {
   connect(): Promise<void>;
-  on(event: 'error', listener: (err: Error) => void): unknown;
+  on(event: string, listener: (...args: any[]) => void): unknown;
   eval(script: string, numKeys: number, ...args: (string | number)[]): Promise<unknown>;
   quit(): Promise<unknown>;
   disconnect(): void;
@@ -70,16 +72,18 @@ export interface RedisLikeClient {
  */
 const MEMORY_SWEEP_THRESHOLD = 10_000;
 
+/** Ceiling for the reconnect backoff, in milliseconds. */
+const RECONNECT_MAX_MS = 5_000;
+
 export class RateLimiter {
   private client: RedisLikeClient | null = null;
   private connected = false;
-  private backend: LimiterBackend = 'memory';
 
   /** In-process sliding window: key -> request timestamps (ms). */
   private memory = new Map<string, number[]>();
 
-  /** One warn per process on Redis eval failure; repeats are debug. */
-  private evalFailureReported = false;
+  /** One warn per process on Redis failure; repeats are debug. */
+  private errorReported = false;
 
   constructor(private readonly injectedClient?: RedisLikeClient) {}
 
@@ -90,12 +94,11 @@ export class RateLimiter {
    *            string to force the in-process window.
    */
   async init(url?: string): Promise<void> {
-    if (this.connected) return;
+    if (this.client) return;
 
     const redisUrl = resolveRedisUrl(url);
 
     if (redisUrl === null) {
-      this.backend = 'memory';
       log.info(
         '[rate-limiter] REDIS_URL is not set — enforcing tier limits in-process (per pod). ' +
         'Set REDIS_URL for cluster-wide counters.',
@@ -103,52 +106,71 @@ export class RateLimiter {
       return;
     }
 
-    try {
-      const client = this.injectedClient ?? new Redis(redisUrl, {
-        lazyConnect: true,
-        enableOfflineQueue: false,
-        maxRetriesPerRequest: 2,
-        retryStrategy(times: number): number | null {
-          if (times > 2) {
-            log.warn('[rate-limiter] Redis unreachable — enforcing limits in-process');
-            return null;
-          }
-          return Math.min(times * 200, 1000);
-        },
-      }) as RedisLikeClient;
+    const host = redisHostOf(redisUrl);
+    const client = (this.injectedClient ?? new Redis(redisUrl, {
+      lazyConnect: true,
+      // Fail fast while Redis is down, so check() drops to the in-process
+      // window at once instead of queueing commands for a host that may
+      // never answer.
+      enableOfflineQueue: false,
+      maxRetriesPerRequest: 1,
+      // Reconnect forever, backing off to a 5s ceiling. Giving up here
+      // (returning null) is what left a pod that lost the start-up race with
+      // Redis degraded until its next restart — observed 2026-09-22.
+      retryStrategy: (times: number) => Math.min(times * 200, RECONNECT_MAX_MS),
+    })) as RedisLikeClient;
 
-      let reported = false;
-      client.on('error', (err: Error) => {
-        // One warn per process, then debug: a flapping Redis must not flood logs.
-        if (!reported) {
-          reported = true;
-          log.warn(
-            { err, host: redisHostOf(redisUrl) },
-            '[rate-limiter] Redis error — requests fall back to the in-process window',
-          );
-        } else {
-          log.debug({ err }, '[rate-limiter] Redis error (repeat)');
-        }
-      });
+    // Keep the client attached across failures: ioredis reconnects behind it
+    // and the limiter enforces in-process until the connection is ready.
+    this.client = client;
 
-      await client.connect();
-      this.client = client;
-      this.connected = true;
-      this.backend = 'redis';
-      log.info({ host: redisHostOf(redisUrl) }, '[rate-limiter] Connected to Redis');
-    } catch (err) {
+    client.on('ready', () => {
+      this.markConnected(host);
+    });
+
+    client.on('error', (err: Error) => {
       this.connected = false;
-      this.client = null;
-      this.backend = 'memory';
+      // One warn per process, then debug: a flapping Redis must not flood logs.
+      if (!this.errorReported) {
+        this.errorReported = true;
+        log.warn(
+          { err, host },
+          '[rate-limiter] Redis is not answering — enforcing limits in-process and retrying',
+        );
+      } else {
+        log.debug({ err }, '[rate-limiter] Redis error (repeat)');
+      }
+    });
+
+    client.on('close', () => {
+      this.connected = false;
+    });
+
+    try {
+      await client.connect();
+      // A resolved connect() means the socket is up. ioredis also emits
+      // 'ready'; markConnected() keeps exactly one log line either way.
+      this.markConnected(host);
+    } catch (err) {
       log.warn(
-        { err, host: redisHostOf(redisUrl) },
-        '[rate-limiter] Redis connection failed — enforcing limits in-process',
+        { err, host },
+        '[rate-limiter] Redis not reachable yet — enforcing limits in-process until it answers',
       );
     }
   }
 
   /**
-   * Check if the Redis backend is connected.
+   * Record a live connection. Idempotent: every later transition is owned by
+   * the client's own 'error' / 'close' handlers.
+   */
+  private markConnected(host: string): void {
+    if (this.connected) return;
+    this.connected = true;
+    log.info({ host }, '[rate-limiter] Connected to Redis');
+  }
+
+  /**
+   * Check if the Redis backend is connected and usable.
    */
   isConnected(): boolean {
     return this.connected && this.client !== null;
@@ -159,7 +181,7 @@ export class RateLimiter {
    * 'memory' (in-process window).
    */
   backendMode(): LimiterBackend {
-    return this.backend;
+    return this.isConnected() ? 'redis' : 'memory';
   }
 
   /**
@@ -253,7 +275,7 @@ export class RateLimiter {
     const limit = TIER_LIMITS[tier];
     const key = `ratelimit:${tier}:${ip}`;
 
-    if (this.connected && this.client) {
+    if (this.isConnected() && this.client) {
       const now = Math.floor(nowMs / 1000);
 
       try {
@@ -278,8 +300,8 @@ export class RateLimiter {
       } catch (err) {
         // First failure gets a warn; repeats drop to debug so a dead Redis
         // does not turn every request into a log line.
-        if (!this.evalFailureReported) {
-          this.evalFailureReported = true;
+        if (!this.errorReported) {
+          this.errorReported = true;
           log.warn(
             { err, key },
             '[rate-limiter] Redis eval failed — falling back to the in-process window',
@@ -398,7 +420,6 @@ export class RateLimiter {
       this.client = null;
       this.connected = false;
     }
-    this.backend = 'memory';
     this.memory.clear();
   }
 }
