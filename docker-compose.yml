@@ -33,6 +33,9 @@ services:
       dockerfile: Dockerfile.api
     container_name: quill-api
     restart: unless-stopped
+    depends_on:
+      quill-redis:
+        condition: service_healthy
     ports:
       - "8082:8082"
     environment:
@@ -40,6 +43,10 @@ services:
       PORT: 8082
       QUILL_STORAGE: ${QUILL_STORAGE:-sqlite}
       QUILL_DB_PATH: /data/quill.db
+      # Gate A2-REDIS (#764, #770): the response cache and the distributed
+      # rate-limit counters. Without this the API caches nothing and enforces
+      # its limits in-process — it never dials a guessed host.
+      REDIS_URL: ${REDIS_URL:-redis://quill-redis:6379}
       # JWT_SECRET: optional; set via .env to enable real auth, defaults to dev.
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-in-production}
     volumes:
@@ -50,6 +57,23 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - quill-net
+
+  # Redis — cache + rate-limit counters (gate A2-REDIS). Ephemeral by design:
+  # no RDB snapshots, no AOF. A restart resets cached bodies and counters,
+  # which is correct for both.
+  quill-redis:
+    image: redis:8-alpine
+    container_name: quill-redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     networks:
       - quill-net
 
