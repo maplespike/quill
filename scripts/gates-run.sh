@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # scripts/gates-run.sh — single entry point per unlazy gate (see GATES-triage-20260922.md).
+# A3 (A3-IMAGEPIN) comes from the issue/gap ledger GATES-gaps-20260922.md.
 # Exit code carries the verdict: 0 = gate met (and prints "<ID> PASS"), non-zero = unmet.
 set -uo pipefail
 
@@ -107,6 +108,40 @@ cid() { # $1 = gate id
       node "$REPO/scripts/gates/check-audit-sections.mjs" "$ART" || exit 1
       echo "G5 PASS"
       ;;
+    A3)
+      # #755 / gate A3-IMAGEPIN (GATES-gaps-20260922.md): no workload may run a
+      # mutable image tag, every quill workload must be digest-pinned, and the
+      # live cluster must match charts/quill/values-prod.yaml.
+      VALUES="$REPO/charts/quill/values-prod.yaml"
+      [ -f "$VALUES" ] || { echo "A3 FAIL: missing $VALUES"; exit 1; }
+      RENDER="$(mktemp /tmp/quill-a3-render.XXXXXX.yaml)"
+      if command -v helm >/dev/null 2>&1; then
+        helm template quill "$REPO/charts/quill" -f "$VALUES" > "$RENDER" \
+          || { echo "A3 FAIL: helm template failed"; exit 1; }
+        echo "rendered: $RENDER ($(wc -l < "$RENDER") lines)"
+        node "$REPO/scripts/gates/check-image-pins.mjs" --values "$VALUES" --rendered "$RENDER" || exit 1
+      else
+        echo "helm not found — values + template check only"
+        node "$REPO/scripts/gates/check-image-pins.mjs" --values "$VALUES" || exit 1
+      fi
+      command -v kubectl >/dev/null 2>&1 || { echo "A3 FAIL: kubectl unavailable — the live read-back is mandatory"; exit 1; }
+      node "$REPO/scripts/gates/check-image-pins.mjs" --values "$VALUES" --live || exit 1
+      # The node store must resolve each pinned digest (that is what pullPolicy
+      # Never needs); only checkable where the containerd socket lives.
+      if [ -S /run/k3s/containerd/containerd.sock ]; then
+        for svc in api mcp portal; do
+          ref="$(kubectl -n maplespike get deploy "quill-$svc" -o jsonpath='{.spec.template.spec.containers[0].image}')"
+          # grep without -q: with pipefail, -q SIGPIPEs the writer (a121365).
+          if ! sudo k3s ctr -n k8s.io images ls -q | grep -Fx -- "$ref" >/dev/null; then
+            echo "A3 FAIL: $ref is not resolvable in the local containerd store"; exit 1
+          fi
+          echo "store: $ref resolvable"
+        done
+      else
+        echo "A3 note: no local containerd socket — store resolvability not checked here"
+      fi
+      echo "A3 PASS: rendered + live refs are digest-pinned (no ':local'), digests resolvable in the node store"
+      ;;
     *)
       echo "unknown gate: $1"; exit 2
       ;;
@@ -114,13 +149,13 @@ cid() { # $1 = gate id
 }
 
 case "${1:-}" in
-  G1|G2|G3|G4|G5) cid "$1" ;;
+  G1|G2|G3|G4|G5|A3) cid "$1" ;;
   all)
     rc=0
-    for g in G1 G2 G3 G4 G5; do
+    for g in G1 G2 G3 G4 G5 A3; do
       bash "$0" "$g" || rc=1
     done
     exit $rc
     ;;
-  *) echo "usage: $0 G1|G2|G3|G4|G5|all"; exit 2 ;;
+  *) echo "usage: $0 G1|G2|G3|G4|G5|A3|all"; exit 2 ;;
 esac

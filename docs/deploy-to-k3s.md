@@ -306,28 +306,34 @@ Do not import or roll out a build that fails the smoke test.
 
 ### 3. Build images (docker = builder only) + import into K3s containerd
 
-```bash
-ssh nexus 'cd ~/quill-build && \
-  docker build -f Dockerfile.mcp    --target quill-mcp -t docker.io/library/quill-mcp:local . && \
-  docker build -f Dockerfile.portal --target portal    -t docker.io/library/quill-portal:local .'
+One command builds, imports, registers the digest name kubelet resolves with
+`imagePullPolicy: Never`, and prints the pin block:
 
-ssh nexus 'docker save docker.io/library/quill-mcp:local -o /tmp/mcp-local.tar && \
-  sudo k3s ctr -n k8s.io images import /tmp/mcp-local.tar && \
-  docker save docker.io/library/quill-portal:local -o /tmp/portal-local.tar && \
-  sudo k3s ctr -n k8s.io images import /tmp/portal-local.tar'
+```bash
+ssh nexus 'cd ~/quill-build && scripts/pin-images.sh'
+# --existing re-pins the image already in the store without rebuilding.
 ```
+
+Paste the printed `images:` block into `charts/quill/values-prod.yaml` and
+commit it. Full rule set and failure modes: [docs/IMAGE-PINNING.md](./IMAGE-PINNING.md)
+(gate A3-IMAGEPIN / #755).
 
 ### 4. Roll out (pods stay on nexus)
 
 ```bash
-kubectl -n maplespike rollout restart deployment/quill-mcp deployment/quill-portal
-kubectl -n maplespike rollout status  deployment/quill-mcp    --timeout=120s
-kubectl -n maplespike rollout status  deployment/quill-portal --timeout=120s
+# ArgoCD renders charts/quill + values-prod.yaml from main. Commit, then let the
+# automated sync run (or trigger it):
+kubectl -n argocd patch app quill --type merge \
+  -p '{"operation":{"initiatedBy":{"username":"operator"},"sync":{"revision":"main"}}}'
+
+kubectl -n maplespike rollout status deployment/quill-api    --timeout=120s
+kubectl -n maplespike rollout status deployment/quill-mcp    --timeout=120s
+kubectl -n maplespike rollout status deployment/quill-portal --timeout=120s
 ```
 
 If a new pod lands on another node it fails with `ErrImageNeverPull` — images
-are imported per-node, so deployments carry `nodeName: nexus`. Keep that pin in
-the live deployment AND in `k8s/maplespike/*-deployment.yaml`.
+are imported per-node, so the chart carries a `nodeName: nexus` pin for api, mcp
+and portal. Keep that pin while the cluster has no registry.
 
 ### 5. Verify
 
