@@ -228,6 +228,15 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
       successUrl: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}&order=${orderId}`,
       cancelUrl: `${baseUrl}/pricing?checkout=cancel&order=${orderId}`,
       expiresAtUnix: expiresAt,
+      // Embedded Checkout (the portal mounts Stripe's form in-page). The session
+      // then carries client_secret instead of a redirect url, and returns via
+      // return_url — success_url/cancel_url are invalid alongside it.
+      ...(body.embedded === true
+        ? {
+            uiMode: 'embedded' as const,
+            returnUrl: `${baseUrl}/checkout/return?session_id={CHECKOUT_SESSION_ID}&order=${orderId}`,
+          }
+        : {}),
     });
 
     // Persist the order. UNIQUE(stripe_checkout_session_id) is the authoritative
@@ -255,6 +264,7 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
       buildSuccess(
         {
           order_id: orderId,
+          ...(session.client_secret ? { client_secret: session.client_secret } : {}),
           plan_id: plan.tier,
           amount_cents: tax.totalCents,
           amount_before_tax_cents: plan.amount_cents,
