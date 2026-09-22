@@ -89,10 +89,18 @@ if (QUILL_STORAGE === 'postgres') {
 }
 
 // ── Redis cache + rate-limiter initialisation ──
+// Both read REDIS_URL (see cache/redis-url.ts). With no REDIS_URL the cache
+// serves without caching and the limiter enforces in-process; neither dials a
+// guessed endpoint.
 await redisClient.connect();
 await rateLimiter.init();
-log.info('[cache] Redis cache client initialised');
-log.info('[rate-limiter] Redis rate limiter initialised');
+log.info(
+  {
+    cache: redisClient.isConnected() ? 'redis' : 'disabled',
+    rateLimiter: rateLimiter.backendMode(),
+  },
+  '[redis] cache + rate limiter initialised',
+);
 
 // ── Cache route configuration ──
 interface CacheRouteConfig {
@@ -152,23 +160,23 @@ const server = http.createServer(async (req, res) => {
     if (!pathname.startsWith('/v1/health')) {
       const ip = rateLimiter.extractIP(req);
       const tier = rateLimiter.extractTier(req);
+      // Always returns a decision — Redis when connected, the in-process
+      // window otherwise. There is no pass-through mode.
       const rlResult = await rateLimiter.check(ip, tier);
 
-      if (rlResult) {
-        // Set rate-limit headers on every response
-        res.setHeader('X-RateLimit-Limit', String(rlResult.limit));
-        res.setHeader('X-RateLimit-Remaining', String(rlResult.remaining));
-        res.setHeader('X-RateLimit-Reset', String(rlResult.resetTime));
+      // Set rate-limit headers on every response
+      res.setHeader('X-RateLimit-Limit', String(rlResult.limit));
+      res.setHeader('X-RateLimit-Remaining', String(rlResult.remaining));
+      res.setHeader('X-RateLimit-Reset', String(rlResult.resetTime));
 
-        if (!rlResult.allowed) {
-          res.setHeader('Retry-After', String(rlResult.retryAfter));
-          res.writeHead(429, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            error: 'rate_limit_exceeded',
-            retry_after: rlResult.retryAfter,
-          }));
-          return;
-        }
+      if (!rlResult.allowed) {
+        res.setHeader('Retry-After', String(rlResult.retryAfter));
+        res.writeHead(429, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          error: 'rate_limit_exceeded',
+          retry_after: rlResult.retryAfter,
+        }));
+        return;
       }
     }
 
@@ -261,8 +269,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  Health:    http://localhost:${PORT}/v1/health`);
   console.log(`  Spec:      http://localhost:${PORT}/v1/openapi.json`);
   console.log(`  Storage:   ${QUILL_STORAGE}`);
-  console.log(`  Cache:     Redis (${redisClient.isConnected() ? 'connected' : 'degraded'})`);
-  console.log(`  Rate-limit: Redis (${rateLimiter.isConnected() ? 'connected' : 'pass-through'})`);
+  console.log(`  Cache:     ${redisClient.isConnected() ? 'Redis' : 'disabled (no REDIS_URL)'}`);
+  console.log(`  Rate-limit: ${rateLimiter.backendMode() === 'redis' ? 'Redis' : 'in-process window'}`);
   if (QUILL_STORAGE === 'sqlite') {
     console.log(`  DB Path:   ${QUILL_DB_PATH}`);
   } else if (QUILL_STORAGE === 'postgres') {

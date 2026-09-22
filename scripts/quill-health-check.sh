@@ -122,6 +122,77 @@ check_statcan_wds() {
   fi
 }
 
+# ── Tier-boundary honesty probe (2026-09-22) ──────────────────────────
+# A free customer who hits a paid endpoint must get a 402 that explains the
+# boundary in BOTH languages. The error-code table was missing 61 codes that
+# call sites emit, so those bodies shipped message_fr "Erreur inconnue"
+# (= "unknown error") on a bilingual product. This keeps the live surface
+# honest — the incident's regression guard at the deployed layer, next to the
+# unit-level error-codes-i18n.test.ts.
+check_tier_boundary() {
+  local body
+  body=$(curl -s --connect-timeout 5 --max-time 15 \
+    "https://api.maplespike.ca/v1/gov/search?q=health-probe" 2>/dev/null || true)
+
+  echo "$body" | grep -q 'UPGRADE_REQUIRED' \
+    || ISSUES="${ISSUES}Tier boundary: 402 body missing UPGRADE_REQUIRED code\n"
+  echo "$body" | grep -qiE 'plan|tier|upgrade' \
+    || ISSUES="${ISSUES}Tier boundary: 402 body does not explain the plan boundary\n"
+  if echo "$body" | grep -q 'Erreur inconnue'; then
+    ISSUES="${ISSUES}Tier boundary: French message is still the 'Erreur inconnue' placeholder\n"
+  fi
+  if ! echo "$body" | grep -q 'message_fr'; then
+    ISSUES="${ISSUES}Tier boundary: 402 body carries no French message at all\n"
+  fi
+}
+
+# ── Ingestion liveness (gate A1-INGEST, 2026-09-22) ───────────────────
+# The pipelines stopped silently: nothing was scheduled, no data flowed, and
+# no check noticed. Three probes, all required:
+#   1. CronJobs exist in the namespace — a deleted or renamed schedule is
+#      invisible from the API side,
+#   2. /v1/ingest/status is reachable — it is the run log the jobs write,
+#   3. every scheduled pipeline has a recent run and is not in the API's
+#      stalePipelines list (stale = last run older than 2x its cron period).
+# A job that exists but never completes (image missing, DB unwritable, module
+# crash) leaves no run row, so probe 3 catches it as "never reported a run".
+check_ingestion() {
+  local cjs
+  cjs=$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)
+  if [ -z "$cjs" ]; then
+    ISSUES="${ISSUES}No ingestion CronJobs in namespace maplespike — no data is being ingested (gate A1-INGEST)\n"
+    return 0
+  fi
+
+  local body
+  body=$(curl -s --connect-timeout 5 --max-time 20 "https://api.maplespike.ca/v1/ingest/status" 2>/dev/null || true)
+  if [ -z "$body" ]; then
+    ISSUES="${ISSUES}/v1/ingest/status unreachable — ingestion liveness unknown\n"
+    return 0
+  fi
+
+  case "$body" in
+    *'"status":"unknown"'*)
+      ISSUES="${ISSUES}Ingest run log empty — no pipeline has ever recorded a run (gate A1-INGEST)\n" ;;
+  esac
+
+  # stalePipelines: ["committees","gazette"] — extract the array body for matching.
+  local stale
+  stale=$(printf '%s\n' "$body" | sed -n 's/.*"stalePipelines":\[\([^]]*\)\].*/\1/p')
+
+  local name pipeline
+  for name in $cjs; do
+    pipeline=${name##*-ingest-}
+    case "$body" in
+      *"\"pipeline\":\"$pipeline\""*) : ;;
+      *) ISSUES="${ISSUES}Ingest pipeline '$pipeline' has never reported a run — CronJob $name is not completing (gate A1-INGEST)\n" ;;
+    esac
+    case "$stale" in
+      *"\"$pipeline\""*) ISSUES="${ISSUES}Ingest pipeline '$pipeline' is stale — last run is older than its schedule allows (gate A1-INGEST)\n" ;;
+    esac
+  done
+}
+
 # Only ever match the monitor's own issue, by exact title.
 find_monitor_issue() {
   gh issue list --repo "$REPO" --state open --json number,title \
@@ -135,7 +206,9 @@ check_pod "monitoring" || true
 check_http "https://quill.maplespike.ca/" "Public portal" || true
 check_http "https://api.maplespike.ca/v1/health" "Public API" || true
 check_auth_lane || true
+check_tier_boundary || true
 check_statcan_wds || true
+check_ingestion || true
 
 if [ -n "$ISSUES" ]; then
   echo "has_issues=true"
