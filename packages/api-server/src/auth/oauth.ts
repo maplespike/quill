@@ -174,7 +174,11 @@ export async function exchangeCode(
       client_id: provider.clientId,
       client_secret: provider.clientSecret,
       code,
-      redirect_uri: `${BASE_REDIRECT}/${provider.name}/callback`,
+      // The route key is the lowercased provider name ('GitHub' → github) —
+      // it MUST match the redirect_uri used in the authorize step and the
+      // URI registered on the OAuth app, or GitHub rejects the exchange
+      // (redirect_uri_mismatch; found live 2026-09-21).
+      redirect_uri: `${BASE_REDIRECT}/${provider.name.toLowerCase()}/callback`,
       grant_type: 'authorization_code',
     }),
   });
@@ -184,6 +188,13 @@ export async function exchangeCode(
   }
 
   const body = await resp.json() as Record<string, unknown>;
+  if (!body.access_token) {
+    // GitHub returns HTTP 200 with an error object for failed exchanges —
+    // surface it instead of passing `undefined` down to fetchProfile.
+    throw new Error(
+      `Token exchange failed: ${String(body.error ?? 'no access_token')} — ${String(body.error_description ?? '')}`,
+    );
+  }
   return body.access_token as string;
 }
 
