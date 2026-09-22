@@ -59,6 +59,12 @@ api:
 mcp:
   replicas: 1
   port: 3001
+  # Ultra-light + stateless → forge (2026-09-22 rebalance). nexus was the
+  # bottleneck (load 28.5/24 cores, 84% memory requested); forge has ~7.6 GB
+  # free and its GPUs do the real work (mining), so CPU-idle services fit.
+  # The API stays on nexus: its SQLite lives on a node-local volume.
+  nodeSelector:
+    kubernetes.io/hostname: forge
   resources:
     requests:
       cpu: 100m
@@ -91,6 +97,9 @@ portal:
   enabled: true
   replicas: 1
   port: 8080
+  # Static Astro build, 32Mi request → forge (same rebalance as mcp).
+  nodeSelector:
+    kubernetes.io/hostname: forge
   resources:
     requests:
       cpu: 50m
