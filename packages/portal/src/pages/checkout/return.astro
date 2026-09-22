@@ -1,0 +1,41 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { pick } from "@/utils/bilingual";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const t = (en: string, fr: string) => pick(lang, en, fr);
+// Stripe appends ?session_id={CHECKOUT_SESSION_ID} to the embedded return_url.
+const sessionId = Astro.url.searchParams.get("session_id") || "";
+---
+
+<BaseLayout
+  title={t("Payment received — MapleSpike", "Paiement reçu — MapleSpike")}
+  description={t(
+    "Your MapleSpike subscription is being activated.",
+    "Votre abonnement MapleSpike est en cours d'activation."
+  )}
+  lang={lang}
+>
+  <section class="mx-auto max-w-2xl px-4 py-16">
+    <h1 class="text-3xl font-semibold tracking-tight">
+      {t("Thanks — your payment went through.", "Merci — votre paiement a été accepté.")}
+    </h1>
+    <p class="mt-3 text-sm opacity-70">
+      {t(
+        "Stripe is confirming the subscription. Your plan upgrades as soon as the webhook lands — usually within seconds.",
+        "Stripe confirme l'abonnement. Votre forfait est mis à niveau dès la réception du webhook — généralement en quelques secondes."
+      )}
+    </p>
+    {sessionId && (
+      <p class="mt-2 font-mono text-xs opacity-50">session: {sessionId}</p>
+    )}
+    <div class="mt-8 flex gap-3">
+      <a href="/dashboard" class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+        {t("Go to dashboard", "Aller au tableau de bord")}
+      </a>
+      <a href="/pricing" class="rounded-md border px-4 py-2 text-sm font-medium">
+        {t("Back to pricing", "Retour aux tarifs")}
+      </a>
+    </div>
+  </section>
+</BaseLayout>

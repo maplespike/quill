@@ -240,18 +240,34 @@ const featureValues: Record<string, Bi[]> = {
             </CardContent>
             <CardFooter>
               {tier.kind === "stripe-pro" && (
-                <StripeCheckoutButton
-                  planId="pro"
-                  client:load
-                  className="w-full"
-                />
+                <div class="w-full space-y-2">
+                  <StripeCheckoutButton
+                    planId="pro"
+                    client:load
+                    className="w-full"
+                  />
+                  <a
+                    href="/checkout?plan=pro"
+                    class="block text-center text-xs underline opacity-70 hover:opacity-100"
+                  >
+                    {t("or pay on this page", "ou payez sur cette page")}
+                  </a>
+                </div>
               )}
               {tier.kind === "stripe-business" && (
-                <StripeCheckoutButton
-                  planId="business"
-                  client:load
-                  className="w-full"
-                />
+                <div class="w-full space-y-2">
+                  <StripeCheckoutButton
+                    planId="business"
+                    client:load
+                    className="w-full"
+                  />
+                  <a
+                    href="/checkout?plan=business"
+                    class="block text-center text-xs underline opacity-70 hover:opacity-100"
+                  >
+                    {t("or pay on this page", "ou payez sur cette page")}
+                  </a>
+                </div>
               )}
               {tier.kind === "signup" && (
                 <a href={tier.href} class="press-feedback inline-flex w-full transition-transform duration-[160ms] ease-out">
