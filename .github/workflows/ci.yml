@@ -85,6 +85,18 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # The [self-hosted, nixos] runner pool mixes hosts with and without
+      # stored `gh` credentials. A step that shells out to `gh` without a
+      # token therefore passes or fails by luck of runner selection (#909;
+      # PR 908's required `PR checks` check went red on forge-quill-runner).
+      # scripts/gates/check-workflow-gh-auth.mjs asserts every gh-invoking
+      # workflow step carries GH_TOKEN/GITHUB_TOKEN in scope.
+      - name: Workflow gh auth check
+        run: node scripts/gates/check-workflow-gh-auth.mjs
+
+      - name: Workflow gh auth unit tests
+        run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
+
       - name: Run api-server unit tests
         run: pnpm --filter @maplespike/api-server test:unit
 
