@@ -139,6 +139,311 @@ export const ERROR_CODES: Record<string, BilingualError> = {
     en: 'Invalid request',
     fr: 'Requête invalide',
   },
+  AI_ERROR: {
+    code: 'AI_ERROR',
+    en: 'AI service error',
+    fr: "Erreur du service d'IA",
+  },
+  AI_UNAVAILABLE: {
+    code: 'AI_UNAVAILABLE',
+    en: 'AI service unavailable',
+    fr: "Service d'IA indisponible",
+  },
+  ALREADY_CONSUMED: {
+    code: 'ALREADY_CONSUMED',
+    en: 'Code already used',
+    fr: 'Code déjà utilisé',
+  },
+  ANALYZE_ERROR: {
+    code: 'ANALYZE_ERROR',
+    en: 'Analysis failed',
+    fr: "L'analyse a échoué",
+  },
+  AUDIT_QUERY_FAILED: {
+    code: 'AUDIT_QUERY_FAILED',
+    en: 'Audit query failed',
+    fr: "La requête d'audit a échoué",
+  },
+  AUTH_ERROR: {
+    code: 'AUTH_ERROR',
+    en: 'Authentication error',
+    fr: "Erreur d'authentification",
+  },
+  BAD_REQUEST: {
+    code: 'BAD_REQUEST',
+    en: 'Bad request',
+    fr: 'Requête invalide',
+  },
+  CHECKOUT_FAILED: {
+    code: 'CHECKOUT_FAILED',
+    en: 'Checkout failed',
+    fr: 'Le paiement a échoué',
+  },
+  CITATION_ERROR: {
+    code: 'CITATION_ERROR',
+    en: 'Citation error',
+    fr: 'Erreur de citation',
+  },
+  CITATION_NOT_FOUND: {
+    code: 'CITATION_NOT_FOUND',
+    en: 'Citation not found',
+    fr: 'Citation introuvable',
+  },
+  CLAIMS_INDEX_ERROR: {
+    code: 'CLAIMS_INDEX_ERROR',
+    en: 'Claims index error',
+    fr: "Erreur de l'index des déclarations",
+  },
+  CLAIM_VERIFY_ERROR: {
+    code: 'CLAIM_VERIFY_ERROR',
+    en: 'Claim verification failed',
+    fr: 'La vérification de la déclaration a échoué',
+  },
+  COMPLIANCE_CHECK_FAILED: {
+    code: 'COMPLIANCE_CHECK_FAILED',
+    en: 'Compliance check failed',
+    fr: 'Le contrôle de conformité a échoué',
+  },
+  CONTACT_DEPRECATED: {
+    code: 'CONTACT_DEPRECATED',
+    en: 'This contact endpoint is deprecated',
+    fr: 'Ce point de contact est obsolète',
+  },
+  CONTACT_SALES: {
+    code: 'CONTACT_SALES',
+    en: 'Contact the sales team',
+    fr: "Contactez l'équipe des ventes",
+  },
+  DATA_QUALITY_ERROR: {
+    code: 'DATA_QUALITY_ERROR',
+    en: 'Data quality error',
+    fr: 'Erreur de qualité des données',
+  },
+  ENGINE_MISSING: {
+    code: 'ENGINE_MISSING',
+    en: 'Engine is missing',
+    fr: 'Le moteur est absent',
+  },
+  ENGINE_NOT_BUILT: {
+    code: 'ENGINE_NOT_BUILT',
+    en: 'Engine is not built',
+    fr: "Le moteur n'est pas compilé",
+  },
+  ENGINE_RUN_FAILED: {
+    code: 'ENGINE_RUN_FAILED',
+    en: 'Engine run failed',
+    fr: "L'exécution du moteur a échoué",
+  },
+  ENGINE_STATUS_FAILED: {
+    code: 'ENGINE_STATUS_FAILED',
+    en: 'Engine status unavailable',
+    fr: "L'état du moteur est indisponible",
+  },
+  ERROR: {
+    code: 'ERROR',
+    en: 'Error',
+    fr: 'Erreur',
+  },
+  ETRANSFER_DEPRECATED: {
+    code: 'ETRANSFER_DEPRECATED',
+    en: 'Interac e-transfer is deprecated',
+    fr: 'Le virement Interac est obsolète',
+  },
+  GITHUB_AUTH_ERROR: {
+    code: 'GITHUB_AUTH_ERROR',
+    en: 'GitHub authentication error',
+    fr: "Erreur d'authentification GitHub",
+  },
+  GITHUB_NOT_CONFIGURED: {
+    code: 'GITHUB_NOT_CONFIGURED',
+    en: 'GitHub is not configured',
+    fr: "GitHub n'est pas configuré",
+  },
+  GITHUB_PROFILE_ERROR: {
+    code: 'GITHUB_PROFILE_ERROR',
+    en: 'GitHub profile error',
+    fr: 'Erreur de profil GitHub',
+  },
+  GITHUB_TOKEN_ERROR: {
+    code: 'GITHUB_TOKEN_ERROR',
+    en: 'GitHub token error',
+    fr: 'Erreur de jeton GitHub',
+  },
+  HEALTH_CHECK_FAILED: {
+    code: 'HEALTH_CHECK_FAILED',
+    en: 'Health check failed',
+    fr: 'Le contrôle de santé a échoué',
+  },
+  INVALID_ADJUSTMENT: {
+    code: 'INVALID_ADJUSTMENT',
+    en: 'Invalid adjustment',
+    fr: 'Ajustement invalide',
+  },
+  INVALID_BODY: {
+    code: 'INVALID_BODY',
+    en: 'Invalid request body',
+    fr: 'Corps de requête invalide',
+  },
+  INVALID_CODE: {
+    code: 'INVALID_CODE',
+    en: 'Invalid code',
+    fr: 'Code invalide',
+  },
+  INVALID_HASH: {
+    code: 'INVALID_HASH',
+    en: 'Invalid hash',
+    fr: 'Empreinte invalide',
+  },
+  INVALID_JSON: {
+    code: 'INVALID_JSON',
+    en: 'Invalid JSON',
+    fr: 'JSON invalide',
+  },
+  KEY_CREATION_FAILED: {
+    code: 'KEY_CREATION_FAILED',
+    en: 'Key creation failed',
+    fr: 'La création de la clé a échoué',
+  },
+  KEY_REVOCATION_FAILED: {
+    code: 'KEY_REVOCATION_FAILED',
+    en: 'Key revocation failed',
+    fr: 'La révocation de la clé a échoué',
+  },
+  KEY_ROTATION_FAILED: {
+    code: 'KEY_ROTATION_FAILED',
+    en: 'Key rotation failed',
+    fr: 'La rotation de la clé a échoué',
+  },
+  ME_FAILED: {
+    code: 'ME_FAILED',
+    en: 'Could not load your profile',
+    fr: 'Impossible de charger votre profil',
+  },
+  MISSING_CODE: {
+    code: 'MISSING_CODE',
+    en: 'Missing code',
+    fr: 'Code manquant',
+  },
+  MISSING_ID: {
+    code: 'MISSING_ID',
+    en: 'Missing identifier',
+    fr: 'Identifiant manquant',
+  },
+  MISSING_KEY_ID: {
+    code: 'MISSING_KEY_ID',
+    en: 'Missing key identifier',
+    fr: 'Identifiant de clé manquant',
+  },
+  MISSING_QUERY: {
+    code: 'MISSING_QUERY',
+    en: 'Missing query',
+    fr: 'Requête manquante',
+  },
+  MISSING_TOKEN: {
+    code: 'MISSING_TOKEN',
+    en: 'Missing token',
+    fr: 'Jeton manquant',
+  },
+  NOT_SUPPORTED: {
+    code: 'NOT_SUPPORTED',
+    en: 'Not supported',
+    fr: 'Non pris en charge',
+  },
+  OAUTH_ERROR: {
+    code: 'OAUTH_ERROR',
+    en: 'OAuth authentication error',
+    fr: "Erreur d'authentification OAuth",
+  },
+  OAUTH_INVALID_STATE: {
+    code: 'OAUTH_INVALID_STATE',
+    en: 'Invalid OAuth state',
+    fr: 'État OAuth invalide',
+  },
+  OAUTH_LOGIN_FAILED: {
+    code: 'OAUTH_LOGIN_FAILED',
+    en: 'OAuth sign-in failed',
+    fr: 'La connexion OAuth a échoué',
+  },
+  OAUTH_PROVIDER_NOT_FOUND: {
+    code: 'OAUTH_PROVIDER_NOT_FOUND',
+    en: 'OAuth provider not found',
+    fr: 'Fournisseur OAuth introuvable',
+  },
+  OPENAPI_FAILED: {
+    code: 'OPENAPI_FAILED',
+    en: 'OpenAPI generation failed',
+    fr: 'Échec de la génération OpenAPI',
+  },
+  PAYLOAD_TOO_LARGE: {
+    code: 'PAYLOAD_TOO_LARGE',
+    en: 'Payload too large',
+    fr: 'Charge utile trop volumineuse',
+  },
+  PAYMENT_PROVIDER_ERROR: {
+    code: 'PAYMENT_PROVIDER_ERROR',
+    en: 'Payment provider error',
+    fr: 'Erreur du fournisseur de paiement',
+  },
+  PORTAL_FAILED: {
+    code: 'PORTAL_FAILED',
+    en: 'Portal request failed',
+    fr: 'Échec de la requête du portail',
+  },
+  RATE_LIMIT: {
+    code: 'RATE_LIMIT',
+    en: 'Rate limit reached',
+    fr: 'Limite de requêtes atteinte',
+  },
+  REGISTRATION_FAILED: {
+    code: 'REGISTRATION_FAILED',
+    en: 'Registration failed',
+    fr: "L'inscription a échoué",
+  },
+  SETTINGS_ERROR: {
+    code: 'SETTINGS_ERROR',
+    en: 'Settings error',
+    fr: 'Erreur des paramètres',
+  },
+  STORAGE_ERROR: {
+    code: 'STORAGE_ERROR',
+    en: 'Storage error',
+    fr: 'Erreur de stockage',
+  },
+  STRIPE_NOT_CONFIGURED: {
+    code: 'STRIPE_NOT_CONFIGURED',
+    en: 'Stripe is not configured',
+    fr: "Stripe n'est pas configuré",
+  },
+  TAX_LEDGER_ERROR: {
+    code: 'TAX_LEDGER_ERROR',
+    en: 'Tax ledger error',
+    fr: 'Erreur du registre fiscal',
+  },
+  UPGRADE_REQUIRED: {
+    code: 'UPGRADE_REQUIRED',
+    en: 'This feature requires a higher plan',
+    fr: 'Cette fonctionnalité nécessite une offre supérieure',
+  },
+  USAGE_QUERY_FAILED: {
+    code: 'USAGE_QUERY_FAILED',
+    en: 'Usage query failed',
+    fr: "La requête d'utilisation a échoué",
+  },
+  VERIFICATION_FAILED: {
+    code: 'VERIFICATION_FAILED',
+    en: 'Verification failed',
+    fr: 'La vérification a échoué',
+  },
+  WEBHOOK_IDENTITY_ERROR: {
+    code: 'WEBHOOK_IDENTITY_ERROR',
+    en: 'Webhook identity error',
+    fr: "Erreur d'identité du webhook",
+  },
+  WEBHOOK_PROCESSING_ERROR: {
+    code: 'WEBHOOK_PROCESSING_ERROR',
+    en: 'Webhook processing error',
+    fr: 'Erreur de traitement du webhook',
+  },
 };
 
 /**
@@ -152,7 +457,12 @@ export function buildBilingualError(
   const base = ERROR_CODES[code] ?? {
     code,
     en: messageOverrides?.en ?? 'Unknown error',
-    fr: messageOverrides?.fr ?? 'Erreur inconnue',
+    // An undefined code must NOT ship a placeholder translation to a bilingual
+    // product: fall back to the caller's English sentence (meaningful) rather
+    // than 'Erreur inconnue' (= "unknown error"), which told French readers
+    // nothing (2026-09-22). Every code used at a call site is defined above;
+    // error-codes-i18n.test.ts fails if a new one is not.
+    fr: messageOverrides?.fr ?? messageOverrides?.en ?? 'Unknown error',
   };
   return {
     code: base.code,
