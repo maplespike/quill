@@ -39,6 +39,9 @@ spec:
           labels:
             app: quill-ingest
             pipeline: {{ $name }}
+          {{- with include "quill.imageAnnotations" (dict "svc" "ingest" "ctx" $) }}
+          {{- . | nindent 10 }}
+          {{- end }}
         spec:
           restartPolicy: Never
           securityContext:
