@@ -52,14 +52,14 @@
   },
   "bugs": "https://github.com/reverb256/quill/issues",
   "devDependencies": {
-    "@types/node": "^26.6.1",
+    "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.19.0",
-    "typescript": "^7.0.2"
+    "typescript": "^5.7.0"
   },
   "sideEffects": false,
   "dependencies": {
     "@maplespike/i18n": "workspace:*",
-    "zod": "^4.6.5"
+    "zod": "^3.25.76"
   }
 }
