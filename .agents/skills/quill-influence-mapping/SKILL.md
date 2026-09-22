@@ -1,4 +1,5 @@
 ---
+last-reviewed: 2026-09-22
 name: quill-influence-mapping
 description: Map a lobbyist, politician, or organization influence trail across Canadian federal data (lobbying registry, parliamentary committees, GIC appointments, corporate records, procurement) using Quill MCP tools, and produce a dated timeline with verifiable claim hashes.
 version: 1.0.0
