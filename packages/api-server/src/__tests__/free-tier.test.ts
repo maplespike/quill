@@ -40,6 +40,7 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/security/audit-summary',
     '/v1/engine/status',
     '/v1/data/quality',
+    '/v1/ingest/status',
     '/v1/llms.txt',
     '/v1/llms-full.txt',
   ];
