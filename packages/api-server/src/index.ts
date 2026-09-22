@@ -130,6 +130,7 @@ import { entityByIdHandler, entityLinksHandler } from './routes/entities-detail.
 import { municipalDataHandler, municipalCityHandler, municipalCoverageHandler, municipalFacetsHandler, municipalHealthHandler, municipalSearchHandler } from './routes/municipal.js';
 import { dataQualityHandler } from './routes/data-quality.js';
 import { ingestStatusHandler } from './routes/ingest-status.js';
+import { ingestReportHandler } from './routes/ingest-report.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -438,6 +439,14 @@ ROUTES.push(
 );
 
 // Data Quality Monitoring — feeds Grafana dashboard
+ROUTES.push({
+  // Internal: ingestion runs report outcomes for the freshness ledger (#889).
+  pattern: /^\/v1\/internal\/ingest-report\/?$/,
+  method: 'POST',
+  params: [],
+  handler: ingestReportHandler,
+});
+
 ROUTES.push({
   pattern: /^\/v1\/data\/quality\/?$/,
   method: 'GET',
