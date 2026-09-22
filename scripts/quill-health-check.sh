@@ -44,8 +44,54 @@ check_http() {
   local url="$1"
   local label="$2"
   if ! curl -sf --connect-timeout 5 "$url" > /dev/null 2>&1; then
-    ISSUES="${ISSUES}Unreachable: $label ($url)
-"
+    ISSUES="${ISSUES}Unreachable: $label ($url)\n"
+  fi
+}
+
+# ── Auth-lane probes (2026-09-22) ──────────────────────────────────────
+# Every one of these failed live on 2026-09-21 and nothing caught it until
+# a human tried to sign in. They now run every 30 minutes.
+#   - OAuth start must 302 to GitHub with the LOWERCASE callback + client_id
+#     (catches: provider unwired, wrong client id, redirect_uri case bugs)
+#   - /exchange must reach its handler (catches wildcard-shadow regressions)
+#   - wallet lane needs the astral-key service + free-tier allowlist
+#   - llms.txt must stay free; the Stripe webhook must reach its HMAC
+#     handler (400), never 402; gov/search must stay 402-gated.
+check_auth_lane() {
+  local api="https://api.maplespike.ca"
+
+  local loc
+  loc=$(curl -s -o /dev/null -w '%{redirect_url}' --connect-timeout 5 "$api/v1/auth/oauth/github" 2>/dev/null || true)
+  if ! echo "$loc" | grep -q 'github.com/login/oauth/authorize'; then
+    ISSUES="${ISSUES}OAuth start not redirecting to GitHub: ${loc:-<empty>}\n"
+  else
+    echo "$loc" | grep -q 'redirect_uri=https://api.maplespike.ca/v1/auth/oauth/github/callback' \
+      || ISSUES="${ISSUES}OAuth redirect_uri mismatch (must be lowercase /github/callback)\n"
+    echo "$loc" | grep -q 'client_id=' \
+      || ISSUES="${ISSUES}OAuth client_id missing from authorize URL\n"
+  fi
+
+  local exch
+  exch=$(curl -s --connect-timeout 5 "$api/v1/auth/oauth/exchange?code=health-probe" 2>/dev/null || true)
+  echo "$exch" | grep -q 'INVALID_CODE' \
+    || ISSUES="${ISSUES}OAuth /exchange not serving INVALID_CODE (shadowed route?): $(echo "$exch" | head -c 120)\n"
+
+  curl -sf --connect-timeout 5 "$api/v1/astral/health" 2>/dev/null | grep -qE '"status"[: ]*"healthy"' \
+    || ISSUES="${ISSUES}Astral health not healthy — wallet lane degraded\n"
+
+  curl -sf --connect-timeout 5 "$api/v1/llms.txt" > /dev/null 2>&1 \
+    || ISSUES="${ISSUES}llms.txt not free (free-tier allowlist regression)\n"
+
+  local wh
+  wh=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 -X POST "$api/v1/billing/stripe/webhook" -H 'Content-Type: application/json' -d '{}' 2>/dev/null || true)
+  if [ "$wh" != "400" ]; then
+    ISSUES="${ISSUES}Stripe webhook returned ${wh:-<empty>} (expected 400 signature; 402 = free-tier gate regression)\n"
+  fi
+
+  local gs
+  gs=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 "$api/v1/gov/search?q=health" 2>/dev/null || true)
+  if [ "$gs" != "402" ]; then
+    ISSUES="${ISSUES}gov/search returned ${gs:-<empty>} (expected 402; free-tier gate may be open)\n"
   fi
 }
 
@@ -61,6 +107,7 @@ check_pod "monitoring" || true
 
 check_http "https://quill.maplespike.ca/" "Public portal" || true
 check_http "https://api.maplespike.ca/v1/health" "Public API" || true
+check_auth_lane || true
 
 if [ -n "$ISSUES" ]; then
   echo "has_issues=true"
