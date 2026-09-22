@@ -190,7 +190,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         get: {
           tags: ['Usage'],
           summary: 'Get current usage',
-          description: 'Returns daily and monthly API call counts, limits, and remaining quota for your tier.',
+          description: 'Returns daily and monthly API call counts, limits, and remaining quota for the calling key\'s own tenant. Self-scoped, available on every tier (including Free).',
           responses: { '200': { description: 'Usage statistics' } },
         },
       },
