@@ -88,13 +88,13 @@ jobs:
           pnpm --filter @maplespike/api-server build
           pnpm --filter @maplespike/quill-mcp build
 
-      - name: Run api-server coverage
-        run: pnpm --filter @maplespike/api-server test:coverage
+      - name: Run api-server coverage (floor-enforced)
+        run: bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
 
-      - name: Run quill-mcp coverage (hermetic unit suite)
+      - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: pnpm --filter @maplespike/quill-mcp test:coverage:unit
+        run: bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
     needs: build-and-test
