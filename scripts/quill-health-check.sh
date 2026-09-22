@@ -99,6 +99,29 @@ check_auth_lane() {
   fi
 }
 
+# ── StatCan WDS probe (2026-09-22, issue #722) ────────────────────────
+# WDS metadata operations are POST-only: a GET on getCubeMetadata answers
+# 405 and a GET on the bare /t1/wds/rest/ root answers 404 — exactly the
+# false positive that filed #722 ("API is down"). Probe the real contracts.
+check_statcan_wds() {
+  local meta
+  meta=$(curl -s -o /tmp/quill-wds-meta.json -w '%{http_code}' --max-time 20 \
+    -X POST 'https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata' \
+    -H 'Content-Type: application/json' -d '[{"productId":14100087}]' 2>/dev/null || true)
+  if [ "$meta" != "200" ]; then
+    ISSUES="${ISSUES}StatCan WDS getCubeMetadata (POST) returned ${meta:-<empty>} — expected 200\n"
+  elif ! grep -q '"cubeTitleEn"' /tmp/quill-wds-meta.json 2>/dev/null; then
+    ISSUES="${ISSUES}StatCan WDS metadata body missing cubeTitleEn\n"
+  fi
+
+  local list
+  list=$(curl -s -o /tmp/quill-wds-list.json -w '%{http_code}' --max-time 20 \
+    'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1' 2>/dev/null || true)
+  if [ "$list" != "200" ]; then
+    ISSUES="${ISSUES}StatCan WDS getAllCubesListLite (GET) returned ${list:-<empty>} — expected 200\n"
+  fi
+}
+
 # Only ever match the monitor's own issue, by exact title.
 find_monitor_issue() {
   gh issue list --repo "$REPO" --state open --json number,title \
@@ -112,6 +135,7 @@ check_pod "monitoring" || true
 check_http "https://quill.maplespike.ca/" "Public portal" || true
 check_http "https://api.maplespike.ca/v1/health" "Public API" || true
 check_auth_lane || true
+check_statcan_wds || true
 
 if [ -n "$ISSUES" ]; then
   echo "has_issues=true"
