@@ -84,7 +84,7 @@ api:
     # this chart (see templates/redis.yaml + the redis: block below).
     REDIS_URL: "redis://quill-redis:6379"
     # #806: Stripe environment. 'test' until the go-live secret-swap.
-    STRIPE_ENV: "test"
+    STRIPE_ENV: "live"
   ingress:
     host: api.maplespike.ca
     tls: true
