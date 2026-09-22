@@ -12,14 +12,17 @@
 # Env vars:
 #   KUBECONFIG         — path to k3s kubeconfig (default /etc/rancher/k3s/k3s.yaml)
 #   QUILL_REPO         — path to quill repo checkout (default /opt/quill)
-#   SOPS_AGE_KEY_FILE  — path to age private key (for sops -d fallback)
+#   SOPS_AGE_KEY_FILE  — path to age private key (for sops -d fallback).
+#                        Default ~/.age/key.txt. The /etc/nixos/... paths this
+#                        used to point at died with the NixOS -> Omarchy
+#                        migration (2026-09-17); see secrets/README.md.
 #   NAMESPACE          — K8s namespace (default maplespike)
 
 set -euo pipefail
 
 KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
 QUILL_REPO="${QUILL_REPO:-/opt/quill}"
-SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-/etc/nixos/.age/nexus-prod-key.txt}"
+SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-$HOME/.age/key.txt}"
 NAMESPACE="${NAMESPACE:-maplespike}"
 
 # Use kubectl with TLS skip (k3s self-signed cert)

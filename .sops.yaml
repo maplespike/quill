@@ -1,18 +1,41 @@
 # SOPS creation rules — Quill
 #
-# HISTORY: this file used to seal secrets/runtime.yaml to 'nexus-prod' and
-# 'homelab-dev'. Both private keys are gone (the nexus-prod key file is absent
-# from nexus; the homelab key lived at /etc/nixos/.age/key.txt and no NixOS hosts
-# remain), so the file could not be decrypted by any host. Re-sealed 2026-09-22
-# to recipients that exist, mirroring the nixos-secrets repo:
+# KEY INVENTORY (verified 2026-09-22 — see secrets/README.md "Recovery history")
+#
+# This file used to seal secrets/runtime.yaml to 'nexus-prod' and 'homelab-dev'.
+#
+#   nexus-prod (age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd)
+#     GENUINELY LOST. Private key written 2026-08-15 to
+#     /etc/nixos/.age/nexus-prod-key.txt; /etc/nixos is gone (Omarchy migration
+#     2026-09-17) and no copy survives on any host.
+#
+#   homelab-dev (age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe)
+#     NOT LOST — it is on zephyr at ~/.age/key.txt (0600) and still decrypts every
+#     commit up to 961a5e1, including the pre-rebuild secrets/runtime.yaml. It is
+#     not a recipient of the current files, deliberately: the three recipients
+#     below are the cluster's key story.
+#
+# Recipients in use (mirrors reverb256/nixos-secrets/.sops.yaml):
 #
 #   cluster_age   — private key rescued to zephyr:~/.config/sops/age/cluster-age-key.txt (0600)
-#   zephyr_age_v2 — same file carries both cluster_age and zephyr_age_v2
+#   zephyr_age_v2 — the same file carries both cluster_age and zephyr_age_v2
 #   yubikey_nano  — YubiKey 5 Nano, serial 11115841 slot 1; needs pcscd.socket
 #                   and the plugin identity stub in ~/.config/sops/age/keys.txt
 #
+# Also available in the fleet (add here, then `sops updatekeys`):
+#   yubikey_nfc      — YubiKey 5 NFC, serial 12251564 slot 2
+#   offline_recovery — air-gapped break-glass, held off every host
+#   homelab_dev      — zephyr ~/.age/key.txt (see above)
+#
 # Decrypt from zephyr:
 #   SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt sops -d secrets/runtime.yaml
+#
+# Values dropped when runtime.yaml was rebuilt from the live cluster secrets
+# (commit 47e9f0c) are recoverable from git history:
+#   git show 961a5e1:secrets/runtime.yaml   # decrypt with zephyr:~/.age/key.txt
+# Both are covered elsewhere: ASTRAL_KEY_URL is pinned as a literal in
+# k8s/maplespike/quill-api-deployment.yaml, and MAPLESPIKE_BILLING_EMAIL has a
+# code default in packages/api-server/src/routes/billing.ts.
 #
 # Rotation: add the new recipient below, then `sops updatekeys secrets/runtime.yaml`.
 creation_rules:

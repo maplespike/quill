@@ -1,3 +1,8 @@
+# DEPRECATED (2026-09-22): NixOS-only. No NixOS host remains (Omarchy migration,
+# 2026-09-17) and the nexus-prod age key this module expects at
+# /etc/nixos/.age/nexus-prod-key.txt no longer exists anywhere. Kept for
+# reference only; key management now lives in secrets/README.md.
+#
 # NixOS sops-nix module — Quill runtime secrets
 #
 # This module is imported by the nexus host's configuration.nix (in the
