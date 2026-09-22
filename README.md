@@ -293,3 +293,9 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 **Portal** (`packages/portal`): MIT
 
 Copyright © MapleSpike / reverb256. The `@maplespike/*` npm scope is the organizational scope; the product name is Quill. Government data retains its original license (primarily [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada)).
+
+## How this is built
+
+Quill is developed by a fleet of autonomous agents under human direction.
+[`docs/AGENT-WORKFLOW.md`](docs/AGENT-WORKFLOW.md) explains the workflow, the
+rules it runs under, and how to contribute without it.
