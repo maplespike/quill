@@ -153,7 +153,12 @@ export const ROUTES: Route[] = [
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
   { pattern: /^\/v1\/verify\/([^/]+)\/?$/, method: 'GET', params: ['token'], handler: verifyHandler },
-  { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: withRouteCache(meHandler, 60) },
+  // NOTE: intentionally NOT wrapped in withRouteCache — /v1/me is tenant-scoped
+  // (tenant identity + that tenant's usage) and the route cache keys on
+  // method:path:search WITHOUT a tenant dimension, so the first caller's body
+  // would be replayed to every other tenant for the whole TTL. Same reasoning
+  // as /v1/entities/{id} below and /v1/usage.
+  { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
   { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: withRouteCache(listReleasesHandler, 3600) },
   { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: withRouteCache(searchGovHandler, 300) },
 
@@ -167,7 +172,12 @@ export const ROUTES: Route[] = [
   { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
   // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
   { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
-  { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: withRouteCache(usageHandler, 60) },
+  // NOTE: intentionally NOT wrapped in withRouteCache — the body is the
+  // calling key's OWN counters (#891) and the route cache keys on
+  // method:path:search WITHOUT a tenant dimension, so tenant A's numbers
+  // would be served to tenant B for the whole TTL. Self-scoped reads must be
+  // computed per request.
+  { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
   { pattern: /^\/v1\/billing\/seed-plans\/?$/, method: 'POST', params: [], handler: billingSeedPlansHandler },
@@ -332,6 +342,26 @@ function generateRequestId(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
   return 'maplespike-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Read a tenant's current monthly call count for the response envelope.
+ *
+ * Returns 0 when the storage read fails: a blocked request must still return
+ * its 402 with the tier boundary intact, never a 500 caused by the
+ * informational meta.usage summary.
+ */
+async function readPeriodCalls(db: QuillStorage, tenantId: string): Promise<number> {
+  try {
+    const yearMonth = new Date().toISOString().slice(0, 7);
+    return await db.getMonthlyUsage(tenantId, yearMonth);
+  } catch (err) {
+    logger.warn(
+      { tenantId, err: err instanceof Error ? err.message : String(err) },
+      'Usage read failed — meta.usage.periodCalls reported as 0',
+    );
+    return 0;
+  }
 }
 
 // ── Pino structured logging for request lifecycle ──
@@ -680,6 +710,11 @@ export async function handleRequest(
   // for free tenants with UPGRADE_REQUIRED. (Pro+ gating per-route still
   // applies via canAccess for individual features.)
   if (ctx.tenant.tier === 'free' && !isFreeTierRoute(path) && !isOperatorRoute(path)) {
+    // The 402 body is a Free tenant's window into its own consumption (#891).
+    // Publish the tenant's real monthly count in meta.usage — a hardcoded
+    // zero told every blocked customer they had used nothing.
+    const periodCalls = await readPeriodCalls(db, ctx.tenant.id);
+    const limits = TIER_LIMITS[ctx.tenant.tier] || TIER_LIMITS.free;
     const bc: BuildContext = {
       tenant: ctx.tenant,
       requestId,
@@ -690,6 +725,11 @@ export async function handleRequest(
         creditsCharged: 0,
         authMethod: tenant?.authMethod || 'api-key',
         durationMs: Date.now() - startTime,
+        usage: {
+          periodCalls,
+          periodLimit: limits.monthly,
+          tier: ctx.tenant.tier,
+        },
       },
     };
     logger.warn({ requestId, pathname: path, tier: 'free' }, 'Free-tier route blocked (upgrade required)');

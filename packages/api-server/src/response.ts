@@ -87,6 +87,7 @@ function buildResponseMeta(
     creditsCharged: number;
     cacheStatus: 'hit' | 'miss' | 'mock';
     durationMs: number;
+    usage: Partial<UsageMeta>;
   }>,
 ): ResponseMeta {
   const now = new Date().toISOString();
@@ -95,9 +96,12 @@ function buildResponseMeta(
     timestamp: now,
     version: '0.1.0',
     usage: {
-      periodCalls: 0, // Filled by middleware
-      periodLimit: TIER_LIMITS[ctx.tenant.tier]?.monthly || 1000,
-      tier: ctx.tenant.tier,
+      // 0 unless the caller measured it. The gateway fills this from storage
+      // on the paths that report usage (the Free-tier 402 body, /v1/usage);
+      // nothing fills it behind the caller's back — see routes/usage.ts.
+      periodCalls: overrides?.usage?.periodCalls ?? 0,
+      periodLimit: overrides?.usage?.periodLimit ?? (TIER_LIMITS[ctx.tenant.tier]?.monthly || 1000),
+      tier: overrides?.usage?.tier ?? ctx.tenant.tier,
     },
     agent: overrides?.agent ?? 'maplespike',
     action: overrides?.action ?? 'api-call',
@@ -216,6 +220,7 @@ export interface BuildContext {
     creditsCharged: number;
     cacheStatus: 'hit' | 'miss' | 'mock';
     durationMs: number;
+    usage: Partial<UsageMeta>;
   }>;
 }
 
