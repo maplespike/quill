@@ -39,6 +39,12 @@ images:
   portal:
     digest: "sha256:d178d2fb125243a49b3ac2ccc8a3fd1d7e99956a6c7268f452f09c0ead1418f9"
     tag: "2026-09-21-sha.d178d2fb1252"
+  # Ingestion CronJobs. The runner must be in the store like the services: a
+  # chart-wide tag cannot supply one, and an empty tag renders an invalid
+  # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
+  ingest:
+    digest: "sha256:2f80a073d1b7dd768016a1d547748b826cd51a0ef0e82d9a7579d0d5a0d02e6b"
+    tag: "2026-09-21-sha.2f80a073d1b7"
 
 # API Server
 api:
