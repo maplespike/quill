@@ -116,3 +116,6 @@ packages/flywheel-agent/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# build scratch (pin-images.sh TMPDIR default)
+.tmp/

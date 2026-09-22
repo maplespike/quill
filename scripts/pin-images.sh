@@ -37,6 +37,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
 NODE="nexus"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRY="docker.io/library"
 EXISTING=false
 VERIFY_ONLY=false
@@ -138,7 +139,14 @@ for SVC in $SERVICES; do
   fi
 
   if [[ "$SKIP_IMPORT" == false ]]; then
-    TAR="/tmp/quill-$SVC-pin.tar"
+    # Respect TMPDIR: on nexus /tmp is a 24G tmpfs that fills with other
+    # workloads, and docker save dying on "disk quota exceeded" looks like a
+    # build failure. TMPDIR=<dir on a roomy fs> moves the tar.
+    # Default to a repo-local dir: /tmp on the build host is shared with other
+    # workloads and a full tmpfs surfaces as a bogus "build failed".
+    : "${TMPDIR:=$REPO_ROOT/.tmp}"
+    mkdir -p "$TMPDIR"
+    TAR="$TMPDIR/quill-$SVC-pin.tar"
     echo "  save:    $TAR"
     docker save "$SRC" -o "$TAR"
     echo "  import:  k3s ctr -n $CTR_NS images import"
