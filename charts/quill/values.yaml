@@ -42,6 +42,24 @@ mcp:
     host: mcp.maplespike.ca
     tls: true
 
+# Redis — cache + distributed rate-limit state (gate A2-REDIS, #764 / #770).
+# Disabled here so a bare `helm install` stays self-contained; the production
+# values enable it and point api.env.REDIS_URL at the Service this renders.
+redis:
+  enabled: false
+  replicas: 1
+  image: docker.io/library/redis:alpine
+  # Mirrors api.storage.nodeName: keep the cache beside the API pod.
+  nodeName: nexus
+  maxmemory: 128mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
+
 # Ingestion Runner (CronJobs)
 ingestion:
   schedules:
