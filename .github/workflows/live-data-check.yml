@@ -43,15 +43,18 @@ jobs:
           # 18082 — 8082 collides with nginx on the nexus runner (2026-09-22).
           PORT: '18082'
           MAPLESPIKE_OAUTH_REDIRECT_BASE: 'http://localhost:18082/v1/auth/oauth'
-          # Server hard-fails at boot without JWT_SECRET (validateConfig).
-          # CI-local ephemeral value; never used outside this runner.
-          JWT_SECRET: 'a3f8c2d91b4e6f7a8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b'
         run: |
           # Kill any orphaned server from a previous run — self-hosted runners
           # leak background processes, and a stale listener on 8082 made this
           # workflow silently test the WRONG server (2026-09-22 incident).
           pkill -f "dist/dev-server.js" 2>/dev/null || true
           sleep 1
+          # The server hard-fails at boot without JWT_SECRET (validateConfig).
+          # Generated per run rather than pasted as a literal: a 64-hex constant
+          # in a workflow file is flagged by gitleaks (generic-api-key) and a
+          # fresh ephemeral value is the better habit anyway.
+          export JWT_SECRET
+          JWT_SECRET="$(openssl rand -hex 64)"
           node packages/api-server/dist/dev-server.js > /tmp/quill-ci-server.log 2>&1 &
           READY=0
           for i in $(seq 1 30); do
