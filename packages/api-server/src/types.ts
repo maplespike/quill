@@ -234,7 +234,9 @@ export interface ApiResponse<T = unknown> {
 /**
  * Per-request meta overrides — set by route handlers to customise the
  * response envelope without rebuilding the whole BuildContext. Typical
- * use: live-data helpers flip `cacheStatus` to 'hit'/'miss' on cache events.
+ * use: live-data helpers flip `cacheStatus` to 'hit'/'miss' on cache events,
+ * and usage-reporting routes publish the tenant's real counters through
+ * `usage` so `meta.usage` is never a hardcoded zero.
  */
 export type BuildMetaOverrides = Partial<{
   agent: string;
@@ -243,6 +245,8 @@ export type BuildMetaOverrides = Partial<{
   creditsCharged: number;
   cacheStatus: 'hit' | 'miss' | 'mock';
   durationMs: number;
+  /** Per-tenant usage summary for `meta.usage`. Omitted fields fall back to the envelope defaults. */
+  usage: Partial<UsageMeta>;
 }>;
 
 /* ------------------------------------------------------------------ */

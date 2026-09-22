@@ -103,10 +103,15 @@ Source: [`types.ts`](./src/types.ts) — `QueryOptions` interface, `parseQueryOp
 
 ## 5. Usage Endpoint
 
-`GET /v1/usage` returns current consumption:
+`GET /v1/usage` returns the calling key's **own** consumption — for every tier,
+including Free (#891). The response is scoped to the authenticated tenant, so
+there is no cross-tenant read path.
 
 ```json
 {
+  "scope": "self",
+  "tenant": { "id": "tn_…", "name": "…", "tier": "free" },
+  "period": { "date": "2026-06-12", "yearMonth": "2026-06" },
   "usage": {
     "daily": { "calls": 12, "limit": 35, "remaining": 23, "percentUsed": 34 },
     "monthly": { "calls": 342, "limit": 1000, "remaining": 658, "percentUsed": 34 }
@@ -114,6 +119,13 @@ Source: [`types.ts`](./src/types.ts) — `QueryOptions` interface, `parseQueryOp
   "resetDate": "2026-06-01T00:00:00.000Z"
 }
 ```
+
+The same summary rides on every response as `meta.usage`
+(`periodCalls` / `periodLimit` / `tier`) — including the 402 body a Free tenant
+gets from a Pro+ route, so a blocked customer still sees their own numbers.
+
+Tenant-wide analytics (aggregate dashboards, cross-tenant reporting) stay behind
+the `usageAnalytics` gate (Business+). That gate never covers your own counters.
 
 Source: [`routes/usage.ts`](./src/routes/usage.ts)
 
