@@ -159,6 +159,9 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/billing/stripe/portal',
   '/v1/billing/stripe/status',
   '/v1/billing/stripe/order',
+  // Stripe calls this anonymously (HMAC-signed events); the Free-tier gate
+  // must never block payment events (found 402'd on 2026-09-21).
+  '/v1/billing/stripe/webhook',
   '/v1/billing/seed-plans',
   '/v1/auth/',
   '/v1/astral/web3/',
@@ -173,6 +176,8 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/data/quality',
   '/v1/status',
   '/v1/openapi',
+  // AI-discovery docs (llms.txt / llms-full.txt) — same class as openapi.
+  '/v1/llms',
 ];
 
 /**
