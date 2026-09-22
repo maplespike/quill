@@ -12,10 +12,27 @@ Owner key: **[A]** agent-executable (dispatched to the kanban board / done here)
 
 ## A. Production gaps — the system is not yet serving its purpose
 
-- [ ] **A1 · Production ingestion is deployed and running** (#889)
-      CHECK: `ssh nexus 'kubectl -n maplespike get cronjobs'`
-      EXPECT: ingest job(s) present, last schedule `True`/recent, and a finished Job pod `Completed`
-      Owner: [A] — blocked the whole time by "pipelines tested, never scheduled".
+- [x] **A1 · Production ingestion is deployed and running** (#889) — DONE 2026-09-22
+      CHECK: `bash scripts/gates-run.sh A1` (wraps `scripts/quill-health-check.sh`)
+      EXPECT: CronJobs present, each scheduled pipeline leaving a run row the API reads
+      back, no pipeline stale, and a finished Job pod `Completed`.
+      Evidence: 7 CronJobs in `maplespike` (`committees`, `corporate`, `gazette`,
+      `influence`, `ngo-rss`, `oversight`, `realtime`), each `nodeName: nexus` +
+      digest-pinned `docker.io/library/quill-ingest@sha256:17eab819…` (annotation
+      `quill.maplespike.ca/image-build-tag: 2026-09-21-sha.17eab81984d8`).
+      `quill-ingest-ngo-rss-29834160` Completed 3m15s / `quill-ingest-realtime-29834160`
+      Completed 3m15s, logs ending `[claims] Registered 94 claim bundle(s)` and
+      `[CLI] ✅ ngo-influence-rss complete`. `curl https://api.maplespike.ca/v1/ingest/status`
+      → `success: true`, `status: ok`, `stalePipelines: []`, rows
+      `ngo-rss|success|94 records|*/15` (age 69s) and `realtime|success|5 records|5 claims|*/30`
+      (age 63s). `curl /v1/claims/latest` → 25 claims, incl. `source_name: real-time-feeds`
+      written by the job. `bash scripts/gates-run.sh A1` → `A1 PASS`.
+      Bugs fixed on the way: the runner passed a stub D1 handle into `runModule()`, so every
+      db-first module threw `No database configured` and persisted nothing; the chart's
+      `committees`/`social` keys were not CLI aliases; `cross-reference` (a query engine) was
+      schedulable; the CronJob rendered `quill-ingest:` (empty chart-wide tag →
+      `InvalidImageName`); `/v1/ingest/status` was 402'd by the Free-tier boundary; and the
+      health probe matched compact JSON, reporting every pipeline as "never reported a run".
 
 - [x] **A2 · A real cache/rate-limit backend answers** (#764, #770) — DONE 2026-09-22
       CHECK: `ssh nexus 'kubectl get svc -A | grep -i redis'` + api env/logs
