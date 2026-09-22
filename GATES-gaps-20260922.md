@@ -28,10 +28,14 @@ Owner key: **[A]** agent-executable (dispatched to the kanban board / done here)
       CHECK: `bash scripts/gates-run.sh A3`
       EXPECT: `A3 PASS` — rendered manifests carry no `:local`, the live refs match
       `charts/quill/values-prod.yaml`, and each digest resolves in the node store.
-      Evidence: helm render → 0 `:local`; live `quill-{api,mcp,portal}` →
-      `docker.io/library/quill-<svc>@sha256:<digest>`; a repeat ArgoCD sync of the
-      same digests created no new ReplicaSet; api/mcp/portal/llms.txt all 200.
-      Chart + `scripts/pin-images.sh` + gate + `docs/IMAGE-PINNING.md` in d8580d7.
+      Evidence: helm render → 0 `:local`; live `quill-{api,mcp,portal}` and all 7
+      ingestion CronJobs → `docker.io/library/quill-<svc>@sha256:<digest>`; a repeat
+      ArgoCD sync of the same digests created no new ReplicaSet; api/mcp/portal and
+      `llms.txt` all 200. NOTE the pin also caught a real regression: an empty
+      chart-wide `image.tag` rendered `quill-ingest:` and every ingest run died
+      `InvalidImageName` until the CronJob was pinned by digest too.
+      Chart + `scripts/pin-images.sh` + gate + `docs/IMAGE-PINNING.md` in d8580d7;
+      ingest CronJob pin + CronJob coverage in A3 in 1ffbadd.
       Owner: [A]
 
 ## B. Customer-experience gaps (found by the new journey tests)
