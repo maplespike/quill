@@ -33,6 +33,13 @@ jobs:
       - run: pnpm rebuild better-sqlite3
 
       - name: Start API server (background)
+        env:
+          # Decision 0002 — register refuses without a stable 64-hex hash;
+          # the CI smoke below asserts register works end-to-end.
+          QUILL_PII_HASH_SECRET: '0000000000000000000000000000000000000000000000000000000000000000'
+          # Dummy OAuth creds so the provider registers (no network calls in the smoke).
+          GITHUB_CLIENT_ID: 'ci-smoke-client'
+          GITHUB_CLIENT_SECRET: 'ci-smoke-secret'
         run: |
           node packages/api-server/dist/dev-server.js &
           for i in $(seq 1 30); do
@@ -43,6 +50,29 @@ jobs:
             echo "Waiting for API server... ($i/30)"
             sleep 1
           done
+
+      - name: "Auth-lane smoke (regressions 2026-09-21)"
+        run: |
+          set -euo pipefail
+          API=http://localhost:8082
+          # OAuth start must 302 with the LOWERCASE callback (redirect_uri case regression)
+          LOC=$(curl -s -o /dev/null -w '%{redirect_url}' "$API/v1/auth/oauth/github")
+          echo "$LOC" | grep -q 'redirect_uri=http://localhost:8082/v1/auth/oauth/github/callback' \
+            || { echo "FAIL: oauth redirect_uri: $LOC"; exit 1; }
+          # /exchange must reach its handler (route-shadow regression)
+          curl -s "$API/v1/auth/oauth/exchange?code=ci-smoke" | grep -q 'INVALID_CODE' \
+            || { echo "FAIL: exchange route shadowed"; exit 1; }
+          # register must succeed (PII-hash env wiring)
+          curl -s -X POST "$API/v1/register" -H 'Content-Type: application/json' \
+            -d '{"name":"ci-smoke","email":"ci-smoke@example.com"}' | grep -q '"success": true' \
+            || { echo "FAIL: register"; exit 1; }
+          # free-tier allowlist anchors
+          curl -sf "$API/v1/llms.txt" > /dev/null || { echo "FAIL: llms.txt gated"; exit 1; }
+          WH=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$API/v1/billing/stripe/webhook" -H 'Content-Type: application/json' -d '{}')
+          [ "$WH" = "400" ] || { echo "FAIL: webhook returned $WH (expected 400)"; exit 1; }
+          GS=$(curl -s -o /dev/null -w '%{http_code}' "$API/v1/gov/search?q=smoke")
+          [ "$GS" = "402" ] || { echo "FAIL: gate open ($GS)"; exit 1; }
+          echo "auth-lane smoke: OK"
 
       - name: Run live endpoint smoke tests
         id: live-tests
