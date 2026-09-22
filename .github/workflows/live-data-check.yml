@@ -43,6 +43,9 @@ jobs:
           # 18082 — 8082 collides with nginx on the nexus runner (2026-09-22).
           PORT: '18082'
           MAPLESPIKE_OAUTH_REDIRECT_BASE: 'http://localhost:18082/v1/auth/oauth'
+          # Server hard-fails at boot without JWT_SECRET (validateConfig).
+          # CI-local ephemeral value; never used outside this runner.
+          JWT_SECRET: '***REMOVED***'
         run: |
           # Kill any orphaned server from a previous run — self-hosted runners
           # leak background processes, and a stale listener on 8082 made this
