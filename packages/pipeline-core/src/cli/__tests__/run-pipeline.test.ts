@@ -106,6 +106,23 @@ describe('runOne persistence contract', () => {
     assert.equal(entityCalls.length, 1);
     assert.equal(entityCalls[0][0], db, 'entity resolution must receive the caller-provided handle');
   });
+
+  it('refuses a module that declares no ingestAll* entry point', async () => {
+    // `cross-reference` is a query engine (searchCrossReference(query)); the
+    // registry gives it no ingestAll*. Calling it anyway produced
+    // "Cannot read properties of undefined (reading 'trim')", which hid a
+    // scheduling mistake behind what looked like a module crash.
+    const { runner, moduleCalls } = makeSpy({ records: [] });
+    const outcome = await runOne('cross-reference', 'cross-reference', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.match(outcome.error ?? '', /no ingestAll\* entry point/);
+    assert.equal(moduleCalls.length, 0, 'a non-ingest module must not be called at all');
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'cross-reference');
+    assert.ok(run, 'the refusal must still land in the run log');
+    assert.equal(run.status, 'failed');
+  });
 });
 
 describe('countRecords', () => {

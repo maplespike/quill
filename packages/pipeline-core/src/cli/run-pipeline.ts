@@ -68,7 +68,12 @@ export const PIPELINE_CONFIG: Record<string, string> = {
   a2aj: 'a2aj',
   legislation: 'legislation',
   'goc-spending': 'goc-spending',
-  'cross-reference': 'cross-reference',
+  // `cross-reference` used to map here. It is NOT an ingestion pipeline: the
+  // registry marks it updateFrequency 'on-demand' and its only entry point is
+  // the query function `searchCrossReference(query)`. Running it with the
+  // runner's options object threw "Cannot read properties of undefined
+  // (reading 'trim')" — a config error that looked like a module crash.
+  // ingestEntryPoint() now refuses such modules outright.
   ati: 'ati',
   'cra-charity': 'cra-charity',
   'criminal-justice': 'criminal-justice',
@@ -126,6 +131,17 @@ export function openDb(): D1Database | null {
 }
 
 /**
+ * Registry metadata for a module: the ingest entry points it declares.
+ * `ingestAll*` is the shape the runner can drive; anything else (a query
+ * function, for example) is not an ingestion pipeline.
+ */
+export function ingestEntryPoint(moduleName: string): string | null {
+  const mod = getModule(moduleName) as { ingestFunctions?: string[] } | undefined;
+  const fns = Array.isArray(mod?.ingestFunctions) ? mod.ingestFunctions : [];
+  return fns.find(fn => /^ingestAll/.test(fn)) ?? null;
+}
+
+/**
  * Best-effort record count for a module result.
  * Handles arrays, `{ records | results | items | data }` envelopes, numeric
  * count fields, and dictionary-shaped results (committees, influence,
@@ -164,6 +180,7 @@ export async function runOne(
 ): Promise<RunOutcome> {
   const startedAt = new Date();
   const mod = getModule(moduleName);
+  const entry = ingestEntryPoint(moduleName);
   console.log(`[CLI] Running ${moduleName}: ${mod?.description ?? '(unknown module)'}`);
 
   let outcome: RunOutcome = { status: 'success', records: 0, claims: 0, error: null, logged: false };
@@ -172,6 +189,18 @@ export async function runOne(
   const claimsBefore = citationStore.size;
 
   try {
+    if (!entry) {
+      // A module with no `ingestAll*` entry point cannot be ingested (see
+      // ingestEntryPoint). Fail with the reason instead of calling a query
+      // function with an options object it never expected — that surfaced as
+      // "Cannot read properties of undefined (reading 'trim')" and read as a
+      // module crash rather than a scheduling mistake.
+      throw new Error(
+        `${moduleName} declares no ingestAll* entry point (registry ingestFunctions: ` +
+          `${JSON.stringify((mod as { ingestFunctions?: string[] } | undefined)?.ingestFunctions ?? [])}) — ` +
+          'it is not an ingestion pipeline; remove it from ingestion.schedules',
+      );
+    }
     // No db argument — the registry injects the adapter for db-first modules
     // and hands the options object to everyone else.
     const result = await runner.runModule(moduleName, {});
