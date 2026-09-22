@@ -59,4 +59,5 @@ jobs:
           chmod +x scripts/kanban-post.sh
           scripts/kanban-post.sh --title "$TITLE" --body-file /tmp/ci-doctor-body.md \
             --assignee backend-eng --priority 1 \
+            --workspace worktree --branch "wt/ci-${{ github.event.workflow_run.id }}" \
             --idem "ci-fail-${{ github.event.workflow_run.id }}"
