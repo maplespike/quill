@@ -86,19 +86,16 @@ spec:
             secretKeyRef:
               name: quill-secrets
               key: githubClientId
-              optional: true
         - name: GITHUB_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: quill-secrets
               key: githubClientSecret
-              optional: true
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
               name: quill-secrets
               key: apiKey
-              optional: true
         {{- if eq .Values.api.env.QUILL_STORAGE "postgres" }}
         - name: QUILL_DB_HOST
           value: "{{ .Values.api.env.QUILL_DB_HOST | default "quill-db" }}"
@@ -122,7 +119,6 @@ spec:
             secretKeyRef:
               name: quill-secrets
               key: jwtSecret
-              optional: true
         # Internal service RPC: HMAC secret signing the short-lived X-Internal-Token
         # JWTs (audience quill-internal) for service-to-service calls incl. the
         # ingest ledger endpoint.
@@ -131,7 +127,6 @@ spec:
             secretKeyRef:
               name: quill-secrets
               key: internalJwtSecret
-              optional: true
         # Decision 0002: stable 64-hex PII hash. Without it, register
         # refuses and OAuth user-dedupe degrades to per-boot hashing.
         - name: QUILL_PII_HASH_SECRET
@@ -139,26 +134,22 @@ spec:
             secretKeyRef:
               name: maplespike-secrets
               key: pii-hash-secret
-              optional: true
         # #806: Stripe billing secrets (sourced from quill-owned secret).
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: maplespike-secrets
               key: stripe-secret-key
-              optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
               name: maplespike-secrets
               key: stripe-webhook-secret
-              optional: true
         - name: QUILL_BILLING_SECRET
           valueFrom:
             secretKeyRef:
               name: maplespike-secrets
               key: quill-billing-secret
-              optional: true
         - name: STRIPE_ENV
           value: "{{ .Values.api.env.STRIPE_ENV | default "test" }}"
         {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
@@ -236,7 +227,6 @@ spec:
             secretKeyRef:
               name: quill-secrets
               key: apiKey
-              optional: true
         resources:
           requests:
             cpu: {{ .Values.mcp.resources.requests.cpu }}
