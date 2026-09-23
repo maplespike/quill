@@ -30,6 +30,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Runs here, not only in the audit job, because the audit job is gated on
+      # this one: a red step above would skip it and the guard would go silent.
+      - name: No vulnerable native bindings
+        run: bash scripts/check-no-native-bindings.sh
+
       - name: Typecheck api-server
         run: pnpm --filter @maplespike/api-server typecheck
 
