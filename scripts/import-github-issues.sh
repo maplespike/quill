@@ -57,11 +57,55 @@ echo "📥 Importing GitHub issues from $REPO to MapleSpike Kanban board"
 echo "   Mode: $MODE"
 echo ""
 
-# Ensure we're on the maplespike board
-# Target the maplespike board explicitly via --board (stateless). Do NOT use
-# `boards switch`: runner hosts serve multiple boards (nexus runs
-# faceless-youtube) and a global switch pollutes their board targeting.
-KB="hermes kanban --board maplespike"
+# The board + dispatcher live on nexus. Target `--board maplespike` explicitly
+# (stateless) and NEVER `boards switch`: runner hosts serve several boards
+# (nexus runs faceless-youtube) and a global switch pollutes their targeting.
+#
+# A runner-local create on a non-nexus host prints "board 'maplespike' does not
+# exist", and the old `create | jq -r '.id'` pipeline discarded that: the step
+# exited 0 and reported "✅ Imported" while writing nothing. So: hop to nexus the
+# way kanban-post.sh does, and fail loudly when no task id comes back.
+BOARD="maplespike"
+ON_NEXUS=0
+[ "$(hostname -s)" = "nexus" ] && ON_NEXUS=1
+
+# kb_create <title> <body> [extra create args...] -> prints the CLI's output
+kb_create() {
+    local title="$1" body="$2"; shift 2
+    if [ "$ON_NEXUS" = "1" ]; then
+        hermes kanban --board "$BOARD" create "$title" --body "$body" "$@"
+    else
+        local b64 extra a qtitle
+        b64=$(printf '%s' "$body" | base64 -w0)
+        qtitle=$(printf '%q' "$title")
+        extra=""
+        for a in "$@"; do extra+=" $(printf '%q' "$a")"; done
+        ssh -o BatchMode=yes -o ConnectTimeout=10 nexus "bash -s" <<REMOTE
+set -e
+body=\$(printf '%s' '$b64' | base64 -d)
+hermes kanban --board '$BOARD' create $qtitle --body "\$body"$extra
+REMOTE
+    fi
+}
+
+# kb_create_checked <title> <body> [extra args...] -> prints the new task id.
+# Fails (non-zero) when the create errors or returns no id, so a swallowed board
+# error can never be reported as a successful import again.
+kb_create_checked() {
+    local title="$1" body="$2"; shift 2
+    local out card_id
+    if ! out=$(kb_create "$title" "$body" "$@"); then
+        echo "✖ kanban create failed for: $title" >&2
+        return 1
+    fi
+    card_id=$(printf '%s\n' "$out" | sed -n 's/^Created \([^ ]*\).*/\1/p' | head -n 1)
+    if [ -z "$card_id" ]; then
+        echo "✖ kanban create returned no task id for: $title" >&2
+        echo "  output: $out" >&2
+        return 1
+    fi
+    printf '%s\n' "$card_id"
+}
 
 # Single issue import (for GitHub Actions)
 if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
@@ -79,17 +123,16 @@ if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
     [[ "$labels" == *"p1"* ]] && priority=1
     [[ "$labels" == *"p3"* ]] && priority=3
     
-    $KB create "$title (GH#$SINGLE_NUMBER)" \
+    card_id=$(kb_create_checked "$title (GH#$SINGLE_NUMBER)" \
+        "GitHub #$SINGLE_NUMBER | Labels: $labels | Auto-imported" \
         --assignee "$assignee" \
-        --priority $priority \
+        --priority "$priority" \
         --workspace worktree \
         --branch "wt/gh$SINGLE_NUMBER" \
         --idempotency-key "gh-maplespike-$SINGLE_NUMBER" \
-        --created-by "gh-action" \
-        --body "GitHub #$SINGLE_NUMBER | Labels: $labels | Auto-imported" \
-        --json | jq -r '.id'
-    
-    echo "✅ Imported #$SINGLE_NUMBER as task"
+        --created-by "gh-action") || exit 1
+
+    echo "✅ Imported #$SINGLE_NUMBER as task $card_id"
     exit 0
 fi
 
@@ -117,15 +160,14 @@ if [ "$MODE" = "foundation" ]; then
         priority=1
         
         # Create kanban task
-        task_id=$($KB create "$title" \
+        task_id=$(kb_create_checked "$title" \
+            "GitHub #$num | Labels: $labels | Foundation Issue" \
             --assignee "$assignee" \
-            --priority $priority \
+            --priority "$priority" \
             --idempotency-key "gh-maplespike-$num" \
             --created-by "gh-import" \
             --worktree \
-            --branch "wt/gh$num" \
-            --body "GitHub #$num | Labels: $labels | Foundation Issue" \
-            --json | jq -r '.id')
+            --branch "wt/gh$num") || exit 1
         
         echo "   ✓ Created $task_id for #$num"
     done
@@ -182,15 +224,17 @@ if [ "$MODE" = "agent-ready" ]; then
         
         echo "   Importing #$number: $title (p$priority, $assignee)..."
         
-        task_id=$($KB create "$title" \
+        # NOTE: the idempotency key must use $number. It used to read $num, which
+        # is undefined in this loop, so every issue in a bulk run shared the key
+        # "gh-maplespike-" and all but the first were silently deduped away.
+        task_id=$(kb_create_checked "$title" \
+            "GitHub #$number | Labels: $labels | Priority: p$priority" \
             $workspace_arg \
             --assignee "$assignee" \
-            --priority $priority \
-            --idempotency-key "gh-maplespike-$num" \
+            --priority "$priority" \
+            --idempotency-key "gh-maplespike-$number" \
             --created-by "gh-import" \
-            --branch "wt/gh$num" \
-            --body "GitHub #$number | Labels: $labels | Priority: p$priority" \
-            --json | jq -r '.id')
+            --branch "wt/gh$number") || exit 1
         
         echo "   ✓ Created $task_id"
     done
