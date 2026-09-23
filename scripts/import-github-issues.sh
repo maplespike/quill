@@ -8,6 +8,51 @@ REPO="${1:-reverb256/quill}"
 MODE="${2:-agent-ready}"
 SINGLE_NUMBER="${3:-}"
 
+# --- Caller contract -------------------------------------------------------
+# Positional order is <repo> <mode> [number]. A caller that passes the mode
+# first (`... single 918`) silently binds REPO="single" and MODE="918", falls
+# through every branch below and exits 1 without importing anything — which is
+# exactly how the kanban-ingest workflow failed on every newly labeled issue.
+# Accept the mode-first form, and reject anything else loudly.
+VALID_MODES="foundation agent-ready all single"
+mode_is_known() {
+    case " $VALID_MODES " in *" $1 "*) return 0 ;; esac
+    return 1
+}
+
+if ! [[ "$REPO" =~ ^[^/[:space:]]+/[^/[:space:]]+$ ]]; then
+    if mode_is_known "$REPO"; then
+        # Mode-first form: `agent-ready`, or `single <number>`.
+        MODE="$REPO"
+        [[ "${2:-}" =~ ^[0-9]+$ ]] && SINGLE_NUMBER="$2"
+        REPO="reverb256/quill"
+    else
+        echo "✖ First argument must be a repo (owner/name); got '$REPO'." >&2
+        echo "  Usage: $0 <repo> [foundation|agent-ready|all|single <number>]" >&2
+        echo "  Example: $0 reverb256/quill single 918" >&2
+        exit 2
+    fi
+fi
+
+if ! mode_is_known "$MODE"; then
+    echo "✖ Unknown mode '$MODE'. Known: $VALID_MODES" >&2
+    echo "  Usage: $0 <repo> [foundation|agent-ready|all|single <number>]" >&2
+    exit 2
+fi
+
+if [ "$MODE" = "single" ] && [ -z "$SINGLE_NUMBER" ]; then
+    echo "✖ Mode 'single' needs an issue number: $0 <repo> single <number>" >&2
+    exit 2
+fi
+
+# CI self-check entry point: resolve the arguments, print them, stop before
+# touching gh or the board. The kanban-ingest workflow asserts on this output.
+if [ "${DRY_RUN:-}" = "1" ]; then
+    echo "repo=$REPO mode=$MODE issue=${SINGLE_NUMBER:-none}"
+    exit 0
+fi
+# ---------------------------------------------------------------------------
+
 echo "📥 Importing GitHub issues from $REPO to MapleSpike Kanban board"
 echo "   Mode: $MODE"
 echo ""
