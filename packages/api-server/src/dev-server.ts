@@ -25,6 +25,7 @@ import logger from './logger.js';
 import { redisClient } from './cache/redis.js';
 import { rateLimiter, TIER_LIMITS } from './middleware/rate-limiter.js';
 import type { Tier } from './middleware/rate-limiter.js';
+import { credentialCacheScope } from './middleware/cache-middleware.js';
 
 const log = logger;
 
@@ -186,7 +187,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && !isNoCachePath(pathname)) {
       const cacheCfg = matchCacheRoute(pathname);
       if (cacheCfg) {
-        const cacheKey = `v1:GET:${pathname}${search}`;
+        // Scope the key to the caller: identity-dependent routes (/v1/me,
+        // /v1/usage, /v1/annotations, /v1/auth/me) must never replay one
+        // caller's body to another. Anonymous requests stay shared.
+        const cacheKey = `v1:GET:${pathname}${search}${credentialCacheScope(JSON.stringify(req.headers['authorization'] ?? ''))}`;
         const cached = await redisClient.get<string>(cacheKey);
         if (cached !== null) {
           cacheStatus = 'hit';
@@ -243,7 +247,10 @@ const server = http.createServer(async (req, res) => {
     if (cacheStatus === 'miss' && response.status >= 200 && response.status < 300) {
       const cacheCfg = matchCacheRoute(pathname);
       if (cacheCfg && req.method === 'GET') {
-        const cacheKey = `v1:GET:${pathname}${search}`;
+        // Scope the key to the caller: identity-dependent routes (/v1/me,
+        // /v1/usage, /v1/annotations, /v1/auth/me) must never replay one
+        // caller's body to another. Anonymous requests stay shared.
+        const cacheKey = `v1:GET:${pathname}${search}${credentialCacheScope(JSON.stringify(req.headers['authorization'] ?? ''))}`;
         redisClient.set(cacheKey, responseBody, cacheCfg.ttl).catch(() => {});
       }
     }
