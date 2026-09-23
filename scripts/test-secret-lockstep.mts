@@ -149,7 +149,27 @@ test('sync MAPPING format change -> exit 1 WITH an explanation, never silence', 
   assert.match(r.out, /If the format changed again, update this gate/);
 });
 
-test('chart with no operator-managed secret refs fails loudly (gate must not pass empty)', () => {
+// Control B (2026-09-23 negative control): one MAPPING row keeps its line but
+// loses the pipe format. The gate's grep silently drops it, checks fewer keys,
+// and exits 0 — the exact failure class this gate exists to prevent. The
+// declared-vs-extracted row count must fail loud instead.
+test('partial MAPPING format loss (one row drops the pipe format) -> exit 1, loud', () => {
+  const root = buildFixture({
+    // Second row lost its pipe format — the grep finds only the first row.
+    syncRows: ['JWT_SECRET|quill-secrets|jwtSecret', 'QUILL_BILLING_SECRET maplespike-secrets quill-billing-secret'],
+    chartFiles: {
+      'deployments.yaml': chartTemplate([
+        refBlock({ secret: 'quill-secrets', key: 'jwtSecret' }),
+      ]),
+    },
+  });
+  const r = runGate(root);
+  assert.equal(r.status, 1, 'partial MAPPING format loss must fail the gate, not degrade to exit 0');
+  assert.ok(r.out.length > 0, 'the gate must SAY something when it fails');
+  assert.match(r.out, /at least one row lost its pipe format/);
+});
+
+test('chart with no operator-managed secret refs fails loudly (gate must not pass blind)', () => {
   const root = buildFixture({
     syncRows: ['JWT_SECRET|quill-secrets|jwtSecret'],
     chartFiles: {
