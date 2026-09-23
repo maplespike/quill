@@ -20,6 +20,7 @@ import { getAllTools } from './tools/index.js';
 import { parsePaymentHeader } from './x402-middleware.js';
 import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
 import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
+import { verifyTenantKeyWithApi } from './auth/tenant-key.js';
 import logger from './logger.js';
 import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http';
 
@@ -121,6 +122,19 @@ async function authenticate(req: IncomingMessage): Promise<boolean> {
   // Method 3: Casdoor OIDC token validation via JWKS
   if (isCasdoorToken(token)) {
     return authenticateToken(token);
+  }
+
+  // Method 4: tenant API keys minted by the API server. The API owns the key
+  // store, so ask it — QUILL_API_URL is set in server-side deployments.
+  // Without this, MCP accepted only the single static key and 401'd every key a
+  // tenant was issued at signup, which made the surface single-tenant.
+  const verified = await verifyTenantKeyWithApi(token, process.env.QUILL_API_URL);
+  if (verified.valid) {
+    logger.info('MCP auth: tenant key accepted (tenant=%s)', verified.tenantId);
+    return true;
+  }
+  if (verified.reason !== 'no-api-url' && verified.reason !== 'no-token') {
+    logger.warn('MCP auth: tenant key rejected (%s)', verified.reason);
   }
 
   return false;
