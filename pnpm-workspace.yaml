@@ -9,7 +9,6 @@ onlyBuiltDependencies:
   - "sharp"
 
 overrides:
-  bigint-buffer: "npm:bigint-buffer-fixed@1.1.6"
   undici: "^8.9.0"
   hono: "^4.13.5"
   fast-uri: "^4.1.3"
