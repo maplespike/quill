@@ -68,6 +68,13 @@ jobs:
       - name: Secret key lockstep check
         run: bash scripts/check-secret-lockstep.sh
 
+      # Incident rule for run 35901746802: the gate once died silently (empty
+      # grep under set -e) and CI went red with an empty log. These fixtures
+      # pin the gate's contract: loud failure on format change, required-ref
+      # enforcement, optional-ref warn, dead-row warn, never pass blind.
+      - name: Secret lockstep unit tests
+        run: pnpm exec tsx --test scripts/test-secret-lockstep.mts
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.
