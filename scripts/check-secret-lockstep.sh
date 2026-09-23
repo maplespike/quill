@@ -21,8 +21,21 @@ if [ ! -f "$SYNC" ]; then
   exit 1
 fi
 
-# 1) Keys the sync script emits: "key=${VAR}" pairs inside apply_secret calls.
-emitted="$(grep -oE '"[a-zA-Z0-9_-]+=\$\{' "$SYNC" | sed -E 's/"([a-zA-Z0-9_-]+)=\$\{/\1/' | sort -u)"
+# 1) Keys the sync script emits, from its MAPPING table ("VAR|secret-name|key").
+#    The format this gate originally grepped for — "key=${VAR}" inside
+#    apply_secret calls — no longer exists: the sync was rewritten to render
+#    secrets/runtime.yaml. An empty grep under `set -e` + pipefail killed this
+#    script with exit 1 and nothing in the log, so every job downstream
+#    (audit, coverage, docker, integration) was skipped with no explanation.
+#    Extract, then fail LOUDLY if the extraction finds nothing.
+emitted="$(grep -oE '"[A-Za-z0-9_]+\|[a-z0-9-]+\|[A-Za-z0-9_-]+"' "$SYNC" \
+  | awk -F'|' '{gsub(/"/, "", $3); print $3}' | sort -u || true)"
+if [ -z "$emitted" ]; then
+  echo "✗ could not extract any emitted secret key from $SYNC" >&2
+  echo "  This gate reads that script's MAPPING table (\"VAR|secret-name|key\")." >&2
+  echo "  If the format changed again, update this gate — do not silence it." >&2
+  exit 1
+fi
 
 # 2) Keys deployments reference (k8s reference manifests + nix generator).
 referenced="$(
@@ -36,6 +49,8 @@ while IFS= read -r key; do
   [ -z "$key" ] && continue
   if ! grep -qxF "$key" <<<"$emitted"; then
     echo "✗ secretKeyRef key '$key' is referenced but sops-sync-k8s.sh never emits it (case mismatch or missing sync?)"
+    echo "  scanned source: k8s/maplespike + nix/saas-manifests.nix (the LEGACY manifest set;" >&2
+    echo "  production runs charts/quill via ArgoCD — re-pointing this scan is tracked on the board)" >&2
     fail=1
   fi
 done <<<"$referenced"
