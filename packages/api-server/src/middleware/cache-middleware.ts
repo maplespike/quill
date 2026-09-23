@@ -10,15 +10,39 @@
  *   { pattern: /^\/v1\/example\/?$/, method: 'GET', params: [], handler: withRouteCache(exampleHandler, 3600) }
  */
 
+import { createHash } from 'node:crypto';
+
 import { globalCache } from '../cache.js';
 import type { RouteHandler } from '../types.js';
 import { applySecurityHeaders } from './security-headers.js';
 
 /**
- * Generate a standardised cache key from request method + path + query string.
+ * Scope a caller's credential to a short, non-reversible suffix.
+ *
+ * Any response that depends on WHO is asking must not share a cache entry with
+ * another caller. Before this, /v1/me, /v1/usage, /v1/annotations,
+ * /v1/annotations/export and /v1/auth/me were cached under one key, so the first
+ * response was replayed to the next caller — a cross-tenant leak. The credential
+ * is hashed, never stored raw in the key.
  */
-export function makeCacheKey(method: string, pathname: string, search: string): string {
-  return `v1:${method}:${pathname}:${search}`;
+export function credentialCacheScope(credential: string | null | undefined): string {
+  if (!credential) return '';
+  return ':' + createHash('sha256').update(credential).digest('hex').slice(0, 16);
+}
+
+/**
+ * Generate a standardised cache key from request method + path + query string.
+ *
+ * Pass the caller's credential as `credentialScope` for any response that can
+ * differ per caller. Anonymous/public responses pass '' and stay shared.
+ */
+export function makeCacheKey(
+  method: string,
+  pathname: string,
+  search: string,
+  credentialScope: string | null | undefined = '',
+): string {
+  return `v1:${method}:${pathname}:${search}${credentialCacheScope(credentialScope)}`;
 }
 
 /**
@@ -41,7 +65,7 @@ export function withRouteCache(
     }
 
     const url = new URL(request.url);
-    const cacheKey = makeCacheKey(request.method, url.pathname, url.search);
+    const cacheKey = makeCacheKey(request.method, url.pathname, url.search, request.headers.get('authorization'));
 
     // ── Cache check ──
     const cached = globalCache.get<string>(cacheKey);
