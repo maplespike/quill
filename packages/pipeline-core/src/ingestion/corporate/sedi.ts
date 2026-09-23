@@ -67,19 +67,30 @@ async function fetchHtml(
 
 /**
  * Search SEDI for insider transactions by issuer name or ticker.
+ *
+ * SEDI sits behind a Shieldsquare/perfdrive bot-validation wall: a non-browser
+ * client is redirected to a JS challenge page that carries no transaction
+ * table, and the public search path itself now answers 302/404. There is no
+ * open API. The wall is raised as an error instead of returning `[]`, so the
+ * pipeline does not read as "no insider trades today" when the source is
+ * simply unreachable.
  */
 export async function searchSEDI(
   query: string,
 ): Promise<Partial<InsiderTransaction>[]> {
   const searchUrl = `${CORPORATE_SOURCES.SEDI.SEARCH}?query=${encodeURIComponent(query)}`;
+  const html = await fetchHtml(searchUrl);
 
-  try {
-    const html = await fetchHtml(searchUrl);
-    return parseSEDITable(html, searchUrl);
-  } catch (err) {
-    console.warn('[SEDI] Search failed:', (err as Error).message);
-    return [];
+  if (/perfdrive|shieldsquare/i.test(html)) {
+    throw new SEDIFetchError(
+      'SEDI is behind a bot-validation wall (perfdrive/Shieldsquare) — ' +
+        'no machine-readable insider transaction data is reachable',
+      undefined,
+      searchUrl,
+    );
   }
+
+  return parseSEDITable(html, searchUrl);
 }
 
 

@@ -13,7 +13,6 @@
 import { httpGet, parseJsonBody } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { CORPORATE_SOURCES } from './constants.js';
-import type { ContractAward } from './types.js';
 
 
 export interface TenderNotice {
@@ -31,81 +30,146 @@ export interface TenderNotice {
   status: 'open' | 'closed' | 'awarded';
 }
 
+export class ProcurementFetchError extends Error {
+  constructor(
+    message: string,
+    public readonly url?: string,
+  ) {
+    super(message);
+    this.name = 'ProcurementFetchError';
+  }
+}
+
+/** Contracts pulled from the disclosure datastore per run. */
+export const PROCUREMENT_PAGE_LIMIT = 100;
+
 /**
- * Fetch current tender opportunities from CanadaBuys RSS feed.
+ * CanadaBuys publishes no machine-readable tender feed.
+ *
+ * Every candidate RSS path 404s (`/notices/rss`, `/en/rss`, `/en/notices/rss`,
+ * `/api/notices/rss`, `/en/tender-opportunities/rss` — verified 2026-09-23) and
+ * the tender list itself is rendered client-side, which this image cannot
+ * drive. Reporting the gap is deliberate: returning `[]` read as "no tenders
+ * today" and hid a dead source. Awarded contracts come from the CKAN
+ * `Contracts over $10,000` datastore (see fetchProactiveDisclosureContracts).
  */
 export async function fetchTendersRss(): Promise<TenderNotice[]> {
-  const resp = await httpGet(CORPORATE_SOURCES.PROCUREMENT.RSS_FEED, {
-    headers: { Accept: 'application/rss+xml,application/xml' },
-  });
-
-  const xml = resp.body;
-  const tenders: TenderNotice[] = [];
-
-  // Simple RSS item parser
-  const itemPattern = /<item>([\s\S]*?)<\/item>/gi;
-  let itemMatch: RegExpExecArray | null;
-
-  while ((itemMatch = itemPattern.exec(xml)) !== null) {
-    const item = itemMatch[1];
-    const extract = (tag: string): string => {
-      const m = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i').exec(item);
-      return m ? m[1].trim() : '';
-    };
-
-    const title = extract('title');
-    const description = extract('description');
-    const link = extract('link');
-    const pubDate = extract('pubDate');
-
-    if (!title) continue;
-
-    tenders.push({
-      id: `rss-${await computeHash(link || title, 'sha256')}`,
-      title,
-      description: description || null,
-      publicationDate: pubDate || new Date().toISOString(),
-      closingDate: null,
-      organization: '',
-      procurementMethod: null,
-      estimatedValue: null,
-      tradeAgreement: null,
-      gsin: null,
-      url: link,
-      status: 'open',
-    });
-  }
-
-  return tenders;
+  throw new ProcurementFetchError(
+    'CanadaBuys exposes no RSS/JSON tender feed — every /rss path returns 404; ' +
+      'awarded contracts are read from the CKAN contracts datastore instead.',
+  );
 }
 
 
 /**
- * Fetch proactive disclosure data from open.canada.ca CKAN API.
- * These are contracts awarded over $10K, published quarterly.
+ * A contract award read from the federal "Proactive Disclosure - Contracts"
+ * datastore. Field names come from the published contracts data dictionary.
+ */
+export interface DisclosureContract {
+  id: string;
+  vendorName: string;
+  contractValue: number;
+  awardDate: string;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+  department: string;
+  procurementMethod: string | null;
+  tradeAgreement: string | null;
+  bidsReceived: number | null;
+  isSoleSource: boolean;
+  sourceUrl: string;
+  ingestedAt: string;
+}
+
+const CONTRACTS_DATA_DICTIONARY_URL =
+  'https://open.canada.ca/data/dataset/' + CORPORATE_SOURCES.PROCUREMENT.OPEN_DATA_DATASET_ID +
+  '/resource/' + CORPORATE_SOURCES.PROCUREMENT.CONTRACTS_RESOURCE_ID;
+
+/** Parse a contract value string ("38900.25") into a number. */
+function toNumber(value: unknown): number {
+  const n = typeof value === 'string' ? parseFloat(value) : typeof value === 'number' ? value : NaN;
+  return isNaN(n) ? 0 : n;
+}
+
+function toText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+/**
+ * Fetch proactive-disclosure contracts over $10,000 from the open.canada.ca
+ * CKAN datastore.
+ *
+ * The previous implementation queried `search.open.canada.ca/api/select`
+ * (404), so procurement persisted nothing. The same data is published as a
+ * datastore-active CKAN resource, so it is queried row-by-row by exact
+ * resource id. Failures throw: a dead source must not look like "no contracts".
  */
 export async function fetchProactiveDisclosureContracts(): Promise<{
   total: number;
-  contracts: Partial<ContractAward>[];
+  contracts: DisclosureContract[];
   sourceUrl: string;
 }> {
-  const searchUrl = 'https://search.open.canada.ca/api/select?q=proactive+disclosure+AND+contracts&fq=owner_org:gc&rows=5&wt=json';
+  const url =
+    `${CORPORATE_SOURCES.PROCUREMENT.CKAN_DATASTORE_SEARCH}` +
+    `?resource_id=${CORPORATE_SOURCES.PROCUREMENT.CONTRACTS_RESOURCE_ID}` +
+    `&limit=${PROCUREMENT_PAGE_LIMIT}&sort=contract_date+desc`;
 
-  const resp = await httpGet(searchUrl, {
+  const resp = await httpGet(url, {
     headers: { Accept: 'application/json' },
+    timeoutMs: 30_000,
   });
 
-  const body: any = resp.body ? JSON.parse(resp.body) : {};
-  const docs = body?.response?.docs ?? [];
+  if (resp.statusCode >= 400) {
+    throw new ProcurementFetchError(`HTTP ${resp.statusCode} fetching contracts datastore`, url);
+  }
+
+  const body: any = JSON.parse(resp.body);
+  if (body?.success === false) {
+    throw new ProcurementFetchError(
+      `CKAN datastore error: ${body?.error?.message ?? 'unknown'}`,
+      url,
+    );
+  }
+
+  const records: Record<string, unknown>[] = body?.result?.records ?? [];
+  const now = new Date().toISOString();
+  const contracts: DisclosureContract[] = [];
+
+  for (const rec of records) {
+    const vendor = toText(rec['vendor_name']) ?? 'Unknown Vendor';
+    const department = toText(rec['owner_org_title']) ?? toText(rec['owner_org']) ?? 'Unknown Department';
+    const reference = toText(rec['reference_number']) ?? '';
+    const description = toText(rec['description_en']);
+    // A populated limited-tendering reason means the award was NOT competed.
+    const limitedReason = toText(rec['limited_tendering_reason']);
+    const soleSource = (limitedReason !== null && limitedReason !== '0' && limitedReason !== '00')
+      || isSoleSource(description, toText(rec['solicitation_procedure']));
+
+    contracts.push({
+      id: await computeHash(`contract|${reference}|${vendor}|${department}`, 'sha256'),
+      vendorName: vendor,
+      contractValue: toNumber(rec['contract_value']),
+      awardDate: toText(rec['contract_date']) ?? now.split('T')[0],
+      startDate: toText(rec['contract_period_start']),
+      endDate: toText(rec['delivery_date']),
+      description,
+      department,
+      procurementMethod: toText(rec['solicitation_procedure']),
+      tradeAgreement: toText(rec['trade_agreement']),
+      bidsReceived: rec['number_of_bids'] === null || rec['number_of_bids'] === undefined
+        ? null
+        : toNumber(rec['number_of_bids']),
+      isSoleSource: soleSource,
+      sourceUrl: CONTRACTS_DATA_DICTIONARY_URL,
+      ingestedAt: now,
+    });
+  }
 
   return {
-    total: body?.response?.numFound ?? 0,
-    contracts: docs.map((d: any) => ({
-      department: d.org_title_at_publication ?? d.owner_org ?? '',
-      description: d.notes ?? d.title ?? null,
-      sourceUrl: d.url ?? searchUrl,
-    })),
-    sourceUrl: searchUrl,
+    total: typeof body?.result?.total === 'number' ? body.result.total : contracts.length,
+    contracts,
+    sourceUrl: CONTRACTS_DATA_DICTIONARY_URL,
   };
 }
 
