@@ -116,6 +116,7 @@ if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
     labels=$(echo "$issue_data" | jq -r '.labels[].name' | tr '\n' ',' | sed 's/,$//')
     
     assignee="backend-eng"
+    [[ "$labels" == *"frontend"* ]] && assignee="frontend-eng"
     [[ "$labels" == *"documentation"* ]] && assignee="writer"
     [[ "$labels" == *"research"* ]] && assignee="researcher"
     
@@ -208,6 +209,7 @@ if [ "$MODE" = "agent-ready" ]; then
         
         # Determine assignee based on labels
         assignee="backend-eng"
+        [[ "$labels" == *"frontend"* ]] && assignee="frontend-eng"
         [[ "$labels" == *"documentation"* ]] && assignee="writer"
         [[ "$labels" == *"automation"* ]] || [[ "$labels" == *"ci-cd"* ]] && assignee="ops"
         [[ "$labels" == *"research"* ]] && assignee="researcher"
