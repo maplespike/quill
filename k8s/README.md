@@ -8,8 +8,11 @@
 
 ## Structure
 
-- `maplespike/` — reference manifests for the core services. Consumed today by
-  `scripts/check-secret-lockstep.sh` (key-name drift guard). Files such as
+- `maplespike/` — reference manifests for the core services. Kept as
+  documentation of the intended shape; the live key-name drift guard
+  (`scripts/check-secret-lockstep.sh`) now scans `charts/quill/templates/`
+  (the path ArgoCD actually renders) against the sync script's MAPPING table.
+  Files such as
   `quill-hpa.yaml`, `quill-networkpolicy.yaml`, `quill-service-networkpolicies.yaml`
   and `vap-require-resources-and-security.yaml` are NOT applied — move them into
   the chart when wanted (HPA needs the metrics API first: see #757).
