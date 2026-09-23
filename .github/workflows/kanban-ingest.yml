@@ -20,6 +20,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Self-check the importer's argument contract
+        # Regression test for the silent arg-order bug: the workflow used to call
+        # `... single 918`, which bound REPO="single" and MODE="918", fell through
+        # every mode branch and exited 1, so no labeled issue ever reached the board.
+        run: |
+          set -euo pipefail
+          chmod +x scripts/import-github-issues.sh
+          expect() {
+            want="$1"; shift
+            got=$(DRY_RUN=1 ./scripts/import-github-issues.sh "$@")
+            if [ "$got" != "$want" ]; then
+              echo "✖ importer contract broke: args='$*' want='$want' got='$got'"
+              exit 1
+            fi
+            echo "  ok: $got"
+          }
+          expect "repo=reverb256/quill mode=single issue=918" reverb256/quill single 918
+          expect "repo=reverb256/quill mode=single issue=918" single 918
+          expect "repo=reverb256/quill mode=agent-ready issue=none" reverb256/quill agent-ready
+          expect "repo=reverb256/quill mode=agent-ready issue=none" agent-ready
+          if DRY_RUN=1 ./scripts/import-github-issues.sh garbage >/dev/null 2>&1; then
+            echo "✖ a non-repo first argument must fail loudly"; exit 1
+          fi
+          echo "✅ importer argument contract holds"
+        shell: bash
+
       - name: Import GitHub Issues to Kanban
         env:
           GH_TOKEN: ${{ github.token }}
@@ -29,7 +55,7 @@ jobs:
           
           if [ "$FORCE_INGEST" = "true" ]; then
             echo "🔄 Force re-importing all agent-ready issues..."
-            ./scripts/import-github-issues.sh agent-ready
+            ./scripts/import-github-issues.sh reverb256/quill agent-ready
           else
             echo "📥 Importing only new issues triggered by event..."
             ISSUE_NUMBER="${{ github.event.issue.number }}"
@@ -38,7 +64,7 @@ jobs:
             # If triggered by label event and it's agent-ready, import that issue
             if [ "$LABEL_NAME" = "agent-ready" ] && [ -n "$ISSUE_NUMBER" ]; then
               echo "✅ Issue #$ISSUE_NUMBER labeled agent-ready, importing..."
-              ./scripts/import-github-issues.sh single $ISSUE_NUMBER
+              ./scripts/import-github-issues.sh reverb256/quill single $ISSUE_NUMBER
             elif [ "$LABEL_NAME" != "" ]; then
               echo "⏭️  Label '$LABEL_NAME' is not agent-ready, skipping auto-import"
               echo "Issue will be imported when labeled 'agent-ready'"
@@ -47,7 +73,7 @@ jobs:
               HAS_LABEL=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -c "agent-ready" || echo "0")
               if [ "$HAS_LABEL" -gt 0 ]; then
                 echo "✅ New issue #$ISSUE_NUMBER has agent-ready label, importing..."
-                ./scripts/import-github-issues.sh single $ISSUE_NUMBER
+                ./scripts/import-github-issues.sh reverb256/quill single $ISSUE_NUMBER
               else
                 echo "⏭️  New issue #$ISSUE_NUMBER lacks agent-ready label, skipping"
                 echo "Label it 'agent-ready' to trigger import"
