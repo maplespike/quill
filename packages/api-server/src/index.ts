@@ -586,7 +586,9 @@ export async function handleRequest(
     || path.startsWith('/v1/status')
     || path.startsWith('/v1/compliance')
     || path.startsWith('/v1/onboarding')
-    || path.startsWith('/v1/gov/search')
+    // gov/search is a PAID data route (a free tenant gets 402 by design), so it
+    // must not be auth-exempt: an anonymous caller was being told to upgrade a
+    // plan it does not have instead of being told to present a key.
     || path.startsWith('/v1/gov/releases')
     || path.startsWith('/v1/openapi')
     || path.startsWith('/v1/citation/')
@@ -624,11 +626,20 @@ export async function handleRequest(
     || path.startsWith('/v1/internal/')
     ;
 
-  const tenant = authExempt
-    ? null
-    : await authenticateRequest(request, db);
+  // /v1/auth/me reports WHOSE credentials were presented, so it must resolve a
+  // bearer key even though the rest of /v1/auth/* stays auth-exempt (login and
+  // OAuth callbacks must be reachable with no credentials at all). Without
+  // this, a caller holding a perfectly valid key was answered as the anon
+  // tenant and saw no keys of its own.
+  const identityRoute = path.startsWith('/v1/auth/me');
+  const presentedBearer = /^Bearer\s+\S/i.test(request.headers.get('authorization') ?? '');
+  const mustAuthenticate = !authExempt || (identityRoute && presentedBearer);
 
-  if (!tenant && !authExempt) {
+  const tenant = mustAuthenticate
+    ? await authenticateRequest(request, db)
+    : null;
+
+  if (!tenant && mustAuthenticate) {
     const durationMs = Date.now() - startTime;
     const ctx: BuildContext = {
       tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
