@@ -259,7 +259,7 @@ export async function detectFundingFlows(
       log(`[Funding] [${i + 1}/${TRACKED_INFLUENCE_ACTORS.length}] Checking ${actor.name}...`);
 
       try {
-        const docs = await queryGrantsForActor(actor.name);
+        const docs = await queryGrantsForActor(actor.name, actor.aliases);
         if (docs.length > 0) {
           log(`[Funding]   Found ${docs.length} CKAN result(s) for ${actor.name}`);
         } else {
