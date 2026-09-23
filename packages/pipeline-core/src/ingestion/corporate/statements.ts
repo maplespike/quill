@@ -60,36 +60,31 @@ export interface PressRelease {
  * Fetch press releases from a company's investor relations RSS feed.
  * This covers CEO/CFO statements, earnings calls, and announcements.
  *
- * Known IR RSS patterns:
- *   - GlobeNewswire: https://www.globenewswire.com/RssFeed/{org}/en
- *   - BusinessWire:  https://www.businesswire.com/portal/site/home/rss/{id}
- *   - Newswire.ca:   https://www.newswire.ca/rss/{org}
+ * No generic URL is synthesized any more: the GlobeNewswire
+ * `RssFeed/{org}/en` pattern answers 400 for every organization (its
+ * organization variants do not connect), and the BusinessWire /
+ * newswire.ca patterns 404. A synthesized URL was therefore one guaranteed
+ * failure per tracked org per run. Only feeds known to work are fetched;
+ * everything else is skipped and recorded in corporate/constants.ts.
  */
 export async function fetchCompanyPressReleases(
   organization: string,
   rssUrl?: string,
 ): Promise<PressRelease[]> {
-  if (!rssUrl) {
-    // Attempt to auto-discover RSS for tracked orgs
-    rssUrl = `https://www.globenewswire.com/RssFeed/${encodeURIComponent(organization.replace(/\s+/g, '-'))}/en`;
-  }
-
-  // Media-company-specific RSS feeds (overrides auto-discovery for known orgs)
+  // Media-company-specific RSS feeds (overrides auto-discovery for known orgs).
+  // Only feeds verified reachable are mapped; the rest were 404/DNS-dead and
+  // are recorded in corporate/constants.ts so they are not re-added blind.
   const mediaRssMap: Record<string, string> = {
-    'CBC/Radio-Canada': CORPORATE_SOURCES.MEDIA.CBC_PRESSROOM,
-    'The Globe and Mail': CORPORATE_SOURCES.MEDIA.GLOBE_IR,
     'Postmedia Network': CORPORATE_SOURCES.MEDIA.POSTMEDIA_CORP,
-    'Quebecor': CORPORATE_SOURCES.MEDIA.QUEBECOR_NEWS,
-    'Corus Entertainment': CORPORATE_SOURCES.MEDIA.CORUS_NEWS,
-    'Rogers Media': CORPORATE_SOURCES.MEDIA.ROGERS_MEDIA,
-    'Bell Media': CORPORATE_SOURCES.MEDIA.BCE_NEWS,
-    'BCE / Bell Canada': CORPORATE_SOURCES.MEDIA.BCE_NEWS,
   };
 
-  // For known media orgs, also try their own feed in addition to generic search
-  const feedsToTry = mediaRssMap[organization]
-    ? [mediaRssMap[organization], rssUrl!]
-    : [rssUrl!];
+  // For known media orgs, also try their own feed in addition to a supplied one
+  const feedsToTry = [
+    ...(mediaRssMap[organization] ? [mediaRssMap[organization]] : []),
+    ...(rssUrl ? [rssUrl] : []),
+  ];
+
+  if (feedsToTry.length === 0) return [];
 
   for (const feedUrl of feedsToTry) {
     let releases: PressRelease[] = [];
