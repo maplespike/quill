@@ -204,12 +204,20 @@ cloudflared:
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Secrets — NEVER put real values here. Create the referenced K8s Secrets
-# before install (see docs/STANDUP-2026-09-17.md):
-#   quill-secrets:        apiKey, jwtSecret (+ optional github*)
+# before install (see docs/STANDUP-2026-09-17.md and scripts/sops-sync-k8s.sh,
+# which delivers every credential below from sops-encrypted git):
+#   quill-secrets:        apiKey, jwtSecret, githubClientId, githubClientSecret,
+#                         internalJwtSecret (+ optional opencorporatesApiKey)
+#   maplespike-secrets:   pii-hash-secret, quill-billing-secret, stripe-secret-key,
+#                         stripe-webhook-secret
 #   cloudflared-creds:    credentials.json (operator-gated)
 secrets:
   # Empty here → secrets.yaml only emits keys for provided values; the api
-  # reads from pre-created Secrets with optional:true where possible.
+  # reads the credentials above from pre-created Secrets. Every auth/billing
+  # ref is REQUIRED: a missing key blocks pod scheduling, so the 2026-09-21
+  # empty-secret incident (OAuth + JWT silently gone from the pod env) fails
+  # loud at schedule time instead of degrading auth. Only opencorporatesApiKey
+  # stays optional — a missing key degrades one pipeline, not the job.
   apiKey: ""
   jwtSecret: ""
   dbPassword: ""
