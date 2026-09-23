@@ -5,9 +5,9 @@
  * Uses undici for cross-platform HTTP (Node, Workers, Bun).
  *
  * Sources:
- *   - Part I:   https://gazette.gc.ca/rp-pr/p1/index.rss
- *   - Part II:  https://gazette.gc.ca/rp-pr/p2/index.rss
- *   - Part III: https://gazette.gc.ca/rp-pr/p3/index.rss
+ *   - Part I:   https://gazette.gc.ca/rss/p1-eng.xml
+ *   - Part II:  https://gazette.gc.ca/rss/p2-eng.xml
+ *   - Part III: https://gazette.gc.ca/rss/en-ls-eng.xml
  */
 
 import { httpGet } from '../../utils/http.js';

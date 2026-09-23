@@ -155,7 +155,10 @@ export function countRecords(result: unknown, depth = 0): number {
   for (const key of ['records', 'results', 'items', 'data']) {
     if (Array.isArray(r[key])) return (r[key] as unknown[]).length;
   }
-  for (const key of ['count', 'recordsCount', 'total', 'recordsIngested', 'inserted', 'processed']) {
+  for (const key of ['count', 'recordsCount', 'total', 'recordsIngested', 'inserted', 'processed',
+    // Dictionary-shaped results whose children count what they persisted rather
+    // than returning a `records` array (influence reports {actors, funding}).
+    'fundingFlowsFound', 'actorsFound', 'connectionsFound']) {
     if (typeof r[key] === 'number') return r[key] as number;
   }
 

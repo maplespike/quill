@@ -93,6 +93,26 @@ CREATE INDEX IF NOT EXISTS idx_exec_name ON executive_statements(executive_name)
 CREATE INDEX IF NOT EXISTS idx_exec_type ON executive_statements(statement_type);
 CREATE INDEX IF NOT EXISTS idx_exec_date ON executive_statements(date DESC);
 CREATE INDEX IF NOT EXISTS idx_exec_committee ON executive_statements(committee_meeting_id);
+
+-- corporate_entities: written by ingestCorporationsCanada() but missing from
+-- this DDL, so every insert failed with "no such table". PK is required for
+-- the INSERT OR REPLACE the ingester issues.
+CREATE TABLE IF NOT EXISTS corporate_entities (
+  corporation_number TEXT PRIMARY KEY,
+  legal_name TEXT NOT NULL,
+  operating_names TEXT,
+  jurisdiction TEXT,
+  status TEXT,
+  incorporation_date TEXT,
+  office_address TEXT,
+  directors TEXT,
+  last_annual_return TEXT,
+  source_url TEXT,
+  ingested_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_corp_legal_name ON corporate_entities(legal_name);
+CREATE INDEX IF NOT EXISTS idx_corp_status ON corporate_entities(status);
 `;
 
 /* ------------------------------------------------------------------ */
