@@ -30,8 +30,18 @@ export const INFLUENCE_SOURCES = {
 
   /** Government grants and contributions (open.canada.ca) */
   GRANTS: {
-    /** CKAN search for grants datasets */
-    CKAN_SEARCH: 'https://search.open.canada.ca/api/select?q=grants+contributions&fq=type:dataset&rows=10&wt=json',
+    /**
+     * CKAN datastore search over the federal "Proactive Disclosure - Grants
+     * and Contributions" resource. The old `search.open.canada.ca/api/select`
+     * Solr endpoint 404s; this is the live API over the same data.
+     */
+    DATASTORE_SEARCH: 'https://open.canada.ca/data/api/3/action/datastore_search',
+    /** Resource id of the 1.3M-row grants & contributions datastore. */
+    RESOURCE_ID: '1d15a62f-5656-49ad-8c88-f40ce689d831',
+    /** Owning dataset (for building resolvable source URLs). */
+    PACKAGE_ID: '432527ab-7aac-45b5-81d6-7597107a7013',
+    /** CKAN search for grants datasets — replaces the dead Solr endpoint. */
+    CKAN_SEARCH: 'https://open.canada.ca/data/api/3/action/package_search?q=grants+contributions&rows=10',
     /** Specific grants portal */
     PORTAL: 'https://search.open.canada.ca/grants/',
   },

@@ -19,6 +19,7 @@
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { OURCOMMONS_BASE } from '../committees/constants.js';
+import { CORPORATE_SOURCES } from './constants.js';
 import type { LobbyingRecord } from './types.js';
 
 
@@ -144,19 +145,47 @@ export async function searchLobbying(
 }
 
 /**
- * Scrape the monthly communication reports page to find
- * recent lobbying communications (who met with whom, when).
+ * Discover the lobbying registry's monthly communication reports.
+ *
+ * The data lives on lobbycanada.gc.ca, which sits behind a Cloudflare WAF that
+ * answers 403 to every non-browser client (verified from both this workstation
+ * and the in-cluster egress). The open.canada.ca CKAN mirror for the dataset
+ * resolves, so it is used to enumerate the published resources; when the
+ * incremental index is blocked, the block is raised as a fetch error instead of
+ * being reported as "no reports found".
  */
 export async function fetchMonthlyCommunicationReports(): Promise<{
   year: number;
   month: number;
   csvUrl: string;
 }[]> {
-  const url = 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/monthlyCommunicationReportsCSV.shtml';
+  // Step 1 — CKAN mirror (reachable). Used to enumerate published resources.
+  let dataset: { id: string; title: string; resources: { name: string; format: string; url: string }[] };
+  try {
+    dataset = await fetchCkanDataset();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new LobbyingFetchError(`CKAN mirror unavailable: ${msg}`, CORPORATE_SOURCES.LOBBYING.CKAN_PACKAGE_SHOW);
+  }
+  const dataResources = dataset.resources.filter(r => /csv|zip/i.test(r.format) || /\.(csv|zip)(\?|$)/i.test(r.url));
+
+  // Step 2 — the incremental monthly-report index on the OCL host.
+  const url = CORPORATE_SOURCES.LOBBYING.MONTHLY_CSV_DOWNLOAD;
 
   const resp = await httpGet(url, {
     headers: { Accept: 'text/html' },
+    timeoutMs: 20_000,
   });
+
+  if (resp.statusCode === 401 || resp.statusCode === 403) {
+    throw new LobbyingFetchError(
+      `lobbycanada.gc.ca answered ${resp.statusCode} (Cloudflare WAF) for ${url}. ` +
+      `The CKAN mirror "${dataset.title}" (${dataset.id}) resolves but its ` +
+      `${dataResources.length} data resource(s) are all hosted on the blocked host, ` +
+      'so the registry records are unreachable from this fleet.',
+      url,
+    );
+  }
 
   if (resp.statusCode >= 400) {
     throw new LobbyingFetchError(`HTTP ${resp.statusCode} fetching monthly reports`, url);

@@ -8,10 +8,19 @@
 import { GazettePart } from './types.js';
 
 
+/**
+ * RSS feed URLs for Canada Gazette Parts I, II, III.
+ *
+ * The `/rp-pr/pN/index.rss` paths this file used to carry return 404 — the
+ * live syndication endpoints are under `/rss/`. Part III is published under
+ * its "Acts of Parliament / Lois du Parlement" slug (`en-ls-eng.xml`);
+ * `p3-eng.xml` does not exist. Verified 200 on 2026-09-23:
+ *   p1-eng.xml 435 items, p2-eng.xml 232 items, en-ls-eng.xml 22 items.
+ */
 export const GAZETTE_RSS_URLS: Record<GazettePart, string> = {
-  [GazettePart.I]: 'https://gazette.gc.ca/rp-pr/p1/index.rss',
-  [GazettePart.II]: 'https://gazette.gc.ca/rp-pr/p2/index.rss',
-  [GazettePart.III]: 'https://gazette.gc.ca/rp-pr/p3/index.rss',
+  [GazettePart.I]: 'https://gazette.gc.ca/rss/p1-eng.xml',
+  [GazettePart.II]: 'https://gazette.gc.ca/rss/p2-eng.xml',
+  [GazettePart.III]: 'https://gazette.gc.ca/rss/en-ls-eng.xml',
 };
 
 /** Human-readable labels for each part */

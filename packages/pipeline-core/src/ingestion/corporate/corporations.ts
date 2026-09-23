@@ -43,36 +43,9 @@ const DEFAULT_HEADERS = {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 } as const;
 
-/** Search path for Corporations Canada */
-const SEARCH_PATH = 'https://ised-isde.canada.ca/cc/lc/gcrecherche-recherche.html';
-
 
 /**
- * Fetch raw HTML from a URL.
- */
-async function fetchHtml(
-  url: string,
-  options: { timeoutMs?: number } = {},
-): Promise<string> {
-  const resp: HttpResponse = await httpGet(url, {
-    headers: { ...DEFAULT_HEADERS as Record<string, string> },
-    timeoutMs: options.timeoutMs ?? 30_000,
-  });
-
-  if (resp.statusCode >= 400) {
-    throw new CorporationsCanadaFetchError(
-      `HTTP ${resp.statusCode} fetching ${url}`,
-      resp.statusCode,
-      url,
-    );
-  }
-
-  return resp.body;
-}
-
-
-/**
- * Raw result from a Corporations Canada search.
+ * Raw result from a Corporations Canada lookup.
  */
 export interface RawCorporateSearchResult {
   /** Federal corporation number */
@@ -81,126 +54,131 @@ export interface RawCorporateSearchResult {
   legalName: string;
   /** Operating/business names */
   operatingNames: string[];
-  /** Jurisdiction code */
+  /** Jurisdiction code / governing act */
   jurisdiction: string;
   /** Status text (e.g. Active, Dissolved) */
   status: string;
   /** Type of corporation */
   corporationType: string;
+  /** Incorporation (or continuance) date from the activity history */
+  incorporationDate: string | null;
+  /** Registered office address, flattened */
+  officeAddress: string | null;
+  /** Most recent annual-return year of filing */
+  lastAnnualReturn: string | null;
   /** Source URL */
   sourceUrl: string;
 }
 
+/** Corporation ids fetched per run. */
+export const CORPORATIONS_PAGE_LIMIT = 50;
+/** First corporation id in the default sweep. */
+export const CORPORATIONS_DEFAULT_START_ID = 1000;
 
 /**
- * Search Corporations Canada by entity name.
+ * Fetch one federal corporation from the Corporations Canada JSON API.
  *
- * The registry search page accepts a query parameter and returns
- * HTML results with a table of matching corporations.
+ * The HTML search page this module used to scrape is JS-driven and answers
+ * 302 with no result table, so it yielded nothing. ISED publishes a documented
+ * JSON API keyed by corporation number; verified 200 for id 1007.
  */
-export async function searchCorporationsCanada(
-  query: string,
-): Promise<RawCorporateSearchResult[]> {
-  const searchUrl = `${SEARCH_PATH}?q=${encodeURIComponent(query)}`;
+export async function fetchFederalCorporation(
+  corporationId: string,
+): Promise<RawCorporateSearchResult> {
+  const url = CORPORATE_SOURCES.CORPORATIONS.API_TEMPLATE.replace(
+    '{id}',
+    encodeURIComponent(corporationId),
+  );
 
-  try {
-    const html = await fetchHtml(searchUrl);
-    return parseCorporationsSearchHtml(html, searchUrl);
-  } catch (err) {
-    console.warn('[CorporationsCanada] Search failed:', (err as Error).message);
-    return [];
+  const resp: HttpResponse = await httpGet(url, {
+    headers: { ...DEFAULT_HEADERS as Record<string, string>, Accept: 'application/json' },
+    timeoutMs: 20_000,
+  });
+
+  if (resp.statusCode >= 400) {
+    throw new CorporationsCanadaFetchError(
+      `HTTP ${resp.statusCode} fetching corporation ${corporationId}`,
+      resp.statusCode,
+      url,
+    );
   }
+
+  const body: any = JSON.parse(resp.body);
+  const record = Array.isArray(body) ? body[0] : body;
+  if (!record || record.corporationId === undefined) {
+    throw new CorporationsCanadaFetchError(
+      `no corporation payload for id ${corporationId}`,
+      undefined,
+      url,
+    );
+  }
+
+  return parseFederalCorporation(record, url);
 }
 
-
 /**
- * Parse Corporations Canada HTML search results table.
+ * Map the ISED corporation JSON onto the internal raw shape.
  *
- * The search results typically show:
- *   - Corporation Number
- *   - Legal Name
- *   - Operating Name(s)
- *   - Status (Active/Dissolved)
- *   - Jurisdiction (Federal/Provincial)
- *   - Corporation Type
+ * Payload fields (see Corporations Canada JSON dataset docs):
+ *   corporationId, act, status, corporationNames[].CorporationName{name,nameType,current},
+ *   adresses[].address{addressLine[],city,provinceCode,postalCode,current},
+ *   annualReturns[].annualReturn{yearOfFiling}, activities[].activity{activity,date}
  */
-function parseCorporationsSearchHtml(
-  html: string,
+export function parseFederalCorporation(
+  record: any,
   sourceUrl: string,
-): RawCorporateSearchResult[] {
-  const results: RawCorporateSearchResult[] = [];
+): RawCorporateSearchResult {
+  const corporationNumber = String(record.corporationId);
 
-  // Try to find the results table
-  const tablePattern = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let tableMatch: RegExpExecArray | null;
+  const names: { name: string; nameType: string }[] = (record.corporationNames ?? [])
+    .map((n: any) => n?.CorporationName)
+    .filter((n: any) => n && typeof n.name === 'string')
+    .map((n: any) => ({ name: n.name.trim(), nameType: String(n.nameType ?? '') }));
 
-  while ((tableMatch = tablePattern.exec(html)) !== null) {
-    const tableHtml = tableMatch[1];
+  const legalName =
+    names.find(n => n.nameType.toLowerCase() === 'primary')?.name ??
+    names[0]?.name ??
+    `Corporation ${corporationNumber}`;
+  const operatingNames = names
+    .filter(n => n.name !== legalName)
+    .map(n => n.name);
 
-    // Check if this table has corporation-related headers
-    const isCorpTable = /corporation|corp\.|num[eé]ro|legal name|d[eé]nomination|status|active|dissolved/i.test(tableHtml);
-    if (!isCorpTable) continue;
+  const address: any = (record.adresses ?? [])
+    .map((a: any) => a?.address)
+    .find((a: any) => a && (a.current === undefined || a.current === true)) ??
+    (record.adresses ?? [])[0]?.address;
 
-    const rowPattern = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-    let rowMatch: RegExpExecArray | null;
-    let isHeader = true;
+  const officeAddress = address
+    ? [
+        ...(Array.isArray(address.addressLine) ? address.addressLine : [address.addressLine]),
+        address.city,
+        address.provinceCode,
+        address.postalCode,
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : null;
 
-    while ((rowMatch = rowPattern.exec(tableHtml)) !== null) {
-      const cells = rowMatch[1].match(/<td[^>]*>([\s\S]*?)<\/td>/gi);
+  const activities: any[] = (record.activities ?? []).map((a: any) => a?.activity).filter(Boolean);
+  const incorporation =
+    activities.find(a => /incorporation|continuance/i.test(String(a.activity))) ?? activities[0];
 
-      if (!cells || cells.length < 3) {
-        isHeader = true;
-        continue;
-      }
+  const annualReturns: any[] = (record.annualReturns ?? [])
+    .map((a: any) => a?.annualReturn)
+    .filter(Boolean);
 
-      if (isHeader) {
-        isHeader = false;
-        continue;
-      }
-
-      const extractCell = (idx: number): string => {
-        const cell = cells[idx];
-        if (!cell) return '';
-        return cell.replace(/<[^>]+>/g, '').trim();
-      };
-
-      const extractLink = (idx: number): string => {
-        const cell = cells[idx];
-        if (!cell) return '';
-        const linkMatch = cell.match(/<a[^>]*href="([^"]*)"[^>]*>/i);
-        return linkMatch ? linkMatch[1] : '';
-      };
-
-      const corporationNumber = extractCell(0);
-      const legalName = extractCell(1);
-      const operatingName = extractCell(2);
-      const status = extractCell(3);
-      const jurisdiction = extractCell(4);
-
-      if (!corporationNumber || !legalName) continue;
-
-      results.push({
-        corporationNumber,
-        legalName,
-        operatingNames: operatingName ? operatingName.split(/[;,]/).map(s => s.trim()).filter(Boolean) : [],
-        jurisdiction: jurisdiction || 'Federal',
-        status: status || 'Unknown',
-        corporationType: extractCell(5) || '',
-        sourceUrl: extractLink(0) ? `${SEARCH_PATH}${extractLink(0).startsWith('/') ? '' : '/'}${extractLink(0)}` : sourceUrl,
-      });
-    }
-
-    // If we found results, break after processing the first matching table
-    if (results.length > 0) break;
-  }
-
-  // Deduplicate by corporation number
-  const seen = new Set<string>();
-  return results.filter(r => {
-    if (seen.has(r.corporationNumber)) return false;
-    seen.add(r.corporationNumber);
-    return true;
-  });
+  return {
+    corporationNumber,
+    legalName,
+    operatingNames,
+    jurisdiction: record.act ?? 'Federal',
+    status: record.status ?? 'Unknown',
+    corporationType: record.act ?? '',
+    incorporationDate: incorporation?.date ?? null,
+    officeAddress,
+    lastAnnualReturn: annualReturns[0]?.yearOfFiling ?? null,
+    sourceUrl,
+  };
 }
 
 
@@ -226,10 +204,10 @@ async function normalizeCorporateEntity(
     operatingNames: raw.operatingNames,
     jurisdiction: raw.jurisdiction,
     status: raw.status,
-    incorporationDate: null,
-    officeAddress: null,
+    incorporationDate: raw.incorporationDate ?? null,
+    officeAddress: raw.officeAddress ?? null,
     directors: [],
-    lastAnnualReturn: null,
+    lastAnnualReturn: raw.lastAnnualReturn ?? null,
     sourceUrl: raw.sourceUrl,
     ingestedAt: new Date().toISOString(),
   };
@@ -261,12 +239,34 @@ export async function ingestCorporationsCanada(
   const log = options.onProgress ?? (() => {});
 
   try {
-    const searchQuery = options.query ?? 'Canada';
-    log(`[CorporationsCanada] Searching for: "${searchQuery}"...`);
+    // The JSON API is keyed by corporation number, so the "search" is a sweep
+    // over a bounded id range. Ids without a record are 404s and are counted,
+    // not treated as an outage.
+    const startId = options.query ? parseInt(options.query, 10) : CORPORATIONS_DEFAULT_START_ID;
+    const count = options.limit ?? CORPORATIONS_PAGE_LIMIT;
+    const firstId = isNaN(startId) ? CORPORATIONS_DEFAULT_START_ID : startId;
+    log(`[CorporationsCanada] Fetching ${count} corporation(s) from id ${firstId}...`);
 
-    const searchResults = await searchCorporationsCanada(searchQuery);
+    const searchResults: RawCorporateSearchResult[] = [];
+    let missing = 0;
+
+    for (let i = 0; i < count; i++) {
+      const id = String(firstId + i);
+      try {
+        searchResults.push(await fetchFederalCorporation(id));
+      } catch (err) {
+        const status = err instanceof CorporationsCanadaFetchError ? err.statusCode : undefined;
+        if (status === 404) {
+          missing++;
+          continue;
+        }
+        const msg = err instanceof Error ? err.message : String(err);
+        result.errors.push(`Corporation ${id}: ${msg}`);
+      }
+    }
+
     result.recordsFound = searchResults.length;
-    log(`[CorporationsCanada] Found ${searchResults.length} corporate entities`);
+    log(`[CorporationsCanada] Found ${searchResults.length} corporate entities (${missing} id(s) not in the registry)`);
 
     if (searchResults.length === 0) {
       log('[CorporationsCanada] No results found.');

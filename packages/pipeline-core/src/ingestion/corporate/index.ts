@@ -21,11 +21,12 @@ import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { fetchMonthlyCommunicationReports } from './lobbying.js';
 import { fetchTendersRss, fetchProactiveDisclosureContracts, isSoleSource } from './procurement.js';
+import type { TenderNotice } from './procurement.js';
 import { fetchCompanyPressReleases, extractExecutiveStatements } from './statements.js';
 import { ingestInsiderTransactions } from './sedi.js';
 import { ingestCorporationsCanada } from './corporations.js';
 import { TRACKED_EXECUTIVES } from './constants.js';
-import { upsertLobbyingRecords, upsertContractAwards, upsertExecutiveStatements } from './db.js';
+import { upsertLobbyingRecords, upsertContractAwards, upsertExecutiveStatements, CORPORATE_DDL } from './db.js';
 import { upsertOrganization, upsertContract, upsertLobbyingFiling, upsertDisclosure } from '../../shared-db.js';
 import type { D1Database } from '../committees/db.js';
 import type {
@@ -314,16 +315,20 @@ export async function ingestProcurement(
   const log = options.onProgress ?? (() => {});
 
   try {
-    // Fetch recent tenders from CanadaBuys RSS
-    log(`[Procurement] Fetching CanadaBuys tenders...`);
-    const tenders = await fetchTendersRss();
-    result.recordsFound = tenders.length;
-    log(`[Procurement] Found ${tenders.length} tender notices`);
-
-    if (tenders.length === 0) {
-      log('[Procurement] No tenders found');
-      result.durationMs = Date.now() - startTime;
-      return result;
+    // Tender notices are best-effort: CanadaBuys publishes no machine-readable
+    // feed, so a failure here is recorded and the run continues to the
+    // awarded-contract datastore, which is what actually persists rows. The old
+    // early `return result` on an empty tender list skipped contract ingestion
+    // entirely — that is why procurement never wrote a single row.
+    let tenders: TenderNotice[] = [];
+    try {
+      log(`[Procurement] Fetching CanadaBuys tenders...`);
+      tenders = await fetchTendersRss();
+      log(`[Procurement] Found ${tenders.length} tender notices`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log(`[Procurement] Tender feed unavailable: ${msg}`);
+      result.errors.push(`CanadaBuys tenders: ${msg}`);
     }
 
     // Apply limit if specified
@@ -375,39 +380,36 @@ export async function ingestProcurement(
       }
     }
 
-    log(`[Procurement] ${awards.length} contract award records prepared`);
+    log(`[Procurement] ${awards.length} contract award records prepared from tenders`);
 
-    // Also create records from proactive disclosure contracts if available
-    for (const dContract of disclosure.contracts) {
-      if (!dContract.department) continue;
-      const content = `${dContract.department}|${dContract.description ?? ''}|${dContract.sourceUrl}`;
-      const id = await computeHash(content, 'sha256');
-
-      // Check if already in awards list by source URL
-      const exists = awards.some(a => a.sourceUrl === dContract.sourceUrl);
-      if (exists) continue;
-
+    // Awarded contracts from the proactive-disclosure datastore. This is the
+    // authoritative source and the one that persists rows; the tender list
+    // above is empty until CanadaBuys publishes a machine-readable feed.
+    for (const c of disclosure.contracts) {
       awards.push({
-        id,
-        vendorName: dContract.department,
+        id: c.id,
+        vendorName: c.vendorName,
         vendorAddress: null,
-        contractValue: 0,
+        contractValue: c.contractValue,
         currency: 'CAD',
-        awardDate: new Date().toISOString().split('T')[0],
-        startDate: null,
-        endDate: null,
-        description: dContract.description ?? null,
-        department: dContract.department,
+        awardDate: c.awardDate,
+        startDate: c.startDate,
+        endDate: c.endDate,
+        description: c.description,
+        department: c.department,
         departmentAcronym: null,
-        procurementMethod: null,
+        procurementMethod: c.procurementMethod,
         gsin: null,
-        tradeAgreement: null,
-        bidsReceived: null,
-        sourceUrl: dContract.sourceUrl ?? disclosure.sourceUrl,
-        isSoleSource: false,
-        ingestedAt: new Date().toISOString(),
+        tradeAgreement: c.tradeAgreement,
+        bidsReceived: c.bidsReceived,
+        sourceUrl: c.sourceUrl,
+        isSoleSource: c.isSoleSource,
+        ingestedAt: c.ingestedAt,
       });
     }
+
+    result.recordsFound = awards.length;
+    log(`[Procurement] ${awards.length} contract award records prepared`);
 
     // Persist or return
     if (db) {
@@ -572,6 +574,17 @@ export async function ingestExecutiveStatements(
 /* ------------------------------------------------------------------ */
 
 /**
+ * Create the corporate tables.
+ *
+ * CORPORATE_DDL was defined and re-exported but never executed anywhere, so
+ * every corporate insert failed with "no such table" and the run still
+ * reported success. ingestAllCorporate() calls this before doing any work.
+ */
+export async function initializeCorporateTable(db: D1Database): Promise<void> {
+  await db.exec(CORPORATE_DDL);
+}
+
+/**
  * Run all corporate data ingestion pipelines.
  */
 export async function ingestAllCorporate(
@@ -583,6 +596,19 @@ export async function ingestAllCorporate(
   const log = options.onProgress ?? (() => {});
 
   log('=== Corporate Data Ingestion ===');
+
+  // Create the tables first. Without this the run cannot persist anything and
+  // the failure is spread across hundreds of swallowed per-record errors.
+  if (db) {
+    try {
+      await initializeCorporateTable(db);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `corporate DDL failed — refusing to run an ingest that cannot persist: ${msg}`,
+      );
+    }
+  }
 
   const [lobbying, procurement, statements, insiderTx, corpRegistry] = await Promise.all([
     ingestLobbying(db, options),
@@ -607,10 +633,23 @@ export async function ingestAllCorporate(
   log(`Insider Transactions: ${insiderTx.recordsFound} records, ${insiderTx.recordsIngested} ingested`);
   log(`Corp Registry: ${corpRegistry.recordsFound} records, ${corpRegistry.recordsIngested} ingested`);
 
+  const totalFound = Object.values(results).reduce((sum, r) => sum + r.recordsFound, 0);
   const totalErrors = lobbying.errors.length + procurement.errors.length + statements.errors.length
     + insiderTx.errors.length + corpRegistry.errors.length;
   if (totalErrors > 0) {
     log(`Errors: ${totalErrors}`);
+  }
+
+  // Fail loudly. A run where every source came back empty used to return
+  // status "success", records 0, err '' — a green run that persisted nothing,
+  // which is exactly how this pipeline stayed dead without an alert.
+  if (totalFound === 0) {
+    const detail = Object.entries(results)
+      .map(([name, r]) =>
+        `${name}: found=${r.recordsFound} ingested=${r.recordsIngested} errors=${r.errors.length}` +
+        (r.errors.length > 0 ? ` (${r.errors[0]})` : ''))
+      .join('; ');
+    throw new Error(`corporate ingested no records from any source — ${detail}`);
   }
 
   return results;

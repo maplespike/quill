@@ -66,6 +66,23 @@ export async function ingestGazette(
   const log = options.onProgress ?? (() => {});
   const fetchDetails = options.fetchDetails ?? true;
 
+  // Create the table before any fetch work. initializeGazetteTable() had no
+  // caller outside its own test, so gazette_records never existed and every
+  // INSERT threw "no such table" — the run still reported success because the
+  // per-record errors were collected, not raised. Fail the run instead of
+  // reporting a green ingest that persisted nothing.
+  if (db) {
+    try {
+      await initializeGazetteTable(db);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      result.errors.push(`gazette_records DDL: ${msg}`);
+      log(`[Gazette ${part}] FATAL: cannot create gazette_records: ${msg}`);
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+  }
+
   try {
     // Phase 1: Fetch RSS feed
     log(`[Gazette ${part}] Fetching RSS feed...`);
@@ -133,7 +150,8 @@ export async function ingestGazette(
 
 /**
  * Ingest ALL Gazette parts (I and II).
- * Part III (Acts) is deferred.
+ * Part III (Acts) is deferred by default; its feed is `/rss/en-ls-eng.xml`
+ * and it can be opted in with `parts: [GazettePart.I, II, III]`.
  *
  * Returns results keyed by part.
  */
