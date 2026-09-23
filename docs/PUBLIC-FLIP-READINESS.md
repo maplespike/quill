@@ -79,6 +79,6 @@ landed (if CI-green) or closed first. `#896` is itself the gitleaks-baseline fix
 - The drift-check timer is installed but **refuses to enable on nexus** until an
   age key that decrypts `secrets/runtime.yaml` is present there. Read-only by
   design, so it cannot corrupt live secrets.
-- `npm_and_yarn` `bigint-buffer` remains open with **no upstream fix available**.
+- `npm_and_yarn` `bigint-buffer` remains open with **no upstream fix available** — accepted and guarded per ADR 0009 (`scripts/check-no-native-bindings.sh` fails CI if the native binding ever appears or the package becomes buildable).
 - Stripe: `STRIPE_ENV=live`, both keys in sops, one webhook endpoint. The
   previously supplied expiring key should be revoked in the dashboard.
