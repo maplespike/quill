@@ -157,4 +157,41 @@ describe('API user journey', () => {
     );
     assert.ok(!flat.includes(tenantB.key), 'the key list must not contain another tenant key');
   });
+
+  // ── /v1/auth/me identity resolution (regression: the route ignored keys) ──
+  // /v1/auth/* is auth-exempt so login and OAuth callbacks stay reachable. That
+  // exemption also silenced key resolution on /v1/auth/me, so a caller holding a
+  // valid key was answered as the anonymous tenant with no keys of its own.
+
+  test('9. /v1/auth/me resolves the caller own key (never the anon tenant)', async () => {
+    const res = await call('/v1/auth/me', { headers: { Authorization: 'Bearer ' + tenantA.key } });
+    assert.equal(res.status, 200, 'a valid key must be answered, not rejected');
+    const body = await json(res);
+    const data = (body['data'] ?? {}) as Record<string, unknown>;
+    const tenant = (data['tenant'] ?? {}) as Record<string, unknown>;
+    assert.equal(tenant['id'], tenantA.id, 'the profile must belong to the key tenant');
+    assert.notEqual(tenant['id'], 'anon', 'a presented key must never resolve to anon');
+    const flat = JSON.stringify(body);
+    assert.ok(!flat.includes(tenantA.key), 'the profile must never echo the raw key');
+    assert.ok(!flat.includes(tenantB.key), 'the profile must never mention another tenant');
+  });
+
+  test('10. /v1/auth/me stays reachable with no credentials (anon tenant)', async () => {
+    const res = await call('/v1/auth/me');
+    assert.equal(res.status, 200, 'login/anon flows must not require a key');
+    const body = await json(res);
+    const data = (body['data'] ?? {}) as Record<string, unknown>;
+    const tenant = (data['tenant'] ?? {}) as Record<string, unknown>;
+    assert.equal(tenant['id'], 'anon', 'no credentials means the anon tenant');
+  });
+
+  test('11. /v1/auth/me rejects a bogus key with 401 instead of anon-shaped 200', async () => {
+    const res = await call('/v1/auth/me', { headers: { Authorization: 'Bearer quill_not_a_real_key' } });
+    assert.equal(res.status, 401, 'a presented but invalid key must fail closed');
+  });
+
+  test('12. an anonymous call to a paid data route gets 401, not a plan upsell', async () => {
+    const res = await call('/v1/gov/search?q=housing');
+    assert.equal(res.status, 401, 'anonymous callers must be told to authenticate, not to upgrade');
+  });
 });
