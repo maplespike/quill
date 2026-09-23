@@ -106,7 +106,6 @@ spec:
                 secretKeyRef:
                   name: quill-secrets
                   key: internalJwtSecret
-                  optional: true
             resources:
               requests:
                 cpu: {{ $.Values.ingestion.resources.requests.cpu }}
