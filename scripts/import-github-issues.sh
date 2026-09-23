@@ -107,6 +107,28 @@ kb_create_checked() {
     printf '%s\n' "$card_id"
 }
 
+# A card assigned to a profile the dispatcher host does not have can never be
+# claimed — a real card sat ready forever assigned to "infra", which was never
+# installed. Read the dispatcher's profile list once and refuse to create one.
+if [ "$ON_NEXUS" = "1" ]; then
+    VALID_ASSIGNEES=$(ls "$HOME/.hermes/profiles" 2>/dev/null || true)
+else
+    VALID_ASSIGNEES=$(ssh -o BatchMode=yes -o ConnectTimeout=10 nexus 'ls "$HOME/.hermes/profiles"' 2>/dev/null || true)
+fi
+if [ -z "$VALID_ASSIGNEES" ]; then
+    echo "✖ could not read the profile list from the dispatcher host (nexus)" >&2
+    exit 3
+fi
+
+require_assignee() {
+    if printf '%s\n' "$VALID_ASSIGNEES" | grep -qx "$1"; then
+        return 0
+    fi
+    echo "✖ assignee '$1' has no profile on the dispatcher host; that card could never run." >&2
+    echo "  known profiles: $(printf '%s' "$VALID_ASSIGNEES" | tr '\n' ' ')" >&2
+    return 1
+}
+
 # Single issue import (for GitHub Actions)
 if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
     echo "📥 Importing single issue #$SINGLE_NUMBER..."
@@ -124,6 +146,7 @@ if [ "$MODE" = "single" ] && [ -n "$SINGLE_NUMBER" ]; then
     [[ "$labels" == *"p1"* ]] && priority=1
     [[ "$labels" == *"p3"* ]] && priority=3
     
+    require_assignee "$assignee" || exit 1
     card_id=$(kb_create_checked "$title (GH#$SINGLE_NUMBER)" \
         "GitHub #$SINGLE_NUMBER | Labels: $labels | Auto-imported" \
         --assignee "$assignee" \
@@ -161,6 +184,7 @@ if [ "$MODE" = "foundation" ]; then
         priority=1
         
         # Create kanban task
+        require_assignee "$assignee" || exit 1
         task_id=$(kb_create_checked "$title" \
             "GitHub #$num | Labels: $labels | Foundation Issue" \
             --assignee "$assignee" \
@@ -229,6 +253,7 @@ if [ "$MODE" = "agent-ready" ]; then
         # NOTE: the idempotency key must use $number. It used to read $num, which
         # is undefined in this loop, so every issue in a bulk run shared the key
         # "gh-maplespike-" and all but the first were silently deduped away.
+        require_assignee "$assignee" || exit 1
         task_id=$(kb_create_checked "$title" \
             "GitHub #$number | Labels: $labels | Priority: p$priority" \
             $workspace_arg \
