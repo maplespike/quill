@@ -23,7 +23,14 @@
 #
 # REQUIRED vs OPTIONAL: a ref marked `optional: true` cannot crash a pod, which
 # is the incident this gate exists to prevent, so it warns instead of failing.
-# Required refs must be emitted.
+# Required refs must be emitted. (2026-09-23: auth-critical refs in the chart
+# are required — see commit 9866f556 — so the gate now fails, not warns, for the
+# original incident class.)
+#
+# MAPPING rows that keep their line but lose the pipe format are counted
+# against the array declaration: extraction short of the declared row count
+# fails loud. A row the grep drops silently would mean fewer keys checked and
+# still exit 0 — the exact failure class this gate exists to prevent.
 #
 # Usage: bash scripts/check-secret-lockstep.sh [root]
 #   root defaults to the directory above this script.
@@ -47,6 +54,21 @@ if [ -z "$mapping" ]; then
   exit 1
 fi
 emitted="$(printf '%s\n' "$mapping" | awk -F'|' '{gsub(/"/, "", $3); print $3}' | sort -u)"
+
+# A row whose line survives but loses its pipe format is silently dropped by
+# the grep above — the gate would check fewer keys and still exit 0. Count the
+# rows the MAPPING array declares and require the extraction to find all of them
+# (allowing a small floor for genuinely-declared-but-unused rows is NOT safe:
+# a silent drop must be loud).
+# Count every row the MAPPING array declares (quoted entries between MAPPING=(
+# and the closing paren), regardless of whether it kept its pipe format.
+declared="$(awk '/^MAPPING=/{in_map=1; next} in_map && /^\s*"/{count++} in_map && /^\)/{exit} END{print count+0}' "$SYNC")"
+found="$(printf '%s\n' "$mapping" | wc -l | tr -d ' ')"
+if [ "$found" -lt "$declared" ]; then
+  echo "✗ extracted $found of $declared MAPPING rows from $SYNC — at least one row lost its pipe format" >&2
+  echo "  A silently-dropped row means fewer keys checked and a green gate. Fix the MAPPING table." >&2
+  exit 1
+fi
 
 # 2) Keys the live chart references, per secret, for the secrets the sync owns.
 refs="$(python3 - "$CHART" <<'PY'
