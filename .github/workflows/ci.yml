@@ -158,15 +158,25 @@ jobs:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
-    # advisory by default; we tolerate the 5 known High findings (tracked in
-    # portal/public/data/security/audit.json, 0C/5H) but fail on CRITICALs so
-    # a new critical blocks the PR. The JSON snapshot lands in the job log for
-    # review; bump --audit-level back to high when the 5 Highs are closed.
+    # advisory by default; we tolerate the known High findings (tracked in
+    # portal/public/data/security/audit.json) but fail on CRITICALs so a new
+    # critical blocks the PR. bigint-buffer (CVE-2025-3194) is the open High: it
+    # cannot be resolved away until the lockfile can be regenerated safely (a
+    # blind relock downgrades six packages and breaks our own uuid/ws overrides),
+    # and it is unreachable meanwhile because its native addon is never built —
+    # the step below enforces that. Bump --audit-level back to high when the open
+    # Highs are closed.
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # A checked invariant instead of policy by omission: the vulnerable
+      # bigint-buffer native addon must not exist in the tree, and the package
+      # must not be allowlisted for building. Rationale in the script header.
+      - name: No vulnerable native bindings
+        run: bash scripts/check-no-native-bindings.sh
 
       - name: pnpm audit (fail on critical only)
         run: |
