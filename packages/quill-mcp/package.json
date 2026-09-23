@@ -16,13 +16,13 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",
-    "test": "tsx --test 'src/__tests__/**/*.test.ts' 'src/__integration__/**/*.test.ts'",
-    "test:unit": "tsx --test 'src/*.test.ts' 'src/__tests__/**/*.test.ts'",
-    "test:mcp-routes": "tsx --test 'src/__integration__/http-routes.test.ts'",
-    "test:integration": "tsx --test 'src/__integration__/**/*.test.ts'",
-    "test:all": "tsx --test 'src/**/*.test.ts'",
-    "test:coverage": "tsx --experimental-test-coverage --test 'src/**/*.test.ts'",
-    "test:coverage:unit": "tsx --experimental-test-coverage --test 'src/*.test.ts' 'src/__tests__/**/*.test.ts'"
+    "test": "NODE_ENV=test tsx --test 'src/__tests__/**/*.test.ts' 'src/__integration__/**/*.test.ts'",
+    "test:unit": "NODE_ENV=test tsx --test 'src/*.test.ts' 'src/__tests__/**/*.test.ts'",
+    "test:mcp-routes": "NODE_ENV=test tsx --test 'src/__integration__/http-routes.test.ts'",
+    "test:integration": "NODE_ENV=test tsx --test 'src/__integration__/**/*.test.ts'",
+    "test:all": "NODE_ENV=test tsx --test 'src/**/*.test.ts'",
+    "test:coverage": "NODE_ENV=test tsx --experimental-test-coverage --test 'src/**/*.test.ts'",
+    "test:coverage:unit": "NODE_ENV=test tsx --experimental-test-coverage --test 'src/*.test.ts' 'src/__tests__/**/*.test.ts'"
   },
   "dependencies": {
     "@maplespike/database": "workspace:*",
