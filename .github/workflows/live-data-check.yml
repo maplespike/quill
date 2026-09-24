@@ -92,7 +92,7 @@ jobs:
           WH=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$API/v1/billing/stripe/webhook" -H 'Content-Type: application/json' -d '{}')
           [ "$WH" = "400" ] || { echo "FAIL: webhook returned $WH (expected 400)"; exit 1; }
           GS=$(curl -s -o /dev/null -w '%{http_code}' "$API/v1/gov/search?q=smoke")
-          [ "$GS" = "402" ] || { echo "FAIL: gate open ($GS)"; exit 1; }
+          [ "$GS" = "401" ] || { echo "FAIL: anonymous gov/search should require a key (401), got $GS"; exit 1; }
           echo "auth-lane smoke: OK"
 
       - name: Run live endpoint smoke tests
