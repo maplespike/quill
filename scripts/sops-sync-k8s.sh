@@ -6,6 +6,12 @@
 # hand. That is the whole point: `git log` on runtime.yaml is the changelog of
 # every credential, and a lost cluster is recoverable by running this script.
 #
+# MIGRATION (2026-09-25): these credentials now deliver via ESO pull from
+# Bitwarden Secrets Manager (project k3s; CRs in media-k8s
+# cluster/addons/eso-secrets/). runtime.yaml remains the historical changelog;
+# the MAPPING below is retired (empty) and kept as the pattern for credentials
+# not yet on the ESO rail.
+#
 # WHY A SCRIPT AND NOT A CHART SECRET: charts/quill/templates/secrets.yaml
 # deliberately does not render quill-secrets / maplespike-secrets. ArgoCD
 # selfHeal owns that chart, and it syncs on every change; if the chart rendered
@@ -44,16 +50,8 @@ command -v kubectl >/dev/null || { echo "ERROR: kubectl not found" >&2; exit 2; 
 # Only credentials live here. postgres-* is chart-rendered from values (see
 # charts/quill/templates/secrets.yaml); QUILL_GATEWAY_API_KEY has no consumer in
 # this namespace. Add a row when a new credential appears — never a kubectl patch.
+# RETIRED 2026-09-25 — all rows migrated to the ESO/BSM rail (see header note).
 MAPPING=(
-  "JWT_SECRET|quill-secrets|jwtSecret"
-  "QUILL_API_KEY|quill-secrets|apiKey"
-  "GITHUB_CLIENT_ID|quill-secrets|githubClientId"
-  "GITHUB_CLIENT_SECRET|quill-secrets|githubClientSecret"
-  "INTERNAL_JWT_SECRET|quill-secrets|internalJwtSecret"
-  "QUILL_PII_HASH_SECRET|maplespike-secrets|pii-hash-secret"
-  "QUILL_BILLING_SECRET|maplespike-secrets|quill-billing-secret"
-  "STRIPE_SECRET_KEY|maplespike-secrets|stripe-secret-key"
-  "STRIPE_WEBHOOK_SECRET|maplespike-secrets|stripe-webhook-secret"
 )
 
 echo "== quill sops sync ($MODE) =="
