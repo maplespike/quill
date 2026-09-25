@@ -34,6 +34,12 @@ spec:
     spec:
       backoffLimit: {{ $.Values.ingestion.backoffLimit | default 1 }}
       activeDeadlineSeconds: {{ $.Values.ingestion.activeDeadlineSeconds | default 1800 }}
+      # Finished ingest pods used to linger forever (no TTL, history 3 each), and
+      # nexus's kubelet pod cap (110 by default) filled up until later runs were
+      # rejected with OutOfpods (seen 2026-09-25 on quill-ingest-realtime/ngo-rss).
+      # The TTL deletes the Job - and with it the pod - 10 minutes after it
+      # finishes; widen it via values when debugging a failed ingest.
+      ttlSecondsAfterFinished: {{ $.Values.ingestion.ttlSecondsAfterFinished | default 600 }}
       template:
         metadata:
           labels:
