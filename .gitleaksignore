@@ -1,29 +1,16 @@
-# gitleaks allowlist — baseline from docs/SECRETS-AUDIT-2026-09-16.md (#854)
+# gitleaks finding fingerprints — ONE fingerprint per line. Nothing else.
 #
-# The two REAL findings (age private keys in .secrets/, commits d3526781 and
-# a1cabade) are NOT ignored — they are remediated by history rewrite tracked
-# in #854. Everything below is a verified false positive: documentation
-# placeholders, test fixtures, and example curl commands.
+# Path and regex allow-lists do NOT belong in this file; gitleaks silently
+# ignores them here (it logs "Invalid .gitleaksignore entry" and scans on).
+# They live in .gitleaks.toml. Keep that split: the false-positive baseline was
+# inert for months because TOML blocks were committed to this file, so every
+# intended exclusion was skipped (run 35676870104, 34 warnings).
+#
+# Format: <commit>:<file>:<rule>:<line>
 
-# ── Doc placeholders (curl examples, "REDACTED"/<token> patterns) ──
-paths = '''
-(?i)(docs/journalist-quickstart\.md|
-packages/docs/|
-docs/DEPLOYMENT\.md|
-DEPLOY-CHECKLIST\.md|
-KANBAN-AUTOMATION\.md|
-packages/api-server/src/dev-server\.ts|
-packages/api-server/src/routes/billing\.ts|
-packages/portal/src/pages/workspace\.astro)
-'''
-
-# ── Test fixtures (placeholder credentials in test suites) ──
-paths = '''
-packages/api-server/src/__tests__/
-packages/quill-mcp/src/__tests__/
-'''
-
-# ── Stopwords that trip generic-api-key on example values ──
-regexes = '''
-(?i)(REDACTED|REPLACE_ME|REPLACE_WITH|YOUR_API_KEY|<token>|sk_test_REPLACE|sk_live_REPLACE)
-'''
+# 87355b7c — .github/workflows/live-data-check.yml:48 held a 64-hex JWT_SECRET
+# literal for the CI server. The literal is gone (8bb6056 generates it per run
+# with `openssl rand -hex 64`); this fingerprint keeps the historic commit from
+# re-flagging on any scan that still reaches it. The workflow file itself is
+# NOT allow-listed, so a future literal in .github/workflows/ still fails.
+87355b7c2d5cc10c5b8df7d096dbbf3529f16994:.github/workflows/live-data-check.yml:generic-api-key:48
