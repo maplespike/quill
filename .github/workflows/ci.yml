@@ -148,7 +148,8 @@ jobs:
     # Runs anywhere (no cluster dependency): full-history gitleaks scan.
     # Baseline: docs/SECRETS-AUDIT-2026-09-16.md / issue #854 — the two real
     # age-key findings are remediated by history rewrite before public flip;
-    # doc/test placeholders are excluded via .gitleaksignore.
+    # verified placeholder values are allow-listed in .gitleaks.toml, and
+    # historic findings are pinned by fingerprint in .gitleaksignore.
     runs-on: ubuntu-latest
     # gitleaks-action lists PR commits via the API on pull_request events —
     # without pull-requests:read the token 403s ("Resource not accessible by
@@ -156,10 +157,33 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+    env:
+      # Pin the engine. The allow-list spelling in .gitleaks.toml depends on
+      # the version: gitleaks <= 8.24 reads [allowlist] and silently ignores
+      # [[allowlists]] (verified on run 35676870104, engine 8.24.3).
+      # scripts/check-gitleaks-baseline.sh fails loudly if the pin drifts.
+      GITLEAKS_VERSION: 8.24.3
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history — gitleaks must see every commit
+
+      # The baseline is security-critical config: a malformed .gitleaksignore
+      # is silently inert (34 warnings, zero exclusions applied — run
+      # 35676870104), and a too-broad allow-list silently disables the gate.
+      # Validate the file shape AND the behaviour, on the pinned engine.
+      - name: Install gitleaks (pinned, for the baseline check)
+        run: |
+          set -euo pipefail
+          curl -sSfL -o /tmp/gitleaks.tgz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf /tmp/gitleaks.tgz -C "$HOME/.local/bin" gitleaks
+
+      - name: Validate the gitleaks baseline
+        run: |
+          GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
+            bash scripts/check-gitleaks-baseline.sh --require-gitleaks
 
       - name: gitleaks (full history)
         uses: gitleaks/gitleaks-action@v2
