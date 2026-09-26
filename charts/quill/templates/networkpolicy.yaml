@@ -67,8 +67,21 @@ spec:
     - Ingress
     - Egress
   ingress:
+    # Same-namespace ClusterIP flows match pre-DNAT: add the node subnet and
+    # scope the ports to the service signature (redis, portal, api, mcp).
     - from:
         - podSelector: {}
+        - ipBlock:
+            cidr: 10.1.1.0/24
+      ports:
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8082
+        - protocol: TCP
+          port: 3001
   egress:
     - to:
         - podSelector: {}
