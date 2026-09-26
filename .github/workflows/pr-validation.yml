@@ -57,6 +57,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          # Never rely on the runner's ambient `gh` credentials: the
+          # [self-hosted, nixos] pool is not homogeneous. Runners with stored
+          # credentials satisfied this step and runners without them made `gh`
+          # exit 4 ("To use GitHub CLI in a GitHub Actions workflow, set the
+          # GH_TOKEN environment variable"), so the required `PR checks` check
+          # flapped with whichever host picked the job (PR 908, run
+          # 35684897034 on forge-quill-runner). `github.token` is minted per
+          # run and exists everywhere. Guard: scripts/gates/check-workflow-gh-auth.mjs
+          GH_TOKEN: ${{ github.token }}
         run: |
           COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageHeadline')
           FAILED=0
