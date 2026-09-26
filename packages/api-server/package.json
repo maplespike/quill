@@ -28,7 +28,7 @@
     "@opentelemetry/instrumentation-http": "^0.222.0",
     "@opentelemetry/resources": "^2.9.0",
     "@opentelemetry/sdk-node": "^0.220.0",
-    "@opentelemetry/sdk-trace-base": "^2.9.0",
+    "@opentelemetry/sdk-trace-base": "^2.11.0",
     "@opentelemetry/semantic-conventions": "^1.43.0",
     "@simplewebauthn/server": "^13.3.0",
     "better-sqlite3": "^12.11.1",
