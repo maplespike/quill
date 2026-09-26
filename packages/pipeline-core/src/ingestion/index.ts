@@ -40,6 +40,9 @@ export type {
   IngestRunRecord,
   IngestRunStatus,
   RecordIngestRunInput,
+  SourceOutcome,
+  SourceOutcomeStatus,
+  RunSources,
 } from './run-log.js';
 
 // ── Entity Resolution ───────────────────────────────────────────────

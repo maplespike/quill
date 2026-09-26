@@ -383,15 +383,19 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     modulePath: './real-time-feeds/index.js',
     ingestFunctions: ['ingestAllRealtime'],
     sources: [
-      { name: 'ECCC Weather Alerts (OGC API Features GeoJSON)', format: 'JSON' },
+      { name: 'ECCC Weather Alerts', format: 'CAP-CP XML' },
       { name: 'CBSA Border Wait Times', format: 'JSON' },
-      { name: 'Parole Board of Canada Decision Registry', format: 'HTML' },
+      { name: 'Alert Ready (Amber Alerts)', format: 'HTML' },
+      { name: 'ECCC Air Quality Health Index', format: 'CSV' },
+      { name: 'Water Survey Hydrometric', format: 'CSV' },
     ],
     updateFrequency: 'continuous',
     testCallPattern: 'runModule',
-    // Health-check the upstream the alerts fetcher actually reads. The previous
-    // URL was an unrelated Nunavut statistics page.
-    healthCheckUrl: 'https://api.weather.gc.ca/collections/weather-alerts/items?f=json'
+    // GH#921: the health probe pointed at the Nunavut statistics page (403 —
+    // Cloudflare-blocked, and unrelated to realtime feeds), so the realtime
+    // run log carried a confusing 403 for gov.nu.ca. Probe the actual alert
+    // surface instead.
+    healthCheckUrl: 'https://api.weather.gc.ca/collections/weather-alerts/items?f=json&limit=1'
   },
   {
     name: 'regional-authorities',
@@ -652,16 +656,13 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     modulePath: './corporate/index.js',
     ingestFunctions: ['ingestAllCorporate', 'ingestLobbying', 'ingestProcurement', 'ingestExecutiveStatements'],
     sources: [
-      { name: 'LobbyCanada registry (CKAN mirror; data host WAF-blocked)', format: 'CSV/ZIP' },
-      { name: 'Proactive disclosure contracts (open.canada.ca CKAN datastore)', format: 'JSON' },
-      { name: 'Federal Corporation JSON API (ic.gc.ca)', format: 'JSON' },
+      { name: 'LobbyCanada registry', format: 'CSV' },
+      { name: 'CanadaBuys procurement', format: 'RSS' },
+      { name: 'GlobeNewswire exec statements', format: 'RSS' },
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    // Health-check the host this module actually reads. The old check pointed at
-    // lobbycanada.gc.ca, whose WAF answers 403 — and the gate accepts 2xx-4xx as
-    // "alive", so it certified a source that cannot be read.
-    healthCheckUrl: 'https://open.canada.ca',
+    healthCheckUrl: 'https://lobbycanada.gc.ca',
   },
   {
     name: 'opencorporates',

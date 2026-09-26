@@ -17,7 +17,12 @@
 
 import { getModule, runModule } from '../ingestion/registry.js';
 import { runEntityResolution } from '../entity/integration.js';
-import { recordIngestRun, type IngestRunStatus } from '../ingestion/run-log.js';
+import {
+  recordIngestRun,
+  type IngestRunStatus,
+  type RunSources,
+  type SourceOutcome,
+} from '../ingestion/run-log.js';
 import { citationStore } from '../claims/store.js';
 import { createSqliteD1Adapter } from '../ingestion/sqlite-d1.js';
 
@@ -110,6 +115,45 @@ export interface RunOutcome {
   error: string | null;
   /** True when the run-log row was written (false = the run is not observable). */
   logged: boolean;
+  /** Per-source outcomes + declared zero reason (null when not classified). */
+  sources: RunSources | null;
+}
+
+/**
+ * Read per-source outcomes from a module result. Recognises the
+ * `sources: [{source, status, records, error}]` envelope (real-time-feeds)
+ * and degrades to `[]` for modules that do not report sources.
+ */
+export function extractSourceOutcomes(result: unknown): SourceOutcome[] {
+  if (!result || typeof result !== 'object') return [];
+  const raw = (result as { sources?: unknown }).sources;
+  if (!Array.isArray(raw)) return [];
+  const out: SourceOutcome[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const r = item as Record<string, unknown>;
+    if (typeof r.source !== 'string' || r.source.length === 0) continue;
+    const status = r.status === 'ok' || r.status === 'empty' || r.status === 'error' ? r.status : null;
+    if (!status) continue;
+    out.push({
+      source: r.source,
+      status,
+      records: typeof r.records === 'number' ? Math.max(0, Math.trunc(r.records)) : 0,
+      error: typeof r.error === 'string' && r.error.length > 0 ? r.error : null,
+    });
+  }
+  return out;
+}
+
+/**
+ * Read a module's declared zero-records reason (e.g.
+ * `zeroReason: 'no-new-records-since-last-run'`). Null when the module
+ * declared nothing — a zero-record run with no declaration is a failure.
+ */
+export function extractZeroReason(result: unknown): string | null {
+  if (!result || typeof result !== 'object') return null;
+  const raw = (result as { zeroReason?: unknown }).zeroReason;
+  return typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
 }
 
 /**
@@ -146,7 +190,37 @@ export function ingestEntryPoint(moduleName: string): string | null {
  * Handles arrays, `{ records | results | items | data }` envelopes, numeric
  * count fields, and dictionary-shaped results (committees, influence,
  * corporate) whose children are per-source results.
+ *
+ * The count verbs cover what the scheduled modules actually emit (GH#921):
+ * `recordsIngested` (gazette, corporate), `meetingsIngested` /
+ * `interventionsIngested` (committees), `reportsIngested` (oversight),
+ * `actorsFound` / `connectionsFound` / `fundingFlowsFound` (influence), and
+ * the discovery verbs (`*Found`) every module fills on its result envelope.
+ * Before this list existed a full working committees run reported 0.
+ *
+ * Discovery verbs (`*Found`) are read BEFORE ingested verbs: the run log's
+ * `records` column means "records parsed by the module", and a quiet run
+ * (upstream answered, everything already ingested — `meetingsFound: 3,
+ * meetingsIngested: 0`) is a WORKING collector. Counting the ingested verb
+ * there would false-positive the zero-records classification below on every
+ * deduplicated run. A broken parser finds nothing, so both verbs are 0 and
+ * the run fails — exactly the condition GH#921 asks to catch.
  */
+const COUNT_FIELDS = [
+  'records', 'recordsIngested', 'recordsCount',
+  'meetingsIngested', 'interventionsIngested', 'reportsIngested',
+  'actorsFound', 'connectionsFound', 'fundingFlowsFound',
+  'count', 'total', 'inserted', 'processed',
+];
+
+/** Discovery verbs — `*Found` fields mean "the upstream had N of these". */
+function foundVerbValue(r: Record<string, unknown>): number | null {
+  for (const key of Object.keys(r)) {
+    if (/Found$/.test(key) && typeof r[key] === 'number') return r[key] as number;
+  }
+  return null;
+}
+
 export function countRecords(result: unknown, depth = 0): number {
   if (Array.isArray(result)) return result.length;
   if (!result || typeof result !== 'object') return 0;
@@ -155,10 +229,9 @@ export function countRecords(result: unknown, depth = 0): number {
   for (const key of ['records', 'results', 'items', 'data']) {
     if (Array.isArray(r[key])) return (r[key] as unknown[]).length;
   }
-  for (const key of ['count', 'recordsCount', 'total', 'recordsIngested', 'inserted', 'processed',
-    // Dictionary-shaped results whose children count what they persisted rather
-    // than returning a `records` array (influence reports {actors, funding}).
-    'fundingFlowsFound', 'actorsFound', 'connectionsFound']) {
+  const found = foundVerbValue(r);
+  if (found !== null) return found;
+  for (const key of COUNT_FIELDS) {
     if (typeof r[key] === 'number') return r[key] as number;
   }
 
@@ -186,7 +259,7 @@ export async function runOne(
   const entry = ingestEntryPoint(moduleName);
   console.log(`[CLI] Running ${moduleName}: ${mod?.description ?? '(unknown module)'}`);
 
-  let outcome: RunOutcome = { status: 'success', records: 0, claims: 0, error: null, logged: false };
+  let outcome: RunOutcome = { status: 'success', records: 0, claims: 0, error: null, logged: false, sources: null };
   // Claim bundles are content-addressed inside the registry hook; the store
   // delta is the only place that count is visible to the caller.
   const claimsBefore = citationStore.size;
@@ -207,8 +280,68 @@ export async function runOne(
     // No db argument — the registry injects the adapter for db-first modules
     // and hands the options object to everyone else.
     const result = await runner.runModule(moduleName, {});
+
+    // ── GH#921: classify the result honestly ──────────────────────────
+    // A module result that reports failure (an `error` string or
+    // `success: false` — 21 modules emit the latter on HTTP failure) must
+    // never count as a successful run.
+    const resultError = (result as { error?: unknown } | null | undefined)?.error;
+    if (typeof resultError === 'string' && resultError.trim().length > 0) {
+      throw new Error(resultError);
+    }
+    if ((result as { success?: unknown } | null | undefined)?.success === false) {
+      const detail = (result as { error?: unknown }).error;
+      throw new Error(
+        typeof detail === 'string' && detail.length > 0
+          ? detail
+          : `${moduleName} reported success: false`,
+      );
+    }
+    // A health-check skip is an upstream refusal, not a success with zero
+    // records: the module never ran.
+    const skipped = result as { skipped?: unknown; reason?: unknown } | null | undefined;
+    if (skipped?.skipped === true) {
+      throw new Error(
+        typeof skipped.reason === 'string' && skipped.reason.length > 0
+          ? `skipped: ${skipped.reason}`
+          : 'skipped: upstream health check refused the run',
+      );
+    }
+
     outcome.records = countRecords(result);
     outcome.claims = Math.max(0, citationStore.size - claimsBefore);
+
+    // Per-source outcomes (modules that report them — real-time-feeds today)
+    // plus the zero-records classification below make a silent collector
+    // failure visible instead of a green `records=0`.
+    const sources = extractSourceOutcomes(result);
+    if (outcome.records === 0) {
+      const errored = sources.filter(s => s.status === 'error');
+      const answered = sources.filter(s => s.status !== 'error');
+      if (sources.length > 0 && errored.length === sources.length) {
+        // Every source failed — this is a collector failure, not a quiet day.
+        throw new Error(
+          `all ${sources.length} source(s) failed: ` +
+            errored.map(s => `${s.source} (${s.error ?? 'error'})`).join('; '),
+        );
+      }
+      if (sources.length === 0 || answered.length === 0) {
+        // No source outcomes and zero records: indistinguishable from a
+        // parser that silently stopped matching. Fail unless the module
+        // declared the zero legitimate.
+        const declared = extractZeroReason(result);
+        if (!declared) {
+          throw new Error('zero-records-without-declared-reason');
+        }
+        outcome.sources = { sources, zeroReason: declared };
+      } else {
+        // Sources answered but nothing new: legitimate quiet run.
+        outcome.sources = { sources, zeroReason: 'no-new-records-since-last-run' };
+      }
+    } else {
+      outcome.sources = { sources, zeroReason: null };
+    }
+
     console.log(`[CLI] ✅ ${moduleName} complete:`, JSON.stringify(result).substring(0, 200));
 
     const records = (result as { records?: unknown[] } | null)?.records ?? [];
@@ -232,6 +365,7 @@ export async function runOne(
       claims: 0,
       error: err instanceof Error ? err.message : String(err),
       logged: false,
+      sources: null,
     };
     console.error(`[CLI] ❌ ${moduleName} failed:`, err);
   }
@@ -245,6 +379,7 @@ export async function runOne(
     claims: outcome.claims,
     schedule: SCHEDULE,
     error: outcome.error,
+    sources: outcome.sources ?? null,
   });
   if (!outcome.logged) {
     console.error('[CLI] ❌ Run log write failed — the run is not observable. Check QUILL_DB_PATH.');

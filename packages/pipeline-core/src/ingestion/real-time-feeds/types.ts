@@ -1,3 +1,5 @@
+import type { SourceOutcome } from '../run-log.js';
+
 export type RealtimeSource =
   | 'eccc-weather-alerts'
   | 'cbsa-border-wait-times'
@@ -25,4 +27,6 @@ export interface RealtimeIngestionResult {
   sourcesSucceeded: number;
   errors: { source: string; error: string }[];
   durationMs: number;
+  /** Per-source outcomes (GH#921) — surfaced into ingest_runs.sources_json. */
+  sources: SourceOutcome[];
 }

@@ -11,38 +11,38 @@ export interface RealtimeSourceConfig {
 }
 
 /**
- * Catalogue of real-time sources.
- *
- * `enabled` marks whether a fetcher exists AND the endpoint is reachable.
- * Only three sources have a fetcher today: `eccc-weather-alerts`,
- * `cbsa-border-wait-times`, `parole-board-decisions` — see fetchAllRealtime().
- * The rest are catalogued for future work and are marked disabled: every
- * `dd.weather.gc.ca/...` path returns 404 (the data server layout has moved),
- * so nothing is wired to them.
- *
- * URLs verified 2026-09-23; the dead ones this file used to carry:
- *   - dd.weather.gc.ca/alerts/cap/cap_01_alert_index.xml → 404
- *     (replaced by the OGC API Features endpoint on api.weather.gc.ca)
- *   - www.cbsa-asfc.gc.ca/bwt-taf/bwt_taf-eng.json → 404
- *     (the live file is bwt-eng.json)
+ * ECCC weather alerts — GeoAPI items endpoint (GH#921 repair).
+ * The old flat CAP index (dd.weather.gc.ca/alerts/cap/cap_01_alert_index.xml)
+ * was removed when the datamart restructured to date-stamped directories;
+ * the GeoAPI collection serves the same alerts as GeoJSON.
  */
+export const ECCC_ALERTS_GEOAPI_URL =
+  'https://api.weather.gc.ca/collections/weather-alerts/items?f=json&limit=';
+
+/**
+ * CBSA border wait times — HTML table (GH#921 repair).
+ * The JSON feed (bwt-taf/bwt_taf-eng.json) was removed; the menu page's
+ * `#bwttaf` table carries the same 29 crossings.
+ */
+export const CBSA_BWT_HTML_URL = 'https://www.cbsa-asfc.gc.ca/bwt-taf/menu-eng.html';
+
 export const REALTIME_SOURCES: RealtimeSourceConfig[] = [
   {
     source: 'eccc-weather-alerts',
     name: 'Environment Canada Weather Alerts',
-    url: 'https://api.weather.gc.ca/collections/weather-alerts/items?f=json',
+    url: 'https://api.weather.gc.ca/collections/weather-alerts/items',
     format: 'json',
     refreshSeconds: 300,
-    description: 'Live weather alerts (advisories, watches, warnings) across all provinces, served as OGC API Features GeoJSON',
+    description: 'Weather alerts — warnings, watches, statements across all provinces (GeoAPI)',
     enabled: true,
   },
   {
     source: 'cbsa-border-wait-times',
     name: 'CBSA Border Wait Times',
-    url: 'https://www.cbsa-asfc.gc.ca/bwt-taf/bwt-eng.json',
-    format: 'json',
+    url: CBSA_BWT_HTML_URL,
+    format: 'html',
     refreshSeconds: 600,
-    description: 'Live border wait times at major Canada-US land border crossings (waitTimes[] with commercial and traveller lanes)',
+    description: 'Live border wait times at major Canada-US land border crossings',
     enabled: true,
   },
   {
@@ -51,9 +51,8 @@ export const REALTIME_SOURCES: RealtimeSourceConfig[] = [
     url: 'https://www.alertready.ca/',
     format: 'html',
     refreshSeconds: 900,
-    description: "Canada's national public alerting system for imminent threats (Amber Alerts, tornado, floods)",
-    // Endpoint reachable (200 HTML) but no fetcher is implemented.
-    enabled: false,
+    description: 'Canada\'s national public alerting system for imminent threats (Amber Alerts, tornado, floods)',
+    enabled: true,
   },
   {
     source: 'parole-board-decisions',
@@ -67,32 +66,29 @@ export const REALTIME_SOURCES: RealtimeSourceConfig[] = [
   {
     source: 'eccc-weather-observations',
     name: 'Environment Canada Weather Observations',
-    url: 'https://api.weather.gc.ca/collections/swob-realtime/items?f=json',
-    format: 'json',
+    url: 'https://dd.weather.gc.ca/observations/swob-ml/latest/',
+    format: 'xml',
     refreshSeconds: 3600,
     description: 'Latest hourly weather observations from stations across Canada',
-    // Repointed from the 404 dd.weather.gc.ca tree; no fetcher implemented yet.
-    enabled: false,
+    enabled: true,
   },
   {
     source: 'eccc-aqhi',
     name: 'Environment Canada Air Quality Health Index',
-    url: 'https://api.weather.gc.ca/collections/aqhi-observations-realtime/items?f=json',
+    url: 'https://dd.weather.gc.ca/air_quality/aqhi/pollen/forecast/aqhi_forecast_hourly.csv',
     format: 'json',
     refreshSeconds: 3600,
     description: 'Air Quality Health Index readings and forecasts for Canadian cities. Includes PM2.5, ozone, NO2 levels.',
-    // Repointed from the 404 dd.weather.gc.ca tree; no fetcher implemented yet.
-    enabled: false,
+    enabled: true,
   },
   {
     source: 'water-survey-flood',
     name: 'Water Survey of Canada — Real-Time Hydrometric Data',
-    url: 'https://api.weather.gc.ca/collections/hydrometric-realtime/items?f=json',
+    url: 'https://dd.weather.gc.ca/hydrometric/csv/',
     format: 'json',
     refreshSeconds: 3600,
     description: 'Real-time river levels, streamflow, and water level data from monitoring stations. Flood warnings and high-flow alerts.',
-    // Repointed from the 404 dd.weather.gc.ca tree; no fetcher implemented yet.
-    enabled: false,
+    enabled: true,
   },
 ];
 
@@ -102,11 +98,15 @@ export const MAX_REALTIME_RECORDS = 200;
 export const REALTIME_CACHE_TTL_MS = 60_000; // 1-minute cache for fast re-queries
 
 // ── MSC AMQPS Configuration ─────────────────────────────
-// `q.weather.gc.ca` has no DNS record (ENOTFOUND, verified 2026-09-23), so the
-// AMQPS push subscriber cannot connect. It is opt-IN via MSC_AMQPS_ENABLED=true
-// rather than opt-out: defaulting it on spent every run on a host that does not
-// resolve. Flip the default back once the broker answers.
-export const MSC_AMQPS_URL = 'amqps://q.weather.gc.ca:5671';
-export const MSC_AMQPS_QUEUE = 'v00.msc-alerts.cap';
-export const MSC_AMQPS_TOPIC = 'v00.msc-alerts.cap';
-export const MSC_AMQPS_ENABLED = process.env['MSC_AMQPS_ENABLED'] === 'true';
+// GH#921 repair: the broker host q.weather.gc.ca no longer resolves. The MSC
+// AMQP docs (eccc-msc.github.io/open-data/msc-datamart/amqp_en/) place the
+// SSL broker at dd.weather.gc.ca with anonymous credentials; the queue name
+// must follow the q_anonymous.* convention (the broker refuses arbitrary
+// queue names for the anonymous user — verified live 2026-09-23).
+export const MSC_AMQPS_URL = 'amqps://anonymous:anonymous@dd.weather.gc.ca:5671';
+/** Sarracenia convention: exchange xpublic, topicPrefix v02.post. */
+export const MSC_AMQPS_EXCHANGE = 'xpublic';
+export const MSC_AMQPS_TOPIC = 'v02.post.*.WXO-DD.alerts.cap.#';
+/** Queue name must start with q_anonymous. (broker policy, verified live). */
+export const MSC_AMQPS_QUEUE = 'q_anonymous.subscribe.quill.maplespike';
+export const MSC_AMQPS_ENABLED = process.env['MSC_AMQPS_ENABLED'] !== 'false'; // opt-out via env
