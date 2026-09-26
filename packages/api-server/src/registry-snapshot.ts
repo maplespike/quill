@@ -372,13 +372,16 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     modulePath: './real-time-feeds/index.js',
     ingestFunctions: ['ingestAllRealtime'],
     sources: [
-      { name: 'ECCC Weather Alerts (OGC API Features GeoJSON)', format: 'JSON' },
+      { name: 'ECCC Weather Alerts', format: 'CAP-CP XML' },
       { name: 'CBSA Border Wait Times', format: 'JSON' },
-      { name: 'Parole Board of Canada Decision Registry', format: 'HTML' },
+      { name: 'Alert Ready (Amber Alerts)', format: 'HTML' },
+      { name: 'ECCC Air Quality Health Index', format: 'CSV' },
+      { name: 'Water Survey Hydrometric', format: 'CSV' },
     ],
     updateFrequency: 'continuous',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://api.weather.gc.ca/collections/weather-alerts/items?f=json',
+    // GH#921: probe the actual alert surface (the old gov.nu.ca probe 403'd).
+    healthCheckUrl: 'https://api.weather.gc.ca/collections/weather-alerts/items?f=json&limit=1',
   },
   {
     name: 'regional-authorities',
@@ -639,13 +642,13 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     modulePath: './corporate/index.js',
     ingestFunctions: ['ingestAllCorporate', 'ingestLobbying', 'ingestProcurement', 'ingestExecutiveStatements'],
     sources: [
-      { name: 'LobbyCanada registry (CKAN mirror; data host WAF-blocked)', format: 'CSV/ZIP' },
-      { name: 'Proactive disclosure contracts (open.canada.ca CKAN datastore)', format: 'JSON' },
-      { name: 'Federal Corporation JSON API (ic.gc.ca)', format: 'JSON' },
+      { name: 'LobbyCanada registry', format: 'CSV' },
+      { name: 'CanadaBuys procurement', format: 'RSS' },
+      { name: 'GlobeNewswire exec statements', format: 'RSS' },
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://open.canada.ca',
+    healthCheckUrl: 'https://lobbycanada.gc.ca',
   },
   {
     name: 'opencorporates',

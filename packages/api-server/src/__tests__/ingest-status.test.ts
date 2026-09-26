@@ -34,6 +34,7 @@ function run(overrides: Partial<IngestRunRecord> & { pipeline: string; ageSecond
     claims: overrides.claims ?? 0,
     schedule: overrides.schedule ?? null,
     error: overrides.error ?? null,
+    sources: overrides.sources ?? null,
   };
 }
 
@@ -104,6 +105,92 @@ test('ingest status — an empty run log reports unknown, never a false healthy'
   assert.equal(payload.status, 'unknown');
   assert.equal(payload.pipelinesTracked, 0);
   assert.deepEqual(payload.pipelines, []);
+});
+
+test('ingest status — per-source outcomes and the zero reason are surfaced (GH#921)', () => {
+  const payload = buildIngestStatusPayload(
+    [
+      run({
+        pipeline: 'realtime',
+        ageSeconds: 60,
+        records: 5,
+        schedule: '*/30 * * * *',
+        sources: {
+          sources: [
+            { source: 'eccc-weather-alerts', status: 'ok', records: 5, error: null },
+            { source: 'cbsa-border-wait-times', status: 'error', records: 0, error: 'HTTP 404 GET https://x' },
+          ],
+          zeroReason: null,
+        },
+      }),
+      run({
+        pipeline: 'gazette',
+        ageSeconds: 60,
+        records: 0,
+        schedule: '0 */12 * * *',
+        sources: {
+          sources: [{ source: 'gazette-part-i', status: 'empty', records: 0, error: null }],
+          zeroReason: 'no-new-records-since-last-run',
+        },
+      }),
+    ],
+    NOW,
+  );
+
+  const realtime = payload.pipelines.find((p) => p.pipeline === 'realtime');
+  assert.ok(realtime?.sources, 'sources must be surfaced');
+  assert.equal(realtime.sources.length, 2);
+  assert.equal(realtime.sources[0].source, 'eccc-weather-alerts');
+  assert.equal(realtime.sources[0].status, 'ok');
+  assert.equal(realtime.sources[1].status, 'error');
+  assert.match(realtime.sources[1].error ?? '', /HTTP 404/);
+  assert.equal(realtime.stale, false, 'one healthy source keeps the pipeline non-stale');
+  assert.equal(realtime.zeroReason, null);
+
+  const gazette = payload.pipelines.find((p) => p.pipeline === 'gazette');
+  assert.ok(gazette);
+  assert.equal(gazette.zeroReason, 'no-new-records-since-last-run');
+  assert.equal(gazette.stale, false, 'a declared zero is not stale');
+});
+
+test('ingest status — a run whose every source errored is stale (GH#921)', () => {
+  const payload = buildIngestStatusPayload(
+    [
+      run({
+        pipeline: 'realtime',
+        ageSeconds: 60,
+        status: 'success',
+        records: 0,
+        schedule: '*/30 * * * *',
+        sources: {
+          sources: [
+            { source: 'eccc-weather-alerts', status: 'error', records: 0, error: 'HTTP 404' },
+            { source: 'cbsa-border-wait-times', status: 'error', records: 0, error: 'HTTP 404' },
+            { source: 'parole-board-decisions', status: 'error', records: 0, error: 'ENOTFOUND' },
+          ],
+          zeroReason: null,
+        },
+      }),
+    ],
+    NOW,
+  );
+
+  assert.equal(payload.status, 'stale');
+  assert.deepEqual(payload.stalePipelines, ['realtime']);
+  const realtime = payload.pipelines[0];
+  assert.equal(realtime.stale, true, 'all-error sources force stale even on a success row');
+  assert.equal(realtime.sources?.length, 3);
+});
+
+test('ingest status — runs without sources (pre-GH#921 rows) read sources: null', () => {
+  const payload = buildIngestStatusPayload(
+    [run({ pipeline: 'committees', ageSeconds: 60, records: 12, schedule: '0 */6 * * *' })],
+    NOW,
+  );
+  const entry = payload.pipelines[0];
+  assert.equal(entry.sources, null);
+  assert.equal(entry.zeroReason, null);
+  assert.equal(entry.stale, false);
 });
 
 test('ingest status — the handler answers 200 + unknown on an empty store', async () => {
