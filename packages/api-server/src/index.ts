@@ -599,7 +599,10 @@ export async function handleRequest(
     // verify. Same trust-primitive rationale.
     || path.startsWith('/v1/claims/latest')
     || path.startsWith('/v1/llms')
-    || path.startsWith('/v1/auth/')
+    // Auth routes: OAuth flows and auth-adjacent endpoints must be exempt
+    // for public access, but /v1/auth/me requires authentication to return
+    // the current user's tenant and key info.
+    || (path.startsWith('/v1/auth/') && !path.startsWith('/v1/auth/me'))
     || path.startsWith('/v1/register')
     || path.startsWith('/v1/verify/')
     || path.startsWith('/v1/billing/plans')
