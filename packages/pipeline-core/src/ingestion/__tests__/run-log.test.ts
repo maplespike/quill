@@ -18,6 +18,7 @@ import {
   maxAgeSecondsFor,
   DEFAULT_MAX_AGE_SECONDS,
 } from '../run-log.js';
+import { getRawDb } from '@maplespike/database';
 
 let tmpDir: string;
 let dbPath: string;
@@ -107,6 +108,104 @@ describe('ingest run log', () => {
     assert.ok(run);
     assert.equal(run.status, 'failed');
     assert.equal(run.error, 'No database configured');
+  });
+
+  it('round-trips per-source outcomes and the declared zero reason (GH#921)', () => {
+    recordIngestRun({
+      pipeline: 'realtime',
+      startedAt: new Date('2026-09-23T10:00:00.000Z'),
+      finishedAt: new Date('2026-09-23T10:00:30.000Z'),
+      status: 'success',
+      records: 5,
+      schedule: '*/30 * * * *',
+      sources: {
+        sources: [
+          { source: 'eccc-weather-alerts', status: 'ok', records: 5, error: null },
+          { source: 'cbsa-border-wait-times', status: 'error', records: 0, error: 'HTTP 404' },
+          { source: 'parole-board-decisions', status: 'empty', records: 0, error: null },
+        ],
+        zeroReason: null,
+      },
+    });
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'realtime');
+    assert.ok(run, 'run row must be readable');
+    assert.ok(run.sources, 'sources envelope must round-trip');
+    assert.equal(run.sources.sources.length, 3);
+    assert.deepEqual(run.sources.sources[0], {
+      source: 'eccc-weather-alerts', status: 'ok', records: 5, error: null,
+    });
+    assert.deepEqual(run.sources.sources[1], {
+      source: 'cbsa-border-wait-times', status: 'error', records: 0, error: 'HTTP 404',
+    });
+    assert.equal(run.sources.zeroReason, null);
+  });
+
+  it('round-trips a declared zero reason on an empty success', () => {
+    recordIngestRun({
+      pipeline: 'gazette',
+      startedAt: new Date('2026-09-23T11:00:00.000Z'),
+      finishedAt: new Date('2026-09-23T11:01:00.000Z'),
+      status: 'success',
+      records: 0,
+      schedule: '0 */12 * * *',
+      sources: {
+        sources: [{ source: 'gazette-part-i', status: 'empty', records: 0, error: null }],
+        zeroReason: 'no-new-records-since-last-run',
+      },
+    });
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'gazette');
+    assert.ok(run?.sources);
+    assert.equal(run.sources.zeroReason, 'no-new-records-since-last-run');
+    assert.equal(run.sources.sources[0].status, 'empty');
+  });
+
+  it('reads rows written before the sources column existed (sources: null)', () => {
+    recordIngestRun({
+      pipeline: 'legacy',
+      startedAt: new Date('2026-09-22T05:00:00.000Z'),
+      finishedAt: new Date('2026-09-22T05:00:10.000Z'),
+      status: 'success',
+      records: 3,
+    });
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'legacy');
+    assert.ok(run);
+    assert.equal(run.sources, null, 'a row without sources_json reads back as null');
+  });
+
+  it('migrates an existing pre-sources table by adding the column', () => {
+    // Simulate an old database: drop the run-log table and create the OLD
+    // schema by hand, then verify the next write/read migrates it.
+    const db = getRawDb();
+    db.exec('DROP TABLE IF EXISTS ingest_runs');
+    db.exec(`CREATE TABLE ingest_runs (
+      id TEXT PRIMARY KEY,
+      pipeline TEXT NOT NULL,
+      started_at TEXT NOT NULL,
+      finished_at TEXT NOT NULL,
+      status TEXT NOT NULL,
+      records INTEGER NOT NULL DEFAULT 0,
+      claims INTEGER NOT NULL DEFAULT 0,
+      schedule TEXT,
+      error TEXT
+    )`);
+
+    const written = recordIngestRun({
+      pipeline: 'migrated',
+      startedAt: new Date('2026-09-23T12:00:00.000Z'),
+      finishedAt: new Date('2026-09-23T12:00:05.000Z'),
+      status: 'success',
+      records: 1,
+      sources: { sources: [{ source: 'x', status: 'ok', records: 1, error: null }], zeroReason: null },
+    });
+    assert.equal(written, true, 'the write must succeed against the old-schema table');
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'migrated');
+    assert.ok(run, 'migrated row must be readable');
+    assert.ok(run.sources, 'sources must round-trip after the column migration');
+    assert.equal(run.sources.sources[0].source, 'x');
   });
 
   it('honours the history limit', () => {

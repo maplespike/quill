@@ -24,6 +24,7 @@ import {
   maxAgeSecondsFor,
   DEFAULT_MAX_AGE_SECONDS,
   type IngestRunRecord,
+  type SourceOutcome,
 } from '@maplespike/pipeline-core';
 
 export interface IngestPipelineStatus {
@@ -40,6 +41,10 @@ export interface IngestPipelineStatus {
   /** True when the last run failed or has aged past maxAgeSeconds. */
   stale: boolean;
   error: string | null;
+  /** Per-source outcomes of the last run (GH#921); null when the run pre-dates them. */
+  sources: SourceOutcome[] | null;
+  /** Declared reason the last run recorded zero records (GH#921). */
+  zeroReason: string | null;
 }
 
 export interface IngestStatusPayload {
@@ -55,6 +60,10 @@ export interface IngestStatusPayload {
 /**
  * Classify the last run of every pipeline. Pure — no clock, no database — so
  * the staleness rules are testable without a store.
+ *
+ * GH#921: a run whose every source errored is treated like a failed run
+ * (stale: true) even when the runner recorded it as success — the health
+ * script alerts on it without modification.
  */
 export function buildIngestStatusPayload(
   runs: IngestRunRecord[],
@@ -66,6 +75,10 @@ export function buildIngestStatusPayload(
       ? Math.max(0, Math.floor((now - finishedMs) / 1000))
       : Number.MAX_SAFE_INTEGER;
     const maxAgeSeconds = maxAgeSecondsFor(run);
+    const sources = run.sources?.sources ?? null;
+    const zeroReason = run.sources?.zeroReason ?? null;
+    const allSourcesErrored =
+      sources !== null && sources.length > 0 && sources.every(s => s.status === 'error');
     return {
       pipeline: run.pipeline,
       status: run.status === 'failed' ? 'failed' : 'success',
@@ -76,8 +89,10 @@ export function buildIngestStatusPayload(
       claims: run.claims,
       schedule: run.schedule,
       maxAgeSeconds,
-      stale: run.status !== 'success' || ageSeconds > maxAgeSeconds,
+      stale: run.status !== 'success' || ageSeconds > maxAgeSeconds || allSourcesErrored,
       error: run.error,
+      sources,
+      zeroReason,
     };
   });
 

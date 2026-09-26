@@ -125,6 +125,127 @@ describe('runOne persistence contract', () => {
   });
 });
 
+describe('runOne honest classification (GH#921)', () => {
+  it('records a failed run when the health check skipped the module', async () => {
+    // The registry returns {skipped: true, reason} when the upstream health
+    // probe fails — previously logged as success with 0 records.
+    const { runner } = makeSpy({ skipped: true, reason: 'Upstream at https://x is unreachable' });
+    const outcome = await runOne('realtime', 'real-time-feeds', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.match(outcome.error ?? '', /skipped: Upstream at https:\/\/x is unreachable/);
+  });
+
+  it('records a failed run when the module reports success: false', async () => {
+    const { runner } = makeSpy({ success: false, records: 0 });
+    const outcome = await runOne('oversight', 'oversight', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.match(outcome.error ?? '', /success: false/);
+  });
+
+  it('records a failed run when the module reports an error string', async () => {
+    const { runner } = makeSpy({ error: 'upstream 503' });
+    const outcome = await runOne('gazette', 'gazette', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.equal(outcome.error, 'upstream 503');
+  });
+
+  it('fails when zero records arrive with no source outcomes and no declared reason', async () => {
+    // The exact GH#921 condition: a parser that silently stopped matching.
+    const { runner } = makeSpy({ recordsIngested: 0 });
+    const outcome = await runOne('influence', 'influence', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.equal(outcome.error, 'zero-records-without-declared-reason');
+  });
+
+  it('fails when every source errored, even though the module "succeeded"', async () => {
+    const { runner } = makeSpy({
+      records: [],
+      sources: [
+        { source: 'eccc-weather-alerts', status: 'error', records: 0, error: 'HTTP 404 GET https://x' },
+        { source: 'cbsa-border-wait-times', status: 'error', records: 0, error: 'HTTP 404 GET https://y' },
+      ],
+    });
+    const outcome = await runOne('realtime', 'real-time-feeds', {} as never, runner);
+
+    assert.equal(outcome.status, 'failed');
+    assert.match(outcome.error ?? '', /all 2 source\(s\) failed/);
+    assert.match(outcome.error ?? '', /eccc-weather-alerts \(HTTP 404/);
+  });
+
+  it('succeeds with a declared zero when sources answered but nothing was new', async () => {
+    const { runner } = makeSpy({
+      records: [],
+      sources: [
+        { source: 'eccc-weather-alerts', status: 'ok', records: 12, error: null },
+        { source: 'cbsa-border-wait-times', status: 'empty', records: 0, error: null },
+      ],
+    });
+    const outcome = await runOne('realtime', 'real-time-feeds', {} as never, runner);
+
+    assert.equal(outcome.status, 'success');
+    assert.ok(outcome.sources, 'sources envelope must be recorded');
+    assert.equal(outcome.sources.zeroReason, 'no-new-records-since-last-run');
+  });
+
+  it('succeeds with a module-declared zero reason when no sources are reported', async () => {
+    const { runner } = makeSpy({ records: [], zeroReason: 'nothing-published-this-window' });
+    const outcome = await runOne('gazette', 'gazette', {} as never, runner);
+
+    assert.equal(outcome.status, 'success');
+    assert.ok(outcome.sources);
+    assert.equal(outcome.sources.zeroReason, 'nothing-published-this-window');
+  });
+
+  it('counts the module count verbs so a working committees run is not records=0', async () => {
+    // committees returns Record<acronym, CommitteeIngestionResult> — the
+    // dictionary branch must sum the discovery verbs (meetingsFound).
+    const { runner } = makeSpy({
+      FINA: { meetingsIngested: 3, interventionsIngested: 40, meetingsFound: 3, errors: [] },
+      ENVI: { meetingsIngested: 2, interventionsIngested: 25, meetingsFound: 2, errors: [] },
+    });
+    const outcome = await runOne('committees', 'committees', {} as never, runner);
+
+    assert.equal(outcome.status, 'success');
+    assert.equal(outcome.records, 5, 'meetingsFound summed across committees');
+  });
+
+  it('counts a quiet deduplicated run as records>0 (found verbs before ingested)', async () => {
+    // Everything already ingested: meetingsFound 3, meetingsIngested 0. The
+    // collector WORKED — the run must not trip the zero-records failure.
+    const { runner } = makeSpy({
+      FINA: { meetingsIngested: 0, interventionsIngested: 0, meetingsFound: 3, errors: [] },
+    });
+    const outcome = await runOne('committees', 'committees', {} as never, runner);
+
+    assert.equal(outcome.status, 'success');
+    assert.equal(outcome.records, 3, 'discovery verb counts even when nothing new was ingested');
+  });
+
+  it('counts corporate/gazette/oversight/influence count verbs', async () => {
+    assert.equal(countRecords({ lobbying: { recordsIngested: 10, recordsFound: 10 } }), 10);
+    assert.equal(countRecords({ OAG: { reportsIngested: 4, reportsFound: 4 } }), 4);
+    // influence returns { actors, funding } — the dictionary branch sums both children.
+    assert.equal(countRecords({ actors: { actorsFound: 30 }, funding: { fundingFlowsFound: 7 } }), 37);
+  });
+
+  it('persists the sources envelope on the run row', async () => {
+    const { runner } = makeSpy({
+      records: [{ id: 'a' }],
+      sources: [{ source: 'eccc-weather-alerts', status: 'ok', records: 1, error: null }],
+    });
+    await runOne('realtime', 'real-time-feeds', {} as never, runner);
+
+    const run = getLatestIngestRuns().find(r => r.pipeline === 'realtime');
+    assert.ok(run?.sources, 'the run row carries the sources envelope');
+    assert.equal(run.sources.sources[0].source, 'eccc-weather-alerts');
+    assert.equal(run.sources.sources[0].status, 'ok');
+  });
+});
+
 describe('countRecords', () => {
   it('counts arrays and record envelopes', () => {
     assert.equal(countRecords([1, 2, 3]), 3);
