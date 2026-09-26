@@ -115,6 +115,8 @@ mcp:
     limits:
       cpu: 500m
       memory: 256Mi
+  env:
+    ASTRAL_KEY_URL: "http://astral-key.astral-key.svc.cluster.local:8080"
   ingress:
     host: mcp.maplespike.ca
     tls: true
