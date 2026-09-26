@@ -15,33 +15,46 @@ Quill's deploy is **self-sufficient**:
   nixos-config's `k8s-secret-sync` or `sops-secrets-registry` for its runtime
   secrets. The operator seeds/rotates them from this repo.
 
-### `quill-runtime-secrets` keys
+### Runtime secret keys (verified against the live cluster 2026-09-22)
 
-| Secret key             | Env var               | Purpose                          |
-|------------------------|-----------------------|----------------------------------|
-| `jwt-secret`           | `JWT_SECRET`          | Auth token signing               |
-| `pii-hash-secret`      | `QUILL_PII_HASH_SECRET` | PII hashing (required)         |
-| `stripe-secret-key`    | `STRIPE_SECRET_KEY`   | Stripe API key (#806)            |
-| `stripe-webhook-secret`| `STRIPE_WEBHOOK_SECRET` | Stripe webhook verification    |
-| `quill-billing-secret` | `QUILL_BILLING_SECRET`| reconcile-expiry auth (#807)     |
+Two Secrets carry Quill credentials. `scripts/sops-sync-k8s.sh` is the only
+writer: it decrypts `secrets/runtime.yaml` and renders both, so `git log` on
+that file is the changelog of every credential.
 
-`STRIPE_ENV` is a plain env (not a secret), defaulting to `test` in the
-Deployment. Flip to `live` at go-live (separate human step).
+| Secret               | Key                    | Env var                  | Purpose                        |
+|----------------------|------------------------|--------------------------|--------------------------------|
+| `quill-secrets`      | `jwtSecret`            | `JWT_SECRET`             | Auth token signing             |
+| `quill-secrets`      | `apiKey`               | `QUILL_API_KEY`          | MCP gateway auth               |
+| `quill-secrets`      | `githubClientId`       | `GITHUB_CLIENT_ID`       | GitHub OAuth                   |
+| `quill-secrets`      | `githubClientSecret`   | `GITHUB_CLIENT_SECRET`   | GitHub OAuth                   |
+| `quill-secrets`      | `internalJwtSecret`    | `INTERNAL_JWT_SECRET`    | Service-to-service HMAC        |
+| `maplespike-secrets` | `pii-hash-secret`      | `QUILL_PII_HASH_SECRET`  | PII hashing (required, 64-hex) |
+| `maplespike-secrets` | `quill-billing-secret` | `QUILL_BILLING_SECRET`   | reconcile-expiry auth (#807)   |
+| `maplespike-secrets` | `stripe-secret-key`    | `STRIPE_SECRET_KEY`      | Stripe API key (#806)          |
+| `maplespike-secrets` | `stripe-webhook-secret`| `STRIPE_WEBHOOK_SECRET`  | Stripe webhook verification    |
 
-### Operator steps (secrets are placeholders in-repo)
+`quill-db-secret` is rendered by the Helm chart (`charts/quill/templates/secrets.yaml`)
+from `values-prod.yaml`; it is not part of the sops sync.
 
-`secrets/secrets.nix` declares the three billing secrets but ships **no real
-values**. Before deploying:
+`STRIPE_ENV` is a plain env (not a secret), set to `live` in
+`charts/quill/values-prod.yaml`. `STRIPE_ACCOUNT_ID` and
+`STRIPE_PUBLISHABLE_KEY` are **not** injected: no Secret carries those keys and
+the publishable key is a portal build variable
+(`PUBLIC_STRIPE_PUBLISHABLE_KEY`).
+
+`scripts/check-secret-lockstep.sh` fails CI when a `secretKeyRef` in
+`k8s/maplespike/` or `nix/saas-manifests.nix` points at a `<secret>/<key>` pair
+the sync script never emits.
+
+### Operator steps
 
 ```sh
-# From repo root — supply REAL values (never commit plaintext):
-sops secrets/stripe-secret-key.age        # STRIPE_SECRET_KEY   (sk_test_… / sk_live_…)
-sops secrets/stripe-webhook-secret.age    # STRIPE_WEBHOOK_SECRET (whsec_…)
-sops secrets/quill-billing-secret.age     # QUILL_BILLING_SECRET
+# From repo root — apply sops -> cluster (idempotent), then verify:
+SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt scripts/sops-sync-k8s.sh
+SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt scripts/sops-sync-k8s.sh --check
 ```
 
-Then materialize/refresh the `quill-runtime-secrets` k8s Secret (operator's
-sops→k8s delivery of choice) so the keys above are present, and apply:
+Then apply the manifests:
 
 ```sh
 kubectl apply -k k8s/maplespike/

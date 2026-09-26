@@ -63,6 +63,12 @@ jobs:
       - name: Secret key lockstep check
         run: bash scripts/check-secret-lockstep.sh
 
+      # Regression tests for that gate: it must fail LOUDLY when it cannot
+      # evaluate (2026-09-22: a stale extraction pattern exited 1 with no
+      # output) and name the offending pair when keys drift.
+      - name: Secret key lockstep unit tests
+        run: pnpm run test:secret-lockstep
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.

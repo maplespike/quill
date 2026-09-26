@@ -44,8 +44,8 @@ spec:
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              key: jwt-secret
-              name: maplespike-secrets
+              key: jwtSecret
+              name: quill-secrets
               optional: true
         - name: PORT
           value: "8082"

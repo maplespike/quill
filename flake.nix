@@ -427,23 +427,42 @@
           MANIFEST="result/manifests.yaml"
           echo "==> Applying to cluster (namespace quill-dev)"
           kubectl apply -f "$MANIFEST"
-          echo "==> Bootstrapping dev secrets (quill-dev-secrets)"
+          echo "==> Bootstrapping dev secrets (quill-dev-secrets + quill-secrets)"
           if ! kubectl get secret quill-dev-secrets -n quill-dev >/dev/null 2>&1; then
             # Values are throwaway random dev creds. Use --from-file (not
             # --from-literal) to keep them out of the process table — same
             # posture as scripts/sops-sync-k8s.sh's apply_secret().
             TMPD=$(mktemp -d)
             trap 'rm -rf "$TMPD"' EXIT
-            echo -n "$(openssl rand -hex 32)" > "$TMPD/jwt-secret"
+            # 64 hex chars: the api-server only accepts a 64-hex PII hash
+            # (Decision 0002) — a random base64-ish value is rejected.
             echo -n "$(openssl rand -hex 32)" > "$TMPD/pii-hash-secret"
             kubectl create secret generic quill-dev-secrets -n quill-dev \
-              --from-file=jwt-secret="$TMPD/jwt-secret" \
               --from-file=pii-hash-secret="$TMPD/pii-hash-secret"
             rm -rf "$TMPD"
             trap - EXIT
-            echo "✓ created quill-dev-secrets (random dev values)"
+            echo "✓ created quill-dev-secrets (random dev value)"
           else
             echo "✓ quill-dev-secrets already exists (reusing)"
+          fi
+          # quill-secrets carries the api/jwt pair. Production gets it from
+          # scripts/sops-sync-k8s.sh (sops -> cluster); dev bootstraps its own
+          # random values under the SAME key names the manifests reference
+          # (nix/saas-manifests.nix: quill-secrets/jwtSecret + /apiKey), so a
+          # dev pod never renders with an unset JWT_SECRET or QUILL_API_KEY.
+          if ! kubectl get secret quill-secrets -n quill-dev >/dev/null 2>&1; then
+            TMPD=$(mktemp -d)
+            trap 'rm -rf "$TMPD"' EXIT
+            echo -n "$(openssl rand -hex 32)" > "$TMPD/jwtSecret"
+            echo -n "dev-$(openssl rand -hex 16)" > "$TMPD/apiKey"
+            kubectl create secret generic quill-secrets -n quill-dev \
+              --from-file=jwtSecret="$TMPD/jwtSecret" \
+              --from-file=apiKey="$TMPD/apiKey"
+            rm -rf "$TMPD"
+            trap - EXIT
+            echo "✓ created quill-secrets (random dev values)"
+          else
+            echo "✓ quill-secrets already exists (reusing)"
           fi
           # The api pod's secretKeyRefs are `optional: true`, so the first pod
           # boots BEFORE the secret exists (fresh namespace). The restart is

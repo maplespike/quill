@@ -40,13 +40,13 @@ spec:
           value: http://quill-api:8082/v1
         # QUILL_API_KEY gates the MCP gateway. Without it the server falls
         # back to the well-known default 'dev-key' (2026-08-15 auth audit).
-        # Value lives in maplespike-secrets/quill-api-key (synced from
-        # secrets/runtime.yaml by scripts/sops-sync-k8s.sh).
+        # Value lives in quill-secrets/apiKey (the pair the Helm chart renders;
+        # written by scripts/sops-sync-k8s.sh from secrets/runtime.yaml).
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
-              key: quill-api-key
+              name: quill-secrets
+              key: apiKey
         # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
         # kills healthy pods during CPU-throttled cold start (2026-08-11 incident).
         livenessProbe:

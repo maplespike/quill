@@ -343,14 +343,16 @@ let
             - containerPort: 8082
             env:
             # NOTE: JWT_SECRET is optional. In the homelab deploy it is set
-            # directly on the Deployment (see k8s/base/10-api-deploy.yaml);
+            # directly on the Deployment (see k8s/maplespike/quill-api-deployment.yaml);
             # for BYOK self-hosters it can be injected via a secret. We keep
             # a safe dev default so the manifest applies without a secret.
+            # The value lives in `quill-secrets/jwtSecret` — the pair the Helm
+            # chart renders in production and scripts/sops-sync-k8s.sh writes.
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: ${secretsRef}
-                  key: jwt-secret
+                  name: quill-secrets
+                  key: jwtSecret
                   optional: true
             # Decision 0002: registration/Auth REQUIRES a stable 64-char hex
             # QUILL_PII_HASH_SECRET in production — the api-server refuses to
@@ -366,33 +368,28 @@ let
                   name: ${secretsRef}
                   key: pii-hash-secret
                   optional: ${if dev then "true" else "false"}
-            # Stripe monetization — secret + webhook signing keys. All read
-            # from the `maplespike-stripe-secrets` K8s Secret, itself populated
-            # by scripts/sops-sync-k8s.sh from quill/secrets/runtime.yaml.
+            # Stripe monetization — secret + webhook signing keys, read from
+            # `maplespike-secrets` (synced by scripts/sops-sync-k8s.sh from
+            # secrets/runtime.yaml). MUST stay in lockstep with the Helm chart
+            # (charts/quill/templates/deployments.yaml) — ArgoCD renders the
+            # chart in production, and this bundle is the Nix-era path.
             # RESTRICTED to api-server only (mcp + portal do not need keys).
+            # STRIPE_ACCOUNT_ID / STRIPE_PUBLISHABLE_KEY are deliberately NOT
+            # injected here: no K8s Secret carries those keys (verified on the
+            # live cluster 2026-09-22), api-server reads the account id as
+            # optional, and the publishable key is a *portal build* variable
+            # (PUBLIC_STRIPE_PUBLISHABLE_KEY, see .github/workflows/ci.yml).
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: maplespike-stripe-secrets
+                  name: maplespike-secrets
                   key: stripe-secret-key
                   optional: true
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: maplespike-stripe-secrets
+                  name: maplespike-secrets
                   key: stripe-webhook-secret
-                  optional: true
-            - name: STRIPE_ACCOUNT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: maplespike-stripe-secrets
-                  key: stripe-account-id
-                  optional: true
-            - name: STRIPE_PUBLISHABLE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: maplespike-stripe-secrets
-                  key: stripe-publishable-key
                   optional: true
             # Billing admin secret — gates the /v1/billing/* admin endpoints
             # (reconcile-expiry etc.). MUST stay in lockstep with
@@ -517,12 +514,13 @@ ${apiClusterIP}      selector:
               value: "http://quill-api:8082/v1"
             # QUILL_API_KEY gates the MCP gateway. Without it the server
             # falls back to the well-known default 'dev-key' (2026-08-15
-            # auth audit). Value lives in maplespike-secrets/quill-api-key.
+            # auth audit). Value lives in quill-secrets/apiKey — the pair the
+            # Helm chart renders and scripts/sops-sync-k8s.sh writes.
             - name: QUILL_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: maplespike-secrets
-                  key: quill-api-key
+                  name: quill-secrets
+                  key: apiKey
             # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
             # kills healthy pods during CPU-throttled cold start (2026-08-11
             # incident). Do NOT "clean up" these to defaults.
