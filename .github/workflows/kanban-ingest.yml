@@ -36,10 +36,10 @@ jobs:
             fi
             echo "  ok: $got"
           }
-          expect "repo=reverb256/quill mode=single issue=918" reverb256/quill single 918
-          expect "repo=reverb256/quill mode=single issue=918" single 918
-          expect "repo=reverb256/quill mode=agent-ready issue=none" reverb256/quill agent-ready
-          expect "repo=reverb256/quill mode=agent-ready issue=none" agent-ready
+          expect "repo=maplespike/quill mode=single issue=918" maplespike/quill single 918
+          expect "repo=maplespike/quill mode=single issue=918" single 918
+          expect "repo=maplespike/quill mode=agent-ready issue=none" maplespike/quill agent-ready
+          expect "repo=maplespike/quill mode=agent-ready issue=none" agent-ready
           if DRY_RUN=1 ./scripts/import-github-issues.sh garbage >/dev/null 2>&1; then
             echo "✖ a non-repo first argument must fail loudly"; exit 1
           fi
@@ -55,7 +55,7 @@ jobs:
           
           if [ "$FORCE_INGEST" = "true" ]; then
             echo "🔄 Force re-importing all agent-ready issues..."
-            ./scripts/import-github-issues.sh reverb256/quill agent-ready
+            ./scripts/import-github-issues.sh maplespike/quill agent-ready
           else
             echo "📥 Importing only new issues triggered by event..."
             ISSUE_NUMBER="${{ github.event.issue.number }}"
@@ -64,7 +64,7 @@ jobs:
             # If triggered by label event and it's agent-ready, import that issue
             if [ "$LABEL_NAME" = "agent-ready" ] && [ -n "$ISSUE_NUMBER" ]; then
               echo "✅ Issue #$ISSUE_NUMBER labeled agent-ready, importing..."
-              ./scripts/import-github-issues.sh reverb256/quill single $ISSUE_NUMBER
+              ./scripts/import-github-issues.sh maplespike/quill single $ISSUE_NUMBER
             elif [ "$LABEL_NAME" != "" ]; then
               echo "⏭️  Label '$LABEL_NAME' is not agent-ready, skipping auto-import"
               echo "Issue will be imported when labeled 'agent-ready'"
@@ -73,7 +73,7 @@ jobs:
               HAS_LABEL=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -c "agent-ready" || echo "0")
               if [ "$HAS_LABEL" -gt 0 ]; then
                 echo "✅ New issue #$ISSUE_NUMBER has agent-ready label, importing..."
-                ./scripts/import-github-issues.sh reverb256/quill single $ISSUE_NUMBER
+                ./scripts/import-github-issues.sh maplespike/quill single $ISSUE_NUMBER
               else
                 echo "⏭️  New issue #$ISSUE_NUMBER lacks agent-ready label, skipping"
                 echo "Label it 'agent-ready' to trigger import"

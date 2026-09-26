@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         repo:
-          - reverb256/quill
+          - maplespike/quill
           # - reverb256/frostbite-gazette  # PRIVATE repo — needs a cross-repo PAT; re-add when one is configured
           - reverb256/mcp-canada
     steps:
