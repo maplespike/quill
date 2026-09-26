@@ -31,20 +31,20 @@ image:
 # Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
 images:
   api:
-    digest: "sha256:5d426a6f21126c40dacfc8a5ea088101cffff8f00d7067762bf80487612c701f"
-    tag: "2026-09-25-bea0c545-dirty"
+    digest: "sha256:f9b61a319b5559d69fede7b0be781f34857f37a9c365b60c03d32dfed1821b45"
+    tag: "2026-09-25-31345471-dirty"
   mcp:
-    digest: "sha256:fa3921643eca2ae55b34a6aacda7008f736429f1bf02e0d4a839c16f2f063a01"
-    tag: "2026-09-25-bea0c545-dirty"
+    digest: "sha256:2d5ef12033a2f8e70282f437ab9570a0396553082087f200dc2a864d79b6a65a"
+    tag: "2026-09-25-31345471-dirty"
   portal:
-    digest: "sha256:0ee877522d731cde301b5bd32d4662fc85c1a6a2f6180d25525e7855cd2c111d"
-    tag: "2026-09-25-bea0c545-dirty"
+    digest: "sha256:094a2315bcfe79b693e419b89d283f3a6572db5294a1dcf0173fb9e80a5d9f87"
+    tag: "2026-09-25-31345471-dirty"
   # Ingestion CronJobs. The runner must be in the store like the services: a
   # chart-wide tag cannot supply one, and an empty tag renders an invalid
   # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
   ingest:
-    digest: "sha256:79a39d680b2b440a818ce49896f86cf1d02e7a8fd1e4c352bd8cbe9df77e73ad"
-    tag: "2026-09-25-bea0c545-dirty"
+    digest: "sha256:65824595d075e8930c258e76ebca8aee70d721538dcd11394df6354084fa47ba"
+    tag: "2026-09-25-31345471-dirty"
 
 # API Server
 api:
