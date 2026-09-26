@@ -46,7 +46,7 @@ spec:
         - name: NODE_ENV
           value: "{{ .Values.api.env.NODE_ENV }}"
         - name: ENVIRONMENT
-          value: "{{ .Values.api.env.ENVIRONMENT | default \"production\" }}"
+          value: "{{ .Values.api.env.ENVIRONMENT | default "production" }}"
         - name: QUILL_STORAGE
           value: "{{ .Values.api.env.QUILL_STORAGE | default "memory" }}"
         {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
