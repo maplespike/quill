@@ -9,6 +9,9 @@ onlyBuiltDependencies:
   - "sharp"
 
 overrides:
+  # bigint-buffer 1.1.5 advisory has no upstream fix; the maintained
+  # @trufflesuite fork is the ecosystem-standard drop-in substitute.
+  bigint-buffer: "npm:@trufflesuite/bigint-buffer@1.1.10"
   undici: "^8.9.0"
   hono: "^4.13.5"
   fast-uri: "^4.1.3"
