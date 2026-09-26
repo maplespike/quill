@@ -8,7 +8,7 @@
 #
 # The runner also writes to the store the api-server reads (QUILL_DB_PATH), so
 # it must not run as root: USER 1001 matches the api's file ownership.
-FROM docker.io/library/node:22-bookworm-slim AS builder
+FROM docker.io/library/node:26-bookworm-slim AS builder
 WORKDIR /app
 
 # pnpm + native build deps (better-sqlite3 needs python3/make/g++)
@@ -31,7 +31,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @maplespike/pipeline-core... build
 
 # ─── Runtime stage ───────────────────────────────────────────────────────────
-FROM docker.io/library/node:22-bookworm-slim AS ingest
+FROM docker.io/library/node:26-bookworm-slim AS ingest
 WORKDIR /app
 
 RUN apt-get update -qq && \
