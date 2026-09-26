@@ -21,12 +21,17 @@
 # empty log — so build-and-test was red and audit/coverage/docker/integration
 # were skipped with nothing to explain it.
 #
-# REQUIRED vs OPTIONAL: a ref marked `optional: true` cannot crash a pod, which
-# is the incident this gate exists to prevent, so it warns instead of failing.
-# Required refs must be emitted.
+# POLICY (per t_a56dfa27 decision a): optional refs on the protected key list
+# (jwtSecret, apiKey, githubClientId, githubClientSecret, internalJwtSecret,
+# pii-hash-secret, stripe-secret-key, stripe-webhook-secret, quill-billing-secret)
+# must fail on drift because they guard the 2026-08-15 incident class
+# (app crash-loop on missing secret). Unprotected optional refs (e.g.
+# opencorporatesApiKey) only warn — they cannot crash a pod.
+# Required refs must always be emitted.
 #
 # Usage: bash scripts/check-secret-lockstep.sh [root]
 #   root defaults to the directory above this script.
+protected="quill-secrets|jwtSecret quill-secrets|apiKey quill-secrets|githubClientId quill-secrets|githubClientSecret quill-secrets|internalJwtSecret maplespike-secrets|pii-hash-secret maplespike-secrets|stripe-secret-key maplespike-secrets|stripe-webhook-secret maplespike-secrets|quill-billing-secret"
 set -euo pipefail
 
 ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -39,17 +44,27 @@ CHART="$ROOT/charts/quill/templates"
 # 1) Keys the sync delivers, from its MAPPING table: "VAR|secret-name|key".
 #    Extract, then fail LOUDLY when the extraction finds nothing — a format
 #    change must never be silent again.
-mapping="$(grep -oE '"[A-Za-z0-9_]+\|[a-z0-9-]+\|[A-Za-z0-9_-]+"' "$SYNC" || true)"
+#    NEW: also fail when extraction yields fewer lines than MAPPING rows,
+#    guarding against partial format erosion (control B).
+mapping="$(grep -oE '\"[A-Za-z0-9_]+\|[a-z0-9-]+\|[A-Za-z0-9_-]+\"' "$SYNC" || true)"
 if [ -z "$mapping" ]; then
   echo "✗ could not extract any delivered secret key from $SYNC" >&2
   echo "  This gate reads that script's MAPPING table (\"VAR|secret-name|key\")." >&2
   echo "  If the format changed again, update this gate — do not silence it." >&2
   exit 1
 fi
-emitted="$(printf '%s\n' "$mapping" | awk -F'|' '{gsub(/"/, "", $3); print $3}' | sort -u)"
+# control B: count-mismatch guard (same pattern as image-pin lane)
+mapping_count="$(printf '%s\n' "$mapping" | wc -l)"
+emitted="$(printf '%s\n' "$mapping" | awk -F'|' '{gsub(/\"/, "", $3); print $3}' | sort -u)"
+emitted_count="$(printf '%s\n' "$emitted" | wc -l)"
+if [ "$emitted_count" -lt "$mapping_count" ]; then
+  echo "✗ extracted fewer delivered secret keys ($emitted_count) than MAPPING rows ($mapping_count)" >&2
+  echo "  Partial MAPPING-format erosion silently drops keys. Fix the gate or the sync." >&2
+  exit 1
+fi
 
 # 2) Keys the live chart references, per secret, for the secrets the sync owns.
-refs="$(python3 - "$CHART" <<'PY'
+refs="$(python3 - "$CHART" <<'EOF'
 import pathlib, re, sys
 chart = pathlib.Path(sys.argv[1])
 owned = {"quill-secrets", "maplespike-secrets"}
@@ -57,18 +72,18 @@ for f in sorted(chart.glob("*.yaml")):
     lines = f.read_text().splitlines()
     for i, ln in enumerate(lines):
         m = re.match(r"\s*name:\s*(\S+)", ln)
-        if not m or m.group(1).strip('"\'') not in owned:
+        if not m or m.group(1).strip('\"\\'') not in owned:
             continue
-        secret = m.group(1).strip('"\'')
+        secret = m.group(1).strip('\"\\'')
         for j in range(i + 1, min(i + 5, len(lines))):
             km = re.match(r"\s*key:\s*(\S+)", lines[j])
             if not km:
                 continue
-            key = km.group(1).strip('"\'')
+            key = km.group(1).strip('\"\\'')
             optional = any("optional: true" in x for x in lines[j:j + 3])
             print(f"{'optional' if optional else 'required'}|{secret}|{key}")
             break
-PY
+EOF
 )"
 
 if [ -z "$refs" ]; then
@@ -93,7 +108,13 @@ while IFS='|' read -r kind secret key; do
       echo "✗ required ref $secret/$key is not delivered by sops-sync-k8s.sh (case mismatch or missing row?)" >&2
       fail=1
     else
-      echo "⚠ optional ref $secret/$key is not delivered — the consumer degrades silently"
+      # optional ref: protected list fails (incident class), unprotected warns
+      if printf '%s\n' "$protected" | grep -qxF "$secret|$key"; then
+        echo "✗ optional ref $secret/$key is not delivered — protected key, must fail (incident class)" >&2
+        fail=1
+      else
+        echo "⚠ optional ref $secret/$key is not delivered — the consumer degrades silently"
+      fi
     fi
   fi
 done <<<"$refs"
