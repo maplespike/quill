@@ -27,7 +27,7 @@
   "dependencies": {
     "@maplespike/database": "workspace:*",
     "@maplespike/pipeline-core": "workspace:*",
-    "jose": "^5.10.0",
+    "jose": "^6.2.12",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3"
   },
