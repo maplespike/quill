@@ -1,48 +1,114 @@
 #!/usr/bin/env bash
-# check-secret-lockstep.sh — fail CI when a deployment's secretKeyRef.key is
-# not one of the keys scripts/sops-sync-k8s.sh emits.
+# check-secret-lockstep.sh — fail CI when a deployment references a key that
+# scripts/sops-sync-k8s.sh never delivers.
 #
-# Why: the 2026-08-15 incident — the sync script emitted uppercase
-# JWT_SECRET/QUILL_BILLING_SECRET while every deployment referenced lowercase
-# jwt-secret/quill-billing-secret — took two incident rounds to unwind
-# (api pods crash-looping on "JWT_SECRET must be set in production"). This
-# guard makes key-name drift a build failure instead of a prod outage.
+# Why: the 2026-08-15 incident — the sync emitted uppercase JWT_SECRET /
+# QUILL_BILLING_SECRET while every deployment referenced lowercase
+# jwt-secret / quill-billing-secret — took two incident rounds to unwind (api pods
+# crash-looping on "JWT_SECRET must be set in production"). This guard makes
+# key-name drift a build failure instead of a production outage.
 #
-# Usage: bash scripts/check-secret-lockstep.sh
+# WHAT IT SCANS: charts/quill/templates/** — the Helm chart ArgoCD renders into
+# the maplespike namespace — compared against the MAPPING table in
+# scripts/sops-sync-k8s.sh ("VAR|secret-name|key"), which is what actually
+# reaches the cluster.
+#
+# It used to scan k8s/maplespike/** + nix/saas-manifests.nix, the legacy Nix-era
+# manifest set, which still carries pre-rename key names (jwt-secret,
+# quill-api-key, stripe-account-id, stripe-publishable-key) and produced
+# permanent false drift. It also grepped a format the sync no longer uses, and
+# under `set -e` + pipefail an empty grep killed the script with exit 1 and an
+# empty log — so build-and-test was red and audit/coverage/docker/integration
+# were skipped with nothing to explain it.
+#
+# REQUIRED vs OPTIONAL: a ref marked `optional: true` cannot crash a pod, which
+# is the incident this gate exists to prevent, so it warns instead of failing.
+# Required refs must be emitted.
+#
+# Usage: bash scripts/check-secret-lockstep.sh [root]
+#   root defaults to the directory above this script.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SYNC="$ROOT/scripts/sops-sync-k8s.sh"
-MANIFESTS="$ROOT/k8s/maplespike"
-NIX_TEMPLATE="$ROOT/nix/saas-manifests.nix"
+CHART="$ROOT/charts/quill/templates"
 
-if [ ! -f "$SYNC" ]; then
-  echo "✗ missing $SYNC" >&2
+[ -f "$SYNC" ] || { echo "✗ missing $SYNC" >&2; exit 1; }
+[ -d "$CHART" ] || { echo "✗ missing $CHART" >&2; exit 1; }
+
+# 1) Keys the sync delivers, from its MAPPING table: "VAR|secret-name|key".
+#    Extract, then fail LOUDLY when the extraction finds nothing — a format
+#    change must never be silent again.
+mapping="$(grep -oE '"[A-Za-z0-9_]+\|[a-z0-9-]+\|[A-Za-z0-9_-]+"' "$SYNC" || true)"
+if [ -z "$mapping" ]; then
+  echo "✗ could not extract any delivered secret key from $SYNC" >&2
+  echo "  This gate reads that script's MAPPING table (\"VAR|secret-name|key\")." >&2
+  echo "  If the format changed again, update this gate — do not silence it." >&2
   exit 1
 fi
+emitted="$(printf '%s\n' "$mapping" | awk -F'|' '{gsub(/"/, "", $3); print $3}' | sort -u)"
 
-# 1) Keys the sync script emits: "key=${VAR}" pairs inside apply_secret calls.
-emitted="$(grep -oE '"[a-zA-Z0-9_-]+=\$\{' "$SYNC" | sed -E 's/"([a-zA-Z0-9_-]+)=\$\{/\1/' | sort -u)"
-
-# 2) Keys deployments reference (k8s reference manifests + nix generator).
-referenced="$(
-  {
-    grep -rhoE 'key: [a-zA-Z0-9_-]+' "$MANIFESTS" "$NIX_TEMPLATE" 2>/dev/null || true
-  } | awk '{print $2}' | sort -u
+# 2) Keys the live chart references, per secret, for the secrets the sync owns.
+refs="$(python3 - "$CHART" <<'PY'
+import pathlib, re, sys
+chart = pathlib.Path(sys.argv[1])
+owned = {"quill-secrets", "maplespike-secrets"}
+for f in sorted(chart.glob("*.yaml")):
+    lines = f.read_text().splitlines()
+    for i, ln in enumerate(lines):
+        m = re.match(r"\s*name:\s*(\S+)", ln)
+        if not m or m.group(1).strip('"\'') not in owned:
+            continue
+        secret = m.group(1).strip('"\'')
+        for j in range(i + 1, min(i + 5, len(lines))):
+            km = re.match(r"\s*key:\s*(\S+)", lines[j])
+            if not km:
+                continue
+            key = km.group(1).strip('"\'')
+            optional = any("optional: true" in x for x in lines[j:j + 3])
+            print(f"{'optional' if optional else 'required'}|{secret}|{key}")
+            break
+PY
 )"
 
-fail=0
-while IFS= read -r key; do
-  [ -z "$key" ] && continue
-  if ! grep -qxF "$key" <<<"$emitted"; then
-    echo "✗ secretKeyRef key '$key' is referenced but sops-sync-k8s.sh never emits it (case mismatch or missing sync?)"
-    fail=1
-  fi
-done <<<"$referenced"
-
-if [ "$fail" -ne 0 ]; then
-  echo "emitted keys: $(tr '\n' ' ' <<<"$emitted")"
+if [ -z "$refs" ]; then
+  echo "✗ extracted no secretKeyRef from $CHART" >&2
+  echo "  Either the chart stopped referencing the operator-managed secrets or the" >&2
+  echo "  template shape changed — check before trusting this gate's silence." >&2
   exit 1
 fi
 
-echo "✓ secret lockstep: $(grep -c . <<<"$referenced") referenced key(s), all emitted by sops-sync-k8s.sh"
+fail=0
+required=0
+optional=0
+while IFS='|' read -r kind secret key; do
+  [ -z "$key" ] && continue
+  if [ "$kind" = "required" ]; then
+    required=$((required + 1))
+  else
+    optional=$((optional + 1))
+  fi
+  if ! grep -qxF "$key" <<<"$emitted"; then
+    if [ "$kind" = "required" ]; then
+      echo "✗ required ref $secret/$key is not delivered by sops-sync-k8s.sh (case mismatch or missing row?)" >&2
+      fail=1
+    else
+      echo "⚠ optional ref $secret/$key is not delivered — the consumer degrades silently"
+    fi
+  fi
+done <<<"$refs"
+
+# 3) Mapping rows nothing references — dead rows drift out of sync silently.
+while IFS= read -r key; do
+  [ -z "$key" ] && continue
+  if ! grep -qF "|$key" <<<"$refs"; then
+    echo "⚠ delivered key '$key' is not referenced by the chart — dead MAPPING row?"
+  fi
+done <<<"$emitted"
+
+if [ "$fail" -ne 0 ]; then
+  echo "delivered keys: $(tr '\n' ' ' <<<"$emitted")" >&2
+  exit 1
+fi
+
+echo "✓ secret lockstep: $required required + $optional optional ref(s) checked against $(grep -c . <<<"$emitted") delivered key(s)"
