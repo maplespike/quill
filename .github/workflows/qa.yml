@@ -97,6 +97,12 @@ jobs:
         # everything AND repairs those copies.
         run: bash scripts/build-packages.sh
 
+      - name: Verify workspace package resolution (injected-copy guard)
+        # Fails if any consumer's @maplespike/* dep resolves into a stale pnpm
+        # injected copy (no dist/) or to a missing file — the #859 class that
+        # broke this lane once already. Runs in ~0.5s.
+        run: bash scripts/check-workspace-resolution.sh
+
       - name: Verify attestation module exports
         run: |
           node --input-type=module -e "
