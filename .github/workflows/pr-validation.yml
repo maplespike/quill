@@ -65,7 +65,6 @@ jobs:
           # flapped with whichever host picked the job (PR 908, run
           # 35684897034 on forge-quill-runner). `github.token` is minted per
           # run and exists everywhere. Guard: scripts/gates/check-workflow-gh-auth.mjs
-          GH_TOKEN: ${{ github.token }}
         run: |
           COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageHeadline')
           FAILED=0
