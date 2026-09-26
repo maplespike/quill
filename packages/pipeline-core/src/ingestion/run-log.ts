@@ -14,7 +14,7 @@
  * reports as stale rather than as healthy.
  */
 
-import { getRawDb } from '@maplespike/database';
+import { getRawDb, type Database } from '@maplespike/database';
 
 export const INGEST_RUNS_DDL = `
 CREATE TABLE IF NOT EXISTS ingest_runs (
@@ -26,12 +26,38 @@ CREATE TABLE IF NOT EXISTS ingest_runs (
   records INTEGER NOT NULL DEFAULT 0,
   claims INTEGER NOT NULL DEFAULT 0,
   schedule TEXT,
-  error TEXT
+  error TEXT,
+  sources_json TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_ingest_runs_pipeline ON ingest_runs(pipeline, started_at DESC);
 `;
 
 export type IngestRunStatus = 'success' | 'failed';
+
+/**
+ * Per-source outcome of one ingest run — the unit that makes a silent
+ * collector failure visible (GH#921). `status` is 'ok' when the source
+ * answered and records parsed, 'empty' when it answered with nothing, and
+ * 'error' when the fetch or parse failed (carrying the reason).
+ */
+export type SourceOutcomeStatus = 'ok' | 'empty' | 'error';
+
+export interface SourceOutcome {
+  source: string;
+  status: SourceOutcomeStatus;
+  records: number;
+  error: string | null;
+}
+
+/**
+ * Envelope stored in `ingest_runs.sources_json`: the per-source outcomes plus
+ * the declared reason a run with zero records still counts as success.
+ */
+export interface RunSources {
+  sources: SourceOutcome[];
+  /** Declared reason a zero-record run is legitimate (e.g. 'no-new-records-since-last-run'). */
+  zeroReason: string | null;
+}
 
 /** One recorded ingest run. Timestamps are ISO-8601 UTC. */
 export interface IngestRunRecord {
@@ -44,6 +70,8 @@ export interface IngestRunRecord {
   claims: number;
   schedule: string | null;
   error: string | null;
+  /** Per-source outcomes + declared zero reason; null on rows written before the column existed. */
+  sources: RunSources | null;
 }
 
 export interface RecordIngestRunInput {
@@ -58,6 +86,8 @@ export interface RecordIngestRunInput {
   /** Cron expression the CronJob runs on — used to derive the staleness bound. */
   schedule?: string | null;
   error?: string | null;
+  /** Per-source outcomes + declared zero reason (GH#921). */
+  sources?: RunSources | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -68,6 +98,45 @@ const SCHEMA_READY_KEY = '__quillIngestRunsSchemaReady';
 
 function iso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+/**
+ * Ensure the `sources_json` column exists on an older `ingest_runs` table.
+ * The DDL's CREATE TABLE IF NOT EXISTS cannot add a column to an existing
+ * table, so probe the table info and ALTER when the column is absent.
+ * Never throws — a migration failure must not fail the ingestion job.
+ */
+function ensureSourcesColumn(db: Database): void {
+  try {
+    const cols = db.prepare('PRAGMA table_info(ingest_runs)').all() as Array<{ name: string }>;
+    if (cols.length > 0 && !cols.some(c => c.name === 'sources_json')) {
+      db.prepare('ALTER TABLE ingest_runs ADD COLUMN sources_json TEXT').run();
+    }
+  } catch {
+    // Table absent (fresh DB, DDL below creates it) or unreadable — degrade.
+  }
+}
+
+/** Serialize the sources envelope for storage; null when absent. */
+function encodeSources(sources: RunSources | null | undefined): string | null {
+  if (!sources) return null;
+  try {
+    return JSON.stringify(sources);
+  } catch {
+    return null;
+  }
+}
+
+/** Parse `sources_json` back; null for absent/malformed payloads. */
+function decodeSources(raw: unknown): RunSources | null {
+  if (typeof raw !== 'string' || raw.length === 0) return null;
+  try {
+    const parsed = JSON.parse(raw) as RunSources;
+    if (!parsed || !Array.isArray(parsed.sources)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -84,10 +153,15 @@ export function recordIngestRun(input: RecordIngestRunInput): boolean {
       db.exec(INGEST_RUNS_DDL);
       (db as unknown as Record<string, unknown>)[SCHEMA_READY_KEY] = true;
     }
+    // Per-write column check (not cached with the DDL flag): the DDL cannot
+    // add a column to a table created by an older build, and a long-lived
+    // process may open such a file at any time. PRAGMA table_info is cheap
+    // next to the INSERT.
+    ensureSourcesColumn(db);
     db.prepare(
       `INSERT OR REPLACE INTO ingest_runs
-         (id, pipeline, started_at, finished_at, status, records, claims, schedule, error)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, pipeline, started_at, finished_at, status, records, claims, schedule, error, sources_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(
       `${input.pipeline}:${startedAt}`,
       input.pipeline,
@@ -98,6 +172,7 @@ export function recordIngestRun(input: RecordIngestRunInput): boolean {
       Math.max(0, Math.trunc(input.claims ?? 0)),
       input.schedule ?? null,
       input.error ?? null,
+      encodeSources(input.sources),
     );
     return true;
   } catch {
@@ -113,7 +188,9 @@ function readRows(sql: string, ...params: unknown[]): IngestRunRecord[] {
   try {
     const db = getRawDb();
     db.exec(INGEST_RUNS_DDL);
-    return db.prepare(sql).all(...params) as IngestRunRecord[];
+    ensureSourcesColumn(db);
+    const rows = db.prepare(sql).all(...params) as Array<IngestRunRecord & { sources_json?: unknown }>;
+    return rows.map(({ sources_json, ...rest }) => ({ ...rest, sources: decodeSources(sources_json) }));
   } catch {
     return [];
   }
