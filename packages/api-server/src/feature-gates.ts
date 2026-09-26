@@ -176,6 +176,10 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/security/audit-summary',
   '/v1/engine/status',
   '/v1/data/quality',
+  // Key revocation + rotation traverse /v1/keys/:id — security operations that
+  // must stay open on every tier. The route handler gates list/create behind
+  // developerConsole; the boundary only passes DELETE and rotate through.
+  '/v1/keys/',
   // Ingestion liveness: the cluster health check reads it anonymously, and a
   // pipeline name + timestamp is cluster observability, not tenant data. The
   // route ships auth-exempt too (src/index.ts) — without this entry the Free

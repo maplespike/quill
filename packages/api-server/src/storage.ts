@@ -596,6 +596,21 @@ export class MemoryStorage implements QuillStorage {
     this.keyToTenant.set(keyHash, { tenantId: tenant.id, keyId });
   }
 
+  /** Create an API key for an existing tenant (used by POST /v1/keys). */
+  createApiKey(keyId: string, tenantId: string, keyHash: string, _name: string): void {
+    this.keyToTenant.set(keyHash, { tenantId, keyId });
+  }
+
+  /** Revoke an API key by its id + tenantId (used by DELETE /v1/keys/:id). */
+  revokeApiKey(keyId: string, tenantId: string): void {
+    for (const [hash, mapping] of this.keyToTenant) {
+      if (mapping.tenantId === tenantId && mapping.keyId === keyId) {
+        this.keyToTenant.delete(hash);
+        return;
+      }
+    }
+  }
+
   /* ── Watchlist alerts (watchlist-alerts-v1) ─────────────────── */
 
   async ensureWatchSchema(): Promise<void> {

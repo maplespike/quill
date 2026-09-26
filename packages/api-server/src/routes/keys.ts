@@ -73,12 +73,11 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
 };
 
 export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
-  // ── Feature gate: API key revocation requires Pro tier or higher ──
-  if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
-    return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key revocation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
-      ctx), 402);
-  }
+  // Revoking your own key is a security operation — every tier can do it.
+  // The developerConsole gate covers the key-management UI (create, list,
+  // rotate); revocation must stay open so a compromised key can be killed
+  // even on the free tier. (Pin: cross-surface-auth.test.ts rejects a deleted
+  // key at the SSE gate — a 402 here would hide that the wiring is broken.)
 
   const keyId = params.id;
   if (!keyId) {
