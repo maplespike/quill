@@ -94,8 +94,11 @@ check_auth_lane() {
 
   local gs
   gs=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 5 "$api/v1/gov/search?q=health" 2>/dev/null || true)
-  if [ "$gs" != "402" ]; then
-    ISSUES="${ISSUES}gov/search returned ${gs:-<empty>} (expected 402; free-tier gate may be open)\n"
+  # Anonymous callers must be told to AUTHENTICATE (401), not upsold (402):
+  # gov/search is auth-exempt but not free-tier, and the 2026-09-21 fix made
+  # the anon path answer 401. 402 here means the exemption regressed.
+  if [ "$gs" != "401" ]; then
+    ISSUES="${ISSUES}gov/search returned ${gs:-<empty>} (expected 401 for anonymous; 402 = auth exemption regressed)\n"
   fi
 }
 
@@ -130,8 +133,22 @@ check_statcan_wds() {
 # honest — the incident's regression guard at the deployed layer, next to the
 # unit-level error-codes-i18n.test.ts.
 check_tier_boundary() {
-  local body
-  body=$(curl -s --connect-timeout 5 --max-time 15 \
+  # The 402 check must present a real (free) key: anonymous callers get 401
+  # "authenticate" by design (2026-09-21 fix), so an anon probe can only ever
+  # assert the exemption, not the tier boundary. Mint an ephemeral tenant.
+  local body key reg
+  reg=$(curl -s --connect-timeout 5 --max-time 20 -X POST \
+    "https://api.maplespike.ca/v1/register" -H 'Content-Type: application/json' \
+    -d "{\"name\":\"Health Probe\",\"email\":\"health-probe-$(date +%s)@example.com\"}" 2>/dev/null || true)
+  key=$(printf '%s' "$reg" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin).get("data",{}) or {}
+except Exception: d={}
+print((d.get("apiKey") or {}).get("key") or "")' 2>/dev/null || true)
+  if [ -z "$key" ]; then
+    ISSUES="${ISSUES}Tier boundary: could not mint a probe key for the 402 check (register lane?)\n"
+    return
+  fi
+  body=$(curl -s --connect-timeout 5 --max-time 15 -H "Authorization: Bearer $key" \
     "https://api.maplespike.ca/v1/gov/search?q=health-probe" 2>/dev/null || true)
 
   echo "$body" | grep -q 'UPGRADE_REQUIRED' \
