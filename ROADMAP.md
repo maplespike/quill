@@ -18,27 +18,27 @@ status: active
 
 ## Source Plans (consolidated by this document)
 
-The active backlog is consolidated from the following sources. Each phase below links to its origin plan. **This is the single source of truth** — plan files in `.sisyphus/plans/`, `STRATEGIC-ASSESSMENT-STATUS.md`, `KANBAN-{AUTOMATION,SETUP}.md`, and `DEPLOY-CHECKLIST.md` should be treated as historical artifacts maintained alongside this document.
+The active backlog is consolidated from earlier planning artifacts that have since been retired from the repo. **This document is the single source of truth** — the phases below carry the surviving backlog.
 
-| Source | File | Status | Disposition in ROADMAP |
-|---|---|---|---|
-| Portal Astro cutover | `.sisyphus/plans/issue-83-portal-refactor.md` | ✅ Complete (2026-05-18) | Lessons → Phase 2 |
-| Email notifications | `.sisyphus/plans/issue-130-email-notifications.md` | 🟡 Draft | Phase 5.1 |
-| SEDAR+ corp filings | `.sisyphus/plans/issue-137-sedar-module.md` | 🟡 Draft | Phase 5.1 |
-| Journalism mode | `.sisyphus/plans/issue-138-journalism-mode.md` | 🟡 Draft | Phase 5.1 |
-| NT/NU live tests | `.sisyphus/plans/issue-194-195-live-tests.md` | 🟡 Draft | Phase 5.1 |
-| Portal visual QA | `.sisyphus/plans/issue-199-portal-qa.md` | 🟡 Draft | Phase 6 |
-| K3s kubeconfig | `.sisyphus/plans/issue-200-k3s-kubeconfig.md` | 🔴 Blocked | Phase 4 (last row) |
-| 22 missing modules | `.sisyphus/plans/implement-missing-modules.md` | 🟡 Draft | Phase 5.2 |
-| Coverage 103→150 | `.sisyphus/plans/gap-addressal-plan.md` | 🟡 Draft | Phase 5.3 |
-| Legal compliance | `.sisyphus/plans/legal-compliance-audit.md` | 🟡 Draft | Phase 3 |
-| Quality + issue triage | `.sisyphus/plans/quality-issue-plan.md` | 🟡 Draft | Phase 5.4 |
-| Git cleanup | `.sisyphus/plans/git-cleanup-execution.md` | 🟡 Draft | Phase 3 |
-| Git maintenance | `.sisyphus/plans/git-maintenance-plan.md` | 🟡 Draft | Phase 3 |
-| Cluster deploy reality | `STRATEGIC-ASSESSMENT-STATUS.md` | 🟡 Open | Phase 4 |
-| Public DNS path | `DEPLOY-CHECKLIST.md` | 🟡 Open | Phase 4 |
-| Board + cron ops | `KANBAN-AUTOMATION.md`, `KANBAN-SETUP.md` | 🟡 Inactive | Phase 3 + Phase 4 |
-| Docs maintenance workflow | `.kelos/workflows/docs-maintenance.yml` | 🟡 Workflow defined; gateway inactive | Phase 6 |
+| Source | Status | Disposition in ROADMAP |
+|---|---|---|
+| Portal Astro cutover | ✅ Complete (2026-05-18) | Lessons → Phase 2 |
+| Email notifications | 🟡 Draft | Phase 5.1 |
+| SEDAR+ corp filings | 🟡 Draft | Phase 5.1 |
+| Journalism mode | 🟡 Draft | Phase 5.1 |
+| NT/NU live tests | 🟡 Draft | Phase 5.1 |
+| Portal visual QA | 🟡 Draft | Phase 6 |
+| K3s kubeconfig | 🔴 Blocked | Phase 4 (last row) |
+| 22 missing modules | 🟡 Draft | Phase 5.2 |
+| Coverage 103→150 | 🟡 Draft | Phase 5.3 |
+| Legal compliance | 🟡 Draft | Phase 3 |
+| Quality + issue triage | 🟡 Draft | Phase 5.4 |
+| Git cleanup | 🟡 Draft | Phase 3 |
+| Git maintenance | 🟡 Draft | Phase 3 |
+| Cluster deploy reality | 🟡 Open | Phase 4 |
+| Public DNS path | 🟡 Open | Phase 4 |
+| Board + cron ops | 🟡 Inactive | Phase 3 + Phase 4 |
+| Docs maintenance workflow | 🟡 Workflow defined; gateway inactive | Phase 6 |
 
 **Status legend:** ✅ DONE &nbsp;·&nbsp; 🟡 TODO/In progress &nbsp;·&nbsp; 🔴 Blocked &nbsp;·&nbsp; ⏳ Under review
 
@@ -70,7 +70,7 @@ The active backlog is consolidated from the following sources. Each phase below 
 
 ## Phase 2 — Portal Astro Cutover ✅ DONE (2026-05-18, 10 commits, ~22K lines)
 
-> Plan: [`.sisyphus/plans/issue-83-portal-refactor.md`](./.sisyphus/plans/issue-83-portal-refactor.md)
+> Plan: retired planning artifact (issue-83 portal refactor; completed 2026-05-18).
 
 Replaced 16 static HTML pages in `packages/portal/` with Astro + React + Tailwind v4 + shadcn/ui (Radix-nova base, Three.js animated aurora shader hero background). Deleted orphaned `packages/pretext-civic/`. Multi-stage `Dockerfile.portal` builds Astro then serves via nginx, configured for non-root user 1001 (K8s securityContext).
 
@@ -99,7 +99,7 @@ Replaced 16 static HTML pages in `packages/portal/` with Astro + React + Tailwin
 
 ## Phase 3 — Repo Hygiene, Compliance & Ops 🔄 IN PROGRESS
 
-> Sources: [`.sisyphus/plans/git-cleanup-execution.md`](./.sisyphus/plans/git-cleanup-execution.md), [`.sisyphus/plans/git-maintenance-plan.md`](./.sisyphus/plans/git-maintenance-plan.md), [`.sisyphus/plans/legal-compliance-audit.md`](./.sisyphus/plans/legal-compliance-audit.md), `KANBAN-AUTOMATION.md`
+> Sources: retired planning artifacts (git cleanup, git maintenance, legal compliance); `KANBAN-AUTOMATION.md`
 
 Clean local/remote graph, license disclosure loop, and active cron/kanban before further work lands. Without this phase: every feature PR risks merging on top of ghost branches, missing licenses, and an inactive gateway.
 
@@ -128,7 +128,7 @@ Clean local/remote graph, license disclosure loop, and active cron/kanban before
 
 ## Phase 4 — MVP Quality Gate & Deploy Path 🔄 IN PROGRESS (NEXT)
 
-> Sources: this phase's predecessor MVP gate items, [`DEPLOY-CHECKLIST.md`](./DEPLOY-CHECKLIST.md), [`STRATEGIC-ASSESSMENT-STATUS.md`](./STRATEGIC-ASSESSMENT-STATUS.md), [`AGENTS.md` "Known Issues"](./AGENTS.md)
+> Sources: this phase's predecessor MVP gate items, the retired deploy checklist and strategic assessment, [`AGENTS.md` "Known Issues"](./AGENTS.md)
 
 Deploy path customers touch. Cloudflare Tunnel is the only canonical external-exposure mechanism for `*.maplespike.ca` traffic (Tailscale Funnel + hybrid variants deprecated 2026-07-01).
 
@@ -176,7 +176,7 @@ Deploy path customers touch. Cloudflare Tunnel is the only canonical external-ex
 
 ### 5.2 Module coverage — registry → disk (22 missing)
 
-Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts` + `parser.ts` + `db.ts` + `index.ts` + `__tests__/`) over CKAN/Socrata/API sources. See [`.sisyphus/plans/implement-missing-modules.md`](./.sisyphus/plans/implement-missing-modules.md).
+Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts` + `parser.ts` + `db.ts` + `index.ts` + `__tests__/`) over CKAN/Socrata/API sources. The retired implement-missing-modules plan is superseded by the batch list above.
 
 | Batch | Modules | Effort | Status |
 |------|---------|--------|--------|
@@ -206,7 +206,7 @@ Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts`
 
 ### 5.4 Quality + test coverage (56 untested modules)
 
-[`.sisyphus/plans/quality-issue-plan.md`](./.sisyphus/plans/quality-issue-plan.md) lays out the test debt. Top-of-list:
+The retired quality-issue plan lays out the test debt; the top-of-list below is canonical.
 
 | Test phase | Risk | Effort | Status |
 |-----------|------|--------|--------|
@@ -225,7 +225,7 @@ Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts`
 
 ## Phase 6 — Visual & Documentation Quality 🔄 IN PROGRESS
 
-> Sources: [`.sisyphus/plans/issue-199-portal-qa.md`](./.sisyphus/plans/issue-199-portal-qa.md), [`.kelos/workflows/docs-maintenance.yml`](./.kelos/workflows/docs-maintenance.yml)
+> Sources: the retired portal-QA plan and docs-maintenance workflow definition (gateway inactive).
 
 | Task | Priority | Effort | Status |
 |------|----------|--------|--------|
