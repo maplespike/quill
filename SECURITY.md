@@ -100,6 +100,7 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 | Documentation rot detection | TODO density check warns >5%; security docs enforce 0 TODOs | .github/workflows/docs-validation.yml |
 | Metrics drift detection | Auto-generated metrics.json diff checked in CI | .github/workflows/ci.yml |
 | Placeholder/stub detection | audit-placeholders.mjs blocks merge on mock data | .github/workflows/ci.yml |
+| Secret scanning (gitleaks) | Full-history scan with the audited allow-list; `scripts/check-gitleaks-baseline.sh` validates the baseline (fingerprints-only ignore file, no catch-all, live fixtures) before each scan | .github/workflows/ci.yml (secrets job) |
 | Dependabot automated updates | Weekly npm/github-actions, monthly docker | .github/dependabot.yml |
 | PR validation | Branch naming, issue linking, conventional commits | .github/workflows/pr-validation.yml |
 | Dockerfile prohibition | CI fails on any legacy Dockerfile | .github/workflows/ci.yml |
