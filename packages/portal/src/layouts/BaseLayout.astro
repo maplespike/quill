@@ -1,5 +1,6 @@
 ---
 import "@/styles/globals.css";
+import "@/styles/themes/ink-and-paper.css";
 import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
@@ -68,12 +69,45 @@ const navLinks = [
   { href: "/docs", key: "nav.docs" as const, match: "/docs" },
 ];
 
+// ── Product-surface theme (GH#918) ──────────────────────────────────────────
+// Ink-and-paper is the product-surface default (decision j_kro 2026-09-23).
+// cleanPath is already language-normalised (/fr/docs -> /docs), so the /fr
+// mirrors of every product route pick the theme up for free. Prefix matching
+// covers nested routes under a product root (e.g. /checkout/return,
+// /dashboard/billing, /fr/checkout/return).
+const PRODUCT_SURFACES = [
+  "/docs",
+  "/explorer",
+  "/agents",
+  "/ask",
+  "/api-explorer",
+  "/citation",
+  "/verify",
+  "/status",
+  "/watcher",
+  "/signal",
+  "/dashboard",
+  "/workspace",
+  "/signup",
+  "/checkout",
+] as const;
+
+const isProductSurface = PRODUCT_SURFACES.some(
+  (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`),
+);
+
 const isActive = (match: string) =>
   match === "/" ? cleanPath === "/" || cleanPath === "" : cleanPath.startsWith(match);
 ---
 
 <!DOCTYPE html>
-<html lang={lang} data-theme="dark" class="dark">
+<html
+  lang={lang}
+  data-theme={isProductSurface ? "ink-and-paper" : "dark"}
+  class:list={[
+    isProductSurface ? "theme-ink-and-paper" : "dark",
+  ]}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -96,8 +130,14 @@ const isActive = (match: string) =>
     <meta name="twitter:image" content={`${base}${ogImageUrl}`} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#0A0A0F" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content={isProductSurface ? "#f4f2ec" : "#0A0A0F"}
+      media={isProductSurface ? "(prefers-color-scheme: light)" : "(prefers-color-scheme: dark)"}
+    />
+    {!isProductSurface && (
+      <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
+    )}
     <ClientRouter />
     <style is:global>
       html { view-transition-name: none; }
@@ -124,14 +164,29 @@ const isActive = (match: string) =>
         pointer-events: none;
       }
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    {
+      /* Brand surfaces load Inter/JetBrains Mono from Google Fonts; product
+         surfaces self-host Newsreader/Source Sans 3/IBM Plex Mono (GH#918:
+         no Google Fonts request from a sovereign product). */
+      !isProductSurface && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+          />
+        </>
+      )
+    }
     <script is:inline>
       (function () {
+        // Product surfaces (GH#918) are ink-and-paper by default — a fixed
+        // light scheme. The stored dark/light preference only governs brand
+        // surfaces, so leave those untouched here.
+        if (document.documentElement.classList.contains("theme-ink-and-paper")) {
+          return;
+        }
         var theme = localStorage.getItem("maplespike-theme") || localStorage.getItem("data-theme") || "dark";
         document.documentElement.setAttribute("data-theme", theme);
         if (theme === "dark") document.documentElement.classList.add("dark");
@@ -209,8 +264,12 @@ const isActive = (match: string) =>
           <LanguageSwitcher currentLang={lang} currentPath={pathname} />
           <button
             id="theme-toggle"
-            class="press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground"
+            class:list={[
+              "press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground",
+              { hidden: isProductSurface },
+            ]}
             aria-label="Toggle theme"
+            {...(isProductSurface ? { inert: true } : {})}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

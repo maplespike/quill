@@ -1,0 +1,402 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Ink & Paper — the product-surface default theme (GH#918)
+   ═══════════════════════════════════════════════════════════════════════════
+
+   One scoped class: `.theme-ink-and-paper`. BaseLayout adds it to <html> on
+   the 14 product surfaces (/docs /explorer /agents /ask /api-explorer
+   /citation /verify /status /watcher /signal /dashboard /workspace /signup
+   /checkout, plus /fr mirrors). Brand family (/, /pricing, /blog, /contact,
+   /privacy, /terms, /changelog) keeps the maple-red brand theme.
+
+   Principles (encode, don't decorate):
+     - Ink does the emphasis. Paper is the page.
+     - Planes, not stickers: hairline borders, one shadow.
+     - Every control at least 44px.
+     - No maple-red body text on paper (4.28:1 fails 4.5:1).
+     - Focus ring is ink/60 on paper (4.56:1), never ink/40 (2.52:1).
+
+   Reference: PR #917 (site/) — visual spec only; not merged, not copied.
+
+   Namespacing: raw roles are --iap-* (globals.css already defines an
+   unrelated brand --color-ink / --ink token). Semantic vars use the same
+   HSL-triplet convention the portal consumes as hsl(var(--x)), so every
+   existing component restyles from this one place. The HSL triplets are
+   precision-picked to round-trip byte-exact to the spec hexes — see
+   ink-and-paper.test.ts.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Self-hosted fonts ────────────────────────────────────────────────────
+   Newsreader (display) · Source Sans 3 (text) · IBM Plex Mono (data).
+   Files live in public/fonts/ (see manifest.json there for provenance and
+   unicode-ranges). No request leaves the product: no fonts.googleapis.com,
+   no fonts.gstatic.com. Latin + latin-ext cover the bilingual EN/FR copy.
+   Two-value font-weight ranges are variable faces (400-700). */
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-400-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/newsreader-italic-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/newsreader-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/newsreader-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/newsreader.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/source-sans-3-italic-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/source-sans-3-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/source-sans-3-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/source-sans-3.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The scoped theme class
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-ink-and-paper {
+  /* ── Raw colour roles (the 12 from the spec, byte-exact) ───────────── */
+  --iap-paper: 45 27% 94%;          /* #f4f2ec */
+  --iap-paper-deep: 44 23.8% 87.6%; /* #e7e3d8 */
+  --iap-surface: 48 38.5% 97.5%;    /* #fbfaf6 */
+  --iap-ink: 60 4.8% 8.2%;          /* #161614 */
+  --iap-ink-soft: 60 4.8% 16.5%;    /* #2c2c28 */
+  --iap-muted: 42 8% 30%;           /* #534f46 */
+  --iap-line: 42.4 20% 83.3%;       /* #ddd8cc */
+  --iap-line-strong: 41.7 19.3% 76.7%; /* #cfc8b8 */
+  --iap-chip: 42.9 26.9% 89.8%;     /* #ece8de */
+  --iap-on-ink: 43 28% 95%;         /* #f6f4ef */
+  --iap-on-ink-muted: 44 9.7% 69.6%; /* #b9b5aa */
+  --iap-on-ink-line: 60 5.5% 21.6%; /* #3a3a34 */
+
+  /* ── Radii ─────────────────────────────────────────────────────────── */
+  --iap-radius-control: 0.5rem;
+  --iap-radius-panel: 2rem;
+  --iap-radius-console: 1.75rem;
+
+  /* ── Shadow: planes get one shadow, not stickers ────────────────────── */
+  --iap-shadow-panel: 0 24px 60px -36px rgb(22 22 20 / 0.4);
+
+  /* ── Motion: opacity/colour only, 150ms, smooth-out ease ───────────── */
+  --iap-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --iap-duration: 150ms;
+
+  /* ── Focus ring: ink/60 on paper = 4.56:1 (WCAG 2.2 focus appearance).
+        ink/40 would measure 2.52:1 and fail — do not lower this. ──────── */
+  --iap-focus-ring: hsl(60 4.8% 8.2% / 0.6);
+
+  /* ── Fluid type scales ─────────────────────────────────────────────── */
+  --iap-text-hero: clamp(2.75rem, 1.15rem + 4.4vw, 4.85rem);
+  --iap-text-hero-line-height: 1.02;
+  --iap-text-hero-letter-spacing: -0.03em;
+  --iap-text-hero-font-weight: 500;
+  --iap-text-section: clamp(2rem, 1.15rem + 2.1vw, 3.05rem);
+  --iap-text-section-line-height: 1.08;
+  --iap-text-section-letter-spacing: -0.03em;
+  --iap-text-section-font-weight: 500;
+
+  /* ── Semantic role mapping ────────────────────────────────────────────
+     The existing convention: hsl(var(--x)) triplets. Mapping ink values
+     onto these means every component restyles from one place. */
+
+  /* Page plane */
+  --background: 45 27% 94%;         /* paper */
+  --foreground: 60 4.8% 8.2%;       /* ink */
+
+  /* Card plane */
+  --card: 48 38.5% 97.5%;          /* surface */
+  --card-foreground: 60 4.8% 8.2%; /* ink */
+
+  /* Popover plane */
+  --popover: 48 38.5% 97.5%;          /* surface */
+  --popover-foreground: 60 4.8% 8.2%; /* ink */
+
+  /* Primary: ink does the emphasis */
+  --primary: 60 4.8% 8.2%;          /* ink */
+  --primary-foreground: 45 27% 94%; /* paper */
+
+  /* Secondary / muted / accent: the chip plane */
+  --secondary: 42.9 26.9% 89.8%;     /* chip */
+  --secondary-foreground: 60 4.8% 8.2%; /* ink */
+  --muted: 42.9 26.9% 89.8%;        /* chip */
+  --muted-foreground: 42 8% 30%;    /* muted ink, 7.29:1 on paper */
+  --accent: 42.9 26.9% 89.8%;       /* chip */
+  --accent-foreground: 60 4.8% 8.2%; /* ink */
+
+  /* Destructive: ink-soft keeps AA on the ink plane; the portal's
+     destructive-foreground is consumed on this plane. */
+  --destructive: 60 4.8% 16.5%;     /* ink-soft */
+  --destructive-foreground: 43 28% 95%; /* on-ink, 16.48:1 */
+
+  /* Lines */
+  --border: 42.4 20% 83.3%;         /* line */
+  --input: 41.7 19.3% 76.7%;        /* line-strong */
+
+  /* Ring: bare ink triplet (consumed as hsl(var(--ring) / alpha) at the
+     use site — an inline alpha here would break globals.css composition).
+     The focus alpha itself is ink/60, see --iap-focus-ring above. */
+  --ring: 60 4.8% 8.2%;
+
+  /* Charts: ink-family ramp (ink → muted → line-strong), one warm accent */
+  --chart-1: 60 4.8% 8.2%;          /* ink */
+  --chart-2: 42 8% 30%;             /* muted */
+  --chart-3: 41.7 19.3% 76.7%;      /* line-strong */
+  --chart-4: 44 23.8% 87.6%;        /* paper-deep */
+  --chart-5: 44 9.7% 69.6%;         /* on-ink-muted */
+
+  /* Sidebar */
+  --sidebar-background: 45 27% 94%;   /* paper */
+  --sidebar-foreground: 60 4.8% 8.2%; /* ink */
+  --sidebar-primary: 60 4.8% 8.2%;    /* ink */
+  --sidebar-primary-foreground: 45 27% 94%; /* paper */
+  --sidebar-accent: 42.9 26.9% 89.8%; /* chip */
+  --sidebar-accent-foreground: 60 4.8% 8.2%; /* ink */
+  --sidebar-border: 42.4 20% 83.3%;   /* line */
+  --sidebar-ring: 60 4.8% 8.2%; /* ink */
+
+  /* Font stacks: the theme families, with system fallbacks */
+  --iap-font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --iap-font-text: "Source Sans 3", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --iap-font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Light scheme: paper is the page, native scrollbars follow */
+  color-scheme: light;
+}
+
+/* ── Chrome restyling scoped to the theme ─────────────────────────────────
+   Components that hard-code brand utilities (btn-sheen's maple gradient,
+   text-gradient's red ramp, the nav's maple active pill, aurora's red glow)
+   get ink equivalents under the class. These rules have no effect on brand
+   pages because everything is gated on .theme-ink-and-paper. */
+
+/* Body + selection: ink-on-paper, reversed for selection. Font: Source Sans 3
+   carries the text (font-sans utilities inline the Inter stack at build time,
+   so the family must be re-declared here — a var override would be ignored). */
+.theme-ink-and-paper body {
+  background: hsl(var(--iap-paper));
+  color: hsl(var(--iap-ink));
+  font-family: var(--iap-font-text);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.theme-ink-and-paper h1,
+.theme-ink-and-paper h2,
+.theme-ink-and-paper h3 {
+  font-family: var(--iap-font-display);
+  text-wrap: balance;
+}
+/* Data: IBM Plex Mono replaces JetBrains Mono (font-mono inlines its stack
+   the same way, so override the utility itself). */
+.theme-ink-and-paper .font-mono {
+  font-family: var(--iap-font-data);
+}
+.theme-ink-and-paper code,
+.theme-ink-and-paper pre,
+.theme-ink-and-paper kbd,
+.theme-ink-and-paper samp {
+  font-family: var(--iap-font-data);
+}
+.theme-ink-and-paper ::selection {
+  background: hsl(var(--iap-ink));
+  color: hsl(var(--iap-paper));
+}
+
+/* Hit-target floor (GH#918): every control at least 44px. Inline text
+   links are exempt — min-height does not apply to non-replaced inline
+   elements, so prose and footer links keep their natural line height
+   while flex/block/inline-flex controls are raised to the floor. */
+.theme-ink-and-paper header a,
+.theme-ink-and-paper header button,
+.theme-ink-and-paper button,
+.theme-ink-and-paper [role="tab"],
+.theme-ink-and-paper aside a,
+.theme-ink-and-paper label:has(input):not(:has(span:empty)),
+/* Dashboard-specific controls that need the floor */
+.theme-ink-and-paper .press-feedback.inline-flex:not([hidden]),
+.theme-ink-and-paper .rounded-md.px-4.py-2.text-sm.font-medium,
+.theme-ink-and-paper .block.mt-2.text-primary[class*="hover:underline"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Focus: every focusable control gets the ink/60 ring. globals.css draws
+   :focus-visible at hsl(var(--ring) / 0.7); with ring = ink the /0.7 alpha
+   would overshoot — the semantic ring already carries /0.6, so override
+   the outline colour explicitly to the token. */
+.theme-ink-and-paper :focus-visible {
+  outline: 2px solid var(--iap-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Nav active pill: brand paints it maple with white text; ink surfaces
+   paint it ink with paper text (the .dark class is suppressed on product
+   surfaces, so this needs no dark: variant). */
+.theme-ink-and-paper .nav-pills a[aria-current="page"] {
+  background: hsl(var(--iap-ink));
+  color: hsl(var(--iap-paper));
+  box-shadow: none;
+}
+
+/* Primary CTA: btn-sheen's maple gradient becomes flat ink */
+.theme-ink-and-paper .btn-sheen {
+  background-image: none;
+  background-color: hsl(var(--iap-ink));
+  transition: background-color var(--iap-duration) var(--iap-ease),
+              opacity var(--iap-duration) var(--iap-ease);
+}
+.theme-ink-and-paper .btn-sheen:hover {
+  background-color: hsl(var(--iap-ink-soft));
+  box-shadow: none;
+}
+
+/* Gradient headline text: the red ramp becomes solid ink. Ink does the
+   emphasis — not colour. */
+.theme-ink-and-paper .text-gradient {
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: hsl(var(--iap-ink));
+}
+
+/* Aurora: the brand glow layer has no ink equivalent — paper is the page */
+.theme-ink-and-paper .aurora::before {
+  background: none;
+}
+
+/* Landing-grid background lines: ink hairlines at the same low alpha */
+.theme-ink-and-paper .bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--iap-ink) / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--iap-ink) / 0.05) 1px, transparent 1px);
+}
+
+/* Inputs that hard-code the maple focus ring (verify.astro & friends) */
+.theme-ink-and-paper input:focus,
+.theme-ink-and-paper textarea:focus,
+.theme-ink-and-paper select:focus {
+  border-color: hsl(var(--iap-ink) / 0.6);
+  --tw-ring-color: var(--iap-focus-ring);
+}
+
+/* Card hover: hairline + shadow-panel, not a red glow */
+.theme-ink-and-paper .card-hover:hover {
+  border-color: hsl(var(--iap-ink) / 0.45);
+  box-shadow: var(--iap-shadow-panel);
+}
+
+/* Map theme-family utilities for any consumer that wants them. */
+.theme-ink-and-paper .font-display {
+  font-family: var(--iap-font-display);
+}
+.theme-ink-and-paper .font-text {
+  font-family: var(--iap-font-text);
+}
+.theme-ink-and-paper .font-data {
+  font-family: var(--iap-font-data);
+}
+
+/* Reduced-motion base layer (mirrors globals.css; scoped for clarity) */
+@media (prefers-reduced-motion: reduce) {
+  .theme-ink-and-paper *,
+  .theme-ink-and-paper *::before,
+  .theme-ink-and-paper *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  .theme-ink-and-paper html {
+    scroll-behavior: auto;
+  }
+}
