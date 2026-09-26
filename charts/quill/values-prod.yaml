@@ -62,6 +62,9 @@ api:
   env:
     QUILL_API_URL: "http://quill-api:8082/v1"
     NODE_ENV: "production"
+    # /v1/status + /v1/version report config.environment; unset it says
+    # "development" on a live deployment. (config.ts: env.ENVIRONMENT || 'development')
+    ENVIRONMENT: "production"
     # SQLite on a PVC (node:sqlite, no native compile) — simpler than PG for
     # the current scale; flip QUILL_STORAGE to postgres + database.enabled
     # when write volume warrants it.
