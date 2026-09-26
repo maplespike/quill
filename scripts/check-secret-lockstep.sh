@@ -43,17 +43,32 @@ CHART="$ROOT/charts/quill/templates"
 [ -f "$SYNC" ] || { echo "✗ missing $SYNC" >&2; exit 1; }
 [ -d "$CHART" ] || { echo "✗ missing $CHART" >&2; exit 1; }
 
-# 1) Keys the sync delivers, from its MAPPING table: "VAR|secret-name|key".
-#    Extract, then fail LOUDLY when the extraction finds nothing — a format
-#    change must never be silent again.
+# 1) Keys the rails deliver. Two sources:
+#    a) the MAPPING table in scripts/sops-sync-k8s.sh ("VAR|secret-name|key"),
+#       when the script still delivers rows directly; and
+#    b) secrets/eso-delivered.txt ("secret-name|key") — the ESO/BSM rail
+#       (2026-09-25 migration; source of truth: media-k8s
+#       cluster/addons/eso-secrets/externalsecrets-migrated.yaml).
+#    Fail LOUDLY when BOTH sources come up empty — a format change must never
+#    be silent again.
 mapping="$(grep -oE '"[A-Za-z0-9_]+\|[a-z0-9-]+\|[A-Za-z0-9_-]+"' "$SYNC" || true)"
-if [ -z "$mapping" ]; then
-  echo "✗ could not extract any delivered secret key from $SYNC" >&2
-  echo "  This gate reads that script's MAPPING table (\"VAR|secret-name|key\")." >&2
-  echo "  If the format changed again, update this gate — do not silence it." >&2
+ESO="$ROOT/secrets/eso-delivered.txt"
+eso_rows=""
+if [ -f "$ESO" ]; then
+  eso_rows="$(grep -oE '^[a-z0-9-]+\|[A-Za-z0-9_.-]+$' "$ESO" || true)"
+  eso_declared="$(grep -cE '^[a-z0-9-]+\|' "$ESO" || true)"
+  eso_found="$(printf '%s\n' "$eso_rows" | grep -c '[a-z0-9-]' || true)"
+  if [ "$eso_found" -lt "$eso_declared" ]; then
+    echo "✗ extracted $eso_found of $eso_declared rows from $ESO — at least one row lost its 'secret|key' format" >&2
+    exit 1
+  fi
+fi
+if [ -z "$mapping" ] && [ -z "$eso_rows" ]; then
+  echo "✗ no delivered-key source: MAPPING table empty AND $ESO missing or unreadable" >&2
+  echo "  The gate needs at least one rail's key list; fix the source, do not silence the gate." >&2
   exit 1
 fi
-emitted="$(printf '%s\n' "$mapping" | awk -F'|' '{gsub(/"/, "", $3); print $3}' | sort -u)"
+emitted="$( { printf '%s\n' "$mapping" | awk -F'|' '{gsub(/["]/, "", $3); print $3}'; printf '%s\n' "$eso_rows" | awk -F'|' '{print $2}'; } | grep -v '^$' | sort -u)"
 
 # A row whose line survives but loses its pipe format is silently dropped by
 # the grep above — the gate would check fewer keys and still exit 0. Count the
