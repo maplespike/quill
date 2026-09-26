@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-09-18T00:48:42.990Z",
+    "generatedAt": "2026-09-23T23:19:39.855Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -12,1472 +12,1488 @@
       "cat": "General",
       "name": "query_gov_data",
       "desc": {
-        "en": "Query Canadian government data releases, datasets, and records. Searches across Statistics Canada (StatCan), open.canada.ca (CKAN), provincial data portals, and federal spending/procurement data. Returns machine-readable data with OGL-C attribution and citation hashes.",
-        "fr": "Interroger les données gouvernementales provenant de multiples sources canadiennes, dont Statistique Canada, le portail CKAN ouvert.canada.ca et les portails de données ouvertes provinciaux (ON, BC, AB, QC). Prend en charge la recherche par mot-clé, juridiction et catégorie."
+        "en": "Search across StatCan, CKAN, provincial portals",
+        "fr": "Recherche dans StatCan, CKAN et les portails provinciaux"
       }
     },
     {
       "cat": "General",
       "name": "fact_check",
       "desc": {
-        "en": "Check a specific claim, statement, or statistic against official Canadian government data sources (StatCan, open.canada.ca, federal spending records). Returns corroborating or contradicting evidence with citations, trust scores, and confidence ratings.",
-        "fr": "Vérifier une affirmation en la comparant aux données officielles du gouvernement canadien. Idéal pour vérifier les données économiques, les statistiques de l'emploi, les chiffres du PIB et d'autres indicateurs gouvernementaux publiés par Statistique Canada et les sources fédérales."
+        "en": "Verify claims against official government data",
+        "fr": "Vérifier des affirmations par rapport aux données gouvernementales officielles"
       }
     },
     {
       "cat": "General",
       "name": "get_citation",
       "desc": {
-        "en": "Retrieve and verify a citation record by its SHA-256 content hash. Returns the original data, timestamp, source attribution, license, and a ready-to-run shell command for independent verification. Use this to prove that content has not been altered since Quill published it.",
-        "fr": "Récupérer et vérifier un hachage de citation SHA-256 pour un enregistrement de données spécifique. Permet de vérifier l'intégrité des données en recomputant le hachage à partir de la source originale."
+        "en": "Retrieve citation by SHA-256 hash",
+        "fr": "Récupérer une citation par hachage SHA-256"
       }
     },
     {
       "cat": "General",
       "name": "latest_releases",
       "desc": {
-        "en": "Get the most recent government data releases, economic indicators, and announcements from Statistics Canada, open.canada.ca, and federal/provincial data portals. Use this to stay current on new datasets, revised statistics, and government publications.",
-        "fr": "Obtenir les plus récentes publications de données gouvernementales canadiennes, y compris les communiqués de Statistique Canada, les mises à jour de données du portail ouvert et les annonces provinciales. Filtrer par juridiction et catégorie."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_committees",
-      "desc": {
-        "en": "Search House of Commons and Senate committee evidence, meeting transcripts, and proceedings. Covers standing committees (e.g., FINA, OGGO, ETHI), special committees, joint committees, and in-camera (secret) meeting records. Returns witness testimony, interventions, and speaker attributions with timestamps.",
-        "fr": "Rechercher des témoignages, transcriptions et procès-verbaux de comités de la Chambre des communes et du Sénat. Couvre les comités permanents (FINA, OGGO, ETHI), spéciaux et mixtes."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_corporate",
-      "desc": {
-        "en": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks insider transactions, sole-source contracts, company press releases, and corporate-government interactions. Cross-references with federal lobbying registry and proactive disclosure data.",
-        "fr": "Rechercher dans les registres de lobbying fédéraux, les données d'approvisionnement et les déclarations de dirigeants d'entreprises. Couvre 17 dirigeants suivis dans les secteurs bancaire, télécoms et médias."
-      }
-    },
-    {
-      "cat": "Influence",
-      "name": "search_influence",
-      "desc": {
-        "en": "Search influence tracking records including international organizations, NGOs, think tanks, and consultancies operating in Canada. Traces government funding flows, CRA charity status, grants data, and organizational connections. Cross-references with federal grant metadata and parliamentary committee oversight.",
-        "fr": "Rechercher les acteurs d'influence suivis par MapleSpike — organisations internationales, groupes de réflexion, cabinets de conseil et ONG. Retourne le financement et les liens transversaux."
-      }
-    },
-    {
-      "cat": "Regulatory",
-      "name": "search_gazette",
-      "desc": {
-        "en": "Search the Canada Gazette — the official newspaper of the Government of Canada. Covers Part I (notices, proposed regulations), Part II (enacted regulations), and Part III (Acts of Parliament). Includes Regulatory Impact Analysis Statements (RIAS) with department attribution and effective dates.",
-        "fr": "Rechercher les règlements proposés et définitifs dans la Gazette du Canada. Couvre les Parties I, II et III avec les analyses d'impact et les ministères responsables."
-      }
-    },
-    {
-      "cat": "Regulatory",
-      "name": "search_gic",
-      "desc": {
-        "en": "Search Governor-in-Council (GiC) appointments to federal agencies, boards, commissions, and Crown corporations. Includes order-in-council appointment data, salary ranges, departmental categories, appointment types, and cross-references with federal lobbying registry for lobbyists-turned-appointees.",
-        "fr": "Rechercher les nominations du gouverneur en conseil (GIC), y compris les titulaires de charge, les échelles salariales et les affiliations ministérielles."
-      }
-    },
-    {
-      "cat": "Elections",
-      "name": "search_elections",
-      "desc": {
-        "en": "Search Elections Canada third-party advertiser registry and financial reports. Tracks advertising spending, platforms used, election periods, and third-party organizations registered with Elections Canada. Cross-references with corporate and influence data to identify connected actors.",
-        "fr": "Rechercher les données d'Élections Canada, y compris le registre des publicités électorales par des tiers et les dépenses électorales."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_provincial_lobbying",
-      "desc": {
-        "en": "Search provincial lobbying registries across Canada. Covers Ontario, British Columbia, Alberta, Quebec, and other provincial lobbying records. Returns lobbying registrations, communication reports, and subject areas. Cross-references with the federal lobbying registry to identify multi-jurisdictional lobbying activity.",
-        "fr": "Rechercher les registres de lobbying provinciaux (Ontario, Québec). Normalise au schéma fédéral pour une vue combinée fédérale-provinciale."
-      }
-    },
-    {
-      "cat": "Oversight",
-      "name": "search_oversight",
-      "desc": {
-        "en": "Search independent oversight body reports, investigations, and decisions. Covers the Office of the Auditor General (OAG), Parliamentary Budget Officer (PBO), Office of the Conflict of Interest and Ethics Commissioner (CIEC), Office of the Lobbying Commissioner (OCL), Competition Bureau, and CRTC. Returns report findings, recommendations, investigation outcomes, and merger reviews.",
-        "fr": "Rechercher les rapports et enquêtes des organismes de surveillance fédéraux : Bureau du vérificateur général, directeur parlementaire du budget, commissaire à l'éthique, Commissariat au lobbying, Bureau de la concurrence et CRTC."
-      }
-    },
-    {
-      "cat": "Oversight",
-      "name": "search_canlii",
-      "desc": {
-        "en": "Search Canadian court decisions via CanLII (Canadian Legal Information Institute). Covers Supreme Court of Canada, Federal Court, Federal Court of Appeal, provincial superior courts, and provincial appeal courts. Returns decision summaries, citations, party information, case history, and government relevance assessments. Tracks legislation citations and cross-references with tracked government departments.",
-        "fr": "Rechercher des décisions judiciaires canadiennes via CanLII. Couvre les cours fédérales et provinciales, y compris la Cour suprême, les cours d'appel et les cours supérieures."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_lmia",
-      "desc": {
-        "en": "Search Labour Market Impact Assessment (LMIA) data from Employment and Social Development Canada (ESDC). Provides quarterly statistics on employer use of the Temporary Foreign Worker program, including approval/denial rates, streams (high-wage, low-wage, agriculture, etc.), occupations, provinces, and top employers. Cross-references with corporate data and procurement records for comprehensive TFW program oversight.",
-        "fr": "Rechercher les données trimestrielles sur les études d'impact sur le marché du travail (EIMT). Retourne les données par employeur, profession, province et résultats."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_immigration",
-      "desc": {
-        "en": "Search Canadian immigration data including IRCC permanent resident admissions, Express Entry summaries, IRB Refugee Protection Division decisions, and CBSA removal/enforcement statistics. Covers monthly PR admissions by province, country of citizenship, and category; quarterly refugee claim grant/refusal rates; and border enforcement actions.",
-        "fr": "Rechercher des données sur l'immigration canadienne — admissions de résidents permanents d'IRCC, Entrée express, décisions de la CISR et statistiques d'exécution de l'ASFC."
-      }
-    },
-    {
-      "cat": "Indigenous",
-      "name": "search_indigenous_relations",
-      "desc": {
-        "en": "Search Indigenous relations data including CIRNAC specific claims, ISC First Nations financial transparency (chief/council salaries, community budgets), TRC Calls to Action tracker, Jordan's Principle funding, and MMIWG follow-up data. Covers land claims, infrastructure spending, and community well-being indices.",
-        "fr": "Rechercher des données sur les relations avec les Autochtones — revendications particulières de RCAANC, transparence financière des Premières Nations, suivi des appels à l'action de la CVR."
-      }
-    },
-    {
-      "cat": "Public Safety",
-      "name": "search_criminal_justice",
-      "desc": {
-        "en": "Search Canadian criminal justice and corrections data including CSC prison population statistics, Parole Board decisions, RCMP crime statistics (hate crimes, organized crime, youth justice), and PPSC prosecution service data.",
-        "fr": "Rechercher des données sur la justice pénale et les services correctionnels canadiens, y compris les statistiques sur la population carcérale du SCC, les décisions de la Commission des libérations conditionnelles et les crimes haineux."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_transport_safety",
-      "desc": {
-        "en": "Search Canadian transport safety and infrastructure data including TSB occurrence datasets (air, rail, marine, pipeline investigations), Transport Canada recalls and violations, Infrastructure Canada project funding, CIIB (Canada Infrastructure Investment Bank) data, and CTA (Canadian Transportation Agency) decisions.",
-        "fr": "Rechercher les données d'accidents et d'incidents du Bureau de la sécurité des transports (BST), les rappels de Transports Canada et les décisions de l'OTC."
-      }
-    },
-    {
-      "cat": "Defence",
-      "name": "search_defence",
-      "desc": {
-        "en": "Search Canadian defence and veterans data including DND regular force personnel by rank (1997-2025), Defence Capabilities Blueprint procurement data, Veterans Affairs Canada wait times, suicide prevention data, and service statistics.",
-        "fr": "Rechercher des données sur la défense et les anciens combattants canadiens, y compris les effectifs de la Force régulière du MDN par grade, les données d'approvisionnement du Plan des capacités de défense et les temps d'attente d'ACC."
-      }
-    },
-    {
-      "cat": "Science",
-      "name": "search_science",
-      "desc": {
-        "en": "Search Canadian science, space, and research data — CSA missions, Mitacs grants, Ocean Networks Canada observations, Polar Data Catalogue records",
-        "fr": "Rechercher des données sur la science, l'espace et la recherche au Canada — missions de l'ASC, subventions Mitacs, observations d'Ocean Networks Canada et données du Catalogue de données polaires."
-      }
-    },
-    {
-      "cat": "Oversight",
-      "name": "search_tribunals",
-      "desc": {
-        "en": "Search federal tribunal appointments and decisions (Canada) — GIC appointments to federal tribunals including IRB, CHRT, Competition Tribunal, CITT, Specific Claims Tribunal, and more",
-        "fr": "Rechercher les nominations et décisions des tribunaux administratifs fédéraux du Canada. Couvre les décisions et la composition des tribunaux."
-      }
-    },
-    {
-      "cat": "Global Affairs",
-      "name": "search_lode",
-      "desc": {
-        "en": "Query Statistics Canada LODE (Linkable Open Data Environment) geospatial databases. 12 databases covering addresses (~10M buildings), buildings (~14.4M features), healthcare (~7K), recreation (~182K), education (~19K), culture (~8K), businesses (~500K), infrastructure (11 types), greenhouses (~3.9K), pedestrian networks, public transit networks, and cycling networks. Use databaseId to target a specific database, or list=true to see the catalog.",
-        "fr": "Interroger la Base nationale d'adresses (LODE) : 12 bases de données de Statistique Canada avec plus de 10 millions d'adresses civiques canadiennes."
-      }
-    },
-    {
-      "cat": "Defence",
-      "name": "search_veterans",
-      "desc": {
-        "en": "Search Canadian veterans and military personnel data — VAC (Veterans Affairs Canada) benefits, disability claims, education programs, OSISS clinics, veteran suicide statistics, defence transition programs, and wait times data.",
-        "fr": "Rechercher les données d'Anciens Combattants Canada : prestations d'invalidité, temps d'attente et services aux vétérans."
-      }
-    },
-    {
-      "cat": "Influence",
-      "name": "search_ngo_rss",
-      "desc": {
-        "en": "Search NGO and think tank publications ingested from RSS feeds — policy papers, reports, press releases, and articles from 30+ tracked organizations. Returns article titles, URLs, publication dates, and narrative classification flags. Results are cross-referenceable against lobbying records and committee mentions.",
-        "fr": "Rechercher les publications d'ONG et de groupes de réflexion via leurs flux RSS. Couvre 31 organisations suivies par MapleSpike."
-      }
-    },
-    {
-      "cat": "Influence",
-      "name": "ngo_narrative_tracker",
-      "desc": {
-        "en": "Analyze NGO and think tank publications for narrative alignment, coordinated messaging, and influence campaigns. Detects when multiple organizations use similar framing, language, or policy recommendations across different publications. Assigns 5GW (fifth-generation warfare) classification flags when applicable. Cross-references against tracked influence actors.",
-        "fr": "Analyser les publications d'ONG et de groupes de réflexion pour détecter l'alignement narratif, les messages coordonnés et les campagnes d'influence. Repère lorsque plusieurs organisations utilisent un cadrage ou un langage similaires."
-      }
-    },
-    {
-      "cat": "Health",
-      "name": "search_health",
-      "desc": {
-        "en": "Search Canadian health data — CIHI hospital wait times, health spending, surgical volumes, PHAC disease surveillance, opioid crisis data, CFIA food recalls, drug shortage alerts, and CADTH drug recommendation reviews. Covers federal and provincial health data from the Canadian Institute for Health Information, Public Health Agency of Canada, Canadian Food Inspection Agency, and other health agencies.",
-        "fr": "Rechercher des données sur la santé canadienne — temps d'attente, dépenses de santé, volumes chirurgicaux, surveillance des maladies, crise des opioïdes et rappels alimentaires."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_ilo",
-      "desc": {
-        "en": "Search ILO (International Labour Organization) labour statistics — employment, unemployment, wages, and labour force indicators across 187 countries. Covers employment-to-population ratios, unemployment rates, wage data, and labour force participation. Data sourced from ILOSTAT API.",
-        "fr": "Rechercher les statistiques du travail de l'OIT par indicateur ou pays. Couvre l'emploi, le chômage, les salaires et les conditions de travail."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_proactive_disclosure",
-      "desc": {
-        "en": "Search federal proactive disclosure data — government contracts over $10K, travel and hospitality expenses, and position reclassifications. Covers contracts awarded by all federal departments and agencies.",
-        "fr": "Rechercher les divulgations proactives de contrats par fournisseur ou ministère. Couvre les contrats de plus de 10 000 $ du gouvernement fédéral."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_ati",
-      "desc": {
-        "en": "Search completed Access to Information (ATI) requests published by federal departments. Covers ATI summaries from all government departments and agencies. Useful for finding previously released records, internal reports, and correspondence.",
-        "fr": "Rechercher les demandes d'accès à l'information par mot-clé, ministère ou numéro de dossier. Couvre les demandes complétées et publiées par le gouvernement fédéral."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_federal_budget",
-      "desc": {
-        "en": "Search federal budget, public accounts, and fiscal monitor data. Covers budget documents, departmental plans, financial statements, and economic projections from the Government of Canada.",
-        "fr": "Rechercher le budget fédéral par programme, ministère et exercice financier. Retourne les montants alloués, les descriptions de programme et les Justificatifs."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "search_statcan",
-      "desc": {
-        "en": "Search Statistics Canada datasets including CPI, GDP, labour statistics, population data, trade indicators, and other key economic and social metrics from the Statistics Canada Web Data Service (WDS).",
-        "fr": "Rechercher les jeux de données de Statistique Canada par mot-clé ou sujet. Accès au catalogue en ligne du Système de diffusion de données."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_legislation",
-      "desc": {
-        "en": "Search Canadian legislation — Justice Canada consolidated federal laws, provincial legislation, and regulatory data. Covers federal acts, regulations, and provincial statutes from Ontario e-Laws, BC Laws, and Quebec legislation. Set lang=fr to search lois.justice.gc.ca/fra/ for French-language federal legislation.",
-        "fr": "Rechercher les lois fédérales par nom, mot-clé ou juridiction. Couvre les lois codifiées du Canada avec historique des modifications."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_goc_spending",
-      "desc": {
-        "en": "Search Government of Canada spending data — federal contract awards, grant contributions, and expenditure information from across all departments. Covers GitHub-based federal spending datasets.",
-        "fr": "Rechercher les dépenses gouvernementales par fournisseur, ministère et programme. Couvre les données ouvertes du gouvernement du Canada."
-      }
-    },
-    {
-      "cat": "Municipal",
-      "name": "search_municipal",
-      "desc": {
-        "en": "Search municipal open data from Canadian cities (Victoria, Edmonton, Toronto, Vancouver, Montreal, Ottawa, Calgary, etc.)",
-        "fr": "Rechercher les données ouvertes municipales des grandes villes canadiennes. Couvre les budgets, services, permis et infrastructures municipales."
-      }
-    },
-    {
-      "cat": "Global Affairs",
-      "name": "search_global_canada",
-      "desc": {
-        "en": "Search Global Canada data — Global Affairs Canada trade agreements, ECCC climate and environmental data, CSIS reports metadata, and international relations data.",
-        "fr": "Rechercher les données d'Affaires mondiales Canada : accords commerciaux, climat, émissions, aide internationale et relations diplomatiques."
-      }
-    },
-    {
-      "cat": "Health",
-      "name": "search_health_canada",
-      "desc": {
-        "en": "Search Health Canada data — drug approvals, product recalls, health product safety alerts, natural health product licensing, medical device recalls, and Health Canada regulatory decisions. More specific than the general health search.",
-        "fr": "Rechercher les rappels de drogues et d'aliments, les licences de dispositifs médicaux et les règlements de Santé Canada."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_impact_assessment",
-      "desc": {
-        "en": "Search Impact Assessment Agency of Canada (IAAC) federal project assessments — environmental impact statements, decisions, conditions, and timelines for major resource projects.",
-        "fr": "Rechercher les évaluations d'impact environnemental par projet ou secteur. Couvre les évaluations fédérales et les examens réglementaires."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_species_at_risk",
-      "desc": {
-        "en": "Search Species at Risk Act (SARA) registry data — listing decisions, recovery strategies, action plans, and status assessments for Canadian species at risk.",
-        "fr": "Rechercher les espèces en péril par nom ou statut. Couvre le registre public des espèces en péril du gouvernement du Canada."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_fisheries",
-      "desc": {
-        "en": "Search Fisheries and Oceans Canada (DFO) data — fish stocks, licenses, conservation measures, and marine management information.",
-        "fr": "Rechercher les données sur les pêches : espèces, régions, aquaculture, permis et quotas. Couvre les données du MPO et de Pêches et Océans Canada."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_agriculture",
-      "desc": {
-        "en": "Search Agriculture and Agri-Food Canada (AAFC) data — crop reports, farm data, agri-stats, and agricultural production information by province and commodity.",
-        "fr": "Rechercher des données agricoles canadiennes — production par province, revenus agricoles, prix des commodités et données du Recensement de l'agriculture."
-      }
-    },
-    {
-      "cat": "Community",
-      "name": "search_crown_corporations",
-      "desc": {
-        "en": "Search Canadian Crown corporation data — annual reports, quarterly financials, governance information for CBC, Canada Post, CMHC, EDC, VIA Rail, BDC, and other federal Crown corporations.",
-        "fr": "Rechercher les sociétés d'État fédérales — CBC, Postes Canada, EDC et autres. Retourne les états financiers, rapports annuels et données de rémunération."
-      }
-    },
-    {
-      "cat": "Charity",
-      "name": "search_charity_t3010",
-      "desc": {
-        "en": "Search CRA T3010 Registered Charity Information Return data. Covers detailed financial statements, director compensation, political activities, program spending, and revenue breakdowns for all registered Canadian charities. More focused on T3010 returns than the general charity search.",
-        "fr": "Rechercher les déclarations T3010 des organismes de bienfaisance par nom ou catégorie. Retourne les revenus, dépenses et activités caritatives par année."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "search_bank_of_canada",
-      "desc": {
-        "en": "Search Bank of Canada data — interest rate decisions, monetary policy reports, Financial System Reviews, and executive speeches. Covers overnight rate changes, quantitative easing, and monetary policy frameworks.",
-        "fr": "Rechercher les taux directeurs, discours et perspectives politiques de la Banque du Canada. Inclut le taux cible du financement à un jour et les taux directeurs historiques."
-      }
-    },
-    {
-      "cat": "General",
-      "name": "datastore_query",
-      "desc": {
-        "en": "Query the cross-module datastore — search previously fetched results across tools. Useful for combining data from multiple Quill tools (e.g., committees + lobbying + procurement). Results are cached with TTL; expired entries are auto-cleaned.",
-        "fr": "Query the cross-module datastore — search previously fetched results across tools. Useful for combining data from multiple Quill tools (e.g., committees + lobbying + procurement). Results are cached with TTL; expired entries are auto-cleaned."
-      }
-    },
-    {
-      "cat": "General",
-      "name": "discover_tools",
-      "desc": {
-        "en": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits.",
-        "fr": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_weather",
-      "desc": {
-        "en": "Search Canadian weather data from Environment Canada — current conditions, forecasts, severe weather alerts, air quality health index (AQHI), radar, marine forecasts, and climate normals. Powered by MSC GeoMet (OGC API).",
-        "fr": "Search Canadian weather data from Environment Canada — current conditions, forecasts, severe weather alerts, air quality health index (AQHI), radar, marine forecasts, and climate normals. Powered by MSC GeoMet (OGC API)."
-      }
-    },
-    {
-      "cat": "Health",
-      "name": "search_nutrient_file",
-      "desc": {
-        "en": "Search the Canadian Nutrient File — food composition data from Health Canada. Find nutrient values (calories, protein, fat, carbs, vitamins, minerals) for Canadian food products.",
-        "fr": "Search the Canadian Nutrient File — food composition data from Health Canada. Find nutrient values (calories, protein, fat, carbs, vitamins, minerals) for Canadian food products."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "search_valet_api",
-      "desc": {
-        "en": "Search Bank of Canada Valet API — official exchange rates, interest rates, commodity prices, and economic indicators. More granular than the general Bank of Canada search (this uses the Valet REST API directly).",
-        "fr": "Search Bank of Canada Valet API — official exchange rates, interest rates, commodity prices, and economic indicators. More granular than the general Bank of Canada search (this uses the Valet REST API directly)."
-      }
-    },
-    {
-      "cat": "Housing",
-      "name": "search_housing_cmhc",
-      "desc": {
-        "en": "Search CMHC (Canada Mortgage and Housing Corporation) housing data — housing starts, rental market surveys, vacancy rates, average rents, housing affordability, mortgage arrears, and NHIP program data. More specific to CMHC than the general housing search.",
-        "fr": "Rechercher les données de la SCHL : mises en chantier, taux d'inoccupation, logements abordables et prix moyens par ville."
-      }
-    },
-    {
-      "cat": "Media",
-      "name": "search_crtc_decisions",
-      "desc": {
-        "en": "Search CRTC (Canadian Radio-television and Telecommunications Commission) decisions and rulings. Covers broadcasting decisions, telecom regulatory rulings, licensing renewals, ownership change approvals, and policy determinations. More specific to CRTC decisions than the general CRTC search.",
-        "fr": "Rechercher les numéros de décisions du CRTC et les ordonnances de radiodiffusion. Référence croisée avec la base de données de décisions du Conseil."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_social_programs",
-      "desc": {
-        "en": "Search Canadian social programs data — CPP/OAS, Employment Insurance, Canada Child Benefit, poverty statistics, social assistance rates, and food security indicators.",
-        "fr": "Rechercher les données sur l'assurance-emploi, les paiements de l'Allocation canadienne pour enfants et les taux de pauvreté par province."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_education_research",
-      "desc": {
-        "en": "Search Canadian education and research data — Tri-Council grants (CIHR/NSERC/SSHRC), Canada Research Chairs, Canada Foundation for Innovation, and student loan statistics.",
-        "fr": "Rechercher les données du CRSNG et du CRSH, les chaires de recherche du Canada par établissement. Couvre les subventions de recherche et les bourses."
-      }
-    },
-    {
-      "cat": "Oversight",
-      "name": "search_a2aj",
-      "desc": {
-        "en": "Search A2J (Access to Justice) legal data — court decisions, case law coverage, and citation lookup across Canadian courts and tribunals. Covers 116K+ decisions.",
-        "fr": "Rechercher dans les décisions de justice via A2AJ. Couvre plus de 116 000 décisions des tribunaux canadiens avec métadonnées et extraits."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_ab_data",
-      "desc": {
-        "en": "Search Alberta (AB) government open data — AHS health indicators, AAIP/AINP immigration, Alberta Court of Justice records, education assessments, environment, and more. Queries open.alberta.ca CKAN portal.",
-        "fr": "Rechercher des données ouvertes du gouvernement de l'Alberta — données de santé, d'éducation, d'immigration, de tribunaux et plus. Interroge le portail CKAN albertain."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_arcgis_layers",
-      "desc": {
-        "en": "Search ArcGIS feature services and layers across Manitoba, Saskatchewan, and Prince Edward Island. Returns available GIS data services matching your keyword. Use this to find geospatial data for provinces without CKAN portals.",
-        "fr": "Rechercher des services de fonctionnalités ArcGIS pour le Manitoba, la Saskatchewan et l'Île-du-Prince-Édouard. Retourne les couches géospatiales disponibles et leurs métadonnées."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_bc_data",
-      "desc": {
-        "en": "Search British Columbia (BC) government open data — PharmaCare, BCPNP immigration, BC Provincial Court records, BC Ministry of Education reports, health, environment, and more. Queries catalogue.data.gov.bc.ca CKAN portal.",
-        "fr": "Rechercher des données ouvertes du gouvernement de la Colombie-Britannique — données de santé, d'éducation, d'immigration, de tribunaux et plus. Interroge le portail CKAN britanno-colombien."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_bills",
-      "desc": {
-        "en": "Search federal parliamentary bills via Open Parliament. Returns bill numbers, names, sessions, and LEGISinfo IDs. Use this to track legislation progress.",
-        "fr": "Rechercher les projets de loi fédéraux via le Parlement ouvert avec identifiants LEGISinfo. Couvre les projets de loi déposés, en cours et adoptés."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_cipo",
-      "desc": {
-        "en": "Search CIPO (Canadian Intellectual Property Office) data — patents, trademarks, industrial designs, and copyright registrations filed in Canada.",
-        "fr": "Rechercher les brevets et marques de commerce via l'Office de la propriété intellectuelle du Canada (OPIC). Couvre les demandes par inventeur, catégorie technique ou année."
-      }
-    },
-    {
-      "cat": "Housing",
-      "name": "search_cmhc",
-      "desc": {
-        "en": "Search CMHC (Canada Mortgage and Housing Corporation) data — housing starts, rental market reports, mortgage trends, and housing supply statistics. Covers national and provincial housing indicators.",
-        "fr": "Rechercher les données de la SCHL par ville, province ou année. Inclut les mises en chantier, taux d'inoccupation et prix moyens des logements."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_committees_op",
-      "desc": {
-        "en": "Search committees via Open Parliament API.",
-        "fr": "Rechercher les comités via l'API du Parlement ouvert. Accès aux données des comités de la Chambre des communes et du Sénat."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_corporate_filings",
-      "desc": {
-        "en": "Search Canadian corporate filings data — SEDAR+ regulatory filings, public company disclosures, annual reports, and financial statements filed with securities regulators.",
-        "fr": "Rechercher les documents SEDAR+ et rapports d'initiés par entreprise ou symbole boursier. Couvre les dépôts de sociétés ouvertes canadiennes."
-      }
-    },
-    {
-      "cat": "Charity",
-      "name": "search_cra_charity",
-      "desc": {
-        "en": "Search CRA (Canada Revenue Agency) registered charity T3010 data. Covers detailed financials, directors, programs, and political activities of every registered Canadian charity.",
-        "fr": "Rechercher les organismes de bienfaisance enregistrés auprès de l'ARC par nom ou numéro de BN. Vérifie le statut d'enregistrement et les documents déposés."
-      }
-    },
-    {
-      "cat": "Media",
-      "name": "search_crtc",
-      "desc": {
-        "en": "Search CRTC (Canadian Radio-television and Telecommunications Commission) data — broadcasting and telecom regulatory decisions, ownership changes, net neutrality rulings, and licensing decisions.",
-        "fr": "Rechercher les décisions, licences et ordonnances de neutralité du Net du CRTC. Couvre les télécommunications, la radiodiffusion et les décisions réglementaires."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_culture",
-      "desc": {
-        "en": "Search Canadian culture and heritage data — Canadian Heritage programs, cultural spending, arts grants to organizations, and federal cultural funding initiatives.",
-        "fr": "Rechercher les subventions du Conseil des arts du Canada, le financement du patrimoine et les programmes artistiques. Couvre les données culturelles fédérales."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_debates",
-      "desc": {
-        "en": "Search House of Commons debates via Open Parliament. Returns debate dates, numbers, and most frequent words. Use this to find what Parliament discussed on specific dates or topics.",
-        "fr": "Rechercher les débats de la Chambre des communes (Hansard). Couvre les transcriptions intégrales depuis 1994 avec recherche par député, date et sujet."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_geospatial",
-      "desc": {
-        "en": "Search Canadian geospatial data — federal geospatial databases, CKAN-based geospatial data across federal and provincial portals, topographic maps, and geographic information.",
-        "fr": "Rechercher les cartes topographiques, imagerie satellitaire et jeux de données géospatiales. Couvre les données de Ressources naturelles Canada."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc-citizenship",
-      "desc": {
-        "en": "Search IRCC citizenship grants data including breakdowns by province, demographic groups, and year. Tracks permanent resident admissions that have been granted Canadian citizenship.",
-        "fr": "Rechercher les statistiques de citoyenneté IRCC par province. Couvre les octrois, les refus et les demandes en cours."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_entry_exit",
-      "desc": {
-        "en": "Search IRCC quarterly entry/exit data by port of entry, mode of travel, and nationality. Covers traveller volumes at Canadian ports of entry including airports, land borders, and marine ports.",
-        "fr": "Rechercher les données d'entrée-sortie par nationalité et trimestre. Couvre les statistiques de passages frontaliers."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_express_entry",
-      "desc": {
-        "en": "Search IRCC Express Entry rounds — CRS score cutoffs, invitations issued, and program-specific draws. Covers Canadian Experience Class, Federal Skilled Worker, Provincial Nominee, and category-based draws.",
-        "fr": "Rechercher les résultats des tirages Entrée express : scores RCR, programmes et sélections basées sur les catégories."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_family_sponsorship",
-      "desc": {
-        "en": "Search IRCC family sponsorship statistics by visa office, category, and year. Covers spousal, partner, dependent child, parent and grandparent sponsorship applications and approvals.",
-        "fr": "Rechercher les données de parrainage familial par bureau de visa. Couvre les demandes de parents et de conjoints."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_pr_admissions",
-      "desc": {
-        "en": "Search IRCC permanent resident admissions by province, immigration category, and year. Covers economic immigrants, family class, refugees, and other PR admission categories across all provinces and territories.",
-        "fr": "Rechercher les admissions de résidents permanents par province, catégorie ou année. Couvre les données détaillées d'IRCC."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_processing_times",
-      "desc": {
-        "en": "Search IRCC (Immigration, Refugees and Citizenship Canada) application processing times by visa office and application type. Covers permanent residence, temporary residence, and citizenship application processing timelines.",
-        "fr": "Rechercher les délais de traitement par type de demande et pays. Retourne les délais estimés pour les demandes d'immigration."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_study_permits",
-      "desc": {
-        "en": "Search IRCC study permit holder data by institution, province, country, and year. Covers international student enrollment, designated learning institutions, and study permit holders across Canadian provinces and territories.",
-        "fr": "Rechercher les permis d'études par établissement, province ou pays d'origine. Couvre les données du programme d'étudiants étrangers."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_ircc_work_permits",
-      "desc": {
-        "en": "Search IRCC work permit holder data by NOC code, province, country, and year. Covers temporary foreign workers, international mobility program participants, and post-graduation work permit holders.",
-        "fr": "Rechercher les permis de travail par code CNP, province ou pays. Couvre les données du Programme des travailleurs étrangers temporaires."
-      }
-    },
-    {
-      "cat": "Science",
-      "name": "search_knowledge_fabric",
-      "desc": {
-        "en": "Query the Knowledge Fabric vector knowledge base for deep research across brain sessions, wiki pages, and web sources. Returns synthesized answers with source citations. Use for questions requiring institutional or historical knowledge.",
-        "fr": "Rechercher dans le portail Knowledge Fabric. Interroge les jeux de données académiques et de connaissances interconnectés."
-      }
-    },
-    {
-      "cat": "Community",
-      "name": "search_libraries",
-      "desc": {
-        "en": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, Kitchener, Halifax. Returns branch locations, hours, and contact info.",
-        "fr": "Rechercher les bibliothèques publiques dans 15 villes canadiennes. Retourne les horaires, services et coordonnées."
-      }
-    },
-    {
-      "cat": "Municipal",
-      "name": "search_municipal_data",
-      "desc": {
-        "en": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).",
-        "fr": "Rechercher les jeux de données municipaux dans 10 villes canadiennes. Accès aux portails de données ouvertes municipaux."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_npri",
-      "desc": {
-        "en": "Search National Pollutant Release Inventory (NPRI) data — facility-level pollutant releases, disposals, and transfers by substance, facility, and location across Canada.",
-        "fr": "Rechercher l'Inventaire national des rejets de polluants (INRP) par installation ou substance. Données environnementales sur les rejets industriels."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_nrcan",
-      "desc": {
-        "en": "Search Natural Resources Canada (NRCan) data — mining activities, topographic maps, energy statistics, forest inventory, renewable energy, and mineral production. Covers all NRCan sub-modules including energy, mining, forestry, and geospatial data.",
-        "fr": "Rechercher les données de Ressources naturelles Canada : commodités, régions, minéraux, forêts et énergie."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_nunavut_data",
-      "desc": {
-        "en": "Search government data about Nunavut from federal CKAN, Statistics Canada, and the Nunavut Bureau of Statistics.",
-        "fr": "Rechercher les données du Nunavut à partir du CKAN fédéral et de Statistique Canada. Couvre les statistiques territoriales et les données ouvertes."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_on_data",
-      "desc": {
-        "en": "Search Ontario (ON) government open data — OHIP health claims, OINP immigration, EQAO education results, court dockets, environment, and more. Queries data.ontario.ca CKAN portal.",
-        "fr": "Rechercher des données ouvertes du gouvernement de l'Ontario — données de santé, d'éducation, d'immigration, de tribunaux et plus. Interroge le portail CKAN ontarien."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_yukon_data",
-      "desc": {
-        "en": "Search Yukon government open data from the CKAN portal at open.yukon.ca (3,785 datasets across 25 organizations including Yukon Geological Survey, Geomatics Yukon, Environment, Health and Social Services, etc.).",
-        "fr": "Rechercher les données ouvertes du Yukon à partir du portail CKAN open.yukon.ca. Couvre les données territoriales et statistiques."
-      }
-    },
-    {
-      "cat": "Community",
-      "name": "search_parks",
-      "desc": {
-        "en": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Winnipeg, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns park names, types, amenities, and sizes.",
-        "fr": "Rechercher les parcs et installations récréatives dans 12 villes canadiennes. Retourne les équipements, horaires et localisations."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_provincial_data",
-      "desc": {
-        "en": "Search provincial government open data across all 13 provinces and territories. Uses CKAN, Socrata, and other APIs depending on the province. Filter by province code to narrow results.",
-        "fr": "Rechercher les données des 13 provinces et territoires via CKAN et Socrata. Accès unifié aux portails de données provinciales et territoriales."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_provincial_legislatures",
-      "desc": {
-        "en": "Search provincial legislature data — Hansard transcripts, committee proceedings, and bills across all 10 Canadian provinces.",
-        "fr": "Rechercher les transcriptions des débats des législatures provinciales et territoriales. Couvre les hansards de l'Assemblée législative."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_provincial_regulators",
-      "desc": {
-        "en": "Search Canadian provincial regulatory bodies data — securities commissions, law societies, police oversight, engineering regulators, medical colleges, and other professional regulators across all provinces.",
-        "fr": "Rechercher les organismes de réglementation provinciaux par profession ou province. Couvre 273 organismes de réglementation dans 21 catégories."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_qc_data",
-      "desc": {
-        "en": "Search Quebec (QC) government open data — RAMQ health insurance, immigration (MIFI), Cour du Québec records, education ministry data, environment, and more. Queries donneesquebec.ca CKAN portal.",
-        "fr": "Rechercher des données ouvertes du gouvernement du Québec — données de la RAMQ, de l'immigration, de la Cour du Québec et du ministère de l'Éducation."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_real_time_feeds",
-      "desc": {
-        "en": "Search Canadian real-time government data feeds — emergency alerts (CAP-CP), health advisories, urgent notices, and other time-sensitive government communications.",
-        "fr": "Rechercher les alertes en temps réel : météo, avis sanitaires, alertes AMBER. Couvre les flux de données en continu."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_regional_authorities",
-      "desc": {
-        "en": "Search Canadian regional authority data — regional districts, municipalities, and local governance information across Canada including regional services, planning, and transit authorities.",
-        "fr": "Rechercher les autorités régionales de transport et de services. Couvre les organismes régionaux canadiens."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_sedi",
-      "desc": {
-        "en": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data. Covers TSX-listed company executive and director stock transactions, including purchases, sales, and option exercises.",
-        "fr": "Rechercher les rapports d'initiés SEDI par émetteur ou initié. Couvre les opérations d'initiés déclarées à la SEDI."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_un",
-      "desc": {
-        "en": "Search UN Data Sources via the UNdata SDMX REST API — population, trade, national accounts, development indicators, environment, energy, education, health statistics. Supports querying by database category or specific dataflow ID.",
-        "fr": "Rechercher les données SDMX de l'ONU par clé de dimension. Accès aux bases de données statistiques des Nations Unies."
-      }
-    },
-    {
-      "cat": "Community",
-      "name": "search_unions",
-      "desc": {
-        "en": "Search Canadian labour union data — collective agreements, membership statistics, and labour organization information across federal and provincial jurisdictions.",
-        "fr": "Rechercher les syndicats par nom, secteur ou province. Couvre les organisations syndicales canadiennes et leurs affiliations."
-      }
-    },
-    {
-      "cat": "Community",
-      "name": "search_universities",
-      "desc": {
-        "en": "Search Canadian university data — tuition fees, enrollment statistics, program costs, and institutional finances across all Canadian universities.",
-        "fr": "Rechercher les universités par établissement, programme ou indicateur. Couvre les universités canadiennes avec données d'inscription."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_energy_data",
-      "desc": {
-        "en": "Search energy production and consumption data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur la production et la consommation d'énergie du portail CKAN. Couvre l'électricité, le pétrole, le gaz et les énergies renouvelables."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_climate_data",
-      "desc": {
-        "en": "Search climate change and weather data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur les changements climatiques et la météo provenant du portail CKAN fédéral. Couvre les données historiques, projections et émissions."
-      }
-    },
-    {
-      "cat": "Public Safety",
-      "name": "search_public_safety",
-      "desc": {
-        "en": "Search public safety and emergency management data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur la sécurité publique et la gestion des urgences du portail CKAN fédéral."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_federal_contracts",
-      "desc": {
-        "en": "Search federal government contract awards. Results from open.canada.ca.",
-        "fr": "Rechercher les contrats fédéraux par fournisseur ou ministère. Couvre les données d'approvisionnement du gouvernement du Canada."
-      }
-    },
-    {
-      "cat": "Procurement",
-      "name": "search_federal_grants",
-      "desc": {
-        "en": "Search federal grants and contributions data. Results from open.canada.ca.",
-        "fr": "Rechercher les subventions et contributions fédérales. Retourne les montants, bénéficiaires et programmes de financement."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_gender_stats",
-      "desc": {
-        "en": "Search gender-based statistics and equality data. Results from open.canada.ca.",
-        "fr": "Rechercher les statistiques basées sur le genre et les données d'égalité du portail CKAN fédéral."
-      }
-    },
-    {
-      "cat": "Housing",
-      "name": "search_housing_data",
-      "desc": {
-        "en": "Search housing and rental market data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur le logement et les marchés locatifs du portail CKAN fédéral. Couvre les prix, l'offre et la demande."
-      }
-    },
-    {
-      "cat": "Science",
-      "name": "search_mining_data",
-      "desc": {
-        "en": "Search mining and mineral production data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur l'exploitation minière et la production minérale du portail CKAN. Couvre les minéraux, les métaux et les actifs miniers."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_official_languages",
-      "desc": {
-        "en": "Search official languages data and statistics. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur les langues officielles du Canada. Couvre les données de Patrimoine canadien et les statistiques linguistiques."
-      }
-    },
-    {
-      "cat": "Science",
-      "name": "search_technology_data",
-      "desc": {
-        "en": "Search technology, innovation and telecom data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur la technologie, l'innovation et les télécoms du portail CKAN fédéral."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_patents",
-      "desc": {
-        "en": "Search Canadian patent data from CIPO. Results from open.canada.ca.",
-        "fr": "Rechercher les données de brevets canadiens de l'OPIC via CKAN. Couvre les demandes de brevet par inventeur et catégorie technologique."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_trademarks",
-      "desc": {
-        "en": "Search Canadian trademark data from CIPO. Results from open.canada.ca.",
-        "fr": "Rechercher les données de marques de commerce canadiennes de l'OPIC via CKAN. Couvre les demandes de marque par catégorie et demandeur."
-      }
-    },
-    {
-      "cat": "Health",
-      "name": "search_pharmaceuticals",
-      "desc": {
-        "en": "Search Pharmaceuticals & Drug Policy data — PMPRB drug pricing, Health Canada Drug Product Database, drug shortages, and CADTH reviews. Covers Canadian pharmaceutical regulation and pricing.",
-        "fr": "Rechercher les données sur les prix des médicaments, les pénuries et les données du PMPRB. Couvre la surveillance des produits pharmaceutiques."
-      }
-    },
-    {
-      "cat": "Media",
-      "name": "search_telecommunications",
-      "desc": {
-        "en": "Search Telecommunications & Digital data — CRTC market reports, ISED spectrum management, CIRA internet data, and broadband coverage across Canada.",
-        "fr": "Rechercher les données sur les télécommunications : large bande, enchères de spectre et fournisseurs de télécoms."
-      }
-    },
-    {
-      "cat": "Housing",
-      "name": "search_real_estate",
-      "desc": {
-        "en": "Search Real Estate & Housing data — CMHC rental markets, housing starts, house prices, and affordability metrics from open.canada.ca.",
-        "fr": "Rechercher les données et tendances du marché immobilier. Couvre les prix, les ventes et les analyses de marché par région."
-      }
-    },
-    {
-      "cat": "Public Safety",
-      "name": "search_emergency_management",
-      "desc": {
-        "en": "Search Emergency Management & Public Safety data — Canadian Disaster Database, ECCC alerts, NRCan geohazards, and provincial emergencies.",
-        "fr": "Rechercher les données sur la gestion des urgences et la réponse aux catastrophes. Couvre les plans d'urgence, les interventions et les ressources."
-      }
-    },
-    {
-      "cat": "Indigenous",
-      "name": "search_indigenous_services_directory",
-      "desc": {
-        "en": "Search Indigenous Services Canada directory — searchable directory of Indigenous service providers, programs, and community services.",
-        "fr": "Rechercher dans le répertoire des services aux Autochtones. Couvre les services de santé, d'éducation, de logement et de développement communautaire."
-      }
-    },
-    {
-      "cat": "Public Safety",
-      "name": "search_policing_security",
-      "desc": {
-        "en": "Search Policing, Intelligence & National Security data — RCMP crime stats, CSIS reports, CSE cybersecurity advisories, and CSC corrections.",
-        "fr": "Rechercher les données sur les services de police et la sécurité publique. Couvre les effectifs policiers, la criminalité et les programmes de sécurité."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_financial_regulation",
-      "desc": {
-        "en": "Search Financial Regulation data — OSFI, CDIC, FCAC, and securities regulator data from open.canada.ca.",
-        "fr": "Rechercher les données de réglementation financière et de surveillance. Couvre le BSIF, l'ACFC, CANAFE et d'autres organismes de réglementation financière."
-      }
-    },
-    {
-      "cat": "Media",
-      "name": "search_media_broadcasting",
-      "desc": {
-        "en": "Search Media & Broadcasting data — CRTC ownership, government ad spending, and BBM audience data.",
-        "fr": "Rechercher les données sur les médias et la radiodiffusion. Couvre les licences de radiodiffusion, la propriété des médias et la couverture."
-      }
-    },
-    {
-      "cat": "Municipal",
-      "name": "search_municipal_long_tail",
-      "desc": {
-        "en": "Search Municipal Long-Tail data — smaller municipalities, regional districts, and specialized local government datasets.",
-        "fr": "Rechercher des requêtes de données municipales de niche et des jeux de données spécialisés. Couvre les sources municipales moins connues."
-      }
-    },
-    {
-      "cat": "Provincial",
-      "name": "search_provincial_orgs",
-      "desc": {
-        "en": "Search Provincial Organizations data — provincial agencies, boards, and commissions directory across Canada.",
-        "fr": "Rechercher les organisations et agences provinciales. Couvre les ministères, agences et commissions provinciales."
-      }
-    },
-    {
-      "cat": "Entity",
-      "name": "search_cross_reference",
-      "desc": {
-        "en": "Cross-reference engine — resolves an entity name across committees, corporate, lobbying, GIC, elections, CanLII, and influence modules. Returns per-registry hits with link confidence (graph-backed, not keyword search). Use this to find everything every registry says about a person or organization.",
-        "fr": "Effectuer un référencement croisé entre tous les modules à la fois. Produit une chronologie unifiée des activités d'une entité à travers les sources."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_nrcan_renewable",
-      "desc": {
-        "en": "Search NRCan Renewable Energy data — renewable capacity, generation, and installations by province and technology type.",
-        "fr": "Rechercher les données sur les énergies renouvelables de RNCan. Couvre l'éolien, le solaire, l'hydroélectricité et la biomasse."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_nrcan_fires",
-      "desc": {
-        "en": "Search NRCan Forest Fire data — fire hotspots, burned areas, and fire cause data across Canada.",
-        "fr": "Rechercher les données sur les incendies de forêt et la surveillance des feux de RNCan. Couvre les foyers actifs, superficies brûlées et dangers."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_nrcan_forests",
-      "desc": {
-        "en": "Search NRCan Forest Inventory data — national forest inventory with biomass, carbon, and species data by ecozone.",
-        "fr": "Rechercher les données forestières et l'inventaire forestier national de RNCan. Couvre les essences, la biomasse et la santé des forêts."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_nrcan_minerals",
-      "desc": {
-        "en": "Search NRCan Mineral Production data — mineral production volumes and values by commodity and province.",
-        "fr": "Rechercher les données minières et minérales de RNCan. Couvre la production, les réserves et l'exploration par minéral."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_oecd_stat",
-      "desc": {
-        "en": "Search OECD Statistics data — economic, social, and environmental indicators from OECD.Stat API.",
-        "fr": "Rechercher les statistiques de l'OCDE par indicateur ou pays. Accès aux bases de données économiques et sociales de l'OCDE."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_undp_hdi",
-      "desc": {
-        "en": "Search UNDP Human Development Index data — HDI rankings and component indicators across countries.",
-        "fr": "Rechercher les données de l'Indice de développement humain du PNUD. Couvre l'IDH par pays avec les composantes santé, éducation et revenu."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_unhcr_refugees",
-      "desc": {
-        "en": "Search UNHCR Refugee Statistics data — refugee, asylum-seeker, and forcibly displaced population data worldwide.",
-        "fr": "Rechercher les statistiques du HCR sur les réfugiés et les déplacements forcés. Données par pays d'origine, d'accueil et année."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_us_cia",
-      "desc": {
-        "en": "Search CIA World Factbook data — country profiles with demographics, economy, defence, and infrastructure indicators for Five Eyes comparison.",
-        "fr": "Rechercher les données du CIA World Factbook par pays. Profils complets : géographie, démographie, économie et gouvernement."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_au_abs",
-      "desc": {
-        "en": "Search Australian Bureau of Statistics data — CPI, GDP, labour force, population, and trade via SDMX-JSON API.",
-        "fr": "Rechercher des données du Bureau australien des statistiques (ABS). Couvre la démographie, l'économie, l'emploi et d'autres indicateurs australiens."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_nz_stats",
-      "desc": {
-        "en": "Search Statistics New Zealand data — CPI, GDP, labour, population, and trade via OData API.",
-        "fr": "Rechercher les données de Statistique Nouvelle-Zélande (Stats NZ). Couvre la démographie, l'économie et les indicateurs sociaux."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_uk_ons",
-      "desc": {
-        "en": "Search UK Office for National Statistics data — CPI, GDP, labour force, population, trade, and housing via time series API.",
-        "fr": "Rechercher les données de l'Office for National Statistics du Royaume-Uni. Couvre la démographie, l'économie et la société britanniques."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_who_gho",
-      "desc": {
-        "en": "Search WHO Global Health Observatory data — life expectancy, mortality, health expenditure, and disease prevalence indicators.",
-        "fr": "Rechercher les données de l'Observatoire de la santé mondiale de l'OMS. Couvre les indicateurs de santé par pays et région."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "search_eurostat",
-      "desc": {
-        "en": "Search Eurostat data — EU statistical data: economy, population, trade, agriculture, energy, and social indicators.",
-        "fr": "Rechercher les statistiques européennes d'Eurostat. Couvre l'économie, la démographie, l'environnement et la société des pays membres de l'UE."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_utilities",
-      "desc": {
-        "en": "Search Canadian utility providers by province or type. Covers 15 major hydro, gas, and water utilities across all provinces.",
-        "fr": "Rechercher les services d'hydroélectricité, de gaz et d'eau par province. Couvre les sociétés de services publics canadiennes."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "cache_clear",
-      "desc": {
-        "en": "Clear the query optimization cache. Use when you need fresh data or after data updates. Returns the number of entries cleared.",
-        "fr": "Vider le cache des réponses d'outils MCP. Utile pour forcer une récupération fraîche des données après une mise à jour des sources."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "cache_status",
-      "desc": {
-        "en": "Query optimization cache status. Returns cache hit/miss rates, current cache size, and TTL range. Use system_health for full optimization stats.",
-        "fr": "Vérifier l'état du cache et les taux de succès. Retourne les statistiques d'utilisation du cache par outil et par module."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "compare_regions",
-      "desc": {
-        "en": "Compare economic and demographic indicators across Canadian provinces and territories. Uses Statistics Canada data for population, employment, and economic metrics combined with federal spending data from CKAN.",
-        "fr": "Comparer des indicateurs économiques entre provinces et territoires canadiens. Inclut le PIB, l'emploi, la population et d'autres mesures provenant de Statistique Canada."
-      }
-    },
-    {
-      "cat": "Entity",
-      "name": "get_annotations",
-      "desc": {
-        "en": "Retrieve annotations for a specific entity from the journalism annotation system. Returns all notes, flags, overrides, and context annotations for the given entity type and ID. Optionally filter by user ID to get annotations from a specific user. When an API server is configured (QUILL_API_URL), queries it for persistent storage; otherwise uses an in-memory store (annotations created through the API server will not be visible).",
-        "fr": "Obtenir les annotations et métadonnées d'entités par type. Retourne les étiquettes, catégories et relations d'une entité spécifique."
-      }
-    },
-    {
-      "cat": "Entity",
-      "name": "get_entity_profile",
-      "desc": {
-        "en": "Cross-reference a person across MP, lobbying, and GIC data.",
-        "fr": "Obtenir un profil complet d'une personne ou organisation en croisant les données des modules lobbying, nominations GIC, comités parlementaires et approvisionnement."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "get_member_info",
-      "desc": {
-        "en": "Get information about current and former Members of Parliament via Open Parliament. Returns name, party, riding, and photo URL. Use this to look up MP details by name.",
-        "fr": "Obtenir les informations détaillées d'un député : nom, parti, circonscription, adresse photo. Couvre les députés de la Chambre des communes."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "get_module_health",
-      "desc": {
-        "en": "Get detailed health metrics for a specific ingestion module. Returns status (healthy/degraded/unhealthy), upstream reachability, success rate, consecutive failures, and last error message. Use this to diagnose why a specific data source is failing.",
-        "fr": "Vérifier l'état de santé d'un module de données spécifique. Retourne la fraîcheur des données, le taux de succès des récupérations et l'état du pipeline."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "get_pipeline_health",
-      "desc": {
-        "en": "Get a high-level health summary of the entire MapleSpike ingestion pipeline. Returns system status (healthy/degraded/unhealthy), total module counts, and a list of all modules with their current health status. Use this to identify systemic failures or multiple failing data sources.",
-        "fr": "Vérifier l'état de santé du pipeline d'ingestion. Retourne le statut de chaque extracteur, la latence et les taux d'erreur."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "get_politician_influence",
-      "desc": {
-        "en": "Comprehensive influence profile for a Canadian politician. Combines MP info, lobbying meetings, voting records, and GIC appointments from openparliament.ca and CKAN. Use this to understand a politician's full footprint across government data.",
-        "fr": "Obtenir le profil d'influence d'un élu : activités de lobbying, votes, nominations GIC, présence aux comités et affiliations."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "qa_schema",
-      "desc": {
-        "en": "Extract and view TypeScript schema definitions for ingestion modules. Returns field names, types, required status, and descriptions. Use this to understand the data shape expected by a module.",
-        "fr": "Interroger les schémas des modules par nom. Retourne les noms de champs, leurs types, les champs requis et les descriptions."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "qa_validate_module",
-      "desc": {
-        "en": "Run data integrity validation on an ingestion module. Checks required fields, types, ranges, string lengths, and enum values against the module schema. Returns pass/fail results per field. Use this to verify data quality before or after ingestion.",
-        "fr": "Valider la qualité et l'intégrité des données d'un module. Vérifie la cohérence, l'exhaustivité et la fraîcheur des données."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_bridges",
-      "desc": {
-        "en": "Query bridge infrastructure conditions across Canadian provinces. Uses Statistics Canada Core Public Infrastructure data. Returns condition ratings (very good, good, fair, poor, very poor) with percentages. Compare infrastructure quality between provinces.",
-        "fr": "Interroger les données sur l'état des ponts et infrastructures au Canada. Retourne les évaluations structurelles par province et par type d'infrastructure."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_cpi",
-      "desc": {
-        "en": "Consumer Price Index (inflation) from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.",
-        "fr": "Interroger l'Indice des prix à la consommation (inflation) de Statistique Canada. Retourne les séries chronologiques par catégorie de dépenses et par province."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_gdp",
-      "desc": {
-        "en": "Gross Domestic Product from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.",
-        "fr": "Interroger le PIB du Canada par industrie et par province. Retourne les séries chronologiques avec dates de référence et variations trimestrielles."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_labour",
-      "desc": {
-        "en": "Labour force characteristics including employment and unemployment from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.",
-        "fr": "Interroger les données sur la population active de Statistique Canada. Retourne les taux d'emploi, de chômage et de participation par province et par secteur."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_population",
-      "desc": {
-        "en": "Population estimates for Canada, provinces and territories from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.",
-        "fr": "Interroger les estimations démographiques par province et territoire. Retourne la population par âge, sexe et région."
-      }
-    },
-    {
-      "cat": "Economic",
-      "name": "query_trade",
-      "desc": {
-        "en": "International merchandise trade data from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.",
-        "fr": "Interroger les données du commerce international de marchandises de Statistique Canada. Retourne les exportations et importations par pays partenaire et catégorie de produits."
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "search_votes",
-      "desc": {
-        "en": "Search House of Commons voting records via Open Parliament.",
-        "fr": "Rechercher les votes de la Chambre des communes via le Parlement ouvert. Couvre les votes par député, session et projet de loi."
-      }
-    },
-    {
-      "cat": "Environment",
-      "name": "search_agriculture_data",
-      "desc": {
-        "en": "Search agriculture and agri-food data. Results from open.canada.ca.",
-        "fr": "Rechercher des données agricoles et agroalimentaires du portail CKAN fédéral. Couvre la production, les marchés et la sécurité alimentaire."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_citizenship_data",
-      "desc": {
-        "en": "Search Canadian citizenship statistics. Results from open.canada.ca.",
-        "fr": "Rechercher les statistiques de citoyenneté canadienne provenant du portail CKAN. Inclut les octrois de citoyenneté par province et pays d'origine."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_corporate_registry",
-      "desc": {
-        "en": "Search federal corporations registry data. Results from open.canada.ca.",
-        "fr": "Rechercher les données du registre des sociétés fédérales via CKAN. Retourne les informations de base des entreprises constituées au niveau fédéral."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_culture_data",
-      "desc": {
-        "en": "Search culture, arts and heritage data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur la culture, les arts et le patrimoine du portail CKAN fédéral."
-      }
-    },
-    {
-      "cat": "Social",
-      "name": "search_education_stats",
-      "desc": {
-        "en": "Search education statistics and enrolment data. Results from open.canada.ca.",
-        "fr": "Rechercher les statistiques d'inscription scolaire et les données sur l'éducation du portail CKAN. Couvre les niveaux primaire, secondaire et postsecondaire."
-      }
-    },
-    {
-      "cat": "Regulatory",
-      "name": "search_gazette_part1",
-      "desc": {
-        "en": "Search Canada Gazette Part I. Returns items matching your query.",
-        "fr": "Rechercher dans la Partie I de la Gazette du Canada — avis et règlements proposés. Couvre les consultations publiques et les prépublications."
-      }
-    },
-    {
-      "cat": "Regulatory",
-      "name": "search_gazette_part2",
-      "desc": {
-        "en": "Search Canada Gazette Part II. Returns items matching your query.",
-        "fr": "Rechercher dans la Partie II de la Gazette du Canada — textes réglementaires et décrets en vigueur."
-      }
-    },
-    {
-      "cat": "Regulatory",
-      "name": "search_gazette_part3",
-      "desc": {
-        "en": "Search Canada Gazette Part III. Returns items matching your query.",
-        "fr": "Rechercher dans la Partie III de la Gazette du Canada — lois du Parlement telles qu'adoptées."
-      }
-    },
-    {
-      "cat": "Immigration",
-      "name": "search_immigration_refugees",
-      "desc": {
-        "en": "Search immigration and refugee data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur l'immigration et les réfugiés du portail CKAN fédéral. Couvre les statistiques d'immigration et d'asile."
-      }
-    },
-    {
-      "cat": "Indigenous",
-      "name": "search_indigenous_stats",
-      "desc": {
-        "en": "Search Indigenous peoples statistics and data. Results from open.canada.ca.",
-        "fr": "Rechercher les statistiques sur les peuples autochtones du portail CKAN fédéral. Couvre la démographie, la santé, l'éducation et l'emploi."
-      }
-    },
-    {
-      "cat": "Transport",
-      "name": "search_transportation_data",
-      "desc": {
-        "en": "Search transportation and infrastructure data. Results from open.canada.ca.",
-        "fr": "Rechercher les données sur le transport et l'infrastructure du portail CKAN fédéral."
-      }
-    },
-    {
-      "cat": "System",
-      "name": "searxng_health",
-      "desc": {
-        "en": "Check SearXNG engine health: which engines are failing, suspended, or rate-limited. Returns engine success rates, suspension times, and error counts.",
-        "fr": "Vérifier l'état de santé du moteur SearXNG : échecs, suspensions et erreurs. Utilisé pour diagnostiquer les problèmes de recherche web."
+        "en": "Recent government data releases by category",
+        "fr": "Publications récentes de données gouvernementales par catégorie"
       }
     },
     {
       "cat": "General",
       "name": "smart_search",
       "desc": {
-        "en": "Intelligent search across all Canadian government data. Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. Sources: Parliament (debates, bills, votes, MPs, committees), Gazette (regulations), Government open data (health, economy, environment, immigration, spending, etc.)",
-        "fr": "Intelligent search across all Canadian government data. Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. Sources: Parliament (debates, bills, votes, MPs, committees), Gazette (regulations), Government open data (health, economy, environment, immigration, spending, etc.)"
-      }
-    },
-    {
-      "cat": "Parliament",
-      "name": "track_bill",
-      "desc": {
-        "en": "Track a Canadian federal bill through Parliament. Combines bill status, related debates, voting records, and regulatory impact from multiple sources. Use this to follow legislation end-to-end.",
-        "fr": "Suivre un projet de loi tout au long du processus parlementaire. Retourne l'état actuel, l'historique des étapes et les votes."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_wdi_indicator",
-      "desc": {
-        "en": "Fetch World Bank Development Indicator data for specific countries",
-        "fr": "Obtenir un indicateur de développement de la Banque mondiale (WDI) pour un pays spécifique. Couvre plus de 1 400 indicateurs économiques, sociaux et environnementaux."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "compare_wdi_countries",
-      "desc": {
-        "en": "Compare a World Bank indicator across multiple countries",
-        "fr": "Compare a World Bank indicator across multiple countries"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_country_wdi_profile",
-      "desc": {
-        "en": "Get comprehensive country profile with key development indicators",
-        "fr": "Get comprehensive country profile with key development indicators"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "analyze_indicator_trend",
-      "desc": {
-        "en": "Analyze trend for a World Bank indicator over time",
-        "fr": "Analyze trend for a World Bank indicator over time"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "fetch_topic_indicators",
-      "desc": {
-        "en": "Fetch all indicators for a specific topic (economy, health, social, etc.)",
-        "fr": "Fetch all indicators for a specific topic (economy, health, social, etc.)"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_indicator_metadata",
-      "desc": {
-        "en": "Get metadata for a World Bank indicator",
-        "fr": "Get metadata for a World Bank indicator"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_comtrade_by_partner",
-      "desc": {
-        "en": "Fetch UN Comtrade trade data for a specific partner country",
-        "fr": "Obtenir les données d'échanges internationaux de l'ONU (Comtrade) filtrées par pays partenaire. Retourne les valeurs d'exportation et d'importation avec ventilation par catégorie de marchandise."
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_comtrade_by_commodity",
-      "desc": {
-        "en": "Fetch UN Comtrade trade data for a specific commodity",
-        "fr": "Fetch UN Comtrade trade data for a specific commodity"
-      }
-    },
-    {
-      "cat": "International",
-      "name": "get_comtrade_trends",
-      "desc": {
-        "en": "Get UN Comtrade trade trends over time",
-        "fr": "Get UN Comtrade trade trends over time"
-      }
-    },
-    {
-      "cat": "AI",
-      "name": "ai_ask",
-      "desc": {
-        "en": "Ask a natural language question about Canadian government data. Uses AI to search across all pipeline sources (committees, lobbying, procurement, regulations, courts, oversight) and return a cited, synthesized answer.",
-        "fr": "Poser une question en langage naturel sur les données gouvernementales canadiennes. Obtient une réponse sourcée avec citations, modèle utilisé et provenance de l'inférence."
-      }
-    },
-    {
-      "cat": "AI",
-      "name": "ai_analyze",
-      "desc": {
-        "en": "Analyze a document, transcript, or data set using AI. Detects topics, sentiment, entities, and generates a structured summary with metadata. Supports different analysis modes.",
-        "fr": "Analyser un document ou une transcription pour en extraire les sujets, entités et résumé. Utilise l'inférence IA en périphérie (Llama 3.3 70B) avec secours vers le cluster local (Qwen 3.5 27B)."
-      }
-    },
-    {
-      "cat": "AI",
-      "name": "ai_search_semantic",
-      "desc": {
-        "en": "Semantic search across all ingested pipeline data using vector embeddings. Finds conceptually related documents even when keywords do not match. Uses the AI Inference Gateway for embedding and Qdrant vector DB for similarity search.",
-        "fr": "Effectuer une recherche sémantique avec plongements vectoriels (embeddings) en périphérie. Retourne les résultats les plus pertinents selon la similarité contextuelle plutôt que par mot-clé exact."
+        "en": "Intent-aware search across all sources",
+        "fr": "Recherche sensible à l'intention dans toutes les sources"
       }
     },
     {
       "cat": "General",
       "name": "explore_catalog",
       "desc": {
-        "en": "Browse the MapleSpike data catalog. Lists all available data sources, MCP tools, and categories. Use this to discover what data is available before searching. Filter by category or search terms to find relevant tools.",
-        "fr": "Parcourir les modules de données et catégories disponibles dans MapleSpike. Retourne la liste complète des 206 modules avec descriptions et métadonnées de source."
+        "en": "Browse available data modules and categories",
+        "fr": "Parcourir les modules et catégories de données disponibles"
       }
     },
     {
-      "cat": "System",
-      "name": "signal_check",
+      "cat": "Parliament",
+      "name": "search_committees",
       "desc": {
-        "en": "Check for new or changed items across watched government data sources (committees, Gazette, lobbying, procurement, oversight). Returns recently added items since the last check. Use this proactively to detect new regulatory filings, committee activity, or lobbying registrations.",
-        "fr": "Vérifier les signaux surveillés pour détecter des changements ou des nouvelles publications. Utile pour la veille automatisée des sources."
+        "en": "HoC + Senate committee evidence and transcripts",
+        "fr": "Témoignages et transcriptions des comités (Chambre + Sénat)"
       }
     },
     {
-      "cat": "System",
-      "name": "system_health",
+      "cat": "Parliament",
+      "name": "search_committees_op",
       "desc": {
-        "en": "Check the MapleSpike API service health. Returns service status, version, environment, tenant tier, current API call usage (daily/monthly), local free-tier quota (1,000 calls/month per identity, then x402 charged per call), per-dependency health checks (API server, storage, cache) with response times, and query optimization statistics (cache hit rate, result limits). Use this to verify the API is responding and to check your quota.",
-        "fr": "Effectuer une vérification complète de l'état du système et des diagnostics. Retourne la santé de tous les composants et services."
+        "en": "Committees via Open Parliament API",
+        "fr": "Comités via l'API Open Parliament"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "search_debates",
+      "desc": {
+        "en": "House of Commons debates (Hansard) by date or topic",
+        "fr": "Débats de la Chambre des communes (Hansard) par date ou sujet"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "search_bills",
+      "desc": {
+        "en": "Federal bills via Open Parliament with LEGISinfo IDs",
+        "fr": "Projets de loi fédéraux via Open Parliament avec identifiants LEGISinfo"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "track_bill",
+      "desc": {
+        "en": "Track a bill through Parliament end-to-end",
+        "fr": "Suivre un projet de loi au Parlement de bout en bout"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "search_votes",
+      "desc": {
+        "en": "House of Commons voting records via Open Parliament",
+        "fr": "Registres de votes de la Chambre des communes via Open Parliament"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "get_member_info",
+      "desc": {
+        "en": "MP details: name, party, riding, photo URL",
+        "fr": "Détails du député : nom, parti, circonscription, URL de la photo"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "get_politician_influence",
+      "desc": {
+        "en": "Influence profile: lobbying, voting, GIC appointments",
+        "fr": "Profil d'influence : lobbying, votes, nominations par décret"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "search_legislation",
+      "desc": {
+        "en": "Federal acts by name, keyword, or jurisdiction",
+        "fr": "Lois fédérales par nom, mot-clé ou compétence"
+      }
+    },
+    {
+      "cat": "Regulatory",
+      "name": "search_gazette",
+      "desc": {
+        "en": "Canada Gazette Parts I, II, III",
+        "fr": "Gazette du Canada, parties I, II, III"
+      }
+    },
+    {
+      "cat": "Regulatory",
+      "name": "search_gazette_part1",
+      "desc": {
+        "en": "Gazette Part I — notices and proposed regulations",
+        "fr": "Gazette, partie I — avis et règlements proposés"
+      }
+    },
+    {
+      "cat": "Regulatory",
+      "name": "search_gazette_part2",
+      "desc": {
+        "en": "Gazette Part II — statutory instruments and orders",
+        "fr": "Gazette, partie II — textes réglementaires et décrets"
+      }
+    },
+    {
+      "cat": "Regulatory",
+      "name": "search_gazette_part3",
+      "desc": {
+        "en": "Gazette Part III — acts of Parliament as enacted",
+        "fr": "Gazette, partie III — lois du Parlement telles qu'adoptées"
+      }
+    },
+    {
+      "cat": "Regulatory",
+      "name": "search_gic",
+      "desc": {
+        "en": "Governor-in-Council appointments by department",
+        "fr": "Nominations par décret en conseil par ministère"
+      }
+    },
+    {
+      "cat": "Elections",
+      "name": "search_elections",
+      "desc": {
+        "en": "Third-party advertising, election spending data",
+        "fr": "Publicité de tiers, données de dépenses électorales"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_corporate",
+      "desc": {
+        "en": "Lobbying, procurement, exec statements by company",
+        "fr": "Lobbying, approvisionnement, déclarations de dirigeants par entreprise"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_corporate_filings",
+      "desc": {
+        "en": "SEDAR+ filings, insider reports by company or ticker",
+        "fr": "Dépôts SEDAR+, rapports d'initiés par entreprise ou symbole"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_sedi",
+      "desc": {
+        "en": "SEDI insider trading reports by issuer or insider",
+        "fr": "Rapports d'opérations d'initiés SEDI par émetteur ou initié"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_cipo",
+      "desc": {
+        "en": "CIPO patents and trademarks by applicant or tech area",
+        "fr": "Brevets et marques de l'OPIC par demandeur ou domaine technique"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_corporate_registry",
+      "desc": {
+        "en": "Federal corporations registry data from CKAN",
+        "fr": "Données du registre fédéral des sociétés via CKAN"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_patents",
+      "desc": {
+        "en": "Canadian patent data from CIPO via CKAN",
+        "fr": "Données de brevets canadiens de l'OPIC via CKAN"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_trademarks",
+      "desc": {
+        "en": "Canadian trademark data from CIPO via CKAN",
+        "fr": "Données de marques de commerce canadiennes de l'OPIC via CKAN"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_financial_regulation",
+      "desc": {
+        "en": "Financial regulation and oversight data",
+        "fr": "Données de réglementation et de surveillance financières"
+      }
+    },
+    {
+      "cat": "Corporate",
+      "name": "search_provincial_lobbying",
+      "desc": {
+        "en": "Provincial lobbying registries (ON, BC, QC)",
+        "fr": "Registres provinciaux de lobbying (ON, C.-B., QC)"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_proactive_disclosure",
+      "desc": {
+        "en": "Proactive disclosure contracts by vendor or department",
+        "fr": "Contrats de divulgation proactive par fournisseur ou ministère"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_federal_contracts",
+      "desc": {
+        "en": "Federal contract awards from CKAN",
+        "fr": "Octrois de contrats fédéraux via CKAN"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_federal_grants",
+      "desc": {
+        "en": "Federal grants and contributions data",
+        "fr": "Données de subventions et contributions fédérales"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_goc_spending",
+      "desc": {
+        "en": "Government spending by vendor, department, program",
+        "fr": "Dépenses gouvernementales par fournisseur, ministère, programme"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_federal_budget",
+      "desc": {
+        "en": "Federal budget by program, department, fiscal year",
+        "fr": "Budget fédéral par programme, ministère, exercice financier"
+      }
+    },
+    {
+      "cat": "Procurement",
+      "name": "search_ati",
+      "desc": {
+        "en": "Access to Information requests by keyword or department",
+        "fr": "Demandes d'accès à l'information par mot-clé ou ministère"
+      }
+    },
+    {
+      "cat": "Oversight",
+      "name": "search_oversight",
+      "desc": {
+        "en": "OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau",
+        "fr": "BVG, DPR, commissaire à l'éthique, CRTC, Bureau de la concurrence"
+      }
+    },
+    {
+      "cat": "Oversight",
+      "name": "search_canlii",
+      "desc": {
+        "en": "Court decisions and citations via CanLII",
+        "fr": "Décisions et citations judiciaires via CanLII"
+      }
+    },
+    {
+      "cat": "Oversight",
+      "name": "search_a2aj",
+      "desc": {
+        "en": "Access to justice and legal aid resources",
+        "fr": "Accès à la justice et ressources d'aide juridique"
+      }
+    },
+    {
+      "cat": "Oversight",
+      "name": "search_tribunals",
+      "desc": {
+        "en": "Federal tribunal appointments and decisions",
+        "fr": "Nominations et décisions des tribunaux fédéraux"
+      }
+    },
+    {
+      "cat": "Influence",
+      "name": "search_influence",
+      "desc": {
+        "en": "Tracked IOs, NGOs, think tanks, funding connections",
+        "fr": "OI, ONG et groupes de réflexion suivis, liens de financement"
+      }
+    },
+    {
+      "cat": "Influence",
+      "name": "search_ngo_rss",
+      "desc": {
+        "en": "NGO and think tank publications via RSS",
+        "fr": "Publications des ONG et groupes de réflexion via RSS"
+      }
+    },
+    {
+      "cat": "Influence",
+      "name": "ngo_narrative_tracker",
+      "desc": {
+        "en": "Track narratives by NGO or think tank organization",
+        "fr": "Suivre les narratifs d'une ONG ou d'un groupe de réflexion"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_immigration",
+      "desc": {
+        "en": "IRCC data by country, province, category, or year",
+        "fr": "Données d'IRCC par pays, province, catégorie ou année"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_lmia",
+      "desc": {
+        "en": "LMIA quarterly data, TFW program by employer or NOC",
+        "fr": "Données trimestrielles des EIMT, programme de PTET par employeur ou CNP"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc-citizenship",
+      "desc": {
+        "en": "Citizenship statistics and grants by province",
+        "fr": "Statistiques de citoyenneté et octrois par province"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_entry_exit",
+      "desc": {
+        "en": "Port of entry data by nationality and quarter",
+        "fr": "Données des points d'entrée par nationalité et trimestre"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_express_entry",
+      "desc": {
+        "en": "CRS scores, program draws, category-based selection",
+        "fr": "Scores RC, tirages de programme, sélection par catégorie"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_family_sponsorship",
+      "desc": {
+        "en": "Parent and spousal sponsorship by visa office",
+        "fr": "Parrainage de parents et d'époux par bureau de visa"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_pr_admissions",
+      "desc": {
+        "en": "PR admissions by province, category, or year",
+        "fr": "Admissions de RP par province, catégorie ou année"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_processing_times",
+      "desc": {
+        "en": "Processing times by application type and country",
+        "fr": "Délais de traitement par type de demande et pays"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_study_permits",
+      "desc": {
+        "en": "Study permits by institution, province, or country",
+        "fr": "Permis d'études par établissement, province ou pays"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_ircc_work_permits",
+      "desc": {
+        "en": "Work permits by NOC code, province, or country",
+        "fr": "Permis de travail par code CNP, province ou pays"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_citizenship_data",
+      "desc": {
+        "en": "Canadian citizenship statistics from CKAN",
+        "fr": "Statistiques de citoyenneté canadienne via CKAN"
+      }
+    },
+    {
+      "cat": "Immigration",
+      "name": "search_immigration_refugees",
+      "desc": {
+        "en": "Immigration and refugee data from CKAN",
+        "fr": "Données d'immigration et de réfugiés via CKAN"
+      }
+    },
+    {
+      "cat": "Defence",
+      "name": "search_defence",
+      "desc": {
+        "en": "DND personnel, procurement, defence spending",
+        "fr": "Personnel du MDN, approvisionnement, dépenses de défense"
+      }
+    },
+    {
+      "cat": "Defence",
+      "name": "search_veterans",
+      "desc": {
+        "en": "Veterans Affairs: disability, benefits, wait times",
+        "fr": "Anciens combattants : invalidité, prestations, délais d'attente"
+      }
+    },
+    {
+      "cat": "Health",
+      "name": "search_health",
+      "desc": {
+        "en": "Health conditions, drugs, procedures, wait times",
+        "fr": "Affections, médicaments, interventions, délais d'attente"
+      }
+    },
+    {
+      "cat": "Health",
+      "name": "search_health_canada",
+      "desc": {
+        "en": "Drug recalls, medical device licences, regulations",
+        "fr": "Rappels de médicaments, licences de dispositifs médicaux, règlements"
+      }
+    },
+    {
+      "cat": "Health",
+      "name": "search_pharmaceuticals",
+      "desc": {
+        "en": "Drug pricing, shortages, PMPRB data",
+        "fr": "Prix des médicaments, pénuries, données du CEPMB"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_transport_safety",
+      "desc": {
+        "en": "TSB occurrences, air and rail safety investigations",
+        "fr": "Événements du BST, enquêtes de sécurité aérienne et ferroviaire"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_transportation_data",
+      "desc": {
+        "en": "Transportation and infrastructure data from CKAN",
+        "fr": "Données de transport et d'infrastructure via CKAN"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_geospatial",
+      "desc": {
+        "en": "Topographic maps, satellite imagery, GIS datasets",
+        "fr": "Cartes topographiques, imagerie satellite, ensembles SIG"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_arcgis_layers",
+      "desc": {
+        "en": "ArcGIS feature services for MB, SK, PE",
+        "fr": "Services d'entités ArcGIS pour MB, SK, Î.-P.-É."
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_real_time_feeds",
+      "desc": {
+        "en": "Real-time alerts: weather, health advisories, amber alerts",
+        "fr": "Alertes en temps réel : météo, avis de santé, alertes AMBER"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_regional_authorities",
+      "desc": {
+        "en": "Regional transit and service authorities",
+        "fr": "Autorités régionales de transport en commun et de services"
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "search_utilities",
+      "desc": {
+        "en": "Hydro, gas, and water utilities by province",
+        "fr": "Services d'électricité, de gaz et d'eau par province"
+      }
+    },
+    {
+      "cat": "Indigenous",
+      "name": "search_indigenous_relations",
+      "desc": {
+        "en": "Specific claims, TRC calls to action, Indigenous services",
+        "fr": "Revendications particulières, appels à l'action de la CVR, services autochtones"
+      }
+    },
+    {
+      "cat": "Indigenous",
+      "name": "search_indigenous_services_directory",
+      "desc": {
+        "en": "Indigenous services directory and listings",
+        "fr": "Annuaire et listes des services autochtones"
+      }
+    },
+    {
+      "cat": "Indigenous",
+      "name": "search_indigenous_stats",
+      "desc": {
+        "en": "Indigenous peoples statistics from CKAN",
+        "fr": "Statistiques sur les peuples autochtones via CKAN"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_ab_data",
+      "desc": {
+        "en": "Alberta: AHS health, AAIP immigration, courts, education",
+        "fr": "Alberta : santé AHS, immigration AAIP, tribunaux, éducation"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_bc_data",
+      "desc": {
+        "en": "BC: PharmaCare, BCPNP immigration, courts, education",
+        "fr": "C.-B. : PharmaCare, immigration BCPNP, tribunaux, éducation"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_on_data",
+      "desc": {
+        "en": "Ontario: OHIP claims, OINP immigration, EQAO, courts",
+        "fr": "Ontario : demandes SOO, immigration OINP, EQAO, tribunaux"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_qc_data",
+      "desc": {
+        "en": "Quebec: RAMQ, MIFI immigration, courts, education",
+        "fr": "Québec : RAMQ, immigration MIFI, tribunaux, éducation"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_yukon_data",
+      "desc": {
+        "en": "Yukon open data from open.yukon.ca CKAN portal",
+        "fr": "Données ouvertes du Yukon du portail CKAN open.yukon.ca"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_nunavut_data",
+      "desc": {
+        "en": "Nunavut data from federal CKAN and StatsCan",
+        "fr": "Données du Nunavut du CKAN fédéral et de Statistique Canada"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_provincial_data",
+      "desc": {
+        "en": "All 13 provinces and territories via CKAN and Socrata",
+        "fr": "Les 13 provinces et territoires via CKAN et Socrata"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_provincial_legislatures",
+      "desc": {
+        "en": "Provincial Hansard and legislature debates",
+        "fr": "Hansard provincial et débats des assemblées législatives"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_provincial_regulators",
+      "desc": {
+        "en": "Provincial regulators by profession or province",
+        "fr": "Organismes de réglementation provinciaux par profession ou province"
+      }
+    },
+    {
+      "cat": "Provincial",
+      "name": "search_provincial_orgs",
+      "desc": {
+        "en": "Provincial organizations and agencies",
+        "fr": "Organisations et agences provinciales"
+      }
+    },
+    {
+      "cat": "Municipal",
+      "name": "search_municipal",
+      "desc": {
+        "en": "Municipal open data from major Canadian cities",
+        "fr": "Données ouvertes municipales des grandes villes canadiennes"
+      }
+    },
+    {
+      "cat": "Municipal",
+      "name": "search_municipal_data",
+      "desc": {
+        "en": "Municipal datasets across 10 Canadian cities",
+        "fr": "Ensembles de données municipales de 10 villes canadiennes"
+      }
+    },
+    {
+      "cat": "Municipal",
+      "name": "search_municipal_long_tail",
+      "desc": {
+        "en": "Long-tail municipal data queries and niche datasets",
+        "fr": "Requêtes municipales de longue traîne et ensembles de niche"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_cpi",
+      "desc": {
+        "en": "Consumer Price Index (inflation) from StatCan",
+        "fr": "Indice des prix à la consommation (inflation) de Statistique Canada"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_gdp",
+      "desc": {
+        "en": "GDP from StatCan with time-series and reference dates",
+        "fr": "PIB de Statistique Canada avec séries chronologiques et dates de référence"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_labour",
+      "desc": {
+        "en": "Labour force: employment, unemployment from StatCan",
+        "fr": "Population active : emploi, chômage de Statistique Canada"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_population",
+      "desc": {
+        "en": "Population estimates by province and territory",
+        "fr": "Estimations de la population par province et territoire"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_trade",
+      "desc": {
+        "en": "International merchandise trade from StatCan",
+        "fr": "Commerce international de marchandises de Statistique Canada"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "query_bridges",
+      "desc": {
+        "en": "Bridge infrastructure conditions by province",
+        "fr": "État des ponts par province"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "search_statcan",
+      "desc": {
+        "en": "Search StatCan datasets by keyword or topic",
+        "fr": "Rechercher des ensembles de données de Statistique Canada par mot-clé ou sujet"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "search_bank_of_canada",
+      "desc": {
+        "en": "Bank of Canada rates, speeches, and policy outlook",
+        "fr": "Taux, discours et perspectives de politique de la Banque du Canada"
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "compare_regions",
+      "desc": {
+        "en": "Compare economic indicators across provinces and territories",
+        "fr": "Comparer des indicateurs économiques entre provinces et territoires"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_npri",
+      "desc": {
+        "en": "National Pollutant Release Inventory by facility or substance",
+        "fr": "Inventaire national des rejets de polluants par installation ou substance"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_nrcan",
+      "desc": {
+        "en": "Natural Resources Canada: commodities, regions, resources",
+        "fr": "Ressources naturelles Canada : produits, régions, ressources"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_nrcan_renewable",
+      "desc": {
+        "en": "Renewable energy data from NRCAN",
+        "fr": "Données sur les énergies renouvelables de RNCan"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_nrcan_fires",
+      "desc": {
+        "en": "Wildfire data and fire monitoring from NRCAN",
+        "fr": "Données sur les feux de forêt et suivi des incendies de RNCan"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_nrcan_forests",
+      "desc": {
+        "en": "Forestry data and forest inventory from NRCAN",
+        "fr": "Données forestières et inventaire forestier de RNCan"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_nrcan_minerals",
+      "desc": {
+        "en": "Mineral and mining data from NRCAN",
+        "fr": "Données minérales et minières de RNCan"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_impact_assessment",
+      "desc": {
+        "en": "Environmental impact assessments by project or sector",
+        "fr": "Évaluations d'impact environnemental par projet ou secteur"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_species_at_risk",
+      "desc": {
+        "en": "Species at risk registry by species name or status",
+        "fr": "Registre des espèces en péril par nom ou statut"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_fisheries",
+      "desc": {
+        "en": "Fisheries: species, regions, aquaculture, licenses",
+        "fr": "Pêches : espèces, régions, aquaculture, permis"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_agriculture",
+      "desc": {
+        "en": "Agriculture: commodities, provinces, farm income",
+        "fr": "Agriculture : produits, provinces, revenus agricoles"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_agriculture_data",
+      "desc": {
+        "en": "Agriculture and agri-food data from CKAN",
+        "fr": "Données agricoles et agroalimentaires via CKAN"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_energy_data",
+      "desc": {
+        "en": "Energy production and consumption from CKAN",
+        "fr": "Production et consommation d'énergie via CKAN"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_climate_data",
+      "desc": {
+        "en": "Climate change and weather data from CKAN",
+        "fr": "Données sur les changements climatiques et la météo via CKAN"
+      }
+    },
+    {
+      "cat": "Housing",
+      "name": "search_housing_cmhc",
+      "desc": {
+        "en": "CMHC housing starts, vacancy rates, affordable housing",
+        "fr": "SCHL : mises en chantier, taux d'inoccupation, logement abordable"
+      }
+    },
+    {
+      "cat": "Housing",
+      "name": "search_housing_data",
+      "desc": {
+        "en": "Housing and rental market data from CKAN",
+        "fr": "Données sur le logement et le marché locatif via CKAN"
+      }
+    },
+    {
+      "cat": "Housing",
+      "name": "search_cmhc",
+      "desc": {
+        "en": "CMHC metrics by city, province, or year",
+        "fr": "Indicateurs de la SCHL par ville, province ou année"
+      }
+    },
+    {
+      "cat": "Housing",
+      "name": "search_real_estate",
+      "desc": {
+        "en": "Real estate market data and trends",
+        "fr": "Données et tendances du marché immobilier"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_wdi_indicator",
+      "desc": {
+        "en": "World Bank Development Indicators by country",
+        "fr": "Indicateurs de développement de la Banque mondiale par pays"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "compare_wdi_countries",
+      "desc": {
+        "en": "Compare a WDI indicator across multiple countries",
+        "fr": "Comparer un indicateur IDM entre plusieurs pays"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_country_wdi_profile",
+      "desc": {
+        "en": "Country profile with key development indicators",
+        "fr": "Profil de pays avec indicateurs de développement clés"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "analyze_indicator_trend",
+      "desc": {
+        "en": "Analyze WDI indicator trend over time",
+        "fr": "Analyser la tendance d'un indicateur IDM dans le temps"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "fetch_topic_indicators",
+      "desc": {
+        "en": "All indicators for a WDI topic (economy, health, social)",
+        "fr": "Tous les indicateurs d'un thème IDM (économie, santé, social)"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_indicator_metadata",
+      "desc": {
+        "en": "Metadata for a World Bank indicator",
+        "fr": "Métadonnées d'un indicateur de la Banque mondiale"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_comtrade_by_partner",
+      "desc": {
+        "en": "UN Comtrade trade data by partner country",
+        "fr": "Données commerciales UN Comtrade par pays partenaire"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_comtrade_by_commodity",
+      "desc": {
+        "en": "UN Comtrade trade data by commodity",
+        "fr": "Données commerciales UN Comtrade par produit"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "get_comtrade_trends",
+      "desc": {
+        "en": "UN Comtrade trade trends over time",
+        "fr": "Tendances commerciales UN Comtrade dans le temps"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_oecd_stat",
+      "desc": {
+        "en": "OECD statistics and indicators",
+        "fr": "Statistiques et indicateurs de l'OCDE"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_undp_hdi",
+      "desc": {
+        "en": "UNDP Human Development Index data",
+        "fr": "Données de l'indice de développement humain du PNUD"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_unhcr_refugees",
+      "desc": {
+        "en": "UNHCR refugee statistics and displacement data",
+        "fr": "Statistiques des réfugiés et données de déplacement du HCR"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_us_cia",
+      "desc": {
+        "en": "CIA World Factbook country data",
+        "fr": "Données pays du CIA World Factbook"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_au_abs",
+      "desc": {
+        "en": "Australian Bureau of Statistics",
+        "fr": "Bureau australien des statistiques"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_nz_stats",
+      "desc": {
+        "en": "Statistics New Zealand",
+        "fr": "Statistiques de la Nouvelle-Zélande"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_uk_ons",
+      "desc": {
+        "en": "UK Office for National Statistics",
+        "fr": "Office britannique des statistiques nationales"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_who_gho",
+      "desc": {
+        "en": "WHO Global Health Observatory",
+        "fr": "Observatoire mondial de la santé de l'OMS"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_eurostat",
+      "desc": {
+        "en": "Eurostat European statistics",
+        "fr": "Statistiques européennes d'Eurostat"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_un",
+      "desc": {
+        "en": "UN SDMX data by dimension key",
+        "fr": "Données SDMX de l'ONU par clé de dimension"
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_ilo",
+      "desc": {
+        "en": "ILO labour statistics by indicator or country",
+        "fr": "Statistiques du travail de l'OIT par indicateur ou pays"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_social_programs",
+      "desc": {
+        "en": "EI claims, CCB payments, poverty rates by province",
+        "fr": "Demandes d'AE, paiements de l'ACE, taux de pauvreté par province"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_education_research",
+      "desc": {
+        "en": "NSERC, SSHRC, Canada Research Chairs by institution",
+        "fr": "CRSNG, CRSH, chaires de recherche du Canada par établissement"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_education_stats",
+      "desc": {
+        "en": "Education enrolment statistics from CKAN",
+        "fr": "Statistiques d'inscription scolaire via CKAN"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_gender_stats",
+      "desc": {
+        "en": "Gender-based statistics and equality data from CKAN",
+        "fr": "Statistiques fondées sur le genre et données d'égalité via CKAN"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_official_languages",
+      "desc": {
+        "en": "Official languages data from CKAN",
+        "fr": "Données sur les langues officielles via CKAN"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_culture",
+      "desc": {
+        "en": "Canada Council grants, heritage funding, arts programs",
+        "fr": "Subventions du Conseil des arts, financement du patrimoine, programmes artistiques"
+      }
+    },
+    {
+      "cat": "Social",
+      "name": "search_culture_data",
+      "desc": {
+        "en": "Culture, arts, and heritage data from CKAN",
+        "fr": "Données culturelles, artistiques et patrimoniales via CKAN"
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "search_public_safety",
+      "desc": {
+        "en": "Public safety and emergency management from CKAN",
+        "fr": "Sécurité publique et gestion des urgences via CKAN"
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "search_emergency_management",
+      "desc": {
+        "en": "Emergency management and disaster response data",
+        "fr": "Données de gestion des urgences et d'intervention en cas de catastrophe"
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "search_policing_security",
+      "desc": {
+        "en": "Policing and security data",
+        "fr": "Données policières et de sécurité"
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "search_criminal_justice",
+      "desc": {
+        "en": "Prison populations, hate crimes, parole data",
+        "fr": "Populations carcérales, crimes haineux, données de libération conditionnelle"
+      }
+    },
+    {
+      "cat": "Media",
+      "name": "search_media_broadcasting",
+      "desc": {
+        "en": "Media and broadcasting data",
+        "fr": "Données médiatiques et de radiodiffusion"
+      }
+    },
+    {
+      "cat": "Media",
+      "name": "search_telecommunications",
+      "desc": {
+        "en": "Broadband, spectrum auctions, telecom by provider",
+        "fr": "Large bande, enchères de spectre, télécoms par fournisseur"
+      }
+    },
+    {
+      "cat": "Media",
+      "name": "search_crtc",
+      "desc": {
+        "en": "CRTC decisions, licences, net neutrality rulings",
+        "fr": "Décisions, licences et décisions sur la neutralité du Net du CRTC"
+      }
+    },
+    {
+      "cat": "Media",
+      "name": "search_crtc_decisions",
+      "desc": {
+        "en": "CRTC decision numbers and broadcasting rulings",
+        "fr": "Numéros de décision et décisions de radiodiffusion du CRTC"
+      }
+    },
+    {
+      "cat": "Science",
+      "name": "search_science",
+      "desc": {
+        "en": "CSA missions, Mitacs grants, Ocean Networks, Polar Data",
+        "fr": "Missions de l'ASC, subventions Mitacs, Ocean Networks, données polaires"
+      }
+    },
+    {
+      "cat": "Science",
+      "name": "search_technology_data",
+      "desc": {
+        "en": "Technology, innovation, and telecom data from CKAN",
+        "fr": "Données technologiques, d'innovation et de télécoms via CKAN"
+      }
+    },
+    {
+      "cat": "Science",
+      "name": "search_knowledge_fabric",
+      "desc": {
+        "en": "Knowledge Fabric data portal queries",
+        "fr": "Requêtes du portail de données Knowledge Fabric"
+      }
+    },
+    {
+      "cat": "Science",
+      "name": "search_mining_data",
+      "desc": {
+        "en": "Mining and mineral production data from CKAN",
+        "fr": "Données minières et de production minérale via CKAN"
+      }
+    },
+    {
+      "cat": "Community",
+      "name": "search_parks",
+      "desc": {
+        "en": "Parks and recreation facilities in 12 Canadian cities",
+        "fr": "Parcs et installations récréatives de 12 villes canadiennes"
+      }
+    },
+    {
+      "cat": "Community",
+      "name": "search_libraries",
+      "desc": {
+        "en": "Public library systems in 15 Canadian cities",
+        "fr": "Réseaux de bibliothèques publiques de 15 villes canadiennes"
+      }
+    },
+    {
+      "cat": "Community",
+      "name": "search_universities",
+      "desc": {
+        "en": "Universities by institution, program, or metric",
+        "fr": "Universités par établissement, programme ou indicateur"
+      }
+    },
+    {
+      "cat": "Community",
+      "name": "search_unions",
+      "desc": {
+        "en": "Labour unions by name, sector, or province",
+        "fr": "Syndicats par nom, secteur ou province"
+      }
+    },
+    {
+      "cat": "Community",
+      "name": "search_crown_corporations",
+      "desc": {
+        "en": "CBC, Canada Post, EDC and other crown corp financials",
+        "fr": "CBC, Postes Canada, EDC et données financières des autres sociétés d'État"
+      }
+    },
+    {
+      "cat": "Charity",
+      "name": "search_charity_t3010",
+      "desc": {
+        "en": "T3010 charity filings by name or category",
+        "fr": "Déclarations T3010 des organismes de bienfaisance par nom ou catégorie"
+      }
+    },
+    {
+      "cat": "Charity",
+      "name": "search_cra_charity",
+      "desc": {
+        "en": "CRA registered charities by name or BN",
+        "fr": "Organismes de bienfaisance enregistrés de l'ARC par nom ou NE"
+      }
+    },
+    {
+      "cat": "Global Affairs",
+      "name": "search_global_canada",
+      "desc": {
+        "en": "Global Affairs: trade agreements, climate, emissions",
+        "fr": "Affaires mondiales : accords commerciaux, climat, émissions"
+      }
+    },
+    {
+      "cat": "Global Affairs",
+      "name": "search_lode",
+      "desc": {
+        "en": "Open Database of Addresses: 10M+ civic addresses",
+        "fr": "Base ouverte d'adresses : plus de 10 M d'adresses civiques"
+      }
+    },
+    {
+      "cat": "AI",
+      "name": "ai_ask",
+      "desc": {
+        "en": "Ask a natural language question, get a sourced answer",
+        "fr": "Poser une question en langage naturel, obtenir une réponse sourcée"
+      }
+    },
+    {
+      "cat": "AI",
+      "name": "ai_analyze",
+      "desc": {
+        "en": "Analyze a document or transcript for topics, entities, and summary",
+        "fr": "Analyser un document ou une transcription : sujets, entités et résumé"
+      }
+    },
+    {
+      "cat": "AI",
+      "name": "ai_search_semantic",
+      "desc": {
+        "en": "Semantic search with edge embeddings",
+        "fr": "Recherche sémantique avec plongements de périphérie"
       }
     },
     {
       "cat": "Entity",
       "name": "resolve_entity",
       "desc": {
-        "en": "Resolve a person or organization name to all known mentions across every MapleSpike data source. Returns a consolidated profile with canonical name, aliases, all source appearances (committees, lobbying, procurement, corporate, etc.), roles, and dates. Use this when you need to find everything the system knows about a specific person or organization.",
-        "fr": "Résoudre un nom de personne ou d'organisation en une entité canonique. Désambiguïse les variations de noms et les homonymes."
+        "en": "Resolve a person or organization name to canonical entity",
+        "fr": "Résoudre un nom de personne ou d'organisation en entité canonique"
       }
     },
     {
       "cat": "Entity",
       "name": "find_connections",
       "desc": {
-        "en": "Discover the relationship network around a person or organization. Returns connected entities (people, organizations), relationship types (employs, lobbies, directs, owns), and confidence scores. Use this for conflict-of-interest detection, influence mapping, and network analysis. Example: find who a committee witness is connected to via lobbying or corporate roles.",
-        "fr": "Trouver des connexions entre entités (personnes, organisations) à travers l'ensemble des modules. Détecte les liens entre lobbying, comités, approvisionnement et nominations."
+        "en": "Find network connections between entities",
+        "fr": "Trouver les connexions de réseau entre entités"
       }
     },
     {
-      "cat": "General",
-      "name": "linked_entities",
+      "cat": "Entity",
+      "name": "get_entity_profile",
       "desc": {
-        "en": "Cross-reference an entity across every registry Quill tracks (lobbying, GIC, committees, corporate, CanLII, elections, oversight, municipal, provincial). Resolves the name to its canonical entity, then assembles per-registry evidence with confidence. Use this to answer \"what does each registry say about X\" in a single call.",
-        "fr": "Cross-reference an entity across every registry Quill tracks (lobbying, GIC, committees, corporate, CanLII, elections, oversight, municipal, provincial). Resolves the name to its canonical entity, then assembles per-registry evidence with confidence. Use this to answer \"what does each registry say about X\" in a single call."
+        "en": "Cross-reference a person across MP, lobbying, and GIC",
+        "fr": "Recouper une personne entre député, lobbying et décrets"
       }
     },
     {
-      "cat": "General",
-      "name": "verify_claim",
+      "cat": "Entity",
+      "name": "get_annotations",
       "desc": {
-        "en": "Verify a Quill claim bundle. Provide a sha256 hash to check it exists in the claim store, and optionally the original data to recompute the hash locally and confirm integrity. Returns { verified, matches, recomputedSha256 }. Use this to audit any hash you received from Quill.",
-        "fr": "Verify a Quill claim bundle. Provide a sha256 hash to check it exists in the claim store, and optionally the original data to recompute the hash locally and confirm integrity. Returns { verified, matches, recomputedSha256 }. Use this to audit any hash you received from Quill."
+        "en": "Entity annotations and metadata by type",
+        "fr": "Annotations et métadonnées d'entités par type"
       }
     },
     {
-      "cat": "General",
-      "name": "resolve_quill_id",
+      "cat": "Entity",
+      "name": "search_cross_reference",
       "desc": {
-        "en": "Resolve a question about Canadian public data into canonical Quill IDs you can pass to query_quill. Returns ranked IDs (e.g. /committees, /ircc/study-permits, quill://entity) with descriptions, provenance scores, update cadence, and the underlying tool each ID routes to. You MUST call this before query_quill unless the user provided an ID directly. Do not call more than 3 times per question.",
-        "fr": "Resolve a question about Canadian public data into canonical Quill IDs you can pass to query_quill. Returns ranked IDs (e.g. /committees, /ircc/study-permits, quill://entity) with descriptions, provenance scores, update cadence, and the underlying tool each ID routes to. You MUST call this before query_quill unless the user provided an ID directly. Do not call more than 3 times per question."
+        "en": "Cross-reference all modules at once — unified entity timeline",
+        "fr": "Recouper tous les modules à la fois — chronologie d'entité unifiée"
       }
     },
     {
-      "cat": "General",
-      "name": "query_quill",
+      "cat": "System",
+      "name": "cache_clear",
       "desc": {
-        "en": "Execute a Canadian public data query by Quill ID. You MUST call resolve_quill_id first to obtain a valid ID (format: /category, /category/dataset, or quill://entity) UNLESS the user provided one directly. Every result carries the routed tool name and — for cited records — a SHA-256 claim hash with a ready verify_claim recipe so answers are independently checkable. Do not call this tool more than 3 times per question.",
-        "fr": "Execute a Canadian public data query by Quill ID. You MUST call resolve_quill_id first to obtain a valid ID (format: /category, /category/dataset, or quill://entity) UNLESS the user provided one directly. Every result carries the routed tool name and — for cited records — a SHA-256 claim hash with a ready verify_claim recipe so answers are independently checkable. Do not call this tool more than 3 times per question."
+        "en": "Clear tool response cache",
+        "fr": "Vider le cache des réponses d'outils"
       }
     },
     {
-      "cat": "General",
-      "name": "x402-deposit",
+      "cat": "System",
+      "name": "cache_status",
       "desc": {
-        "en": "Deposit USDC on Solana to pre-fund your credit balance. Provide a verified transaction signature and the amount in USDC. Subsequent tool calls draw from this balance without per-call on-chain latency.",
-        "fr": "Deposit USDC on Solana to pre-fund your credit balance. Provide a verified transaction signature and the amount in USDC. Subsequent tool calls draw from this balance without per-call on-chain latency."
+        "en": "Check cache status and hit rates",
+        "fr": "Vérifier l'état du cache et les taux de réussite"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "system_health",
+      "desc": {
+        "en": "System health check and diagnostics",
+        "fr": "Vérification de l'état du système et diagnostics"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "get_module_health",
+      "desc": {
+        "en": "Health check for a specific data module",
+        "fr": "Vérification de l'état d'un module de données précis"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "get_pipeline_health",
+      "desc": {
+        "en": "Pipeline ingestion health and status",
+        "fr": "État et statut de l'ingestion du pipeline"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "signal_check",
+      "desc": {
+        "en": "Check watched source signals for changes",
+        "fr": "Vérifier les signaux des sources suivies pour détecter des changements"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "searxng_health",
+      "desc": {
+        "en": "SearXNG engine health: failures, suspensions, errors",
+        "fr": "État des moteurs SearXNG : échecs, suspensions, erreurs"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "qa_schema",
+      "desc": {
+        "en": "Query module schemas by name",
+        "fr": "Interroger les schémas de modules par nom"
+      }
+    },
+    {
+      "cat": "System",
+      "name": "qa_validate_module",
+      "desc": {
+        "en": "Validate module data quality and integrity",
+        "fr": "Valider la qualité et l'intégrité des données d'un module"
+      }
+    },
+    {
+      "cat": "Environment",
+      "name": "search_weather",
+      "desc": {
+        "en": "Search Canadian weather data from Environment Canada — current conditions,",
+        "fr": "Search Canadian weather data from Environment Canada — current conditions,"
+      }
+    },
+    {
+      "cat": "Health",
+      "name": "search_nutrient_file",
+      "desc": {
+        "en": "Search the Canadian Nutrient File — food composition data from Health Canada.",
+        "fr": "Search the Canadian Nutrient File — food composition data from Health Canada."
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "search_valet_api",
+      "desc": {
+        "en": "Search Bank of Canada Valet API — official exchange rates, interest rates,",
+        "fr": "Search Bank of Canada Valet API — official exchange rates, interest rates,"
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "parliament_debates",
+      "desc": {
+        "en": "Intelligent search across all Canadian government data. Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. Sources: Parliament (debates, bills, votes, MP",
+        "fr": "Rechercher les débats de la Chambre des communes (Hansard) par date, sujet ou intervenant. Couvre les transcriptions complètes des sessions parlementaires."
+      }
+    },
+    {
+      "cat": "Elections",
+      "name": "get_donations_by_jurisdiction",
+      "desc": {
+        "en": "Get Donations By Jurisdiction",
+        "fr": "Obtenir les données de dons électoraux par circonscription. Retourne les contributions par parti, par candidat et par type de donateur."
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "get_fire_by_city",
+      "desc": {
+        "en": "Get Fire By City",
+        "fr": "Obtenir les données d'incendies de forêt par municipalité. Inclut la superficie brûlée, le niveau de danger et les ordres d'évacuation."
+      }
+    },
+    {
+      "cat": "Public Safety",
+      "name": "get_police_by_city",
+      "desc": {
+        "en": "Get Police By City",
+        "fr": "Obtenir les données de services de police par municipalité. Inclut les effectifs, les budgets et les statistiques d'intervention."
+      }
+    },
+    {
+      "cat": "Economic",
+      "name": "get_public_accounts",
+      "desc": {
+        "en": "Get Public Accounts",
+        "fr": "Obtenir les données des comptes publics du Canada. Retourne les dépenses ministérielles par programme, exercice financier et article budgétaire."
+      }
+    },
+    {
+      "cat": "Parliament",
+      "name": "get_voting_record",
+      "desc": {
+        "en": "Get Voting Record",
+        "fr": "Obtenir les votes enregistrés d'un député à la Chambre des communes. Filtre par session, projet de loi ou période."
+      }
+    },
+    {
+      "cat": "Transport",
+      "name": "list_gtfs_agencies",
+      "desc": {
+        "en": "List Gtfs Agencies",
+        "fr": "Lister les agences de transport en commun disponibles dans les données GTFS. Retourne les noms d'agences, localisations et types de service."
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_oecd",
+      "desc": {
+        "en": "Search Oecd",
+        "fr": "Rechercher les statistiques et indicateurs de l'OCDE. Couvre les données économiques, sociales et environnementales des pays membres."
+      }
+    },
+    {
+      "cat": "International",
+      "name": "search_undp_hdr",
+      "desc": {
+        "en": "Search Undp Hdr",
+        "fr": "Rechercher les données du Rapport sur le développement humain du PNUD. Couvre les indicateurs de développement par pays."
       }
     }
   ]
