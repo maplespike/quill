@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.1.4/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "reverb256/quill" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "maplespike/quill" }],
   "commit": false,
   "fixed": [],
   "linked": [],

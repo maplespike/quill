@@ -14,16 +14,16 @@ status: active
 </p>
 
 <p align="center">
-  <a href="https://github.com/reverb256/quill"><img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status: active"></a>
+  <a href="https://github.com/maplespike/quill"><img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status: active"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0%20%7C%20MIT-blue" alt="License: AGPL-3.0 | MIT"></a>
-  <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/reverb256/quill/ci.yml" alt="CI"></a>
+  <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/maplespike/quill/ci.yml" alt="CI"></a>
 </p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
-> **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:reverb256/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
+> **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:maplespike/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 207 modules, **184 MCP tools** (incl. `x402-deposit`), ~220K lines TS, 14 packages.
 
@@ -107,7 +107,7 @@ See [ROADMAP.md](./ROADMAP.md) for the full phased plan. Detailed architecture: 
 
 ```bash
 # Clone (repo name is now `quill` — formerly `maplespike`)
-git clone git@github.com:reverb256/quill.git
+git clone git@github.com:maplespike/quill.git
 cd quill
 
 # Install dependencies
