@@ -1,4 +1,4 @@
-FROM docker.io/library/alpine:3.20 AS portal
+FROM docker.io/library/alpine:3.24 AS portal
 RUN apk add --no-cache python3 bash coreutils
 COPY packages/portal/dist /app/
 # server.py is the runtime (serves static files + /api reverse proxy) — it
