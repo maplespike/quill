@@ -25,6 +25,47 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - name: Staleness guard (superseded main runs + stale PR merge snapshots)
+        # A main run whose SHA is no longer main HEAD was superseded: the
+        # failure is usually already fixed, and filing a card for it makes
+        # workers chase dead bugs. Skip those.
+        #
+        # PR runs execute the *merge snapshot* refs/pull/<n>/merge = PR head
+        # merged into the base SHA recorded at snapshot time (PR #898:
+        # refs/pull/898/merge = 3ccda3d into 1a526344, predating qa.yml's fix
+        # at 879f0cf on main). When main advances after the snapshot, a re-run
+        # reuses the same stale merge commit — the lane cannot heal without a
+        # new push. Do NOT skip those; the red lane is real. Instead, annotate
+        # the card so the worker knows to merge main before diagnosing.
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.workflow_run.pull_requests[0].base.sha }}
+          WF_PATH: ${{ github.event.workflow_run.path }}
+        run: |
+          set -euo pipefail
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          HEAD=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha 2>/dev/null || echo "")
+          skip=0
+          annotation=""
+          if [ -z "$HEAD" ]; then
+            echo "Could not resolve main HEAD — proceeding without staleness check."
+          elif [ "$BRANCH" = "main" ]; then
+            if [ "$SHA" != "$HEAD" ]; then
+              skip=1
+              echo "Superseded: run SHA ${SHA:0:7} != main HEAD ${HEAD:0:7} — skipping."
+            fi
+          elif [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "$HEAD" ] && [ -n "$WF_PATH" ]; then
+            CHANGED=$(gh api "repos/${{ github.repository }}/compare/${BASE_SHA}...${HEAD}" \
+              --jq '[.files[].filename] | .[]' 2>/dev/null || true)
+            if echo "$CHANGED" | grep -qF "$WF_PATH"; then
+              annotation="Merge snapshot base ${BASE_SHA:0:7} predates main HEAD ${HEAD:0:7} and ${WF_PATH} changed since — update the branch (merge main) before diagnosing; the failure may already be fixed."
+              echo "$annotation"
+            fi
+          fi
+          echo "skip=${skip}" >> "$GITHUB_OUTPUT"
+          echo "annotation=${annotation}" >> "$GITHUB_OUTPUT"
       - name: Build failure context
         env:
           GH_TOKEN: ${{ github.token }}
@@ -56,8 +97,16 @@ jobs:
           echo "TITLE=CI failure: $NAME ($BRANCH, run $RUN_ID)" >> "$GITHUB_ENV"
       - name: Post to kanban (nexus dispatcher)
         run: |
+          if [ -n "${{ steps.guard.outputs.annotation }}" ]; then
+            TMP=$(mktemp)
+            echo "${{ steps.guard.outputs.annotation }}" > "$TMP"
+            echo "" >> "$TMP"
+            cat /tmp/ci-doctor-body.md >> "$TMP"
+            mv "$TMP" /tmp/ci-doctor-body.md
+          fi
           chmod +x scripts/kanban-post.sh
           scripts/kanban-post.sh --title "$TITLE" --body-file /tmp/ci-doctor-body.md \
             --assignee backend-eng --priority 1 \
             --workspace worktree --branch "wt/ci-${{ github.event.workflow_run.id }}" \
             --idem "ci-fail-${{ github.event.workflow_run.id }}"
+        if: steps.guard.outputs.skip != '1'
