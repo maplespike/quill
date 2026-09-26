@@ -28,9 +28,11 @@ pnpm --filter @maplespike/portal build
 # ERR_MODULE_NOT_FOUND — the api server could never start in the Live Data
 # Check lane (2026-09-22). The image builds are unaffected because
 # Dockerfile.api/.mcp repair the same copies post-build; this mirrors that.
+# quill-mcp is in the list too: the portal depends on it and its injected
+# copy was the last unrepaired one (caught by check-workspace-resolution.sh).
 for d in node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do
   [ -d "$d" ] || continue
-  for p in database pipeline-core engine i18n legal-core legislation sdk; do
+  for p in database pipeline-core engine i18n legal-core legislation sdk quill-mcp; do
     [ -d "packages/$p/dist" ] || continue
     rm -rf "$d/$p"
     ln -s "$PWD/packages/$p" "$d/$p"
