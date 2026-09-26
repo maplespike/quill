@@ -88,7 +88,7 @@ declare global {
 /*  Component                                                         */
 /* ------------------------------------------------------------------ */
 
-export default function SignupForm() {
+export default function SignupForm({ lang = "en" }: { lang?: "en" | "fr" }) {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [authState, setAuth] = useState<AuthState>({ token: null, userId: null, method: null });
@@ -97,6 +97,12 @@ export default function SignupForm() {
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
   const [hasSolanaWallet, setHasSolanaWallet] = useState(false);
+  const [apiKey, setApiKey] = useState(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("quill-api-key");
+  });
+  const [showReveal, setShowReveal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setAuth(getAuthState());
@@ -153,11 +159,13 @@ export default function SignupForm() {
       const completeData = await completeResp.json();
       if (!completeData.success) throw new Error(completeData.error?.message || "Registration failed");
 
-      const { apiKey } = completeData.data;
+      const { apiKey: newKey } = completeData.data;
 
       // Store API key for API calls
-      if (apiKey?.key) {
-        localStorage.setItem("quill-api-key", apiKey.key);
+      if (newKey?.key) {
+        localStorage.setItem("quill-api-key", newKey.key);
+        setApiKey(newKey.key);
+        setShowReveal(true);
       }
 
       // Immediately log in with the passkey to get a JWT for Convex auth.
@@ -192,7 +200,7 @@ export default function SignupForm() {
       } catch {
         // Login after registration failed — store API key as fallback.
         // Convex features won't work until the user signs in with their passkey.
-        const fallbackToken = apiKey?.key || "";
+        const fallbackToken = newKey?.key || apiKey || "";
         setAuthState(fallbackToken, userId, "passkey");
         setAuth({ token: fallbackToken, userId, method: "passkey" });
       }
@@ -342,10 +350,14 @@ export default function SignupForm() {
       const verifyData = await verifyResp.json();
       if (!verifyData.success) throw new Error(verifyData.error?.message || "Solana login failed");
 
-      const apiKey = verifyData.data?.apiKey?.key || "";
-      if (apiKey) localStorage.setItem("quill-api-key", apiKey);
-      setAuthState(apiKey, publicKey, "solana");
-      setAuth({ token: apiKey, userId: publicKey, method: "solana" });
+      const solanaKey = verifyData.data?.apiKey?.key || "";
+      if (solanaKey) {
+        localStorage.setItem("quill-api-key", solanaKey);
+        setApiKey(solanaKey);
+        setShowReveal(true);
+      }
+      setAuthState(solanaKey, publicKey, "solana");
+      setAuth({ token: solanaKey, userId: publicKey, method: "solana" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Solana login failed");
     } finally {
@@ -377,33 +389,73 @@ export default function SignupForm() {
   const shownKey = storedApiKey || authState.token;
   const isApiKey = !!storedApiKey;
 
+  const revealKey = lang === "fr"
+    ? { title: "Votre clé API", warning: "C'est la seule fois que cette clé est affichée. Copiez-la et conservez-la en lieu sûr.", copy: "Copier", copied: "Copié !", dismiss: "J'ai ma clé", label: "Clé API (copier dans le presse-papiers)" }
+    : { title: "Your API Key", warning: "This is the only time this key is displayed. Copy it and store it safely.", copy: "Copy", copied: "Copied!", dismiss: "I have my key", label: "API key (copy to clipboard)" };
+
   if (authState.token || authState.method === "passkey") {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-green-400"></span>
-            Account Active
+            {lang === "fr" ? "Compte actif" : "Account Active"}
           </CardTitle>
           <CardDescription>
-            {authState.method === "web3" && "Connected via Web3 wallet"}
-            {authState.method === "solana" && "Connected via Solana wallet"}
-            {authState.method === "passkey" && "Registered with passkey"}
-            {authState.method === "oauth" && "Signed in via OAuth"}
+            {authState.method === "web3" && (lang === "fr" ? "Connecté via portefeuille Web3" : "Connected via Web3 wallet")}
+            {authState.method === "solana" && (lang === "fr" ? "Connecté via portefeuille Solana" : "Connected via Solana wallet")}
+            {authState.method === "passkey" && (lang === "fr" ? "Inscrit avec une passe" : "Registered with passkey")}
+            {authState.method === "oauth" && (lang === "fr" ? "Connecté via OAuth" : "Signed in via OAuth")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {shownKey && (
+          {showReveal && apiKey ? (
+            <div className="rounded-lg border-2 border-primary/40 bg-primary/10 p-4 space-y-3" aria-live="polite" role="alert">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-primary">{revealKey.title}</span>
+              </div>
+              <code
+                className="block break-all font-mono text-sm bg-background/50 rounded-md p-3 select-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+                tabIndex={0}
+                aria-label={revealKey.label}
+              >
+                {apiKey}
+              </code>
+              <p className="text-xs text-muted-foreground font-medium">
+                {revealKey.warning}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors min-h-[44px] min-w-[44px]"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(apiKey);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  {copied ? <CheckIcon /> : <CopyIcon />}
+                  {copied ? revealKey.copied : revealKey.copy}
+                </button>
+                <button
+                  className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors min-h-[44px] min-w-[44px]"
+                  onClick={() => setShowReveal(false)}
+                >
+                  {revealKey.dismiss}
+                </button>
+              </div>
+            </div>
+          ) : shownKey && (
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wider text-primary">{isApiKey ? "Your API Key" : "Session token"}</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary">{isApiKey ? (lang === "fr" ? "Votre clé API" : "Your API Key") : (lang === "fr" ? "Jeton de session" : "Session token")}</div>
                 <button
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] px-2"
                   onClick={() => {
                     navigator.clipboard?.writeText(shownKey || "");
                   }}
                 >
-                  Copy
+                  <CopyIcon />
+                  {lang === "fr" ? "Copier" : "Copy"}
                 </button>
               </div>
               <code className="block break-all font-mono text-sm">
@@ -411,9 +463,13 @@ export default function SignupForm() {
               </code>
               <p className="mt-2 text-xs text-muted-foreground">
                 {isApiKey ? (
-                  <>Use this as the <code className="font-mono">x-api-key</code> header in API calls.</>
+                  lang === "fr"
+                    ? <>Utilisez-la comme en-tête <code className="font-mono">x-api-key</code> dans les appels API.</>
+                    : <>Use this as the <code className="font-mono">x-api-key</code> header in API calls.</>
                 ) : (
-                  <>Use this as the <code className="font-mono">Authorization: Bearer &lt;token&gt;</code> header in API calls.</>
+                  lang === "fr"
+                    ? <>Utilisez-le comme en-tête <code className="font-mono">Authorization: Bearer</code> dans les appels API.</>
+                    : <>Use this as the <code className="font-mono">Authorization: Bearer</code> header in API calls.</>
                 )}
               </p>
             </div>
@@ -634,12 +690,29 @@ function WalletIcon() {
 
 function SolanaIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 8h16" />
       <path d="M4 12h16" />
       <path d="M4 16h16" />
       <path d="M6 3l-3 3 3 3" />
       <path d="M18 18l3-3-3-3" />
+    </svg>
+  );
+}
+
+function CopyIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
