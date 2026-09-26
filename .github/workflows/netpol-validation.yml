@@ -1,0 +1,45 @@
+# Validates the quill network policies on every change that can affect them.
+# The chart is rendered exactly the way ArgoCD renders it (values-prod.yaml)
+# and the breach-containment properties are asserted. Runs on the self-hosted
+# NixOS runner (helm + coreutils available, same as ci.yml's toolchain).
+name: NetworkPolicy validation
+
+on:
+  push:
+    branches: [main, prod]
+    paths:
+      - 'charts/quill/**'
+      - 'scripts/test-networkpolicy.sh'
+      - '.github/workflows/netpol-validation.yml'
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'charts/quill/**'
+      - 'scripts/test-networkpolicy.sh'
+      - '.github/workflows/netpol-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  netpol:
+    name: netpol assertions
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate network policies
+        run: bash scripts/test-networkpolicy.sh
+
+      # The live breach-containment proof needs cluster access; if this runner
+      # has a working kubeconfig, run it here too. Skipped otherwise (the
+      # authoritative weekly run happens from zephyr).
+      - name: Live isolation test (if cluster reachable)
+        continue-on-error: true
+        run: |
+          if kubectl version --request-timeout=5s >/dev/null 2>&1; then
+            bash scripts/isolation-test.sh
+          else
+            echo "no cluster access on this runner - skipping live test"
+          fi
