@@ -1,153 +1,195 @@
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
-import type { RealtimeRecord, RealtimeIngestionResult, RealtimeSource } from './types.js';
+import type { RealtimeRecord, RealtimeIngestionResult } from './types.js';
+import type { SourceOutcome } from '../run-log.js';
 import {
   REALTIME_SOURCES, REALTIME_FETCH_TIMEOUT_MS,
-  REALTIME_USER_AGENT, MAX_REALTIME_RECORDS,
+  REALTIME_USER_AGENT, MAX_REALTIME_RECORDS, REALTIME_CACHE_TTL_MS,
+  ECCC_ALERTS_GEOAPI_URL, CBSA_BWT_HTML_URL,
 } from './constants.js';
 import { ensureAmqpsSubscription, getAmqpsCache } from './amqps-subscriber.js';
 
-/* ── Source URL lookup ──────────────────────────────── */
+/* ── Shared Cache ───────────────────────────────────── */
 
-/**
- * Resolve a source's URL from the catalogue so no endpoint is duplicated here.
- * These three are the sources that have a fetcher (see fetchAllRealtime).
- */
-function sourceUrl(source: RealtimeSource): string {
-  const cfg = REALTIME_SOURCES.find(s => s.source === source);
-  if (!cfg) throw new Error(`no REALTIME_SOURCES entry for "${source}"`);
-  return cfg.url;
+const cache = new Map<string, { data: RealtimeRecord[]; ts: number }>();
+
+function getCached(key: string): RealtimeRecord[] | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.ts > REALTIME_CACHE_TTL_MS) { cache.delete(key); return null; }
+  return entry.data;
 }
 
-/** How many fetchers actually run — the number reported as sourcesAttempted. */
-export const REALTIME_FETCHER_COUNT = 3;
+function setCache(key: string, data: RealtimeRecord[]) {
+  cache.set(key, { data, ts: Date.now() });
+  if (cache.size > 50) { const first = cache.keys().next().value; if (first) cache.delete(first); }
+}
 
 /* ── HTTP ────────────────────────────────────────────── */
 
-async function fetchText(url: string): Promise<string | null> {
+/**
+ * Fetch text, classifying failures (GH#921): returns `{ ok: true, body }` on
+ * success, `{ ok: false, error }` otherwise — the caller surfaces the error
+ * as a per-source outcome instead of an empty array that reads as "no data".
+ */
+async function fetchText(url: string): Promise<{ ok: true; body: string } | { ok: false; error: string }> {
   try {
     const resp = await httpGet(url, { headers: { 'User-Agent': REALTIME_USER_AGENT }, timeoutMs: REALTIME_FETCH_TIMEOUT_MS });
-    return resp.statusCode >= 400 ? null : resp.body;
-  } catch { return null; }
+    if (resp.statusCode === 0) {
+      return { ok: false, error: `network error GET ${url} (all attempts failed)` };
+    }
+    if (resp.statusCode >= 400) {
+      return { ok: false, error: `HTTP ${resp.statusCode} GET ${url}` };
+    }
+    return { ok: true, body: resp.body };
+  } catch (err) {
+    return { ok: false, error: `${err instanceof Error ? err.message : String(err)} GET ${url}` };
+  }
 }
 
-/** Strip a UTF-8 BOM — cbsa-asfc.gc.ca serves one, and JSON.parse rejects it. */
-function stripBom(text: string): string {
-  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
-}
-
-/* ── ECCC Weather Alerts (OGC API Features GeoJSON) ─── */
+/* ── ECCC Weather Alerts (GeoAPI JSON — GH#921 repair) ─ */
 
 /**
- * Parse the MSC weather-alerts collection.
- *
- * The previous CAP index (`dd.weather.gc.ca/alerts/cap/cap_01_alert_index.xml`)
- * returns 404. The live feed is the OGC API Features collection on
- * api.weather.gc.ca, whose `features[].properties` carry the alert name,
- * risk colour, province and text.
+ * Parse a GeoAPI weather-alerts FeatureCollection into realtime records.
+ * Exported for fixture tests — no network.
  */
-async function fetchEcccAlerts(): Promise<RealtimeRecord[]> {
-  // Check AMQPS push cache first; fall back to HTTPS polling if stale or unavailable
+export function parseGeoApiAlerts(payload: unknown): RealtimeRecord[] {
+  if (!payload || typeof payload !== 'object') return [];
+  const features = (payload as { features?: unknown }).features;
+  if (!Array.isArray(features)) return [];
+  const now = new Date().toISOString();
+  const records: RealtimeRecord[] = [];
+  for (const feature of features.slice(0, MAX_REALTIME_RECORDS)) {
+    if (!feature || typeof feature !== 'object') continue;
+    const props = (feature as { properties?: Record<string, unknown> }).properties;
+    if (!props) continue;
+    const nameEn = typeof props['alert_name_en'] === 'string' ? props['alert_name_en'] : '';
+    const areaEn = typeof props['feature_name_en'] === 'string' ? props['feature_name_en'] : '';
+    const title = [areaEn, nameEn].filter(s => s.length > 0).join(' — ') || 'Weather Alert';
+    const publishedAt = typeof props['publication_datetime'] === 'string' ? props['publication_datetime'] : now;
+    const expiresAt = typeof props['expiration_datetime'] === 'string' ? props['expiration_datetime'] : null;
+    const text = typeof props['alert_text_en'] === 'string' ? props['alert_text_en'] : '';
+    const alertType = typeof props['alert_type'] === 'string' ? props['alert_type'] : '';
+    const riskColour = typeof props['risk_colour_en'] === 'string' ? props['risk_colour_en'] : '';
+    const severity = alertType.includes('warning') ? 'high'
+      : alertType.includes('watch') ? 'moderate'
+        : riskColour === 'red' ? 'high'
+          : riskColour === 'orange' ? 'moderate'
+            : 'low';
+    const summary = expiresAt ? `${text} (expires ${expiresAt})` : text;
+    records.push({
+      source: 'eccc-weather-alerts',
+      title,
+      url: 'https://weather.gc.ca/warnings/index_e.html',
+      publishedAt,
+      region: areaEn,
+      severity,
+      summary: summary.substring(0, 500),
+      hash: '', // hashed by the caller (async) — see fetchEcccAlerts
+      ingestedAt: now,
+    });
+  }
+  return records;
+}
+
+async function fetchEcccAlerts(): Promise<{ records: RealtimeRecord[]; error: string | null }> {
+  // AMQPS push cache first; fall back to HTTPS polling when stale/unavailable.
   const amqpsCache = getAmqpsCache();
-  if (amqpsCache) return amqpsCache;
+  if (amqpsCache) return { records: amqpsCache, error: null };
 
-  const raw = await fetchText(sourceUrl('eccc-weather-alerts'));
-  if (!raw) return [];
+  const cached = getCached('eccc-alerts');
+  if (cached && cached.length > 0) return { records: cached, error: null };
+
+  const resp = await fetchText(`${ECCC_ALERTS_GEOAPI_URL}${MAX_REALTIME_RECORDS}`);
+  if (!resp.ok) return { records: [], error: resp.error };
+  try {
+    const parsed = parseGeoApiAlerts(JSON.parse(resp.body));
+    const hashed = await Promise.all(parsed.map(async r => ({
+      ...r,
+      hash: await computeHash(`eccc-alert-${r.title}-${r.publishedAt}`, 'sha256'),
+    })));
+    return { records: hashed, error: null };
+  } catch (err) {
+    return { records: [], error: `GeoAPI parse failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+/* ── CBSA Border Wait Times (HTML table — GH#921 repair) ─ */
+
+/**
+ * Parse the CBSA `#bwttaf` HTML table into realtime records. Row shape
+ * (verified live 2026-09-23):
+ * `<tr><th><b>Port</b><br />Crossing</th><td>Commercial</td><td>Travellers</td><td><time datetime="…">…</time></td></tr>`
+ * Exported for fixture tests — no network.
+ */
+export function parseCbsaBordersHtml(html: string): RealtimeRecord[] {
   const now = new Date().toISOString();
   const records: RealtimeRecord[] = [];
-
-  try {
-    const data: any = JSON.parse(stripBom(raw));
-    const features: any[] = Array.isArray(data?.features) ? data.features : [];
-
-    for (const feature of features.slice(0, MAX_REALTIME_RECORDS)) {
-      const p = feature?.properties ?? {};
-      const title = p.alert_name_en || p.alert_short_name_en || 'Weather alert';
-      const area = [p.province, p.feature_name_en].filter(Boolean).join(' — ');
-      const url = feature?.id
-        ? `https://api.weather.gc.ca/collections/weather-alerts/items/${encodeURIComponent(String(feature.id))}`
-        : 'https://weather.gc.ca/warnings/index_e.html';
-
-      records.push({
-        source: 'eccc-weather-alerts',
-        title,
-        url,
-        publishedAt: p.publication_datetime || now,
-        region: area,
-        severity: p.risk_colour_en || p.alert_type || 'Unknown',
-        summary: String(p.alert_text_en ?? '').replace(/<[^>]+>/g, '').trim().substring(0, 500),
-        hash: await computeHash(`eccc-alert-${feature?.id ?? title}`, 'sha256'),
-        ingestedAt: now,
-      });
-    }
-  } catch { /* malformed payload — treat as no alerts */ }
-
+  const tableMatch = html.match(/<table[^>]*id="bwttaf"[^>]*>([\s\S]*?)<\/table>/i);
+  if (!tableMatch) return records;
+  const rows = tableMatch[1].match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) ?? [];
+  for (const row of rows.slice(0, MAX_REALTIME_RECORDS)) {
+    const cells = row.match(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/gi) ?? [];
+    if (cells.length < 4) continue;
+    const stripTags = (s: string) => s
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&#160;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Port cell: `<b>Port name</b><br />Crossing, XX/Crossing, YY<br />`.
+    // Pull the <b> block out first — tag-stripping collapses the separator.
+    const portCellRaw = cells[0] ?? '';
+    const portName = stripTags(portCellRaw.match(/<b>([\s\S]*?)<\/b>/i)?.[1] ?? '');
+    const crossing = stripTags(portCellRaw.replace(/<b>[\s\S]*?<\/b>/i, ''));
+    if (!portName && !crossing) continue;
+    if (/port of entry/i.test(`${portName} ${crossing}`)) continue; // header row
+    const commercial = stripTags(cells[1] ?? '');
+    const travellers = stripTags(cells[2] ?? '');
+    const updatedMatch = (cells[3] ?? '').match(/datetime="([^"]+)"/i);
+    const updatedAt = updatedMatch ? updatedMatch[1] : now;
+    const waitMinutes = /no delay/i.test(travellers) ? '0'
+      : /not applicable|^n\/?a$|^--$/i.test(travellers) ? 'N/A'
+        : (travellers.match(/(\d+)\s*min/i)?.[1] ?? 'N/A');
+    const severity = waitMinutes === 'N/A' ? 'info' : parseInt(waitMinutes, 10) > 30 ? 'high' : 'low';
+    records.push({
+      source: 'cbsa-border-wait-times',
+      title: `${portName} — travellers ${travellers}, commercial ${commercial}`,
+      url: CBSA_BWT_HTML_URL,
+      publishedAt: updatedAt,
+      region: crossing,
+      severity,
+      summary: `${portName} border crossing (${crossing}): travellers ${travellers}, commercial ${commercial}`,
+      hash: '', // hashed by the caller (async) — see fetchCbsaBorders
+      ingestedAt: now,
+    });
+  }
   return records;
 }
 
-/* ── CBSA Border Wait Times (JSON) ──────────────────── */
+async function fetchCbsaBorders(): Promise<{ records: RealtimeRecord[]; error: string | null }> {
+  const cached = getCached('cbsa-borders');
+  if (cached && cached.length > 0) return { records: cached, error: null };
 
-/**
- * Parse the CBSA border wait-time file.
- *
- * `bwt_taf-eng.json` 404s; the live file is `bwt-eng.json`, shaped
- * `{ waitTimes: [{ "poe-name", "poe-loc", "poe-comm-status", "poe-comm-delay",
- * "poe-trav-status", "poe-trav-delay", "poe-updated" }] }`, served with a BOM.
- */
-async function fetchCbsaBorders(): Promise<RealtimeRecord[]> {
-  const raw = await fetchText(sourceUrl('cbsa-border-wait-times'));
-  if (!raw) return [];
-  const now = new Date().toISOString();
-  const records: RealtimeRecord[] = [];
-
-  try {
-    const data = JSON.parse(stripBom(raw));
-    const crossings: any[] = Array.isArray(data?.waitTimes)
-      ? data.waitTimes
-      : Array.isArray(data) ? data : (data?.crossings ?? []);
-
-    for (const port of crossings.slice(0, MAX_REALTIME_RECORDS)) {
-      const name = port['poe-name'] || port.portName || port.name || 'Border Crossing';
-      const location = port['poe-loc'] || '';
-      const updated = port['poe-updated'] || now;
-      const lanes: { lane: string; status: string; delay: number }[] = [
-        {
-          lane: 'commercial',
-          status: port['poe-comm-status'] ?? 'Unknown',
-          delay: Number(port['poe-comm-delay']),
-        },
-        {
-          lane: 'traveller',
-          status: port['poe-trav-status'] ?? 'Unknown',
-          delay: Number(port['poe-trav-delay']),
-        },
-      ];
-
-      for (const { lane, status, delay } of lanes) {
-        const numeric = isNaN(delay) ? null : delay;
-        records.push({
-          source: 'cbsa-border-wait-times',
-          title: `${name} — ${lane}: ${status}${numeric !== null && numeric >= 0 ? ` (${numeric} min)` : ''}`,
-          url: 'https://www.cbsa-asfc.gc.ca/bwt-taf/menu-eng.html',
-          publishedAt: updated,
-          region: location,
-          severity: numeric === null ? 'info' : numeric > 30 ? 'high' : 'low',
-          summary: `${name}${location ? ` (${location})` : ''} ${lane} lane: ${status}`,
-          hash: await computeHash(`cbsa-${name}-${lane}`, 'sha256'),
-          ingestedAt: now,
-        });
-      }
-    }
-  } catch { /* malformed payload — treat as no wait times */ }
-
-  return records;
+  const resp = await fetchText(CBSA_BWT_HTML_URL);
+  if (!resp.ok) return { records: [], error: resp.error };
+  const parsed = parseCbsaBordersHtml(resp.body);
+  if (parsed.length === 0) {
+    return { records: [], error: 'CBSA #bwttaf table parse produced 0 rows (page structure changed?)' };
+  }
+  const hashed = await Promise.all(parsed.map(async r => ({
+    ...r,
+    hash: await computeHash(`cbsa-${r.title}-${r.publishedAt}`, 'sha256'),
+  })));
+  return { records: hashed, error: null };
 }
 
 /* ── Parole Board Decisions (HTML) ──────────────────── */
 
-async function fetchParoleDecisions(): Promise<RealtimeRecord[]> {
-  const html = await fetchText(sourceUrl('parole-board-decisions'));
-  if (!html) return [];
+async function fetchParoleDecisions(): Promise<{ records: RealtimeRecord[]; error: string | null }> {
+  const resp = await fetchText('https://www.canada.ca/en/parole-board/services/decision-registry.html');
+  if (!resp.ok) return { records: [], error: resp.error };
+  const html = resp.body;
   const now = new Date().toISOString();
   const records: RealtimeRecord[] = [];
 
@@ -163,7 +205,7 @@ async function fetchParoleDecisions(): Promise<RealtimeRecord[]> {
       hash: await computeHash(`pbc-${t}`, 'sha256'), ingestedAt: now,
     });
   }
-  return records;
+  return { records, error: null };
 }
 
 /* ── Main Orchestrator ──────────────────────────────── */
@@ -172,34 +214,45 @@ export async function fetchAllRealtime(): Promise<RealtimeIngestionResult> {
   const start = Date.now();
   const allRecords: RealtimeRecord[] = [];
   const errors: { source: string; error: string }[] = [];
+  const sourceOutcomes: SourceOutcome[] = [];
 
-  // Lazily init AMQPS subscriber (no-op unless MSC_AMQPS_ENABLED=true)
+  // Lazily init AMQPS subscriber (no-op if already running or disabled).
   await ensureAmqpsSubscription();
 
-  const fetchers: { source: RealtimeSource; run: () => Promise<RealtimeRecord[]> }[] = [
-    { source: 'eccc-weather-alerts', run: fetchEcccAlerts },
-    { source: 'cbsa-border-wait-times', run: fetchCbsaBorders },
-    { source: 'parole-board-decisions', run: fetchParoleDecisions },
-  ];
-
-  const results = await Promise.allSettled(
-    fetchers.map(f => f.run().then(records => ({ source: f.source, records }))),
-  );
+  const results = await Promise.allSettled([
+    fetchEcccAlerts().then(r => ({ source: 'eccc-weather-alerts' as const, ...r })),
+    fetchCbsaBorders().then(r => ({ source: 'cbsa-border-wait-times' as const, ...r })),
+    fetchParoleDecisions().then(r => ({ source: 'parole-board-decisions' as const, ...r })),
+  ]);
 
   let succeeded = 0;
   for (const r of results) {
     if (r.status === 'fulfilled') {
-      allRecords.push(...r.value.records);
-      if (r.value.records.length > 0) succeeded++;
+      const { source, records, error } = r.value;
+      allRecords.push(...records);
+      setCache(source, records);
+      if (error) {
+        errors.push({ source, error });
+        sourceOutcomes.push({ source, status: 'error', records: records.length, error });
+      } else {
+        succeeded++;
+        sourceOutcomes.push({
+          source,
+          status: records.length > 0 ? 'ok' : 'empty',
+          records: records.length,
+          error: null,
+        });
+      }
     } else {
-      errors.push({ source: 'unknown', error: r.reason?.message ?? 'unknown' });
+      const error = r.reason?.message ?? 'unknown';
+      errors.push({ source: 'unknown', error });
+      sourceOutcomes.push({ source: 'unknown', status: 'error', records: 0, error });
     }
   }
 
   return {
-    // Report what actually ran. This used to be REALTIME_SOURCES.length (7),
-    // which claimed four sources that have no fetcher at all.
-    records: allRecords, sourcesAttempted: REALTIME_FETCHER_COUNT,
+    records: allRecords, sourcesAttempted: REALTIME_SOURCES.length,
     sourcesSucceeded: succeeded, errors, durationMs: Date.now() - start,
+    sources: sourceOutcomes,
   };
 }
