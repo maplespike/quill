@@ -56,7 +56,7 @@ ESO="$ROOT/secrets/eso-delivered.txt"
 eso_rows=""
 if [ -f "$ESO" ]; then
   eso_rows="$(grep -oE '^[a-z0-9-]+\|[A-Za-z0-9_.-]+$' "$ESO" || true)"
-  eso_declared="$(grep -cE '^[a-z0-9-]+\|' "$ESO" || true)"
+  eso_declared="$(grep -cvE '^[[:space:]]*(#|$)' "$ESO" || true)"
   eso_found="$(printf '%s\n' "$eso_rows" | grep -c '[a-z0-9-]' || true)"
   if [ "$eso_found" -lt "$eso_declared" ]; then
     echo "✗ extracted $eso_found of $eso_declared rows from $ESO — at least one row lost its 'secret|key' format" >&2
