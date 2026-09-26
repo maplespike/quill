@@ -45,9 +45,9 @@
     "directory": "packages/legal-core"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.6.2",
     "tsup": "^8.5.1",
-    "typescript": "^5.7.0"
+    "typescript": "^7.0.2"
   },
   "dependencies": {},
   "sideEffects": false
