@@ -1,6 +1,9 @@
 import { connect, type ChannelModel, type Channel, type ConsumeMessage } from 'amqplib';
 import { computeHash } from '../../verification/hashing.js';
-import { MSC_AMQPS_URL, MSC_AMQPS_TOPIC, MSC_AMQPS_ENABLED, REALTIME_CACHE_TTL_MS } from './constants.js';
+import {
+  MSC_AMQPS_URL, MSC_AMQPS_EXCHANGE, MSC_AMQPS_TOPIC, MSC_AMQPS_QUEUE,
+  MSC_AMQPS_ENABLED, REALTIME_CACHE_TTL_MS,
+} from './constants.js';
 import type { RealtimeRecord } from './types.js';
 
 export interface AmqpsSubscription {
@@ -16,12 +19,16 @@ export async function subscribeToMscAlerts(
 ): Promise<AmqpsSubscription | null> {
   if (!MSC_AMQPS_ENABLED) return null;
   try {
+    // GH#921: the broker moved to dd.weather.gc.ca (q.weather.gc.ca no longer
+    // resolves) and requires the sarracenia conventions — exchange `xpublic`,
+    // topic prefix v02.post, and a q_anonymous.* queue name (arbitrary queue
+    // names are ACCESS_REFUSED for the anonymous user; verified live).
     const conn: ChannelModel = await connect(MSC_AMQPS_URL);
     const ch: Channel = await conn.createChannel();
-    await ch.assertQueue(MSC_AMQPS_TOPIC, { durable: false, autoDelete: true });
-    await ch.bindQueue(MSC_AMQPS_TOPIC, '', MSC_AMQPS_TOPIC);
+    await ch.assertQueue(MSC_AMQPS_QUEUE, { durable: false, autoDelete: true });
+    await ch.bindQueue(MSC_AMQPS_QUEUE, MSC_AMQPS_EXCHANGE, MSC_AMQPS_TOPIC);
 
-    await ch.consume(MSC_AMQPS_TOPIC, async (msg: ConsumeMessage | null) => {
+    await ch.consume(MSC_AMQPS_QUEUE, async (msg: ConsumeMessage | null) => {
       if (!msg) return;
       const xml = msg.content.toString();
       const now = new Date().toISOString();
