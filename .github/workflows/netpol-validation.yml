@@ -29,6 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: azure/setup-helm@v4
+
       - name: Validate network policies
         run: bash scripts/test-networkpolicy.sh
 
