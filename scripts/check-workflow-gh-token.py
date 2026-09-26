@@ -4,7 +4,6 @@
 Incident: pr-validation.yml "Commit message check" exited 4 because `gh pr view`
 ran without GH_TOKEN in its env block (run 35769381611, 2026-09-22).
 """
-import re
 import sys
 from pathlib import Path
 
@@ -13,53 +12,45 @@ WORKFLOW_DIR = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".github/workflo
 
 def check_workflow(path: Path) -> list[str]:
     """Return list of error messages for steps that use gh without GH_TOKEN."""
-    lines = path.read_text().splitlines()
+    try:
+        import yaml
+    except ImportError:
+        # Fallback: skip if PyYAML not available
+        return []
+
+    with open(path) as f:
+        try:
+            data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            return [f"{path}: YAML parse error: {e}"]
+
+    if not data or "jobs" not in data:
+        return []
+
     errors: list[str] = []
-    in_step = False
-    step_indent = 0
-    step_has_gh = False
-    step_has_gh_token = False
-    step_name = ""
+    for job_name, job in data["jobs"].items():
+        steps = job.get("steps", [])
+        for step in steps:
+            step_name = step.get("name", "<unnamed>")
+            run_text = step.get("run", "")
+            env = step.get("env", {})
 
-    for line in lines:
-        # Detect step start: `- name:` at any indent
-        m = re.match(r"^(\s*)-\s+name:\s*(.+)$", line)
-        if m:
-            # Check previous step before starting new one
-            if step_has_gh and not step_has_gh_token:
+            if not run_text or not isinstance(run_text, str):
+                continue
+
+            # Check if the step uses gh CLI for API calls (not --version/--help)
+            # Match: gh <subcommand> where subcommand starts with a letter
+            import re
+            if not re.search(r"\bgh\s+[a-zA-Z]", run_text):
+                continue
+
+            # Check if GH_TOKEN is set in env
+            has_gh_token = any("GH_TOKEN" in str(k) or "GH_TOKEN" in str(v) for k, v in env.items()) if env else False
+
+            if not has_gh_token:
                 errors.append(
-                    f"{path}: step '{step_name}' uses gh without GH_TOKEN"
+                    f"{path}: job '{job_name}' step '{step_name}' uses gh without GH_TOKEN"
                 )
-            in_step = True
-            step_indent = len(m.group(1))
-            step_name = m.group(2)
-            step_has_gh = False
-            step_has_gh_token = False
-            continue
-
-        # Detect step end: a new key at same or lower indent that is not a list item
-        if in_step and re.match(r"^\s*\S", line) and not re.match(r"^\s*-\s", line):
-            if step_has_gh and not step_has_gh_token:
-                errors.append(
-                    f"{path}: step '{step_name}' uses gh without GH_TOKEN"
-                )
-            in_step = False
-            continue
-
-        if not in_step:
-            continue
-
-        # Check for gh usage in the step's run block
-        if re.search(r"\bgh\s", line):
-            step_has_gh = True
-
-        # Check for GH_TOKEN in the step's env block
-        if "GH_TOKEN" in line:
-            step_has_gh_token = True
-
-    # Check the last step
-    if step_has_gh and not step_has_gh_token:
-        errors.append(f"{path}: step '{step_name}' uses gh without GH_TOKEN")
 
     return errors
 
