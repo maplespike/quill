@@ -1,0 +1,153 @@
+{{/*
+  Quill — network isolation (breach containment for the public surface).
+
+  Threat model: quill-api / quill-mcp / quill-portal are internet-facing via
+  the Cloudflare tunnel. A breach of ANY quill pod must not be able to reach
+  the cluster nodes, the LAN, the tailnet, the kubelets, or unrelated cluster
+  services — i.e. the pod must have no usable lateral path to the hosts.
+
+  Baseline: default-deny ingress+egress. Explicit allows only for real flows:
+    - DNS (CoreDNS)
+    - intra-namespace traffic (portal <-> api <-> mcp <-> redis)
+    - the two edges that serve quill: the cloudflared tunnel (ns cloudflared)
+      and the LAN reverse proxy (ns media-reverse-proxy)
+    - quill -> astral-key (auth: passkey / Web3 / JWT)
+    - internet egress that EXCLUDES every private range (RFC1918, CGNAT +
+      tailnet 100.64/10, link-local, loopback) — so even the API server,
+      kubelet ports and host services on node IPs are unreachable.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-default-deny
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-dns
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-intra-namespace
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-edge-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Cloudflare tunnel connectors and the LAN reverse proxy are the only
+    # two things allowed to originate requests into quill pods.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudflared
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: media-reverse-proxy
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8082
+        - protocol: TCP
+          port: 3001
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-egress-astral-key
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: astral-key
+          podSelector:
+            matchLabels:
+              app: astral-key
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-internet-egress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # Public internet only. Every private destination is excluded: RFC1918,
+    # tailnet CGNAT (100.64/10), link-local (incl. metadata), loopback. This
+    # makes the k3s API (10.1.1.x:6443), the kubelets (:10250), SSH and every
+    # other host/LAN service unreachable from inside the namespace.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 100.64.0.0/10
+              - 169.254.0.0/16
+              - 127.0.0.0/8
