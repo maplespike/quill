@@ -53,6 +53,8 @@ const refBlock = (opts: {
 type Fixture = {
   syncRows?: string[];
   chartFiles?: Record<string, string>;
+  /** Contents for secrets/eso-delivered.txt (the ESO/BSM rail's key list). */
+  esoFile?: string;
 };
 
 /** Build an isolated tree the gate can be pointed at (it takes a root argument). */
@@ -64,6 +66,10 @@ function buildFixture(f: Fixture): string {
     path.join(root, 'scripts/sops-sync-k8s.sh'),
     syncScript(f.syncRows ?? ['JWT_SECRET|quill-secrets|jwtSecret']),
   );
+  if (f.esoFile !== undefined) {
+    fs.mkdirSync(path.join(root, 'secrets'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'secrets/eso-delivered.txt'), f.esoFile);
+  }
   const files = f.chartFiles ?? {
     'deployments.yaml': chartTemplate([
       refBlock({ secret: 'quill-secrets', key: 'jwtSecret', optional: true }),
@@ -129,11 +135,13 @@ test('optional ref to an undelivered key warns but does not fail', () => {
 
 // THE incident: the sync's format changed, the gate's extraction found nothing,
 // and the gate died with exit 1 and an empty log. It must fail LOUDLY instead.
-test('sync MAPPING format change -> exit 1 WITH an explanation, never silence', () => {
+// (2026-09-25 update: the MAPPING rail was RETIRED for the ESO/BSM rail, so
+// "both sources empty" is now the failure this case pins.)
+test('no key source at all (retired MAPPING + missing ESO file) -> exit 1 WITH an explanation, never silence', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockstep-'));
   fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(root, 'charts/quill/templates'), { recursive: true });
-  // A sync script whose key declarations match no known shape.
+  // A sync script whose key declarations match no known shape, and no ESO file.
   fs.writeFileSync(
     path.join(root, 'scripts/sops-sync-k8s.sh'),
     '#!/usr/bin/env bash\nset -euo pipefail\nemit_key jwt_secret  # some future format\n',
@@ -143,10 +151,46 @@ test('sync MAPPING format change -> exit 1 WITH an explanation, never silence', 
     chartTemplate([refBlock({ secret: 'quill-secrets', key: 'jwtSecret', optional: true })]),
   );
   const r = runGate(root);
-  assert.equal(r.status, 1, 'an unparseable sync script must fail the gate');
+  assert.equal(r.status, 1, 'a tree with no delivered-key source must fail the gate');
   assert.ok(r.out.length > 0, 'the gate must SAY something when it fails — silence was the outage');
-  assert.match(r.out, /could not extract any delivered secret key/);
-  assert.match(r.out, /If the format changed again, update this gate/);
+  assert.match(r.out, /no delivered-key source/);
+  assert.match(r.out, /do not silence the gate/);
+});
+
+// 2026-09-25: MAPPING retired for the ESO/BSM rail (f93c8d6e) — the gate must
+// source delivered keys from secrets/eso-delivered.txt and stay green when the
+// chart's refs are covered by that rail.
+test('retired MAPPING + ESO file delivers the keys -> exit 0', () => {
+  const root = buildFixture({
+    syncRows: [],
+    esoFile: 'quill-secrets|jwtSecret\nmaplespike-secrets|pii-hash-secret\n',
+    chartFiles: {
+      'deployments.yaml': chartTemplate([
+        refBlock({ secret: 'quill-secrets', key: 'jwtSecret' }),
+        refBlock({ secret: 'maplespike-secrets', key: 'pii-hash-secret', optional: true }),
+      ]),
+    },
+  });
+  const r = runGate(root);
+  assert.equal(r.status, 0, `gate output:\n${r.out}`);
+  assert.match(r.out, /1 required \+ 1 optional ref\(s\) checked against 2 delivered key\(s\)/);
+});
+
+// The ESO file is a new format surface: a row that loses 'secret|key' must fail
+// loud, same as the MAPPING partial-format-loss control.
+test('ESO file row loses its pipe format -> exit 1, loud', () => {
+  const root = buildFixture({
+    syncRows: [],
+    esoFile: 'quill-secrets|jwtSecret\nmaplespike-secrets pii-hash-secret\n',
+    chartFiles: {
+      'deployments.yaml': chartTemplate([
+        refBlock({ secret: 'quill-secrets', key: 'jwtSecret', optional: true }),
+      ]),
+    },
+  });
+  const r = runGate(root);
+  assert.equal(r.status, 1, 'partial ESO file format loss must fail the gate');
+  assert.match(r.out, /lost its 'secret\|key' format/);
 });
 
 // Control B (2026-09-23 negative control): one MAPPING row keeps its line but
