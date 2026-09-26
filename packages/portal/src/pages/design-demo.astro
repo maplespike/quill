@@ -38,6 +38,13 @@ const themes = [
     description:
       "Borderless content, expansive padding, giant typography, and soft elevations. Inspired by modern API platforms.",
   },
+  {
+    id: "ink-and-paper",
+    name: "Ink & Paper",
+    tagline: "Newsreader · Ink emphasis · Hairline planes",
+    description:
+      "Paper is the page; ink does the emphasis. Newsreader titles, Source Sans 3 text, IBM Plex Mono data. Hairline borders, one shadow, every control 44px. The product-surface default (GH#918).",
+  },
 ];
 
 const stats = [
@@ -54,12 +61,12 @@ const features = [
 ];
 ---
 
-<BaseLayout title="Design Demo" description="Five visual directions for the Quill portal.">
+<BaseLayout title="Design Demo" description="Six visual directions for the Quill portal.">
   <div class="design-demo-shell">
     <header class="design-demo-header">
       <h1>Quill Visual Refresh — Design Explorations</h1>
       <p>
-        Five directions for <code>quill.maplespike.ca</code>. Each section uses the same
+        Six directions for <code>quill.maplespike.ca</code>. Each section uses the same
         components (hero, stats, cards, buttons, code block, badges) so you can compare
         how the same information feels under different identities.
       </p>
@@ -477,7 +484,7 @@ const features = [
   /* ============================================================
      THEME 1 — Neural Quill (cyberpunk)
      ============================================================ */
-  .neural-quill .theme-number {
+  .neural-quill .design-demo-number {
     background: rgba(0, 229, 255, 0.15);
     color: #00e5ff;
     border: 1px solid rgba(0, 229, 255, 0.3);
@@ -632,7 +639,7 @@ const features = [
   /* ============================================================
      THEME 2 — Classical Scribe
      ============================================================ */
-  .classical-scribe .theme-number {
+  .classical-scribe .design-demo-number {
     background: #f3e9d2;
     color: #3d2b1f;
     border: 1px solid #d4c5a3;
@@ -748,7 +755,7 @@ const features = [
   /* ============================================================
      THEME 3 — Sovereign Command (current refined)
      ============================================================ */
-  .sovereign-command .theme-number {
+  .sovereign-command .design-demo-number {
     background: rgba(232, 69, 69, 0.12);
     color: #e84545;
     border: 1px solid rgba(232, 69, 69, 0.25);
@@ -865,7 +872,7 @@ const features = [
   /* ============================================================
      THEME 4 — Monochrome Data
      ============================================================ */
-  .monochrome-data .theme-number {
+  .monochrome-data .design-demo-number {
     background: #000;
     color: #fff;
     border: 1px solid #333;
@@ -991,7 +998,7 @@ const features = [
   /* ============================================================
      THEME 5 — Open Concept
      ============================================================ */
-  .open-concept .theme-number {
+  .open-concept .design-demo-number {
     background: #eff6ff;
     color: #2563eb;
     border: none;
@@ -1137,6 +1144,180 @@ const features = [
     color: #374151;
     border: 1px solid #d1d5db;
   }
+
+  /* ============================================================
+     THEME 6 — Ink & Paper (the product-surface default, GH#918)
+     Paper is the page. Ink does the emphasis. Hairline borders,
+     one shadow, every control 44px. No maple red on paper.
+     ============================================================ */
+  .ink-and-paper .design-demo-number {
+    background: #ece8de;
+    color: #161614;
+    border: 1px solid #cfc8b8;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .ink-and-paper .design-demo-canvas {
+    background: #f4f2ec;
+    border: 1px solid #ddd8cc;
+    border-radius: 2rem;
+    box-shadow: 0 24px 60px -36px rgb(22 22 20 / 0.4);
+  }
+
+  /* Newsreader display headline — the one place the family shows */
+  .ink-and-paper h3 {
+    color: #161614;
+    font-family: "Newsreader", "Iowan Old Style", Georgia, serif;
+    font-size: clamp(2rem, 1.15rem + 2.1vw, 3.05rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+
+  .ink-and-paper .hero-content > p {
+    color: #534f46;
+    font-family: "Source Sans 3", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .ink-and-paper .badge {
+    background: #ece8de;
+    color: #161614;
+    border: 1px solid #cfc8b8;
+  }
+
+  .ink-and-paper .badge-ghost {
+    background: transparent;
+    color: #534f46;
+    border-color: #ddd8cc;
+  }
+
+  /* Ink does the emphasis: primary CTA is flat ink, 44px+ */
+  .ink-and-paper .btn-primary {
+    background: #161614;
+    color: #f4f2ec;
+    border-radius: 0.5rem;
+    min-height: 44px;
+    transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-and-paper .btn-primary:hover {
+      background: #2c2c28;
+      box-shadow: none;
+    }
+  }
+
+  .ink-and-paper .btn-secondary {
+    background: transparent;
+    color: #161614;
+    border: 1px solid #cfc8b8;
+    border-radius: 0.5rem;
+    min-height: 44px;
+    transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-and-paper .btn-secondary:hover {
+      background: #ece8de;
+    }
+  }
+
+  /* Focus ring: ink/60 on paper = 4.56:1 (WCAG 2.2). Never /40 (2.52:1). */
+  .ink-and-paper .btn:focus-visible,
+  .ink-and-paper .copy-btn:focus-visible {
+    outline: 2px solid rgb(22 22 20 / 0.6);
+    outline-offset: 2px;
+  }
+
+  .ink-and-paper .art-inner {
+    /* The ink plane: a filled ink square-panel with a paper hairline core */
+    background:
+      radial-gradient(circle at 50% 50%, #f4f2ec 0%, #f4f2ec 22%, transparent 23%),
+      linear-gradient(135deg, #161614 0%, #2c2c28 100%);
+    border-radius: 1.75rem;
+    box-shadow: 0 24px 60px -36px rgb(22 22 20 / 0.4);
+  }
+
+  .ink-and-paper .stats {
+    background: transparent;
+    border-color: #ddd8cc;
+    border-style: solid;
+  }
+
+  .ink-and-paper .stat-value {
+    color: #161614;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .ink-and-paper .stat-label {
+    color: #534f46;
+  }
+
+  /* Cards: hairline-bordered planes; the grid grammar without the
+     reference's 5-in-2 empty trailing cell (4 items here, 2×2 clean). */
+  .ink-and-paper .cards {
+    gap: 1.25rem;
+  }
+
+  .ink-and-paper .card {
+    background: #fbfaf6;
+    border: 1px solid #ddd8cc;
+    border-radius: 1.75rem;
+    transition: border-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ink-and-paper .card:hover {
+      border-color: #cfc8b8;
+      box-shadow: 0 24px 60px -36px rgb(22 22 20 / 0.4);
+    }
+  }
+
+  .ink-and-paper .card-dot {
+    background: #161614;
+  }
+
+  .ink-and-paper .card p {
+    color: #2c2c28;
+  }
+
+  /* Console: the ink plane for code */
+  .ink-and-paper .codeblock {
+    background: #161614;
+    border: none;
+    border-radius: 1.75rem;
+  }
+
+  .ink-and-paper .codeblock-header {
+    background: #2c2c28;
+    color: #b9b5aa;
+    border-bottom: 1px solid #3a3a34;
+  }
+
+  .ink-and-paper .codeblock pre {
+    color: #f6f4ef;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .ink-and-paper .copy-btn {
+    background: #3a3a34;
+    color: #f6f4ef;
+    border-radius: 0.5rem;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ink-and-paper .btn-primary,
+    .ink-and-paper .btn-secondary,
+    .ink-and-paper .card {
+      transition: none;
+    }
+  }
+
 </style>
 
 <script>
