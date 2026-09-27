@@ -56,6 +56,8 @@ jobs:
           # bundle, so it belongs in git next to the build that consumes it — not
           # in a GitHub variable, where it would be invisible state.
           PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_live_51TXKNtIZlbpvSCVXPrwYO2dinosjcpXJTFtzvgNWNKYuulIovwEstgih1CGYDOXOXxgunw6MAprIirNBpLhtjJJt00nZ41pewc
+      - name: Verify gitleaks license in CI workflow
+        run: node scripts/test-ci-gitleaks-license.mjs
 
       # Design-logic invariants that historically broke only in prod builds
       # (lang-toggle .html targets, dashboard tab, reveal-on-scroll observer,
@@ -165,6 +167,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   audit:
     needs: build-and-test
