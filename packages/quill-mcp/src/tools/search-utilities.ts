@@ -3,7 +3,7 @@ import { searchUtilities, UTILITY_PROVIDERS } from '@maplespike/pipeline-core/ut
 
 export const definition: ToolDefinition = {
   name: 'search_utilities',
-  description: 'Search Canadian utility providers by province or type. Covers 15 major hydro, gas, and water utilities across all provinces.',
+  description: 'Search Canadian utility providers by province or type. Covers a curated list of 15 major hydro, gas, and water utilities in 10 provinces and territories; Yukon, the Northwest Territories, and Nunavut are not represented.',
   inputSchema: { type: 'object', properties: {
     province: { type: 'string', description: 'Province code (ON, QC, BC, AB, etc.)' },
     type: { type: 'string', enum: ['hydro', 'gas', 'water', 'telecom'], description: 'Utility type' },

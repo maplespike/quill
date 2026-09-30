@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'search_ati',
   description:
     'Search completed Access to Information (ATI) requests published by federal departments. ' +
-    'Covers ATI summaries from all government departments and agencies. ' +
+    'Covers the ATI summaries that departments and agencies have actually published; ' +
+    'entities that do not release summaries, or releases not indexed by the upstream dataset, are absent. ' +
     'Useful for finding previously released records, internal reports, and correspondence.',
   inputSchema: {
     type: 'object',

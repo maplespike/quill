@@ -18,8 +18,9 @@ import { withClaims } from './claims-helper.js';
 export const definition: ToolDefinition = {
   name: 'linked_entities',
   description:
-    'Cross-reference an entity across every registry Quill tracks (lobbying, GIC, committees, corporate, CanLII, elections, oversight, municipal, provincial). ' +
+    'Cross-reference an entity across the registries Quill currently tracks (lobbying, GIC, committees, corporate, CanLII, elections, oversight, municipal, provincial). ' +
     'Resolves the name to its canonical entity, then assembles per-registry evidence with confidence. ' +
+    'A registry with no linked record returns no hits; confidence is a resolver score, not a source attestation. ' +
     'Use this to answer "what does each registry say about X" in a single call.',
   descriptions: {
     "fr-CA": "Référencer une entité dans tous les registres suivis par Quill (lobbying, GIC, comités, entreprises, CanLII, élections, surveillance, municipal, provincial) avec un niveau de confiance par registre.",

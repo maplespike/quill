@@ -2,18 +2,16 @@ import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchCommittees } from './upstream-fetcher.js';
 
 /**
- * Search House of Commons and Senate committee evidence, transcripts, and proceedings.
- * Covers standing committees, special committees, joint committees, and in-camera meetings.
+ * Search available House of Commons and Senate committee records returned by configured sources.
+ * Coverage and fields vary; in-camera designations do not disclose non-public discussions.
  */
 export const definition: ToolDefinition = {
   name: 'search_committees',
   description:
-    'Search House of Commons and Senate committee evidence, meeting transcripts, and proceedings. ' +
-    'Covers standing committees (e.g., FINA, OGGO, ETHI), special committees, joint committees, ' +
-    'and in-camera (secret) meeting records. Returns witness testimony, interventions, and ' +
-    'speaker attributions with timestamps.',
+    'Search available House of Commons and Senate committee records returned by configured sources. ' +
+    'Coverage and fields vary. In-camera designations may appear when reported by a source; they do not disclose non-public discussions.',
   descriptions: {
-    "fr-CA": "Rechercher des témoignages, transcriptions et procès-verbaux de comités de la Chambre des communes et du Sénat. Couvre les comités permanents (p. ex., FINA, OGGO, ETHI), les comités spéciaux, les comités mixtes et les séances à huis clos. Retourne les témoignages, interventions et attributions de temps de parole.",
+    "fr-CA": "Rechercher les dossiers disponibles des comités de la Chambre des communes et du Sénat dans les sources configurées. La couverture varie. Les désignations de huis clos n'exposent pas les discussions non publiques.",
   },
   inputSchema: {
     type: 'object',

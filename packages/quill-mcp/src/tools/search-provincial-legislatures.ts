@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'search_provincial_legislatures',
   description:
     'Search provincial legislature data — Hansard transcripts, committee proceedings, and bills ' +
-    'across all 10 Canadian provinces.',
+    'for the provinces whose proceedings are present in the upstream dataset. ' +
+    'Coverage is not complete: assemblies that do not publish machine-readable records are absent.',
   inputSchema: {
     type: 'object',
     properties: {

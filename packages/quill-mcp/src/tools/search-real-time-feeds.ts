@@ -4,8 +4,10 @@ import { searchCkan } from './upstream-fetcher.js';
 export const definition: ToolDefinition = {
   name: 'search_real_time_feeds',
   description:
-    'Search Canadian real-time government data feeds — emergency alerts (CAP-CP), ' +
-    'health advisories, urgent notices, and other time-sensitive government communications.',
+    'Search Canadian time-sensitive government data feeds — emergency alerts (CAP-CP), ' +
+    'health advisories, urgent notices, and other urgent government communications. ' +
+    'These feeds are polled, so a slow or unreachable feed yields no results rather than a delayed alert; ' +
+    'for life-safety decisions consult the issuing authority directly.',
   inputSchema: {
     type: 'object',
     properties: {

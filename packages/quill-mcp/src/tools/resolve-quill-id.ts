@@ -220,7 +220,8 @@ export const definition: ToolDefinition = {
   description:
     'Resolve a question about Canadian public data into canonical Quill IDs you can pass to query_quill. ' +
     'Returns ranked IDs (e.g. /committees, /ircc/study-permits, quill://entity) with descriptions, ' +
-    'provenance scores, update cadence, and the underlying tool each ID routes to. ' +
+    'provenance scores (Quill-computed record-quality signals, not publisher declarations), ' +
+    'update cadence, and the underlying tool each ID routes to. ' +
     'You MUST call this before query_quill unless the user provided an ID directly. ' +
     'Do not call more than 3 times per question.',
   inputSchema: {

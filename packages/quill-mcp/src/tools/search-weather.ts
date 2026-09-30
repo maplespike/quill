@@ -82,7 +82,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         _citation: {
           source_name: 'Environment Canada MSC GeoMet',
           source_url: `${baseUrl}/collections/${collection}/items`,
-          license: 'Open Government Licence - Canada',
+          license: 'Dataset-specific publisher license declaration is not included by this weather endpoint; consult the publisher terms.',
           retrieved_at: new Date().toISOString(),
         },
       },

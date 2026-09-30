@@ -27,6 +27,8 @@ export const definition: ToolDefinition = {
   name: 'search_lode',
   description:
     'Query Statistics Canada LODE (Linkable Open Data Environment) geospatial databases. ' +
+    'Record counts below are the figures Statistics Canada publishes in its own metadata for each ' +
+    'database, carried in this tool\'s catalogue — they are not counts Quill verified by download. ' +
     '12 databases covering addresses (~10M buildings), buildings (~14.4M features), ' +
     'healthcare (~7K), recreation (~182K), education (~19K), culture (~8K), businesses ' +
     '(~500K), infrastructure (11 types), greenhouses (~3.9K), pedestrian networks, ' +
@@ -82,7 +84,7 @@ export const handler: ToolHandler = async (args) => {
         totalCount: LODE_DATABASE_LIST.length,
         metadata: {
           source: 'Statistics Canada Linkable Open Data Environment (LODE)',
-          license: 'Open Government Licence – Canada',
+          license: 'Dataset-specific publisher license declarations are not included in this catalog response; consult each publisher dataset page.',
           portal: 'https://www.statcan.gc.ca/eng/lode/databases',
           cachedAt: new Date().toISOString(),
         },
@@ -133,7 +135,7 @@ export const handler: ToolHandler = async (args) => {
       totalCount: total,
       metadata: {
         source: 'Statistics Canada Linkable Open Data Environment (LODE)',
-        license: 'Open Government Licence – Canada',
+        license: 'Dataset-specific publisher license declarations are not included in this catalog response; consult each publisher dataset page.',
         portal: 'https://www.statcan.gc.ca/eng/lode/databases',
       },
       note: databaseId

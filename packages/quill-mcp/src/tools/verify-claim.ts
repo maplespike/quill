@@ -1,10 +1,9 @@
 /**
  * MapleSpike MCP Tool — verify_claim
  *
- * Independent claim verification: given a SHA-256 hash (and optionally the
- * original data), recompute the hash locally and report whether the claim
- * matches what Quill published. This is the trust primitive other systems
- * can call without holding any Quill credentials beyond the free tier.
+ * Claim hash lookup and canonical-record integrity comparison. Supplying data
+ * recomputes its canonical JSON hash locally; neither lookup nor hash equality
+ * authenticates the upstream source or establishes reuse rights.
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
@@ -13,11 +12,11 @@ import { canonicalJson, computeHash, citationStore } from '@maplespike/pipeline-
 export const definition: ToolDefinition = {
   name: 'verify_claim',
   description:
-    'Verify a Quill claim bundle. Provide a sha256 hash to check it exists in the claim store, ' +
-    'and optionally the original data to recompute the hash locally and confirm integrity. ' +
-    'Returns { verified, matches, recomputedSha256 }. Use this to audit any hash you received from Quill.',
+    'Look up a Quill claim hash and, when data is supplied, compare the SHA-256 of its canonical JSON representation. ' +
+    'A store match checks that a record with this hash is indexed; a recomputed match checks record integrity. ' +
+    'Neither establishes source authenticity, completeness, accuracy, or reuse rights. Returns { verified, matches, recomputedSha256 }.',
   descriptions: {
-    "fr-CA": "Vérifier un lot de revendications Quill. Fournissez un hachage sha256 pour vérifier son existence dans le registre, et éventuellement les données originales pour recalculer le hachage et confirmer l'intégrité.",
+    "fr-CA": "Rechercher un hachage de revendication Quill et, si des données sont fournies, comparer le SHA-256 de leur représentation JSON canonique. Une correspondance vérifie l'intégrité de l'enregistrement, pas l'authenticité de la source ni les droits de réutilisation.",
   },
   inputSchema: {
     type: 'object',
@@ -30,7 +29,7 @@ export const definition: ToolDefinition = {
       data: {
         type: 'string',
         maxLength: 2000,
-        description: 'Optional original data — the hash is recomputed from canonical JSON of this value and compared',
+        description: 'Optional JSON value — Quill recomputes the hash of this value after canonical JSON serialization; this does not authenticate its source',
       },
     },
   },
@@ -86,9 +85,8 @@ export const handler: ToolHandler = async (args) => {
         matches: true,
         recomputedSha256: null,
         source: stored.bundle.sourceName,
-        retrievedAt: stored.bundle.retrievedAt,
-        message:
-          'Hash found in the Quill claim store. Pass the original data to also recompute the hash locally for full independent verification.',
+        retrievedAt: stored.bundle.retrievedAt ?? null,
+        provenanceEvidence: stored.bundle.provenanceEvidence,        message: 'Hash found in the Quill claim store. Provide the canonical record value to compare its hash independently; this does not authenticate the source or establish reuse rights.',
       },
     };
   }
@@ -102,8 +100,9 @@ export const handler: ToolHandler = async (args) => {
         matches: true,
         recomputedSha256: recomputed,
         source: stored.bundle.sourceName,
-        retrievedAt: stored.bundle.retrievedAt,
-        message: 'Claim verified — recomputed hash matches and the record exists in the Quill claim store.',
+        retrievedAt: stored.bundle.retrievedAt ?? null,
+        provenanceEvidence: stored.bundle.provenanceEvidence,
+        message: 'Canonical record hash matches and the record exists in the Quill claim store. This does not authenticate the source or establish reuse rights.',
       },
     };
   }
@@ -116,7 +115,7 @@ export const handler: ToolHandler = async (args) => {
         verified: true,
         matches: true,
         recomputedSha256: recomputed,
-        message: 'Claim verified — the provided data reproduces the claimed hash (independent of Quill storage).',
+        message: 'The provided value reproduces the claimed canonical-record hash, independent of Quill storage. This does not authenticate its source or establish reuse rights.',
       },
     };
   }

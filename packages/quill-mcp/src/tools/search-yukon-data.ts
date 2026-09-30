@@ -37,7 +37,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         totalCount: total,
         province: 'Yukon',
         source: 'https://open.yukon.ca',
-        license: 'OGL-Canada',
+        license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket Yukon license is asserted.',
         retrievedAt: new Date().toISOString(),
       },
     };

@@ -14,9 +14,9 @@ export const definition: ToolDefinition = {
   description:
     'Query Canadian government data releases, datasets, and records. Searches across Statistics Canada (StatCan), ' +
     'open.canada.ca (CKAN), provincial data portals, and federal spending/procurement data. ' +
-    'Returns machine-readable data with OGL-C attribution and citation hashes.',
+    'Returns machine-readable results with source metadata; record hashes and publisher terms metadata are included only where supplied, and coverage depends on which sources respond.',
   descriptions: {
-    "fr-CA": "Interroger les données gouvernementales provenant de multiples sources canadiennes, dont Statistique Canada, le portail CKAN ouvert.canada.ca et les portails de données ouvertes provinciaux (ON, BC, AB, QC). Prend en charge la recherche par mot-clé, juridiction et catégorie. Chaque résultat inclut un hachage de citation SHA-256 pour vérification.",
+    "fr-CA": "Interroger les données gouvernementales provenant de multiples sources canadiennes configurées, dont Statistique Canada, le portail CKAN ouvert.canada.ca et les portails de données ouvertes provinciaux (ON, BC, AB, QC). Prend en charge la recherche par mot-clé, juridiction et catégorie. Les résultats incluent les métadonnées de source, ainsi qu’un hachage d’enregistrement et les conditions du fournisseur uniquement lorsque celles-ci sont fournies.",
   },
   inputSchema: {
     type: 'object',

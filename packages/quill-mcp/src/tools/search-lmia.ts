@@ -12,7 +12,8 @@ export const definition: ToolDefinition = {
     'Provides quarterly statistics on employer use of the Temporary Foreign Worker program, ' +
     'including approval/denial rates, streams (high-wage, low-wage, agriculture, etc.), ' +
     'occupations, provinces, and top employers. Cross-references with corporate data and ' +
-    'procurement records for comprehensive TFW program oversight.',
+    'procurement records to add context to a TFW program question; the cross-reference is ' +
+    'name-based and does not establish a link between a company and a specific LMIA.',
   descriptions: {
     "fr-CA": "Rechercher les données trimestrielles sur les études d’impact sur le marché du travail (EIMT). Retourne les données par employeur, profession, province et résultats (approuvé/refusé). Utile pour le suivi du Programme des travailleurs étrangers temporaires.",
   },
