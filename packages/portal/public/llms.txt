@@ -1,5 +1,5 @@
-# MapleSpike — Canadian Government Data API
-> Primary-source infrastructure for AI agents that cite.
+# MapleSpike — Canadian Public-Sector Data API
+> Coverage, response fields, and publisher terms vary by endpoint and source.
 
 > MCP server: https://mcp.maplespike.ca/sse (189 tools)
 > MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json
@@ -8,22 +8,26 @@
 ## API
 Base URL: https://api.maplespike.ca/v1
 Auth: Authorization: Bearer header or X-API-Key header
-Response: { success, data, quality, citation, meta }
+Response: { success, data, quality, citation, meta }; payload and citation fields vary by endpoint.
+Record hashes check canonical Quill record integrity only; source terms vary by publisher and dataset. Consult the original source before reuse.
 
 ### Endpoints
 - GET /v1/health — API health check with usage stats
-- GET /v1/openapi.json — Full OpenAPI 3.1 specification
+- GET /v1/openapi.json — OpenAPI 3.1 specification
 - GET /v1/me — Current tenant info and API keys
 - GET /v1/usage — Current billing period usage
 - GET /v1/gov/releases — Latest government data releases
-- GET /v1/gov/search — Full-text search across all sources
-- GET /v1/citation/:hash — Retrieve citation by SHA-256 hash
+- GET /v1/gov/search — Full-text search across supported sources
+- GET /v1/citation/:hash — Look up a record by hash; a match checks record integrity, not source authenticity
+- GET /v1/claims/verify/:hash — Look up a claim hash and recorded provenance evidence when available (public)
+- GET /v1/claims/latest — List recent claim summaries; source retrieval time may be unavailable (public)
+- POST /v1/claims/verify — Recompute SHA-256 of canonical JSON for supplied data (public)
 - POST /v1/register — Create account and API key
 - GET /v1/verify/:token — Verify email address
-- POST /v1/ai/ask — Ask a question, get a sourced answer (edge AI)
+- POST /v1/ai/ask — Ask a question and receive an AI-generated response
 - POST /v1/ai/search — Semantic search with edge embeddings
 - GET /v1/ai/models — List available AI models
-- POST /v1/ai/analyze — Analyze text for bias, sentiment, claims
+- POST /v1/ai/analyze — Analyze text for bias, sentiment, or claims
 - POST /v1/auth/refresh — Refresh JWT token
 - POST /v1/auth/logout — Clear session
 - POST /v1/billing/checkout — Create checkout session
@@ -33,36 +37,33 @@ Response: { success, data, quality, citation, meta }
 - DELETE /v1/keys/:id — Delete API key
 - POST /v1/keys/:id/rotate — Rotate API key
 - GET /v1/signals — Cross-reference signals (requires engine)
-- GET /v1/extraction/tasks — List browser extraction tasks for no-API portals
+- GET /v1/extraction/tasks — List browser extraction tasks for portals without APIs
 - POST /v1/extraction/results — Submit extracted data from browser client
 - GET /v1/extraction/cached/:source_id — Get cached browser extraction results
-- GET /v1/claims/latest — Index of verifiable SHA-256 claim bundles (public)
-- GET /v1/claims/verify/:hash — Verify a SHA-256 claim hash (public)
-- POST /v1/claims/verify — Recompute the SHA-256 of a payload and compare (public)
 - GET /v1/data/quality — Module health, freshness, and error tracking
 
 ### Data Categories
-- committees — House of Commons and Senate committee evidence
-- lobbying — Federal and provincial lobbying registry communications
-- procurement — CanadaBuys contract awards and tenders
-- gazette — Canada Gazette Parts I, II, III
-- elections — Third-party advertiser registry, election data, political donations
-- oversight — OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
-- courts — Federal court decisions via CanLII
-- influence — Tracked IOs, NGOs, think tanks, narrative tracking
-- immigration — IRCC permanent resident data, LMIA, express entry, study/work permits
-- defence — DND personnel, defence procurement
-- health — Health Canada datasets, drug products, pharmaceuticals
-- transport — Transport Canada, infrastructure, GTFS transit data
-- indigenous — Indigenous services, statistics, First Nations data
-- provincial — All 13 provinces and territories: ON, QC, BC, AB, SK, MB, NB, NS, NL, PE, NT, YT, NU
-- municipal — Municipal open data across Canadian cities
-- economic — StatCan CPI, GDP, labour, population, trade, Bank of Canada rates
-- international — World Bank WDI, UN Comtrade, OECD, Eurostat, WHO, UNDP, UNHCR
-- environment — NPRI, NRCAN, climate, fisheries, parks, species at risk
-- corporate — SEDI insider trades, SEDAR+ filings, corporate registry, CIPO patents/trademarks
-- housing — CMHC housing data, real estate, municipal housing
-- extraction — Browser-extracted data from no-API government portals (NWT, Nunavut)
+- committees — Available House of Commons and Senate committee records, where supported
+- lobbying — Selected federal and provincial lobbying registry records
+- procurement — Selected CanadaBuys contract awards and tenders
+- gazette — Available Canada Gazette Parts I, II, and III records
+- elections — Selected third-party advertiser, election, and political-donation records
+- oversight — Selected records from oversight bodies, where supported
+- courts — Selected federal court decisions via CanLII, where supported
+- influence — Selected records about international organizations, NGOs, and think tanks
+- immigration — Selected IRCC, LMIA, Express Entry, study, and work-permit data
+- defence — Selected DND personnel and defence-procurement records
+- health — Selected Health Canada datasets and product records
+- transport — Selected Transport Canada, infrastructure, and GTFS transit data
+- indigenous — Selected Indigenous services, statistics, and First Nations records
+- provincial — Selected provincial and territorial sources
+- municipal — Selected municipal open-data sources
+- economic — Selected economic indicators from StatCan and the Bank of Canada
+- international — Selected data from international statistical sources
+- environment — Selected environmental, climate, fisheries, and parks sources
+- corporate — Selected corporate filings, insider-trading, and registry records
+- housing — Selected CMHC and municipal housing records
+- extraction — Some browser-extracted data from portals without APIs
 
 ## MCP Tools (189 tools)
 Tool names: ai-analyze, ai-ask, ai-search-semantic, bilingual-descriptions, cache-clear, cache-status, claims-helper, compare-regions, datastore, discover-tools, explore-catalog, fact-check, find-connections, fire-emergency, get-annotations, get-citation, get-entity-profile, get-member-info, get-module-health, get-pipeline-health, get-politician-influence, gtfs-transit, latest-releases, linked-entities, parliamentary-voting, police-data, political-donations, prompt-catalog, public-accounts, qa-schema, qa-validate-module, query-bridges, query-cpi, query-datastore, query-gdp, query-gov-data, query-labour, query-population, query-quill, query-trade, resolve-entity, resolve-quill-id, search-a2aj, search-ab-data, search-agriculture, search-arcgis-layers, search-ati, search-au-abs, search-bank-of-canada, search-bc-data, search-bills, search-canlii, search-charity-t3010, search-cipo, search-cmhc, search-committees-op, search-committees, search-corporate-filings, search-corporate, search-cra-charity, search-criminal-justice, search-cross-reference, search-crown-corporations, search-crtc-decisions, search-crtc, search-culture, search-debates, search-defence, search-education-research, search-elections, search-emergency-management, search-eurostat, search-federal-budget, search-financial-regulation, search-fisheries, search-gazette, search-geospatial, search-gic, search-global-canada, search-goc-spending, search-health-canada, search-health, search-housing-cmhc, search-ilo, search-immigration, search-impact-assessment, search-indigenous-services-directory, search-indigenous, search-influence, search-ircc-citizenship, search-ircc-entry-exit, search-ircc-express-entry, search-ircc-family-sponsorship, search-ircc-pr-admissions, search-ircc-processing-times, search-ircc-study-permits, search-ircc-work-permits, search-knowledge-fabric, search-legislation, search-libraries, search-lmia, search-lode, search-media-broadcasting, search-municipal-data, search-municipal-long-tail, search-municipal, search-narrative-tracker, search-ngo-rss, search-npri, search-nrcan-fires, search-nrcan-forests, search-nrcan-minerals, search-nrcan-renewable, search-nrcan, search-nunavut-data, search-nutrient-file, search-nz-stats, search-oecd-stat, search-oecd, search-on-data, search-oversight, search-parks, search-pharmaceuticals, search-policing-security, search-proactive-disclosure, search-provincial-data, search-provincial-legislatures, search-provincial-lobbying, search-provincial-orgs, search-provincial-regulators, search-qc-data, search-real-estate, search-real-time-feeds, search-regional-authorities, search-science, search-sedi, search-social-programs, search-species-at-risk, search-statcan, search-telecommunications, search-transport, search-tribunals, search-uk-ons, search-un, search-undp-hdi, search-undp-hdr, search-unhcr-refugees, search-unions, search-universities, search-us-cia, search-utilities, search-valet-api, search-veterans, search-votes, search-weather, search-who-gho, search-yukon-data, search_agriculture_data, search_citizenship_data, search_climate_data, search_corporate_registry, search_culture_data, search_education_stats, search_energy_data, search_federal_contracts, search_federal_grants, search_gazette_part1, search_gazette_part2, search_gazette_part3, search_gender_stats, search_housing_data, search_immigration_refugees, search_indigenous_stats, search_mining_data, search_official_languages, search_patents, search_public_safety, search_technology_data, search_trademarks, search_transportation_data, searxng-health, signal-check, smart-search, system-health, track-bill, un-comtrade, verify-claim, worldbank-wdi, x402-deposit

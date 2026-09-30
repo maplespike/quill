@@ -255,7 +255,7 @@ status: active</h2>
   &quot;http://localhost:8082/v1/gov/search?q=McKinsey&amp;limit=5&quot;
 </code></pre>
 <h2>4. Verify a Citation</h2>
-<p>Every record has a SHA-256 citation hash. Verify one:</p>
+<p>Some records have a SHA-256 hash of Quill's canonical record value. A matching hash checks that representation; it does not authenticate the source or establish reuse rights. Verify a supplied hash:</p>
 <pre><code class="language-bash">curl &quot;http://localhost:8082/v1/citation/sha256-abc123&quot;
 </code></pre>
 <h2>5. Check Your Usage</h2>

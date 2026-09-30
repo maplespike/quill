@@ -1,7 +1,7 @@
 # Quill (MapleSpike) — Full Documentation Archive
 
 > Version: 1.0.0
-> License: AGPL-3.0 (pipeline-core) / MIT (packages). Government data under OGL-C.
+> Licensing status: package/file declarations conflict; government data terms are source-specific. See `docs/open-source-audit.md` and `LICENSE.md`.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
 > Source: https://github.com/reverb256/quill
@@ -11,9 +11,10 @@
 Quill is Canada's sovereign, AI-native government data pipeline — a single
 unified layer for government data, corporate influence tracking, committee
 surveillance, regulatory intelligence, and policy actor tracking. It ingests,
-verifies, and surfaces 208 data modules of Canadian public-domain government
-data across every sector, with SHA-256 citation hashes, source provenance, and
-audit trails for independent verification.
+verifies, and surfaces 208 data modules from Canadian public-sector sources
+across every sector, with SHA-256 citation hashes, source provenance, and
+audit trails for independent verification. Source-data terms vary by publisher
+and dataset; public availability does not itself grant reuse rights.
 
 The product name is Quill: a data-layer MCP server that reads Canada so AI
 agents don't have to lie about it. Built with zero external cloud spend,
@@ -174,12 +175,8 @@ Cross-reference signals (requires engine)
 
 ## License
 
-- Core library (packages/pipeline-core): AGPL-3.0
-- MCP server (packages/quill-mcp): MIT
-- Engine (packages/engine): MIT
-- Portal (packages/portal): MIT
-- Government data retains its original license (primarily Open Government
-  Licence – Canada)
+- Repository, package, file, and dependency license declarations conflict; see `LICENSE.md` and `docs/open-source-audit.md`.
+- Quill does not grant independent reuse rights in source data. Terms are publisher- and dataset-specific; consult original sources. See `docs/licensing-audit.md`.
 
 Copyright © MapleSpike / reverb256. The @maplespike/* npm scope is the
 organizational scope; the product name is Quill.
