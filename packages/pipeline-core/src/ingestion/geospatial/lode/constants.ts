@@ -2,10 +2,11 @@
  * LODE (Linkable Open Data Environment) Constants — MapleSpike Pipeline
  *
  * All 12 LODE databases from Statistics Canada's Linkable Open Data Environment.
- * Each entry includes verified download URLs, metadata, licenses, and field information.
+ * Each entry includes configured download URLs, source metadata, and field information; review terms for each dataset separately.
  *
  * Sources: https://www.statcan.gc.ca/eng/lode/databases
- * License: Open Government Licence – Canada
+ * Terms: the catalog aggregates datasets from multiple publishers. Consult the
+ * license declaration and restrictions for each LODE dataset before reuse.
  */
 
 export const LODE_UA = 'MapleSpike-LODE/1.0';

@@ -9,8 +9,7 @@ import type { OnsFactRecord, OnsIngestionResult } from './types.js';
 function makeAttribution() {
   return buildAttribution('Office for National Statistics (UK)', {
     sourceUrl: 'https://www.ons.gov.uk/',
-    license: 'OGL v3 (UK Government)',
-    attributionText: 'Data sourced from the Office for National Statistics (OGL v3)',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult ONS terms and notices for the specific dataset and material.",
   });
 }
 

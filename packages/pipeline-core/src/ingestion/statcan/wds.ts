@@ -13,7 +13,8 @@
  *   getCubeMetadata (POST)      — get cube metadata/dimensions
  *   getChangedCubeList (POST)   — list cubes changed since a date
  *
- * Data License: Statistics Canada Open Licence
+ * Source terms: Statistics Canada publishes an Open Licence. Confirm that it
+ * applies to the specific dataset, version, and use; exclusions may apply.
  */
 
 import { httpGet } from '../../utils/http.js';

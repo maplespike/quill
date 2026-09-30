@@ -13,6 +13,7 @@
 
 import { httpGet } from '../utils/http.js';
 import { registerModuleResultClaims } from '../claims/index-barrel.js';
+import { withIngestionArtifactCapture } from '../claims/artifact-capture.js';
 import { createSqliteD1Adapter } from './sqlite-d1.js';
 import { buildEntityGraph } from '../entity/graph-builder.js';
 
@@ -2723,21 +2724,23 @@ export async function runModule(
   };
 
   const run = async (fn: string, callArgs: unknown[] = args): Promise<unknown> => {
-    const result = await mod[fn](...callArgs);
-    // WS-1b: content-address every parsed record at parse time so hashes
-    // exist in the citation store before any query. Failure-safe by design.
-    try {
-      const registered = await registerModuleResultClaims(
-        name,
-        result,
-        info.sources[0]?.name ?? '',
-      );
-      if (registered > 0) {
-        console.log(`[claims] Registered ${registered} claim bundle(s) for module '${name}'`);
+    const result = await withIngestionArtifactCapture(async () => {
+      const moduleResult = await mod[fn](...callArgs);
+      // Register while the request-scoped artifact capture context is active.
+      try {
+        const registered = await registerModuleResultClaims(
+          name,
+          moduleResult,
+          info.sources[0]?.name ?? '',
+        );
+        if (registered > 0) {
+          console.log(`[claims] Registered ${registered} claim bundle(s) for module '${name}'`);
+        }
+      } catch (claimErr) {
+        console.warn(`[claims] Skipped claim registration for '${name}': ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
       }
-    } catch (claimErr) {
-      console.warn(`[claims] Skipped claim registration for '${name}': ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
-    }
+      return moduleResult;
+    });
     // GAP-1: populate the entity graph from the same records. Failure-safe by
     // design — a graph error logs and never breaks ingestion (same contract
     // as the claims hook). For db-first modules (committees, …) the records

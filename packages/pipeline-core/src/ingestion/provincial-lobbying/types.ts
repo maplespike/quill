@@ -12,7 +12,7 @@
  *   - Alberta: Office of the Ethics Commissioner
  *   - Québec: Commissaire au lobbyisme du Québec
  *
- * All sources are public-domain / open government data.
+ * Source terms vary by registry, publisher, and dataset; public access does not establish reuse permission.
  */
 
 import type { LobbyingRecord } from '../corporate/types.js';

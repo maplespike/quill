@@ -8,8 +8,7 @@ import type { OECDIndicator, OECDDataset, OECDIngestionResult } from './types.js
 function makeAttribution() {
   return buildAttribution('OECD Statistics', {
     sourceUrl: 'https://stats.oecd.org',
-    license: 'OECD Open Data',
-    attributionText: 'Data sourced from OECD.Stat',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult OECD terms for each specific dataset and its exclusions.",
   });
 }
 

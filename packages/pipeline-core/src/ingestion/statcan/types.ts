@@ -7,8 +7,9 @@
  * All indicator records share a common base (StatCanRecord) with
  * category-specific extensions.
  *
- * Data License: Statistics Canada Open Licence — free for all uses.
- * https://www.statcan.gc.ca/en/reference/licence
+ * Source terms: Statistics Canada publishes an Open Licence. Verify its
+ * scope, dataset coverage, attribution, and exclusions for each use.
+ * https://www.statcan.gc.ca/en/terms-conditions/open-licence
  */
 
 /* ------------------------------------------------------------------ */

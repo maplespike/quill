@@ -2,7 +2,7 @@ import { httpGet } from '../../utils/http.js';
 import { OC_API_BASE, OC_TIMEOUT_MS, OC_UA, OC_REQ_INTERVAL_MS } from './constants.js';
 import type { OCCompany, OCOfficer, OCFiling, OCRelationship, OCSearchResult } from './types.js';
 
-const ATTR = { source: 'OpenCorporates', license: 'ODbL', attribution: 'Data from OpenCorporates (opencorporates.com)' };
+const ATTR = { source: 'OpenCorporates', license: "The publisher's current terms were not verified for this dataset and access plan; consult OpenCorporates terms", attribution: 'Data from OpenCorporates (opencorporates.com)' };
 
 let lastReq = 0;
 async function rateLimitedFetch(url: string): Promise<any> {

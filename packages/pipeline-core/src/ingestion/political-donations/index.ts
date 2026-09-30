@@ -10,8 +10,7 @@ import type { ContributionRecord, ContributionSummary } from './types.js';
 function makeAttribution(name: string, url: string) {
   return buildAttribution(name, {
     sourceUrl: url,
-    license: 'Open Data License',
-    attributionText: `Source: ${name} Open Data`,
+    attributionText: `No publisher license declaration is attached to this source configuration. Consult ${name} terms for the specific dataset and material.`,
   });
 }
 

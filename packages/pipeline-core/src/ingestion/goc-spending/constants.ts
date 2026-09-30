@@ -8,7 +8,7 @@
  *   Analysis CSVs: https://github.com/GoC-Spending/goc-spending-analysis
  *   Raw JSON:      https://github.com/GoC-Spending/goc-spending-data
  *
- * License: Open Government Licence – Canada / CC0
+ * Terms: use the original publisher's dataset-specific declaration.
  */
 
 /** Base URL for GoC-Spending project download page */

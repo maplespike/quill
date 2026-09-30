@@ -10,7 +10,7 @@
  *   - Infrastructure Canada: project funding by riding/party
  *   - National Trade Corridors Fund: projects, rationale, amounts
  *
- * All sources are public-domain / open government data.
+ * Source terms vary by publisher and dataset; public access does not establish reuse permission.
  */
 
 /* ------------------------------------------------------------------ */
