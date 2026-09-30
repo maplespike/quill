@@ -4,7 +4,7 @@
 
 ## What it is
 
-An AI-native government data pipeline that ingests, verifies, and surfaces Canadian public-domain data (federal, provincial, territorial, municipal) across every sector. Ships as:
+An AI-native government data pipeline that ingests, verifies, and surfaces data from Canadian federal, provincial, territorial, municipal, and other public-sector sources across every sector. Source terms vary by publisher and dataset; public availability does not itself grant reuse rights. Ships as:
 
 - **pipeline-core** — ingestion/verification/audit library
 - **quill-mcp** — MCP server (184 tools, incl. `x402-deposit`)
@@ -50,5 +50,5 @@ Most packages use `node --test` (via tsx). The `engine` package uses `vitest`.
 - **`AGENTS.md` is the authoritative ops reference** — cluster topology, routing matrix, rebuild/rollout recipes, known issues
 - **Secrets**: SOPS + age, synced via `scripts/sops-sync-k8s.sh`
 - **Node ≥18** (CI uses 22)
-- **License**: AGPL-3.0 (pipeline-core) / MIT (others)
+- **Licensing**: unresolved package, file-header, and artifact conflicts; see `docs/open-source-audit.md` and `LICENSE.md`
 - **Deploy**: `scripts/deploy.sh`; production K3s cluster with Kustomize namePrefix (`maplespike-*` at cluster, `quill-*` in source)

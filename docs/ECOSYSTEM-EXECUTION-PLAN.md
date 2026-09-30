@@ -204,7 +204,7 @@ client (Claude Desktop / a 10-line TS client) can `resources/read quill://entiti
 - [x] **`docs/building-on-quill.md`** — the guide for other MCP authors + local agent builders:
       schemas & versioning, entity ID scheme, claim bundle format + verification recipe,
       composition patterns (Quill + CanLII MCP + Elections Canada + local RAG), free-tier limits,
-      rate-limit etiquette, OGL-CA licensing, and a "hello world" client snippet using the SDK.
+      rate-limit etiquette, dataset-specific source terms, and a "hello world" client snippet using the SDK.
 - [x] **Quill Lite / read-replica mode:** document the zero-DB stdio mode as a first-class product
       ("Quill Lite"): no SQLite, no API server, `npx`-only; SQLite-backed mode as the upgrade
       path. Add a `QUILL_LITE=1` env that disables DB-dependent tools with graceful errors.

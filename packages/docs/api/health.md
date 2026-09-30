@@ -54,10 +54,12 @@ No authentication required. No query parameters needed.
   "citation": {
     "source_name": "MapleSpike API",
     "source_url": "http://localhost",
-    "retrieved_at": "2026-05-14T11:36:00Z",
+    "retrieved_at": null,
     "data_hash": "",
-    "license": "Open Government Licence – Canada",
-    "update_frequency": "daily"
+    "license": "The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.",
+    "license_basis": "no-publisher-declaration",
+    "update_frequency": "daily",
+    "provenance_evidence": null
   }
 }
 ```

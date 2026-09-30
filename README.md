@@ -15,13 +15,13 @@ status: active
 
 <p align="center">
   <a href="https://github.com/maplespike/quill"><img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status: active"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0%20%7C%20MIT-blue" alt="License: AGPL-3.0 | MIT"></a>
+  <a href="./docs/open-source-audit.md">License metadata under review</a>
   <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/maplespike/quill/ci.yml" alt="CI"></a>
 </p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
 
-**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
+**Status:** Active development · **License metadata:** unresolved; see the [open-source audit](./docs/open-source-audit.md) · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
 > **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:maplespike/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
@@ -31,7 +31,7 @@ status: active
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **207 data modules** of Canadian public-domain government data across every sector.
+MapleSpike searches, ingests, verifies, and surfaces **207 data modules** from Canadian government and other public-sector sources. Source terms vary by publisher and dataset; public availability does not establish reuse permission.
 
 **Coverage:**
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
@@ -48,7 +48,7 @@ MapleSpike ingests, verifies, and surfaces **207 data modules** of Canadian publ
 - **Defence & veterans**: DND personnel, procurement
 - **SDK**: @maplespike/sdk — typed TypeScript client (dual CJS/ESM). See [docs/metrics.json](./docs/metrics.json) for current module coverage.
 
-Every record includes SHA-256 citation hashes, source provenance, and audit trails for independent verification.
+Records may include SHA-256 hashes, source provenance, and audit-trail metadata. Hashes support integrity comparisons; they do not establish source authenticity or reuse rights.
 
 **Current metrics:** [See docs/metrics.json](./docs/metrics.json) for current module/tool/line counts. All packages compile clean, SDK tests passing. Cross-reference engine connects lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections.
 
@@ -285,14 +285,11 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 
 ---
 
-## License
+## Licensing
 
-**Core library** (`packages/pipeline-core`): AGPL-3.0
-**MCP server** (`packages/quill-mcp`): MIT
-**Engine** (`packages/engine`): MIT
-**Portal** (`packages/portal`): MIT
+Repository, package, and file-level license declarations conflict. Do not treat this README or the root `LICENSE` as a definitive grant for every package or artifact. Review the [open-source audit](./docs/open-source-audit.md) and [licensing facts](./LICENSE.md); the rights holder has not resolved the conflicts.
 
-Copyright © MapleSpike / reverb256. The `@maplespike/*` npm scope is the organizational scope; the product name is Quill. Government data retains its original license (primarily [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada)).
+Source-data terms are separate from software licenses. They vary by publisher and dataset. Quill does not grant independent reuse rights in source material. See [the data-source audit](./docs/licensing-audit.md) and consult the original publisher's terms.
 
 ## How this is built
 

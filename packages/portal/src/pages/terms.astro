@@ -46,8 +46,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "MapleSpike offre une API unifiée pour les données gouvernementales canadiennes, notamment : comités parlementaires, registres de lobbying, dossiers d'approvisionnement, dépôts réglementaires, décisions judiciaires et données statistiques. Le Service comprend l'accès à l'API REST, l'intégration du serveur MCP pour les agents IA, des SDK TypeScript et Python ainsi qu'un explorateur de données Web.",
           )}</p>
           <p>{t(
-            "All data served by MapleSpike is sourced from official Canadian government publications and is licensed under the Open Government Licence – Canada or equivalent provincial open data licenses.",
-            "Toutes les données servies par MapleSpike proviennent de publications officielles du gouvernement canadien et sont sous licence Ouverte du gouvernement – Canada ou sous licences provinciales équivalentes de données ouvertes.",
+            "The Service searches and presents information from government and other public-sector sources. License terms vary by publisher, dataset, API, and jurisdiction. A public listing or a source portal does not by itself grant reuse rights. Where the source supplies license metadata, the Service may display it as publisher-provided information; that display is not an independent legal review or a grant by MapleSpike. Consult the original source terms before copying, redistributing, or using source material commercially.",
+            "Le Service recherche et présente des informations provenant de sources gouvernementales et d'autres sources du secteur public. Les conditions de licence varient selon l'éditeur, le jeu de données, l'API et le territoire. Une fiche publique ou un portail source ne confère pas à lui seul des droits de réutilisation. Lorsque la source fournit des métadonnées de licence, le Service peut les afficher comme information provenant de l'éditeur; cet affichage ne constitue ni une vérification juridique indépendante ni une licence accordée par MapleSpike. Consultez les conditions de la source originale avant de copier, redistribuer ou utiliser commercialement le contenu source."
           )}</p>
         </CardContent>
       </Card>
@@ -61,7 +61,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
           <ul class="list-disc pl-5 space-y-1.5">
             <li>{t("Use the Service to violate any Canadian law or regulation", "Utiliser le Service pour enfreindre une loi ou un règlement canadien")}</li>
             <li>{t("Attempt to reverse-engineer, decompile, or circumvent rate limits or authentication", "Tenter de faire de la rétro-ingénierie, de décompiler ou de contourner les limites de débit ou l'authentification")}</li>
-            <li>{t("Resell or redistribute raw API data without attribution as required by OGL-Canada", "Revendre ou redistribuer les données brutes de l'API sans attribution, comme l'exige LOGC-Canada")}</li>
+            <li>{t("Copy, redistribute, or commercially use source material without first checking the terms and restrictions that apply to that specific source and dataset", "Copier, redistribuer ou utiliser commercialement du contenu source sans vérifier d'abord les conditions et restrictions applicables à cette source et à ce jeu de données")}</li>
             <li>{t("Use the Service for automated scraping that exceeds your plan's rate limits", "Utiliser le Service pour un extraction automatique qui dépasse les limites de débit de votre forfait")}</li>
             <li>{t("Submit queries designed to extract personal information about identifiable individuals", "Soumettre des requêtes conçues pour extraire des renseignements personnels sur des personnes identifiables")}</li>
             <li>{t("Use AI-generated content from the Service without verification for factual accuracy", "Utiliser le contenu généré par IA du Service sans vérifier son exactitude factuelle")}</li>
@@ -120,10 +120,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <p>{t(
-            "Every API response includes a citation block with source name, source URL, SHA-256 content hash, and license type. You are responsible for including appropriate attribution when using MapleSpike data in publications, reports, or AI training datasets.",
-            "Chaque réponse API inclut un bloc de citation avec le nom de la source, l'URL source, le hachage SHA-256 du contenu et le type de licence. Vous êtes responsable d'inclure une attribution appropriée lorsque vous utilisez les données MapleSpike dans des publications, des rapports ou des ensembles d'entraînement IA.",
+            "Responses may include provenance fields such as the source name, source URL, SHA-256 hash, and publisher-provided license metadata when available. Check the original publisher's terms for any attribution duties that apply to your use; Quill's citation is not a legal review or a substitute for those terms.",
+            "Les réponses peuvent inclure des champs de provenance comme le nom de la source, son URL, un hachage SHA-256 et les métadonnées de licence fournies par l'éditeur, si elles sont disponibles. Consultez les conditions de l'éditeur d'origine pour connaître les obligations d'attribution qui s'appliquent à votre utilisation; la citation de Quill n'est ni une vérification juridique ni un substitut à ces conditions.",
           )}</p>
-          <p>{t("The required attribution format is:", "Le format d'attribution requis est :")} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">[Source name], retrieved [date] via MapleSpike. OGL-Canada.</code></p>
+          <p>{t("Use the attribution wording and link shown by the original publisher for the specific dataset. The citation supplied by the Service is a convenience and may not meet every source's terms.", "Utilisez la formulation d'attribution et le lien indiqués par l'éditeur d'origine pour le jeu de données concerné. La citation fournie par le Service est une aide et peut ne pas satisfaire aux conditions de chaque source.")}</p>
         </CardContent>
       </Card>
 
@@ -133,15 +133,12 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <p>{t(
-            "While MapleSpike uses SHA-256 content hashing and trust-score validation to ensure data integrity, we do not guarantee the accuracy, completeness, or timeliness of government source data. Every response includes a",
-            "Bien que MapleSpike utilise le hachage SHA-256 du contenu et la validation du score de confiance pour assurer l'intégrité des données, nous ne garantissons pas l'exactitude, l'exhaustivité ou l'actualité des données sources gouvernementales. Chaque réponse inclut un objet",
-          )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">quality</code> {t(
-            "with freshness and confidence metrics.",
-            "avec des métriques de fraîcheur et de confiance.",
+            "Where provided, SHA-256 hashes and quality metadata can help assess data integrity and freshness. Response fields vary by endpoint and source. We do not guarantee the accuracy, completeness, or timeliness of source data.",
+            "Lorsqu'ils sont fournis, les hachages SHA-256 et les métadonnées de qualité peuvent aider à évaluer l'intégrité et la fraîcheur des données. Les champs de réponse varient selon le point de terminaison et la source. Nous ne garantissons pas l'exactitude, l'exhaustivité ou l'actualité des données sources.",
           )}</p>
           <p>{t(
-            "For legal or regulatory decisions, always verify data directly with the original source using the provided citation URL and content hash.",
-            "Pour les décisions juridiques ou réglementaires, vérifiez toujours les données directement auprès de la source originale à l'aide de l'URL de citation et du hachage de contenu fournis.",
+            "For legal or regulatory decisions, verify information directly with the original source. A citation URL or content hash may not be available for every response and does not establish reuse rights.",
+            "Pour les décisions juridiques ou réglementaires, vérifiez les informations directement auprès de la source originale. Une URL de citation ou un hachage de contenu peut ne pas être disponible pour chaque réponse et n'établit pas les droits de réutilisation.",
           )}</p>
         </CardContent>
       </Card>

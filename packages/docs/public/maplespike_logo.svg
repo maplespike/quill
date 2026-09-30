@@ -107,7 +107,7 @@
 
   <!-- Source badges -->
   <text x="60" y="565" fill="#6B7280" font-size="11" font-family="monospace, sans-serif" opacity="0.6">open.canada.ca · ourcommons.ca · lobbycanada.gc.ca · sencanada.ca · canlii.org</text>
-  <text x="60" y="590" fill="#6B7280" font-size="11" font-family="monospace, sans-serif" opacity="0.4">Open Government Licence – Canada · SHA-256 verified · AIDA-compliant audit trails</text>
+  <text x="60" y="590" fill="#6B7280" font-size="11" font-family="monospace, sans-serif" opacity="0.4">Publisher terms vary by dataset · SHA-256 provenance · audit trails</text>
 
   <!-- Logo mark bottom right -->
   <rect x="1030" y="520" width="44" height="44" rx="10" fill="#C23030"/>

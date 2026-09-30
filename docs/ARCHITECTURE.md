@@ -11,7 +11,7 @@ Comprehensive architecture documentation for the MapleSpike monorepo — a sover
 
 ## Overview
 
-MapleSpike is a unified data pipeline that ingests, verifies, and surfaces Canadian public-domain government data across federal, provincial, territorial, and municipal levels. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. All data records include SHA-256 citation hashes, source provenance, and audit trails for independent verification.
+MapleSpike is a unified data pipeline that discovers, ingests, verifies, and surfaces data from Canadian federal, provincial, territorial, municipal, and other public-sector sources. Source terms vary by publisher and dataset; public availability does not establish reuse permission. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. Data records carry source provenance; citation hashes and audit trails are available on response paths that support them.
 
 The platform currently maintains 184 registered MCP tools, 207 modules in the registry (203 ingestion directories), and approximately 220,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
 
@@ -408,9 +408,9 @@ Deployment targets K3s (lightweight Kubernetes) rather than serverless or VM-bas
 
 Three packages (`sdk`, `legal-core`, `legislation`) are published to npm while other packages remain private. SDKs are published to enable external developer adoption, legal packages are published as standalone utilities for legal tech applications, and core infrastructure (pipeline-core, engine, quill-mcp, api-server) remains private to control the data pipeline and prevent unauthorized access. The Python SDK is published to PyPI for Python ecosystem coverage.
 
-### License Stratification
+### License and Provenance Status
 
-The repository uses a mixed licensing strategy: `pipeline-core` is AGPL-3.0 (strong copyleft) to ensure modifications to the core data pipeline remain open, while other packages are MIT (permissive) to encourage SDK adoption and ecosystem development. This balances openness with the need to protect the core pipeline investment while making client libraries as accessible as possible.
+Package manifests, package-level license files, and source-file SPDX declarations conflict; some workspace packages have no declared license. This architecture document does not determine which declaration controls any artifact. Do not infer the license of an SDK, package, container image, or dependency from neighboring package metadata. See the [open-source audit](./open-source-audit.md) for observed declarations and unresolved questions. Data-source terms are separate and vary by publisher and dataset; public availability is not a reuse grant.
 
 ### Ingestion Module Architecture
 
@@ -454,7 +454,7 @@ The `pretext-civic` package is orphaned because the portal migrated from Next.js
 
 ### pipeline-core
 
-The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 203 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
+The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 203 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. Its package manifest declares AGPL-3.0-or-later, but file-level and repository-wide license scope remains under review; see the [open-source audit](./open-source-audit.md).
 
 ### quill-mcp
 
@@ -470,19 +470,19 @@ The `@maplespike/engine` package performs entity resolution, graph building, sig
 
 ### sdk
 
-The `@maplespike/sdk` package is the TypeScript client library providing a typed interface to the MapleSpike API for developers. It offers domain-specific methods for all data sources (e.g., `ms.immigration.permanentResidents()`, `ms.corporate.lobbying()`, `ms.committees.meetings()`) with full TypeScript type safety and IntelliSense. The SDK is built with `tsup` for dual CJS/ESM output with TypeScript declarations, uses `zod` for runtime validation of API responses, and includes comprehensive error handling with typed error classes. It is published to npm with provenance verification, requires Node.js 18+, and is licensed under MIT to encourage broad adoption.
+The `@maplespike/sdk` package is the TypeScript client library providing a typed interface to the MapleSpike API for developers. It offers domain-specific methods for all data sources (e.g., `ms.immigration.permanentResidents()`, `ms.corporate.lobbying()`, `ms.committees.meetings()`) with full TypeScript type safety and IntelliSense. The SDK is built with `tsup` for dual CJS/ESM output with TypeScript declarations, uses `zod` for runtime validation of API responses, and includes comprehensive error handling with typed error classes. It is published to npm with provenance verification and requires Node.js 18+. Its package and source-file license declarations require review; see the [open-source audit](./open-source-audit.md).
 
 ### sdk-python
 
-The `quill-sdk` package is the Python client library providing the same functionality as the TypeScript SDK for Python developers. It mirrors the TypeScript SDK's API design with domain-specific methods and full type hints. The package uses `setuptools` for building with optional `langchain` and `pydantic` dependencies for LangChain integration. It is published to PyPI, supports Python 3.8+, and is licensed under MIT. The Python SDK enables MapleSpike integration in data science workflows, Jupyter notebooks, and Python-based applications.
+The `quill-sdk` package is the Python client library providing the same functionality as the TypeScript SDK for Python developers. It mirrors the TypeScript SDK's API design with domain-specific methods and full type hints. The package uses `setuptools` for building with optional `langchain` and `pydantic` dependencies for LangChain integration. It is published to PyPI, supports Python 3.8+. Verify the published artifact's license notices before reuse or redistribution. The Python SDK enables MapleSpike integration in data science workflows, Jupyter notebooks, and Python-based applications.
 
 ### legal-core
 
-The `@maplespike/legal-core` package provides a typed client for Canadian case law, legislation, and tribunal data via the CanLII API and A2AJ open corpus. It offers interfaces for searching court decisions, retrieving case details, accessing citation graphs, and querying tribunal rulings. The package is built with `tsup` for dual CJS/ESM output, has no external dependencies, and includes TypeScript definitions for all legal data structures. It is published to npm with provenance verification and licensed under MIT for use in legal technology applications.
+The `@maplespike/legal-core` package provides a typed client for Canadian case law, legislation, and tribunal data via the CanLII API and A2AJ open corpus. It offers interfaces for searching court decisions, retrieving case details, accessing citation graphs, and querying tribunal rulings. The package is built with `tsup` for dual CJS/ESM output, has no external dependencies, and includes TypeScript definitions for all legal data structures. It is published to npm with provenance verification and has license declarations that require review before reuse or redistribution.
 
 ### legislation
 
-The `@maplespike/legislation` package provides point-in-time access to federal and provincial legislation via Justice Canada XML repositories and provincial CKAN portals. It depends on `@maplespike/legal-core` for legal data structures while adding legislation-specific XML parsing, version tracking, and amendment history. The package supports federal statutes and regulations, provincial legislation for major provinces (ON, BC, AB, QC), and historical versions for legal research. It is built with `tsup`, published to npm, and licensed under MIT.
+The `@maplespike/legislation` package provides point-in-time access to federal and provincial legislation via Justice Canada XML repositories and provincial CKAN portals. It depends on `@maplespike/legal-core` for legal data structures while adding legislation-specific XML parsing, version tracking, and amendment history. The package supports federal statutes and regulations, provincial legislation for major provinces (ON, BC, AB, QC), and historical versions for legal research. It is built with `tsup` and published to npm. Verify package and file-level license notices before reuse or redistribution; see the [open-source audit](./open-source-audit.md).
 
 ### portal
 
@@ -494,7 +494,7 @@ The `@maplespike/docs` package is the documentation site built with VitePress. I
 
 ### database
 
-The `@maplespike/database` package provides the SQLite-based storage layer using `better-sqlite3` and Drizzle ORM. It defines database schema, connection management, and migration utilities. The package exports the schema definitions, connection factory, and helper functions for database operations. It is used by `pipeline-core` for data ingestion and by `engine` for cross-reference queries. The package is private to the monorepo, not published externally, and licensed under AGPL-3.0 to maintain consistency with the pipeline-core license.
+The `@maplespike/database` package provides the SQLite-based storage layer using `better-sqlite3` and Drizzle ORM. It defines database schema, connection management, and migration utilities. The package exports the schema definitions, connection factory, and helper functions for database operations. It is used by `pipeline-core` for data ingestion and by `engine` for cross-reference queries. The package is private to the monorepo and not published externally. Its package metadata and repository license scope require review, so do not infer a license from its use by pipeline-core.
 
 ### pretext-civic
 

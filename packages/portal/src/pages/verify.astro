@@ -9,7 +9,7 @@ const i18n = createI18n(lang);
 
 <BaseLayout
   title={i18n.t('verify.title')}
-  description="Verify any SHA-256 claim hash against the Quill claim store — public, no API key required. See the source, retrieval time, and license behind every data point."
+  description="Verify a SHA-256 claim hash against the Quill claim store — public, no API key required. See available source provenance and publisher terms metadata; check original terms before reuse."
   lang={lang}
 >
   <!-- Hero -->
@@ -75,6 +75,7 @@ const i18n = createI18n(lang);
             </span>
             <div>
               <div class="text-sm font-semibold text-green-600">✓ {i18n.t('verify.verified')}</div>
+              <div id="result-verification-scope" class="text-xs text-muted-foreground"></div>
               <div class="text-xs text-muted-foreground font-mono" id="result-hash-label"></div>
             </div>
           </div>
@@ -97,7 +98,7 @@ const i18n = createI18n(lang);
         <Card class="mb-4" id="result-provenance">
           <CardHeader>
             <CardTitle class="text-base">Provenance</CardTitle>
-            <CardDescription>Where the claim came from, when it was retrieved, and under what license.</CardDescription>
+            <CardDescription>Available source provenance and publisher terms metadata. Check the original source for reuse conditions.</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
@@ -126,6 +127,10 @@ const i18n = createI18n(lang);
               <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.claim')}</div>
               <p id="result-claim" class="text-sm"></p>
             </div>
+            <div id="result-evidence-wrap" class="mt-5 hidden rounded-md bg-muted/40 p-4">
+              <div id="result-evidence-label" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Provenance evidence</div>
+              <pre id="result-evidence" class="max-h-96 overflow-auto whitespace-pre-wrap break-words text-xs font-mono"></pre>
+            </div>
           </CardContent>
         </Card>
 
@@ -133,7 +138,7 @@ const i18n = createI18n(lang);
         <Card>
           <CardHeader>
             <CardTitle class="text-base">{i18n.t('verify.result.command')}</CardTitle>
-            <CardDescription>Reproduce the SHA-256 yourself from the original data — if the hashes match, the record is intact.</CardDescription>
+            <CardDescription>Reproduce the SHA-256 from the canonicalized Quill record value. A match checks that record representation, not the upstream source artifact or its authenticity.</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex items-start gap-2">
@@ -267,6 +272,7 @@ const i18n = createI18n(lang);
       function sanitizeUrl(u) {
         try {
           var parsed = new URL(u, window.location.origin);
+          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "#";
           return parsed.href;
         } catch (e) {
           return "#";
@@ -285,27 +291,47 @@ const i18n = createI18n(lang);
           verifiedBanner.classList.remove("hidden");
           notfoundBanner.classList.add("hidden");
           provenanceCard.classList.remove("hidden");
+          fill("result-verification-scope", result.verification_scope === "claim-store-hash-match"
+            ? "Hash matches a record in the Quill claim store; source authenticity is not established."
+            : "Hash matches a record in the local pipeline index; source acquisition evidence is unavailable.");
           fill("result-hash-label", i18n("verify.result.hash") + " · " + result.sha256);
           fill("result-source", result.source_name || result.source || "—");
           if (result.source_url) {
             var link = document.getElementById("result-source-link");
             link.href = sanitizeUrl(result.source_url);
-            document.getElementById("result-source-url-text").textContent = link.hostname || result.source_url;
+            var safeUrl = sanitizeUrl(result.source_url);
+            if (safeUrl === "#") {
+              link.classList.add("hidden");
+            } else {
+              link.classList.remove("hidden");
+              document.getElementById("result-source-url-text").textContent = new URL(safeUrl).hostname || result.source_url;
+            }
           } else {
             document.getElementById("result-source-link").classList.add("hidden");
           }
-          fill("result-retrieved", result.retrieved_at ? new Date(result.retrieved_at).toLocaleString("en-CA") : "—");
+          fill("result-retrieved", result.retrieved_at ? new Date(result.retrieved_at).toLocaleString("en-CA") : "Not recorded");
           fill("result-license", result.license || "—");
           fill("result-update", result.update_frequency || "—");
           if (result.claim) {
             document.getElementById("result-claim-wrap").classList.remove("hidden");
             fill("result-claim", result.claim);
+          } else {
+            document.getElementById("result-claim-wrap").classList.add("hidden");
+          }
+          var evidence = result.provenance_evidence;
+          if (evidence) {
+            document.getElementById("result-evidence-wrap").classList.remove("hidden");
+            document.getElementById("result-evidence-label").textContent = window.__LANG === "fr" ? "Preuves de provenance" : "Provenance evidence";
+            document.getElementById("result-evidence").textContent = JSON.stringify(evidence, null, 2);
+          } else {
+            document.getElementById("result-evidence-wrap").classList.add("hidden");
           }
           fill("result-command", result.verify_command || "");
         } else {
           verifiedBanner.classList.add("hidden");
           notfoundBanner.classList.remove("hidden");
           provenanceCard.classList.add("hidden");
+          fill("result-verification-scope", "");
           fill("result-hash-label-nf", i18n("verify.result.sha256") + " · " + (result.sha256 || ""));
         }
       }
@@ -314,6 +340,7 @@ const i18n = createI18n(lang);
         var dict = {
           "en": {
             "verify.result.hash": "Verified against",
+            "verify.result.retrieved": "Source retrieval time",
             "verify.result.sha256": "SHA-256",
             "verify.button.working": "Verifying…",
             "verify.button": "Verify",
@@ -325,6 +352,7 @@ const i18n = createI18n(lang);
           },
           "fr": {
             "verify.result.hash": "Vérifié contre",
+            "verify.result.retrieved": "Heure de récupération de la source",
             "verify.result.sha256": "SHA-256",
             "verify.button.working": "Vérification…",
             "verify.button": "Vérifier",
@@ -416,7 +444,7 @@ const i18n = createI18n(lang);
             outEl.classList.remove("hidden");
           } else {
             outEl.className = "rounded-md p-4 text-sm bg-muted/40 text-muted-foreground";
-            outEl.innerHTML = i18n("verify.other.recomputed") + ": <code class=\"font-mono\">" + d.recomputed_sha256 + "</code>";
+            outEl.textContent = i18n("verify.other.recomputed") + ": " + String(d.recomputed_sha256 || "");
             outEl.classList.remove("hidden");
           }
         } catch (err) {

@@ -20,7 +20,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 | **Supabase** | Full Postgres engine (Docker); community support | Backups, PITR, branching, SSO, SLA |
 | **Airbyte** | Full pipeline engine (MIT); all connectors | RBAC, SSO, PII masking, enterprise connectors |
 | **dbt Labs** | Full transformation engine (CLI) | IDE, scheduler, CI/CD, governance, collaboration |
-| **MapleSpike** | Full pipeline + 207 modules + 184 MCP tools (AGPL/Apache/MIT) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
+| **MapleSpike** | Full pipeline + 207 modules + 184 MCP tools (package/file license declarations unresolved) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
 
 **The pattern:** The community version is the full engine — never crippled. The SaaS version removes operational toil and adds governance features that organizations need for compliance.
 
@@ -40,18 +40,18 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 │  ✓ API key auth                   │  + Audit logs           │
 │  ✓ Docker Compose deployment      │  + Automated backups    │
 │  ✓ Community support (GitHub)     │  + Usage dashboard      │
-│  ✓ SDK (MIT) — zero friction      │  + SLA / support        │
+│  ✓ SDK access (terms under review) │  + SLA / support        │
 │                                    │  + Team seats           │
 │  You run the infra.                │  We run the infra.      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **What we NEVER gate:**
-- Data modules (government data is inherently public)
+- Data modules as software features; source terms, privacy limits, and dataset permissions remain source-specific and are not granted by Quill.
 - MCP tools (adoption driver)
 - The engine and cross-reference queries
-- The SDK (MIT — maximum adoption)
-- The API server and MCP server (Apache 2.0 — self-host freely)
+- SDK access as a product feature; use and redistribution remain subject to the artifact's applicable license notices.
+- API and MCP server access as product features; package license policy remains unresolved in [LICENSE.md](../LICENSE.md).
 
 **What we DO gate:**
 - Infrastructure management (the core SaaS value prop)
@@ -62,7 +62,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 - Team seats and collaboration features
 - Usage analytics dashboard
 - Custom data modules / private ingestion
-- Commercial license (bypass AGPL for proprietary embedding)
+- Any separate license offer only after rights-holder approval and a written agreement defining its scope.
 
 ---
 
@@ -86,7 +86,7 @@ docker compose up
 | **Auth** | API key (single-tenant) |
 | **Database** | SQLite (local) |
 | **Support** | GitHub Issues, Discussions |
-| **License** | AGPL (pipeline-core/engine), Apache 2.0 (servers), MIT (SDK) |
+| **License** | Unresolved package/file declaration conflicts; see [open-source audit](./open-source-audit.md) |
 
 ### Tier 1: Free SaaS
 
@@ -145,7 +145,7 @@ docker compose up
 | **Custom modules** | ✅ (private data ingestion) |
 | **White-label** | ✅ |
 | **On-premise** | ✅ |
-| **Commercial license** | ✅ (bypass AGPL for embedding) |
+| **Separate license offer** | Not established; requires rights-holder approval and a documented offer for the relevant code. |
 | **Support** | < 1h response |
 | **SLA** | 99.9% uptime |
 
@@ -188,7 +188,7 @@ if (!canAccess(ctx.tenant.tier, 'aiRag')) {
 | `customModules` | — | — | — | ✅ |
 | `whiteLabel` | — | — | — | ✅ |
 | `onPremise` | — | — | — | ✅ |
-| `commercialLicense` | — | — | — | ✅ |
+| `commercialLicense` | — | — | — | ✅ (feature-gate label only; not a license grant) |
 | `prioritySupport` | — | — | ✅ | ✅ |
 | `enterpriseSla` | — | — | — | ✅ |
 
@@ -198,18 +198,11 @@ if (!canAccess(ctx.tenant.tier, 'aiRag')) {
 
 ---
 
-## Licensing Alignment
+## Licensing Status
 
-MapleSpike's three-tier licensing structure maps cleanly to the SaaS tiers:
+Do not use SaaS tiers or feature gates to describe software rights. The repository, package, and file-level license declarations conflict, and some artifacts have no declared license. No tier currently creates or proves a separate license grant. See the [open-source audit](./open-source-audit.md) and `LICENSE.md`; rights-holder and counsel review is required before publishing license terms or offering relicensing.
 
-| License | Packages | Applies To |
-|---|---|---|
-| **AGPL-3.0** | pipeline-core, engine | Community self-hosted (source-sharing obligation if modified) |
-| **Apache-2.0** | api-server, quill-mcp, portal | All tiers — permissive self-hosting |
-| **MIT** | sdk, sdk-python, legal-core, legislation | All tiers — zero-friction adoption |
-| **Commercial** | pipeline-core, engine | Enterprise tier only — bypass AGPL for proprietary embedding |
-
-An Enterprise customer who wants to embed MapleSpike's ingestion engine in a proprietary product pays for the commercial license instead of being bound by AGPL-3.0 source-sharing obligations.
+The `commercialLicense` feature-gate identifier is a product configuration label only. It does not create a license, change an existing license, or establish that MapleSpike has authority to grant additional rights.
 
 ---
 
@@ -257,13 +250,13 @@ An Enterprise customer who wants to embed MapleSpike's ingestion engine in a pro
 ## FAQ
 
 **Q: Can I run the full platform without ever paying MapleSpike?**
-A: Yes. `git clone` + `docker compose up` gives you everything — 207 modules, 184 MCP tools, entity resolution, cross-reference queries. You run the infrastructure. The AGPL license applies to any modifications you distribute.
+A: The repository contains the code and deployment configuration. Before use or redistribution, review the applicable package, file, and dependency notices; those declarations are currently under review. Source-data terms are separate and vary by publisher and dataset.
 
 **Q: What happens if I hit my API limit?**
 A: Requests return `429 Rate Limited` until the next billing period. You can upgrade instantly in the developer console — no downtime.
 
-**Q: Can I use the Enterprise commercial license without buying SaaS hosting?**
-A: Yes. The commercial license is a legal document that replaces the AGPL-3.0 obligations on `pipeline-core` and `engine`. It's available to Enterprise customers regardless of whether they self-host or use our SaaS.
+**Q: Does an Enterprise tier include a separate software license?**
+A: No separate grant is established by this tier document or by the `commercialLicense` feature gate. Any future offer requires rights-holder approval, a defined scope, and a written agreement.
 
 **Q: Is there a nonprofit / academic discount?**
 A: We plan to offer a 50% discount on Business tier for verified nonprofits and academic institutions. Contact billing@maplespike.lan for details.

@@ -5,6 +5,8 @@ status: active
 
 # UN Data Sources Research — Issue #562
 
+> Historical research snapshot. This report is not dataset-level clearance or legal advice. Verify current UNdata and agency terms, dataset scope, attribution, exclusions, API conditions, and intended uses before reuse. Compatibility assertions below are withdrawn; Quill software license declarations remain unresolved.
+
 **Date**: 2026-06-02
 **Status**: ✅ Implementation Complete (Issue #582)
 **Research Summary**
@@ -67,7 +69,7 @@ parseUnObs(obs, dims, ...)                      // SDMX observation parser
 | API endpoints identified | ✅ Documented | SDMX REST API + agency-specific APIs |
 | Data formats characterized | ✅ Documented | SDMX-ML/XML parsed to JSON |
 | Sample queries tested | ✅ Tested | Trade, population, health databases working |
-| Usage terms verified | ✅ Verified | UNdata Terms of Use compatible |
+| Usage terms verified | ⚠️ Historical note only | Review current terms for each dataset and use |
 
 ---
 
@@ -189,18 +191,9 @@ Dataset fetch: /data/{agency},{dataflowId},{version}/{key}/{startTime}/{endTime}
 
 ---
 
-## Licensing
+## Licensing — Research Leads, Not Clearance
 
-**License**: UNdata Terms of Use
-- **Permissive for non-commercial use**
-- **Attribution required** (implemented via metadata)
-- **Compatible with MapleSpike** (AGPL-3.0 core + MIT tools)
-
-**Agency-Specific Licenses**:
-- Most UN agencies use open data policies similar to UNdata
-- UNDP: Open data with attribution
-- UNCTAD: Open data with attribution
-- ILO, UNESCO, FAO: Open data with attribution
+This report previously characterized UNdata terms as permissive and compatible with Quill; those conclusions are withdrawn. Consult current UNdata terms and the specific agency and dataset notices. Agency terms may differ. Confirm scope, attribution, exclusions, API conditions, and intended uses before reuse. Metadata added by the integration is not proof of publisher permission or dataset coverage.
 
 ---
 
@@ -288,7 +281,7 @@ Dataset fetch: /data/{agency},{dataflowId},{version}/{key}/{startTime}/{endTime}
 | API endpoints identified | ✅ SDMX + 8 agency APIs documented |
 | Data formats characterized | ✅ SDMX-ML/XML parsed to JSON |
 | Sample queries tested | ✅ Trade, population, health databases tested |
-| Usage terms verified | ✅ UNdata + agency licenses compatible |
+| Usage terms verified | ⚠️ Dataset-level scope and current agency terms remain to be checked |
 | Priority ranking assigned | ✅ See "Priority Ranking" section |
 | Pilot phase recommendation | ✅ Current implementation ready |
 

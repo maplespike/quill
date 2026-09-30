@@ -19,7 +19,7 @@
 ## 1. Where Quill Stands (audit synthesis)
 
 ### Repo facts (`gh` audit, reverb256/quill)
-- **Private**, 0 stars, 0 forks. Created 2026-05-12, last push 2026-08-21. License "Other" (AGPL/MIT split not machine-readable — set up dual LICENSE files so GitHub renders it).
+- **Private**, 0 stars, 0 forks. Created 2026-05-12, last push 2026-08-21. GitHub displayed license "Other" at the time of this snapshot. Package/file declarations conflict; see [open-source audit](./open-source-audit.md). Do not assume a simple AGPL/MIT split or add a dual-license label without rights-holder approval.
 - Private + zero stars = the entire open-source growth loop (Context7-style) is currently **switched off**.
 
 ### Codebase facts
@@ -39,13 +39,13 @@
 
 ## 2. The trust moat (keep, sharpen, lead with it)
 
-OGL-Canada data is free to anyone. The sellable layers are **assembly, verification, graph, interface** — and Quill is the only player with a *verifiable* layer:
+Source data terms vary by dataset; public availability does not establish reuse permission. The potential product layers are **assembly, verification, graph, interface** — with Quill's verifiability as one capability:
 
 1. Every record carries `sha256(canonicalJson)`; anyone can reproduce it without trusting Quill.
 2. Free public verify endpoints (`POST /v1/claims/verify`, `verify_claim` tool) — the only tool in its ecosystem with no analogue anywhere.
 3. Per-registry confidence in the cross-registry entity graph.
 
-Positioning sentence: **"The verified Canadian data layer for AI — every answer independently checkable."** No incumbent (FiscalNote/Quorum/OpenCorporates) and no Canadian competitor offers hash-verifiable output. This is also the hook that makes the activation skill work ("every result is independently verifiable" is a reason for the agent to prefer Quill over web search).
+Positioning sentence: **"The verified Canadian data layer for AI — every answer independently checkable."** Do not make exclusivity claims without current competitor evidence. Quill can provide hash-verifiable output when the specific response path includes a claim bundle. This is also the hook that makes the activation skill work ("every result is independently verifiable" is a reason for the agent to prefer Quill over web search).
 
 ---
 
@@ -119,7 +119,7 @@ Full vendor-by-vendor research with live-site verification (HTTP checks, pricing
 | **D. Verified-AI analyst** ("AlphaSense for Canadian public data") | `ai_ask` + claim bundles = sourced, checkable answers | Differentiated AI product; needs eval quality work. **Phase 3 feature.** |
 | **E. Compliance/KYB entity verification** | Beneficial-ownership checks for banks | Highest ceiling, 12–24mo, regulation tailwind ("snow-washing"). **Phase 4 ceiling.** |
 | **F. Data licensing to AI labs** | Claim-bundle corpora for training/RAG | Speculative, high effort. **Opportunistic only.** |
-| **G. Grants / public-interest funding** | Non-dilutive runway via journalism/civic-tech programs | Pairs with sovereign/AGPL positioning. **Parallel track.** |
+| **G. Grants / public-interest funding** | Non-dilutive runway via journalism/civic-tech programs | Funding exploration; do not make software-license positioning claims while package rights remain unresolved. **Parallel track.** |
 | **H. Full rewrite of the MCP server on official SDK** | Replace 834-line hand-rolled JSON-RPC with `@modelcontextprotocol/sdk` | Not required for revenue; do opportunistically. The surface (§5) matters more than the transport. |
 | **I. Package pruning** | Merge/retire vestigial packages (sdk-shell, flywheel-agent, edge-worker, notification-service…) | Maintenance hygiene; reduces CI cost; not revenue-critical. **Backlog.** |
 | **J. Sell the dataset / acqui-hire** | Exit path | Always available; the plan below raises the price of this option. |
@@ -167,7 +167,7 @@ Plus the Enigma trust moves: publish the machine-readable price map (#837), pre-
 ### Phase 4 — Seats & ceiling (months 6–18)
 - GR workflow layer (entity alerts on committees/lobbying/GIC/procurement + auto-generated weekly provenance briefs) → converts $49 API users into **$2k–7k/seat** accounts; attack Gnowit/Quorum pricing from below.
 - Compliance packaging of the entity-resolution engine (KYB/beneficial-ownership checks) — OpenCorporates-style "legal-entity data you can trust" positioning, riding Canada's BO-transparency tailwind.
-- Sovereign self-host tier (K3s/Nix/`selfhost.sh` already built) for provinces, universities, unions, public broadcasters — AGPL core + paid enterprise-license key.
+- Sovereign self-host tier (K3s/Nix/`selfhost.sh` already built) for provinces, universities, unions, and public broadcasters — commercial and redistribution terms require rights-holder approval and a documented offer; a paid tier does not itself grant software rights.
 
 ---
 

@@ -116,7 +116,7 @@ Clean local/remote graph, license disclosure loop, and active cron/kanban before
 | Update `CONTRIBUTING.md` with branch/PR discipline section | P2 | 30m | ✅ DONE (2026-07-04 — `Workflow`, `PR Checklist`, and `Local Setup` sections in tree) |
 | Resolve `mcp-server` license discrepancy (`package.json` Apache-2.0 vs README MIT) | P0 | 30m | ✅ DONE (2026-07-04 — `packages/quill-mcp/package.json` and `packages/quill-mcp/README.md` both state Apache-2.0) |
 | Run license-checker on `pnpm-lock.yaml`; verify no GPL deps in commercial tier | P1 | 1-2h | 🟡 TODO |
-| Verify OGL-CA attribution on all upstream data sources | P1 | 1h | 🟡 TODO |
+| Review source terms and dataset-level attribution across upstream data sources | P1 | 1h | 🟡 TODO |
 | Generate `NOTICE` files per package's third-party dependencies (SBOM) | P2 | 1h | 🟡 Partial (2026-07-04 — `packages/quill-mcp/NOTICE.md` added; **13 of 14** workspace packages still need NOTICE.md — see `docs/metrics.json` `packages.names` for the deferred set; full CycloneDX/SPDX SBOM tracked under "Run license-checker on `pnpm-lock.yaml`") |
 | Install/configure `hermes` gateway + systemd unit | P0 | 30m | 🟡 TODO |
 | Activate Kelos `.kelos/workflows/docs-maintenance.yml` (metadata / TODO / metrics scans) | P1 | 30m | 🟡 TODO |

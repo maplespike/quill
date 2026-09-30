@@ -25,10 +25,10 @@ The pipeline ingests data from external government APIs and publishes it verbati
 
 | Threat | Mitigation | Status |
 |--------|-----------|--------|
-| Government API compromise (MITM, DNS poisoning) | HTTPS enforcement, SHA-256 citation hashes on every record | Active |
+| Government API compromise (MITM, DNS poisoning) | HTTPS enforcement; integrity hashes are available for some records and do not by themselves authenticate the upstream source | Active |
 | Data drift (source changes schema silently) | CI live-data-check workflow validates endpoints on every push to main | Active |
 | Malicious or corrupted source data | Trust scoring (>=60% threshold), deterministic parsers reject malformed input | Active |
-| Ingestion of non-public or privacy-sensitive data | Source allowlist in registry.ts — only OGL-Canada or permissively licensed endpoints | Active |
+| Ingestion of non-public or privacy-sensitive data | Source registry and privacy controls; public availability or portal membership is not treated as a license grant. Dataset terms and privacy scope require source-specific review. | Review required |
 
 ### 2. Supply Chain
 
@@ -109,10 +109,6 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 
 - **OWASP threat model document:** Issue #360 referenced docs/owasp-threat-model-phase9.md containing 40 TODOs. This file never existed in the repository (not on any branch, not in git history, not referenced by any file). The issue was based on a phantom from a faulty docs audit. This SECURITY.md replaces that nonexistent document.
 
-## License
+## License metadata
 
-- Core (pipeline-core, engine): AGPL-3.0-or-later
-- Interface (api-server, quill-mcp, portal): Apache-2.0
-- Client (sdk, sdk-python): MIT
-
-See [LICENSE.md](./LICENSE.md) for full details.
+Repository, package, and file-level license declarations conflict. This document does not determine which terms apply to each artifact. See [LICENSE.md](./LICENSE.md) and the [open-source audit](./docs/open-source-audit.md) for observed declarations and unresolved decisions.

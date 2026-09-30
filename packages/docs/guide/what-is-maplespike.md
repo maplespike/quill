@@ -1,80 +1,28 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-09-29
 status: active
 ---
 
-# What Is MapleSpike?
+# What is MapleSpike?
 
-MapleSpike is **Canada's sovereign, AI-native government data pipeline**. It ingests, verifies, curates, and surfaces Canadian government data through a unified REST API, MCP server, and TypeScript SDK.
+MapleSpike provides API and MCP access to selected Canadian government and other public-sector records. Available sources, response fields, and update schedules vary by module and upstream publisher.
 
-One API key grants access to every major Canadian government dataset — Statistics Canada cubes, open.canada.ca CKAN portals, provincial data, parliamentary committees, federal lobbying, procurement, court decisions, immigration data, and more — packaged with machine-readable citations, provenance metadata, and trust scores.
+## Data and citations
 
-## Mission
+Some claim records include SHA-256 hashes of Quill's canonical record JSON. A matching hash checks that record representation only; it does not prove source authenticity, completeness, accuracy, or reuse rights. Acquisition and transformation evidence is exposed when recorded. Missing evidence remains unknown.
 
-Canada's open data ecosystem is fragmented. Developers and journalists navigate 6+ separate portals (StatCan WDS, open.canada.ca CKAN, ON/BC/AB/QC portals), each with different APIs, rate limits, data formats, and licensing. MapleSpike fills this gap with a single pipeline.
+## Source terms
 
-> **One pipeline to ingest, verify, and serve all Canadian public data.**
+Publisher terms vary by publisher, dataset, API, and jurisdiction. Public availability or a government portal does not itself grant reuse rights. When publisher metadata is supplied, MapleSpike may display it as publisher-provided information; this is not an independent legal review. Consult the original publisher's terms for the specific dataset and use.
 
-## Data Sources
+## Interfaces
 
-MapleSpike ingests from **144 data modules** covering every major category of Canadian government information:
+- REST API for programmatic access.
+- MCP tools for supported AI-agent workflows.
+- TypeScript SDK and web-based data tools.
 
-| Category | Modules |
-|----------|---------|
-| Government Core | RSS feeds, gov API (StatCan/CKAN), attestation (citations), provincial CKAN, GC standards |
-| Parliamentary | Committees, GIC appointments, Canada Gazette, Elections Canada |
-| Oversight | OAG, PBO, Ethics Commissioner, Competition Bureau, CRTC, federal tribunals, ATI |
-| Legal | CanLII court decisions, LMIA, legislation tracking, A2J legal API, CIPO |
-| Immigration | IRCC permanent/temporary residents, IRB refugee decisions, CBSA enforcement |
-| Indigenous | CIRNAC land claims, ISC programs, FN transparency, TRC Calls to Action |
-| Defence | DND personnel/procurement, Veterans Affairs benefits/services |
-| Transport | TSB occurrences, Transport Canada recalls, CTA rulings, Infrastructure Canada |
-| Health | Health Canada drug/device approvals, CIHI, CADTH, CFIA recalls, PMPRB, PHAC |
-| Corporate | Lobbying registry, procurement, SEDI insider trading, SEDAR+ filings, CRA charities |
-| Influence | 30+ tracked IOs/NGOs/think tanks, NGO RSS feeds, cross-reference engine |
-| Media | CRTC decisions, broadcasting ownership, cultural spending |
-| Environment | NPRI pollutant releases, Species at Risk, Impact Assessment, fisheries, agriculture, LODE geospatial |
-| Provincial | All 13 provinces/territories — CKAN portals, legislatures, lobbying, regulators |
-| Municipal | 19 major cities, plus long-tail federation covering 3,490+ municipalities |
-| Social | CPP/OAS, EI, Canada Child Benefit, poverty stats, social assistance |
-| Science | CSA space missions, Mitacs grants, ocean observations, polar data |
-| Economy | Bank of Canada, CMHC housing data, trade indicators |
+Response fields and capabilities vary by endpoint. Verify important facts directly with the original source.
 
-## Architecture
+## Coverage
 
-```
-K3s Cluster (nginx)
-  └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
-
-K3s Cluster (nexus)
-  ├── MCP server (SSE, port 3001) ── 130 tools, all live
-  ├── API server (REST, Bearer auth, rate limits)
-  │     ├── SQLite (keys, usage, audit)
-  │     ├── In-memory cache (node-cache)
-  │     └── pipeline-core (ingestion, curation, verification)
-  └── Engine CronJobs (ingestion scheduling)
-```
-
-## Access Methods
-
-| Method | Description | Best For |
-|--------|-------------|----------|
-| **MCP Server** | 129 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
-| **REST API** | HTTP endpoints at `/v1/*` with Bearer auth | Scripts, apps, direct integration |
-| **TypeScript SDK** | `@maplespike/sdk` — typed client for all modules | Node.js/TypeScript projects |
-| **CLI** | Run the MCP server locally via stdio | Local development |
-
-## Status
-
-- **144 ingestion modules** — ~188K lines of TypeScript
-- **129 MCP tools** — all live and returning real data
-- **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
-- **1,240+ unique external endpoints** consumed across all modules
-- **19 cities** with direct open data fetchers; **3,490+** via federation
-- **13 packages** — compile clean with full CI/CD pipeline
-
-## Attribution
-
-All data sourced from Canadian government portals is provided under the **Open Government Licence – Canada**. Every API response includes the required attribution:
-
-> *"Contains information licensed under the Open Government Licence – Canada."*
+The service integrates a range of data modules. Module availability and source coverage can change; consult the API and module documentation for current details.

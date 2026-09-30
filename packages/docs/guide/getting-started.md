@@ -59,8 +59,10 @@ All API responses follow a standard envelope:
   },
   "citation": {
     "source_name": "Statistics Canada",
-    "license": "Open Government Licence – Canada",
-    "retrieved_at": "2026-05-14T11:36:00Z"
+    "license": "Publisher-declared terms when supplied; otherwise an explicit notice to consult the publisher's terms",
+    "license_basis": "publisher-metadata or no-publisher-declaration",
+    "retrieved_at": null,
+    "provenance_evidence": null
   }
 }
 ```

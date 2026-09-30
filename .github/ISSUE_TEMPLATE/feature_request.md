@@ -14,10 +14,10 @@ What area does this affect?
 Why is this needed? What user or agent need does it address?
 
 ## Proposed Solution
-- **Data source(s):** [URLs, APIs, update frequency, license verification]
+- **Data source(s):** [URLs, APIs, update frequency, dataset-specific source terms and provenance]
 - **MCP tools needed:** [tool names following naming convention]
 - **Packages affected:** [which packages need changes]
-- **License:** [Verify OGL-C or compatible]
+- **Source terms:** [Identify the publisher's dataset-specific terms; do not infer a license from public access or jurisdiction]
 - **Ingestion approach:** [Fetcher, parser, DB strategy]
 
 ## Acceptance Criteria

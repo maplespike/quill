@@ -5,6 +5,8 @@ status: active
 
 # World Bank Data Sources Research — Issue #563
 
+> Historical research snapshot. This report is not dataset-level clearance or legal advice. Verify current World Bank terms, dataset scope, attribution, exclusions, API conditions, and intended uses before reuse. Its compatibility assertions below are withdrawn; Quill software license declarations remain unresolved.
+
 **Date**: 2026-06-02
 **Status**: ✅ Implementation Complete (Issue #580)
 **Research Summary**
@@ -62,7 +64,7 @@ fetchTopicData(topicCode, countries?, dateRange?)          // Topic-based batch
 | Agricultural & Rural Development | ❌ Not implemented | Missing from topic groupings |
 | API access patterns documented | ✅ Documented | JSON API, paginated (250 records/page) |
 | Sample queries tested | ✅ Tested | GDP, health, education indicators working |
-| Licensing verified | ✅ Verified | Open access with attribution required |
+| Licensing verified | ⚠️ Historical note only | Review current terms for each dataset and use |
 
 ### Additional Datasets from World Bank
 
@@ -181,14 +183,11 @@ MEX, BRA, IND, CHN, ZAF, NOR, SWE, CHE
 
 ---
 
-## Licensing
+## Licensing — Research Lead, Not Clearance
 
-**License**: World Bank Open Data Policy
-- **Open access with attribution required**
-- **No restrictions on use** for non-commercial purposes
-- **Compatible with MapleSpike** (AGPL-3.0 core + MIT tools)
+This report previously described World Bank terms as verified and compatible with Quill; that conclusion is withdrawn. Treat the World Bank Open Data Policy reference as a research lead only. Confirm its current scope for each dataset, attribution requirements, exceptions, API terms, and the specific intended use. Do not infer permission or software-license compatibility from API availability or this summary.
 
-**Attribution**:
+**Attribution example recorded by the implementation** (not proof that a dataset is covered):
 ```typescript
 // Metadata includes source attribution in each record
 {
@@ -274,7 +273,7 @@ MEX, BRA, IND, CHN, ZAF, NOR, SWE, CHE
 | API endpoints identified | ✅ Indicators API V2 documented |
 | Data formats characterized | ✅ JSON primary, pagination handled |
 | Sample queries tested | ✅ GDP, health, education indicators tested |
-| Usage terms verified | ✅ World Bank Open Data compatible |
+| Usage terms verified | ⚠️ Current dataset-level scope and use remain to be checked |
 | Priority ranking assigned | ✅ See "Priority Ranking" section |
 | Pilot phase recommendation | ✅ Current implementation ready |
 

@@ -7,7 +7,7 @@ status: active
 
 > **Pipeline de données gouvernementales canadiennes souverain et natif pour l'IA** — une couche unifiée pour les données gouvernementales, le suivi de l'influence des entreprises, la surveillance des comités, le renseignement réglementaire et le suivi des acteurs politiques. Construit sans dépendance au nuage externe, déployé sur un cluster K3s.
 
-**Statut :** Développement actif · **Licence :** AGPL-3.0/MIT · **Stack :** TypeScript + Python + NixOS/K3s
+**Statut :** Développement actif · **Métadonnées de licence :** non résolues; voir l'[audit des licences](docs/open-source-audit.md) · **Stack :** TypeScript + Python + NixOS/K3s
 
 > **Note (2026-07) :** Ce dépôt a été renommé de `reverb256/maplespike` → `maplespike/quill`. Les identifiants au niveau produit (images conteneurs, ressources K8s, sorties Nix) sont désormais `quill-*`. Les identifiants au niveau marque — domaine `maplespike.ca`, DNS `*.maplespike.lan`, espace de noms K8s `maplespike` — sont préservés.
 >
@@ -22,7 +22,7 @@ MapleSpike ingère, vérifie et présente des données gouvernementales canadien
 
 > **Modules :** 142 modules d'ingestion enregistrés · **Outils MCP :** 135 tous en direct · **Lignes TypeScript :** ~178 000 · **Forfaits :** 13
 
-Chaque enregistrement comprend des hachages de citation SHA-256, une provenance des sources et des pistes d'audit pour une vérification indépendante.
+Les enregistrements peuvent inclure des hachages SHA-256, la provenance des sources et des métadonnées de piste d'audit. Les hachages permettent des comparaisons d'intégrité; ils n'établissent ni l'authenticité de la source ni les droits de réutilisation.
 
 ---
 
@@ -75,9 +75,8 @@ pnpm start
 
 ---
 
-## Licence
+## Licences
 
-**Bibliothèque principale** (`packages/pipeline-core`) : AGPL-3.0 · **Serveur MCP** : MIT
-**Moteur** : MIT · **Portail** : MIT
+Les déclarations de licence du dépôt, des paquets et des fichiers sont contradictoires. Ne considérez pas ce README ni le fichier `LICENSE` racine comme une autorisation définitive pour chaque paquet ou artefact. Consultez l'[audit des licences](docs/open-source-audit.md) et les [faits de licence](LICENSE.md); le titulaire des droits n'a pas encore résolu ces conflits.
 
-Les données gouvernementales conservent leur licence originale (principalement [Licence du gouvernement ouvert – Canada](https://ouvert.canada.ca/fr/licence-du-gouvernement-ouvert-canada)).
+Les conditions des données sources sont distinctes des licences logicielles et varient selon l'éditeur et le jeu de données. Quill n'accorde pas de droits indépendants de réutilisation sur le contenu source. Consultez l'[audit des sources](docs/licensing-audit.md) et les conditions originales de l'éditeur.
