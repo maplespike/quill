@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-// build-docs.js — Convert packages/docs/*.md to portal-native HTML
-// Output: packages/portal/docs/{section}/{slug}.html
+// build-docs.mjs — Convert packages/docs/**/*.md to portal-native HTML
+// Output: packages/portal/dist/docs/{section}/{slug}.html (the copy GitHub
+// Pages actually serves — see .github/workflows/deploy-docs.yml).
+// packages/portal/docs/ is an older, unregenerated output of this script and
+// is NOT deployed; do not edit it or treat it as canonical.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
@@ -168,7 +171,7 @@ function buildPage(title, description, sectionKey, slug, bodyHtml) {
     "@type": "WebApplication",
     "name": "MapleSpike",
     "url": "https://maplespike.ca",
-    "description": "Canadian government data pipeline with verified citations",
+    "description": "Canadian public-sector data API; coverage, response fields, and publisher terms vary by endpoint and source.",
     "applicationCategory": "Data API",
     "offers": {
       "@type": "Offer",
@@ -327,7 +330,7 @@ ${bodyHtml}
         <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
         MapleSpike
       </a>
-      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
+      <p>Canadian public-sector data infrastructure. Source coverage and publisher terms vary; consult original source terms.</p>
     </div>
     <div>
       <h4>Product</h4>
@@ -348,15 +351,15 @@ ${bodyHtml}
     <div>
       <h4>Legal</h4>
       <ul>
-        <li>Terms of Service</li>
-        <li>OGL-C Attribution</li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/citation">Citations and source terms</a></li>
         <li><a href="https://github.com/reverb256">GitHub</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
     <span>&copy; 2026 MapleSpike.</span>
-    <span>Data: <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence &ndash; Canada</a>.</span>
+    <span>Source terms vary by publisher and dataset. Consult the original publisher's terms.</span>
   </div>
 </footer>
 
