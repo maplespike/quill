@@ -17,7 +17,7 @@ import {
   addRateLimitHeaders,
   corsPreflight,
   calcRateLimitReset,
-  OGL_C_CITATION,
+  UNKNOWN_SOURCE_CITATION,
 } from '../response.js';
 import type { CitationMeta, BuildContext } from '../response.js';
 import type { Tenant } from '../types.js';
@@ -51,16 +51,15 @@ function makeContext(overrides?: Partial<BuildContext>): BuildContext {
 
 describe('enrichCitation', () => {
   it('adds citation_text and citation_footnote when missing', () => {
-    const meta: CitationMeta = {
-      ...OGL_C_CITATION,
-    };
-    // Remove any pre-existing citation_text/footnote from the spread
     const result = enrichCitation({
       source_name: 'Test Source',
       source_url: 'https://example.com/data',
       retrieved_at: new Date().toISOString(),
       data_hash: '',
-      license: 'https://example.com/license',
+      license: 'Publisher-declared: CC BY 4.0',
+      license_url: 'https://creativecommons.org/licenses/by/4.0/',
+      license_basis: 'publisher-metadata',
+      attribution_text: 'Follow publisher wording.',
       update_frequency: 'daily',
     });
     assert.ok(result.citation_text);
@@ -145,12 +144,20 @@ describe('buildSuccess', () => {
     assert.ok(resp.quality!.freshness_seconds >= 0);
   });
 
-  it('includes citation with OGL default', () => {
+  it('does not fabricate a source retrieval timestamp for generic responses', () => {
+    const resp = buildSuccess('data', makeContext());
+    assert.equal(resp.citation?.retrieved_at, null);
+    assert.equal(resp.citation?.citation_text?.includes('retrieved'), false);
+  });
+
+  it('uses an explicit no-publisher-declaration notice for generic responses', () => {
     const ctx = makeContext();
     const resp = buildSuccess('data', ctx);
 
     assert.ok(resp.citation);
-    assert.ok(resp.citation!.source_name.includes('Open Government'));
+    assert.equal(resp.citation!.source_name, UNKNOWN_SOURCE_CITATION.source_name);
+    assert.equal(resp.citation!.license_basis, 'no-publisher-declaration');
+    assert.match(resp.citation!.license, /No publisher license declaration/);
   });
 
   it('merges extra citation fields when provided', () => {
@@ -204,12 +211,13 @@ describe('buildError', () => {
     assert.ok(resp.quality);
   });
 
-  it('includes OGL citation', () => {
+  it('includes a generic no-publisher-declaration citation', () => {
     const ctx = makeContext();
     const resp = buildError('ERROR', 'Something went wrong', ctx);
 
     assert.ok(resp.citation);
-    assert.equal(resp.citation!.source_name, OGL_C_CITATION.source_name);
+    assert.equal(resp.citation!.source_name, UNKNOWN_SOURCE_CITATION.source_name);
+    assert.equal(resp.citation!.license_basis, 'no-publisher-declaration');
   });
 });
 

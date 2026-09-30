@@ -125,7 +125,7 @@ const PLANS: Record<string, Plan> = {
       'Custom data modules',
       'White-label portal',
       'On-premise deployment option',
-      'Commercial license (bypass AGPL)',
+      'Legacy commercialLicense feature flag (does not grant software rights)',
       'SLA (99.9% uptime, < 1h response)',
     ],
   },

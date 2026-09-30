@@ -127,7 +127,8 @@ test('municipalSearchHandler returns matched records with citation + cache marke
     assert.equal(r.municipalityId, 'montreal');
     assert.equal(r.province, 'QC');
     assert.match(r.provenance.citation_hash, /^sha256:[a-f0-9]{64}$/);
-    assert.equal(r.provenance.license, 'OGL-Canada-2.0');
+    assert.match(r.provenance.license, /publisher license was not declared/i);
+    assert.equal(r.provenance.license_basis, 'no-publisher-declaration');
     assert.equal(r.provenance.from_cache, true);
     assert.ok(r.provenance.cache_age_seconds >= 0);
   }

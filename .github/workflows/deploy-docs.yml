@@ -69,9 +69,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build docs (MD → HTML)
-        run: node scripts/build-docs.mjs
-
       - name: Build workspace packages
         # The portal imports @maplespike/i18n and @maplespike/sdk from the
         # workspace. Without this their dist/ does not exist and the portal
@@ -88,9 +85,11 @@ jobs:
           # Publishable by design: ships in the portal's client bundle anyway.
           PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
-      - name: Copy docs and legacy assets into portal dist
+      - name: Build docs from canonical Markdown
+        run: node scripts/build-docs.mjs
+
+      - name: Copy portal assets into portal dist
         run: |
-          cp -r packages/portal/docs packages/portal/dist/docs
           cp packages/portal/styles.css packages/portal/dist/styles.css
           cp packages/portal/docs-pretext.js packages/portal/dist/docs-pretext.js
 

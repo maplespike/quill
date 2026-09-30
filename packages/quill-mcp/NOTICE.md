@@ -1,80 +1,13 @@
----
-last-reviewed: 2026-07-04
-status: active
----
+# @maplespike/quill-mcp — notice status
 
-# @maplespike/quill-mcp — NOTICE
+This file is **not a complete third-party NOTICE or SBOM**. It records project-specific attribution context only. Do not use it as evidence that this package or its OCI image is cleared for redistribution.
 
-Copyright 2026 MapleSpike contributors
+Copyright 2026 MapleSpike contributors. The list of contributors and applicable copyright notices must be verified from the source history and contributor records before public distribution.
 
-This product includes software developed at
-MapleSpike (https://maplespike.ca).
+Quill uses and adapts third-party software and interfaces. The resolved dependency set and license declarations vary by lockfile revision and by artifact. The current [`open-source audit`](../../docs/open-source-audit.md) identifies unresolved package/file declaration conflicts and dependency license candidates. A versioned, artifact-specific SBOM and complete third-party notice bundle have **not** yet been generated and reviewed for this release.
 
-> **Licensing interaction:** When this package (Apache-2.0) is statically
-> or dynamically linked to `@maplespike/database` or `@maplespike/pipeline-core`
-> (both AGPL-3.0-or-later per `LICENSE.md` three-tier model), the combined
-> work inherits AGPL network-copyleft obligations. Apache-2.0 §3 (patent
-> grant) does NOT override the AGPL §13 network clause. Downstream
-> republishers must comply with AGPL-3.0-or-later or purchase a
-> commercial license — see `LICENSE.md` §"Commercial License".
+This package's `package.json` declares Apache-2.0, its adjacent `LICENSE` contains Apache-2.0 text, and many source files declare other SPDX identifiers. Runtime workspace dependencies include `@maplespike/pipeline-core` (manifest: AGPL-3.0-or-later) and `@maplespike/database` (no manifest license declaration found). The intended licensing and distribution treatment is unresolved. Do not assume Apache-2.0 alone describes every file or the combined application.
 
-## Upstream Data Sources
+Upstream data terms are source- and dataset-specific. Neither this notice nor the software license grants rights in external data.
 
-This product fetches data from **203 upstream data modules** spanning
-Canadian open-data sources. All upstream data is licensed under the
-[Open Government Licence — Canada](https://open.canada.ca/en/open-government-licence-canada).
-
-Specific upstream source families (full list in `src/modules/`):
-
-| Source family | Example modules | OGL-CA attribution |
-|---------------|-----------------|--------------------|
-| Statistics Canada (StatCan) | `statcan-cpi`, `statcan-gdp`, `statcan-population` | Statistics Canada |
-| Open Parliament | `openparliament-bills`, `openparliament-mps`, `openparliament-votes` | Open Parliament |
-| Canada Gazette | `gazette-part-i`, `gazette-part-ii` | Government of Canada |
-| Open.Canada.ca CKAN portal | `ckan-federal-registry`, `ckan-open-canada` | Government of Canada |
-| SEDI / SEDAR+ | `sedi-insider-filings`, `sedar-corp-filings` (planned) | CIRO / CSA |
-| Health Canada / agencies | `health-canada-drugs`, `cihi-wait-times`, `cfia-recalls` | Health Canada et al. |
-| Federal regulators | `npri-pollution`, `sara-species`, `dfo-fisheries` | ECCC / DFO |
-| Provincial (Lobbyists, Legislatures) | `ontario-lobbyists`, `bc-lobbyists`, `qc-assnat` | Province of Ontario / BC / QC |
-| Other (CKAN, Socrata, ArcGIS) | per-source `README.md` | Per-source attribution |
-
-For per-source attribution requirements, see the README/docstring of
-each module in `src/modules/<source>/`. OGL-CA attribution must be
-preserved wherever derived outputs are republished (see
-[`LICENSE.md`](../../LICENSE.md) "Data vs. Code License").
-
-## Third-Party Dependencies
-
-### Workspace-internal (MapleSpike contributors)
-
-This product depends on internal workspace packages, also by MapleSpike
-contributors:
-
-- `@maplespike/database` — AGPL-3.0-or-later (Core tier; see `LICENSE.md`)
-- `@maplespike/pipeline-core` — AGPL-3.0-or-later (Core tier; see `LICENSE.md`)
-
-### External (3rd-party)
-
-This product includes software developed by third parties:
-
-| Dependency | License | Upstream |
-|------------|---------|----------|
-| [`pino`](https://getpino.io/) | MIT | pinojs |
-| [`pino-pretty`](https://github.com/pinojs/pino-pretty) | MIT | pinojs |
-| `three` (transitive, via `pipeline-core`) | MIT | mrdoob |
-
-For the complete transitive dependency list, see `package.json` and
-the resolved tree in `pnpm-lock.yaml`. A full SBOM (CycloneDX or
-SPDX) is generated as part of Phase 3 row "Run license-checker on
-`pnpm-lock.yaml`; verify no GPL deps in commercial tier".
-
-## Modifications
-
-This is a derivative work of the upstream dependencies listed above.
-Modifications are tracked in the git history at
-<https://github.com/reverb256/quill>.
-
-## License
-
-This product is licensed under the Apache License, Version 2.0.
-See `LICENSE` in this package for the full license text.
+Before distributing a built package or OCI image, maintainers must produce and review its exact file/dependency inventory, preserve applicable license texts and attribution notices, and resolve the licensing questions documented in [`LICENSE.md`](../../LICENSE.md) and [`docs/open-source-audit.md`](../../docs/open-source-audit.md).

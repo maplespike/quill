@@ -332,6 +332,23 @@
         program = "${pkgs.writeShellScriptBin "maplespike-test" ''set -euo pipefail; pnpm test''}/bin/maplespike-test";
       };
 
+      # Source-level open-source provenance/license facts audit. Dependency
+      # metadata is read from the installed frozen pnpm tree; this does not
+      # build images or make license compatibility conclusions.
+      audit-open-source = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "quill-audit-open-source" ''
+          set -euo pipefail
+          ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")"
+          cd "$ROOT"
+          if [ ! -d node_modules ]; then
+            echo "node_modules missing; run pnpm install --frozen-lockfile inside nix develop first" >&2
+            exit 2
+          fi
+          exec ${nodejs}/bin/node scripts/audit-open-source.mjs "$@"
+        ''}/bin/quill-audit-open-source";
+      };
+
       # Build all three runtime images
       build-images = {
         type = "app";
@@ -463,6 +480,16 @@
       images-exist = pkgs.runCommand "check-images-exist" { } ''
         mkdir -p $out
         echo "✅ $(echo -n 'quill-mcp quill-api quill-ingest quill-engine quill-portal' | wc -w) images defined" > $out/result
+      '';
+      open-source-audit-script = pkgs.runCommand "check-open-source-audit-script" { nativeBuildInputs = [ nodejs ]; } ''
+        node --check ${./scripts/audit-open-source.mjs}
+        node --check ${./scripts/test-audit-open-source.mjs}
+        mkdir -p $out
+        echo "open-source audit scripts parse" > $out/result
+      '';
+      open-source-audit = pkgs.runCommand "quill-open-source-audit" { nativeBuildInputs = [ nodejs pnpm ]; } ''
+        mkdir -p $out
+        node ${./scripts/audit-open-source.mjs} --format json > $out/audit.json
       '';
       portal-dist-has-index = pkgs.runCommand "check-portal-index" { } ''
         test -f ${portal-dist}/app/index.html || { echo "portal dist missing index.html"; exit 1; }
