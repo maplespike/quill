@@ -43,4 +43,5 @@ export * from './health-monitoring/index.js';
 export * from './test-framework/index.js';
 export * from './doc-generator/index.js';
 export * from './quality/index.js';
+export * from './shared/attribution.js';
 export { sanitizeOutput, scanPII } from './utils/privacy-filter.js';

@@ -14,8 +14,13 @@
  * a gate.
  */
 
-import { canonicalJson, buildClaimBundle, type ClaimBundle } from './index.js';
+import { canonicalJson, buildClaimBundle } from './index.js';
+import type { ClaimBundle } from './index.js';
+import type { PublisherTermsEvidenceInput, SourceArtifactEvidenceInput } from './types.js';
+import { normalizeUrlForMatch, redactArtifactUrl } from './evidence.js';
 import { citationStore } from './store.js';
+import { getIngestionArtifacts } from './artifact-capture.js';
+import { NO_REUSE_LICENSE_NOTICE, resolvePublisherLicense } from '../shared/attribution.js';
 
 /**
  * Derive a stable "claim statement" from a record. Uses the fields modules
@@ -44,8 +49,9 @@ function recordClaimStatement(moduleName: string, record: Record<string, unknown
 async function recordToClaim(
   moduleName: string,
   sourceLabel: string,
-  license: string,
+  defaultLicense: string,
   record: Record<string, unknown>,
+  runArtifacts: SourceArtifactEvidenceInput[],
 ): Promise<ClaimBundle> {
   const claim = recordClaimStatement(moduleName, record);
   // Prefer a real per-record URL when present; the module-level source label
@@ -55,14 +61,90 @@ async function recordToClaim(
     (typeof record.source_url === 'string' && record.source_url) ||
     (typeof record.sourceUrl === 'string' && record.sourceUrl) ||
     sourceLabel;
+  const declared = resolvePublisherLicense(record);
+  const hasPublisherDeclaration = declared.basis === 'publisher-metadata';
+  const recordArtifacts = readSourceArtifactsEvidence(record.source_artifacts_evidence);
+  const normalizedRecordUrl = normalizeUrlForMatch(recordUrl);
+  const matchingRecordArtifacts = recordArtifacts.filter(artifact =>
+    normalizedRecordUrl !== null && normalizeUrlForMatch(artifact.url) === normalizedRecordUrl,
+  );
+  const matchingRunArtifacts = runArtifacts.filter(artifact =>
+    normalizedRecordUrl !== null && normalizeUrlForMatch(artifact.url) === normalizedRecordUrl,
+  );
+  const sourceRetrievedAt = matchingRecordArtifacts[0]?.retrievedAt ?? matchingRunArtifacts[0]?.retrievedAt;
+  const publisherTermsEvidence = hasPublisherDeclaration
+    ? readPublisherTermsEvidence(record)
+    : undefined;
+  const hasConfiguredLicense = defaultLicense !== NO_REUSE_LICENSE_NOTICE;
   return buildClaimBundle({
     claim,
     value: record,
     sourceName: moduleName,
     sourceUrl: recordUrl,
-    license,
+    retrievedAt: sourceRetrievedAt,
+    license: hasPublisherDeclaration || declared.basis === 'source-configuration'
+      ? declared.license
+      : defaultLicense,
+    ...(declared.licenseUrl ? { licenseUrl: declared.licenseUrl } : {}),
+    licenseBasis: hasPublisherDeclaration
+      ? 'publisher-metadata'
+      : declared.basis === 'source-configuration' || hasConfiguredLicense
+        ? 'source-configuration'
+        : 'no-publisher-declaration',
+    ...(recordArtifacts.length ? { sourceArtifactsEvidence: recordArtifacts } : {}),
+    ...(publisherTermsEvidence ? { publisherTermsEvidence } : {}),
+    attributionText: hasPublisherDeclaration || declared.basis === 'source-configuration'
+      ? declared.attributionText
+      : hasConfiguredLicense
+        ? 'License information supplied by Quill source configuration; confirm scope and conditions with the publisher.'
+        : declared.attributionText,
     transformations: ['ingestion'],
-  });
+  }, { capturedArtifactsEvidence: runArtifacts });
+}
+
+function readSourceArtifactsEvidence(value: unknown): SourceArtifactEvidenceInput[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object')
+    .filter(evidence => typeof evidence.url === 'string'
+      && typeof evidence.retrievedAt === 'string'
+      && Number.isFinite(Date.parse(evidence.retrievedAt))
+      && typeof evidence.sha256 === 'string'
+      && /^[a-f0-9]{64}$/i.test(evidence.sha256)
+      && typeof evidence.statusCode === 'number'
+      && Number.isInteger(evidence.statusCode)
+      && evidence.statusCode >= 0
+      && evidence.statusCode <= 599
+      && (evidence.byteLength === undefined || (typeof evidence.byteLength === 'number' && Number.isInteger(evidence.byteLength) && evidence.byteLength >= 0))
+      && ['complete-http-client-body', 'empty-body-not-captured'].includes(String(evidence.bodyCapture)))
+    .map(evidence => ({
+      url: redactArtifactUrl(evidence.url as string, evidence.urlRedacted === true)?.url ?? '',
+      retrievedAt: evidence.retrievedAt as string,
+      sha256: (evidence.sha256 as string).toLowerCase(),
+      statusCode: evidence.statusCode as number,
+      bodyCapture: evidence.bodyCapture === 'empty-body-not-captured'
+        ? 'empty-body-not-captured'
+        : 'complete-http-client-body',
+      urlRedacted: redactArtifactUrl(evidence.url as string, evidence.urlRedacted === true)?.urlRedacted ?? true,
+      ...(typeof evidence.mediaType === 'string' ? { mediaType: evidence.mediaType } : {}),
+      ...(typeof evidence.byteLength === 'number' ? { byteLength: evidence.byteLength } : {}),
+      ...(typeof evidence.etag === 'string' ? { etag: evidence.etag } : {}),
+      ...(typeof evidence.lastModified === 'string' ? { lastModified: evidence.lastModified } : {}),
+    }));
+}
+
+function readPublisherTermsEvidence(record: Record<string, unknown>): PublisherTermsEvidenceInput | undefined {
+  const labelKeys = ['license_title', 'licenseTitle', 'license_id', 'licenseId', 'rights', 'accessRights'];
+  const urlKeys = ['license_url', 'licenseUrl', 'rights_url', 'rightsUrl'];
+  const labelKey = labelKeys.find(key => typeof record[key] === 'string' && (record[key] as string).trim());
+  const urlKey = urlKeys.find(key => typeof record[key] === 'string' && /^https?:\/\//i.test((record[key] as string).trim()));
+  const label = labelKey ? (record[labelKey] as string).trim() : undefined;
+  const url = urlKey ? (record[urlKey] as string).trim() : undefined;
+  if (!label && !url) return undefined;
+  return {
+    ...(label ? { label } : {}),
+    ...(url ? { url } : {}),
+    observedFields: [labelKey, urlKey].filter((key): key is string => Boolean(key)),
+  };
 }
 
 /**
@@ -90,7 +172,7 @@ export async function registerModuleClaims(
   moduleName: string,
   records: unknown[],
   sourceLabel = '',
-  license = 'Open Government Licence – Canada',
+  license = NO_REUSE_LICENSE_NOTICE,
 ): Promise<number> {
   if (!Array.isArray(records) || records.length === 0) return 0;
 
@@ -107,8 +189,9 @@ export async function registerModuleClaims(
   }
 
   try {
+    const runArtifacts = getIngestionArtifacts();
     const bundles = await Promise.all(
-      sampled.map(record => recordToClaim(moduleName, sourceLabel, license, record)),
+      sampled.map(record => recordToClaim(moduleName, sourceLabel, license, record, runArtifacts)),
     );
     for (const bundle of bundles) {
       citationStore.put(bundle);
@@ -139,6 +222,35 @@ export async function registerModuleResultClaims(
   }
   if (result && typeof result === 'object') {
     const r = result as Record<string, unknown>;
+    // Modules that use withAttribution() return { data, attribution }. Keep
+    // the configured terms attached to each claim without promoting them to
+    // publisher metadata. A record's own declaration always takes priority.
+    if (r.data !== undefined && r.attribution && typeof r.attribution === 'object') {
+      const attribution = r.attribution as Record<string, unknown>;
+      const data = r.data as Record<string, unknown> | Record<string, unknown>[];
+      const payload = Array.isArray(data)
+        ? data
+        : data && typeof data === 'object'
+          ? (Array.isArray(data.records) ? data.records
+            : Array.isArray(data.results) ? data.results
+              : Array.isArray(data.items) ? data.items
+                : Object.values(data).filter(value => value !== null && typeof value === 'object' && !Array.isArray(value)))
+          : [];
+      if (payload.length > 0) {
+        const inherited = {
+          ...(typeof attribution.sourceUrl === 'string' ? { source_url: attribution.sourceUrl } : {}),
+          ...(typeof attribution.license === 'string' ? { license: attribution.license } : {}),
+          ...(typeof attribution.licenseUrl === 'string' ? { license_url: attribution.licenseUrl } : {}),
+          ...(typeof attribution.licenseBasis === 'string' ? { license_basis: attribution.licenseBasis } : {}),
+          ...(typeof attribution.attributionText === 'string' ? { attribution_text: attribution.attributionText } : {}),
+        };
+        const records = payload.map(record => ({
+          ...inherited,
+          ...(record as Record<string, unknown>),
+        }));
+        return registerModuleClaims(moduleName, records, sourceUrl);
+      }
+    }
     if (Array.isArray(r.records)) {
       return registerModuleClaims(moduleName, r.records, sourceUrl);
     }
