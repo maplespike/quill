@@ -20,6 +20,9 @@
   "scripts": {
     "build": "turbo build",
     "generate-metrics": "node scripts/generate-metrics.mjs",
+    "audit:open-source": "node scripts/audit-open-source.mjs",
+    "audit:open-source:prod": "node scripts/audit-open-source.mjs --prod",
+    "test:audit:open-source": "node --test scripts/test-audit-open-source.mjs",
     "build:docs": "node scripts/build-docs.mjs",
     "build:quill": "pnpm --filter @maplespike/quill-mcp build",
     "build:api": "pnpm --filter @maplespike/api-server build",

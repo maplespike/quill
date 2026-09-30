@@ -1,149 +1,68 @@
 ---
-last-reviewed: 2026-07-04
-status: active
+last-reviewed: 2026-09-30
+status: audit-required
 ---
 
-# MapleSpike Licensing
+# Quill licensing facts and open decisions
 
-This document explains the licensing structure for the MapleSpike project. See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines and CLA requirements.
+## Status
 
----
+**License policy is unresolved. Do not treat this file as a license grant, compliance opinion, or clearance for distributing a Quill package or OCI image.** This document records repository declarations observed on 2026-09-30. The rights holder must approve a coherent artifact-by-artifact policy, and qualified counsel should review disputed combinations before public distribution.
 
-## Three-Tier License Structure
+The root [`LICENSE`](./LICENSE) contains AGPL-3.0 text. That file does not identify clearly which first-party files or package artifacts it covers, while package manifests, package-level license texts, and source-file SPDX headers state additional and sometimes conflicting terms. A license statement in a manifest, source header, README, package license file, or root file cannot be assumed to override the others without an authorized rights-holder decision.
 
-MapleSpike uses different licenses for different layers of the stack. This is intentional — each tier serves a different purpose.
+## Observed package declarations
 
-| Tier | Packages | License | Rationale |
-|------|----------|---------|-----------|
-| **Core** | `pipeline-core`, `engine` | **AGPL-3.0-or-later** | The moat. Protects the ingestion, verification, and trust-scoring engine. The AGPL network clause ensures anyone hosting a modified version must share their source code. |
-| **Interface** | `api-server`, `quill-mcp`, `portal`, `docs` | **Apache-2.0** | The gateway. Permissive enough for self-hosters, researchers, and tinkerers. The patent grant protects against patent aggression. |
-| **Client** | `sdk`, `sdk-python`, `legal-core`, `legislation` | **MIT** | The on-ramp. Zero-friction adoption — `npm install` or `pip install` with no legal review needed. |
+| Artifact or package | Manifest declaration | Adjacent license text | Audit note |
+|---------------------|----------------------|-----------------------|------------|
+| Repository root | `package.json`: AGPL-3.0-or-later | `LICENSE`: AGPL-3.0 | Scope relative to exceptions and independently distributed packages is not defined. |
+| `@maplespike/pipeline-core` | AGPL-3.0-or-later | AGPL-3.0 text | Source files reviewed by the scanner include MIT-tagged files under `indigenous-services-directory/`; determine origin and scope. |
+| `@maplespike/engine` | AGPL-3.0-or-later | AGPL-3.0 text | Runtime workspace dependency `@maplespike/database` has no declared package license. |
+| `@maplespike/api-server` | Apache-2.0 | Apache-2.0 text | `src/registry-snapshot.ts` declares AGPL; runtime workspace dependencies include AGPL-declared code and undeclared database code. |
+| `@maplespike/quill-mcp` | Apache-2.0 | Apache-2.0 text | Source tree has AGPL, MIT, and Apache SPDX declarations; runtime workspace dependencies include AGPL-declared and undeclared-license packages. |
+| `@maplespike/portal` | MIT | Apache-2.0 text | Manifest and package-local license text conflict. |
+| `@maplespike/docs` | Apache-2.0 | Apache-2.0 text | Private workspace package. |
+| `@maplespike/sdk` | MIT | No package-local license file found | `package.json` limits package files to `dist`; verify the published archive includes the required license/copyright notice. README currently points at the root AGPL license. |
+| `@maplespike/legal-core` | MIT | No package-local license file found | `package.json` limits package files to `dist`; verify the published archive includes required notices. |
+| `@maplespike/legislation` | MIT | No package-local license file found | `package.json` limits package files to `dist`; verify the published archive includes required notices. |
+| `@maplespike/i18n` | MIT | No package-local license file found | Workspace package; check any distribution artifact. |
+| `@maplespike/create-module` | MIT | No package-local license file found | Workspace package; check any distribution artifact. |
+| `@maplespike/database` | Missing | No package-local license file found | Runtime workspace dependency of other packages. High-priority owner decision. |
+| `@maplespike/notification-service` | Missing | No package-local license file found | Private workspace package; dependencies include database and pipeline-core. |
+| Python project `packages/sdk-python` | MIT in `pyproject.toml` | MIT text in `packages/sdk-python/LICENSE` | Declarations agree. Verify the published PyPI artifact (sdist/wheel) actually includes the license and copyright files. |
 
-Each package contains its own `LICENSE` file. The root `LICENSE` file is AGPL-3.0 for the monorepo as a whole.
+A missing `license` field is absent metadata, not an implicit grant. A package-local license text that disagrees with its manifest is an unresolved conflict; the manifest does not win by default.
 
----
+File-level `SPDX-License-Identifier` tags, counted in each package's own source tree on 2026-09-30, describe what the files currently say and do not decide what they are: `api-server` Apache-2.0 ×28 / AGPL-3.0-or-later ×2; `quill-mcp` AGPL-3.0-or-later ×95 / MIT ×28 / Apache-2.0 ×8; `pipeline-core` AGPL-3.0-or-later ×651 / MIT ×8 (all MIT-tagged files are under `src/ingestion/indigenous-services-directory/`); `engine` AGPL-3.0-or-later ×2; `portal` MIT ×1; `create-module` MIT ×10; `sdk`, `legal-core`, `legislation` MIT ×1 each; `database`, `notification-service`, `docs`, `i18n` no file-level tags.
 
-## Why This Structure?
+Directories `packages/edge-worker`, `packages/ingestion`, and `packages/sdk-shell` do not have `package.json` files. Some files may be source, helper tooling, or archived material rather than separately distributed packages; inventory their distribution scope before assigning a package license.
 
-### Why not one license for everything?
+The full current file-level results are generated by [`scripts/audit-open-source.mjs`](./scripts/audit-open-source.mjs). It reports differences without changing declarations. Its license comparison is textual rather than SPDX-semantic, so it can over-report a difference (for example a single-branch file tag under a compound `MIT OR Apache-2.0` package expression); that bias is toward review, not toward clearance. Per-package observed values are also tabulated in [`CREDITS.md`](./CREDITS.md).
 
-- **AGPL on everything** protects the moat but hurts adoption. Enterprise legal teams often reject AGPL even when they'd never trigger the clause. Self-hosters hesitate. SDK adoption slows.
-- **MIT on everything** drives adoption but gives away the moat. A competitor could take 142 modules of Canadian data ingestion and host a competing service with no obligation to share changes.
-- **Three-tier** threads both: the moat is protected, and the path to using MapleSpike is frictionless for 90% of users (who only ever touch the SDK and API).
+## Third-party dependencies and OCI artifacts
 
-### Why AGPL-3.0 for core?
+The pnpm install includes hundreds of third-party package records. Some license expressions require review, including LGPL, MPL, CC-BY, EUPL alternatives, and unknown declarations. Workspace dependency metadata is also incomplete. See [`docs/open-source-audit.md`](./docs/open-source-audit.md) for recorded candidates and limitations.
 
-- The network clause (Section 13) closes the SaaS loophole — if you host a modified version as a network service, you must make the source code available to users of that service.
-- This is critical for a civic data project: nobody should be able to take the pipeline that processes Canadian public data, modify it, and serve results without sharing how they did it.
-- MongoDB used this exact strategy (AGPL server + MIT drivers) for years before switching to BSL.
+The source report is not a complete per-artifact SBOM. Nix flake outputs build OCI images; Docker/Podman and Helm/ArgoCD distribute or deploy artifacts. For each release, inventory the exact npm/PyPI archives and OCI images by immutable digest, preserve applicable upstream license and NOTICE files, and attach reviewed SPDX or CycloneDX reports. A package manifest alone does not show what was included in an image.
 
-### Why Apache-2.0 for interface?
+## Public data is not software
 
-- Permissive enough that self-hosters can deploy the API server and MCP server without legal anxiety.
-- The patent grant (Section 3) means contributors can't contribute patented tech and then sue users.
-- More "serious" signal to enterprise legal teams than MIT, while being equally permissive in practice.
-- A competitor can fork the API layer, but without pipeline-core (AGPL), they'd have to re-implement the entire ingestion engine from scratch.
+No blanket statement that all Quill data is licensed under Open Government Licence – Canada is supported by this repository audit. Terms vary by dataset, rights holder, source, API, and jurisdiction. Public availability is not a license. Every `data-source-licenses.json` entry records `no_quill_reuse_grant`, which means Quill grants no independent rights; it does not mean the publisher prohibits reuse. The inventory is not a runtime gate or publisher clearance. Review the source's authoritative terms for each dataset and use, including commercial access, redistribution, attribution, privacy, database extraction, and other restrictions.
 
-### Why MIT for client?
+See [`docs/licensing-audit.md`](./docs/licensing-audit.md) for the current evidence limits and required dataset-level review.
 
-- Maximum adoption. No legal team in the world rejects MIT.
-- The SDK is a thin client — it calls the API. No competitive moat value in restricting it.
-- Python SDK needs to be as frictionless as possible for the data science community.
+## Decisions required
 
----
+Before claiming a package or image is cleared for release:
 
-## Data vs. Code License
+1. Identify the rightsholder(s) and verify authority to license each contribution; Git authorship alone does not establish ownership.
+2. Decide exact license and scope for each package, source exception, npm/PyPI artifact, and OCI image. Explain whether package/file licenses are intentional exceptions or stale metadata.
+3. Resolve missing `database` and `notification-service` license declarations and the portal MIT/Apache disagreement.
+4. Confirm contributor agreements. `CONTRIBUTING.md` and prior versions of this document described a CLA; this audit found no evidence of an executed CLA or a working acceptance process. Do not rely on those statements as proof of assignment or relicensing rights.
+5. Have counsel review the actual AGPL/Apache/MIT component combinations and network-distribution obligations. AGPL is not a blanket “commercial license required” rule, and whether a combined program is covered depends on the actual facts and law.
+6. Produce and review image- and package-specific SBOMs/notices, including any LGPL/MPL/CC-BY/EUPL/unknown dependencies.
+7. Before marketing or charging for a source-data use, review the authoritative terms for the specific dataset and intended use with the rights holder and qualified counsel. This inventory is not a runtime gate; do not infer clearance or impose runtime restrictions from it.
 
-**This is critical and often confused.**
+## What this document does not decide
 
-- **Source data** (from StatsCan, CKAN, IRCC, etc.) is under the [Open Government Licence — Canada](https://open.canada.ca/en/open-government-licence-canada). This data is always freely accessible, regardless of the code license.
-- **MapleSpike code** (fetchers, parsers, citation hashing, trust scoring, etc.) is under the licenses described above. This is the software that processes and verifies the data.
-- **Derived outputs** (verified records with SHA-256 citations, trust scores) are produced by MapleSpike code from open data. The data itself remains OGL-CA; the code that produces the outputs is AGPL/Apache/MIT.
-
-In short: **the data is free. The code that makes the data useful has license terms.**
-
----
-
-## Commercial License (MapleSpike Enterprise License)
-
-Organizations that cannot accept AGPL-3.0 obligations — typically those wanting to embed `pipeline-core` or `engine` in proprietary products — can purchase a commercial license.
-
-### What the Enterprise License covers
-
-- Right to use `pipeline-core` and `engine` in proprietary software without AGPL-3.0 source-sharing obligations
-- Priority support and SLA guarantees
-- Access to private modules and early releases
-
-### Pricing
-
-| Tier | Annual Price | Use Case |
-|------|-------------|----------|
-| Business | $1,999/yr | Embed in internal tools, no source-sharing required |
-| Enterprise | Custom | OEM embedding, SLA, custom modules, dedicated support |
-
-### How to obtain
-
-Contact legal@maplespike.lan or visit the enterprise licensing page at maplespike.lan.
-
-### Why offer a commercial license?
-
-1. **Pragmatism:** Some organizations genuinely cannot accept AGPL. Rather than losing them as users, we offer a legal path.
-2. **Revenue:** Pure margin — same code, different legal document. Even 5 enterprise customers at $2K/yr is $10K ARR with zero marginal cost.
-3. **Enforcement alternative:** "We'd rather you buy a commercial license than risk AGPL non-compliance" is a stronger position than "We'll sue you."
-
----
-
-## Contributor License Agreement (CLA)
-
-Before your first pull request is merged, you must accept the MapleSpike CLA. This grants the project the right to re-license your contributions commercially.
-
-### Why a CLA?
-
-Without a CLA, every external contribution creates a legal encumbrance. If we want to offer the MapleSpike Enterprise License, we need the right to re-license all contributions — not just our own code.
-
-### How it works
-
-- **Individual contributors:** Comment `I have read and agree to the MapleSpike CLA` on your first PR
-- **Corporate contributors:** A signed CLA must be on file — contact legal@maplespike.lan
-- The CLA grants MapleSpike a non-exclusive, worldwide, royalty-free license to use, modify, and re-license your contributions
-- You retain copyright to your own contributions
-
-### What the CLA does NOT do
-
-- It does not transfer copyright ownership to MapleSpike
-- It does not prevent you from using your own contributions elsewhere
-- It does not give MapleSpike exclusive rights
-
----
-
-## License Compliance Checklist
-
-If you're evaluating MapleSpike for use in your project:
-
-| What you're doing | Which license applies | Your obligations |
-|-------------------|----------------------|------------------|
-| Using the SDK (npm/pip) | MIT | Include copyright notice |
-| Self-hosting the API server | Apache-2.0 | Include copyright + NOTICE; state changes |
-| Self-hosting the MCP server | Apache-2.0 | Include copyright + NOTICE; state changes |
-| Using pipeline-core in an open-source project | AGPL-3.0 | Make your source code available to network users |
-| Using pipeline-core in a proprietary product | **Commercial license required** | Contact legal@maplespike.lan |
-| Browsing the portal or docs | Apache-2.0 | None (read-only use) |
-| Using Canadian government source data | OGL-CA | Attribute the source; see open.canada.ca for full terms |
-
----
-
-## SPDX Identifiers
-
-All key entry-point source files include SPDX license identifiers:
-
-- AGPL-3.0 packages: `// SPDX-License-Identifier: AGPL-3.0-or-later`
-- Apache-2.0 packages: `// SPDX-License-Identifier: Apache-2.0`
-- MIT packages: `// SPDX-License-Identifier: MIT`
-
-Package `package.json` files use the corresponding SPDX expression in the `license` field.
-
----
-
-## Changes to This Policy
-
-Licensing changes will be announced via GitHub Issues and the ROADMAP. The three-tier structure is a strategic decision — changes to the core (AGPL) tier are extremely unlikely. Interface tier changes would only happen to make the license more permissive, never more restrictive.
+This document does not determine derivative-work status, compatibility, fair use, ownership, contributor authority, a third-party component's inclusion in a shipped artifact, the scope of AGPL obligations, or whether a data use is permitted. Get qualified legal advice for those decisions.
