@@ -236,16 +236,37 @@
         TAG="''${TAG:-stable}"
         COMMIT="''${COMMIT:-$(git rev-parse --short HEAD)}"
 
+        # Per-image SBOM, generated BEFORE the push. scripts/audit-open-source.mjs
+        # inventories the repository lockfile; it cannot see what is inside a
+        # built image, which is what a consumer of this registry receives. See
+        # docs/open-source-audit.md "Known limits of the generator".
+        #
+        # There is no skip flag. If syft is missing the push fails, because
+        # shipping an image whose contents were never enumerated is the exact
+        # gap this closes. Override the binary with SYFT=/path/to/syft.
+        SBOM_DIR="''${SBOM_DIR:-./sbom}"
+        # Referenced through the flake store rather than $PWD, so the script is
+        # present regardless of the directory `nix run .#push-images` was
+        # invoked from.
+        SBOM_SCRIPT="${./scripts/generate-sbom.sh}"
+
         for svc in mcp api portal; do
           echo "=== $svc ==="
           path=$(nix build ".#quill-$svc-image" --print-out-paths --no-link -L)
           ${pkgs.podman}/bin/podman load < "$path"
           ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$TAG"
           ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$COMMIT"
+
+          # Scan the commit-pinned tag, not $TAG: that is the immutable artifact
+          # a consumer can pin to, so it is the one worth attesting to.
+          "$SBOM_SCRIPT" "$REGISTRY/quill-$svc:$COMMIT" "$SBOM_DIR"
+
           ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$TAG"
           ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$COMMIT"
           echo "✓ $REGISTRY/quill-$svc:$TAG"
         done
+        echo "SBOMs written to $SBOM_DIR"
+        echo "NOTE: these are unreviewed. Commit them or attach them to the release.
       '';
 
       # ── Podman Quadlet units (systemd .container) for self-host ──
