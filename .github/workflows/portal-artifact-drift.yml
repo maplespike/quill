@@ -8,9 +8,11 @@ name: Portal generated-artifact drift
 # serves 184) sitting in the tree unnoticed.
 #
 # The generators now take their timestamp from scripts/lib/build-timestamp.mjs,
-# which prefers the git HEAD commit date. That makes output a function of the
-# commit rather than of the clock, so a clean checkout regenerates byte-identical
-# files and this gate becomes meaningful.
+# which prefers the git HEAD commit date, so output is a function of the commit
+# rather than of the clock. scripts/check-portal-artifact-drift.mjs then compares
+# the regenerated artifacts against the committed ones, excluding that timestamp
+# field: a commit's artifacts necessarily carry the parent commit's date, so
+# comparing timestamps would flag drift on every commit.
 #
 # Scope note, stated plainly: this gate proves the artifacts match their
 # generators. It does NOT prove the generators match the running system — the
@@ -62,16 +64,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history is required: build-timestamp.mjs reads the HEAD commit
-          # date, and a shallow clone still provides that, but fetch-depth 0
-          # keeps the local value identical to a developer's full clone.
+          # Full history: the drift checker compares the worktree against
+          # `git show HEAD:<path>`, and the generators resolve their timestamp
+          # from the HEAD commit date.
           fetch-depth: 0
 
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
-
-      - name: Record the commit the artifacts are expected to match
-        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
 
       - name: Regenerate portal artifacts
         working-directory: packages/portal
@@ -81,80 +80,38 @@ jobs:
           pnpm gen:llms
           pnpm gen:openapi
 
-      - name: Fail if the committed artifacts drifted
-        run: |
-          # Only the generated artifact paths are considered. Unrelated edits in
-          # the same PR must not be reported as generator drift.
-          paths=(
-            packages/portal/src/data/plans.json
-            packages/portal/src/data/stats.json
-            packages/portal/src/data/tools.json
-            packages/portal/public/llms.txt
-            packages/portal/public/llms-full.txt
-            packages/portal/public/agents.json
-            packages/portal/agents.json
-            packages/portal/v1/openapi.json
-            packages/portal/public/v1/openapi.json
-          )
-          drifted=0
-          for p in "${paths[@]}"; do
-            if ! git diff --quiet -- "$p"; then
-              echo "DRIFT: $p" >&2
-              git --no-pager diff -- "$p" >&2
-              drifted=1
-            fi
-          done
-          if [ "$drifted" -ne 0 ]; then
-            cat >&2 <<'EOF'
+      - name: Check committed artifacts against the generators
+        run: node scripts/check-portal-artifact-drift.mjs
 
-The committed portal artifacts do not match what the generators produce from
-this commit. If the tool catalog or metrics genuinely changed upstream, run:
+      - name: Explain a failure
+        if: failure()
+        run: |
+          cat >&2 <<'EOF'
+
+The committed portal artifacts do not match what the generators produce.
+
+If the tool catalog or metrics genuinely changed upstream, regenerate and
+commit:
 
   pnpm --filter @maplespike/portal gen:plans
   pnpm --filter @maplespike/portal gen:agents
   pnpm --filter @maplespike/portal gen:llms
   pnpm --filter @maplespike/portal gen:openapi
 
-and commit the result. Do not hand-edit the generated files.
+Do not hand-edit the generated files.
 
-If you believe the diff is spurious, check that the generator is reading the
-sources you expect. `generate-plans.mjs` imports quill-mcp's built `dist/`, so a
-stale build silently yields an older catalog; run `pnpm install
---prefer-offline` and rebuild before concluding anything.
+A COUNT MISMATCH line means a committed file asserts a tool count that differs
+from packages/portal/src/data/tools.json. That is the failure this gate was
+written after: a 189-tool catalog sat in a committed artifact while the server
+served 184.
+
+Note that the build timestamp is deliberately excluded from the comparison. A
+commit's artifacts necessarily carry the *parent* commit's date, because a
+commit cannot know its own date before it exists, so comparing timestamps would
+report drift on every commit that touches an artifact.
+
+If you believe a diff is spurious, check the generator is reading the sources
+you expect. generate-plans.mjs imports quill-mcp's built dist/, so a stale
+build silently yields an older catalog; run `pnpm install --prefer-offline` and
+rebuild first.
 EOF
-            exit 1
-          fi
-          echo "No drift: all generated portal artifacts match their generators."
-
-      - name: Cross-check the served tool count against the committed catalog
-        run: |
-          # Guards the specific failure this gate was written after: a stale
-          # catalog count in a committed artifact. Counts inside the repo must
-          # agree with each other. This compares committed files only and makes
-          # no network call, so it cannot flake.
-          node -e '
-            const fs = require("fs");
-            const read = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
-
-            const tools = read("packages/portal/src/data/tools.json");
-            if (!tools) { console.error("missing tools.json"); process.exit(1); }
-            const catalog = JSON.parse(tools);
-            const n = Array.isArray(catalog.tools) ? catalog.tools.length : null;
-            if (n === null) { console.error("tools.json has no tools array"); process.exit(1); }
-
-            const claims = [];
-            for (const p of ["packages/portal/public/llms.txt", "packages/portal/public/llms-full.txt", "llms.txt", "llms-full.txt"]) {
-              const text = read(p);
-              if (!text) continue;
-              for (const m of text.matchAll(/\((\d+) tools\)/g)) claims.push([p, Number(m[1])]);
-              for (const m of text.matchAll(/^All (\d+) MCP tools/gm)) claims.push([p, Number(m[1])]);
-              for (const m of text.matchAll(/data-layer MCP, (\d+) tools/g)) claims.push([p, Number(m[1])]);
-            }
-
-            const bad = claims.filter(([, c]) => c !== n);
-            for (const [p, c] of bad) {
-              console.error(`COUNT MISMATCH: ${p} claims ${c} tools, tools.json has ${n}`);
-            }
-            if (bad.length) process.exit(1);
-            console.log(`tool counts agree: ${n} tools across ${new Set(claims.map(([p]) => p)).size} file(s)`);
-          '

@@ -29,6 +29,10 @@ The audit also runs in `.github/workflows/open-source-audit.yml` after a frozen 
 
 For OCI distribution, source-level dependency reports are not image SBOMs. A repository dependency inventory describes what the monorepo declares; it cannot see what is inside a built image, which is what a consumer of `nexus:5000/quill-<svc>` actually receives.
 
+**Generated-artifact drift is now gated.** `scripts/check-portal-artifact-drift.mjs` (`pnpm check:artifact-drift`, wired into `.github/workflows/portal-artifact-drift.yml`) regenerates the nine tracked portal artifacts and compares them to the committed copies, and separately asserts that every tool count claimed in a committed file equals the catalog length in `tools.json`. That second check is the one that would have caught the 189-vs-184 discrepancy.
+
+The comparison deliberately **excludes the build timestamp**. A commit's artifacts necessarily carry the *parent* commit's date, because a commit cannot know its own date before it exists — so comparing timestamps would report drift on every commit that touches an artifact, which is the failure mode that let these fields rot in the first place. Content is compared exactly; the stamp is treated as metadata rather than as a claim.
+
 **This is now enforced at the push chokepoint.** `scripts/generate-sbom.sh` generates a per-image SPDX SBOM, and `nix run .#push-images` invokes it for `mcp`, `api`, and `portal` *before* each `podman push`, against the commit-pinned tag rather than the mutable `stable` tag. There is deliberately no skip flag: a missing Syft fails the push, because shipping an image whose contents were never enumerated is precisely the gap this closes. Override the binary with `SYFT=/path/to/syft`.
 
 The script also refuses to record an empty SBOM. Syft can exit 0 having found nothing, and an empty file that looks like a successful scan is worse than no file, because a reviewer ticks it off. Both failure paths were verified with a stubbed Syft.
