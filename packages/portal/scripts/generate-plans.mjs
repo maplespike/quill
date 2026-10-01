@@ -23,6 +23,7 @@
 import { writeFileSync, readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { buildTimestamp } from "./lib/build-timestamp.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORTAL_DIR = resolve(__dirname, "..");
@@ -30,6 +31,11 @@ const DATA_DIR = resolve(PORTAL_DIR, "src/data");
 const REGISTRY = resolve(__dirname, "../../pipeline-core/src/ingestion/registry.ts");
 const API_PLANS = process.env.QUILL_PLANS_URL ?? "https://api.maplespike.ca/v1/billing/plans";
 const MCP_HEALTH = process.env.QUILL_MCP_HEALTH_URL ?? "https://mcp.maplespike.ca/health";
+
+// Resolved once per run and shared by every artifact written below
+// (tools.json, plans.json, stats.json), so a single run cannot leave two
+// files stamped a few milliseconds apart.
+const generatedAt = buildTimestamp();
 
 // ── Tools catalog sources (see generateTools below) ────────────────
 const TOOLS_BASE = resolve(DATA_DIR, "tools-base.json"); // curated (cat + bilingual) base
@@ -160,7 +166,7 @@ async function generateTools() {
     JSON.stringify(
       {
         _meta: {
-          generatedAt: new Date().toISOString(),
+          generatedAt,
           sources: ["quill-mcp getAllTools() (authoritative)", "tools-base.json (categories)", "quill-mcp fr-tools.json"],
         },
         tools,
@@ -204,9 +210,9 @@ async function main() {
   }
   const modules = await countModules(prevStats);
 
-  const plansOut = { _meta: { generatedAt: new Date().toISOString(), source: API_PLANS }, plans };
+  const plansOut = { _meta: { generatedAt, source: API_PLANS }, plans };
   const statsOut = {
-    _meta: { generatedAt: new Date().toISOString(), sources: [MCP_HEALTH, "pipeline-core registry"] },
+    _meta: { generatedAt, sources: [MCP_HEALTH, "pipeline-core registry"] },
     // Live-derived:
     tools,
     modules,

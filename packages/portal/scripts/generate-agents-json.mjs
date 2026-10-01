@@ -11,6 +11,7 @@ import { writeFileSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import { buildTimestamp } from './lib/build-timestamp.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -48,7 +49,7 @@ const manifest = {
   url: 'https://maplespike.ca',
   moduleCount: agents.length,
   actionCount: agents.reduce((sum, a) => sum + a.actions.length, 0),
-  updatedAt: new Date().toISOString(),
+  updatedAt: buildTimestamp(),
   tools,
 };
 

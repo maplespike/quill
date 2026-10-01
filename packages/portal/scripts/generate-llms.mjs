@@ -4,6 +4,7 @@
 import { writeFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { buildTimestamp } from './lib/build-timestamp.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORTAL_DIR = resolve(__dirname, '..');
@@ -128,7 +129,7 @@ function buildLlmsTxt() {
 function buildLlmsFull() {
   let out = '# MapleSpike — Full Documentation Archive\n\n';
   out += '> Version: 0.3.0\n';
-  out += `> Auto-generated: ${new Date().toISOString().split('T')[0]}\n`;
+  out += `> Auto-generated: ${buildTimestamp().split('T')[0]}\n`;
   out += '> Software and source-data terms vary by package, dataset, and publisher. Consult repository license notices and original source terms.\n';
   out += '> API Base URL: https://api.maplespike.ca/v1\n';
   out += '> MCP Server: https://mcp.maplespike.ca/sse\n';
