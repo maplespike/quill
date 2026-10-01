@@ -4,7 +4,7 @@
 > Software license declarations conflict by package and file; see `LICENSE.md` and `docs/open-source-audit.md`.
 > Government and other source-data terms vary by publisher and dataset. Public availability does not itself grant reuse rights; consult the original source terms.
 > API Base URL: https://api.maplespike.ca/v1
-> Source: https://github.com/reverb256/quill
+> Source: https://github.com/maplespike/quill
 
 ## REST API
 
