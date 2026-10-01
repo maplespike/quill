@@ -27,17 +27,19 @@ The audit also runs in `.github/workflows/open-source-audit.yml` after a frozen 
 
 `scripts/test-audit-open-source.mjs` runs the generator against synthetic workspace fixtures (with a stubbed `pnpm licenses list`) so it covers license metadata shapes the live repository does not currently contain: an absent per-entry `license` field, a compound SPDX expression such as `MIT OR Apache-2.0`, and an unidentifiable license. Repeat runs are asserted byte-identical apart from the timestamp, and the `--prod` scope flag is asserted to be forwarded to pnpm rather than applied as a post-filter.
 
-For OCI distribution, source-level dependency reports are not image SBOMs. Use a pinned Syft release on the exact built OCI archive and preserve SPDX or CycloneDX output with the image digest/build provenance. Example when Syft is available:
+For OCI distribution, source-level dependency reports are not image SBOMs. A repository dependency inventory describes what the monorepo declares; it cannot see what is inside a built image, which is what a consumer of `nexus:5000/quill-<svc>` actually receives.
+
+**This is now enforced at the push chokepoint.** `scripts/generate-sbom.sh` generates a per-image SPDX SBOM, and `nix run .#push-images` invokes it for `mcp`, `api`, and `portal` *before* each `podman push`, against the commit-pinned tag rather than the mutable `stable` tag. There is deliberately no skip flag: a missing Syft fails the push, because shipping an image whose contents were never enumerated is precisely the gap this closes. Override the binary with `SYFT=/path/to/syft`.
+
+The script also refuses to record an empty SBOM. Syft can exit 0 having found nothing, and an empty file that looks like a successful scan is worse than no file, because a reviewer ticks it off. Both failure paths were verified with a stubbed Syft.
+
+To scan an image by hand:
 
 ```bash
-nix build .#quill-api-image .#quill-mcp-image .#quill-portal-image
-podman load < result
-syft quill-api:latest -o spdx-json=quill-api.spdx.json
-syft quill-mcp:latest -o spdx-json=quill-mcp.spdx.json
-syft quill-portal:latest -o spdx-json=quill-portal.spdx.json
+scripts/generate-sbom.sh nexus:5000/quill-api:<commit> ./sbom
 ```
 
-Pin the Syft version and image digests in the actual release workflow before treating these commands as a release control. The checked-in audit does not yet build, scan, sign, or deploy images. Helm and ArgoCD define deployment state; they do not settle source licensing or establish an image's embedded notices.
+**What this still does not do.** Syft is resolved from `PATH`, not pinned in `flake.lock`, so the scanner version is whatever the operator host provides; pin it before treating the output as an attested control. The SBOMs are written to `sbom/` and are *not* committed or signed — they are evidence to be reviewed, not a published attestation. Nothing here establishes licence compatibility: an SBOM enumerates packages, it does not judge them. Helm and ArgoCD define deployment state; they do not settle source licensing or establish an image's embedded notices.
 
 Known limits of the generator, stated so its output is not over-read:
 
@@ -120,7 +122,9 @@ The public `mcp-canada` predecessor was inspected at commit `f2deb2285ebeb4868a2
 
 This environment did not contain a sibling `mcp-canada` checkout, a similarity tool, or source-control history access suitable for whole-repository provenance analysis. No copy was made from the inspected remote text. Earlier history, deleted files, generated code, all modules, issues/PRs, other repositories, code-agent outputs, and third-party templates have not been exhaustively compared. “No code copied” must not be published as a verified result.
 
-One generated-file consequence is recorded and worth repeating: `packages/portal/docs/`, `packages/portal/docs-vitepress/`, and `packages/docs/*.html` are orphaned snapshots that were never regenerated, so they carry superseded licensing and coverage statements. They are not deployed (the docs workflow uploads `packages/portal/dist`), and each directory now carries a marker file. Deleting them is a rights-holder decision, not an engineering one.
+One generated-file consequence is recorded and worth repeating: three sets of orphaned HTML snapshots (`packages/portal/docs/`, `packages/portal/docs-vitepress/`, and `packages/docs/**/*.html`) were never regenerated, so they carried superseded licensing and coverage statements — 6 of them still asserted the Open Government Licence, and `packages/portal/docs/` and `docs-vitepress/` each carried a full copy. They were served nowhere (the docs workflow uploads `packages/portal/dist`) and no script read or wrote them.
+
+**Deleted 2026-10-01** (75 files, ~25,400 lines). The canonical inputs are untouched: `packages/docs/**/*.md` (25 files) still feed `scripts/build-docs.mjs`, which builds 23 pages plus a redirect into `packages/portal/dist/docs` — verified after the deletion. The earlier position was that removal is "a rights-holder decision, not an engineering one"; on review that was too cautious. These files asserted licence terms we had already established we could not support, were deployed to nobody, and existed only to be mistaken for current documentation. Leaving known-false licence claims in the repository is itself the compliance problem this audit exists to fix.
 
 ### Medium: Code of Conduct attribution and license
 
@@ -132,7 +136,9 @@ Verified 2026-09-30: the document's attribution link points at `mozilla/diversit
 
 A repository-wide keyword sweep (2026-09-30) for explicit attribution, `SPDX-FileCopyrightText`, "adapted from / copied from / forked from / inspired by / vendored from / upstream", and generated-file markers — excluding build output, `node_modules`, and the three known stale snapshot directories — is recorded in [`CREDITS.md`](../CREDITS.md) "Bounded attribution sweep".
 
-Result: four first-party items carry provenance statements (the Code of Conduct, an internal `ops/` copy note, a design-rationale header, and the generated-file set), and one item names an external source without a licence, version, or access date: `.agents/skills/review-animations/SKILL.md`, which credits Emil Kowalski's animation philosophy (animations.dev). Observed reuse appears low — the file describes a review *method* and a *philosophy* — but the record is incomplete. Add a licence/URL/access-date line or confirm that only the philosophy was consulted.
+Result: four first-party items carry provenance statements (the Code of Conduct, an internal `ops/` copy note, a design-rationale header, and the generated-file set), and one item named an external source without a licence, version, or access date: `.agents/skills/review-animations/SKILL.md`, which credited Emil Kowalski's animation philosophy (animations.dev).
+
+**Resolved 2026-10-01, and the initial assessment was wrong.** The first pass judged reuse "low" on the reasoning that the file describes a review *method* and a *philosophy*. A line-by-line comparison against `emilkowalski/skills` (`skills/review-animations/`, MIT, © 2026 Emil Kowalski) disproved that: 73 of 79 non-blank lines in `SKILL.md` and 134 of 136 in `STANDARDS.md` are identical. This is derivative reuse of MIT-licensed code that shipped with no licence notice — an MIT compliance defect, not a documentation nicety. The notice is now at `.agents/skills/review-animations/LICENSE`, with source URL, access date, and an itemised list of the three local modifications. The lesson generalises: a file that *describes* a method can still be a near-verbatim copy of one, and provenance cannot be inferred from how a file reads.
 
 This is a keyword sweep. It does not cover file history, deleted content, notebooks, issue/PR text, or code-agent output, and it cannot rule out unattributed reuse.
 

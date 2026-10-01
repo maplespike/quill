@@ -2,8 +2,11 @@
 // build-docs.mjs — Convert packages/docs/**/*.md to portal-native HTML
 // Output: packages/portal/dist/docs/{section}/{slug}.html (the copy GitHub
 // Pages actually serves — see .github/workflows/deploy-docs.yml).
-// packages/portal/docs/ is an older, unregenerated output of this script and
-// is NOT deployed; do not edit it or treat it as canonical.
+// Older unregenerated outputs of this script used to live in
+// packages/portal/docs/, packages/portal/docs-vitepress/, and alongside the
+// sources in packages/docs/**/*.html. All were deleted on 2026-10-01: they were
+// deployed nowhere, no script regenerated them, and they carried licence claims
+// that had been corrected here. The only output is dist/docs.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
