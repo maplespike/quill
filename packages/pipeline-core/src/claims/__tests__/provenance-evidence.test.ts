@@ -83,6 +83,7 @@ describe('claim provenance evidence', () => {
 
   it('attaches only matching ambient captures and preserves explicit unmatched artifacts', async () => {
     citationStore.clear();
+    const keysBefore = new Set(citationStore.keys());
     await withIngestionArtifactCapture(async () => {
       recordIngestionArtifact({
         url: 'https://example.test/api?token=secret',
@@ -112,9 +113,15 @@ describe('claim provenance evidence', () => {
       }]);
     });
 
-    const keys = citationStore.keys();
-    assert.equal(keys.length, 1);
-    const stored = citationStore.get(keys[0] ?? '');
+    // Identify this test's record by diffing against the store contents from
+    // before the registration, instead of asserting on the store's total size.
+    // citationStore is a module-level singleton shared with claims.test.ts and
+    // node:test runs test files concurrently within a worker, so a bare
+    // `keys().length === 1` races against that file's own writes. It passed in
+    // isolation and failed roughly one full run in three.
+    const added = citationStore.keys().filter(key => !keysBefore.has(key));
+    assert.equal(added.length, 1, `expected one new record, saw ${added.length} (store holds ${citationStore.keys().length})`);
+    const stored = citationStore.get(added[0] ?? '');
     assert.ok(stored);
     const artifacts = stored.bundle.provenanceEvidence.acquisition.artifacts;
     assert.equal(artifacts.length, 2);
