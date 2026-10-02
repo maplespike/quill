@@ -1,5 +1,9 @@
-# Prod deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/nix/podman
-# are system packages per docs/GITHUB-ACTIONS-NIX.md.
+# Prod deploy runs on a self-hosted runner labelled `nixos`; the label is
+# historical (see docs/GITHUB-ACTIONS-NIX.md). node/pnpm/kubectl are system
+# packages. `nix` is NOT installed on the runner, so the two `nix build
+# .#saas-manifests` steps below cannot succeed as written — see the
+# "SAAS manifest generation" note in knowledge.md. This workflow's last 8 runs
+# all failed with zero jobs started, so it has not deployed anything recently.
 #
 # CANONICAL DEPLOY PATH (2026-08-10): `nix build .#saas-manifests` generates
 # the single `manifests.yaml` from flake.nix + nix/saas-manifests.nix (the

@@ -12,7 +12,8 @@
 #       ...
 #
 # The self-hosted NixOS runner provides all tools via system packages:
-#   - node v24.x, pnpm, python3, kubectl, podman, gh, git, jq, age
+#   - node v26.x, pnpm, python3, kubectl, docker, gh, git, jq, age
+#   - NOT installed: nix, podman, syft (verified 2026-10-01)
 # No additional setup actions needed.
 # ─────────────────────────────────────────────────────────────────
 name: Nix Setup
@@ -34,6 +35,6 @@ jobs:
           echo "| pnpm | $(pnpm --version 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
           echo "| python3 | $(python3 --version 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
           echo "| kubectl | $(kubectl version --client -o json 2>/dev/null | python3 -c 'import sys,json; print(json.load(sys.stdin).get("clientVersion",{}).get("gitVersion","N/A"))' 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
-          echo "| podman | $(podman version 2>/dev/null | head -1 | awk '{print $2}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| docker | $(docker --version 2>/dev/null | head -1 || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
           echo "| gh | $(gh --version 2>/dev/null | head -1 | awk '{print $3}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
           echo "| git | $(git --version 2>/dev/null | awk '{print $3}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
