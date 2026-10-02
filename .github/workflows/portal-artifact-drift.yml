@@ -86,32 +86,36 @@ jobs:
       - name: Explain a failure
         if: failure()
         run: |
+          # The heredoc body is indented to match the block scalar. A body at
+          # column 0 ends the `run: |` block early and the remaining lines are
+          # parsed as YAML, which makes the whole workflow file invalid — the
+          # same mistake that made deploy-prod.yml unrunnable.
           cat >&2 <<'EOF'
+          The committed portal artifacts do not match what the generators produce.
 
-The committed portal artifacts do not match what the generators produce.
+          If the tool catalog or metrics genuinely changed upstream, regenerate
+          and commit:
 
-If the tool catalog or metrics genuinely changed upstream, regenerate and
-commit:
+            pnpm --filter @maplespike/portal gen:plans
+            pnpm --filter @maplespike/portal gen:agents
+            pnpm --filter @maplespike/portal gen:llms
+            pnpm --filter @maplespike/portal gen:openapi
 
-  pnpm --filter @maplespike/portal gen:plans
-  pnpm --filter @maplespike/portal gen:agents
-  pnpm --filter @maplespike/portal gen:llms
-  pnpm --filter @maplespike/portal gen:openapi
+          Do not hand-edit the generated files.
 
-Do not hand-edit the generated files.
+          A COUNT MISMATCH line means a committed file asserts a tool count that
+          differs from packages/portal/src/data/tools.json. That is the failure
+          this gate was written after: a 189-tool catalog sat in a committed
+          artifact while the server served 184.
 
-A COUNT MISMATCH line means a committed file asserts a tool count that differs
-from packages/portal/src/data/tools.json. That is the failure this gate was
-written after: a 189-tool catalog sat in a committed artifact while the server
-served 184.
+          Note that the build timestamp is deliberately excluded from the
+          comparison. A commit's artifacts necessarily carry the *parent*
+          commit's date, because a commit cannot know its own date before it
+          exists, so comparing timestamps would report drift on every commit that
+          touches an artifact.
 
-Note that the build timestamp is deliberately excluded from the comparison. A
-commit's artifacts necessarily carry the *parent* commit's date, because a
-commit cannot know its own date before it exists, so comparing timestamps would
-report drift on every commit that touches an artifact.
-
-If you believe a diff is spurious, check the generator is reading the sources
-you expect. generate-plans.mjs imports quill-mcp's built dist/, so a stale
-build silently yields an older catalog; run `pnpm install --prefer-offline` and
-rebuild first.
-EOF
+          If you believe a diff is spurious, check the generator is reading the
+          sources you expect. generate-plans.mjs imports quill-mcp's built dist/,
+          so a stale build silently yields an older catalog; run
+          `pnpm install --prefer-offline` and rebuild first.
+          EOF
