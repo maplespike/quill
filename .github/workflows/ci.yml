@@ -28,7 +28,8 @@ jobs:
   build-and-test:
     runs-on: [self-hosted, nixos]
     # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
-    # an infrastructure or process hang cannot squat a runner for days.      timeout-minutes: 60
+    # an infrastructure or process hang cannot squat a runner for days.
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4

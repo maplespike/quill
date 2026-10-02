@@ -78,12 +78,16 @@ jobs:
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
 
-      # The generators load sdk and quill-mcp runtime build output. Include
-      # workspace dependencies so database/i18n/pipeline-core are built first.
+      # Build runtime artifacts in dependency order. pipeline-core imports
+      # database at runtime; typechecking pipeline-core alone is not sufficient
+      # because getAllTools() loads those modules while the portal generator
+      # imports the built MCP registry.
       - name: Build generator dependencies
         run: |
           pnpm --filter @maplespike/sdk... build
-          pnpm --filter @maplespike/quill-mcp... build
+          pnpm --filter @maplespike/database build
+          pnpm --filter @maplespike/pipeline-core build
+          pnpm --filter @maplespike/quill-mcp build
 
       - name: Regenerate portal artifacts
         working-directory: packages/portal
