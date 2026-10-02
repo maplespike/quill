@@ -33,17 +33,19 @@ For OCI distribution, source-level dependency reports are not image SBOMs. A rep
 
 The comparison deliberately **excludes the build timestamp**. A commit's artifacts necessarily carry the *parent* commit's date, because a commit cannot know its own date before it exists — so comparing timestamps would report drift on every commit that touches an artifact, which is the failure mode that let these fields rot in the first place. Content is compared exactly; the stamp is treated as metadata rather than as a claim.
 
-**This is now enforced at the push chokepoint.** `scripts/generate-sbom.sh` generates a per-image SPDX SBOM, and `nix run .#push-images` invokes it for `mcp`, `api`, and `portal` *before* each `podman push`, against the commit-pinned tag rather than the mutable `stable` tag. There is deliberately no skip flag: a missing Syft fails the push, because shipping an image whose contents were never enumerated is precisely the gap this closes. Override the binary with `SYFT=/path/to/syft`.
+**This is now enforced at the image chokepoint.** `scripts/pin-images.sh` calls `scripts/generate-sbom.sh` for each service after the build and **before** the image is saved and imported into the k3s containerd store. That placement is the point: an image cannot reach the cluster store without its contents having been enumerated. With syft unavailable the run aborts at the scan and `ctr images import` is never invoked.
 
-The script also refuses to record an empty SBOM. Syft can exit 0 having found nothing, and an empty file that looks like a successful scan is worse than no file, because a reviewer ticks it off. Both failure paths were verified with a stubbed Syft.
+`generate-sbom.sh` records the image digest alongside the SBOM, so the two provably describe the same artifact, and refuses to record an empty SBOM — syft can exit 0 having found nothing, and an empty file that looks like a successful scan is worse than no file because a reviewer ticks it off.
 
 To scan an image by hand:
 
 ```bash
-scripts/generate-sbom.sh nexus:5000/quill-api:<commit> ./sbom
+scripts/generate-sbom.sh <image-ref> ./sbom
 ```
 
-**What this still does not do.** Syft is resolved from `PATH`, not pinned in `flake.lock`, so the scanner version is whatever the operator host provides; pin it before treating the output as an attested control. The SBOMs are written to `sbom/` and are *not* committed or signed — they are evidence to be reviewed, not a published attestation. Nothing here establishes licence compatibility: an SBOM enumerates packages, it does not judge them. Helm and ArgoCD define deployment state; they do not settle source licensing or establish an image's embedded notices.
+**A correction worth recording.** This control was first wired into `flake.nix`'s `nix run .#push-images`, on the assumption that Nix was the build path — the workflows' `runs-on: [self-hosted, nixos]` label invites exactly that inference. It is not. The build hosts run Omarchy with docker; neither nix nor podman is installed on them, and `scripts/pin-images.sh` (docs/IMAGE-PINNING.md) is the path that produces the digest the cluster actually resolves. The control was moved there. The lesson generalises past this repo: a self-hosted runner label describes how a runner was *registered*, not what is installed on it, and a release control wired into a toolchain nobody runs is worse than no control because it looks like one.
+
+**What this still does not do.** Syft is resolved from `PATH`, not pinned, so the scanner version is whatever the build host provides; pin it before treating the output as an attested control. The SBOMs are written to `sbom/` and are *not* committed or signed — they are evidence to be reviewed, not a published attestation. `SBOM=false` exists as an escape hatch and is documented as one. Nothing here establishes licence compatibility: an SBOM enumerates packages, it does not judge them. Helm and ArgoCD define deployment state; they do not settle source licensing or establish an image's embedded notices.
 
 Known limits of the generator, stated so its output is not over-read:
 

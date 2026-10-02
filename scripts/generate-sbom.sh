@@ -1,28 +1,34 @@
 #!/usr/bin/env bash
-# Per-image SBOM generation for released container images.
+# Per-image SBOM generation for the images Quill actually ships.
 #
-# Why this exists: scripts/audit-open-source.mjs produces a *repository*
-# dependency inventory from the committed pnpm lockfile. That is not an SBOM.
-# It describes what the monorepo declares; it says nothing about what is inside
-# a given published image, which is what a downstream consumer of
-# nexus:5000/quill-<svc> actually receives. docs/open-source-audit.md states this
-# limitation and points here for the per-image procedure.
+# Why this exists: scripts/audit-open-source.mjs inventories the committed pnpm
+# lockfile. That describes what the monorepo declares; it cannot see what is
+# inside a built image, which is what a node running that image receives. The
+# audit has stated this limitation since it was written, and pointed here.
 #
-# Scope, stated honestly: an SBOM enumerates the packages Syft can identify in
-# an image. It does not by itself establish licence compatibility, and it is not
-# a legal review. It makes the evidence available for one.
+# Where it runs: scripts/pin-images.sh, after the image is built and before it
+# is imported into the k3s containerd store. That is the real chokepoint — it is
+# the path that produces the digest the cluster actually resolves (see
+# docs/IMAGE-PINNING.md). An earlier version of this work wired the SBOM into
+# flake.nix's `nix run .#push-images`, which is wrong on two counts: the build
+# hosts are Omarchy running docker, with neither nix nor podman installed, and
+# the pin path is the one the cluster consumes.
+#
+# Engine, deliberately not assumed: RUNTIME selects how the image is scanned, so
+# the same script works whether the host builds with docker or podman. It is
+# resolved from PATH, not from a nixpkgs attribute, because pinning a package set
+# on the release path would couple it to a toolchain that moves underneath us.
 #
 # Usage:
 #   scripts/generate-sbom.sh <image-ref> [output-dir]
+#   RUNTIME=podman scripts/generate-sbom.sh <image-ref> [output-dir]
 #
-# syft is resolved from PATH rather than from nixpkgs on purpose: this script is
-# invoked from the image push path, and requiring a specific nixpkgs attribute
-# there would make the release chokepoint depend on a package set that changes
-# underneath it. Set SYFT=/path/to/syft to pin a specific binary.
+# The image digest is recorded alongside the SBOM, because an SBOM that is not
+# tied to a digest cannot be attributed to an artifact later.
 #
 # Exit codes:
 #   0  SBOM written
-#   1  syft missing, image unreadable, or write failed
+#   1  runtime missing, image unreadable, scan empty, or write failed
 
 set -euo pipefail
 
@@ -33,30 +39,62 @@ IMAGE="${1:-}"
 
 OUT_DIR="${2:-sbom}"
 SYFT="${SYFT:-syft}"
+RUNTIME="${RUNTIME:-}"
+
+# Pick a container runtime if the caller did not name one. Only an explicitly
+# requested runtime is fatal when missing — an auto-detected one is not, because
+# the host may have neither and the caller may have pre-scanned elsewhere.
+if [ -z "$RUNTIME" ]; then
+  for candidate in docker podman; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      RUNTIME="$candidate"
+      break
+    fi
+  done
+fi
+[ -n "$RUNTIME" ] || die "no container runtime found (need docker or podman on PATH).
+Set RUNTIME=<docker|podman> if it is installed somewhere non-standard."
+
+if ! command -v "$RUNTIME" >/dev/null 2>&1; then
+  die "RUNTIME=$RUNTIME was requested but is not on PATH"
+fi
 
 if ! command -v "$SYFT" >/dev/null 2>&1; then
   die "syft not found. Install it, or set SYFT=/path/to/syft.
-  The image push path treats a missing SBOM as a failure by design: an
-  unreviewed image should not ship. There is deliberately no skip flag here;
-  if a release genuinely must proceed without one, record why in the release
-  notes rather than adding a silent bypass."
+  This script runs before the image is imported into the cluster store, on
+  purpose: shipping an image whose contents were never enumerated is the gap
+  this closes. There is deliberately no skip flag — if a release genuinely must
+  proceed without one, record why in the release notes rather than adding a
+  silent bypass."
 fi
+
+# Both prerequisites are checked before anything is written, and the runtime is
+# checked first: on a host missing both, reporting "syft not found" sends the
+# reader after the wrong problem. The order is the diagnosis.
 
 mkdir -p "$OUT_DIR"
 
-# Derive a filesystem-safe name from the ref: nexus:5000/quill-api:stable
-# -> nexus-5000-quill-api-stable
-safe=$(printf '%s' "$IMAGE" | tr '/:' '__')
+# Derive a filesystem-safe name: nexus:5000/quill-api:2026-10-01-abc123
+#   -> nexus_5000_quill-api_2026-10-01-abc123
+safe=$(printf '%s' "$IMAGE" | tr '/:@' '___')
 
-# SPDX is the format downstream tooling most commonly expects, and it is what
-# the licensing discussion in docs/open-source-audit.md refers to.
+digest="unknown"
+if digest=$("$RUNTIME" inspect --format '{{index .RepoDigests 0}}' "$IMAGE" 2>/dev/null); then
+  :
+elif digest=$("$RUNTIME" image inspect --format '{{.Id}}' "$IMAGE" 2>/dev/null); then
+  :
+fi
+[ -n "$digest" ] || digest="unknown"
+
 out="$OUT_DIR/${safe}.spdx.json"
 tmp="$out.tmp"
 
-echo "generate-sbom: scanning $IMAGE ..."
-"$SYFT" "registry:$IMAGE" \
-  -o spdx-json="$tmp" \
-  --quiet
+echo "generate-sbom: scanning $IMAGE (via $RUNTIME) ..."
+
+# Local images live in the daemon's store, not a registry, so the source is the
+# plain ref. A registry-qualified ref that only exists remotely would need
+# `registry:` here; pin-images.sh scans after the build, so the image is local.
+"$SYFT" "$IMAGE" -o spdx-json="$tmp" --quiet
 
 [ -s "$tmp" ] || { rm -f "$tmp"; die "syft produced an empty SBOM for $IMAGE"; }
 
@@ -65,6 +103,7 @@ echo "generate-sbom: scanning $IMAGE ..."
 # SBOM at all: a reviewer would tick it off. The count is computed on the temp
 # file and the temp file is removed on every failure path, so a rejected scan
 # never leaves a file behind for someone to mistake for a real one.
+#
 # Under `set -o pipefail`, a grep that matches nothing exits 1 and aborts the
 # script — which is precisely the empty-SBOM case we want to *handle*, not
 # crash on. `|| true` preserves the count of 0 and lets the explicit check
@@ -77,4 +116,15 @@ if [ "$count" -lt 1 ]; then
 fi
 
 mv "$tmp" "$out"
-echo "generate-sbom: wrote $out (${count} SPDXID entries)"
+
+# Record which artifact this describes, so the file is not orphaned from the
+# image it was taken from.
+cat > "$OUT_DIR/${safe}.meta" <<EOF
+image=$IMAGE
+digest=$digest
+runtime=$RUNTIME
+sbom=$(basename "$out")
+packages=$count
+EOF
+
+echo "generate-sbom: wrote $out ($count SPDXID entries, digest $digest)"
