@@ -27,10 +27,8 @@ env:
 jobs:
   build-and-test:
     runs-on: [self-hosted, nixos]
-    # Self-hosted runners otherwise inherit a 5-day job cap, so a wedged step
-    # squats a runner until the week is out. Three runs sat on step "Run
-    # api-server unit tests" for 2h+ before this bound existed.
-    timeout-minutes: 60
+    # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
+    # an infrastructure or process hang cannot squat a runner for days.      timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -111,54 +109,29 @@ jobs:
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
 
-      # These suites emit ~100 KB to stdout, over the 64 KB default pipe
-      # buffer. When the runner's log upload to
-      # results.actions.githubusercontent.com stalls, the pipe fills and the
-      # test process blocks forever on write() — observed as a 0% CPU
-      # "sleeping" node that never exits while the worker logs only
-      # heartbeats. Writing to a file and tailing keeps the runner pipe small
-      # enough to drain, and preserves the exit code. Do not "simplify" these
-      # back to a bare `run:` command.
+      # Keep test stdout off the runner's live log stream while the suite runs,
+      # then emit a bounded tail. Earlier jobs wedged during this step, but
+      # diagnostics did not establish the process-level cause. The job timeout
+      # bounds recurrence; this helper also preserves the child exit status
+      # despite GitHub's default bash -e behavior and uses a per-step temp log.
       - name: Run api-server unit tests
-        run: |
-          set -o pipefail
-          pnpm --filter @maplespike/api-server test:unit > /tmp/api-unit.log 2>&1
-          rc=$?
-          tail -n 60 /tmp/api-unit.log
-          exit $rc
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
 
       - name: Run quill-mcp unit tests
-        run: |
-          set -o pipefail
-          pnpm --filter @maplespike/quill-mcp test:unit > /tmp/mcp-unit.log 2>&1
-          rc=$?
-          tail -n 60 /tmp/mcp-unit.log
-          exit $rc
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
 
       - name: Run api-server integration tests
-        run: |
-          set -o pipefail
-          pnpm --filter @maplespike/api-server test:integration > /tmp/api-int.log 2>&1
-          rc=$?
-          tail -n 60 /tmp/api-int.log
-          exit $rc
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
         continue-on-error: true
 
       - name: Run quill-mcp integration tests
-        run: |
-          set -o pipefail
-          pnpm --filter @maplespike/quill-mcp test:integration > /tmp/mcp-int.log 2>&1
-          rc=$?
-          tail -n 60 /tmp/mcp-int.log
-          exit $rc
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
         continue-on-error: true
 
   coverage:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
-    # Coverage output is larger still (per-file tables), so this job wedges
-    # at least as readily as build-and-test.
     timeout-minutes: 60
 
     steps:
@@ -173,12 +146,12 @@ jobs:
           pnpm --filter @maplespike/quill-mcp build
 
       - name: Run api-server coverage (floor-enforced)
-        run: bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
 
       - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
+        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
     needs: build-and-test
@@ -212,6 +185,7 @@ jobs:
     # gitleaks-action lists PR commits via the API on pull_request events —
     # without pull-requests:read the token 403s ("Resource not accessible by
     # integration") and the job fails regardless of findings.
+    timeout-minutes: 45
     permissions:
       contents: read
       pull-requests: read

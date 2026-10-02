@@ -29,7 +29,9 @@ The audit also runs in `.github/workflows/open-source-audit.yml` after a frozen 
 
 For OCI distribution, source-level dependency reports are not image SBOMs. A repository dependency inventory describes what the monorepo declares; it cannot see what is inside a built image, which is what a consumer of `nexus:5000/quill-<svc>` actually receives.
 
-**Generated-artifact drift is now gated.** `scripts/check-portal-artifact-drift.mjs` (`pnpm check:artifact-drift`, wired into `.github/workflows/portal-artifact-drift.yml`) regenerates the nine tracked portal artifacts and compares them to the committed copies, and separately asserts that every tool count claimed in a committed file equals the catalog length in `tools.json`. That second check is the one that would have caught the 189-vs-184 discrepancy.
+**Generated-artifact drift is now gated.** `scripts/check-portal-artifact-drift.mjs` (`pnpm check:artifact-drift`, wired into `.github/workflows/portal-artifact-drift.yml`) regenerates the nine tracked portal artifacts and compares them to the committed copies, and separately asserts that every tool count claimed in a committed file equals the catalog length in `tools.json`. That second check would have caught the 189-vs-184 discrepancy.
+
+The portal tool generator now uses the built `quill-mcp` `getAllTools()` registry as its sole authority for membership and descriptions, and derives the displayed count from that exact set. The old fallback unioned `tools-base.json`, `tool-index.json`, and `fr-tools.json`; on a missing/stale build it included two unregistered tools. It now fails closed if the registry is absent or invalid. CI builds the SDK and MCP workspace dependencies first, then runs generators with `QUILL_GENERATOR_OFFLINE=1` so artifacts do not depend on live billing/API services. A clean-build simulation regenerated all nine artifacts with 184 tools and passed the drift gate.
 
 The comparison deliberately **excludes the build timestamp**. A commit's artifacts necessarily carry the *parent* commit's date, because a commit cannot know its own date before it exists — so comparing timestamps would report drift on every commit that touches an artifact, which is the failure mode that let these fields rot in the first place. Content is compared exactly; the stamp is treated as metadata rather than as a claim.
 
@@ -56,6 +58,8 @@ Known limits of the generator, stated so its output is not over-read:
 ### Image-level results (first measurement, 2026-10-02)
 
 `scripts/generate-sbom.sh` was run for real against the live `nexus:5000/quill-mcp:latest` image on the build host, so the "not a per-image SBOM" limit above is no longer theoretical. Syft 1.52.0 (Arch `extra`), 19s, 5.9 MB SPDX-2.3 document, **5,925 SPDXID entries / 1,413 packages**, digest recorded alongside so the SBOM provably describes the scanned artifact. `syft convert` re-reads the file, which is an independent check that the document is well-formed.
+
+The historical CI test-process hang remains unexplained. On 2026-10-02, three abandoned test processes on `nexus` were terminated by SIGTERM and the ops mutation was logged. The exact API test command passed on the same runner in 10 seconds; repeated sequential and concurrent runs passed. A synthetic slow-reader pipe test established that a blocked log pipe can block a writer, but did not prove that this occurred in the affected jobs. CI now captures test output to a temporary file, emits a bounded tail, and has job timeouts as safeguards; these are mitigations, not a confirmed root-cause fix.
 
 `licenseDeclared` distribution inside the image:
 

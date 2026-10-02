@@ -4,8 +4,7 @@ name: Portal generated-artifact drift
 # public/agents.json, openapi.json). Until 2026-10-01 those generators wrote
 # `new Date()` into their output, so every re-run produced a diff even when no
 # input had changed — which made it impossible to tell a real content change
-# from a re-run, and left stale claims (a 189-tool catalog when the server
-# serves 184) sitting in the tree unnoticed.
+# from a re-run. It also exposed stale portal catalogs and tool counts.
 #
 # The generators now take their timestamp from scripts/lib/build-timestamp.mjs,
 # which prefers the git HEAD commit date, so output is a function of the commit
@@ -14,10 +13,10 @@ name: Portal generated-artifact drift
 # field: a commit's artifacts necessarily carry the parent commit's date, so
 # comparing timestamps would flag drift on every commit.
 #
-# Scope note, stated plainly: this gate proves the artifacts match their
-# generators. It does NOT prove the generators match the running system — the
-# catalog counts come from a live MCP server, so a server-side tool change will
-# NOT be caught here until someone re-runs the generator and commits the result.
+# Scope note, stated plainly: this gate proves generated portal artifacts
+# match their checked-in sources, including the local quill-mcp runtime registry.
+# It does not probe external services or prove that a deployed server runs this
+# commit; deployment health is checked separately.
 
 on:
   pull_request:
@@ -30,8 +29,11 @@ on:
       - 'packages/portal/public/agents.json'
       - 'packages/portal/agents.json'
       - 'packages/portal/**/openapi.json'
-      - 'packages/quill-mcp/src/tools/index.ts'
+      - 'packages/sdk/src/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'packages/quill-mcp/src/tools/**'
       - 'packages/quill-mcp/src/tools/tool-index.json'
+      - 'packages/quill-mcp/i18n/fr-tools.json'
       - 'docs/metrics.json'
       - '.github/workflows/portal-artifact-drift.yml'
   push:
@@ -44,8 +46,11 @@ on:
       - 'packages/portal/public/agents.json'
       - 'packages/portal/agents.json'
       - 'packages/portal/**/openapi.json'
-      - 'packages/quill-mcp/src/tools/index.ts'
+      - 'packages/sdk/src/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'packages/quill-mcp/src/tools/**'
       - 'packages/quill-mcp/src/tools/tool-index.json'
+      - 'packages/quill-mcp/i18n/fr-tools.json'
       - 'docs/metrics.json'
       - '.github/workflows/portal-artifact-drift.yml'
   workflow_dispatch:
@@ -61,6 +66,7 @@ concurrency:
 jobs:
   drift:
     runs-on: [self-hosted, nixos]
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,8 +78,17 @@ jobs:
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
 
+      # The generators load sdk and quill-mcp runtime build output. Include
+      # workspace dependencies so database/i18n/pipeline-core are built first.
+      - name: Build generator dependencies
+        run: |
+          pnpm --filter @maplespike/sdk... build
+          pnpm --filter @maplespike/quill-mcp... build
+
       - name: Regenerate portal artifacts
         working-directory: packages/portal
+        env:
+          QUILL_GENERATOR_OFFLINE: '1'
         run: |
           pnpm gen:plans
           pnpm gen:agents
@@ -104,9 +119,9 @@ jobs:
           Do not hand-edit the generated files.
 
           A COUNT MISMATCH line means a committed file asserts a tool count that
-          differs from packages/portal/src/data/tools.json. That is the failure
-          this gate was written after: a 189-tool catalog sat in a committed
-          artifact while the server served 184.
+          differs from packages/portal/src/data/tools.json. The portal catalog
+          takes membership and descriptions from quill-mcp's built getAllTools()
+          registry; sidecar indexes are not authoritative and can contain stale entries.
 
           Note that the build timestamp is deliberately excluded from the
           comparison. A commit's artifacts necessarily carry the *parent*
@@ -114,8 +129,8 @@ jobs:
           exists, so comparing timestamps would report drift on every commit that
           touches an artifact.
 
-          If you believe a diff is spurious, check the generator is reading the
-          sources you expect. generate-plans.mjs imports quill-mcp's built dist/,
-          so a stale build silently yields an older catalog; run
-          `pnpm install --prefer-offline` and rebuild first.
+          If you see a MODULE_NOT_FOUND for packages/*/dist/, inspect the
+          "Build generator dependencies" step. It must succeed before any
+          artifact generator runs. Offline mode keeps plan prices at their
+          committed values and prevents CI from depending on live services.
           EOF
