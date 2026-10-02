@@ -49,6 +49,7 @@ Most packages use `node --test` (via tsx). The `engine` package uses `vitest`.
 - **Portal runtime is Python** (`server.py`), not nginx — Astro `format: 'file'` means pages are `<page>.html`, served extensionless
 - **`AGENTS.md` is the authoritative ops reference** — cluster topology, routing matrix, rebuild/rollout recipes, known issues
 - **Secrets**: SOPS + age, synced via `scripts/sops-sync-k8s.sh`
+- **`secrets` CI job fails on every PR (pre-existing, as of 2026-10-01)** — `gitleaks/gitleaks-action@v2` requires `GITLEAKS_LICENSE` for org repos and the job in `.github/workflows/ci.yml` passes only `GITHUB_TOKEN` to it, so the action exits with `[maplespike] is an organization. License key is required.` even though the `GITLEAKS_LICENSE` repository secret *is* set. It is not a finding about the diff; the baseline check in the preceding step still runs. Fix by adding `GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}` to that step's `env:`, or by pinning the CLI directly instead of using the action. Unrelated to any content change — do not chase it when a PR goes red.
 - **Node ≥18** (CI uses 22)
 - **Licensing**: unresolved package, file-header, and artifact conflicts; see `docs/open-source-audit.md` and `LICENSE.md`
 - **Deploy**: `scripts/deploy.sh`; production K3s cluster with Kustomize namePrefix (`maplespike-*` at cluster, `quill-*` in source)
