@@ -27,6 +27,10 @@ env:
 jobs:
   build-and-test:
     runs-on: [self-hosted, nixos]
+    # Self-hosted runners otherwise inherit a 5-day job cap, so a wedged step
+    # squats a runner until the week is out. Three runs sat on step "Run
+    # api-server unit tests" for 2h+ before this bound existed.
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -107,24 +111,55 @@ jobs:
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
 
+      # These suites emit ~100 KB to stdout, over the 64 KB default pipe
+      # buffer. When the runner's log upload to
+      # results.actions.githubusercontent.com stalls, the pipe fills and the
+      # test process blocks forever on write() — observed as a 0% CPU
+      # "sleeping" node that never exits while the worker logs only
+      # heartbeats. Writing to a file and tailing keeps the runner pipe small
+      # enough to drain, and preserves the exit code. Do not "simplify" these
+      # back to a bare `run:` command.
       - name: Run api-server unit tests
-        run: pnpm --filter @maplespike/api-server test:unit
+        run: |
+          set -o pipefail
+          pnpm --filter @maplespike/api-server test:unit > /tmp/api-unit.log 2>&1
+          rc=$?
+          tail -n 60 /tmp/api-unit.log
+          exit $rc
 
       - name: Run quill-mcp unit tests
-        run: pnpm --filter @maplespike/quill-mcp test:unit
+        run: |
+          set -o pipefail
+          pnpm --filter @maplespike/quill-mcp test:unit > /tmp/mcp-unit.log 2>&1
+          rc=$?
+          tail -n 60 /tmp/mcp-unit.log
+          exit $rc
 
       - name: Run api-server integration tests
-        run: pnpm --filter @maplespike/api-server test:integration
+        run: |
+          set -o pipefail
+          pnpm --filter @maplespike/api-server test:integration > /tmp/api-int.log 2>&1
+          rc=$?
+          tail -n 60 /tmp/api-int.log
+          exit $rc
         continue-on-error: true
 
       - name: Run quill-mcp integration tests
-        run: pnpm --filter @maplespike/quill-mcp test:integration
+        run: |
+          set -o pipefail
+          pnpm --filter @maplespike/quill-mcp test:integration > /tmp/mcp-int.log 2>&1
+          rc=$?
+          tail -n 60 /tmp/mcp-int.log
+          exit $rc
         continue-on-error: true
 
   coverage:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
+    # Coverage output is larger still (per-file tables), so this job wedges
+    # at least as readily as build-and-test.
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -149,6 +184,7 @@ jobs:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -220,6 +256,7 @@ jobs:
   audit:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
+    timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
     # portal/public/data/security/audit.json) but fail on CRITICALs so a new
@@ -263,6 +300,8 @@ jobs:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/prod'
+    # Three multi-stage builds; generous, but not unbounded.
+    timeout-minutes: 120
     # GHCR push is RETIRED post-flip (2026-07-10 systemic registry flip).
     # The default target is the operator-host nexus:5000 registry. Images are
     # pushed operator-side by `scripts/pin-images.sh` (see docs/IMAGE-PINNING.md),
