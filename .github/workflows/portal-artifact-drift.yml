@@ -78,16 +78,17 @@ jobs:
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
 
-      # Build runtime artifacts in dependency order. pipeline-core imports
-      # database at runtime; typechecking pipeline-core alone is not sufficient
-      # because getAllTools() loads those modules while the portal generator
-      # imports the built MCP registry.
-      - name: Build generator dependencies
-        run: |
-          pnpm --filter @maplespike/sdk... build
-          pnpm --filter @maplespike/database build
-          pnpm --filter @maplespike/pipeline-core build
-          pnpm --filter @maplespike/quill-mcp build
+      # pnpm injects workspace dependencies into its virtual store during
+      # install, before dist/ exists. Building packages alone does not refresh
+      # those copies, so runtime imports can still fail. Reuse the shared build
+      # and repair script used by QA, then assert workspace resolution.
+      - name: Build workspace packages and repair injected copies
+        env:
+          QUILL_BUILD_WORKSPACE_ONLY: '1'
+        run: bash scripts/build-packages.sh
+
+      - name: Verify workspace package resolution
+        run: bash scripts/check-workspace-resolution.sh
 
       - name: Regenerate portal artifacts
         working-directory: packages/portal
