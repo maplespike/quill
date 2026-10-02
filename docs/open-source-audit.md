@@ -51,7 +51,31 @@ Known limits of the generator, stated so its output is not over-read:
 
 - License comparison is textual, not SPDX-semantic. A package declaring `MIT OR Apache-2.0` next to Apache-2.0 text is not flagged as a manifest/text conflict, but a file whose SPDX tag names only one branch of that expression is still reported as `file-spdx-differs-from-manifest`. That over-reports; it errs toward review rather than toward clearance.
 - `getLicenseTextKind` classifies license *texts* by their opening wording and reports `unclassified` when it cannot tell. `unclassified` text suppresses the manifest/text conflict check rather than proving agreement.
-- The dependency inventory is whatever `pnpm licenses list` reports for the current install. It is not a lockfile enumeration, not a per-image SBOM, and does not cover Python or Rust dependencies.
+- The dependency inventory is whatever `pnpm licenses list` reports for the current install. It is not a lockfile enumeration, not a per-image SBOM, and does not cover Python or Rust dependencies. **This limit is now partly measured** — see "Image-level results" below.
+
+### Image-level results (first measurement, 2026-10-02)
+
+`scripts/generate-sbom.sh` was run for real against the live `nexus:5000/quill-mcp:latest` image on the build host, so the "not a per-image SBOM" limit above is no longer theoretical. Syft 1.52.0 (Arch `extra`), 19s, 5.9 MB SPDX-2.3 document, **5,925 SPDXID entries / 1,413 packages**, digest recorded alongside so the SBOM provably describes the scanned artifact. `syft convert` re-reads the file, which is an independent check that the document is well-formed.
+
+`licenseDeclared` distribution inside the image:
+
+| Licence | Packages |
+|---|---|
+| MIT | 956 |
+| ISC | 132 |
+| Apache-2.0 | 125 |
+| BSD-3-Clause / BSD-2-Clause | 27 / 27 |
+| NOASSERTION | 26 |
+| BlueOak-1.0.0 | 14 |
+| CC0-1.0 | 5 |
+| Copyleft (GPL/LGPL/AGPL/MPL family) | 13 (Debian base layer) + first-party |
+
+**This is exactly the class of fact a lockfile audit cannot produce.** Two things appear only at image level:
+
+- **The Debian base layer is GPL.** `bash`, `coreutils`, `grep`, `gzip`, `dpkg`, `apt`, `ca-certificates` and the rest of the base filesystem are GPL-2.0/GPL-3.0. They are not npm dependencies and appear in no `package.json`. A consumer distributing the image receives them regardless of what the JavaScript manifest says.
+- **First-party licensing is confirmed independently.** `@maplespike/pipeline-core` reports `AGPL-3.0-or-later` *from inside the built artifact*, which corroborates the AGPL file tags recorded elsewhere in this document from a completely separate source. `@img/sharp-libvips-linux-x64` is `LGPL-3.0-or-later` (a prebuilt native binary, not source we compile).
+
+The distinction that matters for a release decision: base-layer GPL obligations attach to the Debian packages and are discharged by their own attribution requirements, not by Quill's licence. But they must be *disclosed* — an image-level notice is the only place they can be. That is a counsel question, listed below.
 - Missing license metadata is preserved as missing. The generator never infers a license from a package name, directory, or neighbouring package.
 
 ## Findings
@@ -122,11 +146,31 @@ The inventory is not a runtime gate and does not disable discovery or ingestion.
 
 Review source terms individually. Record authoritative terms URL, rights holder, dataset identity/version, access date, permitted acts, commercial/redistribution rules, attribution wording, exceptions, retention/withdrawal conditions, and the specific Quill feature/output using the data. Address personal data, confidential information, Crown copyright, third-party content, and contractual/API terms separately. Seek counsel on bulk republication, database extraction, paid access, and derived datasets.
 
-### Medium: provenance comparison is bounded, not exhaustive
+### Resolved: provenance comparison against `mcp-canada` is now a measurement
 
-The public `mcp-canada` predecessor was inspected at commit `f2deb2285ebeb4868a278d1d9189add038afa27d` (MIT). Selected Python files for HTTP retry, a token-bucket limiter, and CKAN client behavior were compared manually against selected TypeScript Quill implementations. In this small sample, the implementation structures and code differ; no substantial literal copy was established. Common underlying endpoint/protocol/algorithm patterns are expected and do not alone establish copyright copying.
+The public `mcp-canada` predecessor was cloned and compared **whole-repository** against Quill, superseding the earlier three-file manual sample. Predecessor: `f2deb2285ebeb4868a278d1d9189add038afa27d`, MIT, © 2026 Reyem Tech, 111 source files / 35,417 tokens (Python). Quill: 1,371 files / 432,457 tokens (TypeScript).
 
-This environment did not contain a sibling `mcp-canada` checkout, a similarity tool, or source-control history access suitable for whole-repository provenance analysis. No copy was made from the inspected remote text. Earlier history, deleted files, generated code, all modules, issues/PRs, other repositories, code-agent outputs, and third-party templates have not been exhaustively compared. “No code copied” must not be published as a verified result.
+[`scripts/compare-provenance.py`](../scripts/compare-provenance.py) reduces both trees to normalised token streams — comments and string literals removed, Python keywords removed so a `.py` file cannot match a `.ts` file on `import`/`return` alone — then reports shared token 5-grams and the longest common contiguous token run per file pair.
+
+| Measure | Result |
+|---|---|
+| File pairs with any shared 5-gram | 14 |
+| Longest common token run, any pair | **8 tokens** |
+| Highest coverage of any predecessor file | **0.44%** |
+| Intra-repo noise floor (Quill vs Quill, 120 pairs) | median 0.0000, max 0.3684 |
+
+The longest runs are not code. The top matches are a pandas idiom (`e print f file sys stderr`), a NumPy limit phrase (`e g limit maximum number of`), and the public portal name `the government of canada open data portal`. Every one of the 14 is at or below the same-codebase noise floor.
+
+**Conclusion: no substantial literal copying from `mcp-canada` at this revision.** Common endpoint, protocol, and algorithm patterns are expected where two tools wrap the same public APIs and do not alone establish copyright copying.
+
+Reproduce with:
+
+```bash
+git clone --depth=50 https://github.com/reverb256/mcp-canada.git /tmp/mcp-canada
+python3 scripts/compare-provenance.py . /tmp/mcp-canada --json /tmp/provenance.json
+```
+
+**Limitations that remain, stated rather than papered over.** This compares the predecessor at one revision, not its full history — deleted files and earlier revisions are not covered, and the clone is `--depth=50`. It compares normalised token streams, so a semantic reimplementation (different tokens, same algorithm and structure) would not register; that class of similarity is a reading task, not a fingerprinting one. Generated code, issues/PRs, other repositories, and code-agent output are not in scope. "No substantial literal copying **at this revision, by this method**" is the supportable claim — not "no code copied", which must not be published as a verified result.
 
 One generated-file consequence is recorded and worth repeating: three sets of orphaned HTML snapshots (`packages/portal/docs/`, `packages/portal/docs-vitepress/`, and `packages/docs/**/*.html`) were never regenerated, so they carried superseded licensing and coverage statements — 6 of them still asserted the Open Government Licence, and `packages/portal/docs/` and `docs-vitepress/` each carried a full copy. They were served nowhere (the docs workflow uploads `packages/portal/dist`) and no script read or wrote them.
 
