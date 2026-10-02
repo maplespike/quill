@@ -2,6 +2,14 @@
 
 Quill (MapleSpike) is a pnpm monorepo that collects and presents public data. This file is a provenance index. It is not a complete third-party dependency notice, a source-data permission grant, or legal advice. The current machine-generated findings are produced by [`scripts/audit-open-source.mjs`](./scripts/audit-open-source.mjs); see [`docs/open-source-audit.md`](./docs/open-source-audit.md) for scope, commands, and known conflicts.
 
+## How license claims in this file were verified
+
+Every license named below was read from the credited project's own `LICENSE` file at the revision cited, not from GitHub API metadata and not from the project's package manifest. This distinction matters: the API reports a `spdx_id` and a `license.template_name` that come from GitHub's own classifier, which is frequently wrong, and a manifest `license` field is a self-declaration that may disagree with the text actually shipped. Where this file says a license was "verified", the `LICENSE` file at the cited revision was fetched and read.
+
+Three cases are deliberately **not** verified, and are marked as such in the table rather than being given a best guess: `Frostbite-Gazette` (private repository, contents and license not accessible), and any package whose manifest and `LICENSE` text disagree — see [`docs/open-source-audit.md`](./docs/open-source-audit.md) for the observed conflicts.
+
+Software-license facts for Quill's own packages are produced by [`scripts/audit-open-source.mjs`](./scripts/audit-open-source.mjs) and image-level facts by `scripts/generate-sbom.sh` (Syft/SPDX). Those tools report what a file, manifest, or built image states; they do not decide which statement is legally operative.
+
 ## Project and related repositories
 
 | Project | Relationship and evidence |
