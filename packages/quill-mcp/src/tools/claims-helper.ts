@@ -3,8 +3,9 @@
  *
  * Every tool that returns upstream government records should wrap its
  * response with withClaims() so the response carries SHA-256 hashes over
- * each returned value, plus source attribution and retrieval time. The
- * hashes are registered in the shared CitationStore and can be verified via
+ * canonicalized returned values, plus available source metadata. Acquisition
+ * time is included only when supported by evidence. The hashes are registered
+ * in the shared CitationStore and can be looked up via
  * get_citation / verify_claim / /v1/citation without holding the original data.
  */
 
@@ -25,9 +26,10 @@ export interface PublicClaim {
   sha256: string;
   sourceName: string;
   sourceUrl: string;
-  retrievedAt: string;
+  retrievedAt: string | null;
   license: string;
   transformations: string[];
+  provenanceEvidence: ClaimBundle['provenanceEvidence'];
   merkleRoot?: string;
   /** Data-quality provenance score (0–1) + level, from the quality scorer */
   quality?: ProvenanceScore;
@@ -39,9 +41,10 @@ function toPublicClaim(b: ClaimBundle): PublicClaim {
     sha256: b.sha256,
     sourceName: b.sourceName,
     sourceUrl: b.sourceUrl,
-    retrievedAt: b.retrievedAt ?? '',
+    retrievedAt: b.retrievedAt ?? null,
     license: b.license ?? '',
     transformations: b.transformations ?? [],
+    provenanceEvidence: b.provenanceEvidence,
     merkleRoot: b.merkleRoot,
     quality: b.quality,
   };

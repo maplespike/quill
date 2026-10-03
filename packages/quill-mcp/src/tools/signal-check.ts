@@ -16,9 +16,10 @@ const WATCHED_SOURCES = [
 export const definition: ToolDefinition = {
   name: 'signal_check',
   description:
-    'Check for new or changed items across watched government data sources ' +
+    'Check for new or changed items across the government data sources this tool watches ' +
     '(committees, Gazette, lobbying, procurement, oversight). ' +
-    'Returns recently added items since the last check. ' +
+    'Returns items first seen since the last check, as recorded by this tool\'s local signal store; ' +
+    'a source that did not respond yields no items rather than a negative finding. ' +
     'Use this proactively to detect new regulatory filings, committee activity, or lobbying registrations.',
   inputSchema: {
     type: 'object',
@@ -26,7 +27,7 @@ export const definition: ToolDefinition = {
       sources: {
         type: 'array',
         items: { type: 'string', enum: WATCHED_SOURCES.map(s => s.key) },
-        description: 'Sources to check (default: all watched sources)',
+        description: 'Sources to check (default: every watched source)',
       },
     },
   },

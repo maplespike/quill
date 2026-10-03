@@ -19,8 +19,8 @@
     "cat": "General",
     "name": "get_citation",
     "desc": {
-      "en": "Retrieve citation by SHA-256 hash",
-      "fr": "Récupérer une citation par hachage SHA-256"
+      "en": "Retrieve record by canonical-JSON SHA-256 hash",
+      "fr": "Récupérer un enregistrement par hachage SHA-256"
     }
   },
   {

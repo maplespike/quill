@@ -105,9 +105,8 @@ const errorCodes = [
 ];
 ---
 
-<BaseLayout title={i18n.t('docs.title')} description={t(
-  "Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage.",
-  "Documentation complète de l'API MapleSpike — guide de démarrage rapide, référence de l'API REST, configuration MCP pour agents IA et utilisation des SDK.",
+<BaseLayout title={i18n.t('docs.title')} description={t(            "Quill API documentation — quickstart guide, REST API reference, MCP configuration, and SDK usage. Source terms vary by publisher and dataset.",
+            "Documentation de l'API Quill — démarrage rapide, référence REST, configuration MCP et utilisation des SDK. Les conditions varient selon l'éditeur et le jeu de données.",
 )} ogImage="/og-image-docs.png" lang={lang}>
   <div class="flex">
     <!-- Sidebar -->
@@ -146,7 +145,7 @@ const errorCodes = [
           <Badge variant="default" class="text-[10px] px-1.5 py-0.5">LIVE</Badge>
         </div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-          {t("One API key.", "Une seule clé API.")}<br />{t(` ${statsData.modules} Canadian government data modules. Every response cited.`, ` ${statsData.modules} modules de données gouvernementales canadiennes. Chaque réponse est citée.`)}
+          {t("One API key.", "Une seule clé API.")}<br />{t(` ${statsData.modules} public-sector data modules. Provenance fields where available.`, ` ${statsData.modules} modules de données du secteur public. Champs de provenance lorsqu'ils sont disponibles.`)}
         </h1>
         <p class="text-muted-foreground mb-8">{t(
           "Get an API key, make your first call, and see the citation contract — in under 5 minutes.",
@@ -167,7 +166,8 @@ const errorCodes = [
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license_basis&quot;</span>: <span class="text-[#0891B2]">&quot;no-publisher-declaration&quot;</span><br />
             &nbsp;&nbsp;&#125;<br />
             &#125;
           </CardContent>
@@ -265,8 +265,8 @@ const errorCodes = [
         </div>
         <h2 class="text-2xl font-bold mb-4">{t("One envelope. Every endpoint.", "Une seule enveloppe. Chaque point de terminaison.")}</h2>
         <p class="text-muted-foreground mb-6">{t(
-          "Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.",
-          "Chaque réponse possède la même structure — données, score de qualité, métadonnées de citation et informations d'utilisation. Votre agent sait toujours d'où vient la réponse.",
+          "Responses use a common envelope; available quality, citation, and usage fields depend on the endpoint and source.",
+          "Les réponses utilisent une enveloppe commune; les champs de qualité, de citation et d'utilisation disponibles dépendent du point de terminaison et de la source.",
         )}</p>
 
         <Card>
@@ -283,7 +283,8 @@ const errorCodes = [
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_url&quot;</span>: <span class="text-[#0891B2]">&quot;https://...&quot;</span>,<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license_basis&quot;</span>: <span class="text-[#0891B2]">&quot;no-publisher-declaration&quot;</span><br />
             &nbsp;&nbsp;&#125;<br />
             &#125;
           </CardContent>
@@ -667,13 +668,13 @@ const errorCodes = [
       <!-- ═══ 05: CITATION CONTRACT ═══ -->
       <section id="citation-contract" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span>          <span class="text-primary/80">07</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span><span class="text-primary/80">07</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("Citation Contract", "Contrat de citation")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">{t("Every response. Every endpoint. Verifiable.", "Chaque réponse. Chaque point de terminaison. Vérifiable.")}</h2>
+        <h2 class="text-2xl font-bold mb-4">{t("Source provenance, where available.", "Provenance des sources, lorsqu'elle est disponible.")}</h2>
         <p class="text-muted-foreground mb-6">{t(
-          "Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine.",
-          "Chaque point de terminaison MapleSpike renvoie le même bloc de citation — que vous utilisiez l'API REST, les outils MCP ou le moteur de recoupement.",
+          "Claim bundles report the hash scope and available acquisition, transformation, and publisher-terms evidence. A record hash supports an integrity comparison; it does not establish source authenticity or reuse rights.",
+          "Les lots de revendications indiquent la portée du hachage et les preuves disponibles sur l'acquisition, les transformations et les conditions de l'éditeur. Un hachage d'enregistrement permet une comparaison d'intégrité; il n'établit ni l'authenticité de la source ni les droits de réutilisation.",
         )}</p>
 
         <Card>
@@ -682,18 +683,20 @@ const errorCodes = [
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_url&quot;</span>: <span class="text-[#0891B2]">&quot;https://open.canada.ca/...&quot;</span>,<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;retrieved_at&quot;</span>: <span class="text-[#0891B2]">&quot;2026-05-13T12:00Z&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;retrieved_at&quot;</span>: <span class="text-[#0891B2]">null</span>,<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span>,<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation_text&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca, retrieved 2026-05-13. OGL-C.&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;Publisher-declared terms when supplied; otherwise consult the publisher's terms&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license_basis&quot;</span>: <span class="text-[#0891B2]">&quot;publisher-metadata or no-publisher-declaration&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;provenance_evidence&quot;</span>: <span class="text-[#0891B2]">&#123; record_integrity, acquisition, transformations, publisher_terms &#125;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;attribution_text&quot;</span>: <span class="text-[#0891B2]">&quot;Publisher-provided attribution or notice to consult source terms&quot;</span><br />
             &nbsp;&nbsp;&#125;<br />
             &#125;
           </CardContent>
         </Card>
 
         <p class="text-sm text-muted-foreground mt-4"><code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">data_hash</code> {t(
-          "is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.",
-          "est le SHA-256 de la charge utile de la réponse au moment de la récupération. Re-téléchargez la source vous-même et comparez — si les hachages correspondent, vous avez vu ce que nous avons vu, octet pour octet.",
+          "is a SHA-256 value for Quill's canonical record representation, not upstream response bytes. A matching hash checks that representation only; it does not establish source identity, completeness, or reuse rights.",
+          "est une valeur SHA-256 de la représentation canonique de l'enregistrement par Quill, et non des octets de réponse en amont. Une correspondance contrôle uniquement cette représentation; elle n'établit ni l'identité de la source, ni l'exhaustivité, ni les droits de réutilisation.",
         )}</p>
       </section>
 
@@ -702,7 +705,7 @@ const errorCodes = [
       <!-- ═══ 06: MCP TOOLS ═══ -->
       <section id="mcp-tools" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span>          <span class="text-primary/80">08</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span><span class="text-primary/80">08</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("MCP Tools", "Outils MCP")}</span>
           <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">{mcpTools.length} {t("TOOLS", "OUTILS")}</Badge>
         </div>
@@ -967,10 +970,10 @@ const errorCodes = [
         <h2 class="text-2xl font-bold mb-6">{t("Common questions", "Questions fréquentes")}</h2>
 
         {[
-          { q: { en: "Do I need a credit card to start?", fr: "Dois-je fournir une carte de crédit pour commencer ?" }, a: { en: "No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit.", fr: "Non. Forfait gratuit : 1 000 appels/mois, toutes les sources, tous les SDK, hachages de citation inclus. Pas de carte, pas de limite de temps." } },
-          { q: { en: "What makes the citations verifiable?", fr: "Qu'est-ce qui rend les citations vérifiables ?" }, a: { en: "Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw.", fr: "Chaque réponse inclut le nom de la source, l'URL en amont exacte, l'horodatage de récupération et un hachage SHA-256 du contenu. Vous pouvez re-télécharger et confirmer exactement ce que l'agent a vu." } },
+          { q: { en: "Do I need a credit card to start?", fr: "Dois-je fournir une carte de crédit pour commencer ?" }, a: { en: "No. The free plan includes 1,000 calls/month and SDK access. Available sources and response provenance fields vary by endpoint.", fr: "Non. Le forfait gratuit comprend 1 000 appels/mois et l'accès aux SDK. Les sources disponibles et les champs de provenance varient selon le point de terminaison." } },
+          { q: { en: "What makes the citations verifiable?", fr: "Qu'est-ce qui rend les citations vérifiables ?" }, a: { en: "Available citation fields vary by endpoint and source. When a source URL and content hash are provided, compare the corresponding content to check integrity; that does not establish source authenticity or reuse rights.", fr: "Les champs de citation disponibles varient selon le point de terminaison et la source. Lorsqu'une URL source et un hachage de contenu sont fournis, comparez le contenu correspondant pour contrôler son intégrité; cela n'établit ni l'authenticité de la source ni les droits de réutilisation." } },
           { q: { en: "Which AI frameworks are supported?", fr: "Quels cadres IA sont pris en charge ?" }, a: { en: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs.", fr: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. SDK TypeScript et Python." } },
-          { q: { en: "How fresh is the data?", fr: "Quelle est la fraîcheur des données ?" }, a: { en: "Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field.", fr: "Cela dépend de la source. Témoignages des comités : ~24 h. Gazette du Canada : quelques heures après publication. CanLII : quotidiennement. Chaque réponse est accompagnée d'un champ freshness_seconds." } },
+          { q: { en: "How fresh is the data?", fr: "Quelle est la fraîcheur des données ?" }, a: { en: "Update cadence depends on the source. Where reported, freshness metadata can help you assess when data was retrieved; check the original publisher for current information.", fr: "La fréquence des mises à jour dépend de la source. Lorsqu'elles sont indiquées, les métadonnées de fraîcheur peuvent aider à évaluer la date de récupération; consultez l'éditeur d'origine pour obtenir les informations à jour." } },
           { q: { en: "What is the cross-reference engine?", fr: "Qu'est-ce que le moteur de recoupement ?" }, a: { en: "Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline.", fr: "Recherchez une personne ou une entreprise et obtenez son empreinte gouvernementale complète — réunions de lobbying, témoignages en comité, nominations aux conseils par décret, contrats d'approvisionnement, dossiers judiciaires et dons de campagne — dans une chronologie unifiée." } },
           { q: { en: "Is my API key secure?", fr: "Ma clé API est-elle sécurisée ?" }, a: { en: "Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.", fr: "Les clés sont hachées avec SHA-256 au repos — nous ne les voyons qu'au moment de la vérification. Transit HTTPS uniquement. Rotation instantanée depuis l'espace de travail." } },
         ].map((faq) => (

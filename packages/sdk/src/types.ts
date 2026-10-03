@@ -39,7 +39,7 @@ export interface Citation {
   source_url: string;
   license: string;
   data_hash: string;
-  retrieved_at: string;
+  retrieved_at: string | null;
   update_frequency?: string;
   original_format?: string;
   citation_text?: string;

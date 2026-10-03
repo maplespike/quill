@@ -16,7 +16,7 @@
  * Data source:
  *   - CRA List of Charities: yearly datasets on open.canada.ca (1991–2024)
  *   - Each year has separate CSVs for identification, financials, programs
- *   - Published under Open Government Licence - Canada
+ *   - Check the specific publisher terms and dataset-level license metadata
  *
  * Designed to run as a cron job (yearly) or ad-hoc per year.
  */

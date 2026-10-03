@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { computeHash, canonicalJson, generateVerifyCommand, citationStore } from '@maplespike/pipeline-core';
+import { computeHash, canonicalJson, generateVerifyCommand, citationStore, NO_REUSE_LICENSE_NOTICE, buildProvenanceEvidence } from '@maplespike/pipeline-core';
 import type { ClaimBundle } from '@maplespike/pipeline-core';
 
 /**
@@ -12,18 +12,17 @@ import type { ClaimBundle } from '@maplespike/pipeline-core';
 export const definition: ToolDefinition = {
   name: 'get_citation',
   description:
-    'Retrieve and verify a citation record by its SHA-256 content hash. Returns the original data, timestamp, ' +
-    'source attribution, license, and a ready-to-run shell command for independent verification. ' +
-    'Use this to prove that content has not been altered since Quill published it.',
+    'Retrieve a claim record by its SHA-256 hash. Returns the canonical record hash scope, available source evidence, terms metadata, and a verification command. ' +
+    'A hash match checks record integrity; it does not authenticate the source or establish reuse rights.',
   descriptions: {
-    "fr-CA": "Récupérer et vérifier un hachage de citation SHA-256 pour un enregistrement de données spécifique. Permet de vérifier l’intégrité des données en recomputant le hachage à partir de la source originale.",
+    "fr-CA": "Récupérer un enregistrement de revendication par son hachage SHA-256. Une correspondance vérifie l'intégrité de l'enregistrement canonique; elle n'authentifie pas la source et n'établit pas les droits de réutilisation.",
   },
   inputSchema: {
     type: 'object',
     properties: {
       hash: {
         type: 'string',
-        description: 'SHA-256 citation hash (e.g. "sha256:<64 hex chars>")',
+        description: 'SHA-256 hash of Quill canonical record JSON (e.g. "sha256:<64 hex chars>"); a match does not authenticate the source.',
       },
     },
     required: ['hash'],
@@ -38,7 +37,7 @@ export const definition: ToolDefinition = {
 export async function registerCitation(
   source: string,
   content: string,
-  license: string = 'Open Government Licence – Canada',
+  license: string = NO_REUSE_LICENSE_NOTICE,
 ): Promise<string> {
   // The store persists canonicalJson(value), so the hash MUST be computed
   // over the same canonical form — otherwise get_citation's recompute
@@ -51,7 +50,11 @@ export async function registerCitation(
     sha256,
     sourceName: source,
     sourceUrl: '',
-    retrievedAt: new Date().toISOString(),
+    provenanceEvidence: buildProvenanceEvidence(sha256, {
+      sourceUrl: '',
+      licenseBasis: 'no-publisher-declaration',
+      transformations: [],
+    }),
     license,
     transformations: [],
   };
@@ -101,9 +104,14 @@ export const handler: ToolHandler = async (args) => {
         hash: canonical,
         citation: {
           hash: canonical,
-          timestamp: stored.bundle.retrievedAt ?? stored.createdAt,
+          source_retrieved_at: stored.bundle.retrievedAt ?? null,
+          claim_created_at: stored.createdAt,
           source: stored.bundle.sourceName,
           license: stored.bundle.license,
+          ...(stored.bundle.licenseUrl ? { license_url: stored.bundle.licenseUrl } : {}),
+          license_basis: stored.bundle.licenseBasis ?? 'no-publisher-declaration',
+          provenance_evidence: stored.bundle.provenanceEvidence,
+          ...(stored.bundle.attributionText ? { attribution_text: stored.bundle.attributionText } : {}),
           verified,
           // Data-quality provenance score — the same 0–1 score attached to
           // claim bundles at build time, so agents can weigh trustworthiness.
@@ -114,8 +122,8 @@ export const handler: ToolHandler = async (args) => {
         },
         verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
         message: verified
-          ? 'Citation verified — content hash matches the stored record.'
-          : 'Stored record found but its content hash no longer matches (integrity failure).',
+          ? 'Canonical record hash matches the stored value. This does not authenticate the source or establish reuse rights.'
+          : 'Stored record found but its canonical record hash no longer matches (integrity failure).',
       },
     };
   }
@@ -127,17 +135,20 @@ export const handler: ToolHandler = async (args) => {
       hash: canonical,
       citation: {
         hash: canonical,
-        timestamp: null,
+        source_retrieved_at: null,
+        claim_created_at: null,
         source: 'unknown',
-        license: 'unknown',
+        license: NO_REUSE_LICENSE_NOTICE,
+        license_basis: 'no-publisher-declaration',
+        provenance_evidence: null,
         verified: false,
         data: null,
       },
       verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
       message:
         'Citation not found in the current store. It may correspond to data ingested by a previous ' +
-        'pipeline run. Verify independently against the original source using the shell command above, ' +
-        'or re-run the tool that produced the data (it re-registers fresh claim bundles).',
+        'pipeline run. The command above checks Quill’s claim endpoint; it does not verify the upstream source. ' +
+        'Check the original source directly, or re-run the tool that produced the data.',
     },
   };
 };

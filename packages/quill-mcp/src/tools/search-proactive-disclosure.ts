@@ -6,7 +6,8 @@ export const definition: ToolDefinition = {
   description:
     'Search federal proactive disclosure data — government contracts over $10K, ' +
     'travel and hospitality expenses, and position reclassifications. ' +
-    'Covers contracts awarded by all federal departments and agencies.',
+    'Covers the contracts and expenses published in the federal proactive disclosure datasets this tool reaches; ' +
+    'departments or periods absent from those datasets are not represented.',
   inputSchema: {
     type: 'object',
     properties: {

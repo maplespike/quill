@@ -9,8 +9,7 @@ import type { OecdIngestionResult, OecdRecord } from './types.js';
 function makeAttribution() {
   return buildAttribution('OECD Data Explorer', {
     sourceUrl: 'https://data-explorer.oecd.org',
-    license: 'OECD Open Data',
-    attributionText: 'Data sourced from OECD Data Explorer',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult OECD terms for each specific dataset and its exclusions.",
   });
 }
 

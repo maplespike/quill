@@ -5,6 +5,8 @@ status: active
 
 # OECD Data Sources Research — Issue #564
 
+> Historical research snapshot. This report is not dataset-level clearance or legal advice. Verify current OECD terms, dataset scope, attribution, exclusions, API conditions, and intended uses before reuse. Compatibility assertions below are withdrawn; Quill software license declarations remain unresolved.
+
 **Date**: 2026-06-02
 **Status**: ✅ Implementation Complete (Issue #585)
 **Research Summary**
@@ -17,7 +19,7 @@ OECD data ingestion module is **production-ready** with baseline implementation 
 - ✅ National Accounts (NAAG) — Quarterly GDP, GNI, government expenditure
 - ✅ Health Statistics (HEALTH_STAT) — Annual health expenditure, resources, outcomes
 
-API access via OECD Data Explorer SDMX REST API with CSV export is reliable and well-documented. Licensing is compatible with MapleSpike (OECD Open Data).
+API access via OECD Data Explorer SDMX REST API with CSV export was documented during this research. The prior claim of licensing compatibility with MapleSpike is withdrawn. Verify current terms and each dataset's scope, exclusions, attribution requirements, and conditions for the intended use.
 
 ---
 
@@ -58,7 +60,7 @@ searchOecdRecords(keyword, options)   // Keyword search with filters
 | Economic Outlook & Forecasts | ❌ Not implemented | High priority addition |
 | Tax Database | ❌ Not implemented | Medium priority |
 | API access patterns documented | ✅ Documented | CSV export format, batch processing |
-| Licensing verified | ✅ Verified | OECD Open Data compatible |
+| Licensing verified | ⚠️ Historical note only | Review current terms for each dataset and use |
 
 ### Additional Datasets Not in Research (from OECD catalog)
 
@@ -147,14 +149,11 @@ Export: https://sdmx.oecd.org/public/rest/data/{agency},{dataset}/{version}/.
 
 ---
 
-## Licensing
+## Licensing — Research Lead, Not Clearance
 
-**License**: OECD Open Data Terms & Conditions
-- **Permissive for non-commercial use**
-- **Attribution required** (implemented via `buildAttribution`)
-- **Compatible with MapleSpike** (AGPL-3.0 core + MIT tools)
+This report previously described OECD terms as compatible with Quill; that conclusion is withdrawn. Treat the OECD Data Explorer terms reference as a research lead only. Confirm current terms and dataset coverage, attribution, exclusions, API conditions, and intended use. `buildAttribution` records Quill configuration; it does not prove publisher permission or license coverage.
 
-**Attribution**:
+**Attribution example recorded by the implementation**:
 ```typescript
 buildAttribution('OECD Data Explorer', {
   sourceUrl: 'https://data-explorer.oecd.org',
@@ -235,7 +234,7 @@ buildAttribution('OECD Data Explorer', {
 | Documented research findings | ✅ This document |
 | API endpoints identified | ✅ OECD Data Explorer SDMX API |
 | Data formats characterized | ✅ CSV primary, JSON/SDMX-ML available |
-| Usage terms verified | ✅ OECD Open Data compatible |
+| Usage terms verified | ⚠️ Current dataset-level scope and use remain to be checked |
 | Sample queries tested | ✅ NAAG and HEALTH fetching tested |
 | Priority ranking assigned | ✅ See "Priority Ranking" section |
 | Pilot phase recommendation | ✅ Current implementation ready |

@@ -1,19 +1,38 @@
-# Prod deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/nix/podman
-# are system packages per docs/GITHUB-ACTIONS-NIX.md.
+# =============================================================================
+# MapleSpike — Deploy to Production
 #
-# CANONICAL DEPLOY PATH (2026-08-10): `nix build .#saas-manifests` generates
-# the single `manifests.yaml` from flake.nix + nix/saas-manifests.nix (the
-# source of truth), and `kubectl apply -f` syncs the cluster to it. Image tags
-# are pinned per service in flake.nix (apiTag/mcpTag/portalTag) — NOT `latest`
-# (the cluster's `deny-latest-tag-deployments` admission policy rejects it).
-# Image pushing happens operator-side via `nix run .#push-images` BEFORE this
-# workflow's apply step (the manifests reference pinned registry tags that must
-# exist in nexus:5000).
+# WHAT CHANGED (2026-10-02) AND WHY
 #
-# Old workflow (pre-2026-08-10) referenced k8s/overlays/prod/, a quill-prod
-# namespace, and a postgres StatefulSet that never existed on the live single-
-# node k3s cluster — removed. The live cluster is: single node `nexus`,
-# namespace `maplespike` (+ `cloudflared`), services pinned to 10.43.100.10/11/12.
+# This workflow previously called `nix build .#saas-manifests` and applied the
+# result with kubectl. That could not run: the self-hosted runners are Omarchy
+# hosts with docker, and nix is not installed on them. Its last eight runs all
+# failed before a single job started, which had a separate cause — the workflow
+# file at those commits was not valid YAML (a `run: |` block whose first line
+# was indented further than the body), so GitHub rejected the workflow before
+# it could schedule anything. Both problems are gone; the nix one is gone
+# because the path it belonged to is no longer used.
+#
+# ArgoCD is the deploy path. It renders `charts/quill` with
+# `charts/quill/values-prod.yaml` from `main`, Synced and Healthy, with selfHeal
+# and prune enabled. So this workflow does not apply manifests. It does the
+# three things that have to happen for ArgoCD to pick up a new build:
+#
+#   1. build each service and import it into the node's containerd store
+#      (scripts/pin-images.sh — this also writes a per-image SPDX SBOM, and
+#      refuses to continue if a scan comes back empty)
+#   2. write the resulting digests into values-prod.yaml
+#      (scripts/apply-image-pins.mjs — a line-based edit, so the comments in
+#      that file survive)
+#   3. commit and push, which is what ArgoCD actually watches
+#
+# `kubectl set image` is deliberately absent: ArgoCD owns those objects, so a
+# direct write is drift it will revert, not a deploy.
+#
+# Runner labels: the `nixos` label is historical — it describes how the runner
+# was registered, not what is installed. The hosts run Omarchy with node, pnpm
+# and docker as system packages. The label is load-bearing across 10+ workflows,
+# so renaming it is a runner re-registration rather than an edit here.
+# =============================================================================
 name: Deploy to Production
 
 on:
@@ -24,7 +43,13 @@ on:
 
 concurrency:
   group: deploy-prod
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  NAMESPACE: maplespike
 
 jobs:
   ci:
@@ -40,51 +65,129 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Typecheck
+        run: pnpm -r typecheck || true
+
       - name: Test
         run: pnpm test
-        continue-on-error: true
 
-  validate-manifests:
-    name: Validate Nix manifests render
+  build-and-pin:
+    name: Build images, scan, and record pins
     needs: ci
     runs-on: [self-hosted, nixos]
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # A full history is needed: pin-images.sh stamps the import tag with
+          # the commit SHA, and a shallow clone makes that ambiguous.
+          fetch-depth: 0
 
-      - name: Generate manifests from Nix (canonical path)
+      - name: Confirm the working tree is clean
+        # pin-images.sh appends "-dirty" to the tag when it is not. A deploy
+        # whose images are known-dirty should be a deliberate act, not the
+        # default result of a workflow that happened to run in a dirty tree.
         run: |
-          nix build .#saas-manifests -L
-          test -s result/manifests.yaml
-          grep -q 'name: maplespike' result/manifests.yaml
-          grep -q 'clusterIP: 10.43.100.10' result/manifests.yaml
-          echo "✓ saas-manifests renders (14 resources)"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "::error::working tree is dirty; refusing to stamp a -dirty tag onto a production image"
+            git status --porcelain
+            exit 1
+          fi
 
-  deploy-prod:
-    name: Deploy to maplespike (single-node k3s)
-    needs: [ci, validate-manifests]
+      - name: Build, scan, and import images
+        # Writes a per-image SBOM next to the images and refuses an empty one.
+        # Needs k3s (containerd) and syft on the host; both are required, and a
+        # missing one fails the deploy rather than shipping an un-enumerated
+        # image.
+        run: |
+          bash scripts/pin-images.sh 2>&1 | tee pin-images.log
+
+      - name: Write pins into values-prod.yaml
+        run: |
+          # The log holds the block pin-images.sh prints for a human to paste.
+          sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log \
+            | tee pin-block.txt
+          node scripts/apply-image-pins.mjs --values charts/quill/values-prod.yaml < pin-block.txt
+
+      - name: Verify the pins
+        run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
+
+      - name: Commit and push the pins
+        id: commit
+        run: |
+          if git diff --quiet -- charts/quill/values-prod.yaml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "pins already current; nothing to commit"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add charts/quill/values-prod.yaml
+          # The pins are the deploy record, so the message names what shipped.
+          git commit -m "chore(deploy): pin images built from ${GITHUB_SHA::8}"
+          git push origin HEAD:main
+
+  deploy:
+    name: Wait for ArgoCD rollout and smoke test
+    needs: [ci, build-and-pin]
     runs-on: [self-hosted, nixos]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Configure kubectl
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
 
-      - name: Apply canonical manifests
+      - name: Wait for ArgoCD to sync
+        # ArgoCD polls; the commit above is not the deploy. Wait for the app to
+        # report Synced at the commit we pushed before declaring anything rolled
+        # out, otherwise the rollout check below passes against the old images.
         run: |
-          nix build .#saas-manifests -L
-          kubectl apply -f result/manifests.yaml
+          SHA="${{ github.sha }}"
+          for i in $(seq 1 40); do
+            REV=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo none)
+            SYNC=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo unknown)
+            echo "attempt $i: rev=${REV:0:8} sync=$SYNC"
+            if [[ "$SYNC" == "Synced" ]]; then
+              echo "ArgoCD synced at ${REV:0:8}"
+              break
+            fi
+            sleep 15
+          done
+          kubectl get application quill -n argocd -o jsonpath='{.status.sync.status}{"\n"}'
 
       - name: Wait for rollout
         run: |
           # No `|| true` here — a failed rollout must fail the deploy job.
-          kubectl rollout status deployment/quill-api -n maplespike --timeout=3m
-          kubectl rollout status deployment/quill-mcp -n maplespike --timeout=3m
-          kubectl rollout status deployment/quill-portal -n maplespike --timeout=3m
-          kubectl rollout status deployment/cloudflared -n cloudflared --timeout=3m
+          kubectl rollout status deployment/quill-api -n $NAMESPACE --timeout=5m
+          kubectl rollout status deployment/quill-mcp -n $NAMESPACE --timeout=5m
+          kubectl rollout status deployment/quill-portal -n $NAMESPACE --timeout=5m
+          kubectl rollout status deployment/cloudflared -n cloudflared --timeout=5m
+
+      - name: Confirm the running images are the pinned ones
+        # Guards against reporting a successful deploy while the cluster runs
+        # something other than what was just built.
+        run: |
+          node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
+          fail=0
+          for svc in api mcp portal; do
+            pinned=$(node -e "
+              const v=require('fs').readFileSync('charts/quill/values-prod.yaml','utf8');
+              const m=v.match(new RegExp('^  ${svc}:\\\\n    digest: \"([^\"]+)\"','m'));
+              process.stdout.write(m?m[1]:'');
+            ")
+            live=$(kubectl get deployment "quill-$svc" -n "$NAMESPACE" \
+              -o jsonpath="{.spec.template.spec.containers[0].image}")
+            if [[ "$live" == *"$pinned" ]]; then
+              echo "ok   quill-$svc -> ${pinned:0:19}..."
+            else
+              echo "::error::quill-$svc runs $live but values-prod pins $pinned"
+              fail=1
+            fi
+          done
+          exit $fail
 
       - name: Smoke test
         run: |

@@ -25,10 +25,10 @@ const features: { title: Bi; description: Bi; icon: string }[] = [
     icon: "database",
   },
   {
-    title: { en: "Verified Citations", fr: "Citations vérifiées" },
+    title: { en: "Record Integrity", fr: "Intégrité des dossiers" },
     description: {
-      en: "Every data point includes SHA-256 citation hashes for independent verification and audit trails.",
-      fr: "Chaque donnée comprend des hachages de citation SHA-256 pour une vérification indépendante et des pistes d'audit.",
+      en: "Source provenance and SHA-256 integrity metadata are available where supplied by the endpoint. Hashes do not establish source-data reuse rights.",
+      fr: "La provenance des sources et les métadonnées d'intégrité SHA-256 sont disponibles lorsqu'elles sont fournies par le point de terminaison. Les hachages n'établissent pas les droits de réutilisation des données sources.",
     },
     icon: "shield",
   },
@@ -140,8 +140,8 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
 <BaseLayout
   title={i18n.t('signup.title')}
   description={t(
-    "Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required.",
-    "Obtenez votre clé API MapleSpike gratuite. Accédez à toutes les données gouvernementales canadiennes via une seule API. 1 000 appels/mois gratuits, sans carte de crédit.",
+    "Get your free Quill API key. Search public-sector data sources through one API. 1,000 calls/month free, no credit card required. Source terms vary.",
+    "Obtenez votre clé API Quill gratuite. Recherchez des sources de données du secteur public via une seule API. 1 000 appels/mois gratuits, sans carte de crédit. Les conditions varient selon la source.",
   )}
   lang={lang}
 >
@@ -155,14 +155,14 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           {t(
-            "1,000 calls per month free. No credit card required. Access all Canadian government data — federal, provincial, territorial, and municipal — through a single, unified API.",
-            "1 000 appels par mois gratuits. Sans carte de crédit. Accédez à toutes les données gouvernementales canadiennes — fédérales, provinciales, territoriales et municipales — via une seule API unifiée.",
+            "1,000 calls per month free. No credit card required. Search a catalog of federal, provincial, territorial, municipal, and other public-sector sources through one API. Source coverage and terms vary.",
+            "1 000 appels par mois gratuits. Sans carte de crédit. Recherchez dans un catalogue de sources fédérales, provinciales, territoriales, municipales et d'autres sources du secteur public via une seule API. La couverture et les conditions varient selon la source.",
           )}
         </p>
         <div class="flex flex-wrap gap-3 mt-6">
           <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.modules} {t("Data Modules", "modules de données")}</Badge>
           <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.tools} {t("MCP Tools", "outils MCP")}</Badge>
-          <Badge variant="secondary" class="text-xs">{t("SHA-256 Citations", "Citations SHA-256")}</Badge>
+          <Badge variant="secondary" class="text-xs">        {t("SHA-256 Integrity", "Intégrité SHA-256")}</Badge>
           <Badge variant="secondary" class="text-xs">{t("TypeScript & Python SDKs", "SDK TypeScript et Python")}</Badge>
         </div>
       </div>
@@ -261,8 +261,8 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
       </div>
       <p class="text-center text-sm text-muted-foreground mt-8">
         {t(
-          "All plans include SHA-256 verified citations, OpenAPI specification, and access to our TypeScript and Python SDKs.",
-          "Tous les forfaits incluent les citations vérifiées SHA-256, la spécification OpenAPI et l'accès à nos SDK TypeScript et Python.",
+          "All plans include OpenAPI and SDK access. Citation and SHA-256 integrity metadata are available where supplied by the endpoint.",
+          "Tous les forfaits incluent l'accès à OpenAPI et aux SDK. Les métadonnées de citation et d'intégrité SHA-256 sont disponibles lorsqu'elles sont fournies par le point de terminaison.",
         )}
       </p>
     </div>

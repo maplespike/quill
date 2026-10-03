@@ -17,14 +17,10 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
     info: {
       title: config.name,
       version: config.version,
-      description: `Canada's sovereign, AI-native government data layer. One API key gives you access to every major Canadian government dataset — Statistics Canada, open.canada.ca, provincial portals, AI-curated news from 43+ sources, citation verification, bias analysis, and immutable audit trails.`,
+      description: `Canadian public-sector data API. Module coverage and response fields vary by endpoint and source. Where supplied, Quill record hashes support integrity comparisons but do not establish source authenticity or reuse rights. Publisher terms vary by dataset; consult the original source. Software license declarations vary by repository artifact; see https://github.com/reverb256/quill/blob/main/docs/open-source-audit.md.`,
       contact: {
         name: 'MapleSpike',
         url: 'https://quill.maplespike.ca',
-      },
-      license: {
-        name: 'AGPL-3.0 (pipeline-core) / Commercial (hosted API)',
-        url: 'https://www.gnu.org/licenses/agpl-3.0.html',
       },
     },
     servers: [
@@ -71,18 +67,56 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
                 },
               },
             },
-            citations: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  source: { type: 'string' },
-                  timestamp: { type: 'string' },
-                  hash: { type: 'string' },
-                  license: { type: 'string' },
-                },
-              },
+            citation: {
+              anyOf: [{ $ref: '#/components/schemas/CitationMeta' }, { type: 'null' }],
             },
+          },
+        },
+        CitationMeta: {
+          type: 'object',
+          properties: {
+            source_name: { type: 'string' },
+            source_url: { type: 'string' },
+            retrieved_at: { type: ['string', 'null'], format: 'date-time', description: 'Source acquisition time only when observed.' },
+            data_hash: { type: 'string', description: 'For claim records, SHA-256 of canonical Quill record JSON, not upstream response bytes.' },
+            provenance_evidence: { anyOf: [{ $ref: '#/components/schemas/ProvenanceEvidence' }, { type: 'null' }] },
+            license: { type: 'string', description: 'Publisher metadata or a notice to consult source terms; not a reuse grant.' },
+            license_basis: { type: 'string', enum: ['publisher-metadata', 'source-configuration', 'no-publisher-declaration'] },
+            license_url: { type: 'string' }, attribution_text: { type: 'string' }, update_frequency: { type: 'string' },
+          },
+        },
+        ProvenanceEvidence: {
+          type: 'object',
+          description: 'Evidence inventory only; it does not establish source identity, completeness, or reuse rights.',
+          properties: {
+            schema_version: { const: 'quill.provenance.v1' },
+            record_integrity: { type: 'object', properties: {
+              algorithm: { const: 'SHA-256' }, digest: { type: 'string', pattern: '^[a-f0-9]{64}$' },
+              scope: { const: 'canonical-json-record' }, canonicalization: { const: 'quill-canonical-json-v1' },
+            } },
+            acquisition: { type: 'object', properties: {
+              status: { type: 'string', enum: ['captured', 'not-captured'] },
+              association: { type: 'string', enum: ['url-matched-not-content-verified', 'not-established', 'none'] },
+              artifacts: { type: 'array', items: { type: 'object', properties: {
+                association: { type: 'string', enum: ['url-matched-not-content-verified', 'not-established'] },
+                evidence_source: { type: 'string', enum: ['explicit-record-evidence', 'shared-http-client-capture'] },
+                url: { type: 'string' }, retrieved_at: { type: 'string', format: 'date-time' },
+                sha256: { type: 'string', pattern: '^[a-f0-9]{64}$' }, hash_scope: { const: 'http-client-response-body-utf8' },
+                status_code: { type: 'integer' }, media_type: { type: ['string', 'null'] }, byte_length: { type: ['integer', 'null'] },
+                etag: { type: ['string', 'null'] }, last_modified: { type: ['string', 'null'] },
+                url_redacted: { type: 'boolean' }, body_capture: { type: 'string', enum: ['complete-http-client-body', 'empty-body-not-captured'] },
+              } } },
+            } },
+            transformations: { type: 'object', properties: {
+              status: { type: 'string', enum: ['pipeline-reported', 'not-recorded'] }, coverage: { const: 'declared-steps-only' },
+              steps: { type: 'array', items: { type: 'string' } }, stages: { type: 'object', properties: {
+                module_code_revision: { type: ['string', 'null'] }, parser_version: { type: ['string', 'null'] }, transform_code_revision: { type: ['string', 'null'] },
+              } },
+            } },
+            publisher_terms: { type: 'object', properties: {
+              status: { type: 'string', enum: ['publisher-metadata-observed', 'source-configuration-only', 'not-observed'] },
+              label: { type: ['string', 'null'] }, url: { type: ['string', 'null'] }, observed_fields: { type: 'array', items: { type: 'string' } },
+            } },
           },
         },
       },
@@ -131,7 +165,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         get: {
           tags: ['Citations'],
           summary: 'Verify a citation hash',
-          description: 'Returns the SHA-256 hash for an article, enabling independent verification that content has not been altered.',
+          description: 'Looks up a Quill record by hash. A match checks the hash stored or computed for the canonical record representation; it does not authenticate the upstream source.',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
           responses: { '200': { description: 'Citation details with verification command' } },
         },
@@ -140,10 +174,10 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         get: {
           tags: ['Citations'],
           summary: 'Verify a claim hash (public)',
-          description: 'Public trust primitive — checks a SHA-256 claim hash against the Quill claim store and pipeline index. No API key required. Returns verified status plus full provenance: source name, source URL, retrieval time, license, and a shell command to independently reproduce the hash.',
+          description: 'Public lookup — checks a SHA-256 claim hash against the Quill claim store or local pipeline index. No API key required. Store-backed responses may include provenance_evidence and a shell command to reproduce the canonical record hash. A match is not source authentication; retrieval time and other evidence may be unavailable.',
           parameters: [{ name: 'hash', in: 'path', required: true, schema: { type: 'string' }, description: 'SHA-256 hash, with or without the sha256: prefix (e.g. sha256:a1b2... or bare hex)' }],
           responses: {
-            '200': { description: 'Claim verification result with provenance (source, retrieved_at, license, verify_command)' },
+            '200': { description: 'Claim hash lookup result. Provenance evidence and source retrieval time are available only when recorded.' },
             '400': { description: 'Invalid SHA-256 hash format' },
             '500': { description: 'Claim verification failed' },
           },
@@ -153,7 +187,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         get: {
           tags: ['Citations'],
           summary: 'List recent claim bundles (public)',
-          description: 'Public discovery — returns the most recently registered verifiable claim bundles (hash, claim, source, retrieval time, license). Lets journalists and other MCP authors find what Quill has attested, then verify any single hash via GET /v1/claims/verify/{hash}. No API key required.',
+          description: 'Public discovery — returns recent claim-bundle summaries. retrieved_at is null when source acquisition time was not recorded. Inspect one hash via GET /v1/claims/verify/{hash}; a hash match does not authenticate the source. No API key required.',
           responses: {
             '200': { description: 'Recent claims with provenance (count + claims[])' },
             '500': { description: 'Claims index failed' },

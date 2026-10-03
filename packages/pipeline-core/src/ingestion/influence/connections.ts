@@ -8,7 +8,7 @@
  *   - Corporate board interlocks
  *
  * This is the integration layer that connects actors → government
- * through verifiable public-domain evidence.
+ * through verifiable public-source evidence.
  */
 
 import { TRACKED_INFLUENCE_ACTORS, findInfluenceActor } from './constants.js';

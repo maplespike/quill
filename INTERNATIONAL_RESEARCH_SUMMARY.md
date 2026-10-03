@@ -1,5 +1,7 @@
 # International Data Sources Research Summary
 
+> Historical research snapshot (2026-06-01), not a dataset-level license review or legal clearance. Named terms below are research leads; confirm the current publisher terms, dataset scope, exclusions, attribution requirements, and any API or commercial-use conditions before use. API access or public availability does not establish reuse rights. Quill's software license declarations are also unresolved; see [the open-source audit](docs/open-source-audit.md).
+
 **Date**: 2026-06-01
 **Project**: MapleSpike International Sources Expansion (Epic #557)
 
@@ -17,7 +19,7 @@ Comprehensive research completed on 11 international data sources for integratio
 7. **Five Eyes** (US SEC, Census, BLS; UK ONS, Hansard, Companies House; Australia ABS; New Zealand Stats)
 8. **Competitive Analysis** (Katzilla.dev, open-source alternatives, strategic positioning)
 
-All sources are publicly available, most have REST APIs, and licensing is compatible with MapleSpike's AGPL-3.0 core + MIT tools model.
+The sources and access methods were identified as research candidates. This report does not establish current public availability, dataset-level reuse rights, or compatibility with Quill software; verify each source and artifact independently before integration or redistribution.
 
 ---
 
@@ -460,12 +462,9 @@ All sources are publicly available, most have REST APIs, and licensing is compat
 - Canadian Relevance: ⭐⭐⭐⭐ Comprehensive NZ statistics for Five Eyes comparison
 - Module: `stats-nz`
 
-### License Compatibility
+### License Research Leads — Not Clearance
 
-- US Federal Data: Public domain (Title 17 U.S.C. § 105) - Fully compatible with AGPL-3.0
-- UK Data: Open Government Licence v3.0 - Compatible with AGPL-3.0
-- Australian Data: Australian Government data license - Likely compatible
-- New Zealand Data: New Zealand Government open data license - Likely compatible
+The terms named in this historical report are leads for source-specific review only. Do not infer that a whole source, API, or dataset is public domain or covered by a listed license. Verify the relevant record's publisher, dataset version, notices, exclusions, API terms, and permitted uses. No compatibility conclusion is made for Quill software or any source dataset.
 
 ---
 
@@ -494,7 +493,7 @@ All sources are publicly available, most have REST APIs, and licensing is compat
 | **Data Depth** | 142 modules, 1,240+ endpoints | 283K datasets (US-heavy) |
 | **MCP Coverage** | 130 tools | 27 agents, 217+ actions |
 | **Sovereignty** | Canadian K3s, zero US cloud | US SaaS |
-| **Licensing** | AGPL-3.0 core, MIT tools | Proprietary API |
+| **Licensing** | Quill package/file declarations unresolved; see audit | Proprietary API |
 | **Entity Resolution** | Planned | None (raw API) |
 | **Real-Time** | Partial (ECCC, CBSA) | Yes (USGS, NWS, etc.) |
 | **Price** | TBD (SaaS planned) | Free → Enterprise tiers |
@@ -693,7 +692,7 @@ describe('{module-name} Module', () => {
 ### Key Findings
 
 1. **All sources are publicly accessible** with REST APIs (except some PDF-only reports)
-2. **Licensing is compatible** with MapleSpike's AGPL-3.0 core + MIT tools model
+2. **Licensing remains unverified** at dataset scope; this report does not establish compatibility with Quill software or permission to reuse any source
 3. **Canadian data is available** across all international sources (high strategic value)
 4. **Quick wins exist**: UNHCR (no auth), WEF RSS, US SEC (no auth), UK ONS (no auth)
 5. **Module patterns are well-established** in MapleSpike codebase
@@ -736,7 +735,7 @@ describe('{module-name} Module', () => {
 MapleSpike will be unique as:
 - **Canada-first data pipeline** with deep domestic coverage
 - **Sovereign deployment** (K3s cluster, no US cloud)
-- **AGPL-3.0 core** for control, MIT tools for adoption
+- **Software licensing unresolved**; see the open-source audit before stating package or artifact terms
 - **Cross-alliance intelligence** (Five Eyes integration)
 - **Real-time government transparency** (RSS, API, streaming)
 - **Entity resolution at scale** (Influence graph)

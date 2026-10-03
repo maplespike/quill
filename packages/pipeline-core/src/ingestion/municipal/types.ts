@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import type { LicenseMetadataBasis } from '../../shared/attribution.js';
 import type { PortalType } from './constants.js';
 
 export interface MunicipalRecord {
@@ -14,6 +15,10 @@ export interface MunicipalRecord {
   lastModified: string | null;
   created: string | null;
   portalType: PortalType;
+  license?: string;
+  licenseUrl?: string;
+  licenseBasis?: LicenseMetadataBasis;
+  attributionText?: string;
 }
 
 export interface MunicipalSearchParams {

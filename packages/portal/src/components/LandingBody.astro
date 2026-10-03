@@ -114,8 +114,7 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\
   <!-- QuillHero -->
   <section id="quill-hero" class="quill-hero aurora relative overflow-hidden border-b py-20 md:py-28">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
-    <div class="relative z-10 container mx-auto px-4 max-w-4xl text-center">
-      <Badge variant="outline" className="mb-6">Open source · AGPL-3.0 · MIT</Badge>
+    <div class="relative z-10 container mx-auto px-4 max-w-4xl text-center">        <Badge variant="outline" className="mb-6">License declarations under review</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
         {t("Canadian government data,", "Les données gouvernementales canadiennes,")}
         <br />
@@ -123,8 +122,8 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\
       </h1>
       <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
         {t(
-          `${statsData.modules} modules across federal, provincial, territorial, and municipal sources. ${statsData.tools} MCP tools. Every record cited and verifiable. One line of config.`,
-          `${statsData.modules} modules issus de sources fédérales, provinciales, territoriales et municipales. ${statsData.tools} outils MCP. Chaque enregistrement est cité et vérifiable. Une ligne de configuration.`,
+          `${statsData.modules} modules across federal, provincial, territorial, and municipal sources. ${statsData.tools} MCP tools. Source terms vary by publisher and dataset. One line of config.`,
+          `${statsData.modules} modules issus de sources fédérales, provinciales, territoriales et municipales. ${statsData.tools} outils MCP. Les conditions varient selon l'éditeur et le jeu de données. Une ligne de configuration.`,
         )}
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -219,8 +218,8 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\
         </h2>
         <p class="mx-auto mt-3 max-w-xl text-muted-foreground">
           {t(
-            "Every record cites back to its public origin. SHA-256 provenance on every fetch.",
-            "Chaque enregistrement renvoie à son origine publique. Preuve SHA-256 à chaque requête.",
+            "Records include source provenance and SHA-256 data where available. Check each publisher's terms before reuse.",
+            "Les enregistrements incluent la provenance de la source et des données SHA-256 lorsque disponibles. Consultez les conditions de chaque éditeur avant toute réutilisation.",
           )}
         </p>
       </div>
@@ -254,8 +253,8 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\
           <CardTitle className="text-lg">🔍 {t("Verifiable", "Vérifiable")}</CardTitle>
           <CardDescription>
             {t(
-              "Every record carries a SHA-256 citation, source URL, fetch timestamp, and pipeline version. Fork the recipe, re-fetch, re-hash — decide for yourself.",
-              "Chaque enregistrement porte une citation SHA-256, l'URL de la source, l'horodatage de récupération et la version du pipeline. Forkez la recette, récupérez, re-hachez — décidez par vous-même.",
+              "Where available, SHA-256 hashes and source metadata support integrity comparisons. Hashes do not establish source authenticity or reuse rights; check the original publisher's terms.",
+              "Lorsqu'ils sont disponibles, les hachages SHA-256 et les métadonnées de source permettent des comparaisons d'intégrité. Les hachages n'établissent ni l'authenticité de la source ni les droits de réutilisation; consultez les conditions de l'éditeur d'origine.",
             )}
           </CardDescription>
         </CardHeader>
@@ -276,8 +275,8 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\
           <CardTitle className="text-lg">📜 {t("Open source", "Open source")}</CardTitle>
           <CardDescription>
             {t(
-              "AGPL-3.0 for pipeline-core, MIT for everything else. Forkable, auditable, community-driven.",
-              "AGPL-3.0 pour pipeline-core, MIT pour tout le reste. Forkable, auditable, mené par la communauté.",
+              "Package and file license declarations are under review. Check the repository notices before use or redistribution.",
+              "Les déclarations de licence des paquets et fichiers sont en cours de vérification. Consultez les avis du dépôt avant toute utilisation ou redistribution.",
             )}
           </CardDescription>
         </CardHeader>

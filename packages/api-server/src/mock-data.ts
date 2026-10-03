@@ -135,9 +135,10 @@ export async function getMockResponse(
       citation = enrichCitation({
         source_name: `MapleSpike Pipeline — ${mod?.name ?? moduleName}`,
         source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
-        retrieved_at: new Date().toISOString(),
+        retrieved_at: null,
         data_hash: '',
-        license: 'https://open.canada.ca/en/open-government-licence-canada',
+        license: 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
+        license_basis: 'no-publisher-declaration',
         update_frequency: mod?.updateFrequency ?? 'daily',
         original_format: 'JSON',
       });
@@ -158,9 +159,10 @@ export async function getMockResponse(
       citation = enrichCitation({
         source_name: `MapleSpike Pipeline — ${moduleName}`,
         source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
-        retrieved_at: new Date().toISOString(),
+        retrieved_at: null,
         data_hash: '',
-        license: 'https://open.canada.ca/en/open-government-licence-canada',
+        license: 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
+        license_basis: 'no-publisher-declaration',
         update_frequency: 'unknown',
         original_format: 'JSON',
       });

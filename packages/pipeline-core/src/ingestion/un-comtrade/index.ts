@@ -26,8 +26,7 @@ const COMTRADE_COUNTRY_CODES: Record<string, string> = {
 function makeAttribution() {
   return buildAttribution('UN Comtrade', {
     sourceUrl: 'https://comtradeplus.un.org',
-    license: 'Open Access with Attribution',
-    attributionText: 'Source: UN Comtrade',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult UN Comtrade terms for the specific dataset, subscription, and intended use.",
   });
 }
 

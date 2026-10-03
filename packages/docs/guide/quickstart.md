@@ -1,11 +1,11 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-09-29
 status: active
 ---
 
 # Quickstart
 
-A 5-minute walkthrough to get data from MapleSpike using curl and MCP.
+A short walkthrough to get data from MapleSpike using curl and MCP.
 
 ## 1. Check the Service is Running
 
@@ -13,32 +13,32 @@ A 5-minute walkthrough to get data from MapleSpike using curl and MCP.
 curl http://localhost:8082/v1/health
 ```
 
-Expect a `200 OK` with `"status": "ok"`.
+Expect a successful response with service status and usage information.
 
-## 2. Search Committee Evidence
+## 2. Search Supported Records
 
-Search across all 50 House of Commons and Senate committees:
+The search route may return results from the sources configured for your deployment. Coverage and fields vary.
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
   "http://localhost:8082/v1/gov/search?q=foreign+interference&limit=3"
 ```
 
-## 3. Find Lobbying Records
+## 3. Search for Lobbying Records
 
-Search the federal lobbying registry:
+Results depend on available modules and source records. Check citations against the original source.
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
   "http://localhost:8082/v1/gov/search?q=McKinsey&limit=5"
 ```
 
-## 4. Verify a Citation
+## 4. Verify a Claim Hash
 
-Every record has a SHA-256 citation hash. Verify one:
+Some claim records include a SHA-256 hash of Quill's canonical record value. A match checks that representation only; it does not authenticate the source or establish reuse rights. Acquisition and publisher-terms evidence may be included when recorded.
 
 ```bash
-curl "http://localhost:8082/v1/citation/sha256-abc123"
+curl "http://localhost:8082/v1/claims/verify/<sha256>"
 ```
 
 ## 5. Check Your Usage
@@ -50,6 +50,8 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
 
 ## 6. Ask a Natural Language Question
 
+AI answers may summarize available records. Review source citations and verify important facts with the original publisher.
+
 ```bash
 curl -X POST http://localhost:8082/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
@@ -59,31 +61,4 @@ curl -X POST http://localhost:8082/v1/ai_ask \
 
 ## Using MCP Tools with an AI Agent
 
-If you have the MCP server configured, you can use natural language:
-
-> *"Search committee transcripts for recent mentions of housing policy"*
-> Uses `search_committees` tool.
-
-> *"Find sole-source contracts awarded by DND in the last quarter"*
-> Uses `search_corporate` tool with `dataset=procurement`.
-
-> *"Check the claim that unemployment rate rose to 6.5%"*
-> Uses `fact_check` tool.
-
-> *"Verify citation cit-001 and show the verification command"*
-> Uses `get_citation` tool.
-
-## What's Available
-
-| Query Pattern | MCP Tool | What You Get |
-|---------------|----------|--------------|
-| "Find committee meetings on..." | `search_committees` | Witness testimony, speaker attributions, dates |
-| "Search lobbying for..." | `search_corporate` | Registrations, communication reports, subjects |
-| "Find regulations about..." | `search_gazette` | Proposed/enacted regulations, RIAS analysis |
-| "Track GIC appointments to..." | `search_gic` | Appointee data, salary ranges, departments |
-| "Search court decisions on..." | `search_canlii` | Case summaries, citations, parties |
-| "Find LMIA data for..." | `search_lmia` | TFW program usage by employer/occupation |
-| "Check immigration data for..." | `search_immigration` | PR admissions, refugee decisions, enforcement |
-| "Search oversight reports on..." | `search_oversight` | OAG, PBO, Ethics, Competition Bureau |
-| "Find provincial lobbying in..." | `search_provincial_lobbying` | All 13 provinces/territories registry records |
-| "Search election advertising by..." | `search_elections` | Third-party advertiser spending |
+When the MCP server is configured, ask your agent to search supported sources, inspect available citation evidence, and check source terms with the original publisher before reuse.

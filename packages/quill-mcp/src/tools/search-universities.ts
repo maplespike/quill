@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'search_universities',
   description:
     'Search Canadian university data — tuition fees, enrollment statistics, program costs, ' +
-    'and institutional finances across all Canadian universities.',
+    'and institutional finances for the institutions present in the upstream dataset. ' +
+    'Not every Canadian university publishes these figures, so absence is not evidence of absence.',
   inputSchema: {
     type: 'object',
     properties: {

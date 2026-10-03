@@ -520,9 +520,12 @@ describe('buildClaimBundle quality integration', () => {
     assert.ok(bundle.quality, 'quality should be present on built bundles');
     assert.ok(bundle.quality.score >= 0 && bundle.quality.score <= 1, 'score must be in [0, 1]');
     assert.ok(bundle.quality.sourceTrustScore >= 0 && bundle.quality.sourceTrustScore <= 100);
-    assert.equal(bundle.quality.hashChainVerified, true, 'hash was just recomputed at build time');
-    assert.ok(bundle.quality.citationVerified, 'full citation fields were supplied');
-    assert.ok(bundle.quality.score > 0.5, 'trusted gov source + full citation should score high');
+    assert.equal(bundle.quality.hashChainVerified, false, 'record hashing alone does not prove a Merkle chain');
+    // No artifact was captured, so the bundle must not invent a retrieval time.
+    // That missing evidence is what keeps the citation chain from scoring full,
+    // so a high score here would mean the score is crediting unearned provenance.
+    assert.equal(bundle.retrievedAt, undefined, 'an uncaptured record has no retrieval time');
+    assert.equal(bundle.provenanceEvidence.acquisition.status, 'not-captured');
   });
 
   it('scores unknown sources lower than trusted ones', async () => {
@@ -543,6 +546,38 @@ describe('buildClaimBundle quality integration', () => {
     assert.ok(
       (gov.quality?.score ?? 0) > (unknown.quality?.score ?? 1),
       'trusted sources should outscore unknown ones',
+    );
+  });
+
+  it('scores a captured record above an uncaptured one with the same citation', async () => {
+    const base = {
+      claim: 'same record, captured vs not',
+      value: { unemploymentRate: 6.5 },
+      sourceName: 'Statistics Canada',
+      sourceUrl: 'https://www.statcan.gc.ca/table',
+    };
+    const [uncaptured, captured] = await Promise.all([
+      buildClaimBundle(base),
+      buildClaimBundle(base, {
+        capturedArtifactsEvidence: [{
+          url: 'https://www.statcan.gc.ca/table',
+          retrievedAt: '2025-02-01T00:00:00.000Z',
+          sha256: 'f'.repeat(64),
+          statusCode: 200,
+          bodyCapture: 'complete-http-client-body',
+          mediaType: 'application/json',
+          byteLength: 24,
+        }],
+      }),
+    ]);
+
+    assert.equal(uncaptured.retrievedAt, undefined);
+    assert.equal(captured.retrievedAt, '2025-02-01T00:00:00.000Z');
+    assert.equal(uncaptured.provenanceEvidence.acquisition.status, 'not-captured');
+    assert.equal(captured.provenanceEvidence.acquisition.status, 'captured');
+    assert.ok(
+      (captured.quality?.score ?? 0) > (uncaptured.quality?.score ?? 1),
+      'observed acquisition evidence should raise the provenance score',
     );
   });
 });

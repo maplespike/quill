@@ -1,6 +1,14 @@
 # MapleSpike — Canadian Government Data API
 > Primary-source infrastructure for AI agents that cite.
 
+> **Superseded snapshot (2026-05-18), not the served file.** The MCP tool list
+> below is a 27-entry snapshot that predates the current catalog and includes
+> internal modules (`api-client`, `index`, `types`) that are not registered MCP
+> tools. The live server reports 184 tools. The generated, served files are
+> `public/llms.txt` and `public/llms-full.txt`, produced by
+> `pnpm --filter @maplespike/portal gen:llms`; regenerate rather than hand-edit
+> this copy. See `docs/open-source-audit.md`.
+
 ## API
 Base URL: https://api.maplespike.ca/v1
 Auth: Authorization: Bearer header or X-API-Key header
@@ -42,5 +50,5 @@ Response: { success, data, quality, citation, meta }
 - health — Health Canada datasets, drug products
 - transport — Transport Canada, infrastructure data
 
-## MCP Tools (27 tools)
+## MCP Tools (27 tools — stale snapshot; see note above)
 Tool names: ai-analyze, ai-ask, ai-search-semantic, api-client, fact-check, get-citation, index, latest-releases, query-gov-data, search-canlii, search-committees, search-corporate, search-elections, search-gazette, search-gic, search-immigration, search-influence, search-lmia, search-lode, search-ngo-rss, search-oversight, search-provincial-lobbying, search-science, search-tribunals, search-veterans, system-health, types

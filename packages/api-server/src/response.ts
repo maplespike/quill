@@ -29,13 +29,14 @@ export type { CitationMeta, QualityMeta };
 /*  Default Citation                                                   */
 /* ------------------------------------------------------------------ */
 
-export const OGL_C_CITATION: CitationMeta = {
-  source_name: 'Open Government Licence – Canada',
-  source_url: 'https://open.canada.ca/en/open-government-licence-canada',
-  get retrieved_at(): string { return new Date().toISOString(); },
+export const UNKNOWN_SOURCE_CITATION: CitationMeta = {
+  source_name: 'Source not specified for this response',
+  source_url: '',
+  retrieved_at: null,
   data_hash: '',
-  license: 'https://open.canada.ca/en/open-government-licence-canada',
-  update_frequency: 'daily',
+  license: 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
+  license_basis: 'no-publisher-declaration',
+  update_frequency: 'not supplied',
 };
 
 /* ------------------------------------------------------------------ */
@@ -49,17 +50,17 @@ export const OGL_C_CITATION: CitationMeta = {
  */
 export function enrichCitation(meta: CitationMeta): CitationMeta {
   if (meta.citation_text && meta.citation_footnote) return meta;
-  const d = new Date(meta.retrieved_at);
-  const dateStr = d.toISOString().split('T')[0];
-  const month = d.toLocaleString('en', { month: 'short', timeZone: 'UTC' });
-  const year = d.getFullYear();
+  const d = meta.retrieved_at ? new Date(meta.retrieved_at) : null;
+  const dateStr = d && Number.isFinite(d.getTime()) ? d.toISOString().split('T')[0] : null;
+  const month = d && Number.isFinite(d.getTime()) ? d.toLocaleString('en', { month: 'short', timeZone: 'UTC' }) : null;
+  const year = d && Number.isFinite(d.getTime()) ? d.getUTCFullYear() : null;
   return {
     ...meta,
     original_format: meta.original_format || 'JSON',
     citation_text: meta.citation_text
-      || `${meta.source_name}, retrieved ${dateStr}. ${meta.license}. ${meta.source_url}`,
+      || `${meta.source_name}${dateStr ? `, retrieved ${dateStr}` : ''}. ${meta.license}. ${meta.source_url}`,
     citation_footnote: meta.citation_footnote
-      || `${meta.source_name}, ${month} ${year}`,
+      || (month && year ? `${meta.source_name}, ${month} ${year}` : meta.source_name),
   };
 }
 
@@ -73,7 +74,7 @@ export function buildQualityMeta(ctx: { tenant: Tenant; requestId: string; start
     source_uptime_7d: 0.98,
     confidence: 'high',
     certainty_score: 0.923,
-    last_verified: new Date().toISOString(),
+    last_verified: undefined,
     data_completeness: 'complete',
   };
 }
@@ -241,8 +242,8 @@ export function buildSuccess<T>(
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
     citation: extraCitation
-      ? enrichCitation({ ...OGL_C_CITATION, ...extraCitation })
-      : enrichCitation(OGL_C_CITATION),
+      ? enrichCitation({ ...UNKNOWN_SOURCE_CITATION, ...extraCitation })
+      : enrichCitation(UNKNOWN_SOURCE_CITATION),
   };
 }
 
@@ -267,7 +268,7 @@ export function buildError(
     },
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
-    citation: OGL_C_CITATION,
+    citation: UNKNOWN_SOURCE_CITATION,
   };
 }
 

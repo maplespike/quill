@@ -10,7 +10,7 @@
  *   Auth: None required
  *   Limits: None documented (fair use expected)
  *
- * Data License: UNdata Terms of Use — permissive for non-commercial use.
+ * Terms: Consult UNdata and agency-specific terms; do not infer permission from API access.
  */
 
 import { XMLParser } from 'fast-xml-parser';

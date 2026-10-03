@@ -6,7 +6,8 @@ export const definition: ToolDefinition = {
   description:
     'Search CRA T3010 Registered Charity Information Return data. ' +
     'Covers detailed financial statements, director compensation, political activities, ' +
-    'program spending, and revenue breakdowns for all registered Canadian charities. ' +
+    'program spending, and revenue breakdowns for charities that have filed a T3010 return — ' +
+    'charities exempt from filing, or below the filing threshold, will not appear. ' +
     'More focused on T3010 returns than the general charity search.',
   inputSchema: {
     type: 'object',

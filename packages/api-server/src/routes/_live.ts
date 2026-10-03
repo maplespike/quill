@@ -12,7 +12,7 @@
  *       source_url: string,
  *       fetched_at: ISO timestamp,
  *       citation_hash: full SHA-256 (64 hex chars, "sha256:<64hex>"),
- *       license: 'OGL-Canada-2.0'
+ *       license: publisher-declared terms or an explicit no-declaration notice
  *     }
  *   }>,
  *   provenance: {
@@ -33,7 +33,7 @@
  *   - On sub-source error (one of N regulators), status becomes 'partial'
  *     instead of 'unavailable' so callers can still act on the survivors.
  *   - Per-record citation hash format matches /v1/citation/<hash> validation
- *     (full 64-hex SHA-256, prefixed with "sha256:") so verified citation can
+ *     (full 64-hex SHA-256, prefixed with "sha256:") so a record that has one can
  *     be looked up directly without re-hashing.
  *   - Cross-reference BankingLobbyingReport surfaces its full meta block
  *     (institutionsScanned, matchedInstitutions, etc) on LiveResult.metadata
@@ -43,10 +43,13 @@
 import { createHash } from 'node:crypto';
 import { globalCache } from '../cache.js';
 import type { BuildContext } from '../response.js';
+import {
+  NO_REUSE_LICENSE_NOTICE,
+  resolvePublisherLicense,
+  type LicenseMetadataBasis,
+} from '@maplespike/pipeline-core';
 
-const OGL_CANADA_LICENSE = 'OGL-Canada-2.0';
-/** Re-exported for route handlers that need to stamp the same license on hand-built envelopes. */
-export { OGL_CANADA_LICENSE };
+export const NO_SOURCE_LICENSE_DECLARATION = NO_REUSE_LICENSE_NOTICE;
 
 /** Hash used internally for MemoryCache LRU eviction — keeps keys bounded. */
 export function hashQueryString(query: string): string {
@@ -60,6 +63,9 @@ export interface RecordProvenance {
   /** Full 64-hex SHA-256, prefix "sha256:" — matches /v1/citation endpoint validation. */
   citation_hash: string;
   license: string;
+  license_url?: string;
+  license_basis?: LicenseMetadataBasis;
+  attribution_text?: string;
   /**
    * Optional cache markers — only set on records served from the persistent
    * municipal_records_cache fallback (added by gap-7). Stale CacheEntries
@@ -136,8 +142,10 @@ export interface RunLiveOptions {
   ttlSeconds?: number;
   /** Hard ceiling below which slow upstreams fail into partial / unavailable. Default 15 s. */
   timeoutMs?: number;
-  /** Optional override for the per-record license string. Default OGL-Canada-2.0. */
+  /** Source-specific license label from Quill configuration, not publisher metadata. */
   license?: string;
+  /** Publisher or source-configuration terms URL, when available. */
+  licenseUrl?: string;
 }
 
 /**
@@ -157,7 +165,7 @@ export async function runLivePipeline<TRecord extends { url?: string } = { url?:
 ): Promise<LiveResult<TRecord>> {
   const ttl = options.ttlSeconds ?? 300;
   const timeoutMs = options.timeoutMs ?? 15_000;
-  const license = options.license ?? OGL_CANADA_LICENSE;
+  const license = options.license ?? NO_SOURCE_LICENSE_DECLARATION;
   // `live-v2:` prefix invalidates any stale entries persisted in KV/Redis from
   // pre-rewrite builds. Bumping the namespace is cheaper than wiping caches.
   const cacheFullKey = `live-v2:${cacheKey}`;
@@ -273,13 +281,31 @@ export async function runLivePipeline<TRecord extends { url?: string } = { url?:
         const citation_payload = JSON.stringify({ source: src.key, ...raw });
         // Full 64-hex SHA-256 (no truncation) — matches /v1/citation validation regex.
         const citation_hash = `sha256:${createHash('sha256').update(citation_payload).digest('hex')}`;
+        const sourceRecord = raw as TRecord & Record<string, unknown>;
+        const declared = resolvePublisherLicense(sourceRecord);
+        const hasConfiguredLicense = options.license !== undefined;
+        const sourceLicense = declared.basis === 'publisher-metadata'
+          ? declared.license
+          : (hasConfiguredLicense ? license : declared.license);
+        const licenseUrl = declared.licenseUrl ?? options.licenseUrl;
+        const licenseBasis: LicenseMetadataBasis = declared.basis === 'publisher-metadata'
+          ? 'publisher-metadata'
+          : (hasConfiguredLicense ? 'source-configuration' : 'no-publisher-declaration');
+        const attributionText = declared.basis === 'publisher-metadata'
+          ? declared.attributionText
+          : (hasConfiguredLicense
+            ? `License information supplied by Quill source configuration${options.licenseUrl ? ` (${options.licenseUrl})` : ''}; confirm scope and conditions with the publisher.`
+            : declared.attributionText);
         allRecords.push({
-          ...(raw as TRecord),
+          ...sourceRecord,
           provenance: {
             source_url,
             fetched_at: fetchedAt,
             citation_hash,
-            license,
+            license: sourceLicense,
+            ...(licenseUrl ? { license_url: licenseUrl } : {}),
+            license_basis: licenseBasis,
+            attribution_text: attributionText,
           },
         });
       }

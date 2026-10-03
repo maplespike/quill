@@ -189,7 +189,8 @@ describe('MapleSpike SDK - Integration Tests', () => {
       assert.ok(result.citation.source_url);
       assert.ok(result.citation.license);
       assert.ok(result.citation.data_hash);
-      assert.ok(result.citation.retrieved_at);
+      assert.ok('retrieved_at' in result.citation);
+      assert.ok(result.citation.retrieved_at === null || typeof result.citation.retrieved_at === 'string');
     });
   });
 

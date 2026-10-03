@@ -5,7 +5,7 @@
  * for the UNdata statistical databases.
  *
  * API Docs: http://data.un.org/Host.aspx?Content=API
- * Data License: UNdata Terms of Use — permissive for non-commercial use.
+ * Terms: Consult UNdata and agency-specific terms; do not infer permission from API access.
  */
 
 import type { UnDataCategory } from './types.js';

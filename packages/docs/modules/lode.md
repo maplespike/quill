@@ -108,7 +108,7 @@ Most LODE databases are large (MB to GB) and require direct download from Statis
 
 **Source portal:** https://www.statcan.gc.ca/eng/lode/databases
 
-**License:** Open Government Licence – Canada
+**Source terms:** The MCP catalog response does not establish reuse terms for each LODE dataset. Check the dataset's Statistics Canada page and applicable publisher terms before reuse. Public availability does not itself establish reuse rights.
 
 ## Use Cases
 

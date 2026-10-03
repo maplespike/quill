@@ -634,8 +634,8 @@
     <h1>Canada's sovereign, AI-native<br />public-data <span class="accent">pipeline</span></h1>
     <p class="lede">
       One unified layer for federal, provincial, territorial, and municipal
-      public-domain government data. Ingestion, verification, and
-      citation-provenance across <em>198 modules</em>, the Model Context
+      public-sector sources. Publisher terms vary by dataset; public availability
+      does not grant reuse rights. Ingestion and citation provenance across <em>198 modules</em>, the Model Context
       Protocol, and a typed SDK — built on zero external cloud spend.
     </p>
 
@@ -707,10 +707,10 @@
         <h2>What it is</h2>
         <p>
           MapleSpike ingests, verifies, and surfaces <strong>198 data modules</strong>
-          of Canadian public-domain government data across every sector. Every record
-          carries SHA-256 citation hashes, source provenance, and audit trails for
-          independent verification — designed so AI agents can quote Canadian
-          policy data back with cryptographic certainty.
+          from Canadian government and other public-sector sources. Source terms vary
+          by publisher and dataset; public availability does not establish reuse rights.
+          Records carry source provenance and, where supported, a SHA-256 hash of
+          Quill's canonical record JSON for integrity checks.
         </p>
         <p>
           Current metrics: <a href="./docs/metrics.json">docs/metrics.json</a> —
@@ -1020,20 +1020,8 @@ curl http://localhost:3001/health          # MCP">
 
       <section id="license" class="reveal">
         <h2>License</h2>
-        <div class="licenses">
-          <span class="license-pill"><code>pipeline-core</code> · AGPL-3.0</span>
-          <span class="license-pill"><code>mcp-server</code> · MIT</span>
-          <span class="license-pill"><code>engine</code> · MIT</span>
-          <span class="license-pill"><code>portal</code> · MIT</span>
-          <span class="license-pill"><code>sdk</code> · MIT</span>
-          <span class="license-pill"><code>sdk-python</code> · MIT</span>
-          <span class="license-pill"><code>legal-core</code> · MIT</span>
-          <span class="license-pill"><code>legislation</code> · MIT</span>
-        </div>
-        <p style="margin-top: var(--md);">Government data retains its
-          original license — primarily
-          <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.
-        </p>
+        <p>Package manifests, package-level license files, source-file notices, and dependency metadata conflict in this repository. The applicable terms for each artifact are unresolved; do not infer a license from this page. Review the repository's <a href="https://github.com/reverb256/quill/blob/main/docs/open-source-audit.md">open-source audit</a> and notices before use or redistribution.</p>
+        <p>Source-data terms are separate and vary by publisher and dataset. Quill does not grant reuse rights. Consult the original publisher's terms before reuse.</p>
       </section>
     </article>
   </main>

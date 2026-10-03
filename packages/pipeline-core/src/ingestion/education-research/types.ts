@@ -1,13 +1,14 @@
 /**
  * Education & Research Data Types — MapleSpike Pipeline
  *
- * Types for Canadian education and research public-domain data:
+ * Types for Canadian education and research source data:
  *   - Tri-Council grants (CIHR/NSERC/SSHRC) — federal research funding
  *   - Canada Research Chairs (CRC) — top-tier academic chairs
  *   - Canada Foundation for Innovation (CFI) — research infrastructure
  *   - Canada Student Loans (CSL) — default rates, debt, repayment
  *
- * All sources are public-domain / open government data on open.canada.ca.
+ * Sources include open.canada.ca and publisher sites. Access does not establish
+ * reuse permission; apply dataset-specific terms and restrictions.
  * HTML sources: Digital Research Alliance (alliancecan.ca), Mitacs (mitacs.ca).
  */
 
