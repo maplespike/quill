@@ -5,8 +5,9 @@ export const definition: ToolDefinition = {
   name: 'search_goc_spending',
   description:
     'Search Government of Canada spending data — federal contract awards, ' +
-    'grant contributions, and expenditure information from across all departments. ' +
-    'Covers GitHub-based federal spending datasets.',
+    'grant contributions, and expenditure information from the departments and programs ' +
+    'present in the federal spending datasets this tool reaches. ' +
+    'Covers GitHub-based federal spending datasets, whose coverage is set by those publishers.',
   inputSchema: {
     type: 'object',
     properties: {

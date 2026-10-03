@@ -5,7 +5,9 @@ export const definition: ToolDefinition = {
   name: 'search_provincial_regulators',
   description:
     'Search Canadian provincial regulatory bodies data — securities commissions, law societies, ' +
-    'police oversight, engineering regulators, medical colleges, and other professional regulators across all provinces.',
+    'police oversight, engineering regulators, medical colleges, and other professional regulators ' +
+    'listed in the curated regulator index this tool queries. ' +
+    'The index is a finite list, not a registry of every Canadian regulator.',
   inputSchema: {
     type: 'object',
     properties: {

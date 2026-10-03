@@ -9,8 +9,7 @@ import type { CiaFactRecord, CiaCountryComparison, CiaIngestionResult } from './
 function makeAttribution() {
   return buildAttribution('CIA World Factbook', {
     sourceUrl: 'https://www.cia.gov/the-world-factbook/',
-    license: 'Public Domain (US Government)',
-    attributionText: 'Data sourced from the CIA World Factbook (public domain)',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult the publisher's terms and notices for the specific material.",
   });
 }
 

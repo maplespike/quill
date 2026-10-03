@@ -94,6 +94,6 @@ pip install -e ".[dev]"
 pytest
 ```
 
-## License
+## License status
 
-MIT — see [LICENSE](LICENSE)
+`pyproject.toml` declares MIT, but no package-local `LICENSE` file was found in the repository. The published sdist/wheel must be inspected to confirm what license and copyright notices are distributed. See [`LICENSE.md`](../../LICENSE.md) and the [open-source audit](../../docs/open-source-audit.md).

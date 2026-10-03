@@ -16,11 +16,11 @@ const isFr = locale === "fr";
 
 <BaseLayout
   title={isFr
-    ? "Quill · Les données publiques du Canada, à portée de toute IA"
-    : "Quill · Canada's open data, on tap for any AI"}
+    ? "Quill · Des sources du secteur public, accessibles aux outils d'IA"
+    : "Quill · Public-sector sources for AI tools"}
   description={isFr
-    ? `Connectez n'importe quel chatbot IA à toutes les données gouvernementales canadiennes — ${statsData.tools} outils MCP, cités et vérifiables. Une ligne de configuration.`
-    : `Connect any AI chatbot to all Canadian government data — ${statsData.tools} MCP tools, cited and verifiable. One line of config.`}
+    ? `Connectez un chatbot IA aux outils de recherche du secteur public de Quill — ${statsData.tools} outils MCP. La couverture et les conditions varient selon la source.`
+    : `Connect an AI chatbot to Quill's public-sector search tools — ${statsData.tools} MCP tools. Source coverage and terms vary.`}
   lang={locale as "en" | "fr"}
 >
   <LandingBody lang={locale} />

@@ -59,6 +59,6 @@ The portal is a pure static site (HTML + CSS + JS). No build step required.
 - Fully responsive
 - Dark/light theme toggle with localStorage persistence
 
-## OGL-C Attribution
+## Source-data terms
 
-Contains information licensed under the [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada).
+Source-data licenses and terms vary by publisher, API, dataset, and jurisdiction. The portal displays publisher metadata when supplied, but that display is not a legal clearance or a license grant by Quill. Consult original source terms before reuse.

@@ -35,7 +35,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         totalCount: result.total,
         province: 'Alberta',
         source: 'https://open.alberta.ca',
-        license: 'OGL-Alberta',
+        license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket Alberta license is asserted.',
         retrievedAt: new Date().toISOString(),
       },
     };

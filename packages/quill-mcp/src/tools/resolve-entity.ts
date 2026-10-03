@@ -1,9 +1,9 @@
 /**
  * MapleSpike MCP Tool — resolve_entity
  *
- * Resolves a person or organization name to all known mentions across
- * every ingestion module. Returns a consolidated profile with aliases,
- * source appearances, roles, and dates.
+ * Resolves a person or organization name to the mentions found across
+ * ingestion modules that have linked records. Returns a consolidated profile
+ * with aliases, source appearances, roles, and dates.
  *
  * Data sources: committees, lobbying, SEDI, corporate registry,
  * procurement, OpenCorporates, and all other modules.
@@ -16,10 +16,10 @@ import { withClaims } from './claims-helper.js';
 export const definition: ToolDefinition = {
   name: 'resolve_entity',
   description:
-    'Resolve a person or organization name to all known mentions across every MapleSpike data source. ' +
-    'Returns a consolidated profile with canonical name, aliases, all source appearances (committees, ' +
-    'lobbying, procurement, corporate, etc.), roles, and dates. Use this when you need to find ' +
-    'everything the system knows about a specific person or organization.',
+    'Resolve a person or organization name to the mentions found in MapleSpike data sources. ' +
+    'Returns a consolidated profile with canonical name, aliases, source appearances (committees, ' +
+    'lobbying, procurement, corporate, etc.), roles, and dates. Coverage is limited to modules that have ' +
+    'ingested and linked records for this name — a missing registry means no linked record, not that none exists.',
   inputSchema: {
     type: 'object',
     properties: {

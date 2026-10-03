@@ -24,19 +24,19 @@
   },
   "hero": {
     "badges": {
-      "inCamera": "🔒 In-camera meeting detection",
+      "inCamera": "🔒 In-camera source labels",
       "proposedRegs": "📜 Proposed regulations (Gazette)",
       "senateCommittees": "🏛️ Senate committees",
       "courtDecisions": "⚖️ Court decisions",
       "oversightReports": "📋 Oversight reports"
     },
-    "heading": "Every government decision, tracked and connected.",
-    "subtitle": "Parliament, lobbying, contracts, regulations, courts — MapleSpike monitors {committees}, {execs}, and {actors} from official sources. All in one place. No spin.",
+    "heading": "Explore selected public-sector records.",
+    "subtitle": "Explore selected records about Parliament, lobbying, contracts, regulations, and courts from configured sources. Coverage and details vary; check the original sources.",
     "subtitleCommittees": "54 committees",
     "subtitleExecs": "17 executives",
     "subtitleActors": "34 influence actors",
     "tracking": {
-      "nowTracking": "Now tracking",
+      "nowTracking": "Records available",
       "committees": "{count} committees",
       "execs": "{count} execs",
       "actors": "{count} actors",
@@ -64,76 +64,76 @@
     }
   },
   "featuredBar": {
-    "verifiedSources": "Verified government sources:",
+    "verifiedSources": "Records from public-sector sources:",
     "freeToStart": "Free to start — no account needed",
-    "aidaReady": "✓ AIDA-ready"
+    "aidaReady": "AIDA information"
   },
   "inCameraSpotlight": {
     "heading": "In-camera meeting detection",
-    "body": "When parliamentary committees go closed-door, MapleSpike flags it automatically. Know which meetings are happening in secret, who's involved, and what topics are being discussed off the public record.",
+    "body": "When a source identifies a committee meeting as in-camera, MapleSpike may surface that designation. Coverage and detail vary by source; this does not reveal non-public discussions.",
     "cta": "See recent alerts →"
   },
   "stats": {
-    "committees": "Committees Tracked (34 HoC + 20 Senate)",
-    "execs": "Executives Monitored",
-    "actors": "Influence Actors",
+    "committees": "Committee source entries (34 HoC + 20 Senate)",
+    "execs": "Executive records available",
+    "actors": "Influence actor records",
     "sources": "Data Sources",
     "freeTier": "to Start (Free Tier)"
   },
   "features": {
-    "header": "Every corner of Canadian governance tracked and connected",
-    "subtitle": "Think of MapleSpike like a newsroom that never sleeps — it reads every public document so you don't have to, and shows you what matters.",
+    "header": "Explore selected Canadian public-sector records",
+    "subtitle": "MapleSpike organizes selected records from configured sources. It does not review every public document; coverage and update schedules vary.",
     "parliament": {
       "title": "Parliament — HoC & Senate",
-      "body": "Every House of Commons and Senate committee meeting, every witness, every question. Detects in-camera sessions across both chambers so you know when debate goes behind closed doors."
+      "body": "Browse available House of Commons and Senate committee records. In-camera designations may appear when reported by a source; coverage and details vary."
     },
     "gazette": {
       "title": "Regulations — Canada Gazette",
-      "body": "Proposed and final regulations from Canada Gazette Parts I+II. See what rules the government is planning before they become law — from environmental assessments to banking regulations."
+      "body": "Explore available proposed and final regulations from Canada Gazette Parts I+II. Source coverage and update schedules vary; check the original publication for the current text."
     },
     "influence": {
       "title": "Corporate influence",
-      "body": "Lobbying reports, government contracts, and executive statements from Canada's biggest banks, telecoms, and media companies. See which companies meet with which departments and which contracts go to single bidders."
+      "body": "Explore selected lobbying records, government contracts, and public statements from configured sources. Coverage varies; verify records and context with the original publisher."
     },
     "elections": {
       "title": "Elections & Lobbying",
-      "body": "Third-party election advertising, political financing, and Ontario provincial lobbying. Track who's spending to influence voters and which organisations are lobbying at the provincial level."
+      "body": "Browse selected third-party advertising, political-financing, and Ontario lobbying records where available. Coverage varies by source and jurisdiction."
     },
     "networks": {
       "title": "Influence networks",
-      "body": "From the UN to the WEF, from think tanks to NGOs — track organisations that shape Canadian policy. Monitor their government funding, their lobbying, and their connections to decision-makers."
+      "body": "Explore records about selected international organizations, think tanks, and NGOs. Available funding, lobbying, and relationship data varies by source."
     },
     "oversight": {
       "title": "Oversight & Courts",
-      "body": "Audits from the OAG and PBO, Ethics Commissioner investigations, Competition Bureau actions, CRTC decisions, and CanLII court rulings. Full judicial and accountability tracking."
+      "body": "Explore selected court and oversight records where available. Coverage varies by source and is not a complete record of judicial or accountability activity."
     },
     "connect": {
       "title": "Connect the dots",
-      "body": "The same people show up everywhere — sitting on committees, lobbying departments, winning contracts, appearing in court cases. MapleSpike links them together so you can see the full picture. Our signal detectors flag revolving doors, lobbying overlaps, and cross-jurisdictional connections automatically."
+      "body": "Where records support it, MapleSpike can connect people and organizations across committees, lobbying, contracts, and court data. Links and signal results depend on available records and may need independent review."
     },
     "canadian": {
       "title": "Built for Canadians, running in Canada",
-      "body": "Every piece of information comes from official public sources — Parliament, the Lobbying Registry, the Canada Gazette, open court data, oversight bodies. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organised so you can actually use them."
+      "body": "Information comes from sources such as Parliament, the Lobbying Registry, the Canada Gazette, open court data, and oversight bodies. Coverage, verification, and terms vary by source. Check the original sources."
     }
   },
   "aiIntegration": {
     "header": "Use it with ChatGPT, Claude, Gemini, Grok — or your own code",
-    "subtitle": "MapleSpike connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.",
+    "subtitle": "Connect compatible AI tools through MCP and ask questions about supported public-sector records. Coverage and returned evidence vary by source.",
     "chatgpt": {
       "title": "ChatGPT",
-      "body": "Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers."
+      "body": "Connect via MCP in a compatible ChatGPT client. Ask about supported records and check returned source references against the original publications."
     },
     "claude": {
       "title": "Claude",
-      "body": "Native MCP support in Claude Desktop and Claude Code. Ask \"what did the ethics committee discuss?\" and get a full briefing with citations."
+      "body": "Connect through MCP in Claude Desktop or Claude Code. Ask about supported records and review the returned citations against their original sources."
     },
     "gemini": {
       "title": "Gemini",
-      "body": "Use MapleSpike as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data in one query."
+      "body": "Use MapleSpike as an MCP tool in compatible Gemini clients. Cross-reference supported records where the available data allows it."
     },
     "grok": {
       "title": "Grok",
-      "body": "Connect through xAI's function-calling API. Ask Grok to check Canadian government data and get answers with source citations."
+      "body": "Connect through xAI's function-calling API. Ask about supported records and review source references against original publications."
     },
     "cursor": {
       "title": "Cursor & Windsurf",
@@ -148,14 +148,14 @@
   },
   "apiRef": {
     "header": "For developers and data nerds",
-    "subtitle": "Full API access with verified citations on every response. Every piece of data includes a source you can check.",
+    "subtitle": "API access with citation and record-integrity metadata where supplied by the endpoint. Fields and availability vary; check the source and publisher terms directly.",
     "endpoints": {
       "health": "Is the system running?",
       "releases": "Latest government data",
-      "search": "Search all government sources",
+      "search": "Search supported government sources",
       "citation": "Verify a specific data point",
       "usage": "Check your usage and quota",
-      "audit": "Full audit trail (Pro+)"
+      "audit": "Audit options (Pro+)"
     }
   },
   "pricing": {
@@ -175,7 +175,7 @@
         "1,000 API calls/month",
         "REST + MCP access",
         "Community support",
-        "Attribution required",
+        "Check publisher attribution terms",
         "Rate-limited (10 req/s)"
       ],
       "cta": "Get Started"
@@ -190,7 +190,7 @@
         "50,000 API calls/month",
         "Priority rate limits (100 req/s)",
         "Bias analysis & trust scores",
-        "SHA-256 citation hashes",
+        "SHA-256 record-integrity hashes where supplied",
         "Email support (48h SLA)"
       ],
       "cta": "Subscribe →"
@@ -203,7 +203,7 @@
       "features": [
         "250,000 API calls/month",
         "Custom rate limits (500 req/s)",
-        "Audit log export & provenance chain",
+        "Audit log export & available provenance metadata",
         "Custom MCP tool definitions",
         "SLA with 24h support"
       ],
@@ -211,12 +211,12 @@
     },
     "enterprise": {
       "header": "Need more?",
-      "body": "Enterprise tier for government agencies and large organisations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.",
+      "body": "Enterprise options for government agencies and large organisations. Ask about self-hosting, usage limits, dedicated MCP service, audit exports, and provenance fields available for your use case.",
       "cta": "Contact Sales"
     }
   },
   "footer": {
-    "description": "MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. All data sourced from official government portals under the Open Government Licence – Canada.",
+    "description": "MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. License terms vary by source and dataset; consult the original publisher terms.",
     "product": "Product",
     "productLinks": [
       "What it does",
@@ -235,20 +235,20 @@
     "legalLinks": [
       "Terms of Service",
       "Privacy Policy",
-      "OGL-C Attribution"
+      "Source attribution"
     ],
     "github": "Open Source on GitHub",
     "sources": {
-      "header": "Data from official Canadian government sources"
+      "header": "Data from Canadian government and public-sector sources"
     }
   },
   "dashboard": {
     "title": "MapleSpike — Civic Pulse Dashboard",
-    "metaDesc": "See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.",
+    "metaDesc": "Explore selected records from supported Canadian public-sector sources. Coverage and update schedules vary.",
     "header": "Civic Pulse",
-    "headerMeta": "Live from official government sources · Updated every 6 hours",
-    "searchTitle": "What’s happening in Canadian government today?",
-    "searchDesc": "Search across Parliament, lobbying, regulations, court decisions, and more.",
+    "headerMeta": "From configured public-sector sources · Coverage and update cadence vary",
+    "searchTitle": "Explore Canadian public-sector records",
+    "searchDesc": "Search supported records from Parliament, lobbying, regulation, courts, and other sources.",
     "searchPlaceholder": "Search committees, people, companies, topics…",
     "searchHint": "⏎ enter",
     "suggestions": {
@@ -261,12 +261,12 @@
     },
     "sinceLastChecked": {
       "title": "Since you last checked",
-      "desc": "New activity across committees, lobbying, and regulations.",
+      "desc": "Newly available records across supported committee, lobbying, and regulation sources.",
       "cta": "View changes →"
     },
     "inCameraSpotlight": {
-      "title": "In-camera meeting detection is live",
-      "desc": "MapleSpike automatically detects when parliamentary committees go behind closed doors. We track all 54 committees across both chambers — if a meeting is marked in-camera, you’ll know what was discussed and who was there.",
+      "title": "In-camera source labels",
+      "desc": "MapleSpike may display an in-camera designation when it appears in a source record. Coverage and detail vary; this does not reveal non-public discussions.",
       "cta": "View recent alerts →"
     },
     "sections": {
@@ -296,7 +296,7 @@
   },
   "docs": {
     "title": "MapleSpike — Documentation",
-    "metaDesc": "Documentation for the MapleSpike API. Quickstart, MCP setup, API reference, pricing, and FAQ.",
+    "metaDesc": "Documentation for the MapleSpike API, including quickstart, MCP setup, API reference, pricing, and FAQ.",
     "header": "Documentation",
     "sections": {
       "quickstart": "Quickstart",

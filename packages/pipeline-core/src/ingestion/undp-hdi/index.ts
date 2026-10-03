@@ -9,8 +9,7 @@ import type { HDIRecord, HDIIngestionResult } from './types.js';
 function makeAttribution() {
   return buildAttribution('UNDP Human Development Index', {
     sourceUrl: 'https://hdr.undp.org',
-    license: 'UNDP Open Data',
-    attributionText: 'Data sourced from UNDP Human Development Reports',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult UNDP terms and notices for the specific dataset and material.",
   });
 }
 

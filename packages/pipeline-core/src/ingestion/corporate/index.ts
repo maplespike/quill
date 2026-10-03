@@ -10,7 +10,7 @@ export { CORPORATE_DDL } from './db.js';
  *   4. Committee cross-reference — connect executive testimony to lobbying
  *
  * Designed to run as a cron job alongside the committee pipeline.
- * All data sources are public-domain and freely accessible.
+ * Source terms vary by dataset, registry, API, and publisher.
  *
  * Each function:
  *   - When db is provided: persists parsed records to the database

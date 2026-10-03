@@ -289,7 +289,7 @@ export class McpServer {
       {
         uri: 'quill://claims/latest',
         name: 'Recent claim bundles',
-        description: 'Most recently registered verifiable claim bundles (hash, claim, source, retrievedAt, license) — lets agents discover what Quill has attested before verifying any single hash.',
+        description: 'Most recently registered claim bundles (record hash, claim, source, source retrieval time when evidenced, and license metadata). A hash match does not authenticate the source or establish reuse rights.',
         mimeType: 'application/json',
       },
     ];
@@ -311,7 +311,7 @@ export class McpServer {
       {
         uriTemplate: 'quill://citations/{hash}',
         name: 'Claim bundle',
-        description: 'Verifiable claim bundle by SHA-256 hash — hash, source, retrievedAt, license.',
+        description: 'Claim bundle by SHA-256 record hash, with available source evidence and terms metadata. Hash matching checks record integrity, not source authenticity or reuse rights.',
         mimeType: 'application/json',
       },
       {

@@ -1902,7 +1902,7 @@ CREATE INDEX IF NOT EXISTS idx_gc_date_source ON global_canada_records(date DESC
 --
 -- Tracks IRCC permanent and temporary resident admissions,
 -- IRB refugee protection decisions, and CBSA enforcement data.
--- All open government / public domain sources.
+-- Source access is not a reuse grant; verify each dataset's publisher terms.
 --
 
 -- IRCC permanent resident admissions (monthly updates)

@@ -73,8 +73,20 @@ describe('Claim Verification Routes', () => {
       value: { unemployment_rate: 6.5, period: '2025-01' },
       sourceName: 'Statistics Canada',
       sourceUrl: 'https://www.statcan.gc.ca/en/labour',
-      retrievedAt: '2026-08-01T12:00:00.000Z',
-      license: 'Open Government Licence – Canada',
+      sourceArtifactsEvidence: [{
+        url: 'https://www.statcan.gc.ca/en/labour?api_key=secret',
+        retrievedAt: '2026-09-29T12:00:00.000Z',
+        sha256: 'b'.repeat(64),
+        statusCode: 200,
+        bodyCapture: 'complete-http-client-body',
+      }],
+      license: 'Terms label observed in source metadata',
+      licenseBasis: 'publisher-metadata',
+      publisherTermsEvidence: {
+        label: 'OGL-C',
+        url: 'https://example.test/terms',
+        observedFields: ['license_title', 'license_url'],
+      },
       updateFrequency: 'monthly',
     });
     citationStore.put(bundle);
@@ -92,8 +104,16 @@ describe('Claim Verification Routes', () => {
       assert.equal(data.source, 'Statistics Canada');
       assert.equal(data.source_name, 'Statistics Canada');
       assert.equal(data.source_url, 'https://www.statcan.gc.ca/en/labour');
-      assert.equal(data.retrieved_at, '2026-08-01T12:00:00.000Z');
-      assert.equal(data.license, 'Open Government Licence – Canada');
+      assert.equal(data.retrieved_at, '2026-09-29T12:00:00.000Z');
+      assert.equal(data.verification_scope, 'claim-store-hash-match');
+      assert.equal(data.provenance_evidence.acquisition.artifacts[0].url, 'https://www.statcan.gc.ca/en/labour');
+      assert.equal(data.provenance_evidence.acquisition.artifacts[0].url_redacted, true);
+      assert.equal(JSON.stringify(data).includes('api_key=secret'), false);
+      assert.equal(data.license, 'Terms label observed in source metadata');
+      assert.equal(data.provenance_evidence.schema_version, 'quill.provenance.v1');
+      assert.equal(data.provenance_evidence.publisher_terms.status, 'publisher-metadata-observed');
+      assert.equal(data.provenance_evidence.publisher_terms.label, 'OGL-C');
+      assert.equal(data.provenance_evidence.acquisition.status, 'captured');
       assert.equal(data.update_frequency, 'monthly');
       assert.match(data.verify_command, /^echo -n '.*' \| sha256sum$/);
     } finally {
@@ -172,6 +192,83 @@ describe('Claim Verification Routes', () => {
   });
 });
 
+describe('Legacy claim bundles without v1 evidence', () => {
+  /**
+   * Pre-v1 rows carry a bare `retrievedAt` (registration time) and no
+   * `provenanceEvidence`. The store decoder normalizes them, and the API must
+   * serialize the result honestly: retrieval time null, acquisition
+   * not-captured, publisher terms not-observed — never a reconstructed
+   * timestamp or an implied publisher declaration.
+   */
+  async function seedLegacyBundle() {
+    const { buildClaimBundle, citationStore } = await import('@maplespike/pipeline-core');
+    const fresh = await buildClaimBundle({
+      claim: 'Legacy claim registered before v1 evidence',
+      value: { legacy: true, year: 2024 },
+      sourceName: 'Legacy Publisher Registry',
+      sourceUrl: 'https://legacy.example.test/dataset',
+    });
+    const { provenanceEvidence: _dropped, ...legacyRest } = fresh;
+    const legacy = {
+      ...legacyRest,
+      // Simulate the old row shape: registration time stored as retrievedAt.
+      retrievedAt: '2026-01-02T03:04:05.000Z',
+    } as unknown as typeof fresh;
+    citationStore.put(legacy);
+    return { citationStore, legacy, hash: fresh.sha256 };
+  }
+
+  it('GET /claims/verify serializes missing evidence as null/not-observed, not a reconstructed time', async () => {
+    const { citationStore, hash } = await seedLegacyBundle();
+    try {
+      const { getVerifyClaimHandler } = await import('../routes/citation.js');
+      const ctx = makeCtx();
+      const req = new Request(`http://localhost/v1/claims/verify/${hash}`);
+      const resp = await getVerifyClaimHandler(req, ctx as any, { hash });
+      assert.equal(resp.status, 200);
+      const data = (await resp.json()).data;
+
+      // Record integrity still resolves; source authentication does not.
+      assert.equal(data.verified, true);
+      assert.equal(data.found, true);
+      assert.equal(data.verification_scope, 'claim-store-hash-match');
+
+      // The legacy registration time must not surface as a retrieval time.
+      assert.equal(data.retrieved_at, null);
+
+      const ev = data.provenance_evidence;
+      assert.equal(ev.schema_version, 'quill.provenance.v1');
+      assert.equal(ev.acquisition.status, 'not-captured');
+      assert.equal(ev.acquisition.association, 'none');
+      assert.deepEqual(ev.acquisition.artifacts, []);
+      assert.equal(ev.publisher_terms.status, 'not-observed');
+      assert.equal(ev.publisher_terms.label, null);
+      assert.equal(ev.publisher_terms.url, null);
+      assert.equal(ev.transformations.status, 'not-recorded');
+      assert.equal(data.license_basis, 'no-publisher-declaration');
+    } finally {
+      citationStore.clear();
+    }
+  });
+
+  it('GET /claims/latest reports retrieved_at null for the legacy row', async () => {
+    const { citationStore, hash } = await seedLegacyBundle();
+    try {
+      const { getLatestClaimsHandler } = await import('../routes/citation.js');
+      const ctx = makeCtx();
+      const req = new Request('http://localhost/v1/claims/latest');
+      const resp = await getLatestClaimsHandler(req, ctx as any, {});
+      assert.equal(resp.status, 200);
+      const claims = (await resp.json()).data.claims;
+      const found = claims.find((c: { sha256: string }) => c.sha256 === `sha256:${hash}`);
+      assert.ok(found, 'legacy claim should be listed');
+      assert.equal(found.retrieved_at, null);
+    } finally {
+      citationStore.clear();
+    }
+  });
+});
+
 describe('Claims Index (GET /v1/claims/latest)', () => {
   it('returns empty list when the store has no bundles', async () => {
     const { citationStore } = await import('@maplespike/pipeline-core');
@@ -194,14 +291,12 @@ describe('Claims Index (GET /v1/claims/latest)', () => {
       value: { v: 1 },
       sourceName: 'Elections Canada',
       sourceUrl: 'https://www.elections.ca/',
-      retrievedAt: '2026-01-01T00:00:00.000Z',
     });
     const newer = await buildClaimBundle({
       claim: 'Newer claim',
       value: { v: 2 },
       sourceName: 'Statistics Canada',
       sourceUrl: 'https://www.statcan.gc.ca/',
-      retrievedAt: '2026-08-01T12:00:00.000Z',
       license: 'Open Government Licence – Canada',
       updateFrequency: 'monthly',
     });
@@ -225,7 +320,8 @@ describe('Claims Index (GET /v1/claims/latest)', () => {
       assert.equal(claims[0].claim, 'Newer claim');
       assert.equal(claims[0].source_name, 'Statistics Canada');
       assert.equal(claims[0].source_url, 'https://www.statcan.gc.ca/');
-      assert.equal(claims[0].retrieved_at, '2026-08-01T12:00:00.000Z');
+      assert.equal(claims[0].retrieved_at, null);
+      assert.equal(claims[0].provenance_status, 'inspect-verification-endpoint');
       assert.equal(claims[0].license, 'Open Government Licence – Canada');
       assert.equal(claims[0].update_frequency, 'monthly');
       assert.equal(claims[1].sha256, `sha256:${older.sha256}`);

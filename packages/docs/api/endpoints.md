@@ -3,9 +3,9 @@ last-reviewed: 2026-07-07
 status: active
 ---
 
-# API Endpoints — Complete Catalog
+# API Endpoints — Documented Routes
 
-The MapleSpike REST API is served at `http://localhost:8082/v1/`. All responses follow a standard envelope with quality metadata, citations, and usage tracking.
+The MapleSpike REST API is served at `http://localhost:8082/v1/`. Routes share a response envelope, but payload, quality, and citation fields vary by endpoint and source. Check the live OpenAPI specification for the current route list.
 
 ## Base URL
 
@@ -39,9 +39,11 @@ http://localhost:8082/v1/
   "citation": {
     "source_name": "...",
     "source_url": "...",
-    "retrieved_at": "2026-05-14T11:36:00Z",
-    "data_hash": "sha256-...",
-    "license": "Open Government Licence – Canada",
+    "retrieved_at": null,
+    "data_hash": "sha256:<canonical-record-hash>",
+    "license": "Publisher-provided metadata when supplied, or a notice to consult source terms",
+    "license_basis": "publisher-metadata or no-publisher-declaration",
+    "provenance_evidence": null,
     "update_frequency": "daily"
   }
 }
@@ -52,9 +54,9 @@ http://localhost:8082/v1/
 | Method | Endpoint | Auth | Credits | Description |
 |--------|----------|------|---------|-------------|
 | GET | `/v1/health` | No | 0 | Health check with usage stats |
-| GET | `/v1/gov/search` | No | 1 | Search across all government data sources |
+| GET | `/v1/gov/search` | No | 1 | Search supported records from configured sources |
 | GET | `/v1/gov/releases` | Yes | 1 | Latest government data releases |
-| GET | `/v1/citation/:id` | No | 0 | Retrieve and verify a SHA-256 citation |
+| GET | `/v1/citation/:id` | No | 0 | Look up a canonical-record hash; a match checks integrity, not source authenticity |
 | GET | `/v1/usage` | Yes | 0 | Current API usage and quota |
 | POST | `/v1/ai_ask` | Yes | 1 | Natural language Q&A across datasets |
 | POST | `/v1/ai/ask` | Yes | 1 | Alias for ai_ask |

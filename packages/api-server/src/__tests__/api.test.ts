@@ -100,6 +100,10 @@ describe('API Server Routes', () => {
       const body = await resp.json();
       assert.ok(body.success);
       assert.ok(body.data);
+      const result = body.data.results[0];
+      assert.match(result.license, /declarations conflict/i);
+      assert.equal(result.attributionRequired, null);
+      assert.equal(result.sourceAttributed, null);
     }
   });
 

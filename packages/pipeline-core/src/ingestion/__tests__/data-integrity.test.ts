@@ -42,10 +42,12 @@ describe('Citation Hash Integrity', () => {
       sourceUrl: 'https://src.ca',
       dataHash: 'def456',
       updateFrequency: 'daily',
-      license: 'OGL-Canada',
+      license: 'Open Government Licence – Canada',
+      licenseBasis: 'publisher-metadata',
     });
     assert.equal(citation.updateFrequency, 'daily');
-    assert.equal(citation.license, 'OGL-Canada');
+    assert.equal(citation.license, 'Open Government Licence – Canada');
+    assert.equal(citation.licenseBasis, 'publisher-metadata');
   });
 
   it('buildCitation uses default license when not provided', () => {
@@ -54,7 +56,8 @@ describe('Citation Hash Integrity', () => {
       sourceUrl: 'https://src.ca',
       dataHash: 'xyz',
     });
-    assert.ok(citation.license.includes('Open Government'));
+    assert.match(citation.license, /publisher license was not declared/i);
+    assert.equal(citation.licenseBasis, 'no-publisher-declaration');
   });
 
   it('computeHash returns 64-character SHA-256 hex string', async () => {

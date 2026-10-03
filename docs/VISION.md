@@ -44,9 +44,10 @@ The system is a pipeline: **ingest → verify → surface**.
 3. **Verification is the product.** Citation hashes and audit trails make every
    claim independently checkable. The `verify` page lets anyone confirm a claim
    against its source.
-4. **Attribution-compliant.** Government data is used under the Open Government
-   Licence – Canada (OGL-C) and provincial equivalents. Restricted sources are
-   gated behind legal review (see [docs/licensing-audit.md](./licensing-audit.md)).
+4. **Source-attributed.** Quill preserves publisher-provided license metadata
+   when available and identifies when returned metadata contains no declaration.
+   Public availability is not treated as a reuse grant. Source terms remain
+   dataset-specific (see [docs/licensing-audit.md](./licensing-audit.md)).
 5. **Declarative operations.** All infrastructure is declared in Nix (NixOS +
    flake.nix); persistent state is source-of-truth, not imperative drift.
 6. **OpenSpec-first development.** Every change follows propose → apply →
@@ -75,10 +76,8 @@ Research) during 2026. Their contributions are recorded here with attribution.
 
 | Contribution | Source | License |
 |--------------|--------|---------|
-| Architecture research, gap analysis, module taxonomy | Hermes Agent (Nous Research) | Output dedicated to this project under its repo license (AGPL-3.0 / MIT) |
+| Architecture research, gap analysis, module taxonomy | Hermes Agent (Nous Research) | Output was generated with research-agent assistance; applicable rights and license scope are not established by this attribution. See repository rights-holder review. |
 | Pattern-inspiration repos | See [CREDITS.md](../CREDITS.md) | See CREDITS table |
 | Product vision | reverb256 (MapleSpike) | — |
 
-**License:** Quill is AGPL-3.0 (pipeline-core) / MIT (packages). Government
-data retains its original license (primarily OGL-C). See
-[LICENSE](../LICENSE) and [CREDITS.md](../CREDITS.md).
+**License:** Quill's package declarations are inconsistent and under rights-holder review. See [LICENSE.md](../LICENSE.md), [LICENSE](../LICENSE), and [CREDITS.md](../CREDITS.md). Source-data terms are separate and vary by publisher and dataset.

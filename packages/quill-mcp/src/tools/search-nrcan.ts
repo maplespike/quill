@@ -6,7 +6,8 @@ export const definition: ToolDefinition = {
   description:
     'Search Natural Resources Canada (NRCan) data — mining activities, topographic maps, ' +
     'energy statistics, forest inventory, renewable energy, and mineral production. ' +
-    'Covers all NRCan sub-modules including energy, mining, forestry, and geospatial data.',
+    'Covers the NRCan sub-modules this tool is configured to reach, including energy, ' +
+    'mining, forestry, and geospatial data; coverage depends on which upstream catalogues respond.',
   inputSchema: {
     type: 'object',
     properties: {

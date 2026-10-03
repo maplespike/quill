@@ -9,8 +9,7 @@ import type { SnzFactRecord, SnzIngestionResult } from './types.js';
 function makeAttribution() {
   return buildAttribution('Statistics New Zealand', {
     sourceUrl: 'https://www.stats.govt.nz/',
-    license: 'CC BY 4.0 (New Zealand Government)',
-    attributionText: 'Data sourced from Statistics New Zealand (CC BY 4.0)',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult Stats NZ terms and notices for the specific dataset and material.",
   });
 }
 

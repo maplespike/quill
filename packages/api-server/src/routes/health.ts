@@ -3,7 +3,7 @@
  */
 
 import type { RouteHandler } from '../types.js';
-import { buildSuccess, buildError, jsonResponse, OGL_C_CITATION } from '../response.js';
+import { buildSuccess, buildError, jsonResponse, UNKNOWN_SOURCE_CITATION } from '../response.js';
 import { loadConfig } from '../config.js';
 
 interface DependencyStatus {
@@ -70,13 +70,8 @@ export const healthHandler: RouteHandler = async (_request, ctx) => {
       timestamp: new Date().toISOString(),
     };
 
-    // Build a fresh citation envelope with current timestamp
-    const citation = {
-      ...OGL_C_CITATION,
-      retrieved_at: new Date().toISOString(),
-    };
-
-    return jsonResponse(buildSuccess(body, ctx, citation));
+    // Health-check time is in `data.timestamp`, not source retrieval metadata.
+    return jsonResponse(buildSuccess(body, ctx, UNKNOWN_SOURCE_CITATION));
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return jsonResponse(buildError('HEALTH_CHECK_FAILED', message, ctx), 500);

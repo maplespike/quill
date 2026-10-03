@@ -5,6 +5,8 @@ status: active
 
 # International Data Sources Research Update — Issues #562, #563, #564
 
+> Historical implementation summary, not legal clearance. Its prior compatible-licensing assertion is withdrawn. Confirm current publisher terms and dataset-level scope for every source and use; Quill software license declarations are separately unresolved.
+
 **Date**: 2026-06-02
 **Related Issues**: #562 (UN), #563 (World Bank), #564 (OECD)
 **Epic**: #557 (International Sources Expansion)
@@ -62,7 +64,7 @@ All three research issues (#562, #563, #564) have been completed. Baseline imple
 - ✅ Attribution metadata preserved
 - ✅ MCP tools integrated
 - ✅ Batch processing with timeouts
-- ✅ Compatible licensing verified
+- ⚠️ Dataset-level terms and software compatibility remain unverified
 
 ### Limitations (Common to All)
 - ⚠️ Only baseline coverage (20-50% of available data)

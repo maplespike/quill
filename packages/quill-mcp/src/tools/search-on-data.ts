@@ -35,7 +35,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         totalCount: result.total,
         province: 'Ontario',
         source: 'https://data.ontario.ca',
-        license: 'OGL-Ontario',
+        license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket Ontario license is asserted.',
         retrievedAt: new Date().toISOString(),
       },
     };

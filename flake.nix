@@ -236,16 +236,37 @@
         TAG="''${TAG:-stable}"
         COMMIT="''${COMMIT:-$(git rev-parse --short HEAD)}"
 
+        # Per-image SBOM, generated BEFORE the push. scripts/audit-open-source.mjs
+        # inventories the repository lockfile; it cannot see what is inside a
+        # built image, which is what a consumer of this registry receives. See
+        # docs/open-source-audit.md "Known limits of the generator".
+        #
+        # There is no skip flag. If syft is missing the push fails, because
+        # shipping an image whose contents were never enumerated is the exact
+        # gap this closes. Override the binary with SYFT=/path/to/syft.
+        SBOM_DIR="''${SBOM_DIR:-./sbom}"
+        # Referenced through the flake store rather than $PWD, so the script is
+        # present regardless of the directory `nix run .#push-images` was
+        # invoked from.
+        SBOM_SCRIPT="${./scripts/generate-sbom.sh}"
+
         for svc in mcp api portal; do
           echo "=== $svc ==="
           path=$(nix build ".#quill-$svc-image" --print-out-paths --no-link -L)
           ${pkgs.podman}/bin/podman load < "$path"
           ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$TAG"
           ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$COMMIT"
+
+          # Scan the commit-pinned tag, not $TAG: that is the immutable artifact
+          # a consumer can pin to, so it is the one worth attesting to.
+          "$SBOM_SCRIPT" "$REGISTRY/quill-$svc:$COMMIT" "$SBOM_DIR"
+
           ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$TAG"
           ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$COMMIT"
           echo "✓ $REGISTRY/quill-$svc:$TAG"
         done
+        echo "SBOMs written to $SBOM_DIR"
+        echo "NOTE: these are unreviewed. Commit them or attach them to the release.
       '';
 
       # ── Podman Quadlet units (systemd .container) for self-host ──
@@ -330,6 +351,23 @@
       test = {
         type = "app";
         program = "${pkgs.writeShellScriptBin "maplespike-test" ''set -euo pipefail; pnpm test''}/bin/maplespike-test";
+      };
+
+      # Source-level open-source provenance/license facts audit. Dependency
+      # metadata is read from the installed frozen pnpm tree; this does not
+      # build images or make license compatibility conclusions.
+      audit-open-source = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "quill-audit-open-source" ''
+          set -euo pipefail
+          ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")"
+          cd "$ROOT"
+          if [ ! -d node_modules ]; then
+            echo "node_modules missing; run pnpm install --frozen-lockfile inside nix develop first" >&2
+            exit 2
+          fi
+          exec ${nodejs}/bin/node scripts/audit-open-source.mjs "$@"
+        ''}/bin/quill-audit-open-source";
       };
 
       # Build all three runtime images
@@ -463,6 +501,16 @@
       images-exist = pkgs.runCommand "check-images-exist" { } ''
         mkdir -p $out
         echo "✅ $(echo -n 'quill-mcp quill-api quill-ingest quill-engine quill-portal' | wc -w) images defined" > $out/result
+      '';
+      open-source-audit-script = pkgs.runCommand "check-open-source-audit-script" { nativeBuildInputs = [ nodejs ]; } ''
+        node --check ${./scripts/audit-open-source.mjs}
+        node --check ${./scripts/test-audit-open-source.mjs}
+        mkdir -p $out
+        echo "open-source audit scripts parse" > $out/result
+      '';
+      open-source-audit = pkgs.runCommand "quill-open-source-audit" { nativeBuildInputs = [ nodejs pnpm ]; } ''
+        mkdir -p $out
+        node ${./scripts/audit-open-source.mjs} --format json > $out/audit.json
       '';
       portal-dist-has-index = pkgs.runCommand "check-portal-index" { } ''
         test -f ${portal-dist}/app/index.html || { echo "portal dist missing index.html"; exit 1; }

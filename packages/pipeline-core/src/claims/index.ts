@@ -1,151 +1,130 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/**
- * Quill Claim Stack — verifiable claim bundles
- *
- * Direction 1 (ECOSYSTEM-EXECUTION-PLAN WS-1): every high-signal tool response can
- * carry a ClaimBundle — a SHA-256 hash over a canonical JSON serialization of the
- * returned value, plus source attribution, retrieval time, license, and any
- * transformations applied. A skeptic can reproduce the hash with:
- *
- *   echo -n '<canonical json>' | sha256sum
- *
- * Everything here is dependency-free pure logic (Web Crypto), so it runs in
- * Workers, Node, and the browser alike.
- */
+/** Quill claim hashes cover canonicalized Quill records, not upstream source bytes. */
 
 import { computeHash } from '../verification/hashing.js';
 import { buildMerkleRoot } from '../ingestion/attestation/index.js';
 import { scoreProvenance } from '../quality/provenance.js';
 import type { ProvenanceScore } from '../quality/types.js';
+import { NO_REUSE_LICENSE_NOTICE } from '../shared/attribution.js';
+import type { LicenseMetadataBasis } from '../shared/attribution.js';
+import { buildProvenanceEvidence, redactArtifactUrl } from './evidence.js';
+import type { ClaimProvenanceEvidence, PublisherTermsEvidenceInput, SourceArtifactEvidenceInput } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Canonical JSON serialization                                       */
-/* ------------------------------------------------------------------ */
+export { buildProvenanceEvidence } from './evidence.js';
+export type { ClaimProvenanceEvidence, PublisherTermsEvidenceInput, SourceArtifactEvidenceInput } from './types.js';
 
-/**
- * Deep-sort object keys so JSON.stringify output is stable across
- * tool implementations, runtime versions, and language boundaries.
- * This is what makes a hash reproducible by third parties.
- */
 export function canonicalJson(value: unknown): string {
   return JSON.stringify(sortValue(value));
 }
 
 function sortValue(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map(sortValue);
-  }
+  if (Array.isArray(value)) return value.map(sortValue);
   if (value !== null && typeof value === 'object') {
     const record = value as Record<string, unknown>;
-    // Null prototype: assigning a "__proto__" key must create a plain own
-    // property, not trigger the Object.prototype setter (prototype pollution
-    // via attacker-controlled JSON reaching POST /v1/verify).
     const sorted: Record<string, unknown> = Object.create(null);
-    for (const key of Object.keys(record).sort()) {
-      sorted[key] = sortValue(record[key]);
-    }
+    for (const key of Object.keys(record).sort()) sorted[key] = sortValue(record[key]);
     return sorted;
   }
   return value;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Claim bundle types + builders                                      */
-/* ------------------------------------------------------------------ */
-
 export interface ClaimItem {
-  /** Human-readable claim statement ("unemployment rate was 6.5% in Jan 2025") */
   claim: string;
-  /** The value the claim is about — hashed as canonical JSON */
   value: unknown;
-  /** Human-readable source name ("Statistics Canada") */
   sourceName: string;
-  /** Direct URL to the upstream government data */
+  /** A source/record URL, not necessarily the URL that returned source bytes. */
   sourceUrl: string;
-  /** ISO-8601 retrieval timestamp (defaults to now) */
+  /** Source retrieval time only when acquisition evidence supplies it; never claim registration time. */
   retrievedAt?: string;
-  /** Data license (defaults to OGL-CA) */
+  sourceArtifactsEvidence?: SourceArtifactEvidenceInput[];
+  publisherTermsEvidence?: PublisherTermsEvidenceInput;
   license?: string;
-  /** Expected update cadence */
+  licenseUrl?: string;
+  licenseBasis?: LicenseMetadataBasis;
+  attributionText?: string;
   updateFrequency?: string;
-  /** Any transformations applied to the value (e.g. ["keyword-extraction"]) */
   transformations?: string[];
 }
 
 export interface ClaimBundle extends ClaimItem {
-  /** SHA-256 hex of canonicalJson(value) */
+  /** SHA-256 of canonicalJson(value). */
   sha256: string;
-  /** Merkle root of the batch this claim was committed with (optional) */
+  /** New bundles always write v1 evidence; persisted legacy rows are normalized at the store boundary. */
+  provenanceEvidence: ClaimProvenanceEvidence;
   merkleRoot?: string;
-  /**
-   * Data-quality provenance score (0.0–1.0 + qualitative level), derived
-   * from this bundle's own attestation fields: source trust, citation
-   * chain completeness, and the fact that the content hash was just
-   * recomputed and matched. Never stored — recomputed at build time.
-   */
   quality?: ProvenanceScore;
 }
 
-/** Default license for Canadian public-sector data */
-export const DEFAULT_CLAIM_LICENSE = 'Open Government Licence – Canada';
+export const DEFAULT_CLAIM_LICENSE = NO_REUSE_LICENSE_NOTICE;
 
-/**
- * Build a single verifiable claim bundle.
- */
-export async function buildClaimBundle(item: ClaimItem): Promise<ClaimBundle> {
-  const serialized = canonicalJson(item.value);
-  const sha256 = await computeHash(serialized, 'sha256');
+export interface BuildClaimBundleOptions {
+  /** Ambient request artifacts captured inside runModule; kept separate from record-supplied evidence. */
+  capturedArtifactsEvidence?: SourceArtifactEvidenceInput[];
+}
+
+export async function buildClaimBundle(item: ClaimItem, options: BuildClaimBundleOptions = {}): Promise<ClaimBundle> {
+  const sha256 = await computeHash(canonicalJson(item.value), 'sha256');
+  const provenanceEvidence = buildProvenanceEvidence(sha256, item, options);
+  const capturedAt = provenanceEvidence.acquisition.artifacts
+    .find(artifact => artifact.association === 'url-matched-not-content-verified')?.retrieved_at;
+  // The normalized snake_case evidence block is the persisted representation;
+  // do not also serialize unsanitized input evidence that may contain secrets.
+  const {
+    sourceArtifactsEvidence: _sourceArtifactsEvidence,
+    publisherTermsEvidence: _publisherTermsEvidence,
+    ...bundleItem
+  } = item;
+  const safeSourceUrl = redactArtifactUrl(item.sourceUrl)?.url ?? item.sourceUrl;
+  const safeLicenseUrl = item.licenseUrl
+    ? redactArtifactUrl(item.licenseUrl)?.url ?? item.licenseUrl
+    : undefined;
+  const safePublisherTermsEvidence = item.publisherTermsEvidence
+    ? {
+        ...item.publisherTermsEvidence,
+        ...(item.publisherTermsEvidence.url
+          ? { url: redactArtifactUrl(item.publisherTermsEvidence.url)?.url ?? item.publisherTermsEvidence.url }
+          : {}),
+      }
+    : undefined;
   const bundle: ClaimBundle = {
-    claim: item.claim,
-    value: item.value,
+    ...bundleItem,
+    sourceUrl: safeSourceUrl,
+    ...(safeLicenseUrl ? { licenseUrl: safeLicenseUrl } : {}),
+    retrievedAt: capturedAt,
     sha256,
-    sourceName: item.sourceName,
-    sourceUrl: item.sourceUrl,
-    retrievedAt: item.retrievedAt ?? new Date().toISOString(),
-    license: item.license ?? DEFAULT_CLAIM_LICENSE,
-    updateFrequency: item.updateFrequency,
+    provenanceEvidence,
+    ...(safePublisherTermsEvidence ? { publisherTermsEvidence: safePublisherTermsEvidence } : {}),
+    license: item.license?.trim() ? item.license : DEFAULT_CLAIM_LICENSE,
+    licenseBasis: item.licenseBasis ?? 'no-publisher-declaration',
+    attributionText: item.attributionText ?? DEFAULT_CLAIM_LICENSE,
     transformations: item.transformations ?? [],
   };
-  // Derive the quality score from this bundle's own attestation signals —
-  // the hash was just recomputed and matched, so hashChainVerified is true
-  // by construction; citation chain completeness comes from the fields the
-  // emitter supplied (source name/URL, retrievedAt, license, merkle root).
   bundle.quality = scoreProvenance({
     source: item.sourceName,
     citation: {
       sourceName: item.sourceName,
       sourceUrl: item.sourceUrl,
       dataHash: sha256,
-      retrievedAt: bundle.retrievedAt,
+      retrievedAt: bundle.retrievedAt ?? undefined,
       license: bundle.license,
       merkleRoot: bundle.merkleRoot,
     },
-    hashChainVerified: true,
+    // A record hash does not prove that a Merkle chain or signature was verified.
+    hashChainVerified: false,
   });
   return bundle;
 }
 
-/**
- * Build a batch of claim bundles and commit them under a single Merkle root,
- * so one pipeline run attests to N records with one hash.
- */
 export async function buildClaimBatch(
   items: ClaimItem[],
 ): Promise<{ bundles: ClaimBundle[]; merkleRoot: string }> {
-  const bundles = await Promise.all(items.map(buildClaimBundle));
-  const { root } = await buildMerkleRoot(bundles.map(b => b.sha256));
-  return {
-    bundles: bundles.map(b => ({ ...b, merkleRoot: root })),
-    merkleRoot: root,
-  };
+  const bundles = await Promise.all(items.map(item => buildClaimBundle(item)));
+  const { root } = await buildMerkleRoot(bundles.map(bundle => bundle.sha256));
+  return { bundles: bundles.map(bundle => ({ ...bundle, merkleRoot: root })), merkleRoot: root };
 }
 
-/**
- * Recompute the SHA-256 of a value and compare it to a claimed hash.
- * Returns true when canonicalJson(value) reproduces the hash.
- */
 export async function verifyClaimHash(value: unknown, claimedSha256: string): Promise<boolean> {
   const recomputed = await computeHash(canonicalJson(value), 'sha256');
-  const normalized = claimedSha256.toLowerCase().replace(/^sha256[:\-]/, '');
+  const normalized = claimedSha256.toLowerCase().replace(/^sha256[:-]/, '');
   return recomputed === normalized;
 }

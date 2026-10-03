@@ -51,7 +51,8 @@ Every high-signal response (`fact_check`, `ai_ask`, `get_entity_profile`,
       "sourceName": "lobbying",
       "sourceUrl": "https://lobbycanada.gc.ca/...",
       "retrievedAt": "2026-08-09T12:00:00.000Z",
-      "license": "Open Government Licence – Canada",
+      "license": "The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.",
+      "license_basis": "no-publisher-declaration",
       "transformations": ["entity-resolution"]
     }
   ]
@@ -210,7 +211,7 @@ linked_entities { "name": "Acme Consulting Inc.", "type": "organization" }
     "totalAppearances": 5,
     "connectionCount": 2,
     "claims": [
-      { "claim": "Appearance in lobbying: Client", "sha256": "sha256:9f86d...", "sourceName": "lobbying", "sourceUrl": "https://lobbycanada.gc.ca/...", "license": "Open Government Licence – Canada", "transformations": ["entity-resolution", "registry-grouping"] }
+      { "claim": "Appearance in lobbying: Client", "sha256": "sha256:9f86d...", "sourceName": "lobbying", "sourceUrl": "https://lobbycanada.gc.ca/...", "license": "The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.", "licenseBasis": "no-publisher-declaration", "transformations": ["entity-resolution", "registry-grouping"] }
       // one claim bundle per appearance — 5 appearances → 5 claims entries
     ]
   }
@@ -285,8 +286,7 @@ re-verify independently of either server.
 
 ## 7. Licensing & etiquette
 
-- **Data**: Open Government Licence – Canada (and per-source licenses in
-  `data-source-licenses.json`). Attribute the upstream source, not just Quill.
+- **Source data**: Terms vary by publisher and dataset. Quill does not grant reuse rights; consult the original publisher's terms for each use. Attribute the upstream source, not just Quill.
 - **Rate limits**: 60 req/min on the hosted SSE endpoint; be polite — cache
   and reuse claim hashes instead of re-querying.
 - **Identity**: stdio = self-hosted (uncounted); hosted = Bearer API key

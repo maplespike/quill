@@ -121,7 +121,9 @@ version 2.1, available at
 [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
 
 Community Impact Guidelines were inspired by
-[Mozilla's code of conduct enforcement ladder][mozilla].
+[Mozilla's code of conduct enforcement ladder][mozilla], which is distributed
+under the Mozilla Public License 2.0 ([ladder][ladder]). The ladder was formerly hosted in the
+`mozilla/diversity` repository, which now redirects to `mozilla/inclusion`.
 
 For answers to common questions about this code of conduct, see the FAQ at
 [https://www.contributor-covenant.org/faq][faq]. Translations are available at
@@ -129,6 +131,7 @@ For answers to common questions about this code of conduct, see the FAQ at
 
 [homepage]: https://www.contributor-covenant.org
 [v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
-[mozilla]: https://github.com/mozilla/diversity
+[mozilla]: https://github.com/mozilla/inclusion
+[ladder]: https://github.com/mozilla/inclusion/blob/master/code-of-conduct-enforcement/consequence-ladder.md
 [faq]: https://www.contributor-covenant.org/faq
 [translations]: https://www.contributor-covenant.org/translations

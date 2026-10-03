@@ -1,59 +1,48 @@
-# Data Source Licensing Audit — Crown Copyright & Redistribution Gate
+# Data Source License and Provenance Audit
 
-**Wayfinder ticket:** #812 (go-live gate from #804 decision 3)
-**Status:** Preliminary classification complete. 19 restricted + 83 unknown require human legal review before go-live.
+**Status: source-by-source permissions are not fully cleared.** This is an engineering provenance record, not legal advice or a legal opinion. It does not assert that sources prohibit reuse, and it does not grant rights in publisher content.
 
-## Why this exists
+## Scope and decision
 
-Quill monetizes access to 203 Canadian (and a few international) data sources. Crown copyright and
-source license terms vary: some are open data usable commercially **with attribution**, some
-(restricted) limit redistribution or commercial use. Per decision #804, a per-source licensing audit
-is a **go-live gate** — the Free tier (discovery/metadata only, per #815) must only expose
-open/attribution-cleared sources, and restricted sources must not be wrongly paywalled.
+Quill does not grant independent reuse rights in publisher data. A public endpoint, source portal, jurisdiction, or government publisher does not by itself establish reuse permission. Publishers may apply different terms at the dataset, API, record, or content level, and exclusions may apply to personal information, third-party works, official marks, or other protected material.
 
-## Classification scheme
+The machine-readable [`data-source-licenses.json`](../data-source-licenses.json) lists 203 source families. Its `no_quill_reuse_grant` value describes Quill's own legal position; it does **not** mean that the publisher forbids reuse. Its source URLs are review starting points, not evidence that every source-family dataset is covered by the linked terms. Do not treat the family-level URLs or notes as dataset clearance.
 
-| Class | Meaning | In Free subset? | In Pro paywall? |
-|-------|---------|-----------------|-----------------|
-| `open` | Fully open, no restriction | ✅ | ✅ |
-| `open_attribution` | OGL-C / provincial equivalent — commercial OK **with attribution** | ✅ (metadata only) | ✅ |
-| `restricted` | Redistribution / commercial use limited — **legal sign-off required** | ❌ | ⚠️ only after review |
-| `unknown` | Not auto-classified — manual review required | ❌ until reviewed | ⚠️ only after review |
+## Runtime behavior
 
-## Preliminary results (203 sources)
+- Search, discovery, ingestion, API, and MCP source paths remain available. This file is not a runtime gate and does not disable features.
+- When source metadata supplies explicit license fields, Quill carries the label and URL into returned dataset records and citations as `publisher-metadata`. This records what the source response declared; it is not an independent verification of scope.
+- Where no declaration is returned, Quill emits a notice that says no publisher license declaration was present in the returned metadata and directs the user to the source's terms. This is not a claim that reuse is prohibited.
+- A source-specific label maintained in Quill code is identified as `source-configuration`, not represented as a publisher declaration.
+- Catalog endpoints that omit per-dataset metadata say so; they do not assign a blanket federal, provincial, or municipal license to every result.
 
-- **`open_attribution`: 101** — federal agencies (AAFC, Bank of Canada, CMHC, CRTC, committees,
-  lobbying) + provincial/municipal open-data portals (ab/bc/on/qc…, cities). Commercial use permitted
-  with attribution (Quill's citation block already emits source + OGL-C — satisfies this).
-- **`restricted`: 19** — courts (`ab-courts`, `bc-courts`, `on-courts`, `qc-courts`), legal
-  (`canlii`), corporate/registries (`corporate`, `corporate-filings`, `bc-corporate-registry`,
-  `opencorporates`, `cipo`), `cra-charity`, `crown-corporations`, `criminal-justice`, `defence`,
-  `attestation`, and international (`au-abs`, `eurostat`, `fao-faostat`). These need legal review
-  before any paid gating.
-- **`unknown`: 83** — source type not determinable from name alone (e.g. `ati`, `cross-reference`,
-  `financial-regulation`, `indigenous-*`, `gazette`, `global-canada`). Manual review required.
+## Inventory status
 
-**Full machine-readable classification:** `data-source-licenses.json` (consumed by the attribution
-emitter + Free/Pro gating).
+There are **203 source-family entries**. They all record `no_quill_reuse_grant`; no count of publisher-cleared source families is asserted. Some entries include authoritative terms pages as leads. Those pages can have narrower scope than the related source family. Compound sources need source-level and dataset-level review before use of data beyond discovery, metadata, or the specific currently configured ingestion behavior.
 
-## Go-live gate (enforced)
+## Required evidence for dataset-level clearance
 
-1. Resolve all `unknown` (83) → `open_attribution` / `restricted` via per-source term check.
-2. For each `restricted` (19), obtain legal sign-off OR exclude from paid gating.
-3. Confirm the Free subset (from #815) references **only** `open` / `open_attribution` sources.
-4. Verify the attribution emitter renders the required OGL-C / provincial notice for every
-   `open_attribution` response (already implemented in the citation block).
+For each dataset and actual Quill use, record:
 
-## Method (reproducible)
+1. Dataset identity, publisher/rightsholder, version or retrieval date, and the authoritative dataset/API terms URL.
+2. The publisher's exact license declaration and required attribution text, if supplied.
+3. Whether commercial access, extraction, redistribution, caching, republication, and derived databases are permitted.
+4. Exclusions for third-party content, personal information, official marks, confidential information, or other rights.
+5. The specific Quill feature, fields, transformations, retention, and output that use the data.
+6. Evidence source and reviewer/date. Escalate ambiguous terms to qualified counsel.
 
-`data-source-licenses.json` was generated by classifying the 203 ingestion source families in
-`packages/pipeline-core/src/ingestion/` via naming heuristics (federal/prov/municipal →
-`open_attribution`; courts/registries/legal/international → `restricted`; else `unknown`). This is a
-**starting point**, not legal advice — the `unknown`/`restricted` buckets must be reviewed by a human
-(ideally counsel) before charging customers.
+## Selected source terms reviewed
 
-## Out of scope
+The audit research consulted official or publisher terms for federal Open Government Licence – Canada, Statistics Canada Open Licence, CanLII Terms of Use, Ontario Open Data Terms of Use, BC Open Government Licence, Toronto Open Data Licence, Données Québec licence, Alberta Open Government Licence, Yukon Open Government Licence, and Newfoundland and Labrador licence pages. These sources differ in scope and exclusions. The registry links are not proof that every Quill dataset from those sources is covered by the terms.
 
-- Writing the actual license text for each source (that's the per-source review step above).
-- International sources beyond Canada — flagged `restricted` by default; most are not Canadian
-  Crown copyright and need their own terms checked.
+## Software licensing is separate
+
+This file concerns upstream data provenance only. It does not resolve the repository's own package/SPDX conflicts, dependency notices, code provenance, or OCI image licensing. See [`open-source-audit.md`](./open-source-audit.md), [`LICENSE.md`](../LICENSE.md), and [`CREDITS.md`](../CREDITS.md).
+
+Observed software-license state as of 2026-09-30, carried here only so the two questions are not conflated:
+
+- 13 workspace packages, with conflicting declarations: `@maplespike/portal` declares MIT in its manifest and Apache-2.0 in its adjacent license text; `@maplespike/quill-mcp` declares Apache-2.0 while most of its own files declare AGPL-3.0-or-later or MIT; `@maplespike/api-server` declares Apache-2.0 with two AGPL-tagged files; `@maplespike/database` and `@maplespike/notification-service` have **no** `license` metadata at all, and `database` is a runtime workspace dependency of other packages.
+- 942 installed dependency records (654 production) with three production records lacking license metadata.
+- A bounded attribution sweep recorded in [`CREDITS.md`](../CREDITS.md); no exhaustive similarity analysis has been performed.
+
+None of this is resolved by anything in this file, and none of it changes the data-source conclusions above. In particular, **no software license in this repository licenses upstream data**, and no dataset entry in `data-source-licenses.json` grants reuse rights.

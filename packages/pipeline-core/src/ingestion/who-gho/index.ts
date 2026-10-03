@@ -10,8 +10,7 @@ import type { AttributedRecord } from '../../shared/attribution.js';
 function makeAttribution() {
   return buildAttribution('WHO Global Health Observatory', {
     sourceUrl: 'https://ghoapi.azureedge.net/api/',
-    license: 'WHO Open Data (CC BY 3.0 IGO)',
-    attributionText: 'Data sourced from WHO Global Health Observatory',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult WHO terms and notices for the specific dataset and material.",
   });
 }
 

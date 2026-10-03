@@ -9,8 +9,7 @@ import type { RefugeeRecord, RefugeeIngestionResult } from './types.js';
 function makeAttribution() {
   return buildAttribution('UNHCR Refugee Statistics', {
     sourceUrl: 'https://data.unhcr.org',
-    license: 'UNHCR Open Data',
-    attributionText: 'Data sourced from UNHCR',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult UNHCR terms and notices for the specific dataset and material.",
   });
 }
 

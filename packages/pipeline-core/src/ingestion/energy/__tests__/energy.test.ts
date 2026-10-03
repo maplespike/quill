@@ -11,6 +11,41 @@ describe('energy Module', () => {
     assert.equal(typeof mod.ingestAllEnergy, 'function');
   });
 
+  it('preserves CKAN license metadata in energy records without inventing absent terms', async () => {
+    const originalFetch = globalThis.fetch;
+    const originalMockFlag = globalThis.__MAPLESPIKE_MOCK_FETCH;
+    globalThis.__MAPLESPIKE_MOCK_FETCH = true;
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+      result: {
+        results: [
+          {
+            id: 'declared-dataset',
+            title: 'Declared dataset',
+            license_id: 'cc-by',
+            license_title: 'Creative Commons Attribution 4.0',
+            license_url: 'https://creativecommons.org/licenses/by/4.0/',
+            attribution: 'Publisher attribution text',
+          },
+          { id: 'undeclared-dataset', title: 'Undeclared dataset' },
+        ],
+      },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })) as typeof globalThis.fetch;
+
+    try {
+      const { ingestOilProduction } = await import('../fetcher.js');
+      const result = await ingestOilProduction();
+      assert.equal(result.records.length, 2);
+      assert.equal(result.records[0].license_title, 'Creative Commons Attribution 4.0');
+      assert.equal(result.records[0].license_url, 'https://creativecommons.org/licenses/by/4.0/');
+      assert.equal(result.records[0].attribution, 'Publisher attribution text');
+      assert.equal(result.records[1].license_title, undefined);
+      assert.equal(result.records[1].license_url, undefined);
+    } finally {
+      globalThis.fetch = originalFetch;
+      globalThis.__MAPLESPIKE_MOCK_FETCH = originalMockFlag;
+    }
+  });
+
   it('ingestOilProduction returns expected structure', async () => {
     const r = await (await import('../index.js')).ingestOilProduction();
     assert.equal(r.source, 'oil-production');

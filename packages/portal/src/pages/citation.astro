@@ -41,8 +41,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
 <BaseLayout
   title={i18n.t('citation.title')}
   description={t(
-    "MapleSpike citation policy — SHA-256 verified citations for every data record. Learn how to verify and cite Canadian government data with cryptographic assurance.",
-    "Politique de citation de MapleSpike — citations vérifiées par SHA-256 pour chaque enregistrement de données. Apprenez à vérifier et citer les données gouvernementales canadiennes avec une assurance cryptographique.",
+    "Quill citation policy — source provenance and SHA-256 integrity checks where available. Hashes do not establish source-data reuse rights.",
+    "Politique de citation de Quill — provenance des sources et contrôles d'intégrité SHA-256 lorsqu'ils sont disponibles. Les hachages n'établissent pas les droits de réutilisation des données sources.",
   )}
   lang={lang}
 >
@@ -56,8 +56,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           {t(
-            "Every data point in MapleSpike includes a verified citation chain — SHA-256 hashed, source-linked, and independently verifiable. Trust, but verify.",
-            "Chaque point de données de MapleSpike inclut une chaîne de citation vérifiée — hachée en SHA-256, liée à la source et vérifiable de façon indépendante. Faites confiance, mais vérifiez.",
+            "Responses may expose a Quill record-integrity hash and source-artifact evidence when captured. These are separate hashes with separate scopes; neither alone proves a record came from a particular source. Check the original publisher's terms before reuse.",
+            "Les réponses peuvent exposer un hachage d'intégrité d'enregistrement Quill et des preuves d'artefact source lorsqu'elles sont capturées. Ce sont des hachages distincts de portée différente; aucun ne prouve à lui seul qu'un enregistrement provient d'une source particulière. Consultez les conditions de l'éditeur d'origine avant toute réutilisation.",
           )}
         </p>
       </div>
@@ -76,8 +76,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             <CardTitle class="text-lg">{t("Collect", "Collecter")}</CardTitle>
             <CardDescription>
               {t(
-                "Data is fetched directly from official Canadian government sources — APIs, CKAN portals, RSS feeds, and XML dumps.",
-                "Les données sont récupérées directement auprès des sources officielles du gouvernement canadien — API, portails CKAN, flux RSS et extractions XML.",
+              "Data is fetched from government and other public-sector sources through APIs, CKAN portals, RSS feeds, and XML dumps. Source coverage and terms vary.",
+              "Les données proviennent de sources gouvernementales et d'autres sources du secteur public, via des API, portails CKAN, flux RSS et extractions XML. La couverture et les conditions varient selon la source.",
               )}
             </CardDescription>
           </CardHeader>
@@ -90,8 +90,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             <CardTitle class="text-lg">{t("Verify", "Vérifier")}</CardTitle>
             <CardDescription>
               {t(
-                "Each record is hashed with SHA-256, producing a unique fingerprint. The hash is stored alongside source URL, license, and retrieval timestamp.",
-                "Chaque enregistrement est haché avec SHA-256, produisant une empreinte unique. Le hachage est stocké avec l'URL source, la licence et l'horodatage de récupération.",
+                "Quill's record hash covers canonicalized record JSON. Captured source-artifact hashes cover the HTTP-client response body; the evidence block reports retrieval time and response metadata when available. A matching request URL is labeled as such but does not verify that the response produced the record.",
+                "Le hachage d'enregistrement de Quill couvre le JSON canonique de l'enregistrement. Les hachages d'artefact source capturés couvrent le corps de réponse HTTP fourni au client; le bloc de preuve indique l'heure de récupération et les métadonnées de réponse lorsqu'elles sont disponibles. Une URL de requête correspondante est indiquée comme telle, sans vérifier que la réponse a produit l'enregistrement.",
               )}
             </CardDescription>
           </CardHeader>
@@ -104,8 +104,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             <CardTitle class="text-lg">{t("Cite", "Citer")}</CardTitle>
             <CardDescription>
               {t(
-                "Every API response includes citation hashes and verify commands. Use them in your research, journalism, or AI training data.",
-                "Chaque réponse API inclut des hachages de citation et des commandes de vérification. Utilisez-les dans vos recherches, votre journalisme ou vos données d'entraînement IA.",
+                "API responses may include citation hashes and verification commands. These support integrity checks; check the source's terms before reusing its material.",
+                "Les réponses API peuvent inclure des hachages de citation et des commandes de vérification. Elles facilitent le contrôle d'intégrité; consultez les conditions de la source avant de réutiliser son contenu.",
               )}
             </CardDescription>
           </CardHeader>
@@ -119,11 +119,11 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           <CardTitle class="text-base font-mono">sha256:&lt;64-hex-characters&gt;</CardTitle>
           <CardDescription>
             {t(
-              "Every citation uses the SHA-256 hash algorithm with a",
-              "Chaque citation utilise l'algorithme de hachage SHA-256 avec un préfixe",
+              "When supplied, a record-integrity citation uses SHA-256 with the",
+              "Lorsqu'il est fourni, un hachage d'intégrité d'enregistrement utilise SHA-256 avec le préfixe",
             )} <code>sha256:</code>. {t(
-              "The hash covers the full content of the record at the time of ingestion.",
-              "Le hachage couvre le contenu complet de l'enregistrement au moment de l'ingestion.",
+              "It covers Quill's canonical JSON representation of that record, not the original HTTP response bytes.",
+              "Il couvre la représentation JSON canonique de cet enregistrement par Quill, et non les octets de réponse HTTP d'origine.",
             )}
           </CardDescription>
         </CardHeader>
@@ -135,8 +135,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           </div>
           <p class="text-sm text-muted-foreground">
             {t(
-              "You can verify any citation independently by re-downloading the source data and computing the SHA-256 hash. If the hashes match, the data has not been altered.",
-              "Vous pouvez vérifier toute citation de façon indépendante en re-téléchargeant les données sources et en calculant le hachage SHA-256. Si les hachages correspondent, les données n'ont pas été modifiées.",
+              "When a citation includes a source URL and content hash, you can compare a retrieved copy with that hash to check whether the hashed content matches. This does not establish source authenticity or reuse rights.",
+              "Lorsqu'une citation inclut une URL source et un hachage de contenu, vous pouvez comparer une copie récupérée à ce hachage pour vérifier si le contenu haché correspond. Cela n'établit ni l'authenticité de la source ni les droits de réutilisation.",
             )}
           </p>
         </CardContent>
@@ -149,11 +149,11 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           <CardTitle class="text-base">{t("Shell Verification", "Vérification en ligne de commande")}</CardTitle>
           <CardDescription>
             {t(
-              "Each citation response includes a",
-              "Chaque réponse de citation inclut un champ",
+              "Some citation responses include a",
+              "Certaines réponses de citation incluent un champ",
             )} <code>verify_command</code> {t(
-              "field with a shell command to independently verify the data integrity.",
-              "avec une commande shell pour vérifier de façon indépendante l'intégrité des données.",
+              "field with a shell command to reproduce the record hash. This does not fetch or authenticate the upstream source artifact.",
+              "avec une commande shell pour reproduire le hachage de l'enregistrement. Cela ne récupère ni n'authentifie l'artefact source en amont.",
             )}
           </CardDescription>
         </CardHeader>
@@ -174,8 +174,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           <CardTitle class="text-base">{t("How Trust Is Measured", "Comment la confiance est mesurée")}</CardTitle>
           <CardDescription>
             {t(
-              "Every record includes a trust score (0–100%) indicating confidence in the data's accuracy and provenance.",
-              "Chaque enregistrement inclut un score de confiance (0–100 %) indiquant le niveau de confiance dans l'exactitude et la provenance des données.",
+              "Where available, a trust score (0–100%) summarizes Quill's confidence signals for a record. It is not a legal or publisher verification.",
+                "Lorsqu'il est disponible, un score de confiance (0–100 %) résume les indicateurs de confiance de Quill pour un enregistrement. Il ne s'agit pas d'une vérification juridique ou de l'éditeur.",
             )}
           </CardDescription>
         </CardHeader>
@@ -184,22 +184,22 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             <div class="rounded-md border border-green-500/30 bg-green-500/5 p-4">
               <p class="text-sm font-semibold text-green-500 mb-1">90–100 % — {t("Verified", "Vérifié")}</p>
               <p class="text-xs text-muted-foreground">{t(
-                "Cross-referenced from 2+ independent sources. SHA-256 hash verified.",
-                "Recoupé à partir de 2+ sources indépendantes. Hachage SHA-256 vérifié.",
+                "Example quality-score category only; a hash match verifies record integrity, not source identity or reuse rights.",
+                "Exemple de catégorie de score de qualité uniquement; une correspondance de hachage vérifie l'intégrité de l'enregistrement, pas l'identité de la source ni les droits de réutilisation.",
               )}</p>
             </div>
             <div class="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-4">
               <p class="text-sm font-semibold text-yellow-500 mb-1">60–89 % — {t("Sourced", "Sourcé")}</p>
               <p class="text-xs text-muted-foreground">{t(
-                "Single authoritative source. Hash present but not cross-referenced.",
-                "Source unique faisant autorité. Hachage présent mais non recoupé.",
+                "Example category only; score signals are not an independent verification of publisher or source claims.",
+                "Exemple de catégorie uniquement; les indicateurs du score ne constituent pas une vérification indépendante des déclarations de l'éditeur ou de la source.",
               )}</p>
             </div>
             <div class="rounded-md border border-red-500/30 bg-red-500/5 p-4">
               <p class="text-sm font-semibold text-red-500 mb-1">&lt;60 % — {t("Low Confidence", "Confiance faible")}</p>
               <p class="text-xs text-muted-foreground">{t(
-                "Below threshold. Data may be stale or from a non-authoritative source.",
-                "Sous le seuil. Les données peuvent être obsolètes ou provenir d'une source non autorisée.",
+                "Example category only; consult the supplied evidence and original source directly.",
+                "Exemple de catégorie uniquement; consultez directement les preuves fournies et la source d'origine.",
               )}</p>
             </div>
           </div>
@@ -243,8 +243,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           <CardTitle class="text-base">{i18n.t('api_explorer.title')}</CardTitle>
           <CardDescription>
             {t(
-              "Look up any citation by its SHA-256 hash using the API endpoint.",
-              "Recherchez toute citation par son hachage SHA-256 à l'aide du point de terminaison API.",
+              "Look up a citation by its SHA-256 hash using the API endpoint, when a hash is available.",
+              "Recherchez une citation par son hachage SHA-256 à l'aide du point de terminaison API, lorsqu'un hachage est disponible.",
             )}
           </CardDescription>
         </CardHeader>
@@ -263,7 +263,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
       "source_name": "House of Commons",
       "source_url": "https://ourcommons.ca/...",
       "hash": "sha256:a1b2c3d4...",
-      "license": "Open Government Licence - Canada",
+      "license": "The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.",
+      "license_basis": "no-publisher-declaration",
       "retrieved_at": "2026-03-15T14:30:00Z"
     },
     "verify_command": "curl -s \"...\" | sha256sum | cut -d' ' -f1"
@@ -284,8 +285,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
         {t(
-          "Every API response includes SHA-256 citations. Get your free API key and start querying Canadian government data with cryptographic assurance.",
-          "Chaque réponse API inclut des citations SHA-256. Obtenez votre clé API gratuite et commencez à interroger les données gouvernementales canadiennes avec une assurance cryptographique.",
+          "Where available, SHA-256 citations help check data integrity. Check original publisher terms before reusing source material.",
+          "Lorsqu'elles sont disponibles, les citations SHA-256 aident à contrôler l'intégrité des données. Consultez les conditions de l'éditeur d'origine avant de réutiliser le contenu source.",
         )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">

@@ -9,7 +9,8 @@
  *   - Analysis aggregate CSVs (department, vendor breakdowns)
  *   - Raw proactive disclosure JSON archives from goc-spending-data repo
  *
- * License: Open Government Licence – Canada / CC0
+ * Terms: preserve the original dataset's publisher declaration. A project mirror
+ * does not establish a blanket license for all files or source datasets.
  *
  * Designed to run as a cron job alongside other pipeline modules.
  */

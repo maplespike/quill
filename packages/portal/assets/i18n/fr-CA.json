@@ -24,19 +24,19 @@
   },
   "hero": {
     "badges": {
-      "inCamera": "🔒 Détection de réunions à huis clos",
+      "inCamera": "🔒 Désignations de huis clos",
       "proposedRegs": "📜 Règlements proposés (Gazette)",
       "senateCommittees": "🏛️ Comités sénatoriaux",
       "courtDecisions": "⚖️ Décisions judiciaires",
       "oversightReports": "📋 Rapports de surveillance"
     },
-    "heading": "Chaque décision de votre gouvernement,\nsuivie et connectée.",
-    "subtitle": "Parlement, lobbying, contrats, règlements, tribunaux — MapleSpike surveille {committees}, {execs} et {actors} à partir de sources officielles. Tout en un seul endroit. Sans parti pris.",
+    "heading": "Explorez des dossiers sélectionnés du secteur public.",
+    "subtitle": "Explorez des dossiers sélectionnés sur le Parlement, le lobbying, les contrats, les règlements et les tribunaux provenant de sources configurées. La couverture et les détails varient; consultez les sources originales.",
     "subtitleCommittees": "54 comités",
     "subtitleExecs": "17 dirigeants",
     "subtitleActors": "34 acteurs d'influence",
     "tracking": {
-      "nowTracking": "En cours de suivi",
+      "nowTracking": "Sources configurées",
       "committees": "{count} comités",
       "execs": "{count} dirigeants",
       "actors": "{count} acteurs",
@@ -64,76 +64,76 @@
     }
   },
   "featuredBar": {
-    "verifiedSources": "Sources gouvernementales vérifiées :",
+    "verifiedSources": "Dossiers de sources du secteur public :",
     "freeToStart": "Gratuit pour commencer — aucun compte requis",
-    "aidaReady": "✓ Conforme à la LIA"
+    "aidaReady": "Information sur l'IA"
   },
   "inCameraSpotlight": {
     "heading": "Détection de réunions à huis clos",
-    "body": "Lorsque les comités parlementaires siègent à huis clos, MapleSpike le signale automatiquement. Sachez quelles réunions se déroulent en secret, qui est impliqué et quels sujets sont discutés à l'abri du registre public.",
+    "body": "Lorsqu'une source indique qu'une réunion de comité se déroule à huis clos, MapleSpike peut afficher cette désignation. La couverture et les détails varient selon la source; cela ne révèle pas les discussions non publiques.",
     "cta": "Voir les alertes récentes →"
   },
   "stats": {
-    "committees": "Comités suivis (34 CDC + 20 Sénat)",
-    "execs": "Dirigeants surveillés",
-    "actors": "Acteurs d'influence",
+    "committees": "Dossiers de comités (34 CDC + 20 Sénat)",
+    "execs": "Dossiers de dirigeants",
+    "actors": "Dossiers d'acteurs d'influence",
     "sources": "Sources de données",
     "freeTier": "pour Commencer (Gratuit)"
   },
   "features": {
-    "header": "Chaque recoin de la gouvernance canadienne suivi et connecté",
-    "subtitle": "Pensez à MapleSpike comme à une salle de presse qui ne dort jamais — elle lit chaque document public pour vous et vous montre ce qui compte.",
+    "header": "Explorez des dossiers sélectionnés du secteur public canadien",
+    "subtitle": "MapleSpike organise des dossiers sélectionnés provenant de sources configurées. Le service n'examine pas tous les documents publics; la couverture et la fréquence des mises à jour varient.",
     "parliament": {
       "title": "Parlement — CDC & Sénat",
-      "body": "Chaque réunion de comité de la Chambre des communes et du Sénat, chaque témoin, chaque question. Détecte les séances à huis clos dans les deux chambres pour vous informer lorsque les débats se déroulent à portes closes."
+      "body": "Consultez les dossiers disponibles des comités de la Chambre des communes et du Sénat. Les désignations de huis clos peuvent être affichées lorsqu'une source les signale; la couverture et les détails varient."
     },
     "gazette": {
       "title": "Règlements — Gazette du Canada",
-      "body": "Règlements proposés et définitifs des Parties I et II de la Gazette du Canada. Voyez quelles règles le gouvernement planifie avant qu'elles ne deviennent loi — des évaluations environnementales aux règlements bancaires."
+      "body": "Consultez les règlements proposés et définitifs disponibles des Parties I et II de la Gazette du Canada. La couverture et la fréquence des mises à jour varient; vérifiez le texte actuel dans la publication originale."
     },
     "influence": {
       "title": "Influence des entreprises",
-      "body": "Registres de lobbying, contrats gouvernementaux et déclarations de dirigeants des plus grandes banques, entreprises de télécommunications et médias du Canada. Voyez quelles entreprises rencontrent quels ministères et quels contrats sont attribués à un seul soumissionnaire."
+      "body": "Explorez des dossiers sélectionnés sur le lobbying, les contrats gouvernementaux et les déclarations publiques provenant de sources configurées. La couverture varie; vérifiez les dossiers et leur contexte auprès de l'éditeur d'origine."
     },
     "elections": {
       "title": "Élections et lobbying",
-      "body": "Publicité électorale par des tiers, financement politique et lobbying provincial ontarien. Suivez qui dépense pour influencer les électeurs et quelles organisations font du lobbying au niveau provincial."
+      "body": "Consultez les dossiers disponibles sur la publicité par des tiers, le financement politique et le lobbying en Ontario. La couverture varie selon la source et la juridiction."
     },
     "networks": {
       "title": "Réseaux d'influence",
-      "body": "De l'ONU au FEM, des groupes de réflexion aux ONG — suivez les organisations qui façonnent les politiques canadiennes. Surveillez leur financement gouvernemental, leur lobbying et leurs liens avec les décideurs."
+      "body": "Explorez des dossiers sur certaines organisations internationales, certains groupes de réflexion et certaines ONG. Les données disponibles sur le financement, le lobbying et les relations varient selon la source."
     },
     "oversight": {
       "title": "Surveillance et tribunaux",
-      "body": "Rapports du BVG et du DPB, enquêtes du commissaire à l'éthique, décisions du Bureau de la concurrence, décisions du CRTC et jugements CanLII. Suivi judiciaire et de responsabilisation complet."
+      "body": "Consultez les dossiers judiciaires et de surveillance disponibles. La couverture varie selon la source."
     },
     "connect": {
       "title": "Relier les points",
-      "body": "Les mêmes personnes apparaissent partout — siégeant à des comités, faisant du lobbying, remportant des contrats, comparaissant devant les tribunaux. MapleSpike les relie pour vous donner une vue d'ensemble. Nos détecteurs de signaux identifient automatiquement les portes tournantes, les chevauchements de lobbying et les connexions inter-juridictionnelles."
+      "body": "Lorsque les dossiers le permettent, MapleSpike peut relier des personnes et des organisations dans les données sur les comités, le lobbying, les contrats et les tribunaux. Les liens et signaux dépendent des dossiers disponibles et peuvent nécessiter une vérification indépendante."
     },
     "canadian": {
       "title": "Conçu pour les Canadiens, hébergé au Canada",
-      "body": "Chaque information provient de sources publiques officielles — le Parlement, le Registre des lobbyistes, la Gazette du Canada, les données judiciaires ouvertes, les organismes de surveillance. Tout est vérifié et citable. Sans parti pris, sans opinion, seulement les faits qui sont déjà publics, organisés pour que vous puissiez réellement les utiliser."
+      "body": "Les informations proviennent de sources comme le Parlement, le Registre des lobbyistes, la Gazette du Canada, les données judiciaires ouvertes et les organismes de surveillance. La couverture, la vérification et les conditions varient selon la source. Consultez les sources originales."
     }
   },
   "aiIntegration": {
     "header": "Utilisez-le avec ChatGPT, Claude, Gemini, Grok — ou votre propre code",
-    "subtitle": "MapleSpike se connecte aux outils d'IA que vous utilisez déjà via la norme MCP. Ajoutez-le une fois, posez des questions sur le gouvernement canadien en français.",
+    "subtitle": "Connectez des outils d'IA compatibles via MCP et posez des questions sur les dossiers pris en charge du secteur public. La couverture et les preuves retournées varient selon la source.",
     "chatgpt": {
       "title": "ChatGPT",
-      "body": "Connectez-vous via MCP dans l'application de bureau ChatGPT. Posez des questions sur le gouvernement canadien en français et obtenez des réponses sourcées."
+      "body": "Connectez-vous via MCP dans un client ChatGPT compatible. Posez des questions sur les dossiers pris en charge et vérifiez les références auprès des publications originales."
     },
     "claude": {
       "title": "Claude",
-      "body": "Support MCP natif dans Claude Desktop et Claude Code. Demandez « qu'est-ce que le comité d'éthique a discuté ? » et obtenez un briefing complet avec citations."
+      "body": "Connectez-vous via MCP dans Claude Desktop ou Claude Code. Posez des questions sur les dossiers pris en charge et vérifiez les citations auprès des sources originales."
     },
     "gemini": {
       "title": "Gemini",
-      "body": "Utilisez MapleSpike comme outil MCP dans Google AI Studio ou l'API Gemini. Croisez les témoignages de comités avec les données de lobbying en une seule requête."
+      "body": "Utilisez MapleSpike comme outil MCP dans les clients Gemini compatibles. Croisez les dossiers pris en charge lorsque les données disponibles le permettent."
     },
     "grok": {
       "title": "Grok",
-      "body": "Connectez-vous via l'API d'appel de fonctions de xAI. Demandez à Grok de vérifier les données du gouvernement canadien et obtenez des réponses avec citations des sources."
+      "body": "Connectez-vous via l'API d'appel de fonctions de xAI. Posez des questions sur les dossiers pris en charge et vérifiez les références auprès des publications originales."
     },
     "cursor": {
       "title": "Cursor et Windsurf",
@@ -148,14 +148,14 @@
   },
   "apiRef": {
     "header": "Pour les développeurs et les passionnés de données",
-    "subtitle": "Accès complet à l'API avec citations vérifiées sur chaque réponse. Chaque donnée inclut une source que vous pouvez vérifier.",
+    "subtitle": "Accès à l'API avec des métadonnées de citation et d'intégrité lorsqu'elles sont fournies par le point de terminaison. Les champs et leur disponibilité varient; vérifiez la source et les conditions de l'éditeur.",
     "endpoints": {
       "health": "Le système fonctionne-t-il ?",
       "releases": "Dernières données gouvernementales",
-      "search": "Rechercher dans toutes les sources gouvernementales",
+      "search": "Rechercher dans les sources gouvernementales prises en charge",
       "citation": "Vérifier un point de données spécifique",
       "usage": "Consulter votre utilisation et votre quota",
-      "audit": "Piste d'audit complète (Pro+)"
+      "audit": "Options de piste d'audit (Pro+)"
     }
   },
   "pricing": {
@@ -175,7 +175,7 @@
         "1 000 appels API/mois",
         "Accès REST et MCP",
         "Support communautaire",
-        "Attribution requise",
+        "Vérifiez les conditions d'attribution auprès de l'éditeur",
         "Limité à 10 req/s"
       ],
       "cta": "Commencer"
@@ -190,7 +190,7 @@
         "50 000 appels API/mois",
         "Limites de débit prioritaires (100 req/s)",
         "Analyse des biais et scores de confiance",
-        "Hachages de citation SHA-256",
+        "Hachages d'intégrité SHA-256 lorsqu'ils sont fournis",
         "Support par courriel (SLA de 48 h)"
       ],
       "cta": "S'abonner →"
@@ -203,7 +203,7 @@
       "features": [
         "250 000 appels API/mois",
         "Limites de débit personnalisées (500 req/s)",
-        "Exportation du journal d'audit et chaîne de provenance",
+        "Exportation du journal d'audit et métadonnées de provenance disponibles",
         "Définitions d'outils MCP personnalisées",
         "SLA avec support 24 h"
       ],
@@ -211,12 +211,12 @@
     },
     "enterprise": {
       "header": "Besoin de plus ?",
-      "body": "Niveau Entreprise pour les agences gouvernementales et les grandes organisations. Option d'auto-hébergement, appels illimités, serveur MCP dédié, package d'audit et de provenance complet avec SLA.",
+      "body": "Options Entreprise pour les agences gouvernementales et les grandes organisations. Renseignez-vous sur l'auto-hébergement, les limites d'utilisation, le service MCP dédié, les exportations d'audit et les champs de provenance disponibles.",
       "cta": "Contacter les ventes"
     }
   },
   "footer": {
-    "description": "MapleSpike rend les données publiques canadiennes utiles — pour les journalistes, les chercheurs et tous ceux qui veulent savoir ce que leur gouvernement fait. Toutes les données proviennent de portails gouvernementaux officiels sous la Licence du gouvernement ouvert – Canada.",
+    "description": "MapleSpike rend les données du secteur public canadien utiles — pour les journalistes, les chercheurs et tous ceux qui veulent savoir ce que fait leur gouvernement. Les conditions varient selon la source et le jeu de données; consultez les conditions de l'éditeur d'origine.",
     "product": "Produit",
     "productLinks": [
       "Ce qu'elle fait",
@@ -235,20 +235,20 @@
     "legalLinks": [
       "Conditions d'utilisation",
       "Politique de confidentialité",
-      "Attribution OGL-C"
+      "Attribution de la source"
     ],
     "github": "Open Source sur GitHub",
     "sources": {
-      "header": "Données provenant de sources gouvernementales canadiennes officielles"
+      "header": "Données provenant de sources gouvernementales et du secteur public canadien"
     }
   },
   "dashboard": {
     "title": "MapleSpike — Tableau de bord civique",
-    "metaDesc": "Voyez ce qui se passe au sein du gouvernement canadien en ce moment. Suivez le Parlement, le lobbying, les règlements et les décisions judiciaires — tout en un seul endroit.",
+    "metaDesc": "Explorez des dossiers sélectionnés provenant de sources prises en charge du secteur public canadien. La couverture et la fréquence des mises à jour varient.",
     "header": "Pouls civique",
-    "headerMeta": "En direct des sources gouvernementales officielles · Mis à jour toutes les 6 heures",
-    "searchTitle": "Que se passe-t-il au gouvernement canadien aujourd’hui ?",
-    "searchDesc": "Recherchez dans le Parlement, le lobbying, les règlements, les décisions judiciaires et plus encore.",
+    "headerMeta": "De sources du secteur public configurées · La couverture et la fréquence des mises à jour varient",
+    "searchTitle": "Explorez les dossiers du secteur public canadien",
+    "searchDesc": "Recherchez les dossiers pris en charge sur le Parlement, le lobbying, les règlements, les tribunaux et d'autres sources.",
     "searchPlaceholder": "Rechercher des comités, des personnes, des entreprises, des sujets…",
     "searchHint": "⏎ entrée",
     "suggestions": {
@@ -261,12 +261,12 @@
     },
     "sinceLastChecked": {
       "title": "Depuis votre dernière visite",
-      "desc": "Nouvelle activité dans les comités, le lobbying et les règlements.",
+      "desc": "Nouveaux dossiers disponibles dans les sources prises en charge sur les comités, le lobbying et les règlements.",
       "cta": "Voir les changements →"
     },
     "inCameraSpotlight": {
-      "title": "La détection de réunions à huis clos est active",
-      "desc": "MapleSpike détecte automatiquement lorsque les comités parlementaires siègent à huis clos. Nous suivons les 54 comités des deux chambres — si une réunion est marquée à huis clos, vous saurez ce qui a été discuté et qui était présent.",
+      "title": "Désignations de huis clos dans les sources",
+      "desc": "MapleSpike peut afficher une désignation de huis clos lorsqu'elle figure dans un dossier source. La couverture varie et cela ne révèle pas les discussions non publiques.",
       "cta": "Voir les alertes récentes →"
     },
     "sections": {
@@ -296,7 +296,7 @@
   },
   "docs": {
     "title": "MapleSpike — Documentation",
-    "metaDesc": "Documentation de l’API MapleSpike. Démarrage rapide, configuration MCP, référence API, tarification et FAQ.",
+    "metaDesc": "Documentation de l’API MapleSpike, notamment le démarrage rapide, la configuration MCP, la référence API, la tarification et la FAQ.",
     "header": "Documentation",
     "sections": {
       "quickstart": "Démarrage rapide",

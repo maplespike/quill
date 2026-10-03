@@ -11,6 +11,7 @@ import { writeFileSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import { buildTimestamp } from './lib/build-timestamp.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -44,11 +45,11 @@ const manifest = {
   // #752: counts drifted ("64+ modules, 30+ MCP tools" — the repo renamed and
   // grew). Counts now come from docs/metrics.json at generation time (2026-09-17)
   // so they cannot drift again.
-  description: `Canadian government data API — ${metrics.modules.registryCount} data modules, ${metrics.mcpTools.count} MCP tools, SHA-256 verified citations`,
+  description: `Canadian public-sector data API — ${metrics.modules.registryCount} data modules, ${metrics.mcpTools.count} MCP tools. Record hashes support integrity checks; source terms vary by publisher and dataset.`,
   url: 'https://maplespike.ca',
   moduleCount: agents.length,
   actionCount: agents.reduce((sum, a) => sum + a.actions.length, 0),
-  updatedAt: new Date().toISOString(),
+  updatedAt: buildTimestamp(),
   tools,
 };
 

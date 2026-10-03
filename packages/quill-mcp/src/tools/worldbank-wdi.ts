@@ -63,7 +63,7 @@ export const compareWDICountriesDefinition: ToolDefinition = {
 
 export const getCountryWDIProfileDefinition: ToolDefinition = {
   name: 'get_country_wdi_profile',
-  description: 'Get comprehensive country profile with key development indicators',
+  description: 'Get a country profile with the key development indicators the World Bank WDI publishes for that country',
   inputSchema: {
     type: 'object',
     properties: {
@@ -105,7 +105,7 @@ export const analyzeIndicatorTrendDefinition: ToolDefinition = {
 
 export const fetchTopicIndicatorsDefinition: ToolDefinition = {
   name: 'fetch_topic_indicators',
-  description: 'Fetch all indicators for a specific topic (economy, health, social, etc.)',
+  description: 'Fetch the World Bank WDI indicators published under a topic (economy, health, social, etc.)',
   inputSchema: {
     type: 'object',
     properties: {

@@ -358,7 +358,8 @@
   "totalCount": 1,
   "citation": {
     "hash": "<span class="string">sha256-abc123...</span>",
-    "license": "<span class="string">OGL-C</span>",
+    "license": "<span class="string">The publisher license was not declared in the metadata returned to Quill. Consult the publisher's terms.</span>",
+    "license_basis": "<span class="string">no-publisher-declaration</span>",
     "verified": <span class="keyword">true</span>
   }
 }`;
@@ -558,8 +559,8 @@
     'mcp': 'Model Context Protocol — an open standard that lets AI tools (ChatGPT, Claude, Gemini) connect to external data sources like MapleSpike through a common interface.',
     'pipeline': 'An automated data processing module that ingests, parses, and verifies records from a specific government source (e.g., the committees pipeline, lobbying pipeline).',
     'sweep': 'A scheduled run of the ingestion engine that collects new data from all sources, runs entity resolution, detects signals, and generates briefs.',
-    'provenance': 'The verifiable chain of custody for a piece of data — from the original government source through ingestion, parsing, and citation hashing. Allows independent verification of any claim.',
-    'citation': 'A SHA-256 content hash that uniquely identifies a specific record. Anyone can recompute the hash to verify the data hasn\'t been tampered with.',
+    'provenance': 'Available evidence about a record, captured source responses, declared transformations, and observed publisher terms. Coverage varies; URL matches do not prove record lineage.',
+    'citation': 'A SHA-256 hash of Quill canonical record JSON. Recomputing it checks record integrity, not source authenticity, completeness, or reuse rights.',
     'cron-job': 'A scheduled task that runs automatically on the K3s cluster — e.g., daily committee ingestion runs at 6:00 AM UTC.',
     'in-camera-alert': 'A notification generated when a parliamentary committee meeting is flagged as in-camera (closed to the public). These are high-priority signals.',
     'lobbying': 'Communications between organizations and government officials aimed at influencing policy, legislation, or contracting decisions. Tracked by the Office of the Commissioner of Lobbying.',
@@ -644,7 +645,7 @@
   );
   console.log('%c  ⡇ Canadian public data infrastructure ⡇  ', 'color:#D4A017;font-size:10px;');
   console.log('%c  ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⡇  ', 'color:#C23030;font-size:10px;');
-  console.log('%c  Open source · Self-hosted · AGPL-3.0', 'color:#0891B2;font-size:11px;');
+  console.log('%c  Package license declarations under review', 'color:#0891B2;font-size:11px;');
   console.log('%c  https://github.com/reverb256/quill', 'color:#6B7280;font-size:11px;');
 
   // ── SDK Tabstrip: multi-language code tabs ──────────────────

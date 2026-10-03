@@ -8,7 +8,8 @@
  *   - TRC Calls to Action (progress on each of 94 calls)
  *   - Self-government agreements (active negotiations)
  *
- * All sources are public-domain / open government data.
+ * Source terms, privacy controls, and Indigenous data governance are
+ * dataset-specific. Public availability does not establish reuse permission.
  */
 
 /* ------------------------------------------------------------------ */

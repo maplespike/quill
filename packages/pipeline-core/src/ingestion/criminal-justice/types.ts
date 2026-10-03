@@ -9,8 +9,8 @@
  *   - Youth criminal justice (diversion, custody, recidivism)
  *   - Legal aid funding (per-province, per-case costs)
  *
- * All sources are public-domain / open government data from
- * open.canada.ca CKAN, StatCan, and departmental portals.
+ * Sources include open.canada.ca CKAN, Statistics Canada, and departmental
+ * portals. Terms and restrictions must be checked for each dataset.
  */
 
 /* ------------------------------------------------------------------ */

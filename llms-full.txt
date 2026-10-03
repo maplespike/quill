@@ -1,19 +1,20 @@
 # Quill (MapleSpike) — Full Documentation Archive
 
 > Version: 1.0.0
-> License: AGPL-3.0 (pipeline-core) / MIT (packages). Government data under OGL-C.
+> Licensing status: package/file declarations conflict; government data terms are source-specific. See `docs/open-source-audit.md` and `LICENSE.md`.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
-> Source: https://github.com/reverb256/quill
+> Source: https://github.com/maplespike/quill
 
 ## Summary
 
 Quill is Canada's sovereign, AI-native government data pipeline — a single
 unified layer for government data, corporate influence tracking, committee
 surveillance, regulatory intelligence, and policy actor tracking. It ingests,
-verifies, and surfaces 208 data modules of Canadian public-domain government
-data across every sector, with SHA-256 citation hashes, source provenance, and
-audit trails for independent verification.
+verifies, and surfaces 208 data modules from Canadian public-sector sources
+across every sector, with SHA-256 citation hashes, source provenance, and
+audit trails for independent verification. Source-data terms vary by publisher
+and dataset; public availability does not itself grant reuse rights.
 
 The product name is Quill: a data-layer MCP server that reads Canada so AI
 agents don't have to lie about it. Built with zero external cloud spend,
@@ -29,7 +30,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (175 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (184 tools)
 ```
 
 ## Packages
@@ -38,7 +39,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
 - `engine` — Entity resolution, graph building, signals, briefs
 - `portal` — Developer portal & landing page (Astro + React + Tailwind)
 - `api-server` — REST API gateway (auth, rate limits, usage)
-- `quill-mcp` — Quill — data-layer MCP server (175 tools)
+- `quill-mcp` — Quill — data-layer MCP server (184 tools)
 - `sdk` — TypeScript client library (@maplespike/sdk)
 - `sdk-python` — Python client library (quill-sdk on PyPI)
 - `legal-core` — Legal data SDK
@@ -61,7 +62,7 @@ cd packages/quill-mcp
 pnpm start
 ```
 
-All 175 MCP tools return real data — committees, corporate, influence, and
+All 184 MCP tools return real data — committees, corporate, influence, and
 government data are all searchable via the SQLite database. No external
 database configuration required for MCP tools.
 
@@ -169,17 +170,13 @@ Cross-reference signals (requires engine)
 ## MCP Server
 
 - Endpoint: https://mcp.maplespike.ca/sse (auth-gated)
-- 175 tools (incl. x402-deposit), all returning real DB results
+- 184 tools (incl. x402-deposit), all returning real DB results
 - Every record includes SHA-256 citation hashes, source provenance, audit trails
 
 ## License
 
-- Core library (packages/pipeline-core): AGPL-3.0
-- MCP server (packages/quill-mcp): MIT
-- Engine (packages/engine): MIT
-- Portal (packages/portal): MIT
-- Government data retains its original license (primarily Open Government
-  Licence – Canada)
+- Repository, package, file, and dependency license declarations conflict; see `LICENSE.md` and `docs/open-source-audit.md`.
+- Quill does not grant independent reuse rights in source data. Terms are publisher- and dataset-specific; consult original sources. See `docs/licensing-audit.md`.
 
 Copyright © MapleSpike / reverb256. The @maplespike/* npm scope is the
 organizational scope; the product name is Quill.

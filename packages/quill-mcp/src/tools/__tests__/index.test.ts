@@ -12,6 +12,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { getAllTools, getToolNames } from '../index.js';
+import { handler as verifyClaimHandler } from '../verify-claim.js';
+import { handler as getCitationHandler, registerCitation } from '../get-citation.js';
+import { citationStore } from '@maplespike/pipeline-core';
 import type { ToolModule } from '../index.js';
 
 describe('getAllTools', () => {
@@ -122,6 +125,31 @@ describe('ToolModule interface shape', () => {
         /^[a-z][a-z0-9_-]*$/.test(name),
         `Tool name '${name}' does not match expected pattern`,
       );
+    }
+  });
+});
+
+describe('claim verification and citation tools', () => {
+  it('labels hash checks as record-integrity checks, not source authentication', async () => {
+    citationStore.clear();
+    const hash = await registerCitation('test source', 'canonical value');
+    try {
+      const result = await verifyClaimHandler({ sha256: hash });
+      const content = result.content as Record<string, unknown>;
+      assert.equal(content.verified, true);
+      assert.equal(content.retrievedAt, null);
+      assert.match(String(content.message), /does not authenticate/i);
+      assert.ok(content.provenanceEvidence);
+
+      const citation = await getCitationHandler({ hash });
+      const citationContent = citation.content as Record<string, unknown>;
+      const detail = citationContent.citation as Record<string, unknown>;
+      assert.equal(detail.source_retrieved_at, null);
+      assert.ok(detail.claim_created_at);
+      assert.ok(detail.provenance_evidence);
+      assert.match(String(citationContent.message), /does not authenticate/i);
+    } finally {
+      citationStore.clear();
     }
   });
 });

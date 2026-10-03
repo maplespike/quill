@@ -1,14 +1,14 @@
 /**
  * Corporate Data Types — MapleSpike Pipeline
  *
- * Types for Canadian corporate/business public-domain data:
+ * Types for Canadian corporate/business source data:
  *   - Federal lobbying registry (who's lobbying who)
  *   - Government procurement (CanadaBuys contract awards)
  *   - Corporate registry (who owns/controls what)
  *   - Executive statements (public filings, testimony, earnings calls)
  *   - Insider transactions (SEDI — executive stock trades)
  *
- * All sources are public-domain / open government data.
+ * Source terms vary by registry, publisher, dataset, and API. Public access does not establish reuse permission.
  */
 
 /* ------------------------------------------------------------------ */

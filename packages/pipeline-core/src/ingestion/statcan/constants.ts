@@ -4,7 +4,8 @@
  * Product IDs, URL patterns, dimension maps, DDL statements, and
  * helper functions for the Statistics Canada Web Data Service.
  *
- * Data License: Statistics Canada Open Licence — free for all uses.
+ * Source terms: Statistics Canada publishes an Open Licence. Verify its
+ * scope, dataset coverage, attribution, and exclusions for each use.
  */
 
 import type { StatCanIndicatorType } from './types.js';

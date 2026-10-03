@@ -5,15 +5,17 @@ import { searchCollection, getCollectionInfo } from '../ai/qdrant.js';
 /**
  * AI Semantic Search Tool
  *
- * Semantic search across all ingested pipeline data using vector embeddings.
+ * Semantic search over the documents currently indexed in the vector store.
  * Finds conceptually related documents even when keywords don't match.
  */
 
 export const definition: ToolDefinition = {
   name: 'ai_search_semantic',
   description:
-    'Semantic search across all ingested pipeline data using vector embeddings. ' +
+    'Semantic search over the documents currently indexed in the vector store, using embeddings. ' +
     'Finds conceptually related documents even when keywords do not match. ' +
+    'Results are limited to what has been embedded and indexed — a module that has not been ' +
+    'embedded, or indexed after your query, will not be represented. ' +
     'Uses the AI Inference Gateway for embedding and Qdrant vector DB for similarity search.',
   inputSchema: {
     type: 'object',

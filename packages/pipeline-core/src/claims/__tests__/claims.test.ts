@@ -44,8 +44,12 @@ describe('claims: buildClaimBundle', () => {
     assert.equal(bundle.sha256.length, 64);
     assert.match(bundle.sha256, /^[a-f0-9]{64}$/);
     assert.equal(bundle.license, DEFAULT_CLAIM_LICENSE);
-    assert.ok(bundle.retrievedAt);
+    assert.equal(bundle.retrievedAt, undefined, 'claim creation time is not source retrieval time');
     assert.deepEqual(bundle.transformations, []);
+    assert.equal(bundle.provenanceEvidence.record_integrity.scope, 'canonical-json-record');
+    assert.equal(bundle.provenanceEvidence.acquisition.status, 'not-captured');
+    assert.equal(bundle.retrievedAt, undefined);
+    assert.equal(bundle.provenanceEvidence.publisher_terms.status, 'not-observed');
 
     // Same value → same hash (determinism)
     const again = await buildClaimBundle({
@@ -68,6 +72,8 @@ describe('claims: buildClaimBundle', () => {
     });
     assert.equal(bundle.license, 'CC0');
     assert.deepEqual(bundle.transformations, ['normalize']);
+    assert.equal(bundle.provenanceEvidence.publisher_terms.status, 'not-observed');
+    assert.deepEqual(bundle.provenanceEvidence.transformations.steps, ['normalize']);
   });
 });
 
@@ -141,6 +147,53 @@ describe('claims: CitationStore', () => {
 });
 
 describe('claims: ingest hook (WS-1b)', () => {
+  it('carries publisher-provided license metadata into a claim bundle', async () => {
+    citationStore.clear();
+    await registerModuleClaims('license-hook-test', [{
+      id: 'dataset-1',
+      title: 'Licensed dataset',
+      url: 'https://publisher.example/dataset',
+      license_title: 'CC BY 4.0',
+      license_url: 'https://creativecommons.org/licenses/by/4.0/',
+    }]);
+    const stored = citationStore.get(citationStore.keys()[0]);
+    assert.ok(stored);
+    assert.equal(stored.bundle.license, 'Publisher-declared: CC BY 4.0');
+    assert.equal(stored.bundle.licenseUrl, 'https://creativecommons.org/licenses/by/4.0/');
+    assert.equal(stored.bundle.licenseBasis, 'publisher-metadata');
+    assert.equal(stored.bundle.provenanceEvidence.publisher_terms.status, 'publisher-metadata-observed');
+    assert.equal(stored.bundle.provenanceEvidence.publisher_terms.label, 'CC BY 4.0');
+    assert.match(stored.bundle.attributionText ?? '', /publisher's attribution and exclusions/);
+    citationStore.clear();
+  });
+
+  it('carries configured attribution from attributed result wrappers without promoting it to publisher metadata', async () => {
+    citationStore.clear();
+    const count = await registerModuleResultClaims('attributed-result-test', {
+      data: {
+        records: [{ id: 'record-1', title: 'Configured terms example', url: 'https://record.example' }],
+      },
+      attribution: {
+        source: 'Statistics Canada',
+        sourceUrl: 'https://www.statcan.gc.ca/',
+        license: 'Statistics Canada Open Licence (source configuration; dataset coverage not verified)',
+        licenseUrl: 'https://www.statcan.gc.ca/en/terms-conditions/open-licence',
+        licenseBasis: 'source-configuration',
+        attributionText: 'Verify terms for the specific dataset.',
+        retrievedAt: new Date(),
+      },
+    });
+    assert.equal(count, 1);
+    const stored = citationStore.get(citationStore.keys()[0]);
+    assert.ok(stored);
+    assert.equal(stored.bundle.licenseBasis, 'source-configuration');
+    assert.equal(stored.bundle.provenanceEvidence.publisher_terms.status, 'source-configuration-only');
+    assert.equal(stored.bundle.provenanceEvidence.publisher_terms.label, null);
+    assert.equal(stored.bundle.licenseUrl, 'https://www.statcan.gc.ca/en/terms-conditions/open-licence');
+    assert.equal(stored.bundle.attributionText, 'Verify terms for the specific dataset.');
+    citationStore.clear();
+  });
+
   it('prefers a real per-record url over the module source label', async () => {
     citationStore.clear();
     const count = await registerModuleClaims(

@@ -9,8 +9,7 @@ import type { AbsFactRecord, AbsIngestionResult } from './types.js';
 function makeAttribution() {
   return buildAttribution('Australian Bureau of Statistics', {
     sourceUrl: 'https://www.abs.gov.au/',
-    license: 'CC BY 4.0 (Australian Government)',
-    attributionText: 'Data sourced from the Australian Bureau of Statistics (CC BY 4.0)',
+    attributionText: "No publisher license declaration is attached to this source configuration. Consult ABS terms and notices for the specific dataset and material.",
   });
 }
 
