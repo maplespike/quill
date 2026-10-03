@@ -11,6 +11,7 @@ image:
 api:
   replicas: 2  # #816: >=2 so the tunnel origin stays healthy across rollouts
   port: 8084
+  metricsPort: 9464
   resources:
     requests:
       cpu: 100m
@@ -31,6 +32,7 @@ api:
 mcp:
   replicas: 1
   port: 3001
+  metricsPort: 9465
   resources:
     requests:
       cpu: 100m

@@ -214,6 +214,21 @@ export function getLatestIngestRuns(): IngestRunRecord[] {
   );
 }
 
+/** Latest successful run for each pipeline with a successful run, newest first. */
+export function getLatestSuccessfulIngestRuns(): IngestRunRecord[] {
+  return readRows(
+    `SELECT r.* FROM ingest_runs r
+       JOIN (
+         SELECT pipeline, MAX(started_at) AS started_at
+         FROM ingest_runs
+         WHERE status = 'success'
+         GROUP BY pipeline
+       ) latest
+         ON r.pipeline = latest.pipeline AND r.started_at = latest.started_at
+     ORDER BY r.started_at DESC`,
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  Schedule → staleness bound                                         */
 /* ------------------------------------------------------------------ */

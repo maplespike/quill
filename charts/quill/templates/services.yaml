@@ -11,9 +11,27 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: {{ .Values.api.port }}
-    targetPort: {{ .Values.api.port }}
+  - name: http
+    port: {{ .Values.api.port }}
+    targetPort: http
     nodePort: 31283
+  selector:
+    app: quill-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quill.fullname" . }}-api-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-api
+    component: metrics
+spec:
+  type: ClusterIP
+  ports:
+  - name: metrics
+    port: {{ .Values.api.metricsPort }}
+    targetPort: metrics
   selector:
     app: quill-api
 ---
@@ -27,8 +45,26 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: {{ .Values.mcp.port }}
-    targetPort: {{ .Values.mcp.port }}
+  - name: http
+    port: {{ .Values.mcp.port }}
+    targetPort: http
     nodePort: 31745
+  selector:
+    app: quill-mcp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quill.fullname" . }}-mcp-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-mcp
+    component: metrics
+spec:
+  type: ClusterIP
+  ports:
+  - name: metrics
+    port: {{ .Values.mcp.metricsPort }}
+    targetPort: metrics
   selector:
     app: quill-mcp

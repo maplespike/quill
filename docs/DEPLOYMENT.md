@@ -210,6 +210,38 @@ curl http://localhost:3001/health
 curl http://localhost:8080/
 ```
 
+### Production metrics and logs (k3s)
+
+The chart runs API metrics on `9464` and hosted MCP metrics on `9465`. Each
+service has a dedicated ClusterIP Service. The public API and MCP listeners
+return 404 for `/metrics`. NetworkPolicy allows scrape ingress only from the
+`monitoring` namespace. Do not add a public ingress or NodePort for these ports.
+
+The media-k8s `monitoring-rules` ArgoCD app manages the VMServiceScrape,
+public HTTP probes, Quill alerts, and Grafana dashboard. The dashboard is
+named **Quill Services**. It shows API request rate/latency/5xx, MCP tool
+outcomes/latency, public probes, failed ingestion jobs, and last-success age.
+Deployment requires the normal GitOps review and a separate operator sync.
+
+VictoriaLogs retains Kubernetes container logs for 7 days and caps storage at
+8 GiB. `vlagent` collects container logs from Kubernetes pods; it does not
+collect host journald. Use kubectl or the host journal for logs that only exist
+in journald. Do not put credentials, request bodies, customer IDs, or raw
+secrets into log fields.
+
+Example LogsQL queries in the Grafana VictoriaLogs Explore view:
+
+```text
+_time:5m error service:quill-api
+_time:5m error service:quill-mcp
+_time:1h service:quill-api | sort by (_time) desc | limit 20
+kubernetes.pod_namespace:maplespike service:quill-mcp
+```
+
+Filter by `kubernetes.pod_name` to narrow a result to one pod. The Pino
+services emit structured JSON; VictoriaLogs can search the message and parsed
+fields. Avoid logging API keys, bearer tokens, query payloads, or tenant data.
+
 ## Production Considerations
 
 When moving to production:
@@ -227,10 +259,10 @@ When moving to production:
    - Set up load balancing
 
 3. **Monitoring**
-   - Implement health checks
-   - Set up logging aggregation
-   - Configure alerts (planned Phase 6)
-   - Monitor resource usage
+   - Use the existing VictoriaMetrics, VictoriaLogs, and Grafana stack
+   - Keep `/metrics` private on the dedicated metrics ports
+   - Use Quill Services dashboard and Quill service-health alerts
+   - Monitor resource usage and review the documented journald collection gap
 
 4. **Backup**
    - Regular database backups

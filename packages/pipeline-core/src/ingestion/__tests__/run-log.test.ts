@@ -14,6 +14,7 @@ import {
   recordIngestRun,
   getIngestRuns,
   getLatestIngestRuns,
+  getLatestSuccessfulIngestRuns,
   cronPeriodSeconds,
   maxAgeSecondsFor,
   DEFAULT_MAX_AGE_SECONDS,
@@ -92,6 +93,28 @@ describe('ingest run log', () => {
     const history = getIngestRuns(50).filter(r => r.pipeline === 'gazette');
     assert.equal(history.length, 2);
     assert.ok(history[0].started_at > history[1].started_at, 'newest first');
+  });
+
+  it('keeps the latest successful run available after a newer failure', () => {
+    recordIngestRun({
+      pipeline: 'freshness-ledger',
+      startedAt: new Date('2026-09-22T05:00:00.000Z'),
+      finishedAt: new Date('2026-09-22T05:01:00.000Z'),
+      status: 'success',
+      records: 12,
+    });
+    recordIngestRun({
+      pipeline: 'freshness-ledger',
+      startedAt: new Date('2026-09-22T06:00:00.000Z'),
+      finishedAt: new Date('2026-09-22T06:00:05.000Z'),
+      status: 'failed',
+      error: 'upstream unavailable',
+    });
+
+    const latest = getLatestIngestRuns().find(r => r.pipeline === 'freshness-ledger');
+    const lastSuccess = getLatestSuccessfulIngestRuns().find(r => r.pipeline === 'freshness-ledger');
+    assert.equal(latest?.status, 'failed');
+    assert.equal(lastSuccess?.finished_at, new Date('2026-09-22T05:01:00.000Z').toISOString());
   });
 
   it('records a failed run with its error so the alert can explain itself', () => {

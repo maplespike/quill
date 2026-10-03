@@ -52,6 +52,7 @@ api:
   # volume). Move to postgres + replicas 2 when write volume warrants it.
   replicas: 1
   port: 8082
+  metricsPort: 9464
   resources:
     requests:
       cpu: 100m
@@ -103,6 +104,7 @@ api:
 mcp:
   replicas: 1
   port: 3001
+  metricsPort: 9465
   # Images are imported per node (nexus containerd store). Without this pin a
   # rescheduled pod lands on a node with no store and dies with
   # ErrImageNeverPull — the failure the digest pin cannot fix by itself.
