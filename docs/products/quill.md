@@ -2,7 +2,7 @@
 
 > **Quill is the trustworthy, sovereign, composable memory layer for Canadian public data** — the layer other tools, agents, journalists, researchers, and sovereign stacks can rely on without re-implementing ingestion, provenance, or cross-referencing.
 
-Quill ingests, verifies, and surfaces Canadian public-domain data (federal, provincial, territorial, municipal) across 200+ modules. Every record and every high-signal tool response can carry a **verifiable claim bundle** — a SHA-256 hash over a canonical JSON serialization, plus source attribution, retrieval time, and license — so anyone can reproduce the hash locally with `echo -n '<canonical json>' | sha256sum`.
+Quill ingests, verifies, and surfaces data from Canadian federal, provincial, territorial, municipal, and other public-sector sources across 200+ modules. Source terms vary by publisher and dataset; public availability does not itself grant reuse rights. Every record and every high-signal tool response can carry a **verifiable claim bundle** — a SHA-256 hash over a canonical JSON serialization, plus source attribution, retrieval time, and license — so anyone can reproduce the hash locally with `echo -n '<canonical json>' | sha256sum`.
 
 Live at [quill.maplespike.ca](https://quill.maplespike.ca/).
 
@@ -75,6 +75,6 @@ npm i @maplespike/sdk
 
 See [`docs/building-on-quill.md`](../building-on-quill.md) for the full builder guide: schemas, entity IDs, claim verification recipe, composition patterns, rate-limit etiquette, and licensing.
 
-## License
+## Licensing status
 
-AGPL-3.0 (pipeline-core) / MIT (other packages). Data from Government of Canada sources is under the Open Government Licence – Canada (OGL-CA) unless noted. See [`data-source-licenses.json`](../../data-source-licenses.json).
+Package and source-file license declarations currently conflict, and data-source labels are heuristic rather than source-by-source legal clearance. Do not infer the license of a whole package, image, or dataset from this summary. See the [open-source audit](../open-source-audit.md), [`LICENSE.md`](../../LICENSE.md), and [`data-source-licenses.json`](../../data-source-licenses.json) for the current facts and unresolved decisions.

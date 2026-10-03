@@ -7,8 +7,7 @@ import type { FireIncident, ResponseTime, Station } from './types.js';
 
 function makeAttribution(city: string) {
   return buildAttribution(`${city} Fire Department`, {
-    license: 'Open Data License',
-    attributionText: `Source: ${city} Fire Department Data`,
+    attributionText: `No publisher license declaration is attached to this source configuration. Consult ${city} Fire Department terms for the specific dataset and material.`,
   });
 }
 

@@ -13,8 +13,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
 <BaseLayout title={i18n.t('ask.title')} description={t(
-  "Ask natural language questions about Canadian government data. AI-powered answers with verified citations.",
-  "Posez des questions en langage naturel sur les données gouvernementales canadiennes. Réponses propulsées par IA avec citations vérifiées.",
+  "Ask natural-language questions across public-sector sources. Answers may include citation and integrity metadata where available; check source terms.",
+  "Posez des questions en langage naturel parmi les sources du secteur public. Les réponses peuvent inclure des métadonnées de citation et d'intégrité lorsqu'elles sont disponibles; consultez les conditions des sources.",
 )} lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-20"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
@@ -25,8 +25,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         {t(
-          `Natural language queries across ${statsData.modules} government data modules. Every answer includes verified citations and SHA-256 source hashes.`,
-          `Requêtes en langage naturel dans ${statsData.modules} modules de données gouvernementales. Chaque réponse inclut des citations vérifiées et des hachages de source SHA-256.`,
+          `Natural language queries across ${statsData.modules} public-sector data modules. Citation and integrity metadata vary by endpoint and source; check the original publisher's terms.`,
+          `Requêtes en langage naturel dans ${statsData.modules} modules de données du secteur public. Les métadonnées de citation et d'intégrité varient selon le point de terminaison et la source; consultez les conditions de l'éditeur d'origine.`,
         )}
       </p>
     </div>

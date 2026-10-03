@@ -178,9 +178,12 @@ export interface ApiError {
 export interface CitationMeta {
   source_name: string;
   source_url: string;
-  retrieved_at: string;
+  retrieved_at: string | null;
   data_hash: string;
   license: string;
+  license_url?: string;
+  license_basis?: 'publisher-metadata' | 'source-configuration' | 'no-publisher-declaration';
+  attribution_text?: string;
   update_frequency: string;
   original_format?: string;
   citation_text?: string;
@@ -192,7 +195,7 @@ export interface QualityMeta {
   source_uptime_7d: number;
   confidence: 'high' | 'medium' | 'low';
   certainty_score: number;
-  /** ISO timestamp of when this data was last verified against the source */
+  /** Time when a verification check occurred, if measured; not source retrieval time. */
   last_verified?: string;
   /** Completeness indicator: 'complete' | 'partial' | 'estimated' */
   data_completeness?: string;

@@ -12,7 +12,11 @@ describe('opencorporates Module', () => {
     const r = await (await import('../index.js')).searchCompanies('test');
     assert.equal(r.results.length, 0);
     assert.equal(r.source, 'OpenCorporates');
-    assert.equal(r.license, 'ODbL');
+    // No publisher terms were verified for this source, so the notice says so and
+    // points at the publisher rather than asserting a blanket licence.
+    assert.match(r.license, /terms were not verified/i);
+    assert.match(r.license, /consult OpenCorporates terms/i);
+    assert.doesNotMatch(r.license, /open government licence|OGL/i);
   });
   it('getCompany handles no API key', async () => {
     const r = await (await import('../index.js')).getCompany('ca', '123');

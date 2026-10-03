@@ -10,8 +10,7 @@ function makeAttribution(chamber: 'house' | 'senate') {
   const src = PARLIAMENT_SOURCES[chamber];
   return buildAttribution(src.label, {
     sourceUrl: src.url,
-    license: 'Parliamentary Data License',
-    attributionText: `Source: ${src.label} Open Data`,
+    attributionText: `No publisher license declaration is attached to this source configuration. Consult ${src.label} terms for the specific dataset and material.`,
   });
 }
 

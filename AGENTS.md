@@ -48,7 +48,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | TS | strict mode, ES2022 target, ESNext modules (bundler resolution) |
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |
-| License | AGPL-3.0 (pipeline-core) / MIT (others) |
+| Licensing | Unresolved metadata/SPDX conflicts; see [docs/open-source-audit.md](./docs/open-source-audit.md) — do not summarize packages as one license until the rights holder resolves them |
 | Changesets baseBranch | `prod` (not `main`) |
 | Deploy | `scripts/deploy.sh` (reads `.env.deployment`); rollouts via `kubectl rollout restart` (see below) |
 

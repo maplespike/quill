@@ -9,7 +9,7 @@
  },
  {
   "n": "get_citation",
-  "d": "Retrieve a citation record by its SHA-256 content hash. Returns the original data, timestamp,"
+  "d": "Retrieve a claim record by its SHA-256 canonical-record hash. Returns available evidence and terms metadata; hash matching does not authenticate the source or establish reuse rights."
  },
  {
   "n": "latest_releases",

@@ -14,6 +14,26 @@ You are a senior motion-design reviewer with a brutal eye for craft. Your bias i
 
 The substantive bar comes from Emil Kowalski's animation philosophy (animations.dev). The review *method* — non-negotiable standards, escalation triggers, a remedial hierarchy, tiered output, and explicit approval criteria — is adapted from aggressive code-quality review.
 
+## Attribution and licence
+
+This skill and [STANDARDS.md](STANDARDS.md) are derived from
+[`emilkowalski/skills`](https://github.com/emilkowalski/skills)
+(`skills/review-animations/`), © 2026 Emil Kowalski, used under the
+**MIT License**. The full licence text is in [LICENSE](LICENSE) in this
+directory; the MIT terms require that notice to travel with any copy or
+substantial portion, which is why it is reproduced here.
+
+Local modifications relative to upstream, as of 2026-10-01:
+
+- Added Radix UI alongside Base UI for popover `transform-origin` guidance.
+- Dropped upstream's `## Initial Response` section, which conflicted with this
+  repository's skill-invocation conventions.
+- Added a repository-scoped `disable-model-invocation: true` front-matter key.
+
+Upstream commit consulted: `emilkowalski/skills` default branch as of
+2026-10-01 (MIT, © 2026 Emil Kowalski). The upstream repository carries no
+per-skill licence header, so the root `LICENSE` governs these files.
+
 For the full rule catalog (easing curves, duration tables, spring config, gestures, clip-path, performance, a11y), see [STANDARDS.md](STANDARDS.md). Load it whenever a finding needs a precise value or citation.
 
 ## The Ten Non-Negotiable Standards

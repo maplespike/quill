@@ -28,6 +28,11 @@
 #   scripts/pin-images.sh --existing --ref 2026-09-21-sha.0b0eb61bc5b0
 #   scripts/pin-images.sh --verify            # check live refs against values-prod only
 #
+# Environment:
+#   SBOM=false      skip SBOM generation (--verify only; a build always scans)
+#   SBOM_DIR=path   where SBOMs land (default: <repo>/sbom)
+#   SYFT=path       pin a specific syft binary
+#
 # After it runs: commit the printed block, and let ArgoCD sync main
 # (`kubectl -n argocd patch app quill --type merge -p '{"operation":{...}}'`
 # or the automated sync) — never `kubectl set image` by hand.
@@ -44,6 +49,15 @@ VERIFY_ONLY=false
 SRC_REF="local"
 DATE="$(date +%Y-%m-%d)"
 SERVICES="api mcp portal ingest"
+# Per-image SBOM. See scripts/generate-sbom.sh for why the repository dependency
+# inventory is not sufficient: it reads the lockfile, not the image. Scans run
+# after the build and before the containerd import, so an image is never
+# imported into the cluster store without its contents having been enumerated.
+#
+# A missing syft fails the run. There is no skip flag: that is the whole point.
+# Use SBOM=false only for --verify, which imports nothing.
+SBOM="${SBOM:-true}"
+SBOM_DIR="${SBOM_DIR:-$REPO_ROOT/sbom}"
 
 usage() { grep '^#' "${BASH_SOURCE[0]}" | sed -n '2,32p' | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
@@ -136,6 +150,24 @@ for SVC in $SERVICES; do
     # shellcheck disable=SC2086
     docker build -f ${TARGET_ARGS%% *} ${TARGET_ARGS#* } -t "$SRC" "$REPO"
     SKIP_IMPORT=false
+  fi
+
+  # Enumerate the image here: after $SRC is settled, before it is saved and
+  # imported into the containerd store. Placing it earlier than the import is
+  # the point — an image must not reach the cluster store without its contents
+  # having been enumerated. generate-sbom.sh records the image digest
+  # alongside the SBOM, so the two describe the same artifact.
+  if [[ "$SBOM" == true ]]; then
+    if [[ ! -x "$REPO_ROOT/scripts/generate-sbom.sh" ]]; then
+      echo "  ERROR: scripts/generate-sbom.sh is missing or not executable" >&2
+      exit 1
+    fi
+    echo "  sbom:    scanning"
+    "$REPO_ROOT/scripts/generate-sbom.sh" "$SRC" "$SBOM_DIR" || {
+      echo "  ERROR: SBOM generation failed for $SRC; not importing." >&2
+      echo "         Install syft, or set SBOM=false only for a --verify run." >&2
+      exit 1
+    }
   fi
 
   if [[ "$SKIP_IMPORT" == false ]]; then

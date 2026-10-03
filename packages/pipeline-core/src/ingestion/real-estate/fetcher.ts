@@ -13,6 +13,11 @@ async function searchCkan(query: string, rows = 10) {
       description: (r.notes || '').substring(0, 300),
       url: `https://open.canada.ca/data/en/dataset/${r.id}`,
       date: r.metadata_created?.substring(0, 10) || '',
+      license: r.license,
+      license_id: r.license_id,
+      license_title: r.license_title,
+      license_url: r.license_url,
+      attribution: r.attribution,
     }));
   } catch { return []; }
 }

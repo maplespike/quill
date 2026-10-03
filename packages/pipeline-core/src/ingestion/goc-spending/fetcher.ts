@@ -6,7 +6,8 @@
  *   2. Analysis aggregate CSVs from GitHub
  *   3. Raw JSON archives from goc-spending-data repo
  *
- * All data is under Open Government Licence – Canada / CC0.
+ * Publisher terms are dataset-specific. Do not infer terms from this mirror;
+ * retain the original publisher's declaration when available.
  */
 
 import { httpGet } from '../../utils/http.js';

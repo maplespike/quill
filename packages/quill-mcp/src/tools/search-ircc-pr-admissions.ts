@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'search_ircc_pr_admissions',
   description:
     'Search IRCC permanent resident admissions by province, immigration category, and year. ' +
-    'Covers economic immigrants, family class, refugees, and other PR admission categories across all provinces and territories.',
+    'Covers economic immigrants, family class, refugees, and other PR admission categories ' +
+    'for the provinces and territories IRCC reports, using the figures IRCC has published.',
   inputSchema: {
     type: 'object',
     properties: {

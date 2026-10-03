@@ -98,7 +98,7 @@ const tiers: {
       { en: "MCP server integration for AI agents", fr: "Intégration du serveur MCP pour les agents IA" },
       { en: "Priority support with 4hr response SLA", fr: "Support prioritaire avec SLA de réponse de 4 h" },
       { en: "SDK access (TypeScript + Python)", fr: "Accès aux SDK (TypeScript + Python)" },
-      { en: "SHA-256 citation verification on all records", fr: "Vérification des citations SHA-256 sur tous les enregistrements" },
+      { en: "SHA-256 record-integrity verification where hashes are supplied", fr: "Vérification d'intégrité SHA-256 lorsqu'un hachage est fourni" },
     ],
     cta: buyCta("Pro", proPlan),
     href: "/signup?plan=pro",
@@ -141,7 +141,7 @@ const allFeatures: Bi[] = [
   { en: "SDK access", fr: "Accès SDK" },
   { en: "Support", fr: "Support" },
   { en: "SLA", fr: "SLA" },
-  { en: "SHA-256 citations", fr: "Citations SHA-256" },
+  { en: "Record-integrity metadata", fr: "Métadonnées d'intégrité des enregistrements" },
 ];
 const featureValues: Record<string, Bi[]> = {
   "Data modules": [{ en: `${statsData.modules} modules`, fr: `${statsData.modules} modules` }, { en: `${statsData.modules} modules`, fr: `${statsData.modules} modules` }, { en: `${statsData.modules} + custom`, fr: `${statsData.modules} + sur mesure` }],
@@ -156,7 +156,7 @@ const featureValues: Record<string, Bi[]> = {
   "SDK access": [{ en: "No", fr: "Non" }, { en: "TS + Python", fr: "TS + Python" }, { en: "TS + Python", fr: "TS + Python" }],
   "Support": [{ en: "Community", fr: "Communauté" }, { en: "Priority 4hr", fr: "Prioritaire 4 h" }, { en: "Dedicated", fr: "Dédié" }],
   "SLA": [{ en: "No", fr: "Non" }, { en: "99.9%", fr: "99,9 %" }, { en: "99.95%", fr: "99,95 %" }],
-  "SHA-256 citations": [{ en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }],
+  "Record-integrity metadata": [{ en: "Where supplied", fr: "Si fourni" }, { en: "Where supplied", fr: "Si fourni" }, { en: "Where supplied", fr: "Si fourni" }],
 };
 ---
 
@@ -358,8 +358,8 @@ const featureValues: Record<string, Bi[]> = {
       <div class="mt-12 text-center">
         <p class="mb-4 text-sm text-muted-foreground">
           {t(
-            "All plans include OGL-C compliant data attribution and SHA-256 citation verification.",
-            "Tous les forfaits incluent l'attribution de données conforme à la LGOC et la vérification des citations SHA-256.",
+            "All plans include access to source provenance and record-integrity features where the endpoint supplies them. Publisher terms information is shown when present in source metadata; check original terms before reuse.",
+            "Tous les forfaits donnent accès aux fonctionnalités de provenance et d'intégrité des enregistrements lorsque le point de terminaison les fournit. Les informations sur les conditions de l'éditeur sont affichées lorsqu'elles figurent dans les métadonnées sources; consultez les conditions originales avant toute réutilisation.",
           )}
         </p>
         <p class="text-sm text-muted-foreground">
@@ -416,8 +416,8 @@ const featureValues: Record<string, Bi[]> = {
           <h3 class="mb-2 font-semibold">{t("How does SHA-256 citation work?", "Comment fonctionne la citation SHA-256?")}</h3>
           <p class="text-sm text-muted-foreground">
             {t(
-              "Every record includes a content hash and source provenance URL, enabling independent verification of data integrity.",
-              "Chaque enregistrement comprend un hachage du contenu et une URL de provenance de la source, permettant la vérification indépendante de l'intégrité des données.",
+              "Where provided, a content hash and source URL can support an integrity check. Their presence does not establish source authenticity or reuse rights.",
+              "Lorsqu'ils sont fournis, un hachage de contenu et une URL source peuvent permettre un contrôle d'intégrité. Leur présence n'établit ni l'authenticité de la source ni les droits de réutilisation.",
             )}
           </p>
         </div>

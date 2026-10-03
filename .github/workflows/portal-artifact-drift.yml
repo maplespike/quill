@@ -1,0 +1,141 @@
+name: Portal generated-artifact drift
+
+# The portal commits generated artifacts (src/data/*.json, public/llms*.txt,
+# public/agents.json, openapi.json). Until 2026-10-01 those generators wrote
+# `new Date()` into their output, so every re-run produced a diff even when no
+# input had changed — which made it impossible to tell a real content change
+# from a re-run. It also exposed stale portal catalogs and tool counts.
+#
+# The generators now take their timestamp from scripts/lib/build-timestamp.mjs,
+# which prefers the git HEAD commit date, so output is a function of the commit
+# rather than of the clock. scripts/check-portal-artifact-drift.mjs then compares
+# the regenerated artifacts against the committed ones, excluding that timestamp
+# field: a commit's artifacts necessarily carry the parent commit's date, so
+# comparing timestamps would flag drift on every commit.
+#
+# Scope note, stated plainly: this gate proves generated portal artifacts
+# match their checked-in sources, including the local quill-mcp runtime registry.
+# It does not probe external services or prove that a deployed server runs this
+# commit; deployment health is checked separately.
+
+on:
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'packages/portal/scripts/generate-*.mjs'
+      - 'packages/portal/scripts/lib/**'
+      - 'packages/portal/src/data/**'
+      - 'packages/portal/public/llms*.txt'
+      - 'packages/portal/public/agents.json'
+      - 'packages/portal/agents.json'
+      - 'packages/portal/**/openapi.json'
+      - 'packages/sdk/src/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'packages/quill-mcp/src/tools/**'
+      - 'packages/quill-mcp/src/tools/tool-index.json'
+      - 'packages/quill-mcp/i18n/fr-tools.json'
+      - 'docs/metrics.json'
+      - '.github/workflows/portal-artifact-drift.yml'
+  push:
+    branches: [main, prod]
+    paths:
+      - 'packages/portal/scripts/generate-*.mjs'
+      - 'packages/portal/scripts/lib/**'
+      - 'packages/portal/src/data/**'
+      - 'packages/portal/public/llms*.txt'
+      - 'packages/portal/public/agents.json'
+      - 'packages/portal/agents.json'
+      - 'packages/portal/**/openapi.json'
+      - 'packages/sdk/src/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'packages/quill-mcp/src/tools/**'
+      - 'packages/quill-mcp/src/tools/tool-index.json'
+      - 'packages/quill-mcp/i18n/fr-tools.json'
+      - 'docs/metrics.json'
+      - '.github/workflows/portal-artifact-drift.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never let two drift runs fight over the same checkout.
+concurrency:
+  group: portal-artifact-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    runs-on: [self-hosted, nixos]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: the drift checker compares the worktree against
+          # `git show HEAD:<path>`, and the generators resolve their timestamp
+          # from the HEAD commit date.
+          fetch-depth: 0
+
+      - name: Install dependencies from the committed lockfile
+        run: pnpm install --frozen-lockfile
+
+      # pnpm injects workspace dependencies into its virtual store during
+      # install, before dist/ exists. Building packages alone does not refresh
+      # those copies, so runtime imports can still fail. Reuse the shared build
+      # and repair script used by QA, then assert workspace resolution.
+      - name: Build workspace packages and repair injected copies
+        env:
+          QUILL_BUILD_WORKSPACE_ONLY: '1'
+        run: bash scripts/build-packages.sh
+
+      - name: Verify workspace package resolution
+        run: bash scripts/check-workspace-resolution.sh
+
+      - name: Regenerate portal artifacts
+        working-directory: packages/portal
+        env:
+          QUILL_GENERATOR_OFFLINE: '1'
+        run: |
+          pnpm gen:plans
+          pnpm gen:agents
+          pnpm gen:llms
+          pnpm gen:openapi
+
+      - name: Check committed artifacts against the generators
+        run: node scripts/check-portal-artifact-drift.mjs
+
+      - name: Explain a failure
+        if: failure()
+        run: |
+          # The heredoc body is indented to match the block scalar. A body at
+          # column 0 ends the `run: |` block early and the remaining lines are
+          # parsed as YAML, which makes the whole workflow file invalid — the
+          # same mistake that made deploy-prod.yml unrunnable.
+          cat >&2 <<'EOF'
+          The committed portal artifacts do not match what the generators produce.
+
+          If the tool catalog or metrics genuinely changed upstream, regenerate
+          and commit:
+
+            pnpm --filter @maplespike/portal gen:plans
+            pnpm --filter @maplespike/portal gen:agents
+            pnpm --filter @maplespike/portal gen:llms
+            pnpm --filter @maplespike/portal gen:openapi
+
+          Do not hand-edit the generated files.
+
+          A COUNT MISMATCH line means a committed file asserts a tool count that
+          differs from packages/portal/src/data/tools.json. The portal catalog
+          takes membership and descriptions from quill-mcp's built getAllTools()
+          registry; sidecar indexes are not authoritative and can contain stale entries.
+
+          Note that the build timestamp is deliberately excluded from the
+          comparison. A commit's artifacts necessarily carry the *parent*
+          commit's date, because a commit cannot know its own date before it
+          exists, so comparing timestamps would report drift on every commit that
+          touches an artifact.
+
+          If you see a MODULE_NOT_FOUND for packages/*/dist/, inspect the
+          "Build generator dependencies" step. It must succeed before any
+          artifact generator runs. Offline mode keeps plan prices at their
+          committed values and prevents CI from depending on live services.
+          EOF

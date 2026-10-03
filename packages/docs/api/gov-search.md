@@ -5,7 +5,7 @@ status: active
 
 # GET /v1/gov/search
 
-Search across all Canadian government data sources. This is the primary data query endpoint, covering Statistics Canada cubes, open.canada.ca CKAN datasets, provincial data, federal spending, and more.
+Search records from sources configured for this endpoint, including supported Statistics Canada, CKAN, provincial, and federal spending data. Coverage, fields, and availability vary by source and deployment.
 
 ## Request
 
@@ -32,7 +32,7 @@ curl "http://localhost:8082/v1/gov/search?q=procurement&jurisdiction=federal&cat
 # Search Ontario health data
 curl "http://localhost:8082/v1/gov/search?q=wait+times&jurisdiction=ontario&category=health&limit=5"
 
-# Search environmental data across all jurisdictions
+# Search for environmental records across configured jurisdictions
 curl "http://localhost:8082/v1/gov/search?q=carbon+emissions&category=environment&limit=10"
 ```
 
@@ -62,7 +62,10 @@ curl "http://localhost:8082/v1/gov/search?q=carbon+emissions&category=environmen
   "quality": { ... },
   "citation": {
     "source_name": "open.canada.ca",
-    "license": "Open Government Licence – Canada",
+    "license": "Publisher-provided metadata when supplied, or a notice to consult source terms",
+    "license_basis": "publisher-metadata or no-publisher-declaration",
+    "retrieved_at": null,
+    "provenance_evidence": null,
     ...
   }
 }
@@ -90,7 +93,7 @@ Response includes a `releases` array and `total` count.
 
 ## GET /v1/citation/:id
 
-Retrieve and verify a SHA-256 citation hash. No authentication required.
+Look up a record by its canonical SHA-256 hash. A matching Quill record hash checks that representation only; it does not authenticate the source or establish reuse rights. No authentication required.
 
 ### Example
 
@@ -98,4 +101,4 @@ Retrieve and verify a SHA-256 citation hash. No authentication required.
 curl "http://localhost:8082/v1/citation/sha256-abc123def456"
 ```
 
-Response returns the original data, timestamp, source attribution, and a shell command for independent hash verification.
+The response may include the matching record, available source metadata, and a command to reproduce the canonical-record hash. Source retrieval time and provenance evidence may be unavailable.

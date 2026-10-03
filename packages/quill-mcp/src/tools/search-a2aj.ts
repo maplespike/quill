@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'search_a2aj',
   description:
     'Search A2J (Access to Justice) legal data — court decisions, case law coverage, ' +
-    'and citation lookup across Canadian courts and tribunals. Covers 116K+ decisions.',
+    'and citation lookup across Canadian courts and tribunals. Result count is whatever the upstream ' +
+    'A2J corpus holds and changes over time; Quill queries it rather than holding its own copy.',
   inputSchema: {
     type: 'object',
     properties: {

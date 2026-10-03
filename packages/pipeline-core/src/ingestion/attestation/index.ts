@@ -10,19 +10,24 @@
  */
 
 import { computeHash } from '../../verification/hashing.js';
+import { NO_REUSE_LICENSE_NOTICE } from '../../shared/attribution.js';
+import type { LicenseMetadataBasis } from '../../shared/attribution.js';
 
 /* ------------------------------------------------------------------ */
 /*  1. UNIFIED CITATION ENVELOPE                                       */
 /* ------------------------------------------------------------------ */
 
-/** Every API response carries this to establish provenance */
+/** Citation envelope attached to records that a module chooses to attest; not every record or response carries one */
 export interface Citation {
   /** Human-readable source name (e.g. "open.canada.ca") */
   sourceName: string;
   /** Direct URL to the upstream government data */
   sourceUrl: string;
-  /** Open Government Licence or equivalent */
+  /** Publisher-declared source/dataset terms, or a precise notice that metadata did not declare a license. */
   license: string;
+  licenseUrl?: string;
+  licenseBasis?: LicenseMetadataBasis;
+  attributionText?: string;
   /** SHA-256 hash of the serialized record content */
   dataHash: string;
   /** ISO-8601 timestamp of when we retrieved the data */
@@ -46,11 +51,17 @@ export function buildCitation(params: {
   dataHash: string;
   updateFrequency?: string;
   license?: string;
+  licenseUrl?: string;
+  licenseBasis?: LicenseMetadataBasis;
+  attributionText?: string;
 }): Citation {
   return {
     sourceName: params.sourceName,
     sourceUrl: params.sourceUrl,
-    license: params.license ?? 'Open Government Licence – Canada',
+    license: params.license?.trim() || NO_REUSE_LICENSE_NOTICE,
+    licenseUrl: params.licenseUrl,
+    licenseBasis: params.licenseBasis ?? 'no-publisher-declaration',
+    attributionText: params.attributionText ?? NO_REUSE_LICENSE_NOTICE,
     dataHash: params.dataHash,
     retrievedAt: new Date().toISOString(),
     updateFrequency: params.updateFrequency ?? 'unknown',

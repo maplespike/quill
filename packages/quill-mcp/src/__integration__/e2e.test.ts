@@ -133,7 +133,11 @@ describe('e2e: get_citation', () => {
     // same canonical form — so the round-trip must recompute to verified: true.
     assert.equal(citation.verified, true);
     assert.equal(citation.source, 'test-source');
-    assert.ok(typeof citation.timestamp === 'string');
+    // This registration ran outside runModule, so no upstream response was
+    // captured. The citation must report an absent retrieval time rather than
+    // stamp the record with the moment it was read back.
+    assert.equal(citation.source_retrieved_at, null);
+    assert.equal(citation.provenance_evidence?.acquisition?.status, 'not-captured');
     assert.ok(typeof citation.data === 'string');
   });
 });

@@ -51,7 +51,7 @@ function envelope(result: ToolResponse, routed: {
   const verification = hash
     ? {
         claim_sha256: hash,
-        verify: `Call verify_claim with hash "${hash}" to reproduce this record's SHA-256 without trusting Quill.`,
+        verify: `Call verify_claim with hash "${hash}" to check whether this record hash is present in Quill's claim store. This does not authenticate the source.`,
       }
     : undefined;
 
@@ -75,8 +75,8 @@ export const definition: ToolDefinition = {
   description:
     'Execute a Canadian public data query by Quill ID. You MUST call resolve_quill_id first to obtain a valid ID ' +
     '(format: /category, /category/dataset, or quill://entity) UNLESS the user provided one directly. ' +
-    'Every result carries the routed tool name and — for cited records — a SHA-256 claim hash with a ready ' +
-    'verify_claim recipe so answers are independently checkable. Do not call this tool more than 3 times per question.',
+    'Each result reports the routed tool name and, when available, a SHA-256 claim hash with a ' +
+    'verify_claim recipe for checking the canonical record hash; this does not authenticate the source. Do not call this tool more than 3 times per question.',
   inputSchema: {
     type: 'object',
     properties: {

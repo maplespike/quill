@@ -68,7 +68,7 @@ export const FEATURE_GATES = {
   whiteLabel:        ['enterprise', 'internal'] as Tier[],
   /** On-premise deployment */
   onPremise:         ['enterprise', 'internal'] as Tier[],
-  /** Commercial license (bypass AGPL for embedding) */
+  /** Legacy product flag only; this does not grant or alter software rights. */
   commercialLicense: ['enterprise', 'internal'] as Tier[],
 
   // ── Support ──

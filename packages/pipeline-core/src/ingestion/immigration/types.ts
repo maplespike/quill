@@ -7,7 +7,7 @@
  *   - IRB refugee protection division decisions
  *   - CBSA enforcement actions
  *
- * All sources are public-domain / open government data.
+ * Source terms vary by publisher and dataset; public access does not establish reuse permission.
  */
 
 /* ------------------------------------------------------------------ */

@@ -1,0 +1,66 @@
+name: Open-source facts audit
+
+on:
+  push:
+    branches: [main, prod]
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/**/package.json'
+      - 'packages/**/LICENSE*'
+      - 'packages/**/*.ts'
+      - 'packages/**/*.tsx'
+      - 'packages/**/*.js'
+      - 'packages/**/*.mjs'
+      - 'packages/**/*.py'
+      - 'packages/**/*.rs'
+      - 'packages/**/*.sh'
+      - 'scripts/audit-open-source.mjs'
+      - 'scripts/test-audit-open-source.mjs'
+      - '.github/workflows/open-source-audit.yml'
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/**/package.json'
+      - 'packages/**/LICENSE*'
+      - 'packages/**/*.ts'
+      - 'packages/**/*.tsx'
+      - 'packages/**/*.js'
+      - 'packages/**/*.mjs'
+      - 'packages/**/*.py'
+      - 'packages/**/*.rs'
+      - 'packages/**/*.sh'
+      - 'scripts/audit-open-source.mjs'
+      - 'scripts/test-audit-open-source.mjs'
+      - '.github/workflows/open-source-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies from the committed lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Test audit behavior
+        run: pnpm test:audit:open-source
+
+      - name: Generate source-level audit report
+        run: node scripts/audit-open-source.mjs --format json --output open-source-audit.json
+
+      - name: Publish audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: quill-open-source-audit-${{ github.sha }}
+          path: open-source-audit.json
+          if-no-files-found: error
+          retention-days: 90

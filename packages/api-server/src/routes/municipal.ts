@@ -35,7 +35,7 @@ import {
   type RecordProvenance,
   type AggregateProvenance,
   normalizeFilterString,
-  OGL_CANADA_LICENSE,
+  NO_SOURCE_LICENSE_DECLARATION,
 } from './_live.js';
 import { buildBilingualError } from '../error-codes.js';
 import { globalCache } from '../cache.js';
@@ -441,7 +441,10 @@ function buildEnvelope(
         source_url: rec.url ?? r.source,
         fetched_at: recordFetchedAt,
         citation_hash,
-        license: OGL_CANADA_LICENSE,
+        license: rec.license ?? NO_SOURCE_LICENSE_DECLARATION,
+        ...(rec.licenseUrl ? { license_url: rec.licenseUrl } : {}),
+        license_basis: rec.licenseBasis ?? 'no-publisher-declaration',
+        ...(rec.attributionText ? { attribution_text: rec.attributionText } : {}),
       };
       // Extend with cache markers when applicable. Optional RecordProvenance
       // extension fields are documented in `_live.ts`.
@@ -687,12 +690,11 @@ export const municipalCoverageHandler: RouteHandler = async (request, ctx) => {
  * ========================================================================== */
 
 // ============================================================================
-// Bilingual taxonomy — Official Languages Act parity for all facet dimensions
+// Bilingual taxonomy — English/French display support for facet dimensions
 // ----------------------------------------------------------------------------
-// Federal Open Government Licence – Canada + Official Languages Act require
-// all public-facing strings to be available in English AND French. We surface
-// label_en + label_fr side-by-side on every facet object and a derived
-// `label_preferred` resolved by the ?lang= query opt (default: en).
+// We surface label_en + label_fr side-by-side on facet objects and a derived
+// `label_preferred` resolved by the ?lang= query option (default: en). This is
+// a product localization choice; it does not assert a source-data license rule.
 // ============================================================================
 
 export type Locale = 'en' | 'fr';
@@ -716,8 +718,7 @@ function labelFor(loc: Locale, en: string, fr: string): string {
   return loc === 'fr' && fr ? fr : en;
 }
 
-// Bilingual province/territory labels — federal Open Government Licence – Canada
-// requires bilingual UI for English/French parity.
+// Bilingual province/territory labels for English/French product localization.
 export const PROVINCE_LABELS: Record<string, { en: string; fr: string; iso: string; jurisdiction: string }> = {
   AB: { en: 'Alberta',                       fr: 'Alberta',                    iso: 'CA-AB', jurisdiction: 'provincial'   },
   BC: { en: 'British Columbia',              fr: 'Colombie-Britannique',       iso: 'CA-BC', jurisdiction: 'provincial'   },
@@ -1266,7 +1267,12 @@ export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
             jurisdiction_en: jurLbl.en,
             jurisdiction_fr: jurLbl.fr,
             jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
-            license: OGL_CANADA_LICENSE,
+            license: (recAny.license as string | undefined) ?? NO_SOURCE_LICENSE_DECLARATION,
+            ...(typeof recAny.licenseUrl === 'string' ? { license_url: recAny.licenseUrl } : {}),
+            license_basis: recAny.licenseBasis === 'publisher-metadata' || recAny.licenseBasis === 'source-configuration'
+              ? recAny.licenseBasis
+              : 'no-publisher-declaration',
+            ...(typeof recAny.attributionText === 'string' ? { attribution_text: recAny.attributionText } : {}),
             fetched_at: cached.succeededAt,
             citation_hash: `sha256:${citationHash}`,
             from_cache: true,
@@ -1305,7 +1311,8 @@ export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
           limit,
           cursor: cursor ?? null,
         },
-        license: OGL_CANADA_LICENSE,
+        license: NO_SOURCE_LICENSE_DECLARATION,
+        license_basis: 'no-publisher-declaration',
         records,
         pagination: {
           total: globalIndex,

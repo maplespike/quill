@@ -34,11 +34,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "MapleSpike (« nous », « notre ») offre une plateforme d'intelligence des données gouvernementales qui agrège, traite et sert les données du secteur public canadien via une API REST, des outils MCP et un portail Web. Cette politique explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits.",
           )}</p>
           <p>{t(
-            "We are committed to transparency. Our core product is",
-            "Nous nous engageons à la transparence. Notre produit principal est constitué de",
-          )} <strong>{t("publicly licensed government data", "données gouvernementales sous licence publique")}</strong> {t(
-            "— we do not sell user data to third parties.",
-            "— nous ne vendons pas les données des utilisateurs à des tiers.",
+            "We are committed to transparency. Our service searches and presents public-sector information. License terms vary by publisher and dataset; public availability does not itself grant reuse rights. We do not sell user data to third parties.",
+            "Nous nous engageons à la transparence. Notre service recherche et présente des informations du secteur public. Les conditions de licence varient selon l'éditeur et le jeu de données; l'accès public ne confère pas en soi de droits de réutilisation. Nous ne vendons pas les données des utilisateurs à des tiers.",
           )}</p>
         </CardContent>
       </Card>
@@ -97,8 +94,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "Les clés API sont stockées sous forme de hachages SHA-256 — nous ne pouvons pas récupérer votre clé en clair après son émission. L'authentification utilise des jetons JWT avec de courts cycles d'actualisation.",
           )}</p>
           <p>{t(
-            "Government data is cached in our database with provenance metadata (source URL, retrieval timestamp, SHA-256 content hash). All data is licensed under the Open Government Licence – Canada or equivalent provincial licenses.",
-            "Les données gouvernementales sont mises en cache dans notre base de données avec des métadonnées de provenance (URL source, horodatage de récupération, hachage SHA-256 du contenu). Toutes les données sont sous licence Ouverte du gouvernement – Canada ou sous licences provinciales équivalentes.",
+            "Public-sector source records may be cached with provenance metadata (source URL, retrieval timestamp, SHA-256 content hash, and publisher-declared license metadata when supplied). License terms vary by source and dataset. Public availability does not itself grant reuse rights; consult the original publisher terms.",
+            "Les enregistrements de sources du secteur public peuvent être mis en cache avec des métadonnées de provenance (URL source, horodatage de récupération, hachage SHA-256 du contenu et métadonnées de licence déclarées par l'éditeur lorsqu'elles sont fournies). Les conditions de licence varient selon la source et le jeu de données. L'accès public ne confère pas en soi de droits de réutilisation; consultez les conditions de l'éditeur original.",
           )}</p>
           <p>{t(
             "AI inference requests to the edge worker are processed via Cloudflare Workers AI or our self-hosted homelab cluster. No query content is stored beyond the 30-day audit window.",

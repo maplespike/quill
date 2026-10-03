@@ -8,15 +8,17 @@ import { withClaims } from './claims-helper.js';
  * AI Ask Tool
  *
  * Ask a natural language question about Canadian government data.
- * Searches across all pipeline sources (committees, lobbying, procurement,
+ * Searches the pipeline sources it can reach (committees, lobbying, procurement,
  * regulations, courts, oversight) and returns a cited answer synthesized by AI.
  */
 
 export const definition: ToolDefinition = {
   name: 'ai_ask',
   description:
-    'Ask a natural language question about Canadian government data. Uses AI to search across all pipeline sources ' +
-    '(committees, lobbying, procurement, regulations, courts, oversight) and return a cited, synthesized answer.',
+    'Ask a natural language question about Canadian government data. Uses AI to search the pipeline sources ' +
+    'it can reach (committees, lobbying, procurement, regulations, courts, oversight) and return a cited, ' +
+    'synthesized answer. The answer is model-generated from retrieved records; verify the cited records ' +
+    'before relying on the synthesis, and absence of an answer is not evidence of absence in the source.',
   inputSchema: {
     type: 'object',
     properties: {

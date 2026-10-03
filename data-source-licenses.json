@@ -1,1034 +1,220 @@
 {
-  "schema_version": "1.0",
-  "generated_by": "wayfinder #812 licensing audit (preliminary, name-based)",
-  "classification_scheme": {
-    "open": "Fully open, no restriction (rare).",
-    "open_attribution": "Open data (OGL-C / provincial equivalent) \u2014 commercial use OK WITH attribution.",
-    "restricted": "Redistribution or commercial use restricted \u2014 requires legal sign-off before paywalling.",
-    "unknown": "Unclassified \u2014 manual review required before go-live."
+  "schema_version": "2.0",
+  "generated_by": "source-family inventory; records Quill's non-grant decision and does not establish source rights",
+  "decision_scheme": {
+    "no_quill_reuse_grant": "Quill grants no independent reuse rights in source material. Consult publisher terms per dataset and use; this is not a claim that the publisher prohibits reuse.",
+    "publisher_declaration_passthrough": "Pass through dataset-level license declarations published by the source. This is not independent verification of scope, third-party rights, or redistribution permission."
   },
-  "go_live_gate": "Free tier (discovery/metadata only, per #815) MUST only expose open/open_attribution sources. Restricted/unknown sources must NOT be in the Free subset and require legal review before Pro gating.",
+  "enforcement": "This inventory is not a runtime gate and does not disable discovery or ingestion. It records Quill's non-grant decision; product responses must preserve source-provided dataset terms and attribution when available.",
   "sources": [
-    {
-      "id": "a2aj",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ab-courts",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "ab-economic",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ab-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ab-energy-regulator",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ab-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ab-immigration",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ab-infrastructure",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "agriculture",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ati",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "attestation",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "au-abs",
-      "license_class": "restricted",
-      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
-    },
-    {
-      "id": "bank-of-canada",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-assessment",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-corporate-registry",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "bc-courts",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "bc-economic",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-immigration",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-infrastructure",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "bc-translink",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "calgary-transit",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "canlii",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "cipo",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "cmhc",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "committees",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "corporate",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "corporate-filings",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "cra-charity",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "criminal-justice",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "cross-reference",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "crown-corporations",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "crtc",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "culture",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "defence",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "edmonton-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "edmonton-transit",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "education-research",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "elections",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "emergency-management",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "energy",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "eurostat",
-      "license_class": "restricted",
-      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
-    },
-    {
-      "id": "fao-faostat",
-      "license_class": "restricted",
-      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
-    },
-    {
-      "id": "federal",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-auditor-general",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-budget",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-grants",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-immigration-irb",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-lobbying-monthly",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-parliamentary-budget",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-privacy-commissioner",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-procurement",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "federal-tribunals",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "financial-regulation",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "fire-emergency",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "fisheries",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "gazette",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "gc-standards",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "geospatial",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "gic",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "global-canada",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "goc-spending",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "gtfs-transit",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "health-canada",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "health-data",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "housing-data",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ilo-labour",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "immigration",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "impact-assessment",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "indigenous-demographics",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "indigenous-financial-transparency",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "indigenous-land-claims",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "indigenous-relations",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "indigenous-services-directory",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "influence",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ircc",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ircc-family-sponsorship",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "isc",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "isc-programs",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "legislation",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "library",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "lmia",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "mb-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "mb-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "mb-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "mb-hydro",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "mb-labour",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "mb-mpi",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "media-broadcasting",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "montreal-council",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "municipal",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "municipal-long-tail",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "municipal-portals",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nb-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nb-energy",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nb-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nb-labour",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ngo-influence-rss",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "nl-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nl-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nl-energy",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nl-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "npri",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "nrcan",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ns-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ns-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ns-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ns-labour",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nt-health-social",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nt-open-government",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nu-bureau-statistics",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nu-statcan",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "nz-stats",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "oecd",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "oecd-stat",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "on-courts",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "on-economic",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "on-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "on-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "on-immigration",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "on-infrastructure",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ontario-land-registry",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ontario-lobbying",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ontario-provincial",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "ontario-securities-commission",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "opencorporates",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "ottawa-oc-transpo",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "oversight",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "parks",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "parliamentary-voting",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "pe-agriculture",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "pe-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "pe-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "pe-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "pharmaceuticals",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "police-data",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "policing-security",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "political-donations",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "proactive-disclosure",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "provincial",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "provincial-legislatures",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "provincial-lobbying",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "provincial-orgs",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "provincial-regulators",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "public-accounts",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "qc-courts",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "qc-economic",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "qc-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "qc-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "qc-immigration",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "qc-infrastructure",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "quebec-lobbying",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "real-estate",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "real-time-feeds",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "regional-authorities",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "science-research",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "sedar-plus",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "sedi",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "sk-agriculture",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "sk-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "sk-crown-corps",
-      "license_class": "restricted",
-      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
-    },
-    {
-      "id": "sk-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "sk-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "sk-labour",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "social-programs",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "species-at-risk",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "statcan",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "telecommunications",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "toronto-budget",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "toronto-building-permits",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "toronto-police",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "transport-infrastructure",
-      "license_class": "open_attribution",
-      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
-    },
-    {
-      "id": "ttc",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "uk-hansard",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "uk-ons",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "un",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "un-comtrade",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "undp-hdi",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "undp-hdr",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "unesco-uis",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "unhcr-refugee",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "unhcr-refugees",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "unions",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "universities",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "us-cia",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "us-sec-edgar",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "utilities",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "vancouver-council",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "veterans",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "who-gho",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "winnipeg-budget",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "winnipeg-transit",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "worldbank-ids",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "worldbank-wdi",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "worldbank-wgi",
-      "license_class": "unknown",
-      "note": "Source type not auto-classified \u2014 manual review required."
-    },
-    {
-      "id": "yt-education",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-energy-mines",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-environment",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-geological",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-government",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-health",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    },
-    {
-      "id": "yt-statistics",
-      "license_class": "open_attribution",
-      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
-    }
+    { "id": "a2aj", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://a2aj.ca/", "note": "A2AJ source family; Quill makes no independent grant. Follow terms published by the specific dataset/API." },
+    { "id": "ab-courts", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Alberta publisher terms apply only to records the publisher places under that license; third-party and excluded records remain outside its grant." },
+    { "id": "ab-economic", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Alberta Open Government Licence applies only to covered publisher information; preserve each dataset's license metadata and exclusions." },
+    { "id": "ab-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Alberta publisher terms apply only to covered records; do not infer from portal membership." },
+    { "id": "ab-energy-regulator", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Dataset-level terms determine coverage; energy regulator records may include other rights holders." },
+    { "id": "ab-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Dataset-level terms determine coverage; privacy and third-party exclusions apply." },
+    { "id": "ab-immigration", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Dataset-level terms determine coverage; do not infer license scope from source family." },
+    { "id": "ab-infrastructure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.alberta.ca/licence", "note": "Dataset-level terms determine coverage; third-party exclusions apply." },
+    { "id": "agriculture", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal OGL applies only to information offered by an authorized Information Provider under that license; verify dataset declaration and exclusions." },
+    { "id": "ati", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "ATI records may contain exempt, personal, or third-party content; federal OGL does not grant rights to excluded material." },
+    { "id": "attestation", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://quill.maplespike.ca/", "note": "Attestation describes Quill's provenance process, not a license for underlying source data." },
+    { "id": "au-abs", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.abs.gov.au/about/legislation-and-policy/copyright", "note": "Australian Bureau of Statistics terms apply; verify dataset scope and required attribution." },
+    { "id": "bank-of-canada", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.bankofcanada.ca/terms/", "note": "Use Bank of Canada terms for the specific content/API; do not infer federal OGL coverage." },
+    { "id": "bc-assessment", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to records in the BC Data Catalogue that specify it; dataset declaration is required." },
+    { "id": "bc-corporate-registry", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to covered records; registry/database-specific terms may apply." },
+    { "id": "bc-courts", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "Court records are not presumed to be BC OGL material; use the terms attached to the specific record." },
+    { "id": "bc-economic", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to records in the catalogue that specify it." },
+    { "id": "bc-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to records in the catalogue that specify it; third-party and privacy exclusions apply." },
+    { "id": "bc-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to records that specify it; privacy and third-party exclusions apply." },
+    { "id": "bc-immigration", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to covered records; verify publisher metadata." },
+    { "id": "bc-infrastructure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gov.bc.ca/gov/content/data/policy-standards/data-policies/open-data/open-government-licence-bc", "note": "BC OGL applies only to covered records; verify publisher metadata." },
+    { "id": "bc-translink", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.translink.ca/about-us/doing-business-with-translink/open-data", "note": "TransLink is a separate publisher; verify its dataset/API terms rather than assuming provincial OGL." },
+    { "id": "calgary-transit", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.calgary.ca/terms", "note": "Use City of Calgary dataset terms and any per-dataset license metadata." },
+    { "id": "canlii", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.canlii.org/info/terms.html", "note": "CanLII terms are distinct from OGL. CanLII terms were updated in 2026 and restrict certain automated/bulk uses; verify current terms and authorization before harvesting or republishing content." },
+    { "id": "cipo", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://ised-isde.canada.ca/site/canadian-intellectual-property-office/en", "note": "Check the specific CIPO dataset and third-party rights; trademark and official-mark exclusions remain relevant." },
+    { "id": "cmhc", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.cmhc-schl.gc.ca/copyright", "note": "Use CMHC terms and per-dataset metadata; do not infer federal OGL from government ownership." },
+    { "id": "committees", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal OGL may cover the specific federal dataset when the publisher is authorized and the dataset is offered under it; exclude third-party works and official marks." },
+    { "id": "corporate", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Lobbying records may have dataset-specific terms and personal/third-party exclusions; carry source terms." },
+    { "id": "corporate-filings", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal dataset terms do not establish the license for every filing or embedded third-party document." },
+    { "id": "cra-charity", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.canada.ca/en/revenue-agency/services/charities-giving/charities-listings.html", "note": "Verify the CRA dataset terms and limits on personal information and third-party content." },
+    { "id": "criminal-justice", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite family; each dataset/source has its own terms and exclusions." },
+    { "id": "cross-reference", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Derived cross-reference output may combine multiple source datasets; preserve each source's provenance and terms." },
+    { "id": "crown-corporations", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Each corporation has distinct rights and terms; do not assume federal OGL." },
+    { "id": "crtc", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "CRTC records and feeds may have source-specific terms; verify each dataset and embedded work." },
+    { "id": "culture", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite sources; verify each publisher and dataset declaration." },
+    { "id": "defence", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal OGL excludes personal information, unauthorized third-party rights, and other protected rights; verify dataset declaration." },
+    { "id": "edmonton-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.edmonton.ca/terms", "note": "Use dataset-level City of Edmonton license/terms." },
+    { "id": "edmonton-transit", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.edmonton.ca/terms", "note": "Use dataset-level City of Edmonton license/terms." },
+    { "id": "education-research", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite datasets and institutions; verify publisher and dataset declarations." },
+    { "id": "elections", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.elections.ca/content.aspx?section=pol&dir=can&document=index&lang=e", "note": "Elections Canada terms and statutory restrictions are source-specific; do not infer OGL." },
+    { "id": "emergency-management", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite source family; each emergency feed has its own publisher and terms." },
+    { "id": "energy", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal OGL applies only to datasets offered under it by authorized providers; carry package-level license metadata." },
+    { "id": "eurostat", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://ec.europa.eu/eurostat/about-us/policies/copyright", "note": "Eurostat reuse and attribution conditions apply; verify current terms and dataset-specific restrictions." },
+    { "id": "fao-faostat", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.fao.org/contact-us/terms/en/", "note": "FAO terms and dataset-specific notices apply; do not infer blanket commercial reuse rights." },
+    { "id": "federal", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite federal source family; preserve dataset-level declarations and exclusions." },
+    { "id": "federal-auditor-general", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.oag-bvg.gc.ca/internet/English/terms_e_373.html", "note": "OAG terms apply to OAG publications; third-party material may have separate terms." },
+    { "id": "federal-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify dataset or publication terms and embedded third-party material." },
+    { "id": "federal-grants", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify dataset-level OGL declaration and third-party exclusions." },
+    { "id": "federal-immigration-irb", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.irb-cisr.gc.ca/en/legal-policy/Pages/terms.aspx", "note": "IRB records have privacy and publisher-specific constraints; verify terms before retaining or republishing." },
+    { "id": "federal-lobbying-monthly", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the specific dataset's OGL declaration and required attribution." },
+    { "id": "federal-parliamentary-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.pbo-dpb.ca/en/copyright", "note": "Parliamentary Budget Officer publications may have their own terms; check each output." },
+    { "id": "federal-privacy-commissioner", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.priv.gc.ca/en/terms/", "note": "OPC source terms and privacy restrictions apply." },
+    { "id": "federal-procurement", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the specific federal dataset's publisher declaration and third-party exclusions." },
+    { "id": "federal-tribunals", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite tribunal sources; each tribunal's terms and decision-specific rights must be checked." },
+    { "id": "financial-regulation", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite regulators; terms vary by institution and dataset." },
+    { "id": "fire-emergency", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Municipal and fire-service feeds have individual publisher terms; no blanket license asserted." },
+    { "id": "fisheries", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify specific DFO dataset declaration, third-party content, and privacy exclusions." },
+    { "id": "gazette", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.canada.ca/en/canadian-heritage/services/crown-copyright-request.html", "note": "Federal law reproduction has separate order/conditions; Gazette notices and third-party material require source-specific review." },
+    { "id": "gc-standards", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the specific reference dataset's publisher and terms." },
+    { "id": "geospatial", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Geospatial datasets can include third-party/partner data and separate terms; check dataset metadata." },
+    { "id": "gic", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the exact dataset declaration; OGL exclusions remain applicable." },
+    { "id": "global-canada", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.international.gc.ca/transparency-transparence/terms-conditions.aspx?lang=eng", "note": "Global Affairs terms differ by page and dataset; verify exact source." },
+    { "id": "goc-spending", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "GitHub mirror does not replace original source terms; preserve original publisher and license." },
+    { "id": "gtfs-transit", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "GTFS feeds are published by individual transit agencies under varying terms; capture each feed's license." },
+    { "id": "health-canada", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the license of each Health Canada dataset and embedded third-party content." },
+    { "id": "health-data", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite sources such as CIHI and provincial health agencies have distinct terms and privacy controls." },
+    { "id": "housing-data", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.cmhc-schl.gc.ca/copyright", "note": "Composite StatCan/CMHC data; apply each publisher's terms separately." },
+    { "id": "ilo-labour", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ilo.org/global/copyright/lang--en/index.htm", "note": "ILO content terms apply; verify dataset-specific reuse rights." },
+    { "id": "immigration", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite sources; verify each dataset and exclude personal/third-party material." },
+    { "id": "impact-assessment", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.canada.ca/en/impact-assessment-agency/corporate/terms-conditions.html", "note": "IAAC publication terms and third-party exclusions apply." },
+    { "id": "indigenous-demographics", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Indigenous data sovereignty, community protocols, privacy, and dataset-specific permissions require source-by-source treatment." },
+    { "id": "indigenous-financial-transparency", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Indigenous data sovereignty, privacy, and publisher terms require source-specific review." },
+    { "id": "indigenous-land-claims", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Land-claim material may have confidentiality, community, or treaty-specific restrictions; do not infer reuse permission." },
+    { "id": "indigenous-relations", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite source family; respect Indigenous data governance and each source's terms." },
+    { "id": "indigenous-services-directory", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Verify each organization and data publisher's terms; do not assume open reuse from public access." },
+    { "id": "influence", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite government and non-government sources; preserve publisher-specific terms." },
+    { "id": "ircc", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify each specific IRCC dataset; privacy and third-party exclusions apply." },
+    { "id": "ircc-family-sponsorship", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify dataset declaration and personal-information exclusions." },
+    { "id": "isc", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal terms do not displace Indigenous data governance or dataset-specific protocols." },
+    { "id": "isc-programs", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal terms do not displace Indigenous data governance, third-party rights, or privacy exclusions." },
+    { "id": "legislation", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://ised-isde.canada.ca/site/canadian-intellectual-property-office/en/guide-copyright", "note": "Federal Law Reproduction Order and provincial law terms are distinct from general OGL; follow required conditions." },
+    { "id": "library", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Libraries and catalog records may include third-party metadata and content; check each publisher's terms." },
+    { "id": "lmia", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify dataset-level OGL declaration and exclusions." },
+    { "id": "mb-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.mb.ca/openmb/terms.html", "note": "Manitoba source terms apply to covered data; verify exact dataset and publisher." },
+    { "id": "mb-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.mb.ca/openmb/terms.html", "note": "Manitoba publisher terms and dataset declarations apply." },
+    { "id": "mb-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.mb.ca/openmb/terms.html", "note": "Manitoba publisher terms; privacy and third-party exclusions apply." },
+    { "id": "mb-hydro", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.mb.ca/openmb/terms.html", "note": "Utility data may be from a separate rights holder; verify its own terms." },
+    { "id": "mb-labour", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.mb.ca/openmb/terms.html", "note": "Manitoba publisher terms and dataset declarations apply." },
+    { "id": "mb-mpi", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.mpi.mb.ca/terms-of-use/", "note": "MPI is a separate Crown corporation with distinct terms; do not assume OpenMB license." },
+    { "id": "media-broadcasting", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite CRTC, ISED, and third-party media sources; terms vary by source and dataset." },
+    { "id": "montreal-council", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://donnees.montreal.ca/licence", "note": "City of Montreal dataset-level license/terms apply; do not assume Quebec provincial terms." },
+    { "id": "municipal", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Municipal sources have distinct licenses; use each publisher's dataset declaration and terms." },
+    { "id": "municipal-long-tail", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Long-tail municipalities have distinct licenses and portal metadata; no blanket provincial license asserted." },
+    { "id": "municipal-portals", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Each portal and dataset supplies its own terms; preserve source identifiers and metadata." },
+    { "id": "nb-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gnb.ca/content/gnb/en/departments/finance/open_data.html", "note": "New Brunswick publisher terms and dataset declaration apply." },
+    { "id": "nb-energy", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gnb.ca/content/gnb/en/departments/finance/open_data.html", "note": "Verify publisher and dataset license; do not infer from portal technology." },
+    { "id": "nb-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gnb.ca/content/gnb/en/departments/finance/open_data.html", "note": "Verify publisher terms, privacy, and third-party exclusions." },
+    { "id": "nb-labour", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www2.gnb.ca/content/gnb/en/departments/finance/open_data.html", "note": "Verify publisher and dataset license declaration." },
+    { "id": "ngo-influence-rss", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "RSS availability is not a content license; apply each publisher's terms and copyright." },
+    { "id": "nl-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence", "note": "Newfoundland and Labrador Open Government Licence applies only to covered datasets; preserve its specific attribution." },
+    { "id": "nl-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence", "note": "Verify the dataset license declaration and its publisher." },
+    { "id": "nl-energy", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence", "note": "Verify dataset-level license; resource may have separate terms." },
+    { "id": "nl-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opendata.gov.nl.ca/public/opendata/page/?page-id=licence", "note": "Verify dataset declaration; privacy and third-party exclusions apply." },
+    { "id": "npri", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify specific NPRI dataset declaration and embedded third-party content." },
+    { "id": "nrcan", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Geospatial/resource-specific third-party terms may apply; use dataset-level declaration." },
+    { "id": "ns-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.novascotia.ca/terms", "note": "Nova Scotia portal and dataset terms apply; verify exact license identifier." },
+    { "id": "ns-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.novascotia.ca/terms", "note": "Verify dataset-level publisher license and exclusions." },
+    { "id": "ns-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.novascotia.ca/terms", "note": "Privacy and third-party exclusions apply; verify exact dataset declaration." },
+    { "id": "ns-labour", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.novascotia.ca/terms", "note": "Verify dataset-level terms and publisher." },
+    { "id": "nt-health-social", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.nt.ca/en/legal", "note": "NWT source terms and privacy restrictions apply; no blanket license asserted." },
+    { "id": "nt-open-government", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.nt.ca/en/legal", "note": "Check exact dataset publisher and terms; portal availability is not a grant." },
+    { "id": "nu-bureau-statistics", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.gov.nu.ca/en", "note": "Nunavut publisher terms; verify source-specific license and cultural/privacy protocols." },
+    { "id": "nu-statcan", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.statcan.gc.ca/en/terms-conditions/open-licence", "note": "Statistics Canada Open Licence differs from federal OGL; follow its specific notices and restrictions." },
+    { "id": "nz-stats", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.stats.govt.nz/about-us/copyright/", "note": "New Zealand publisher terms apply; verify dataset-specific attribution." },
+    { "id": "oecd", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.oecd.org/en/about/terms-conditions.html", "note": "OECD content and data have specific terms; verify API/dataset restrictions." },
+    { "id": "oecd-stat", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.oecd.org/en/about/terms-conditions.html", "note": "OECD content and data have specific terms; verify API/dataset restrictions." },
+    { "id": "on-courts", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Ontario ODL excludes unauthorized third-party material; court decision terms are not presumed covered." },
+    { "id": "on-economic", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Ontario terms grant broad reuse only to covered datasets and exclude third-party rights." },
+    { "id": "on-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Verify dataset-specific terms, privacy restrictions, and third-party content." },
+    { "id": "on-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Ontario license excludes personal information and unauthorized third-party material." },
+    { "id": "on-immigration", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Verify dataset declaration and applicable terms." },
+    { "id": "on-infrastructure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Verify dataset declaration and third-party exclusions." },
+    { "id": "ontario-land-registry", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Land registry records and services may have separate statutory fees and terms; ODL is not presumed." },
+    { "id": "ontario-lobbying", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Verify the specific registry's terms and data scope." },
+    { "id": "ontario-provincial", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ontario.ca/page/ontario-open-data-terms-use", "note": "Composite source family; verify each publisher and dataset." },
+    { "id": "ontario-securities-commission", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.osc.ca/en/about-us/terms-use", "note": "OSC has its own terms; securities filings may include third-party material." },
+    { "id": "opencorporates", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opencorporates.com/terms", "note": "OpenCorporates data/API use is subject to its own license/terms and possibly separate plans; verify before commercial use." },
+    { "id": "ottawa-oc-transpo", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.ottawa.ca/pages/open-data-licence", "note": "City of Ottawa license applies to covered data; verify the particular dataset declaration." },
+    { "id": "oversight", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite source family; each institution's publication terms apply." },
+    { "id": "parks", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Parks and conservation datasets can involve partner/third-party rights; verify the exact dataset." },
+    { "id": "parliamentary-voting", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ourcommons.ca/en/open-data", "note": "House of Commons open data terms apply to covered material; Senate data has separate publisher terms." },
+    { "id": "pe-agriculture", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.princeedwardisland.ca/en/information/finance/open-data", "note": "Verify publisher license statement and exclusions for each dataset." },
+    { "id": "pe-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.princeedwardisland.ca/en/information/finance/open-data", "note": "Verify dataset-specific terms." },
+    { "id": "pe-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.princeedwardisland.ca/en/information/finance/open-data", "note": "Privacy and third-party exclusions apply; verify exact dataset license." },
+    { "id": "pe-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.princeedwardisland.ca/en/information/finance/open-data", "note": "Privacy and third-party exclusions apply; verify exact dataset license." },
+    { "id": "pharmaceuticals", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite product information; drug labels and manufacturer content may have separate rights." },
+    { "id": "police-data", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Police and justice sources vary by publisher; personal information and local law restrictions apply." },
+    { "id": "policing-security", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite sources; legal restrictions, privacy, and source terms require review." },
+    { "id": "political-donations", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.elections.ca/content.aspx?section=pol&dir=can&document=index&lang=e", "note": "Election finance datasets and provincial registries have individual statutory/source terms." },
+    { "id": "proactive-disclosure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the specific dataset's publisher declaration and attribution." },
+    { "id": "provincial", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite provincial source family; each province/territory and dataset supplies distinct terms." },
+    { "id": "provincial-legislatures", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Legislative records have jurisdiction-specific terms; do not infer OGL coverage." },
+    { "id": "provincial-lobbying", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Each provincial registry has distinct terms and statutory context." },
+    { "id": "provincial-orgs", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Organizations and their datasets have individual publisher terms." },
+    { "id": "provincial-regulators", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Regulators have distinct terms and third-party exclusions." },
+    { "id": "public-accounts", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Federal and provincial public accounts use differing publication terms; carry exact dataset metadata." },
+    { "id": "qc-courts", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Court decisions are not presumed to be licensed under the catalog default; verify publisher and case law terms." },
+    { "id": "qc-economic", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Données Québec describes Creative Commons 4.0 variants; the actual dataset specifies which license applies." },
+    { "id": "qc-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Données Québec license variants differ; preserve dataset-specific license URI and attribution." },
+    { "id": "qc-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Données Québec license variants differ; privacy and third-party exclusions apply." },
+    { "id": "qc-immigration", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Preserve dataset-specific license declaration; don't label all records with one Quebec license." },
+    { "id": "qc-infrastructure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Preserve dataset-specific license URI and attribution; third-party exclusions apply." },
+    { "id": "quebec-lobbying", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.donneesquebec.ca/licence/", "note": "Registry terms and provincial catalog license declarations must be checked for the specific data." },
+    { "id": "real-estate", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite sources; CMHC, StatCan, land registries, and local authorities have separate terms." },
+    { "id": "real-time-feeds", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Weather and emergency feeds have source-specific open licenses and API conditions; preserve each." },
+    { "id": "regional-authorities", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Regional authorities publish under distinct terms; verify each dataset." },
+    { "id": "science-research", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Research datasets may have funder, publisher, and third-party terms; verify per dataset." },
+    { "id": "sedar-plus", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.sedarplus.ca/", "note": "SEDAR+ terms govern access; filings may have issuer/third-party copyrights. Do not assume reuse from public access." },
+    { "id": "sedi", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.sedi.ca/", "note": "SEDI and securities-regulator terms govern access and reuse; verify automated use." },
+    { "id": "sk-agriculture", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.saskatchewan.ca/government/about-government/open-government", "note": "Saskatchewan source terms and dataset declarations apply." },
+    { "id": "sk-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.saskatchewan.ca/government/about-government/open-government", "note": "Verify source and exact dataset license." },
+    { "id": "sk-crown-corps", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Crown corporation terms vary by entity; no provincial blanket grant asserted." },
+    { "id": "sk-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.saskatchewan.ca/government/about-government/open-government", "note": "Verify dataset-specific terms and privacy exclusions." },
+    { "id": "sk-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.saskatchewan.ca/government/about-government/open-government", "note": "Privacy and dataset-specific restrictions apply." },
+    { "id": "sk-labour", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.saskatchewan.ca/government/about-government/open-government", "note": "Verify exact source and dataset license declaration." },
+    { "id": "social-programs", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Composite source family; dataset terms and personal-information constraints vary." },
+    { "id": "species-at-risk", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify federal dataset declaration and third-party material." },
+    { "id": "statcan", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.statcan.gc.ca/en/terms-conditions/open-licence", "note": "Statistics Canada Open Licence is distinct from federal OGL; include its exact source notices, reference dates, and restrictions." },
+    { "id": "telecommunications", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://crtc.gc.ca/eng/terms.htm", "note": "CRTC and telecom carrier data have distinct source terms; verify each dataset." },
+    { "id": "toronto-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-licence/", "note": "Toronto OGL applies only to covered City information; preserve dataset attribution and exclusions." },
+    { "id": "toronto-building-permits", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-licence/", "note": "Toronto dataset-level terms apply; personal and third-party materials are excluded." },
+    { "id": "toronto-police", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-licence/", "note": "Verify police dataset publisher and privacy/third-party exclusions." },
+    { "id": "transport-infrastructure", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Composite federal and local publishers; preserve each source's terms." },
+    { "id": "ttc", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.toronto.ca/open-data-licence/", "note": "TTC data uses City of Toronto portal terms only when the dataset specifies them; some transit content may have separate rights." },
+    { "id": "uk-hansard", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.parliament.uk/site-information/copyright/", "note": "UK Parliament copyright and Open Parliament Licence terms apply; verify dataset scope." },
+    { "id": "uk-ons", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.ons.gov.uk/methodology/geography/licences", "note": "ONS uses OGL v3 for covered material; verify the product-specific notice and exclusions." },
+    { "id": "un", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.un.org/en/about-us/terms-of-use", "note": "United Nations materials have distinct terms and restrictions; verify specific dataset." },
+    { "id": "un-comtrade", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://comtradeapi.un.org/", "note": "UN Comtrade API terms, attribution, and rate conditions apply; verify current license." },
+    { "id": "undp-hdi", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://hdr.undp.org/terms-use", "note": "UNDP Human Development Report terms and attribution apply." },
+    { "id": "undp-hdr", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://hdr.undp.org/terms-use", "note": "UNDP terms apply; third-party materials may be excluded." },
+    { "id": "unesco-uis", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://uis.unesco.org/en/copyright", "note": "UNESCO UIS data terms and attribution apply; verify API-specific restrictions." },
+    { "id": "unhcr-refugee", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.unhcr.org/terms-and-conditions", "note": "UNHCR terms and protections for sensitive/refugee data apply." },
+    { "id": "unhcr-refugees", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.unhcr.org/terms-and-conditions", "note": "UNHCR terms and protections for sensitive/refugee data apply." },
+    { "id": "unions", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Union and labor organization material retains publisher terms; RSS/public access is not a license." },
+    { "id": "universities", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "University and research data has institution- and dataset-specific terms." },
+    { "id": "us-cia", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.cia.gov/about/terms-of-use/", "note": "US government authorship is not assumed for all content; follow CIA terms and third-party notices." },
+    { "id": "us-sec-edgar", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/understand-edgar", "note": "SEC access policies, rate limits, and filer/third-party copyrights apply." },
+    { "id": "utilities", "reuse_decision": "no_quill_reuse_grant", "source_terms": "", "note": "Utility publishers have distinct terms; verify for each source and dataset." },
+    { "id": "vancouver-council", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://opendata.vancouver.ca/pages/licence", "note": "City of Vancouver license applies to covered catalog datasets; verify dataset metadata and exclusions." },
+    { "id": "veterans", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://open.canada.ca/en/open-government-licence-canada", "note": "Verify the specific VAC dataset declaration and third-party exclusions." },
+    { "id": "who-gho", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.who.int/about/policies/publishing/copyright", "note": "WHO data uses specific terms; CC BY 3.0 IGO does not apply to all material or third-party components." },
+    { "id": "winnipeg-budget", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.winnipeg.ca/terms", "note": "City of Winnipeg dataset terms apply; verify license metadata." },
+    { "id": "winnipeg-transit", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://data.winnipeg.ca/terms", "note": "Transit dataset may have separate agency terms; verify source metadata." },
+    { "id": "worldbank-ids", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets", "note": "World Bank dataset terms, attribution, and any third-party exceptions apply." },
+    { "id": "worldbank-wdi", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets", "note": "World Bank dataset terms and attribution apply; check dataset-specific restrictions." },
+    { "id": "worldbank-wgi", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets", "note": "World Bank dataset terms and attribution apply; check dataset-specific restrictions." },
+    { "id": "yt-education", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Yukon OGL applies to information offered under it; preserve attribution and exclusions." },
+    { "id": "yt-energy-mines", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Yukon OGL terms apply only to covered datasets; third-party exclusions apply." },
+    { "id": "yt-environment", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Yukon dataset declaration and source attribution must be carried through." },
+    { "id": "yt-geological", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Geological/partner data may contain third-party rights; verify dataset metadata." },
+    { "id": "yt-government", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Yukon OGL applies only to covered information; preserve exact attribution." },
+    { "id": "yt-health", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Privacy and third-party exclusions apply; verify dataset declaration." },
+    { "id": "yt-statistics", "reuse_decision": "no_quill_reuse_grant", "source_terms": "https://yukon.ca/en/your-government/open-government/open-government-licence-yukon", "note": "Yukon OGL applies only to covered information; preserve source attribution." }
   ],
   "summary": {
-    "unknown": 83,
-    "restricted": 19,
-    "open_attribution": 101
+    "source_families": 203,
+    "quill_reuse_grant": 0,
+    "publisher_terms_dataset_clearance": 0
   },
   "total": 203
 }

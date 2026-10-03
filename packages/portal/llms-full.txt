@@ -1,10 +1,10 @@
 # MapleSpike — Full Documentation Archive
 
-> Version: 0.2.0
-> Auto-generated: 2026-05-18
-> License: AGPL-3.0 / MIT. Government data under OGL-C.
+> Version: 0.2.0 (legacy snapshot; served output is generated from `public/llms-full.txt`)
+> Software license declarations conflict by package and file; see `LICENSE.md` and `docs/open-source-audit.md`.
+> Government and other source-data terms vary by publisher and dataset. Public availability does not itself grant reuse rights; consult the original source terms.
 > API Base URL: https://api.maplespike.ca/v1
-> Source: https://github.com/reverb256/quill
+> Source: https://github.com/maplespike/quill
 
 ## REST API
 

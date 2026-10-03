@@ -12,12 +12,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 <BaseLayout
   title={i18n.t('claims.title')}
   description={t(
-    "A live index of the verifiable claim bundles Quill has registered — discover what has been attested, then verify any hash independently.",
-    "Un index en direct des bundles d'allégations vérifiables enregistrés par Quill — découvrez ce qui a été attesté, puis vérifiez tout hachage de façon indépendante.",
+    "A live index of claim bundles registered by Quill. A record hash checks canonical record integrity; inspect the provenance evidence and verify source material with the publisher.",
+    "Un index en direct des lots de revendications enregistrés par Quill. Un hachage vérifie l'intégrité de l'enregistrement canonique; examinez les preuves de provenance et vérifiez le contenu source auprès de l'éditeur.",
   )}
   lang={lang}
 >
-  <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4">
@@ -30,13 +29,15 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
           <span class="text-gradient">{i18n.t('claims.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          {i18n.t('claims.subtitle')}
+          {t(
+            "Explore claim hashes and their evidence records. A matching record hash checks canonical record integrity only; it does not prove source identity, completeness, or reuse rights.",
+            "Consultez les hachages des revendications et leurs dossiers de preuve. Un hachage d'enregistrement correspondant vérifie uniquement l'intégrité canonique; il ne prouve ni l'identité de la source, ni l'exhaustivité, ni les droits de réutilisation.",
+          )}
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Index -->
   <section class="py-16 md:py-20">
     <div class="container mx-auto px-4 max-w-4xl">
       <div id="claims-status" class="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
@@ -53,18 +54,20 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <div id="claims-list" class="hidden space-y-3"></div>
 
-      <!-- How it works -->
       <Card class="mt-12">
         <CardHeader>
           <CardTitle class="text-base">📚 {i18n.t('claims.how.title')}</CardTitle>
           <CardDescription>
-            {i18n.t('claims.how.body')}
+            {t(
+              "The verifier includes provenance_evidence: the record-hash scope, HTTP response artifacts captured by the shared ingestion client, declared transformation steps, and publisher-terms metadata when observed. Null, empty, or not-recorded states mean evidence was not captured; they are not rights conclusions. See the source publisher for its terms.",
+              "Le vérificateur inclut provenance_evidence : la portée du hachage, les réponses HTTP capturées par le client d'ingestion partagé, les étapes de transformation déclarées et les métadonnées des conditions de l'éditeur lorsqu'elles sont observées. Les états nuls, vides ou non consignés signifient que la preuve n'a pas été capturée; ils ne constituent pas une conclusion sur les droits. Consultez les conditions de l'éditeur source.",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div class="overflow-x-auto rounded-md bg-muted p-3">
             <code class="text-xs text-muted-foreground block">
-              curl -s https://api.maplespike.ca/v1/claims/latest
+              curl -s https://api.maplespike.ca/v1/claims/verify/&lt;sha256&gt;
             </code>
           </div>
         </CardContent>
@@ -78,7 +81,6 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       var cfg = window.MAPLESPIKE || {};
       var apiBase = (cfg.apiBase || "https://api.maplespike.ca") + "/v1";
-
       var statusEl = document.getElementById("claims-status");
       var loadingEl = document.getElementById("claims-loading");
       var errorEl = document.getElementById("claims-error");
@@ -87,90 +89,41 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       function i18n(key) {
         var dict = {
-          "en": {
+          en: {
             "claims.empty": "No claims registered yet. Run an ingestion or call an MCP tool that registers claim bundles, then check back.",
             "claims.error": "Could not load the claim index. Try again shortly, or use the API directly: GET /v1/claims/latest",
             "claims.source": "Source",
-            "claims.retrieved": "Retrieved",
-            "claims.verify": "Verify this claim",
+            "claims.retrieved": "Source retrieval time",
+            "claims.verify": "Inspect evidence",
             "claims.loading": "Loading…",
-            "claims.live": "live from",
+            "claims.live": "indexed from",
             "claims.bundle": "claim bundle",
             "claims.bundles": "claim bundles",
           },
-          "fr": {
-            "claims.empty": "Aucune allégation enregistrée pour le moment. Lancez une ingestion ou appelez un outil MCP qui enregistre des bundles d'allégations, puis revenez plus tard.",
-            "claims.error": "Impossible de charger l'index des allégations. Réessayez bientôt, ou utilisez l'API directement : GET /v1/claims/latest",
+          fr: {
+            "claims.empty": "Aucune revendication enregistrée pour le moment. Lancez une ingestion ou appelez un outil MCP qui enregistre des lots, puis revenez plus tard.",
+            "claims.error": "Impossible de charger l'index. Réessayez bientôt ou utilisez directement GET /v1/claims/latest",
             "claims.source": "Source",
-            "claims.retrieved": "Consulté le",
-            "claims.verify": "Vérifier cette allégation",
+            "claims.retrieved": "Heure de récupération de la source",
+            "claims.verify": "Examiner les preuves",
             "claims.loading": "Chargement…",
-            "claims.live": "en direct depuis",
-            "claims.bundle": "bundle d'allégations",
-            "claims.bundles": "bundles d'allégations",
-          }
+            "claims.live": "indexé à partir de",
+            "claims.bundle": "lot de revendication",
+            "claims.bundles": "lots de revendications",
+          },
         };
         var lang = (window.__LANG === "fr") ? "fr" : "en";
         return dict[lang][key] || key;
       }
 
-      function sanitizeUrl(u) {
+      function sanitizeUrl(value) {
         try {
-          var parsed = new URL(u, window.location.origin);
+          var parsed = new URL(value, window.location.origin);
+          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "#";
           return parsed.href;
         } catch (e) {
           return "#";
         }
-      }
-
-      function renderRow(c) {
-        var verifyUrl = "/verify?hash=" + encodeURIComponent(c.sha256);
-        var sourceName = c.source_name || "—";
-        var host = "";
-        if (c.source_url) {
-          try { host = new URL(sanitizeUrl(c.source_url)).hostname; } catch (e) { host = ""; }
-        }
-
-        var el = document.createElement("a");
-        el.href = verifyUrl;
-        el.className = "group block rounded-xl border border-border/60 bg-card/40 p-4 transition-all duration-200 hover:border-[var(--maple)]/40 hover:bg-card hover:shadow-sm";
-
-        var top = document.createElement("div");
-        top.className = "flex items-start justify-between gap-4";
-
-        var claimWrap = document.createElement("div");
-        claimWrap.className = "min-w-0 flex-1";
-        var claim = document.createElement("p");
-        claim.className = "text-sm font-medium leading-snug text-foreground";
-        claim.textContent = c.claim || "(no claim statement)";
-        claimWrap.appendChild(claim);
-
-        var meta = document.createElement("div");
-        meta.className = "mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground";
-        var src = document.createElement("span");
-        src.textContent = i18n("claims.source") + ": " + sourceName + (host ? " · " + host : "");
-        var ret = document.createElement("span");
-        ret.textContent = i18n("claims.retrieved") + ": " + (c.retrieved_at ? new Date(c.retrieved_at).toLocaleString("en-CA") : "—");
-        meta.appendChild(src);
-        meta.appendChild(ret);
-        claimWrap.appendChild(meta);
-
-        top.appendChild(claimWrap);
-
-        var action = document.createElement("span");
-        action.className = "shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors group-hover:border-[var(--maple)]/40 group-hover:text-foreground";
-        action.textContent = i18n("claims.verify");
-        action.appendChild(arrow());
-        top.appendChild(action);
-
-        el.appendChild(top);
-
-        var hashRow = document.createElement("div");
-        hashRow.className = "mt-3 border-t border-border/40 pt-2.5 font-mono text-xs text-muted-foreground";
-        hashRow.textContent = c.sha256;
-        el.appendChild(hashRow);
-
-        return el;
       }
 
       function arrow() {
@@ -192,38 +145,69 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         return svg;
       }
 
-      async function load() {
-        try {
-          var resp = await fetch(apiBase + "/claims/latest");
-          var body = await resp.json();
-          if (!resp.ok) throw new Error(body.error?.message || "failed");
-          var data = body.data || body;
-          var claims = (data && data.claims) || [];
+      function renderRow(claim) {
+        var hash = String(claim.sha256 || "");
+        var verifyUrl = "/verify?hash=" + encodeURIComponent(hash);
+        var host = "";
+        if (claim.source_url) {
+          try { host = new URL(sanitizeUrl(claim.source_url)).hostname; } catch (e) { host = ""; }
+        }
 
-          var unit = data.count === 1 ? i18n("claims.bundle") : i18n("claims.bundles");
-          loadingEl.textContent = data.count + " " + unit + " · " + i18n("claims.live") + " /v1/claims/latest";
-          statusEl.classList.remove("hidden");
+        var card = document.createElement("article");
+        card.className = "rounded-xl border border-border/60 bg-card/40 p-4";
+        var title = document.createElement("p");
+        title.className = "text-sm font-medium leading-snug text-foreground";
+        title.textContent = claim.claim || "(no claim statement)";
+        card.appendChild(title);
 
+        var metadata = document.createElement("div");
+        metadata.className = "mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground";
+        var source = document.createElement("span");
+        source.textContent = i18n("claims.source") + ": " + (claim.source_name || "—") + (host ? " · " + host : "");
+        var timestamp = document.createElement("span");
+        timestamp.textContent = i18n("claims.retrieved") + ": " + (claim.retrieved_at ? new Date(claim.retrieved_at).toLocaleString("en-CA") : "Not recorded");
+        metadata.appendChild(source);
+        metadata.appendChild(timestamp);
+        card.appendChild(metadata);
+
+        var hashRow = document.createElement("div");
+        hashRow.className = "mt-3 border-t border-border/40 pt-2.5 font-mono text-xs text-muted-foreground break-all";
+        hashRow.textContent = hash;
+        card.appendChild(hashRow);
+
+        var action = document.createElement("a");
+        action.href = verifyUrl;
+        action.className = "mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-[var(--maple)]/40 hover:text-foreground";
+        action.textContent = i18n("claims.verify");
+        action.appendChild(arrow());
+        card.appendChild(action);
+        return card;
+      }
+
+      function showError(message) {
+        loadingEl.textContent = "";
+        statusEl.classList.add("hidden");
+        errorEl.textContent = message;
+        errorEl.classList.remove("hidden");
+      }
+
+      fetch(apiBase + "/claims/latest", { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          return response.json();
+        })
+        .then(function (payload) {
+          loadingEl.textContent = "";
+          statusEl.classList.add("hidden");
+          var claims = payload && payload.data && Array.isArray(payload.data.claims) ? payload.data.claims : [];
           if (claims.length === 0) {
-            statusEl.classList.add("hidden");
             emptyEl.classList.remove("hidden");
             return;
           }
-
-          var frag = document.createDocumentFragment();
-          for (var i = 0; i < claims.length; i++) {
-            frag.appendChild(renderRow(claims[i]));
-          }
-          listEl.appendChild(frag);
           listEl.classList.remove("hidden");
-        } catch (err) {
-          statusEl.classList.add("hidden");
-          errorEl.textContent = i18n("claims.error");
-          errorEl.classList.remove("hidden");
-        }
-      }
-
-      load();
+          claims.forEach(function (claim) { listEl.appendChild(renderRow(claim)); });
+        })
+        .catch(function () { showError(i18n("claims.error")); });
     })();
   </script>
 </BaseLayout>

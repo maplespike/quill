@@ -17,6 +17,7 @@
 
 import { httpGet } from '../../utils/http.js';
 import { buildCitation, type Citation } from '../attestation/index.js';
+import { NO_REUSE_LICENSE_NOTICE } from '../../shared/attribution.js';
 
 // ─── Source Configuration ──────────────────────────────────────────────
 
@@ -27,6 +28,8 @@ export interface FrenchSourceConfig {
   baseUrl: string;
   searchEndpoint?: string;
   license: string;
+  licenseUrl?: string;
+  attributionText: string;
   updateFrequency: string;
   lang: 'fr';
   category: 'legal' | 'legislation' | 'gazette' | 'statistics' | 'municipal';
@@ -39,7 +42,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     nameEn: 'CanLII French',
     baseUrl: 'https://rechercher.canlii.org',
     searchEndpoint: '/search',
-    license: 'CanLII',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "CanLII's terms govern its content and automated use; the publisher declaration was not supplied in this source response.",
     updateFrequency: 'weekly',
     lang: 'fr',
     category: 'legal',
@@ -50,7 +54,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     nameEn: 'Québec Legislation',
     baseUrl: 'https://legisquebec.gouv.qc.ca',
     searchEndpoint: '/fr/Recherche',
-    license: 'Open Government Licence – Québec',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "No publisher license declaration was returned; consult the LégisQuébec publisher terms.",
     updateFrequency: 'event-driven',
     lang: 'fr',
     category: 'legislation',
@@ -60,7 +65,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     name: 'Gazette du Canada (FR)',
     nameEn: 'Canada Gazette French',
     baseUrl: 'https://gazette.gc.ca',
-    license: 'Open Government Licence – Canada',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "No publisher license declaration was returned; consult the Canada Gazette publisher terms.",
     updateFrequency: 'daily',
     lang: 'fr',
     category: 'gazette',
@@ -70,7 +76,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     name: 'Statistique Canada',
     nameEn: 'Statistics Canada French',
     baseUrl: 'https://www150.statcan.gc.ca/n1/fra/',
-    license: 'Statistics Canada Open Licence',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "No publisher license declaration was returned; consult Statistics Canada's terms for the specific dataset and material.",
     updateFrequency: 'monthly',
     lang: 'fr',
     category: 'statistics',
@@ -80,7 +87,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     name: 'Données Québec',
     nameEn: 'Quebec City Data',
     baseUrl: 'https://donnees.ville.quebec.qc.ca',
-    license: 'Open Government Licence – Québec',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "No publisher license declaration was returned; consult the municipality's dataset terms.",
     updateFrequency: 'monthly',
     lang: 'fr',
     category: 'municipal',
@@ -90,7 +98,8 @@ export const FRENCH_SOURCES: FrenchSourceConfig[] = [
     name: 'Données Montréal',
     nameEn: 'Montreal Data',
     baseUrl: 'https://donnees.montreal.ca',
-    license: 'Open Government Licence – Québec',
+    license: NO_REUSE_LICENSE_NOTICE,
+    attributionText: "No publisher license declaration was returned; consult the municipality's dataset terms.",
     updateFrequency: 'monthly',
     lang: 'fr',
     category: 'municipal',
@@ -126,6 +135,9 @@ export function buildFrenchCitation(
     dataHash,
     updateFrequency: source.updateFrequency,
     license: source.license,
+    licenseUrl: source.licenseUrl,
+    licenseBasis: 'no-publisher-declaration',
+    attributionText: source.attributionText,
   });
   return { ...citation, lang: 'fr' };
 }

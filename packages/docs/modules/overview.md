@@ -5,7 +5,7 @@ status: active
 
 # Ingestion Modules — Overview
 
-MapleSpike's data pipeline ingests from **142 modules** covering every major category of Canadian government data. Each module fetches, parses, and persists data from a specific source. This page provides a complete catalog.
+MapleSpike's pipeline includes modules for selected Canadian government and other public-sector sources. Module availability, source coverage, and update frequency vary. This page lists modules documented here; it may not reflect every active module.
 
 ## Architecture
 
@@ -23,7 +23,7 @@ Module/
 
 ## Module Registry
 
-All modules are registered in a centralized registry at `packages/pipeline-core/src/ingestion/registry.ts` and can be discovered programmatically:
+Modules are registered in `packages/pipeline-core/src/ingestion/registry.ts` and can be discovered programmatically. The registry may include modules not listed on this page:
 
 ```typescript
 import { getAllModules, getModule, getModulesByCategory } from '@maplespike/pipeline-core';
@@ -38,7 +38,7 @@ const health = getModulesByCategory('health');
 const committees = getModule('committees');
 ```
 
-## Complete Module Catalog
+## Modules Documented Here
 
 ### RSS / Core
 

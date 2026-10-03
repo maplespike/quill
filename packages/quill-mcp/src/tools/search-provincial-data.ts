@@ -12,12 +12,12 @@ const PROVINCES: Record<string, string> = {
 
 export const definition: ToolDefinition = {
   name: 'search_provincial_data',
-  description: 'Search provincial government open data across all 13 provinces and territories. Uses CKAN, Socrata, and other APIs depending on the province. Filter by province code to narrow results.',
+  description: 'Search provincial and territorial government open data. Routes to CKAN, Socrata, or another API depending on the province, so coverage and result quality vary by jurisdiction — a province whose portal is unreachable returns no results. Filter by province code to narrow results.',
   inputSchema: {
     type: 'object',
     properties: {
       query: { type: 'string', maxLength: 2000, description: 'Search terms (e.g., "health", "education", "transportation")' },
-      province: { type: 'string', enum: Object.keys(PROVINCES), description: 'Province code (ns, nb, on, bc, qc, ab, mb, sk, nl, pe, yt, nt, nu). Omit for all.' },
+      province:        { type: 'string', enum: Object.keys(PROVINCES), description: 'Province code (ns, nb, on, bc, qc, ab, mb, sk, nl, pe, yt, nt, nu). Omit to query every configured jurisdiction.' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results per province (default: 5)' },
     },
     required: ['query'],
@@ -51,7 +51,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         results, totalResults: totalAll,
         source: 'https://ouvert.canada.ca + provincial portals',
         retrievedAt: new Date().toISOString(),
-        license: 'OGL-Canada / OGL-Province',
+        license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket provincial license is asserted.',
       },
     };
   } catch (error) {

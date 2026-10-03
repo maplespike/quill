@@ -57,7 +57,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         _citation: {
           source_name: 'Health Canada Canadian Nutrient File',
           source_url: 'https://food-nutrition.canada.ca',
-          license: 'Open Government Licence - Canada',
+          license: 'Dataset-specific publisher license declaration is not included by this endpoint; consult the publisher terms.',
           retrieved_at: new Date().toISOString(),
         },
       },

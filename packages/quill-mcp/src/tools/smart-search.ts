@@ -100,7 +100,12 @@ async function fetchTimeSeries(key: string, limit = 20): Promise<{ label: string
 
 // #4: Citations
 function buildMeta(source: string, count: number) {
-  return { source, totalEntries: count, retrievedAt: new Date().toISOString(), license: 'OGL-Canada (https://open.canada.ca/en/open-government-licence-canada)' };
+  return {
+    source,
+    totalEntries: count,
+    retrievedAt: new Date().toISOString(),
+    license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket source license is asserted.',
+  };
 }
 
 // #5: Trends
@@ -120,7 +125,12 @@ async function fetchTrends(limit = 5) {
 
 export const definition: ToolDefinition = {
   name: 'smart_search',
-  description: 'Intelligent search across all Canadian government data. Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. Sources: Parliament (debates, bills, votes, MPs, committees), Gazette (regulations), Government open data (health, economy, environment, immigration, spending, etc.)',
+  description:
+    'Intent-aware search across the Canadian government data sources this tool is configured to reach. ' +
+    'Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. ' +
+    'Configured sources include Parliament (debates, bills, votes, MPs, committees), Gazette (regulations), and ' +
+    'government open data (health, economy, environment, immigration, spending, etc.) — coverage varies by source availability, ' +
+    'so results reflect only the sources that responded.',
   inputSchema: {
     type: 'object',
     properties: {

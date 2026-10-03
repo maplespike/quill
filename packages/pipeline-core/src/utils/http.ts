@@ -23,7 +23,29 @@
  *   const json = await resp.json();    // parsed JSON
  */
 
+import { createHash } from 'node:crypto';
 import { request as undiciRequest } from 'undici';
+import { recordIngestionArtifact } from '../claims/artifact-capture.js';
+
+function captureHttpArtifact(url: string, statusCode: number, headers: Record<string, string>, body: string): void {
+  const parsedUrl = new URL(url);
+  const urlRedacted = parsedUrl.username !== '' || parsedUrl.password !== '' || parsedUrl.searchParams.size > 0;
+  parsedUrl.username = '';
+  parsedUrl.password = '';
+  parsedUrl.search = '';
+  recordIngestionArtifact({
+    url: parsedUrl.toString(),
+    urlRedacted,
+    retrievedAt: new Date().toISOString(),
+    sha256: createHash('sha256').update(body, 'utf8').digest('hex'),
+    statusCode,
+    bodyCapture: 'complete-http-client-body',
+    mediaType: headers['content-type'],
+    byteLength: Buffer.byteLength(body, 'utf8'),
+    etag: headers.etag,
+    lastModified: headers['last-modified'],
+  });
+}
 
 // Capture the original globalThis.fetch at module load for mock detection
 const ORIGINAL_GLOBAL_FETCH = globalThis.fetch;
@@ -259,6 +281,7 @@ export async function httpGet(
     const respHeaders: Record<string, string> = {};
     resp.headers.forEach((v: string, k: string) => { respHeaders[k] = v; });
     const body = await resp.text();
+    captureHttpArtifact(url, resp.status, respHeaders, body);
     let parsed: unknown;
     const json = async <T = unknown>(): Promise<T> => {
       if (parsed === undefined) parsed = JSON.parse(body);
@@ -284,15 +307,17 @@ export async function httpGet(
       // Normalise headers — undici headers are iterable entries
       const respHeaders: Record<string, string> = {};
       try {
-        for (const [k, v] of resp.headers.entries()) {
-          respHeaders[k] = v;
+        for (const [k, v] of Object.entries(resp.headers)) {
+          if (typeof v === 'string') respHeaders[k.toLowerCase()] = v;
+          else if (Array.isArray(v)) respHeaders[k.toLowerCase()] = v.join(', ');
         }
       } catch {
-        // Some environments may not support .entries(); fallback
+        // Some environments may not expose enumerable response headers.
       }
 
       // Read body once and cache
       const bodyText: string = await resp.body.text();
+      captureHttpArtifact(url, resp.statusCode, respHeaders, bodyText);
       let _jsonParsed: unknown | undefined;
 
       // Retry on transient status codes

@@ -38,7 +38,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         totalCount: result.total,
         province: 'Quebec',
         source: 'https://www.donneesquebec.ca',
-        license: 'OGL-Quebec',
+        license: 'Dataset-specific publisher license declarations are included on individual results where supplied; no blanket Quebec license is asserted.',
         retrievedAt: new Date().toISOString(),
       },
     };

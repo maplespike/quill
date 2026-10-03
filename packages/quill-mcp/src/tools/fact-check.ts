@@ -3,17 +3,16 @@ import { fetchStatCanReleases, fetchCKANPackages } from '@maplespike/pipeline-co
 import { withClaims } from './claims-helper.js';
 
 /**
- * Check a specific claim, statement, or statistic against official Canadian government data sources.
- * Searches StatCan and CKAN portals for corroborating or contradicting evidence.
+ * Search selected configured data sources for records related to a claim.
+ * Returned references are discovery results, not independent verification.
  */
 export const definition: ToolDefinition = {
   name: 'fact_check',
   description:
-    'Check a specific claim, statement, or statistic against official Canadian government data sources ' +
-    '(StatCan, open.canada.ca, federal spending records). Returns corroborating or contradicting ' +
-    'evidence with citations, trust scores, and confidence ratings.',
+    'Search selected configured sources, including Statistics Canada and CKAN portals, for records related to a claim. ' +
+    'Returns matching records for review; this search does not independently verify the claim. Check citations with the original publisher.',
   descriptions: {
-    "fr-CA": "Vérifier une affirmation en la comparant aux données officielles du gouvernement canadien. Idéal pour vérifier les données économiques, les statistiques de l’emploi, les chiffres du PIB et d’autres indicateurs gouvernementaux publiés par Statistique Canada et les sources fédérales.",
+    "fr-CA": "Rechercher dans des sources configurées des dossiers liés à une affirmation. Les résultats sont des pistes à examiner et ne constituent pas une vérification indépendante; consultez les sources originales.",
   },
   inputSchema: {
     type: 'object',
@@ -134,7 +133,7 @@ export const handler: ToolHandler = async (args) => {
           evidence,
           summary:
             evidence.length > 0
-              ? `Found ${evidence.length} relevant government data sources for the claim "${claim}". Review the evidence to compare against the stated figures. For precise numeric verification, query specific StatCan cubes or CKAN datasets listed above.`
+              ? `Found ${evidence.length} records related to the claim "${claim}" in configured sources. Review each record with its original publisher; search results do not independently verify the claim.`
               : `No direct government data matches found for "${claim}". Try rephrasing or focusing on specific statistics (e.g., "unemployment rate 2024", "GDP growth").`,
         },
       }, evidence.map(e => ({

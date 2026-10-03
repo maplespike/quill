@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
+import { withPublisherLicense } from '@maplespike/pipeline-core';
 
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -55,15 +56,21 @@ async function fetchText(url: string, timeoutMs = 10_000): Promise<string> {
 }
 
 export function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Promise<T>): Promise<T> {
-  const key = cacheKey(tool, params);
+  // Version the cache namespace so results previously stamped with a blanket
+  // OGL-Canada label cannot continue to be served after this correction.
+  const key = `publisher-license-v2:${cacheKey(tool, params)}`;
   const cached = cacheGet<T>(key);
   if (cached) return Promise.resolve(cached);
   return fn().then(result => {
     // Auto-attach citation metadata for search results
     if (result && typeof result === 'object' && 'results' in (result as any) && 'total' in (result as any)) {
       const r = result as any;
-      const meta = { source: tool, retrievedAt: new Date().toISOString(), license: 'OGL-Canada (https://open.canada.ca/en/open-government-licence-canada)' };
-      result = { ...r, results: r.results.map((item: any) => ({ ...item, ...meta })), total: r.total };
+      const meta = { source: tool, retrievedAt: new Date().toISOString() };
+      result = {
+        ...r,
+        results: r.results.map((item: any) => ({ ...meta, ...withPublisherLicense(item) })),
+        total: r.total,
+      };
     }
     cacheSet(key, result, CACHE_TTL_MS);
     return result;

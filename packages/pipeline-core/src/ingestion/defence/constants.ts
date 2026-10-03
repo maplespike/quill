@@ -1,8 +1,8 @@
 /**
  * Quill — National Defence Data Source Constants
  *
- * DND/CAF personnel, procurement, and spending data from CKAN.
- * All under Open Government Licence – Canada.
+ * DND/CAF personnel, procurement, and spending dataset references from CKAN.
+ * Follow the terms and exclusions declared for each dataset and resource.
  */
 
 export const DND_DATASETS: Record<string, { id: string; title: string; description: string; url: string }> = {

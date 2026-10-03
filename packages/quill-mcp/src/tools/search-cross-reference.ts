@@ -54,8 +54,9 @@ export const definition: ToolDefinition = {
   name: 'search_cross_reference',
   description:
     'Cross-reference engine — resolves an entity name across committees, corporate, lobbying, GIC, elections, CanLII, and influence modules. ' +
-    'Returns per-registry hits with link confidence (graph-backed, not keyword search). ' +
-    'Use this to find everything every registry says about a person or organization.',
+    'Returns per-registry hits with link confidence (graph-backed, not keyword search); ' +
+    'a registry with no linked record contributes no hits. ' +
+    'Use this to see what each linked registry says about a person or organization.',
   descriptions: {
     "fr-CA": "Moteur de référence croisée — résout un nom d'entité dans les comités, entreprises, lobbying, GIC, élections, CanLII et modules d'influence, avec confiance par registre.",
   },

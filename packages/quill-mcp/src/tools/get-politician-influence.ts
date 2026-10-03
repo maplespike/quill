@@ -5,7 +5,7 @@ import { fetchPoliticians, fetchParliamentVotes, fetchEntityCrossReference } fro
 
 export const definition: ToolDefinition = {
   name: 'get_politician_influence',
-  description: 'Comprehensive influence profile for a Canadian politician. Combines MP info, lobbying meetings, voting records, and GIC appointments from openparliament.ca and CKAN. Use this to understand a politician\'s full footprint across government data.',
+  description: 'Assembled influence profile for a Canadian politician. Combines MP info, lobbying meetings, voting records, and GIC appointments from openparliament.ca and CKAN. Name matching is approximate, so confirm the politician is the intended one; a missing section means no matching record was retrieved, not that no such record exists.',
   inputSchema: {
     type: 'object',
     properties: {

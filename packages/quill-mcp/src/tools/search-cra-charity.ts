@@ -6,7 +6,8 @@ export const definition: ToolDefinition = {
   description:
     'Search CRA (Canada Revenue Agency) registered charity T3010 data. ' +
     'Covers detailed financials, directors, programs, and political activities ' +
-    'of every registered Canadian charity.',
+    'for charities with a published T3010 return. Charities exempt from filing, ' +
+    'or below the filing threshold, will not appear.',
   inputSchema: {
     type: 'object',
     properties: {

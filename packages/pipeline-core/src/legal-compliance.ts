@@ -1,6 +1,3 @@
-// pipeline-core: AGPL-3.0-or-later, engine: MIT, api-server: Apache-2.0,
-// quill-mcp: MIT, sdk: MIT, sdk-python: MIT, legal-core: MIT, legislation: MIT
-
 import { ConsoleAuditLogger } from './audit/logger.js';
 import type { AuditEntry, AuditLogger } from './audit/logger.js';
 
@@ -9,8 +6,8 @@ const AUDIT_LOGGER: AuditLogger = new ConsoleAuditLogger();
 export interface ComplianceResult {
   package: string;
   license: string;
-  attributionRequired: boolean;
-  sourceAttributed: boolean;
+  attributionRequired: boolean | null;
+  sourceAttributed: boolean | null;
   packagesChecked: number;
   recordsModified: number;
 }
@@ -30,18 +27,21 @@ export interface ComplianceAuditEntry {
   detail?: string;
 }
 
-const PACKAGE_LICENSES: Record<string, { license: string; attributionRequired: boolean }> = {
-  'pipeline-core': { license: 'AGPL-3.0-or-later', attributionRequired: true },
-  engine: { license: 'MIT', attributionRequired: false },
-  'api-server': { license: 'Apache-2.0', attributionRequired: true },
-  'quill-mcp': { license: 'MIT', attributionRequired: false },
-  sdk: { license: 'MIT', attributionRequired: false },
-  'sdk-python': { license: 'MIT', attributionRequired: false },
-  'legal-core': { license: 'MIT', attributionRequired: false },
-  legislation: { license: 'MIT', attributionRequired: false },
-};
+const DECLARATION_UNRESOLVED = 'License declarations conflict; rights-holder review required.';
 
-const VALID_PACKAGES = Object.keys(PACKAGE_LICENSES);
+// This endpoint previously presented a hand-written package map as a resolved
+// compliance result. Repository metadata and file-level notices conflict, so
+// do not convert those observations into a license or attribution conclusion.
+const REVIEWED_PACKAGES = [
+  'pipeline-core',
+  'engine',
+  'api-server',
+  'quill-mcp',
+  'sdk',
+  'sdk-python',
+  'legal-core',
+  'legislation',
+];
 
 export async function logComplianceEvent(entry: ComplianceAuditEntry): Promise<void> {
   const auditEntry: Omit<AuditEntry, 'timestamp'> = {
@@ -57,46 +57,26 @@ export async function logComplianceEvent(entry: ComplianceAuditEntry): Promise<v
 }
 
 export function getComplianceCheck(packageName: string): ComplianceResult {
-  const info = PACKAGE_LICENSES[packageName];
-  if (!info) {
-    return {
-      package: packageName,
-      license: 'unknown',
-      attributionRequired: false,
-      sourceAttributed: false,
-      packagesChecked: 0,
-      recordsModified: 0,
-    };
-  }
-
   return {
     package: packageName,
-    license: info.license,
-    attributionRequired: info.attributionRequired,
-    sourceAttributed: info.attributionRequired,
-    packagesChecked: 1,
+    license: DECLARATION_UNRESOLVED,
+    attributionRequired: null,
+    sourceAttributed: null,
+    packagesChecked: REVIEWED_PACKAGES.includes(packageName) ? 1 : 0,
     recordsModified: 0,
   };
 }
 
 export function getFullComplianceReport(): ComplianceResult[] {
-  return VALID_PACKAGES.map((name) => {
-    const info = PACKAGE_LICENSES[name];
-    return {
-      package: name,
-      license: info.license,
-      attributionRequired: info.attributionRequired,
-      sourceAttributed: info.attributionRequired,
-      packagesChecked: 1,
-      recordsModified: 0,
-    };
-  });
+  return REVIEWED_PACKAGES.map((name) => getComplianceCheck(name));
 }
 
 export function getPackageLicense(packageName: string): string | null {
-  return PACKAGE_LICENSES[packageName]?.license ?? null;
+  return REVIEWED_PACKAGES.includes(packageName) ? DECLARATION_UNRESOLVED : null;
 }
 
 export function getAllLicensedPackages(): string[] {
-  return [...VALID_PACKAGES];
+  // Legacy API name retained for compatibility; entries are under review, not
+  // affirmatively licensed or cleared by this package.
+  return [...REVIEWED_PACKAGES];
 }

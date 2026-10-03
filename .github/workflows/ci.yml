@@ -1,5 +1,9 @@
-# CI runs on the self-hosted NixOS runner (node, pnpm, docker, buildx, age, gh, kubectl
-# are all provided as system packages per docs/GITHUB-ACTIONS-NIX.md).
+# CI runs on a self-hosted runner labelled `nixos` — the label is historical and
+# is kept because 10+ workflows select on it. The hosts are actually Omarchy
+# (Arch) with node, pnpm, docker, buildx, age, gh, kubectl and k3s installed as
+# ordinary system packages. NEITHER nix NOR podman IS INSTALLED: do not wire a
+# control into `nix run .#*` or podman, and verify on the runner before
+# assuming a tool exists. See docs/GITHUB-ACTIONS-NIX.md for the verified list.
 # DO NOT add actions/setup-node or pnpm/action-setup here — those tools are
 # already on the runner, and a second install breaks cache attribution.
 # Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
@@ -23,6 +27,9 @@ env:
 jobs:
   build-and-test:
     runs-on: [self-hosted, nixos]
+    # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
+    # an infrastructure or process hang cannot squat a runner for days.
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -97,24 +104,36 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
+      # An invalid workflow file is silent: GitHub starts zero jobs and marks
+      # the run failed, which reads as an infrastructure problem rather than a
+      # syntax error. Two workflows have been broken this way unnoticed.
+      - name: Workflow YAML validity check
+        run: node scripts/gates/check-workflow-yaml.mjs
+
+      # Keep test stdout off the runner's live log stream while the suite runs,
+      # then emit a bounded tail. Earlier jobs wedged during this step, but
+      # diagnostics did not establish the process-level cause. The job timeout
+      # bounds recurrence; this helper also preserves the child exit status
+      # despite GitHub's default bash -e behavior and uses a per-step temp log.
       - name: Run api-server unit tests
-        run: pnpm --filter @maplespike/api-server test:unit
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
 
       - name: Run quill-mcp unit tests
-        run: pnpm --filter @maplespike/quill-mcp test:unit
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
 
       - name: Run api-server integration tests
-        run: pnpm --filter @maplespike/api-server test:integration
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
         continue-on-error: true
 
       - name: Run quill-mcp integration tests
-        run: pnpm --filter @maplespike/quill-mcp test:integration
+        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
         continue-on-error: true
 
   coverage:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -128,17 +147,18 @@ jobs:
           pnpm --filter @maplespike/quill-mcp build
 
       - name: Run api-server coverage (floor-enforced)
-        run: bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
 
       - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
+        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
@@ -166,6 +186,7 @@ jobs:
     # gitleaks-action lists PR commits via the API on pull_request events —
     # without pull-requests:read the token 403s ("Resource not accessible by
     # integration") and the job fails regardless of findings.
+    timeout-minutes: 45
     permissions:
       contents: read
       pull-requests: read
@@ -201,10 +222,16 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The action requires a licence key for organisation repos and exits
+          # with "is an organization. License key is required." without it. The
+          # secret was already set but never handed to the action, so this job
+          # failed on every PR regardless of its contents.
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   audit:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
+    timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
     # portal/public/data/security/audit.json) but fail on CRITICALs so a new
@@ -248,10 +275,12 @@ jobs:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/prod'
+    # Three multi-stage builds; generous, but not unbounded.
+    timeout-minutes: 120
     # GHCR push is RETIRED post-flip (2026-07-10 systemic registry flip).
-    # The default target is the operator-host nexus:5000 registry. The self-hosted
-    # NixOS runner can `nix run .#push-images` directly (operator-side); no GHCR
-    # auth, no public-internet push, much faster. This job now builds only;
+    # The default target is the operator-host nexus:5000 registry. Images are
+    # pushed operator-side by `scripts/pin-images.sh` (see docs/IMAGE-PINNING.md),
+    # which is also where the per-image SBOM is generated. This job builds only;
     # `push:` is intentionally false. To restore GHCR push when PAT scope is
     # bumped, replace the login + flip `push: true` + retarget tags to ghcr.io.
 
@@ -261,11 +290,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 'Build Portal image (push: false; operator-side nix run .#push-images)'
+      - name: 'Build Portal image (push: false; operator-side scripts/pin-images.sh)'
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.portal
           target: portal
           push: false
           tags: |
@@ -275,7 +304,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.api
           target: api-server
           push: false
           tags: |
@@ -285,7 +314,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.mcp
           target: quill-mcp
           push: false
           tags: |

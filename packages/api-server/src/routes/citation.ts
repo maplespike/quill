@@ -1,12 +1,12 @@
 /**
  * Quill — Citation Endpoint (Real)
  *
- * GET /v1/citation/:hash — Verify a SHA-256 citation hash against real pipeline data.
+ * GET /v1/citation/:hash — Look up a Quill record by its canonical JSON SHA-256.
  *
- * The citation hash is computed from the JSON-serialized record at fetch time.
- * To verify: re-fetch the source URL, compute sha256 of the response, compare.
+ * A stored or indexed hash match checks record integrity. It does not authenticate
+ * the source response or establish source-data reuse rights.
  *
- * Hash format: sha256:<hex> (e.g. "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c")
+ * Hash format: sha256:<64 hex characters>.
  */
 
 import type { RouteHandler } from '../types.js';
@@ -69,10 +69,14 @@ interface CitationResult {
   /** Rich claim-store metadata (only present for store-backed hits). */
   retrievedAt?: string;
   license?: string;
+  licenseUrl?: string;
+  licenseBasis?: 'publisher-metadata' | 'source-configuration' | 'no-publisher-declaration';
+  attributionText?: string;
   updateFrequency?: string;
   claim?: string;
   sourceUrl?: string;
-  /** Data-quality provenance score from the claim bundle (store-backed hits). */
+  /** Captured evidence from store-backed hits; null/absent elsewhere means not available. */
+  provenanceEvidence?: import('@maplespike/pipeline-core').ClaimProvenanceEvidence;
   quality?: {
     score: number;
     level: string;
@@ -144,13 +148,17 @@ async function findRecordByHash(targetHash: string): Promise<CitationResult | nu
       source: stored.bundle.sourceName,
       record,
       computedHash: targetHash,
-      // Thread the claim bundle's provenance through so the public verify
-      // surface can show retrieval time + license without re-deriving them.
+      // Thread the claim bundle's evidence through; retrieval time is populated
+      // only from an associated acquisition artifact by the store decoder.
       retrievedAt: stored.bundle.retrievedAt,
       license: stored.bundle.license,
+      licenseUrl: stored.bundle.licenseUrl,
+      licenseBasis: stored.bundle.licenseBasis,
+      attributionText: stored.bundle.attributionText,
       updateFrequency: stored.bundle.updateFrequency,
       claim: stored.bundle.claim,
       sourceUrl: stored.bundle.sourceUrl,
+      provenanceEvidence: stored.bundle.provenanceEvidence,
       quality: stored.bundle.quality
         ? {
             score: stored.bundle.quality.score,
@@ -202,19 +210,21 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
 
     if (!result) {
       return jsonResponse(
-        buildError('CITATION_NOT_FOUND', `No record found with hash sha256:${targetHash}. Data may have been modified or the hash is from a different source.`, ctx),
+        buildError('CITATION_NOT_FOUND', `No record is currently indexed for hash sha256:${targetHash}. This lookup does not determine whether a source record was changed or where a hash originated.`, ctx),
         404,
       );
     }
 
-    const sourceConfig = getSourceConfig(result.source);
-
     const citation: Record<string, unknown> = {
       source_name: result.source || 'Government of Canada',
       source_url: result.record.source_url || result.record.url || '',
-      license: 'Open Government Licence – Canada',
+      license: result.license ?? 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
+      ...(result.licenseUrl ? { license_url: result.licenseUrl } : {}),
+      license_basis: result.licenseBasis ?? 'no-publisher-declaration',
+      provenance_evidence: result.provenanceEvidence ?? null,
+      ...(result.attributionText ? { attribution_text: result.attributionText } : {}),
       data_hash: targetHash,
-      retrieved_at: new Date().toISOString(),
+      retrieved_at: result.retrievedAt ?? null,
       update_frequency: 'unknown',
     };
     if (result.quality) {
@@ -222,7 +232,10 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
     }
 
     return jsonResponse(buildSuccess({
+      // This is a successful hash lookup, not source authentication.
       verified: true,
+      verification_scope: citationStore.has(targetHash) ? 'claim-store-hash-match' : 'pipeline-index-hash-match',
+      provenance_evidence: result.provenanceEvidence ?? null,
       citation,
       verify_command: `echo -n '${canonicalJson(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
     }, ctx));
@@ -263,6 +276,7 @@ export const getVerifyClaimHandler: RouteHandler = async (_request, ctx, params)
         source_url: '',
         retrieved_at: null,
         license: null,
+        provenance_evidence: null,
       }, ctx));
     }
     const sourceConfig = getSourceConfig(result.source);
@@ -284,9 +298,15 @@ export const getVerifyClaimHandler: RouteHandler = async (_request, ctx, params)
       // Full journalist-facing provenance
       source_name: sourceName,
       source_url: sourceUrl,
-      retrieved_at: result.retrievedAt ?? new Date().toISOString(),
-      license: result.license ?? 'Open Government Licence – Canada',
-      update_frequency: result.updateFrequency ?? 'unknown',
+      retrieved_at: result.retrievedAt ?? null,
+      ...(citationStore.get(targetHash) ? { claim_created_at: citationStore.get(targetHash)?.createdAt ?? null } : {}),
+      license: result.license ?? 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
+      ...(result.licenseUrl ? { license_url: result.licenseUrl } : {}),
+      license_basis: result.licenseBasis ?? 'no-publisher-declaration',
+      provenance_evidence: result.provenanceEvidence ?? null,
+      verification_scope: citationStore.has(targetHash) ? 'claim-store-hash-match' : 'pipeline-index-hash-match',
+      ...(result.attributionText ? { attribution_text: result.attributionText } : {}),
+      update_frequency: result.updateFrequency ?? 'not supplied',
       claim: result.claim ?? '',
       quality: result.quality ?? null,
       verify_command: `echo -n '${canonicalJson(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
@@ -362,7 +382,9 @@ export const getLatestClaimsHandler: RouteHandler = async (_request, ctx) => {
         retrieved_at: c.retrievedAt,
         license: c.license,
         update_frequency: c.updateFrequency,
+        claim_created_at: c.createdAt,
         created_at: c.createdAt,
+        provenance_status: 'inspect-verification-endpoint',
       })),
     }, ctx));
   } catch (err) {

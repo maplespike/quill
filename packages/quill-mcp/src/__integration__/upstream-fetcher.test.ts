@@ -206,7 +206,9 @@ describe('upstream-fetcher — Gazette RSS parsing', () => {
     for (const item of result.results) {
       // cached() attaches source (tool name), retrievedAt, and license to each result item
       assert.ok(typeof (item as Record<string, unknown>).retrievedAt === 'string');
-      assert.ok(typeof (item as Record<string, unknown>).license === 'string');
+      const result = item as Record<string, unknown>;
+      assert.ok(typeof result.license === 'string');
+      assert.ok(['publisher-metadata', 'no-publisher-declaration'].includes(String(result.license_basis)));
     }
   });
 });

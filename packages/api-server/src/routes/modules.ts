@@ -34,7 +34,7 @@ const ALL_TOOLS: ToolEntry[] = [
   },
   {
     name: 'get_citation',
-    description: 'Retrieve and verify SHA-256 citation hashes for previously fetched Quill records.',
+    description: 'Look up claim hashes and available provenance evidence for Quill records. A hash match checks canonical record integrity, not source authenticity or reuse rights.',
     inputSchema: { type: 'object', properties: { hash: { type: 'string' } }, required: ['hash'] },
   },
   {

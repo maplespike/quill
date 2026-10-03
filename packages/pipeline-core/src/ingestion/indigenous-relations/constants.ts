@@ -5,7 +5,8 @@
  * for CIRNAC, ISC, First Nations Financial Transparency, TRC, and
  * Self-Government Agreements data.
  *
- * All sources are verified public-domain / open government data.
+ * Source terms and Indigenous data governance are dataset-specific. Public
+ * availability does not establish reuse permission or override community protocols.
  */
 
 import type { IndigenousIngestionResult } from './types.js';

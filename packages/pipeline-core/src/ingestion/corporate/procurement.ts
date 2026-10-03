@@ -6,7 +6,7 @@
  *   - buyandsell.gc.ca contract history (legacy)
  *   - Proactive disclosure of contracts over $10K (via open.canada.ca)
  *
- * These are public-domain data sources that reveal who gets
+ * These public-facing procurement sources reveal who gets
  * taxpayer-funded contracts and under what terms.
  */
 
