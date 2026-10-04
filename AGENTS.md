@@ -391,6 +391,23 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ---
 
+## Issue closure — put `Closes #N` in the COMMIT message
+
+PRs close issues with `Closes #NNN`. **Put that keyword in the commit
+message, not only the PR body.**
+
+The `ready-to-merge` gate squash-merges, and the squash carries the **head
+commit message**. Measured 2026-10-04: a PR with `Closes #983` in the PR body
+produced squash `8c08ae65` whose message did not contain it, so the issue stayed
+open. (Before that fix the gate passed an explicit `--subject`, which discarded
+even the commit body; see #983.)
+
+- **Commit message** — what survives the squash and drives auto-closure.
+- **PR body** — what humans and reviewers read. Keep it there too.
+
+An issue still open after a green gate merge is this convention being missed,
+not a flaky check.
+
 ## Document hygiene
 
 - **`AGENTS.md` is the source of truth.** Sibling `AGENTS.html` is an outdated static snapshot (Jul 3, 2026); do not edit.
