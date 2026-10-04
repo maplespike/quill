@@ -9,6 +9,7 @@
   Baseline: default-deny ingress+egress. Explicit allows only for real flows:
     - DNS (CoreDNS)
     - intra-namespace traffic (portal <-> api <-> mcp <-> redis)
+    - scrape ingress from the monitoring namespace to API/MCP metrics only
     - the two edges that serve quill: the cloudflared tunnel (ns cloudflared)
       and the LAN reverse proxy (ns media-reverse-proxy)
     - quill -> astral-key (auth: passkey / Web3 / JWT)
@@ -122,6 +123,34 @@ spec:
           port: 8082
         - protocol: TCP
           port: 3001
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-allow-monitoring-scrape
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: quill
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - quill-api
+          - quill-mcp
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: {{ .Values.api.metricsPort }}
+        - protocol: TCP
+          port: {{ .Values.mcp.metricsPort }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

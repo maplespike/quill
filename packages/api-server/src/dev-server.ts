@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * Quill — Development Server
  *
@@ -15,7 +16,9 @@
 import './telemetry.js';
 
 import * as http from 'node:http';
-import { handleRequest } from './index.js';
+import { handleRequest, getMetricsRoute } from './index.js';
+import { apiMetrics, isKnownPipeline, normalizeApiMethod, normalizeApiStatus } from './metrics.js';
+import { getAllModules, getLatestIngestRuns, getLatestSuccessfulIngestRuns } from '@maplespike/pipeline-core';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import type { QuillStorage, QuillCache } from './types.js';
 import { initEmailConfig } from './email.js';
@@ -23,17 +26,19 @@ import { validateConfig } from './config.js';
 import logger from './logger.js';
 
 import { redisClient } from './cache/redis.js';
-import { rateLimiter, TIER_LIMITS } from './middleware/rate-limiter.js';
-import type { Tier } from './middleware/rate-limiter.js';
+import { rateLimiter } from './middleware/rate-limiter.js';
 import { credentialCacheScope } from './middleware/cache-middleware.js';
 
 const log = logger;
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
+const METRICS_PORT = parseInt(process.env.QUILL_API_METRICS_PORT || "9464", 10);
 const AI_ENDPOINT = process.env.QUILL_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
 const AI_MODEL = process.env.QUILL_AI_MODEL || 'qwen3.5-27b';
 const QUILL_STORAGE = (process.env.QUILL_STORAGE || 'memory').toLowerCase();
 const QUILL_DB_PATH = process.env.QUILL_DB_PATH || './maplespike.db';
+
+const KNOWN_PIPELINE_MODULES = new Set(getAllModules().map(({ name }) => name));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') {
@@ -148,7 +153,63 @@ function verifyStorageHealth(): boolean {
   }
 }
 
+function renderMetrics(): string {
+  const lines = [
+    '# HELP quill_ingest_last_success_timestamp_seconds Unix timestamp of the last successful pipeline run.',
+    '# TYPE quill_ingest_last_success_timestamp_seconds gauge',
+    '# HELP quill_ingest_last_run_records Records reported by the latest pipeline run.',
+    '# TYPE quill_ingest_last_run_records gauge',
+    '# HELP quill_ingest_last_run_success Whether the latest pipeline run succeeded (1) or failed (0).',
+    '# TYPE quill_ingest_last_run_success gauge',
+  ];
+  try {
+    const successfulRuns = getLatestSuccessfulIngestRuns();
+    const latestRuns = getLatestIngestRuns();
+    const escapeLabel = (value: string) => value.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n');
+    for (const run of successfulRuns) {
+      if (!isKnownPipeline(run.pipeline, KNOWN_PIPELINE_MODULES)) continue;
+      const pipeline = escapeLabel(run.pipeline);
+      const timestamp = Date.parse(run.finished_at) / 1000;
+      if (Number.isFinite(timestamp)) lines.push(`quill_ingest_last_success_timestamp_seconds{pipeline="${pipeline}"} ${timestamp}`);
+    }
+    for (const run of latestRuns) {
+      if (!isKnownPipeline(run.pipeline, KNOWN_PIPELINE_MODULES)) continue;
+      const pipeline = escapeLabel(run.pipeline);
+      const records = Number.isFinite(run.records) ? Math.max(0, Math.trunc(run.records)) : 0;
+      lines.push(`quill_ingest_last_run_records{pipeline="${pipeline}"} ${records}`);
+      lines.push(`quill_ingest_last_run_success{pipeline="${pipeline}"} ${run.status === 'success' ? 1 : 0}`);
+    }
+  } catch (err) {
+    log.warn({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Unable to render ingestion metrics');
+  }
+  return `${apiMetrics.render()}${lines.join('\n')}\n`;
+}
+
+// The public API listener never exposes metrics. Use a separate ClusterIP Service
+// and NetworkPolicy for the dedicated listener below.
+const metricsServer = http.createServer((req, res) => {
+  if (req.method !== 'GET' || req.url !== '/metrics') {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found\n');
+    return;
+  }
+  res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8' });
+  res.end(renderMetrics());
+});
+
 const server = http.createServer(async (req, res) => {
+  const startedAt = Date.now();
+  const requestMethod = normalizeApiMethod(req.method ?? 'GET');
+  let status = 500;
+  let route = 'unmatched';
+  let metricsRecorded = false;
+  const recordMetrics = () => {
+    if (metricsRecorded) return;
+    metricsRecorded = true;
+    if (route !== 'metrics') apiMetrics.record(route, requestMethod, normalizeApiStatus(status), (Date.now() - startedAt) / 1000);
+  };
+  res.once('finish', recordMetrics);
+
   try {
     const protocol = (req.socket as { encrypted?: boolean }).encrypted ? 'https' : 'http';
     const host = req.headers.host || 'localhost';
@@ -156,6 +217,15 @@ const server = http.createServer(async (req, res) => {
     const parsedUrl = new URL(url);
     const pathname = parsedUrl.pathname;
     const search = parsedUrl.search;
+    route = getMetricsRoute(pathname, req.method ?? 'GET');
+
+    if (pathname === '/metrics') {
+      route = 'metrics';
+      status = 404;
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found\n');
+      return;
+    }
 
     // ── Rate limit check (skip health) ──
     if (!pathname.startsWith('/v1/health')) {
@@ -171,6 +241,7 @@ const server = http.createServer(async (req, res) => {
       res.setHeader('X-RateLimit-Reset', String(rlResult.resetTime));
 
       if (!rlResult.allowed) {
+        status = 429;
         res.setHeader('Retry-After', String(rlResult.retryAfter));
         res.writeHead(429, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
@@ -194,6 +265,7 @@ const server = http.createServer(async (req, res) => {
         const cached = await redisClient.get<string>(cacheKey);
         if (cached !== null) {
           cacheStatus = 'hit';
+          status = 200;
           res.setHeader('Content-Type', 'application/json');
           res.setHeader('X-Cache-Status', 'HIT');
           res.end(cached);
@@ -229,6 +301,7 @@ const server = http.createServer(async (req, res) => {
     });
 
     const response = await handleRequest(request, env, db, cache);
+    status = response.status;
 
     const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
@@ -255,7 +328,8 @@ const server = http.createServer(async (req, res) => {
       }
     }
   } catch (err) {
-    log.error(`Fatal: ${err}`);
+    log.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Fatal API request error');
+    status = 500;
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Server error', message_fr: 'Erreur interne du serveur' } }));
   }
@@ -266,10 +340,12 @@ if (!verifyStorageHealth()) {
   process.exit(1);
 }
 
-server.listen(PORT, '0.0.0.0', () => {
-  const devKey = process.env.QUILL_DEV_API_KEY || '<generate with /v1/register>';
-  const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
+metricsServer.listen(METRICS_PORT, '0.0.0.0', () => {
+  log.info({ port: METRICS_PORT }, 'Private API metrics listener started');
+});
 
+server.listen(PORT, '0.0.0.0', () => {
+  const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
   console.log(`\n  Quill API (dev)`);
   console.log(`  ${'─'.repeat(45)}`);
   console.log(`  Server:    http://0.0.0.0:${PORT}/v1`);
@@ -301,8 +377,15 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`     curl -H "Authorization: Bearer ***" http://localhost:${PORT}/v1/auth/me`);
   console.log(``);
   console.log(`  4. Registration:`);
-  console.log(`     curl -X POST http://localhost:${PORT}/v1/register \\`);
-  console.log(`       -H "Content-Type: application/json" \\`);
-  console.log(`       -d '{"name":"My Org","email":"user@example.com"}'`);
+  console.log(`     curl -X POST http://localhost:${PORT}/v1/register -H "Content-Type: application/json" -d '{"name":"My Org","email":"user@example.com"}'`);
   console.log(`  ${'─'.repeat(45)}\n`);
 });
+
+function shutdown(): void {
+  metricsServer.close();
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
