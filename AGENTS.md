@@ -389,24 +389,31 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 - [reverb256/astral-key](https://github.com/reverb256/astral-key) — Rust Web3/FIDO2/passkey auth microservice
 - [reverb256/nixos-config](https://github.com/reverb256/nixos-config) — Cluster NixOS config
 
----
+---## Issue closure — `Closes #N` in both PR body AND commit message
 
-## Issue closure — put `Closes #N` in the COMMIT message
+**Known 2026-10-04: GitHub auto-closure does not fire reliably for this repo's
+squash-merged PRs. Until that is fixed, close issues explicitly.**
 
-PRs close issues with `Closes #NNN`. **Put that keyword in the commit
-message, not only the PR body.**
+Measured, in order:
 
-The `ready-to-merge` gate squash-merges, and the squash carries the **head
-commit message**. Measured 2026-10-04: a PR with `Closes #983` in the PR body
-produced squash `8c08ae65` whose message did not contain it, so the issue stayed
-open. (Before that fix the gate passed an explicit `--subject`, which discarded
-even the commit body; see #983.)
+1. The gate passed an explicit `--subject "$TITLE (#N)"`, which discards the
+   whole squash message. PRs #979/#982 merged green; issues #978/#981 had to be
+   closed by hand. Fixed — see #983.
+2. With `--subject` dropped, squash `f9e1a492` on `main` **did** contain
+   `Closes #990.` in its message. #990 still did not close. No `closed` event on
+   its timeline, only `cross-referenced`.
+3. `#967` — the metrics work that used the documented `Closes #967` PR-body
+   convention — was also closed manually, by `reverb256`.
 
-- **Commit message** — what survives the squash and drives auto-closure.
-- **PR body** — what humans and reviewers read. Keep it there too.
+So no auto-closure has ever been observed working in this repo. Treat
+`Closes #N` as documentation for humans, not as automation.
 
-An issue still open after a green gate merge is this convention being missed,
-not a flaky check.
+Until a deterministic closure mechanism lands, the rule is simple:
+
+- Put `Closes #N` in the **PR body** (what reviewers read) and in the **commit
+  message** (what survives a squash).
+- After the merge, check the issue and `gh issue close N` if it is still open.
+  An open issue after a green gate merge is the expected case, not a signal.
 
 ## Document hygiene
 
