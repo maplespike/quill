@@ -9,8 +9,7 @@ use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::get,
-    Router,
+    routing::get, Router,
 };
 use metrics_exporter_prometheus::PrometheusBuilder;
 use tokio::signal;
