@@ -27,6 +27,11 @@ permissions:
   contents: write
   pull-requests: write
   checks: read
+  # gh pr checks' GraphQL reads checkSuite.workflowRun; without actions:read
+  # the whole query can be refused ("Resource not accessible by integration",
+  # measured on #997, 60/60 attempts, 2026-10-04). The REST fallback in the
+  # wait step keeps the gate working even if this scope is still refused.
+  actions: read
 
 jobs:
   merge:
@@ -86,16 +91,40 @@ jobs:
             # not read as "no pending, no failures". On an unreadable list,
             # wait and retry; the 20-min loop is the backstop. Observed once:
             # all-green reported while a check was still in_progress.
-            if ! CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name); then
+            #
+            # Fallback (#997): gh pr checks' GraphQL can be refused wholesale
+            # on this runner ("Resource not accessible by integration" on
+            # checkSuite.workflowRun — measured 60/60 attempts on #997,
+            # 2026-10-04). Read the same data over REST check-runs for the
+            # head SHA; both paths failing keeps the fail-closed retry.
+            PENDING=""
+            FAILURES=""
+            CHECKS=""
+            RAW=""
+            if CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null); then
+              PENDING=$(jq '[.[] | select(.bucket == "pending" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
+              FAILURES=$(jq '[.[] | select(.bucket == "fail" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
+            else
+              HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefOid -q .headRefOid 2>/dev/null || true)
+              if [ -n "$HEAD_SHA" ] && RAW=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA/check-runs?per_page=100" 2>/dev/null); then
+                if [ "$(jq '.check_runs | length' <<<"$RAW" 2>/dev/null || echo 0)" -gt 0 ]; then
+                  PENDING=$(jq '[.check_runs[] | select(.status != "completed" and .name != "merge" and .name != "Merge when green")] | length' <<<"$RAW")
+                  FAILURES=$(jq '[.check_runs[] | select(.name != "merge" and .name != "Merge when green" and (.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure"))] | length' <<<"$RAW")
+                fi
+              fi
+            fi
+            if [ -z "$PENDING" ] || [ -z "$FAILURES" ]; then
               echo "($i/60) check list unreadable — retrying."
               sleep 20
               continue
             fi
-            PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 1)
-            FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 1)
 
             if [[ "$FAILURES" -gt 0 ]]; then
-              NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
+              if [ -n "$CHECKS" ]; then
+                NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
+              else
+                NAMES=$(jq -r '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure") | .name] | join(", ")' <<<"$RAW" 2>/dev/null || true)
+              fi
               echo "::error::Failing checks on #$PR_NUMBER: $NAMES — refusing to merge."
               echo "Fix or revert them, then re-apply the label."
               exit 1
