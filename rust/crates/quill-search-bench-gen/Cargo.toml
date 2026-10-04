@@ -1,0 +1,21 @@
+[package]
+name = "quill-search-bench-gen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Deterministic bench-corpus generator for quill-search benchmarks (#976)"
+
+[lib]
+name = "quill_search_bench_gen"
+path = "src/lib.rs"
+
+[[bin]]
+name = "quill-search-bench-gen"
+path = "src/main.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true }
