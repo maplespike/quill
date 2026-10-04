@@ -4,7 +4,7 @@
 
 set -e
 
-REPO="${1:-reverb256/quill}"
+REPO="${1:-maplespike/quill}"
 MODE="${2:-agent-ready}"
 SINGLE_NUMBER="${3:-}"
 
@@ -25,11 +25,11 @@ if ! [[ "$REPO" =~ ^[^/[:space:]]+/[^/[:space:]]+$ ]]; then
         # Mode-first form: `agent-ready`, or `single <number>`.
         MODE="$REPO"
         [[ "${2:-}" =~ ^[0-9]+$ ]] && SINGLE_NUMBER="$2"
-        REPO="reverb256/quill"
+        REPO="maplespike/quill"
     else
         echo "✖ First argument must be a repo (owner/name); got '$REPO'." >&2
         echo "  Usage: $0 <repo> [foundation|agent-ready|all|single <number>]" >&2
-        echo "  Example: $0 reverb256/quill single 918" >&2
+        echo "  Example: $0 maplespike/quill single 918" >&2
         exit 2
     fi
 fi
@@ -318,6 +318,6 @@ if [ "$MODE" = "all" ]; then
 fi
 
 echo "Usage: $0 <repo> [mode]"
-echo "  repo: GitHub repo (default: reverb256/quill)"
+echo "  repo: GitHub repo (default: maplespike/quill)"
 echo "  mode: foundation|agent-ready|all (default: agent-ready)"
 exit 1
