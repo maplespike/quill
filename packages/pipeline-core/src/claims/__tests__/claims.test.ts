@@ -161,27 +161,28 @@ describe('claims: ingest hook (WS-1b)', () => {
   });
 
   it('resolves url precedence: record.url -> source_url -> sourceUrl -> label', async () => {
-    const cases: Array<[Record<string, unknown>, string]> = [
-      // Real per-record url wins over every fallback.
-      [{ id: 1, url: 'https://r.example', source_url: 'https://su.example' }, 'https://r.example'],
-      // source_url beats sourceUrl and the label.
-      [{ id: 1, source_url: 'https://su.example', sourceUrl: 'https://suc.example' }, 'https://su.example'],
-      // sourceUrl beats the module-level label.
-      [{ id: 1, sourceUrl: 'https://suc.example' }, 'https://suc.example'],
-      // No record-level url at all -> module source label.
-      [{ id: 1 }, 'https://label.example'],
-    ];
-    for (const [record, expected] of cases) {
-      citationStore.clear();
-      await registerModuleClaims('ingest-hook-test', [record], 'https://label.example');
-      const keys = citationStore.keys();
-      assert.equal(keys.length, 1, `one bundle expected for ${JSON.stringify(record)}`);
-      const got = citationStore.get(keys[0]);
-      assert.ok(got);
-      assert.equal(got.bundle.sourceUrl, expected, `sourceUrl for ${JSON.stringify(record)}`);
-    }
-    citationStore.clear();
-  });
+          citationStore.clear();
+          const cases: Array<[Record<string, unknown>, string]> = [
+            // Real per-record url wins over every fallback.
+            [{ id: 1, url: 'https://r.example', source_url: 'https://su.example' }, 'https://r.example'],
+            // source_url beats sourceUrl and the label.
+            [{ id: 1, source_url: 'https://su.example', sourceUrl: 'https://suc.example' }, 'https://su.example'],
+            // sourceUrl beats the module-level label.
+            [{ id: 1, sourceUrl: 'https://suc.example' }, 'https://suc.example'],
+            // No record-level url at all -> module source label.
+            [{ id: 1 }, 'https://label.example'],
+          ];
+          for (const [i, [record, expected]] of cases.entries()) {
+            const moduleName = `ingest-hook-test-${i}`;
+            await registerModuleClaims(moduleName, [record], 'https://label.example');
+            const bundles = citationStore.keys().map(key => citationStore.get(key)).filter(Boolean);
+            const ourBundles = bundles.filter(b => b.bundle.claim.startsWith(`${moduleName}: `));
+            assert.equal(ourBundles.length, 1, `expected exactly one bundle for moduleName ${moduleName}`);
+            const got = ourBundles[0];
+            assert.equal(got.bundle.sourceUrl, expected, `sourceUrl for ${JSON.stringify(record)}`);
+          }
+          citationStore.clear();
+        });
 
   it('wraps single-record module results but skips status envelopes and count-only results', async () => {
     citationStore.clear();
