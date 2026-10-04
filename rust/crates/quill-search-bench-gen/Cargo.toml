@@ -13,6 +13,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "quill-search-bench-gen"
 path = "src/main.rs"
+test = false
 
 [dependencies]
 serde = { workspace = true }
