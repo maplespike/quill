@@ -85,6 +85,44 @@ dockerfile_for() {
   esac
 }
 
+# Per-service build prerequisites, checked BEFORE any build starts.
+#
+# Why: Dockerfile.portal does `COPY packages/portal/dist`, which exists only
+# after the Astro build. Without this preflight, `--svc ingest,portal` builds
+# and imports ingest (correctly, per-service) and then dies deep inside the
+# portal build with:
+#
+#   failed to calculate checksum of ref ...: "/packages/portal/dist": not found
+#
+# which reads like a corrupt checkout rather than "you forgot to build the
+# frontend". Caught 2026-10-04 on nexus.
+#
+# Everything except portal compiles TypeScript inside its own Dockerfile, so
+# they have no such prerequisite.
+preflight() {
+  case "$1" in
+    portal)
+      if [[ ! -d "$REPO/packages/portal/dist" ]]; then
+        cat >&2 <<EOF
+ERROR: building quill-portal needs packages/portal/dist, which does not exist yet.
+
+  Dockerfile.portal COPYs the built Astro output; it is not built inside the
+  image. Produce it first:
+
+    pnpm install
+    pnpm --filter @maplespike/portal build     # astro build + sync-discovery
+
+  (or: pnpm turbo build --filter=@maplespike/portal)
+
+No other service has this prerequisite. Re-run with just the services that
+need no prebuild, e.g. --svc ingest, if you only want those.
+EOF
+        exit 2
+      fi
+      ;;
+  esac
+}
+
 ctr() { sudo k3s ctr -n "$CTR_NS" "$@"; }
 
 # Exact-name lookup in the store. NOTE: never `ctr images ls | grep -q` under
@@ -119,6 +157,14 @@ fi
 
 echo "pin-images: node=$HOST registry=$REGISTRY date=$DATE git=$GIT_SHA mode=$([[ $EXISTING == true ]] && echo existing || echo build)"
 echo
+
+# Check EVERY requested service's prerequisites before building ANY of them.
+# Doing this inside the loop would be too late: `--svc ingest,portal` would
+# spend minutes building and importing ingest before discovering portal cannot
+# start at all.
+for SVC in $SERVICES; do
+  preflight "$SVC"
+done
 
 pins=()
 for SVC in $SERVICES; do
