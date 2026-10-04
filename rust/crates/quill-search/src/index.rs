@@ -14,7 +14,7 @@ use std::path::Path;
 use tantivy::collector::TopDocs;
 use tantivy::doc;
 use tantivy::query::QueryParser;
-use tantivy::schema::{Field, Schema, INDEXED, STORED, TEXT, Value};
+use tantivy::schema::{Field, Schema, Value, INDEXED, STORED, TEXT};
 use tantivy::snippet::{Snippet, SnippetGenerator};
 use tantivy::{Index, IndexReader, ReloadPolicy, TantivyDocument};
 
@@ -286,13 +286,13 @@ fn snippet_for(
                 .get_first(text_field)
                 .and_then(|v| v.as_str())
                 .unwrap_or_default();
-            match gen.snippet_from_doc(doc) {
-                Ok(snip) => {
-                    // tantivy highlights ranges are indices into the fragment.
-                    let _ = text;
-                    snip.to_html().unwrap_or_else(|_| fallback_snippet(title, text))
-                }
-                Err(_) => fallback_snippet(title, text),
+            let snip = gen.snippet_from_doc(doc);
+            // tantivy highlights ranges are indices into the fragment.
+            let html = snip.to_html();
+            if html.is_empty() {
+                fallback_snippet(title, text)
+            } else {
+                html
             }
         }
         Err(_) => title.to_string(),
@@ -394,9 +394,20 @@ mod tests {
         build_index(&docs, dir.path()).unwrap();
         let idx = SearchIndex::open(dir.path()).unwrap();
 
+        // Both docs contain "bloor street"; BM25 length-normalization lets the
+        // shorter doc (contracts:2) outrank, so only membership is pinned here.
+        // Distinctive-term ordering is pinned by the query below and by the
+        // integration test (PINNED_QUERY → PINNED_TOP_HIT).
         let (hits, total) = search(&idx, "bloor street", 10, None).unwrap();
         assert_eq!(total, 2);
         assert_eq!(hits.len(), 2);
+        let ids: Vec<&str> = hits.iter().map(|h| h.id.as_str()).collect();
+        assert!(ids.contains(&"toronto:contracts:1"), "ids: {ids:?}");
+        assert!(ids.contains(&"toronto:contracts:2"), "ids: {ids:?}");
+
+        // Terms only contracts:1 has rank it first (conjunction default).
+        let (hits, total) = search(&idx, "bloor street construction", 10, None).unwrap();
+        assert_eq!(total, 1);
         assert_eq!(hits[0].id, "toronto:contracts:1");
 
         let (hits, total) = search(&idx, "bloor street", 10, Some("module")).unwrap();

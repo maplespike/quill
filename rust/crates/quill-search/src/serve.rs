@@ -12,8 +12,7 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use metrics_exporter_prometheus::{PrometheusBuilder, PrometheusHandle};
-use serde_json::json;
+use metrics_exporter_prometheus::PrometheusBuilder;
 use tokio::signal;
 use tokio::signal::unix::{signal, SignalKind};
 use tracing::{error, info};
@@ -36,14 +35,15 @@ pub struct AppState {
 }
 
 impl AppState {
-    fn new(index: SearchIndex) -> Self {
+    pub fn new(index: SearchIndex) -> Self {
         Self {
             index: Arc::new(RwLock::new(index)),
         }
     }
 
-    /// Read the current index with a closure.
-    fn read<F, R>(&self, f: F) -> R
+    /// Read the current index with a closure (public: handlers, tests, and
+    /// embedders all go through this one accessor).
+    pub fn with_index<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&SearchIndex) -> R,
     {
@@ -52,7 +52,7 @@ impl AppState {
     }
 
     /// Swap the current index with a new one.
-    fn swap(&self, new_index: SearchIndex) {
+    pub fn swap(&self, new_index: SearchIndex) {
         *self.index.write().unwrap_or_else(|e| e.into_inner()) = new_index;
     }
 }
@@ -67,8 +67,7 @@ fn public_router(state: AppState) -> Router {
 }
 
 pub async fn health_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let docs = state.read(|idx| idx.meta.docs);
-    let built_at = state.read(|idx| idx.meta.built_at.clone());
+    let (docs, built_at) = state.with_index(|idx| (idx.meta.docs, idx.meta.built_at.clone()));
     let body = serde_json::json!({
         "status": "ok",
         "docs": docs,
@@ -86,9 +85,19 @@ pub async fn search_handler(
         .and_then(|v| v.as_str())
         .unwrap_or("")
         .to_string();
+    if query.trim().is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            axum::Json(serde_json::json!({ "error": "missing or empty q" })),
+        );
+    }
     let limit = params
         .get("limit")
-        .and_then(|v| v.as_u64())
+        .and_then(|v| {
+            // Query params arrive as JSON strings; accept both shapes.
+            v.as_u64()
+                .or_else(|| v.as_str().and_then(|s| s.parse::<u64>().ok()))
+        })
         .map(|v| v as usize)
         .unwrap_or(DEFAULT_LIMIT)
         .min(MAX_LIMIT);
@@ -97,7 +106,11 @@ pub async fn search_handler(
         .and_then(|v| v.as_str())
         .map(|v| v.to_string());
 
-    let (hits, total) = state.read(|idx| crate::index::search(idx, &query, limit, kind.as_deref()).expect("search failed"));
+    let started = std::time::Instant::now();
+    let (hits, total) = state.with_index(|idx| {
+        crate::index::search(idx, &query, limit, kind.as_deref()).expect("search failed")
+    });
+    let took_ms = started.elapsed().as_millis() as u64;
 
     let results = hits
         .into_iter()
@@ -112,12 +125,13 @@ pub async fn search_handler(
                 "published": hit.published,
                 "updated": hit.updated,
                 "meta": hit.meta,
+                "snippet": hit.snippet,
             })
         })
         .collect::<serde_json::Value>();
 
     let body = serde_json::json!({
-        "took_ms": 0, // TODO: implement timing
+        "took_ms": took_ms,
         "total": total,
         "limit": limit,
         "kind": kind,
@@ -128,11 +142,12 @@ pub async fn search_handler(
 }
 
 pub async fn stats_handler(State(state): State<AppState>) -> impl IntoResponse {
-    let meta = state.read(|idx| idx.meta.clone());
+    let (meta, index_bytes) = state.with_index(|idx| (idx.meta.clone(), idx.index_bytes()));
     let body = serde_json::json!({
         "docs": meta.docs,
+        "kinds": meta.kinds,
+        "index_bytes": index_bytes,
         "built_at": meta.built_at,
-        "index_size_bytes": 0, // TODO: implement
     });
     (StatusCode::OK, axum::Json(body))
 }
@@ -178,7 +193,7 @@ pub async fn serve(index_dir: PathBuf, public_port: u16, metrics_port: u16) -> a
         .with_context(|| format!("cannot bind public port {public_port}"))?;
     tracing::info!(
         "quill-search serving {} docs on 0.0.0.0:{public_port} (metrics on :{metrics_port})",
-        state.read(|i| i.meta.docs)
+        state.with_index(|i| i.meta.docs)
     );
 
     // SIGHUP → atomic index swap: reopen `index_dir` (a completed build) and
@@ -200,7 +215,7 @@ pub async fn serve(index_dir: PathBuf, public_port: u16, metrics_port: u16) -> a
                     sighup_state.swap(new_index);
                     info!(
                         "index swapped; now serving {} docs",
-                        sighup_state.read(|i| i.meta.docs)
+                        sighup_state.with_index(|i| i.meta.docs)
                     );
                 }
                 Err(e) => {

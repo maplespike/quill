@@ -25,8 +25,13 @@ pub struct Document {
     pub published: String,
     #[serde(default)]
     pub updated: String,
-    #[serde(default)]
+    #[serde(default = "empty_meta")]
     pub meta: serde_json::Value,
+}
+
+/// Default for an absent `meta` field: an empty object, never `null`.
+fn empty_meta() -> serde_json::Value {
+    serde_json::json!({})
 }
 
 impl Document {

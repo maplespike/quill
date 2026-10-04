@@ -15,10 +15,10 @@ use tempfile::TempDir;
 
 fn free_port() -> u16 {
     static NEXT: AtomicU16 = AtomicU16::new(0);
-    let pid = std::process::id() as u16;
-    let bump = NEXT.fetch_add(1, Ordering::SeqCst);
-    // 20000 + (pid mod 20000) * 8-ish spread; collisions retried by caller
-    20_000 + (pid % 20_000) + bump * 97
+    let pid = std::process::id() as u64;
+    let bump = NEXT.fetch_add(1, Ordering::SeqCst) as u64;
+    // 20_000..50_000 window, spread by pid + call index; wide math, no u16 overflow.
+    (20_000 + (pid.wrapping_mul(97).wrapping_add(bump * 97) % 30_000)) as u16
 }
 
 /// Spawn the serve stack (public + metrics listeners) on free ports; returns
@@ -36,19 +36,27 @@ async fn spawn_fixture_server() -> ServeGuard {
     let tmp = TempDir::new().expect("tempdir");
     let index = build_fixture(tmp.path());
     let state = AppState::new(index);
-    let public_port = loop {
-        let p = free_port();
-        if p > 40_000 {
-            continue;
+
+    // Bind with retries: free_port() is spread but a parallel test or a
+    // leftover process may still hold a port.
+    let (public_port, listener) = {
+        let mut bound = None;
+        let mut last_err = None;
+        for _ in 0..20 {
+            let p = free_port();
+            match tokio::net::TcpListener::bind(("127.0.0.1", p)).await {
+                Ok(l) => {
+                    bound = Some((p, l));
+                    break;
+                }
+                Err(e) => last_err = Some(e),
+            }
         }
-        break p;
+        bound.unwrap_or_else(|| panic!("cannot bind any free port: {last_err:?}"))
     };
     let metrics_port = public_port + 1;
 
     let app = quill_search::public_router(state.clone());
-    let listener = tokio::net::TcpListener::bind(("127.0.0.1", public_port))
-        .await
-        .expect("bind public");
     let task = tokio::spawn(async move {
         let _ = axum::serve(listener, app).await;
     });
@@ -62,13 +70,8 @@ async fn spawn_fixture_server() -> ServeGuard {
 }
 
 fn get(port: u16, path: &str) -> (StatusCode, String) {
-    let rt = tokio::runtime::Runtime::new().expect("runtime");
-    rt.block_on(async {
-        let resp = reqwest_less::get(format!("http://127.0.0.1:{port}{path}"))
-            .await
-            .expect("http request");
-        (resp.status(), resp.text().await.expect("body"))
-    })
+    let resp = reqwest_less::get(format!("http://127.0.0.1:{port}{path}")).expect("http request");
+    (resp.status(), resp.text().to_string())
 }
 
 // Minimal reqwest-free HTTP client for tests: std TcpStream + hand-rolled
@@ -92,7 +95,7 @@ mod reqwest_less {
         }
     }
 
-    pub async fn get(url: String) -> std::io::Result<Resp> {
+    pub fn get(url: String) -> std::io::Result<Resp> {
         // url = http://127.0.0.1:port/path
         let rest = url.strip_prefix("http://").expect("http url");
         let (hostport, path) = rest.split_once('/').expect("host/path");
