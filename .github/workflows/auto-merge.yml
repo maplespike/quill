@@ -12,7 +12,14 @@ permissions:
 
 jobs:
   auto-merge:
-    if: github.actor == 'dependabot[bot]' || github.actor == 'reverb256'
+    # Dependabot only. This workflow self-approves (`gh pr review --approve`),
+    # so a human author must never enter the job. While `reverb256` was also
+    # accepted, a PR titled e.g. "fix: bump vitest config" was approved under
+    # the owner's own identity and auto-merged — safety here is decided by
+    # grepping the PR title, which the author can edit at will. Human PRs are
+    # gated by the `ready-to-merge` label in merge-when-green.yml instead,
+    # which approves nothing.
+    if: github.actor == 'dependabot[bot]'
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +71,12 @@ jobs:
 
           # Default: don't auto-merge unknown deps
           echo "safe=false" >> $GITHUB_OUTPUT
-          echo "reason=Not in auto-merge whitelist — manual review" >> $GITHUB_OUTPUT
+          # Wording matters here: this is a dependency-bump allowlist, not a
+          # blocklist of trusted authors. "Not in the auto-merge whitelist"
+          # reads as though the PR had been rejected or was missing something;
+          # the accurate statement is that this workflow only covers the
+          # package names listed above.
+          echo "reason=Dependency-bump allowlist does not cover this package — manual review" >> $GITHUB_OUTPUT
 
       - name: Wait for CI checks
         if: steps.check.outputs.safe == 'true'
