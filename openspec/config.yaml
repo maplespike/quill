@@ -1,22 +1,21 @@
-schema: spec-driven
+schema: spec-driven-with-review
 
 context: |
-  Monorepo: 14 packages (pipeline-core, quill-mcp, api-server, portal, sdk, ingestion, engine)
-  198 modules, 164 MCP tools
-  Stack: TypeScript, pnpm, Turborepo, Astro, Node.js
-  CI: nix develop → pnpm build → pnpm test
-  Architecture: Monorepo with 3-profile review gate (thorough-coder → reviewer → verifier)
-  Deploy: k8s/ manifests → k3s cluster
-  Canadian public data platform — modules span federal, provincial, territorial, municipal
+  Monorepo: pnpm workspace, TypeScript, Turbo, Astro, Node.js
+  Architecture: Canadian public data platform with API, hosted MCP, portal, and ingestion services
+  CI: pnpm build and pnpm test
+  Production: Quill chart in charts/quill, managed through the media-k8s ArgoCD application
+  Observability: VictoriaMetrics, VictoriaLogs, and Grafana managed by media-k8s
+  Changes use the proposal → specs → design → review → tasks workflow before implementation
 
 rules:
   proposal:
-    - Include affected packages and module count
-    - Note if new MCP tools or API endpoints are needed
+    - Include affected packages and service boundaries
+    - Note whether API/MCP contracts or new dependencies change
   specs:
     - Use Given/When/Then format for scenarios
     - Reference existing spec patterns before inventing new ones
     - Each requirement must be independently testable
   design:
-    - Include data flow for pipeline changes
-    - Reference Qdrant schema changes if vector search is affected
+    - Include data flow for cross-service changes
+    - Document security, rollout, and rollback implications

@@ -15,6 +15,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { mcpMetrics } from './metrics.js';
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { parsePaymentHeader } from './x402-middleware.js';
@@ -31,11 +32,12 @@ import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http';
 // NGHTTP2_INTERNAL_ERROR. Without this guard one flaky feed would kill the
 // whole SSE server. See installStreamErrorGuard() in pipeline-core.
 installStreamErrorGuard({
-  warn: (obj, msg) => logger.warn({ err: obj.err }, msg ?? ''),
-  error: (obj, msg) => logger.error({ err: obj.err }, msg ?? ''),
+  warn: (obj, msg) => logger.warn({ errorType: obj.err instanceof Error ? obj.err.name : 'unknown' }, msg ?? ''),
+  error: (obj, msg) => logger.error({ errorType: obj.err instanceof Error ? obj.err.name : 'unknown' }, msg ?? ''),
 });
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
+const METRICS_PORT = parseInt(process.env.QUILL_MCP_METRICS_PORT ?? '9465', 10);
 const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
 const X402_ENABLED = process.env.X402_ENABLED === 'true';
 const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
@@ -130,15 +132,25 @@ async function authenticate(req: IncomingMessage): Promise<boolean> {
   // tenant was issued at signup, which made the surface single-tenant.
   const verified = await verifyTenantKeyWithApi(token, process.env.QUILL_API_URL);
   if (verified.valid) {
-    logger.info('MCP auth: tenant key accepted (tenant=%s)', verified.tenantId);
+    logger.info('MCP auth: tenant key accepted');
     return true;
   }
   if (verified.reason !== 'no-api-url' && verified.reason !== 'no-token') {
-    logger.warn('MCP auth: tenant key rejected (%s)', verified.reason);
+    logger.warn({ reason: verified.reason }, 'MCP auth: tenant key rejected');
   }
 
   return false;
 }
+
+const metricsServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+  if (req.method !== 'GET' || req.url !== '/metrics') {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found\n');
+    return;
+  }
+  res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8' });
+  res.end(mcpMetrics.render());
+});
 
 const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
@@ -152,6 +164,12 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       'Access-Control-Allow-Origin': '*',
     });
     res.end('Redirecting to SSE endpoint: /sse');
+    return;
+  }
+
+  if (path === '/metrics') {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found\n');
     return;
   }
 
@@ -184,7 +202,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 
     clients.set(clientId, { id: clientId, res, locale });
 
-    logger.info('SSE client connected: %s (total: %d)', clientId, clients.size);
+    logger.info('SSE client connected (total: %d)', clients.size);
 
     // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
@@ -198,7 +216,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      logger.info('SSE client disconnected: %s (total: %d)', clientId, clients.size);
+      logger.info('SSE client disconnected (total: %d)', clients.size);
     });
 
     return;
@@ -276,9 +294,9 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
           identity = buildIdentity('anonymous-ip', ip);
           if (process.env.NODE_ENV === 'production') {
             if (typeof fwd === 'string') {
-              logger.warn('SSE without Bearer, X-Forwarded-For present, TRUST_PROXY=%s — using %s remoteAddress for IP-keyed quota.', trustProxy ? 'true' : 'false', trustProxy ? 'XFF' : 'socket');
+              logger.warn('SSE without Bearer, X-Forwarded-For present — using %s remoteAddress for IP-keyed quota.', trustProxy ? 'XFF' : 'socket');
             } else {
-              logger.warn('SSE without Bearer — quota keyed by IP (%s). Set TRUST_PROXY=true only behind a known proxy envelope.', identity.hashed);
+              logger.warn('SSE without Bearer — quota keyed by a hashed IP. Set TRUST_PROXY=true only behind a known proxy envelope.');
             }
           }
         }
@@ -293,7 +311,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
           (response.result as Record<string, unknown>)._quota = quotaStatus;
         }
         sendSse(client.res, 'message', response);
-      }, paymentProof, identity).catch((err: unknown) => logger.error(err, 'Error handling message'));
+      }, paymentProof, identity).catch((err: unknown) => logger.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Error handling MCP message'));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -306,11 +324,15 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
   res.end(JSON.stringify({ error: 'Not found', path }));
 });
 
+metricsServer.listen(METRICS_PORT, '0.0.0.0', () => {
+  logger.info('Private MCP metrics listener started on port %d', METRICS_PORT);
+});
+
 httpServer.listen(PORT, () => {
   logger.info('Hosted SSE server running on http://0.0.0.0:%d', PORT);
   logger.info('SSE endpoint: http://0.0.0.0:%d/sse', PORT);
   logger.info('Health check: http://0.0.0.0:%d/health', PORT);
-  logger.info('Tools loaded: %s', tools.map(t => t.definition.name).join(', '));
+  logger.info('Tools loaded: %d', tools.length);
 });
 
 process.on('SIGINT', () => {
@@ -319,11 +341,13 @@ process.on('SIGINT', () => {
   for (const { res } of clients.values()) {
     res.end();
   }
+  metricsServer.close();
   httpServer.close(() => process.exit(0));
 });
 
 process.on('SIGTERM', () => {
   logger.warn('SIGTERM received, shutting down');
   getQuotaTracker().flushSync();
+  metricsServer.close();
   httpServer.close(() => process.exit(0));
 });

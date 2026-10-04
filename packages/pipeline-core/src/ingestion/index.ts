@@ -30,6 +30,7 @@ export {
   recordIngestRun,
   getIngestRuns,
   getLatestIngestRuns,
+  getLatestSuccessfulIngestRuns,
   cronPeriodSeconds,
   maxAgeSecondsFor,
   INGEST_RUNS_DDL,

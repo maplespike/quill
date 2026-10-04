@@ -41,8 +41,13 @@ spec:
         image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.api.port }}
+        - name: http
+          containerPort: {{ .Values.api.port }}
+        - name: metrics
+          containerPort: {{ .Values.api.metricsPort }}
         env:
+        - name: QUILL_API_METRICS_PORT
+          value: {{ .Values.api.metricsPort | quote }}
         - name: NODE_ENV
           value: "{{ .Values.api.env.NODE_ENV }}"
         - name: ENVIRONMENT
@@ -218,8 +223,13 @@ spec:
         image: {{ include "quill.image" (dict "svc" "mcp" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.mcp.port }}
+        - name: http
+          containerPort: {{ .Values.mcp.port }}
+        - name: metrics
+          containerPort: {{ .Values.mcp.metricsPort }}
         env:
+        - name: QUILL_MCP_METRICS_PORT
+          value: {{ .Values.mcp.metricsPort | quote }}
         - name: NODE_ENV
           value: production
         - name: QUILL_API_URL
