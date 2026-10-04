@@ -37,6 +37,12 @@ import {
 import { upsertPerson } from '../../shared-db.js';
 import type { Chamber, CommitteeIngestionResult, CommitteeMeeting, InCameraAlert, Intervention } from './types.js';
 
+import { computeHash } from '../../verification/hashing.js';
+import { buildClaimBundle, DEFAULT_CLAIM_LICENSE } from '../../claims/index.js';
+import { citationStore } from '../../claims/store.js';
+import type { ClaimItem } from '../../claims/index.js';
+import type { SourceArtifactEvidenceInput } from '../../claims/types.js';
+
 
 interface ScrapedMeetingLink {
   meetingNumber: number;
@@ -177,7 +183,7 @@ export async function ingestCommittee(
         const xmlUrl = evidenceHtmlUrl(p, s, acronym, meeting.meetingNumber, baseUrl);
         log(`[${acronym}] Fetching meeting #${meeting.meetingNumber}...`);
 
-        const xml = await fetchEvidenceXml(xmlUrl);
+        const { xml, statusCode, headers } = await fetchEvidenceXml(xmlUrl);
         const parsed = await parseEvidenceXml(xml, p, s, chamber);
 
         const cm = parsed.meeting;
@@ -225,6 +231,43 @@ export async function ingestCommittee(
             } catch (e) {
               // Non-fatal: shared table may not exist yet
             }
+          }
+
+          // NEW: Build and register claim bundle for this intervention
+          try {
+            // Build the artifact from the XML response
+            const artifact: SourceArtifactEvidenceInput = {
+              url: xmlUrl,
+              retrievedAt: new Date().toISOString(),
+              sha256: cm.id, // meeting id is the hash of the XML
+              statusCode,
+              etag: headers.etag ?? undefined,
+              lastModified: headers['last-modified'] ?? undefined,
+              mediaType: headers['content-type'] ?? undefined,
+              byteLength: new TextEncoder().encode(xml).length,
+              bodyCapture: 'complete-http-client-body',
+            };
+
+            // Build a ClaimItem for this intervention
+            const claimItem: ClaimItem = {
+              claim: `${acronym}: ${inv.speakerName} said: ${inv.text.slice(0, 100)}...`,
+              value: inv,
+              sourceName: acronym,
+              sourceUrl: xmlUrl,
+              retrievedAt: new Date().toISOString(),
+              license: DEFAULT_CLAIM_LICENSE,
+              licenseBasis: 'source-configuration',
+              transformations: ['ingestion'],
+              sourceArtifactsEvidence: [artifact],
+            };
+
+            // Build the claim bundle
+            const bundle = await buildClaimBundle(claimItem, {});
+
+            // Register the bundle in the citation store
+            citationStore.put(bundle);
+          } catch (claimErr) {
+            console.warn(`[claims] Failed to register claim bundle for intervention in meeting #${meeting.meetingNumber}: ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
           }
         }
         result.speakersFound += seenSpeakers.size;
