@@ -1,3 +1,5 @@
+ARG GIT_SHA=unknown
+ENV QUILL_BUILD_REV=${GIT_SHA}
 FROM docker.io/library/alpine:3.20 AS portal
 RUN apk add --no-cache python3 bash coreutils
 COPY packages/portal/dist /app/
