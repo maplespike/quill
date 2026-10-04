@@ -1,5 +1,5 @@
 /**
- * Committee Database Tests — MapleSpike Pipeline
+ * Committee Database Tests — Quill
  *
  * Tests JSON persistence functions for committee meetings, interventions,
  * and speakers using a mock D1Database that captures SQL and parameters.

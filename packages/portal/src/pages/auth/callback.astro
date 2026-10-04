@@ -107,8 +107,8 @@ if (Astro.url.searchParams.has("error")) {
           const userId = payload?.name || provider;
 
           // Use the existing global auth manager
-          if (window.MapleSpikeAuth?.setAuth) {
-            window.MapleSpikeAuth.setAuth(token, userId, provider);
+          if (window.QuillAuth?.setAuth) {
+            window.QuillAuth.setAuth(token, userId, provider);
           } else {
             // Fallback: write directly to localStorage
             localStorage.setItem("maplespike_token", token);

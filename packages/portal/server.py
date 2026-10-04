@@ -144,7 +144,7 @@ def make_md_fallback(path):
 
 # ── Custom handler ──────────────────────────────────────────────────
 
-class MapleSpikeHandler(SimpleHTTPRequestHandler):
+class QuillHandler(SimpleHTTPRequestHandler):
 
     # Security headers (migrated from Cloudflare Pages _headers file)
     SECURITY_HEADERS = {
@@ -539,7 +539,7 @@ if __name__ == "__main__":
     # SIGKILL (exit 137) crash loop, exactly what was observed in prod.
     # ThreadingHTTPServer also sets daemon_threads=True, so stuck upstream
     # connections never block pod shutdown.
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), MapleSpikeHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), QuillHandler)
     print(f"[portal] MapleSpike dev server → http://localhost:{PORT}")
     print(f"[portal] Serving: {DIRECTORY}")
     print(f"[portal] AI-friendly: llms.txt | llms-full.txt | Accept: text/markdown | /page.md")

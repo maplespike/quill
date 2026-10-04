@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Housing Data Records Types — MapleSpike Pipeline
+ * Housing Data Records Types — Quill
  *
  * Strongly-typed interfaces for CMHC housing market data and CHSP
  * (Canada Housing Statistics Program) data from Statistics Canada.

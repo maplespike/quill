@@ -1,6 +1,6 @@
 /**
 export { parsePermanentResidentAdmission, parsePermanentResidentAdmissions } from './parser.js';
- * Immigration Ingestion — MapleSpike Pipeline
+ * Immigration Ingestion — Quill
  *
  * Orchestrates immigration, refugee, and border data ingestion
  * across IRCC, IRB, and CBSA sources.

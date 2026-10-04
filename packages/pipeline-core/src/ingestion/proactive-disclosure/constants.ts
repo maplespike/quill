@@ -1,5 +1,5 @@
 /**
- * Proactive Disclosure Constants — MapleSpike Pipeline
+ * Proactive Disclosure Constants — Quill
  *
  * CKAN search URLs, department metadata, and configuration for
  * federal proactive disclosure data sources.
@@ -59,7 +59,7 @@ export const MAX_PAGE_SIZE = 500;
  * Default headers for CKAN API requests.
  */
 export const CKAN_HEADERS: Record<string, string> = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'application/json,text/html,*/*',
 };
 

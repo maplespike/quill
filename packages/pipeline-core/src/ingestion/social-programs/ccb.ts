@@ -1,5 +1,5 @@
 /**
- * Canada Child Benefit (CCB) Ingestion — MapleSpike Pipeline
+ * Canada Child Benefit (CCB) Ingestion — Quill
  *
  * Fetches Canada Child Benefit payment data by federal riding from
  * open.canada.ca CKAN datasets.

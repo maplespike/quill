@@ -1,5 +1,5 @@
 /**
- * NRCan Data Types — MapleSpike Pipeline
+ * NRCan Data Types — Quill
  *
  * Types for Natural Resources Canada mining and topographic data.
  *

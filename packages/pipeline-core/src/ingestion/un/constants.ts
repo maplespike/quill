@@ -1,5 +1,5 @@
 /**
- * UN Data Constants — MapleSpike Pipeline
+ * UN Data Constants — Quill
  *
  * SDMX REST API URLs, database code mappings, and helper functions
  * for the UNdata statistical databases.

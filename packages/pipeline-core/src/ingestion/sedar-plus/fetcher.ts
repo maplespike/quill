@@ -1,5 +1,5 @@
 /**
- * SEDAR+ Fetcher — MapleSpike Pipeline
+ * SEDAR+ Fetcher — Quill
  *
  * Fetches corporate filings from the Canadian SEDAR+ system.
  * Uses the CD Plus API for modern filings and falls back to

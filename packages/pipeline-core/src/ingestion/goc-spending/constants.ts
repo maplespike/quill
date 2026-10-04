@@ -1,5 +1,5 @@
 /**
- * GoC-Spending Constants — MapleSpike Pipeline
+ * GoC-Spending Constants — Quill
  *
  * URLs, file names, and configuration for the GoC-Spending dataset.
  *

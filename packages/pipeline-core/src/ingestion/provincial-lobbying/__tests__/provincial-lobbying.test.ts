@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Tests — MapleSpike Pipeline
+ * Provincial Lobbying Tests — Quill
  *
  * Tests for constants, types, and parser normalizers across all 9 new
  * provincial/territorial lobbying modules.

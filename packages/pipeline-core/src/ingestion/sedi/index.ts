@@ -1,5 +1,5 @@
 /**
- * SEDI Insider Trading Ingestion — MapleSpike Pipeline
+ * SEDI Insider Trading Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Canadian insider trading reports
  * from the System for Electronic Disclosure by Insiders (SEDI).

@@ -1,5 +1,5 @@
 /**
- * Provincial Legislatures Types — MapleSpike Pipeline
+ * Provincial Legislatures Types — Quill
  *
  * Types for legislative data from all 10 Canadian provinces.
  * Covers Hansard transcripts, committee hearings, and bills.

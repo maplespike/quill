@@ -1,5 +1,5 @@
 /**
- * NPRI (National Pollutant Release Inventory) Parser — MapleSpike Pipeline
+ * NPRI (National Pollutant Release Inventory) Parser — Quill
  *
  * Normalizes raw NPRI records from CKAN packages and CSV resources
  * into the unified NpriRecord schema.

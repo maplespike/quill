@@ -226,7 +226,7 @@ async function main(): Promise<void> {
   const filteredCount = entries.length - apiEntries.length;
 
   // Identify API base calls specifically (api.maplespike.ca or /api/v1)
-  const maplespikeApiEntries = entries.filter((e: any) =>
+  const quillApiEntries = entries.filter((e: any) =>
     e.request.url.includes('api.maplespike.ca') || e.request.url.includes('/api/v1')
   );
 
@@ -239,8 +239,8 @@ async function main(): Promise<void> {
 
   // Write MapleSpike API-specific HAR
   const msApiPath = config.output.replace(/\.har$/, '-msapi.har');
-  if (maplespikeApiEntries.length > 0) {
-    writeHarFile(maplespikeApiEntries, msApiPath);
+  if (quillApiEntries.length > 0) {
+    writeHarFile(quillApiEntries, msApiPath);
   }
 
   // Write sanitized version
@@ -250,7 +250,7 @@ async function main(): Promise<void> {
 
   console.log(`📊 Total entries: ${entries.length}`);
   console.log(`🔍 Non-static entries: ${apiEntries.length} (filtered ${filteredCount})`);
-  console.log(`🎯 api.maplespike.ca entries: ${maplespikeApiEntries.length}`);
+  console.log(`🎯 api.maplespike.ca entries: ${quillApiEntries.length}`);
 
   await browser.close();
   console.log('🏁 Done.');

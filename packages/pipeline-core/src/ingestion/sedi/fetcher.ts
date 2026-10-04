@@ -1,5 +1,5 @@
 /**
- * SEDI Fetcher — MapleSpike Pipeline
+ * SEDI Fetcher — Quill
  *
  * HTTP fetcher for the Canadian System for Electronic Disclosure by Insiders (SEDI).
  *

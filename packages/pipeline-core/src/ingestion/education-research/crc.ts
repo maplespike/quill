@@ -1,5 +1,5 @@
 /**
- * Canada Research Chairs (CRC) Ingestion — MapleSpike Pipeline
+ * Canada Research Chairs (CRC) Ingestion — Quill
  *
  * Ingests Canada Research Chairs holder data from open.canada.ca
  * via CKAN package_show API.

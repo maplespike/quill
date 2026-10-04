@@ -1,5 +1,5 @@
 /**
- * StatCan WDS Data Types — MapleSpike Pipeline
+ * StatCan WDS Data Types — Quill
  *
  * Strongly typed interfaces for every major Statistics Canada indicator
  * category fetched via the Web Data Service (WDS) REST API.

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Housing Data Parser — MapleSpike Pipeline
+ * Housing Data Parser — Quill
  *
  * Normalizes raw CMHC housing market and CHSP records into the unified schema.
  * Each record is assigned a SHA-256 content hash for deduplication.

@@ -1,5 +1,5 @@
 /**
- * CTA Connector — MapleSpike Pipeline
+ * CTA Connector — Quill
  *
  * Fetches Canadian Transportation Agency ruling and decision data.
  *

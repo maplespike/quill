@@ -1,5 +1,5 @@
 /**
- * Proactive Disclosure Fetcher — MapleSpike Pipeline
+ * Proactive Disclosure Fetcher — Quill
  *
  * HTTP fetchers for federal government proactive disclosure data via
  * the open.canada.ca CKAN aggregate search API.

@@ -1,5 +1,5 @@
 /**
- * Provincial Legislatures Fetcher — MapleSpike Pipeline
+ * Provincial Legislatures Fetcher — Quill
  *
  * HTTP fetchers for provincial legislative data across Canada.
  * Each province has its own data format and API approach:

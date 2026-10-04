@@ -1,5 +1,5 @@
 /**
- * GC Standards & Compatibility — MapleSpike Pipeline
+ * GC Standards & Compatibility — Quill
  *
  * Canonical mappings, schemas, and compatibility layers adopted from:
  *

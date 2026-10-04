@@ -1,5 +1,5 @@
 /**
- * Fisheries Constants — MapleSpike Pipeline
+ * Fisheries Constants — Quill
  *
  * CKAN dataset IDs, search URLs, and configuration for Canadian
  * fisheries and oceans data sources.

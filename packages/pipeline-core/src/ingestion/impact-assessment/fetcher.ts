@@ -1,5 +1,5 @@
 /**
- * Impact Assessment Agency of Canada Fetcher — MapleSpike Pipeline
+ * Impact Assessment Agency of Canada Fetcher — Quill
  *
  * Fetches federal project impact assessment records from IAAC (Impact Assessment
  * Agency of Canada) via the project registry and CKAN.

@@ -1,5 +1,5 @@
 /**
- * UN Data Types — MapleSpike Pipeline
+ * UN Data Types — Quill
  *
  * Strongly typed interfaces for the UNdata SDMX REST API.
  * Covers 32+ databases with ~60M records across population, trade,

@@ -9,7 +9,7 @@ describe('MapleSpike SDK', () => {
 
   it('exports query types', async () => {
     const mod = await import('../types.js');
-    assert.ok(mod.MapleSpikeResponse);
+    assert.ok(mod.QuillResponse);
     assert.ok(mod.QueryOptions);
     assert.ok(mod.AuthConfig);
   });

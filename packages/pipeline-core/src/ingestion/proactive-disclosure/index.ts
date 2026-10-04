@@ -1,5 +1,5 @@
 /**
- * Proactive Disclosure Ingestion — MapleSpike Pipeline
+ * Proactive Disclosure Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for federal proactive disclosure data:
  *   1. Fetch raw CKAN Solr search results (paginated)

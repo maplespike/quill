@@ -1,5 +1,5 @@
 /**
- * CRA Charity T3010 Filing Types — MapleSpike Pipeline
+ * CRA Charity T3010 Filing Types — Quill
  *
  * Strongly-typed interfaces for Canada Revenue Agency (CRA) T3010
  * Registered Charity Information Return data.

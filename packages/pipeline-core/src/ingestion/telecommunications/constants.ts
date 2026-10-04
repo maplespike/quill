@@ -22,7 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_telecommunications_published ON telecommunication
 `;
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

@@ -1,5 +1,5 @@
 /**
- * Species at Risk Registry Ingestion — MapleSpike Pipeline
+ * Species at Risk Registry Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Canada's Species at Risk Act (SARA)
  * registry data from the JSON API at species-registry.canada.ca.

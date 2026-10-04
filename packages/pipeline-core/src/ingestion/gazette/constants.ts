@@ -1,5 +1,5 @@
 /**
- * Gazette Constants — MapleSpike Pipeline
+ * Gazette Constants — Quill
  *
  * RSS feed URLs for Canada Gazette Parts I, II, III
  * and DDL for the gazette_records table.

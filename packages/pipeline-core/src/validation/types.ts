@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Parser Validation Types — MapleSpike Pipeline
+ * Parser Validation Types — Quill
  *
  * Strongly-typed interfaces for validating parser output
  * against expected data source schemas.

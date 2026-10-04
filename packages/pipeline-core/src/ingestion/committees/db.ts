@@ -1,5 +1,5 @@
 /**
- * Committee Database — MapleSpike Pipeline
+ * Committee Database — Quill
  *
  * D1 SQLite persistence for committee meetings, interventions, and speakers.
  * Uses the same D1 API pattern as the existing MapleSpike-Gazette schema.

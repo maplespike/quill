@@ -1,5 +1,5 @@
 /**
- * Qdrant Embedder — MapleSpike Pipeline
+ * Qdrant Embedder — Quill
  *
  * Chunks text documents, generates embeddings via the fusion gateway
  * (or local fallback), and upserts vectors into Qdrant.

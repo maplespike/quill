@@ -1,5 +1,5 @@
 /**
- * GIC Appointment Ingestion — MapleSpike Pipeline
+ * GIC Appointment Ingestion — Quill
  *
  * Orchestrates Governor-in-Council appointment data ingestion from
  * multiple Canadian government sources.

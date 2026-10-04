@@ -1,5 +1,5 @@
 /**
- * Indigenous Relations Constants — MapleSpike Pipeline
+ * Indigenous Relations Constants — Quill
  *
  * Known CKAN dataset UUIDs, URL sources, and tracked communities
  * for CIRNAC, ISC, First Nations Financial Transparency, TRC, and

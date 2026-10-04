@@ -1,5 +1,5 @@
 /**
- * NRCan Fetcher — MapleSpike Pipeline
+ * NRCan Fetcher — Quill
  *
  * HTTP fetch logic for Natural Resources Canada data sources via CKAN API.
  */

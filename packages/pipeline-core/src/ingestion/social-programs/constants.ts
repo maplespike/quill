@@ -1,5 +1,5 @@
 /**
- * Social Programs Constants — MapleSpike Pipeline
+ * Social Programs Constants — Quill
  *
  * CKAN package IDs, base URLs, URL builders, and DDL for Canadian
  * social program data available on open.canada.ca and other sources.

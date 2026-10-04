@@ -1,5 +1,5 @@
 /**
- * Fisheries Fetcher — MapleSpike Pipeline
+ * Fisheries Fetcher — Quill
  *
  * Fetches Canadian fisheries and oceans data from CKAN portals.
  * Handles CSV parsing and JSON resource extraction.

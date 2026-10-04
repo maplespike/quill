@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * BC Health Fetcher — MapleSpike Pipeline
+ * BC Health Fetcher — Quill
  *
  * Fetches BC health data from:
  *   - BC PharmaCare — CKAN data portal

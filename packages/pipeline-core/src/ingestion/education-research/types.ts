@@ -1,5 +1,5 @@
 /**
- * Education & Research Data Types — MapleSpike Pipeline
+ * Education & Research Data Types — Quill
  *
  * Types for Canadian education and research source data:
  *   - Tri-Council grants (CIHR/NSERC/SSHRC) — federal research funding

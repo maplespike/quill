@@ -1,5 +1,5 @@
 /**
- * Crown Corporations Types — MapleSpike Pipeline
+ * Crown Corporations Types — Quill
  *
  * Types for tracking Canada's crown corporations — government-owned
  * enterprises that operate at arm's length from the federal government.

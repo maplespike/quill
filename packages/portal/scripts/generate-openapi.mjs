@@ -68,7 +68,7 @@ for (const agent of Object.values(agentMap)) {
         responses: {
           '200': {
             description: 'Successful response; payload, citations, and provenance vary by endpoint and source.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/MapleSpikeResponse' } } },
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/QuillResponse' } } },
           },
           '401': { description: 'API key missing or invalid' },
           '402': { description: 'Quota exhausted' },
@@ -96,7 +96,7 @@ const spec = {
       ApiKeyAuth: { type: 'apiKey', in: 'header', name: 'X-API-Key', description: 'API key from https://maplespike.ca/workspace' },
     },
     schemas: {
-      MapleSpikeResponse: {
+      QuillResponse: {
         type: 'object', description: 'Common API envelope. Payload and citation fields vary by route and source.',
         properties: {
           success: { type: 'boolean' }, data: { description: 'Route-specific payload; shape varies by endpoint.' },
@@ -109,19 +109,19 @@ const spec = {
       },
       ClaimVerificationResponse: {
         allOf: [
-          { $ref: '#/components/schemas/MapleSpikeResponse' },
+          { $ref: '#/components/schemas/QuillResponse' },
           { type: 'object', properties: { data: { $ref: '#/components/schemas/ClaimVerificationData' } } },
         ],
       },
       ClaimsLatestResponse: {
         allOf: [
-          { $ref: '#/components/schemas/MapleSpikeResponse' },
+          { $ref: '#/components/schemas/QuillResponse' },
           { type: 'object', properties: { data: { $ref: '#/components/schemas/ClaimsLatestData' } } },
         ],
       },
       ClaimHashResponse: {
         allOf: [
-          { $ref: '#/components/schemas/MapleSpikeResponse' },
+          { $ref: '#/components/schemas/QuillResponse' },
           { type: 'object', properties: { data: { $ref: '#/components/schemas/ClaimHashData' } } },
         ],
       },

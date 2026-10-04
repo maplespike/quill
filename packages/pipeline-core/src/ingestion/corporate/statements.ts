@@ -1,5 +1,5 @@
 /**
- * Executive Statements Collector — MapleSpike Pipeline
+ * Executive Statements Collector — Quill
  *
  * Collects public statements by high-impact Canadian executives:
  *   - Committee testimony (already captured by committees module)

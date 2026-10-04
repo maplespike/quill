@@ -1,5 +1,5 @@
 /**
- * CBSA Connector — MapleSpike Pipeline
+ * CBSA Connector — Quill
  *
  * Fetches Canada Border Services Agency enforcement data:
  *   - Administrative Monetary Penalty System (AMPS) statistics

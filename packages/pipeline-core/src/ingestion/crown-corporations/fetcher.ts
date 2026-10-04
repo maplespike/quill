@@ -1,5 +1,5 @@
 /**
- * Crown Corporations Fetcher — MapleSpike Pipeline
+ * Crown Corporations Fetcher — Quill
  *
  * HTTP fetchers for crown corporation reports, financial data, and
  * governance documents across Canada's federally owned enterprises.

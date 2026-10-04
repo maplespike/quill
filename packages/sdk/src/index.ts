@@ -19,7 +19,7 @@
  * @module @maplespike/sdk
  */
 
-import type { SdkConfig, MapleSpikeResponse, QueryOptions } from './types.js';
+import type { SdkConfig, QuillResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse, getBilingualError } from './query.js';
 import { setApiKey, setJwtToken, clearAuth } from './auth.js';
 import { SearchClient, type SearchQuery, type SearchResult } from './search.js';
@@ -28,18 +28,18 @@ import { EntityResolutionClient, type Entity, type EntityGraph, type EntityResol
 
 // Re-export types
 export type {
-  MapleSpikeResponse,
+  QuillResponse,
   QueryOptions,
   ResponseMeta,
   ResponseQuality,
   Citation,
   AuthConfig,
   SdkConfig,
-  MapleSpikeApiError,
+  QuillApiError,
   AgentDefinition,
   ActionDefinition,
 } from './types.js';
-export { MapleSpikeError } from './types.js';
+export { QuillError } from './types.js';
 export { getAgent, listAgents, listActions, AGENTS } from './agents.js';
 export { getApiKey, setApiKey, getJwtToken, setJwtToken, isAuthenticated, clearAuth } from './auth.js';
 
@@ -248,7 +248,7 @@ export class MapleSpike {
     action: string,
     params?: Record<string, unknown>,
     options?: QueryOptions,
-  ): Promise<MapleSpikeResponse<T>> {
+  ): Promise<QuillResponse<T>> {
     const url = buildUrl(this._baseUrl, agent, action, params, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers });

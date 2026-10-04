@@ -1,5 +1,5 @@
 /**
- * Audit Logging — MapleSpike Pipeline
+ * Audit Logging — Quill
  *
  * Immutable audit trail for every AI decision made by the pipeline.
  * This is **new code** — the original MapleSpike Worker had no audit logging.

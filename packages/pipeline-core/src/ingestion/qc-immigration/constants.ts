@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Immigration Ingestion Constants — MapleSpike Pipeline
+ * Quebec Immigration Ingestion Constants — Quill
  *
  * Source URLs, DDL, and defaults for ingesting Quebec immigration data from:
  *   - Ministère de l'Immigration, de la Francisation et de l'Intégration (MIFI)
@@ -140,7 +140,7 @@ CREATE INDEX IF NOT EXISTS idx_qc_immigration_ingested ON qc_immigration_records
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 400;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

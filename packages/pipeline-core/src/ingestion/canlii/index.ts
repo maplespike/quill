@@ -1,5 +1,5 @@
 /**
- * CanLII Ingestion — MapleSpike Pipeline
+ * CanLII Ingestion — Quill
  *
  * Orchestrates the CanLII court decisions ingestion pipeline:
  *   1. Search / browse for new decisions from tracked courts

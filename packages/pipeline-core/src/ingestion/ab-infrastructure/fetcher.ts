@@ -13,7 +13,7 @@ export async function fetchAbInfrastructureRecords(options: { limit?: number } =
 
   try {
     const url = `${CKAN_URL}/api/3/action/package_search?q=ab-infrastructure&`;
-    const resp = await httpGet(url, { headers: { 'User-Agent': 'MapleSpikePipeline/0.1', Accept: 'application/json' }, timeoutMs: DEFAULT_TIMEOUT_MS });
+    const resp = await httpGet(url, { headers: { 'User-Agent': 'Quill/0.1', Accept: 'application/json' }, timeoutMs: DEFAULT_TIMEOUT_MS });
     if (resp.statusCode >= 400) {
       errors.push('HTTP ' + resp.statusCode + ' fetching');
       return { records, errors };

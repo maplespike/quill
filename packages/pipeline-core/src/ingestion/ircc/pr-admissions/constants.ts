@@ -1,5 +1,5 @@
 /**
- * Ircc Constants — MapleSpike Pipeline
+ * Ircc Constants — Quill
  *
  * Configuration for IRCC Permanent Resident Admissions data sources.
  */

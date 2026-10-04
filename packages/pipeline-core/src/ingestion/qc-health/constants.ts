@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Health Ingestion Constants — MapleSpike Pipeline
+ * Quebec Health Ingestion Constants — Quill
  *
  * Source URLs, DDL, and defaults for ingesting Quebec health data from:
  *   - RAMQ (Régie de l'assurance maladie du Québec) — medical claims data
@@ -121,7 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_qc_health_ingested ON qc_health_records(ingested_
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

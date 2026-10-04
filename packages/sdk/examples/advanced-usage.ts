@@ -4,7 +4,7 @@
  * Demonstrates error handling, query options, and MCP integration
  */
 
-import { MapleSpike, MapleSpikeError } from '@maplespike/sdk';
+import { MapleSpike, QuillError } from '@maplespike/sdk';
 
 const ms = new MapleSpike({
   apiKey: process.env.QUILL_API_KEY,
@@ -31,7 +31,7 @@ async function advancedUsage() {
     try {
       await ms.corporate.profile({ businessNumber: 'invalid' });
     } catch (error) {
-      if (error instanceof MapleSpikeError) {
+      if (error instanceof QuillError) {
         console.error('API Error:', error.code, error.message, error.status);
         console.error('Request ID:', error.requestId);
       }

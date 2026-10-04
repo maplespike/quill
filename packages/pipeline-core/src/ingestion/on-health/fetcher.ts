@@ -1,5 +1,5 @@
 /**
- * Ontario Health Fetcher — MapleSpike Pipeline
+ * Ontario Health Fetcher — Quill
  *
  * Fetches Ontario health records from:
  *   - OHIP claims data (data.ontario.ca CKAN)

@@ -1,5 +1,5 @@
 /**
- * SEDAR+ Corporate Filings Types — MapleSpike Pipeline
+ * SEDAR+ Corporate Filings Types — Quill
  *
  * Types for Canadian securities filings from SEDAR+ (sedarplus.ca),
  * the national system for electronic document analysis and retrieval

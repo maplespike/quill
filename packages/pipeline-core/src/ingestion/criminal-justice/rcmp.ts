@@ -1,5 +1,5 @@
 /**
- * RCMP Connector — MapleSpike Pipeline
+ * RCMP Connector — Quill
  *
  * Fetches RCMP crime statistics data from open.canada.ca CKAN
  * and the RCMP open data portal.

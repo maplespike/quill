@@ -1,5 +1,5 @@
 /**
- * Ircc Ingestion Module — MapleSpike Pipeline
+ * Ircc Ingestion Module — Quill
  *
  * IRCC Study Permit Holders data ingestion from open.canada.ca CKAN portal.
  */

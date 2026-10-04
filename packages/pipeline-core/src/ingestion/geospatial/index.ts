@@ -1,5 +1,5 @@
 /**
- * Geospatial Data Ingestion — MapleSpike Pipeline
+ * Geospatial Data Ingestion — Quill
  *
  * Fetches geospatial datasets from open.canada.ca CKAN across
  * 18 query categories. Also includes all 12 LODE (Linkable Open

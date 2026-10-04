@@ -1,5 +1,5 @@
 /**
- * Criminal Justice Data Types — MapleSpike Pipeline
+ * Criminal Justice Data Types — Quill
  *
  * Types for Canadian criminal justice data covering:
  *   - CSC prison population, incidents, deaths, costs

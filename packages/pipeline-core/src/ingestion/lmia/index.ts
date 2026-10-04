@@ -1,5 +1,5 @@
 /**
- * LMIA Ingestion — MapleSpike Pipeline
+ * LMIA Ingestion — Quill
  *
  * Orchestrates the LMIA data ingestion pipeline:
  *   1. Discover latest quarter from CKAN metadata (or use specified quarter)

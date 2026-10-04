@@ -1,5 +1,5 @@
 /**
- * LMIA Parser — MapleSpike Pipeline
+ * LMIA Parser — Quill
  *
  * Parses ESDC quarterly CSV files into structured LmiaRecord objects.
  * Handles the somewhat variable column ordering and naming across

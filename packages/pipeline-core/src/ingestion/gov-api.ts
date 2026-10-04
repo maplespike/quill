@@ -1,5 +1,5 @@
 /**
- * Government Data API Clients — MapleSpike Pipeline
+ * Government Data API Clients — Quill
  *
  * Fetchers for Canadian open government data sources.
  * Implements StatCan WDS/SDMX and CKAN portals.

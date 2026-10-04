@@ -1,5 +1,5 @@
 /**
- * Federal Budget Ingestion — MapleSpike Pipeline
+ * Federal Budget Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Canadian federal budget data:
  *   1. Fetch budget documents, public accounts, fiscal monitor, departmental plans

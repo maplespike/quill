@@ -1,5 +1,5 @@
 /**
- * Lobbying Registry Connector — MapleSpike Pipeline
+ * Lobbying Registry Connector — Quill
  *
  * Fetches federal lobbying registration data from the Office of the
  * Commissioner of Lobbying of Canada (OCL).

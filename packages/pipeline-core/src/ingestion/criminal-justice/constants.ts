@@ -1,5 +1,5 @@
 /**
- * Criminal Justice Constants — MapleSpike Pipeline
+ * Criminal Justice Constants — Quill
  *
  * Known CKAN dataset UUIDs, open data URLs, and StatCan table identifiers
  * for Canadian criminal justice data sources:

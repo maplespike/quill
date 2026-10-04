@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * BC Health Records Types — MapleSpike Pipeline
+ * BC Health Records Types — Quill
  *
  * Strongly-typed interfaces for British Columbia health data:
  *   - BC PharmaCare claims data — drug coverage and claims

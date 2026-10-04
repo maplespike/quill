@@ -1,5 +1,5 @@
 /**
- * Health Canada Parser — MapleSpike Pipeline
+ * Health Canada Parser — Quill
  *
  * Normalizes raw Health Canada product records from DPD (drugs), MDALL (devices),
  * LNHP (natural products), and Recalls & Safety Alerts into the unified

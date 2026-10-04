@@ -1,5 +1,5 @@
 /**
- * Oversight Bodies Constants — MapleSpike Pipeline
+ * Oversight Bodies Constants — Quill
  *
  * URLs and configuration for Canada's independent oversight bodies.
  *

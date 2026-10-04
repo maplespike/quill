@@ -1,5 +1,5 @@
 /**
- * Nrcan Parser — MapleSpike Pipeline
+ * Nrcan Parser — Quill
  *
  * Parse and normalize Renewable Energy Capacity CSV data.
  */

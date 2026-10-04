@@ -7,7 +7,7 @@ Quill Python SDK (pyproject: `quill-sdk`, import path: `quill`) — typed
 client for the MapleSpike civilian intelligence API.
 
 > Renamed 2026-07-03 — the module directory was previously `maplespike/`.
-> `MapleSpike` (and `MapleSpikeClient`, `MapleSpikeResponse`, etc.) remain
+> `MapleSpike` (and `QuillClient`, `QuillResponse`, etc.) remain
 > as the public class names because they're brand-level identifiers per
 > ADR 0007's product-vs-brand split — only the *import path* moved.
 
@@ -26,13 +26,13 @@ Usage:
 from typing import Any, Dict, Optional
 
 from .types import (
-    MapleSpikeResponse,
+    QuillResponse,
     QueryOptions,
     ResponseMeta,
     ResponseQuality,
     Citation,
-    MapleSpikeApiError,
-    MapleSpikeError,
+    QuillApiError,
+    QuillError,
     AgentDefinition,
     ActionDefinition,
 )
@@ -49,7 +49,7 @@ from .auth import get_api_key, set_api_key, get_jwt_token, set_jwt_token, clear_
 from .agents import AGENTS, get_agent, list_agents, list_actions
 from .langchain_adapter import get_maplespike_tools
 from .high_level import (
-    MapleSpikeClient,
+    QuillClient,
     Search,
     EntityResolution,
     Ingestion,
@@ -58,10 +58,10 @@ from .high_level import (
 __all__ = [
     # Core types
     'MapleSpike',
-    'MapleSpikeClient',
-    'MapleSpikeResponse',
-    'MapleSpikeError',
-    'MapleSpikeApiError',
+    'QuillClient',
+    'QuillResponse',
+    'QuillError',
+    'QuillApiError',
     'QueryOptions',
     'ResponseMeta',
     'ResponseQuality',
@@ -112,14 +112,14 @@ class AgentProxy:
         units: Optional[str] = None,
         summary: Optional[bool] = None,
         **params: Any,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Execute an action against the currently selected agent.
 
         Keyword arguments prefixed with an underscore are treated as query options.
         All other keyword arguments are passed as action parameters.
 
         Returns:
-            MapleSpikeResponse with the query result.
+            QuillResponse with the query result.
         """
         options: Dict[str, Any] = {}
         if fields is not None:
@@ -231,7 +231,7 @@ class MapleSpike:
         normalize: Optional[bool] = None,
         units: Optional[str] = None,
         summary: Optional[bool] = None,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Execute a structured query against a MapleSpike agent action.
 
         Args:
@@ -247,7 +247,7 @@ class MapleSpike:
             summary: Request a summary instead of raw data.
 
         Returns:
-            MapleSpikeResponse with the query result.
+            QuillResponse with the query result.
 
         Raises:
             RuntimeError: If no API key or JWT token is configured — the

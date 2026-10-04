@@ -1,5 +1,5 @@
 /**
- * CanLII Fetcher — MapleSpike Pipeline
+ * CanLII Fetcher — Quill
  *
  * HTTP fetcher for the CanLII REST API v1 at https://api.canlii.org/v1/.
  *
