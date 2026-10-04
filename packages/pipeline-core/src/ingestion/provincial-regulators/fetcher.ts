@@ -1,5 +1,5 @@
 /**
- * Provincial Regulators Fetcher — MapleSpike Pipeline
+ * Provincial Regulators Fetcher — Quill
  *
  * Multi-source fetcher for provincial regulator data across Canada.
  * Sources:

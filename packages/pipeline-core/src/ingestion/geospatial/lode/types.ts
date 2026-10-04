@@ -1,5 +1,5 @@
 /**
- * LODE Data Types — MapleSpike Pipeline
+ * LODE Data Types — Quill
  *
  * Type definitions for all 12 LODE (Linkable Open Data Environment) databases.
  */

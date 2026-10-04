@@ -1,7 +1,7 @@
 /**
 export { parseLobbyingRecord, parseLobbyingRecords } from './parser.js';
 export { CORPORATE_DDL } from './db.js';
- * Corporate Ingestion — MapleSpike Pipeline
+ * Corporate Ingestion — Quill
  *
  * Orchestrates corporate/business data ingestion across all sources:
  *   1. Lobbying Registry — who's influencing government

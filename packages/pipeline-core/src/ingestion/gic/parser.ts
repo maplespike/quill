@@ -1,5 +1,5 @@
 /**
- * GIC Appointment Parser — MapleSpike Pipeline
+ * GIC Appointment Parser — Quill
  *
  * Parses raw GIC appointment records from GC InfoBase, CKAN CSV,
  * and Canada Gazette HTML into structured GICAppointment objects.

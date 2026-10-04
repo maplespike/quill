@@ -1,5 +1,5 @@
 /**
- * SEDAR+ Corporate Filings Module — MapleSpike Pipeline
+ * SEDAR+ Corporate Filings Module — Quill
  *
  * Ingests Canadian securities filings from the SEDAR+ system (sedarplus.ca),
  * Canada's national repository for corporate disclosure documents.

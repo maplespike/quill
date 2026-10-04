@@ -133,7 +133,7 @@ export async function getMockResponse(
       };
 
       citation = enrichCitation({
-        source_name: `MapleSpike Pipeline — ${mod?.name ?? moduleName}`,
+        source_name: `Quill — ${mod?.name ?? moduleName}`,
         source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
         retrieved_at: null,
         data_hash: '',
@@ -157,7 +157,7 @@ export async function getMockResponse(
       };
 
       citation = enrichCitation({
-        source_name: `MapleSpike Pipeline — ${moduleName}`,
+        source_name: `Quill — ${moduleName}`,
         source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
         retrieved_at: null,
         data_hash: '',
@@ -177,7 +177,7 @@ export async function getMockResponse(
     };
 
     citation = enrichCitation({
-      source_name: 'MapleSpike Pipeline Data',
+      source_name: 'Quill Data',
       source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
       retrieved_at: new Date().toISOString(),
       data_hash: '',

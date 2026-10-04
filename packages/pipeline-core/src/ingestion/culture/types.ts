@@ -1,5 +1,5 @@
 /**
- * Canadian cultural data types — MapleSpike Pipeline
+ * Canadian cultural data types — Quill
  */
 
 export interface CultureRecord {

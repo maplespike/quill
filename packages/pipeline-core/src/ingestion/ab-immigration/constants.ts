@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_ab_immigration_ingested ON ab_immigration_records
 export const DEFAULT_MAX_RECORDS = 400;
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
-const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker.ca)';
+const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker.ca)';
 
 export const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': DEFAULT_USER_AGENT,

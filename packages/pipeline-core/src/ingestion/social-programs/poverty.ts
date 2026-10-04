@@ -1,5 +1,5 @@
 /**
- * Poverty Statistics Ingestion — MapleSpike Pipeline
+ * Poverty Statistics Ingestion — Quill
  *
  * Fetches Canadian poverty statistics from open.canada.ca CKAN datasets
  * covering three measures:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Extract real training data from MapleSpike pipeline sources.
+Extract real training data from Quill sources.
 
 This is the core value — generating datasets from actual Canadian government
 data (committees, lobbying, corporate filings, procurement) rather than
@@ -207,7 +207,7 @@ def extract_regulatory(api_base: str, limit: int = 100) -> list[dict]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract real training data from MapleSpike pipeline")
+    parser = argparse.ArgumentParser(description="Extract real training data from Quill")
     parser.add_argument("--api", default="http://quill-api:8082",
                         help="MapleSpike API base URL")
     parser.add_argument("--output", default="data/maplespike-training.jsonl", help="Output JSONL path")

@@ -1,5 +1,5 @@
 /**
- * StatCan WDS Constants — MapleSpike Pipeline
+ * StatCan WDS Constants — Quill
  *
  * Product IDs, URL patterns, dimension maps, DDL statements, and
  * helper functions for the Statistics Canada Web Data Service.

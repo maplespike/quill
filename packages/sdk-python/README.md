@@ -40,9 +40,9 @@ result = ms.agent("corporate").action("lobbying-activities", subject="healthcare
 ### High-level client
 
 ```python
-from quill import MapleSpikeClient
+from quill import QuillClient
 
-client = MapleSpikeClient(api_key="msk_live_...")
+client = QuillClient(api_key="msk_live_...")
 
 # AI-powered question answering
 answer = client.ask("What committees did MP Smith sit on in 2024?")

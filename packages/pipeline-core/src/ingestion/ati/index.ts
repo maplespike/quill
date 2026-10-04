@@ -1,5 +1,5 @@
 /**
- * ATI (Access to Information) Ingestion — MapleSpike Pipeline
+ * ATI (Access to Information) Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for completed ATI request data
  * from the Government of Canada's open.canada.ca portal and individual

@@ -1,5 +1,5 @@
 /**
- * Canada Foundation for Innovation (CFI) Ingestion — MapleSpike Pipeline
+ * Canada Foundation for Innovation (CFI) Ingestion — Quill
  *
  * Ingests CFI infrastructure grant award data from open.canada.ca
  * via CKAN package_show API.

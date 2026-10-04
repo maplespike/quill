@@ -1,5 +1,5 @@
 /**
- * NRCan Ingestion Module — MapleSpike Pipeline
+ * NRCan Ingestion Module — Quill
  *
  * Natural Resources Canada data ingestion for mining activities and topographic maps.
  * Fetches from open.canada.ca CKAN portal, parses CSV, normalizes records with SHA-256 citations.

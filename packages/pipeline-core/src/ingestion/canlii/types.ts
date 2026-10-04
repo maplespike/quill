@@ -1,5 +1,5 @@
 /**
- * CanLII Court Decisions Types — MapleSpike Pipeline
+ * CanLII Court Decisions Types — Quill
  *
  * Strongly-typed interfaces for the CanLII (Canadian Legal Information Institute)
  * case law REST API at https://api.canlii.org/v1/.

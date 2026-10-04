@@ -1,5 +1,5 @@
 /**
- * TSB Connector — MapleSpike Pipeline
+ * TSB Connector — Quill
  *
  * Fetches Transportation Safety Board occurrence data from CKAN
  * and the TSB website.

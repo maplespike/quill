@@ -1,5 +1,5 @@
 /**
- * Global Canada (GAC / ECCC / CSIS) Ingestion — MapleSpike Pipeline
+ * Global Canada (GAC / ECCC / CSIS) Ingestion — Quill
  *
  * Combined lighter-weight module tracking three federal sources:
  *   - Global Affairs Canada: trade agreements, foreign policy, international development projects

@@ -1,5 +1,5 @@
 /**
- * CIPO (Canadian Intellectual Property Office) Constants — MapleSpike Pipeline
+ * CIPO (Canadian Intellectual Property Office) Constants — Quill
  *
  * Source URLs, IP type codes, status mappings, DDL, and defaults for ingesting
  * Canadian patent, trademark, and industrial design data.
@@ -167,7 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_cipo_ingested ON cipo_records(ingested_at DESC);
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

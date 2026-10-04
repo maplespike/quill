@@ -1,5 +1,5 @@
 /**
- * Impact Assessment Agency of Canada Parser — MapleSpike Pipeline
+ * Impact Assessment Agency of Canada Parser — Quill
  *
  * Normalizes raw IAAC records from the project registry, CKAN, and HTML
  * scraping into the unified ImpactAssessmentRecord schema.

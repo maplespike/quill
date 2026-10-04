@@ -1,5 +1,5 @@
 /**
- * CIRNAC Connector — MapleSpike Pipeline
+ * CIRNAC Connector — Quill
  *
  * Fetches CIRNAC data for:
  *   1. Land claims (specific and comprehensive)

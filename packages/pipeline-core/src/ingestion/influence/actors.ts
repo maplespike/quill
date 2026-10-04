@@ -1,5 +1,5 @@
 /**
- * Influence Actors Connector — MapleSpike Pipeline
+ * Influence Actors Connector — Quill
  *
  * Enriches tracked influence actors with data from:
  *   - CRA Charity listing (every registered Canadian charity)

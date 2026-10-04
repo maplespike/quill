@@ -1,5 +1,5 @@
 /**
- * Transport Infrastructure Data Types — MapleSpike Pipeline
+ * Transport Infrastructure Data Types — Quill
  *
  * Types for Canadian transportation safety, infrastructure funding, and
  * regulatory data across 6 agencies:

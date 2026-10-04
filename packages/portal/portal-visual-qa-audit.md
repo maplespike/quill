@@ -97,7 +97,7 @@ Every `.astro` page file under `src/pages/` imports and wraps content in `<BaseL
 **File:** `packages/portal/server.py` (494 lines)
 
 ### Architecture
-- Custom `SimpleHTTPRequestHandler` subclass (`MapleSpikeHandler`)
+- Custom `SimpleHTTPRequestHandler` subclass (`QuillHandler`)
 - Serves static `dist/` directory
 - API proxy at `/api/` → upstream API
 - Content negotiation for AI-friendly markdown
@@ -195,7 +195,7 @@ The specific checks:
 - Other pages: serve with `lang` prop, defaults to English
 
 ### auth.js Global Manager
-- Exposes `window.MapleSpikeAuth` API
+- Exposes `window.QuillAuth` API
 - Handles: token storage, user info, login/logout, nav widget injection
 - Re-initializes on Astro view transitions (`astro:page-load` event)
 - Supports: OAuth, Web3 (wallet), passkey auth methods

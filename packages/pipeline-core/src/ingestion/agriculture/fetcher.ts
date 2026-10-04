@@ -1,5 +1,5 @@
 /**
- * Agriculture Fetcher — MapleSpike Pipeline
+ * Agriculture Fetcher — Quill
  *
  * Fetches Canadian agriculture data from CKAN portals and agency websites.
  * Handles CSV parsing and JSON resource extraction from CKAN packages.

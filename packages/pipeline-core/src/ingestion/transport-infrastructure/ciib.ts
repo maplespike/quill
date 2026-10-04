@@ -1,5 +1,5 @@
 /**
- * CIIB Connector — MapleSpike Pipeline
+ * CIIB Connector — Quill
  *
  * Fetches Canada Infrastructure Bank project data.
  *

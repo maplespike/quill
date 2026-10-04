@@ -1,5 +1,5 @@
 /**
- * CIPO (Canadian Intellectual Property Office) Fetcher — MapleSpike Pipeline
+ * CIPO (Canadian Intellectual Property Office) Fetcher — Quill
  *
  * Fetches IP rights records from CIPO sources:
  *   - Patents — Canadian Patent Database API / open data

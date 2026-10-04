@@ -1,5 +1,5 @@
 /**
- * Provincial Orgs Ingestion — MapleSpike Pipeline
+ * Provincial Orgs Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for provincial oversight body data
  * across all 13 Canadian provinces and territories.

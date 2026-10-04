@@ -229,7 +229,7 @@ if (flags.frequency === undefined) {
 const TEMPLATES = {};
 
 TEMPLATES.constants = `/**
- * ${pascal} Constants — MapleSpike Pipeline
+ * ${pascal} Constants — Quill
  *
  * Source URLs, DDL, and defaults for ingesting ${flags.description}.
  *
@@ -280,7 +280,7 @@ CREATE INDEX IF NOT EXISTS idx_${snake}_ingested ON ${tableName}(ingested_at DES
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {
@@ -306,7 +306,7 @@ export class ${pascal}Error extends Error {
 `;
 
 TEMPLATES.types = `/**
- * ${pascal} Types — MapleSpike Pipeline
+ * ${pascal} Types — Quill
  *
  * Strongly-typed interfaces for ${flags.description}.
  *
@@ -384,7 +384,7 @@ export interface ${resultType} {
 `;
 
 TEMPLATES.fetcher = `/**
- * ${pascal} Fetcher — MapleSpike Pipeline
+ * ${pascal} Fetcher — Quill
  *
  * Fetches ${flags.description} from the source API.
  *
@@ -518,7 +518,7 @@ export async function fetch${pascal}Records(
 `;
 
 TEMPLATES.parser = `/**
- * ${pascal} Parser — MapleSpike Pipeline
+ * ${pascal} Parser — Quill
  *
  * Normalizes raw ${moduleName} records from the source API
  * into the unified ${recordType} schema.
@@ -608,7 +608,7 @@ export async function parse${pascal}Batch(
 `;
 
 TEMPLATES.index = `/**
- * ${pascal} Ingestion — MapleSpike Pipeline
+ * ${pascal} Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for ${flags.description}.
  *

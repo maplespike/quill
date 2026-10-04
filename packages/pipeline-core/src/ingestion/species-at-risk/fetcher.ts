@@ -1,5 +1,5 @@
 /**
- * Species at Risk Registry Fetcher — MapleSpike Pipeline
+ * Species at Risk Registry Fetcher — Quill
  *
  * Fetches species listing data from the SARA (Species at Risk Act) registry
  * JSON API at https://species-registry.canada.ca/registre-especes/api/v1/

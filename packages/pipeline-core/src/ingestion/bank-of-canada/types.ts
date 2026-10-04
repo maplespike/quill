@@ -1,5 +1,5 @@
 /**
- * Bank of Canada Ingestion Types — MapleSpike Pipeline
+ * Bank of Canada Ingestion Types — Quill
  *
  * Types for Bank of Canada interest rate decisions, Monetary Policy Reports (MPR),
  * Financial System Reviews (FSR), and VALA executive speeches.

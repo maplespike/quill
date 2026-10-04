@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // MapleSpike SDK — Entity resolution functionality
 // ---------------------------------------------------------------------------
-import type { MapleSpikeResponse, QueryOptions } from './types.js';
+import type { QuillResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
 
 /** Entity type */
@@ -109,7 +109,7 @@ export class EntityResolutionClient {
   /**
    * Resolve an entity across all datasets
    */
-  async resolve(query: EntityResolutionQuery, options?: QueryOptions): Promise<MapleSpikeResponse<EntityResolutionResult[]>> {
+  async resolve(query: EntityResolutionQuery, options?: QueryOptions): Promise<QuillResponse<EntityResolutionResult[]>> {
     const url = buildUrl(this._baseUrl, 'entity', 'resolve', query as Record<string, unknown>, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {
@@ -126,7 +126,7 @@ export class EntityResolutionClient {
   /**
    * Get entity details by ID
    */
-  async getEntity(entityId: string, options?: QueryOptions): Promise<MapleSpikeResponse<Entity>> {
+  async getEntity(entityId: string, options?: QueryOptions): Promise<QuillResponse<Entity>> {
     const url = buildUrl(this._baseUrl, 'entity', 'get', { entityId }, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -136,7 +136,7 @@ export class EntityResolutionClient {
   /**
    * Search for entities
    */
-  async searchEntities(query: string, filters: { type?: EntityType; domain?: string; limit?: number } = {}, options?: QueryOptions): Promise<MapleSpikeResponse<Entity[]>> {
+  async searchEntities(query: string, filters: { type?: EntityType; domain?: string; limit?: number } = {}, options?: QueryOptions): Promise<QuillResponse<Entity[]>> {
     const url = buildUrl(this._baseUrl, 'entity', 'search', { q: query, ...filters }, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -146,7 +146,7 @@ export class EntityResolutionClient {
   /**
    * Get entity graph (relationships)
    */
-  async getGraph(entityId: string, depth: number = 2, options?: QueryOptions): Promise<MapleSpikeResponse<EntityGraph>> {
+  async getGraph(entityId: string, depth: number = 2, options?: QueryOptions): Promise<QuillResponse<EntityGraph>> {
     const url = buildUrl(this._baseUrl, 'entity', 'graph', { entityId, depth }, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -156,7 +156,7 @@ export class EntityResolutionClient {
   /**
    * Find similar entities
    */
-  async findSimilar(entityId: string, limit: number = 10, options?: QueryOptions): Promise<MapleSpikeResponse<Entity[]>> {
+  async findSimilar(entityId: string, limit: number = 10, options?: QueryOptions): Promise<QuillResponse<Entity[]>> {
     const url = buildUrl(this._baseUrl, 'entity', 'similar', { entityId, limit }, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -166,7 +166,7 @@ export class EntityResolutionClient {
   /**
    * Get entity statistics
    */
-  async stats(): Promise<MapleSpikeResponse<{
+  async stats(): Promise<QuillResponse<{
     totalEntities: number;
     entitiesByType: Record<EntityType, number>;
     entitiesByDomain: Record<string, number>;
@@ -184,7 +184,7 @@ export class EntityResolutionClient {
   /**
    * Bulk resolve entities
    */
-  async bulkResolve(queries: EntityResolutionQuery[], options?: QueryOptions): Promise<MapleSpikeResponse<EntityResolutionResult[][]>> {
+  async bulkResolve(queries: EntityResolutionQuery[], options?: QueryOptions): Promise<QuillResponse<EntityResolutionResult[][]>> {
     const url = buildUrl(this._baseUrl, 'entity', 'bulk-resolve', {}, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {

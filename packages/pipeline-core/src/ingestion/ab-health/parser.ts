@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Alberta Health Parser — MapleSpike Pipeline
+ * Alberta Health Parser — Quill
  *
  * Normalizes raw Alberta Health Services records into the unified AHSRecord schema.
  * Each record is assigned a SHA-256 content hash for deduplication.

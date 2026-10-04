@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // MapleSpike SDK — Search functionality
 // ---------------------------------------------------------------------------
-import type { MapleSpikeResponse, QueryOptions } from './types.js';
+import type { QuillResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
 
 /** Search query parameters */
@@ -51,7 +51,7 @@ export class SearchClient {
   /**
    * Search across all domains
    */
-  async search(query: SearchQuery, options?: QueryOptions): Promise<MapleSpikeResponse<SearchResult[]>> {
+  async search(query: SearchQuery, options?: QueryOptions): Promise<QuillResponse<SearchResult[]>> {
     const url = buildUrl(this._baseUrl, 'search', 'global', query as Record<string, unknown>, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -61,7 +61,7 @@ export class SearchClient {
   /**
    * Search within a specific domain
    */
-  async searchDomain(domain: string, query: SearchQuery, options?: QueryOptions): Promise<MapleSpikeResponse<SearchResult[]>> {
+  async searchDomain(domain: string, query: SearchQuery, options?: QueryOptions): Promise<QuillResponse<SearchResult[]>> {
     const url = buildUrl(this._baseUrl, 'search', domain, { ...query, domain } as Record<string, unknown>, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -71,7 +71,7 @@ export class SearchClient {
   /**
    * Get search suggestions/autocomplete
    */
-  async suggestions(query: string, limit: number = 5): Promise<MapleSpikeResponse<string[]>> {
+  async suggestions(query: string, limit: number = 5): Promise<QuillResponse<string[]>> {
     const url = buildUrl(this._baseUrl, 'search', 'suggestions', { q: query, limit }, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -81,7 +81,7 @@ export class SearchClient {
   /**
    * Get search statistics
    */
-  async stats(): Promise<MapleSpikeResponse<{ totalDomains: number; indexedRecords: number }>> {
+  async stats(): Promise<QuillResponse<{ totalDomains: number; indexedRecords: number }>> {
     const url = buildUrl(this._baseUrl, 'search', 'stats', {}, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });

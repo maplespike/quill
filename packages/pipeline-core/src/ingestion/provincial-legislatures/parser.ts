@@ -1,5 +1,5 @@
 /**
- * Provincial Legislatures Parser — MapleSpike Pipeline
+ * Provincial Legislatures Parser — Quill
  *
  * Normalizes per-province legislative data formats into the unified
  * ProvincialLegislatureRecord schema.

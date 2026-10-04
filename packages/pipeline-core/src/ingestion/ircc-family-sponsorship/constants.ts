@@ -1,5 +1,5 @@
 /**
- * IRCC Constants — MapleSpike Pipeline
+ * IRCC Constants — Quill
  *
  * Configuration for Immigration, Refugees and Citizenship Canada data sources.
  */

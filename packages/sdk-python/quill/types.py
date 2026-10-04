@@ -44,7 +44,7 @@ class Citation:
 
 
 @dataclass
-class MapleSpikeResponse:
+class QuillResponse:
     """Structured query payload returned by the API."""
     success: bool = True
     data: Any = None
@@ -64,7 +64,7 @@ class MapleSpikeResponse:
 
     def __repr__(self):
         return (
-            f"MapleSpikeResponse(success={self.success}, "
+            f"QuillResponse(success={self.success}, "
             f"agent={self.meta.agent!r}, action={self.meta.action!r}, "
             f"data={self.data!r})"
         )
@@ -83,7 +83,7 @@ class QueryOptions:
 
 
 @dataclass
-class MapleSpikeApiError:
+class QuillApiError:
     """Error information from the API."""
     status: int = 0
     code: str = ''
@@ -92,10 +92,10 @@ class MapleSpikeApiError:
     request_id: Optional[str] = None
 
 
-class MapleSpikeError(Exception):
+class QuillError(Exception):
     """Exception raised for API errors."""
 
-    def __init__(self, err: 'MapleSpikeApiError'):
+    def __init__(self, err: 'QuillApiError'):
         self.status = err.status
         self.code = err.code
         self.request_id = err.request_id

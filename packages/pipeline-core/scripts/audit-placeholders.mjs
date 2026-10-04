@@ -1,5 +1,5 @@
 /**
- * Placeholder Module Audit — MapleSpike Pipeline
+ * Placeholder Module Audit — Quill
  *
  * Scans all ingestion modules and flags those without structured parsers.
  * Used as a CI gate to prevent new metadata-only modules without parser issues.

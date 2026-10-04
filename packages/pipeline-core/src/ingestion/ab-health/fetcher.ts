@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Alberta Health Fetcher — MapleSpike Pipeline
+ * Alberta Health Fetcher — Quill
  *
  * Fetches Alberta Health Services (AHS) operational metrics and Alberta Health
  * publications from open.alberta.ca CKAN portal.

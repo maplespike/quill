@@ -1,5 +1,5 @@
 /**
- * EI Ingestion — MapleSpike Pipeline
+ * EI Ingestion — Quill
  *
  * Fetches Employment Insurance (EI) statistics from open.canada.ca CKAN
  * including claims received, claims established, beneficiaries, benefits paid,

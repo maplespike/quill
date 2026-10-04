@@ -1,4 +1,4 @@
--- Canonical D1 Schema — MapleSpike Pipeline
+-- Canonical D1 Schema — Quill
 --
 -- Resolves the 3-schema problem documented in AGENTS.md.
 -- This is the authoritative schema: cloudflare/schema.sql was the production schema,

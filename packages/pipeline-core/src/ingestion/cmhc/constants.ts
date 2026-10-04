@@ -1,5 +1,5 @@
 /**
- * CMHC (Canada Mortgage and Housing Corporation) Constants — MapleSpike Pipeline
+ * CMHC (Canada Mortgage and Housing Corporation) Constants — Quill
  *
  * Source URLs, known metrics, DDL, and defaults for ingesting
  * Canadian housing market data from CMHC.
@@ -262,7 +262,7 @@ CREATE INDEX IF NOT EXISTS idx_cmhc_ingested ON cmhc_records(ingested_at DESC);
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

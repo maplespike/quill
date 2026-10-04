@@ -1,5 +1,5 @@
 /**
- * CMHC (Canada Mortgage and Housing Corporation) Types — MapleSpike Pipeline
+ * CMHC (Canada Mortgage and Housing Corporation) Types — Quill
  *
  * Strongly-typed interfaces for Canadian housing market data:
  *   - Housing starts

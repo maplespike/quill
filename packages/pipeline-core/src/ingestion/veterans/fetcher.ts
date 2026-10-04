@@ -1,5 +1,5 @@
 /**
- * Veterans data fetchers — MapleSpike Pipeline
+ * Veterans data fetchers — Quill
  *
  * Multi-source fetcher for Canadian veterans data including:
  *   - VAC Facts and Figures (CKAN CSV)

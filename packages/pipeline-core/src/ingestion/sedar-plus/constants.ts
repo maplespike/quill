@@ -1,5 +1,5 @@
 /**
- * SEDAR+ Corporate Filings Constants — MapleSpike Pipeline
+ * SEDAR+ Corporate Filings Constants — Quill
  *
  * URLs and lookup data for the Canadian SEDAR+ system,
  * Canada's national securities filing repository.
@@ -39,7 +39,7 @@ export const SEDAR_LEGACY_SEARCH = 'https://www.sedar.com/cca/searchForm_en.htm'
 /* ------------------------------------------------------------------ */
 
 export const SEDARPLUS_DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; https://maplespike.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; https://maplespike.ca)',
   Accept: 'application/json,text/html;q=0.9',
   'Accept-Language': 'en-CA,en;q=0.9',
 } as const;

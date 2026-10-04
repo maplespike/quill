@@ -1,5 +1,5 @@
 /**
- * LODE Fetcher — MapleSpike Pipeline
+ * LODE Fetcher — Quill
  *
  * Ingests data from all 12 Statistics Canada LODE (Linkable Open Data
  * Environment) databases.

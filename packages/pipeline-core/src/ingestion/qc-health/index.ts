@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Health Ingestion — MapleSpike Pipeline
+ * Quebec Health Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Quebec health records:
  *   - RAMQ (Régie de l'assurance maladie du Québec) medical claims statistics

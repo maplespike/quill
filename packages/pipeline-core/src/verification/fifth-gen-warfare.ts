@@ -1,5 +1,5 @@
 /**
- * Fifth-Generation Warfare Defense — MapleSpike Pipeline
+ * Fifth-Generation Warfare Defense — Quill
  *
  * Analyzes content for foreign influence and narrative manipulation patterns
  * characteristic of fifth-generation warfare (5GW):

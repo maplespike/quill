@@ -1,5 +1,5 @@
 /**
- * Bank of Canada Parser — MapleSpike Pipeline
+ * Bank of Canada Parser — Quill
  *
  * Parses raw Bank of Canada data (RSS items, HTML pages, detail pages)
  * into structured BocDecision records.

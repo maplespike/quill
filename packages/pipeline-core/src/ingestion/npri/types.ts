@@ -1,5 +1,5 @@
 /**
- * NPRI (National Pollutant Release Inventory) Types — MapleSpike Pipeline
+ * NPRI (National Pollutant Release Inventory) Types — Quill
  *
  * Strongly-typed interfaces for Canada's National Pollutant Release Inventory.
  * Tracks pollutant releases by facilities across Canada — air, water, land,

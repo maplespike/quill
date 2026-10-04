@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Ingestion — MapleSpike Pipeline
+ * Provincial Lobbying Ingestion — Quill
  *
  * Orchestrates provincial lobbying registry data ingestion across
  * Canadian provinces. Starts with Ontario (the largest and most active

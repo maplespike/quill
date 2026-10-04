@@ -1,5 +1,5 @@
 /**
- * Transport Infrastructure — MapleSpike Pipeline
+ * Transport Infrastructure — Quill
  *
  * Orchestrates ingestion of Canadian transportation safety, infrastructure
  * funding, and regulatory data across 6 agencies:

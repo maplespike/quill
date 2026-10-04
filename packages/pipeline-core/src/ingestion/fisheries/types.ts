@@ -1,5 +1,5 @@
 /**
- * Fisheries Data Types — MapleSpike Pipeline
+ * Fisheries Data Types — Quill
  *
  * Types for Canadian fisheries and oceans data from:
  *   - Fisheries & Oceans Canada (DFO)

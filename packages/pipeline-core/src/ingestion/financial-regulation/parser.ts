@@ -1,5 +1,5 @@
 /**
- * Financial Regulation Parser — MapleSpike Pipeline
+ * Financial Regulation Parser — Quill
  *
  * Parses CKAN data from Canadian financial regulators (OSFI, CDIC, FCAC)
  * into unified BankData, InsuranceData, CDICMember, and Complaint schemas.

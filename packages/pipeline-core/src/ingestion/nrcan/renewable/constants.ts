@@ -1,5 +1,5 @@
 /**
- * Nrcan Constants — MapleSpike Pipeline
+ * Nrcan Constants — Quill
  *
  * Configuration for Renewable Energy Capacity data sources.
  */

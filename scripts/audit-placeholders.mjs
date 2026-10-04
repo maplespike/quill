@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Placeholder Audit — MapleSpike Pipeline
+ * Placeholder Audit — Quill
  *
  * Scans packages/ for placeholder patterns: fake URLs, stub data,
  * mock endpoints, TODO placeholders, fake UUIDs.

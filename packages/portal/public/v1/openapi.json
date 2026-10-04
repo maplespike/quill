@@ -195,7 +195,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -271,7 +271,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -339,7 +339,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -415,7 +415,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -483,7 +483,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -551,7 +551,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -611,7 +611,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -687,7 +687,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -763,7 +763,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -831,7 +831,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -891,7 +891,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -967,7 +967,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1035,7 +1035,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1103,7 +1103,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1179,7 +1179,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1255,7 +1255,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1323,7 +1323,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1391,7 +1391,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1459,7 +1459,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1527,7 +1527,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1595,7 +1595,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1671,7 +1671,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1747,7 +1747,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1815,7 +1815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1891,7 +1891,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -1959,7 +1959,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2019,7 +2019,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2087,7 +2087,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2155,7 +2155,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2215,7 +2215,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2275,7 +2275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2343,7 +2343,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2403,7 +2403,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2463,7 +2463,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2531,7 +2531,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2591,7 +2591,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2659,7 +2659,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2719,7 +2719,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2787,7 +2787,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2855,7 +2855,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2923,7 +2923,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -2983,7 +2983,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3043,7 +3043,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3111,7 +3111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3179,7 +3179,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3239,7 +3239,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3299,7 +3299,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3359,7 +3359,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3411,7 +3411,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3471,7 +3471,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3523,7 +3523,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3583,7 +3583,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3651,7 +3651,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3711,7 +3711,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3771,7 +3771,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3839,7 +3839,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3907,7 +3907,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -3975,7 +3975,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4035,7 +4035,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4103,7 +4103,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4163,7 +4163,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4215,7 +4215,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4291,7 +4291,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4351,7 +4351,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4419,7 +4419,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4487,7 +4487,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4539,7 +4539,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4607,7 +4607,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4659,7 +4659,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4727,7 +4727,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4771,7 +4771,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4863,7 +4863,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4923,7 +4923,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -4975,7 +4975,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5027,7 +5027,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5079,7 +5079,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5139,7 +5139,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5207,7 +5207,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5267,7 +5267,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MapleSpikeResponse"
+                  "$ref": "#/components/schemas/QuillResponse"
                 }
               }
             }
@@ -5297,7 +5297,7 @@
       }
     },
     "schemas": {
-      "MapleSpikeResponse": {
+      "QuillResponse": {
         "type": "object",
         "description": "Common API envelope. Payload and citation fields vary by route and source.",
         "properties": {
@@ -5351,7 +5351,7 @@
       "ClaimVerificationResponse": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MapleSpikeResponse"
+            "$ref": "#/components/schemas/QuillResponse"
           },
           {
             "type": "object",
@@ -5366,7 +5366,7 @@
       "ClaimsLatestResponse": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MapleSpikeResponse"
+            "$ref": "#/components/schemas/QuillResponse"
           },
           {
             "type": "object",
@@ -5381,7 +5381,7 @@
       "ClaimHashResponse": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MapleSpikeResponse"
+            "$ref": "#/components/schemas/QuillResponse"
           },
           {
             "type": "object",

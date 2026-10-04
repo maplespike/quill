@@ -1,5 +1,5 @@
 /**
- * Corporate Data Types — MapleSpike Pipeline
+ * Corporate Data Types — Quill
  *
  * Types for Canadian corporate/business source data:
  *   - Federal lobbying registry (who's lobbying who)

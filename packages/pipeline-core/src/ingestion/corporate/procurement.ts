@@ -1,5 +1,5 @@
 /**
- * Procurement Connector — MapleSpike Pipeline
+ * Procurement Connector — Quill
  *
  * Fetches Canadian government procurement contracts from:
  *   - CanadaBuys tender notices

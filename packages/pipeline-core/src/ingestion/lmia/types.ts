@@ -1,5 +1,5 @@
 /**
- * LMIA Data Types — MapleSpike Pipeline
+ * LMIA Data Types — Quill
  *
  * Strongly-typed interfaces for Labour Market Impact Assessment (LMIA)
  * data published by Employment and Social Development Canada (ESDC)

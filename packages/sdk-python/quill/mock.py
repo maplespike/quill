@@ -16,7 +16,7 @@
 
 from typing import Any
 
-from .types import MapleSpikeResponse, ResponseMeta, ResponseQuality, Citation
+from .types import QuillResponse, ResponseMeta, ResponseQuality, Citation
 
 
 NO_MOCK_MESSAGE = (
@@ -30,7 +30,7 @@ NO_MOCK_MESSAGE = (
 )
 
 
-def get_mock_response(agent: str, action: str) -> MapleSpikeResponse:
+def get_mock_response(agent: str, action: str) -> QuillResponse:
     """Raise a clear error — mock data has been removed.
 
     Previously this returned hardcoded synthetic data. Callers must now

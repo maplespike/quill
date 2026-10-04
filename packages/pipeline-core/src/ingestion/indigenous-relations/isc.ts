@@ -1,5 +1,5 @@
 /**
- * ISC Connector — MapleSpike Pipeline
+ * ISC Connector — Quill
  *
  * Fetches Indigenous Services Canada data for:
  *   1. Health program spending by community

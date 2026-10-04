@@ -1,5 +1,5 @@
 /**
- * Hashing Utility Tests — MapleSpike Pipeline
+ * Hashing Utility Tests — Quill
  */
 
 import { describe, it } from 'node:test';

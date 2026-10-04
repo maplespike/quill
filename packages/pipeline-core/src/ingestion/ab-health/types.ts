@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Alberta Health Records Types — MapleSpike Pipeline
+ * Alberta Health Records Types — Quill
  *
  * Strongly-typed interfaces for Alberta Health Services (AHS) operational metrics
  * and Alberta Health data from open.alberta.ca CKAN portal.

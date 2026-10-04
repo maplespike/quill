@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry Fetcher — MapleSpike Pipeline
+ * Elections Canada Third-Party Advertiser Registry Fetcher — Quill
  *
  * HTTP fetchers for Elections Canada third-party advertising data from
  * multiple sources:
@@ -30,7 +30,7 @@ export class ElectionsFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'application/json,text/csv,text/html,*/*',
 } as const;
 

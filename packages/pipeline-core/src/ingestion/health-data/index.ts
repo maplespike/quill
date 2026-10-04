@@ -1,6 +1,6 @@
 /**
 export { parseHealthDataRecord, parseHealthDataRecords } from './parser.js';
- * Health Data Ingestion — MapleSpike Pipeline
+ * Health Data Ingestion — Quill
  *
  * Unified orchestration module for deep health-data ingestion from:
  *   - PHAC  — Public Health Agency of Canada (disease surveillance, opioids, immunization, drug shortages)

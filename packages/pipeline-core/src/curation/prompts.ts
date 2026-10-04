@@ -1,5 +1,5 @@
 /**
- * AI Curation Prompts — MapleSpike Pipeline
+ * AI Curation Prompts — Quill
  *
  * Canonical source for AI prompts used in article curation, insights, and bias analysis.
  * These were embedded inline in the Cloudflare Worker; extracted here as reusable constants.

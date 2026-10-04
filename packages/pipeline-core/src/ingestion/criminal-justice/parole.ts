@@ -1,5 +1,5 @@
 /**
- * Parole Board of Canada Connector — MapleSpike Pipeline
+ * Parole Board of Canada Connector — Quill
  *
  * Fetches parole decision data from the Parole Board of Canada
  * via the open.canada.ca CKAN portal.

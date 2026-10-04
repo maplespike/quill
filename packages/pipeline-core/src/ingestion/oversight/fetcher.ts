@@ -1,5 +1,5 @@
 /**
- * Oversight Bodies Fetcher — MapleSpike Pipeline
+ * Oversight Bodies Fetcher — Quill
  *
  * HTTP fetchers for Canada's independent oversight bodies.
  * Each body gets its own fetch{Body}Reports() function, sharing common
@@ -66,7 +66,7 @@ export class OversightFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8',
 } as const;
 

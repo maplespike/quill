@@ -739,7 +739,7 @@ Keep responses concise and factual.${ragContext}`;
 
     // Last resort
     return jsonResponse(buildSuccess({
-      answer: `I searched the MapleSpike pipeline for "${query}" but couldn't find relevant results. Try a different query, or browse the data categories in the [Explorer](explorer.html).`,
+      answer: `I searched the Quill for "${query}" but couldn't find relevant results. Try a different query, or browse the data categories in the [Explorer](explorer.html).`,
       source: 'none',
     }, bc));
   } catch (err) {

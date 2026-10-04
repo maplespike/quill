@@ -1,5 +1,5 @@
 /**
- * Proactive Disclosure Parser — MapleSpike Pipeline
+ * Proactive Disclosure Parser — Quill
  *
  * Normalizes raw CKAN Solr search results from different department
  * schema formats into a unified ProactiveDisclosureRecord structure.

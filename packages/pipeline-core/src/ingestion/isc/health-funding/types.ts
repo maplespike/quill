@@ -1,5 +1,5 @@
 /**
- * Isc Data Types — MapleSpike Pipeline
+ * Isc Data Types — Quill
  *
  * Types for Indigenous Health Funding data ingestion.
  *

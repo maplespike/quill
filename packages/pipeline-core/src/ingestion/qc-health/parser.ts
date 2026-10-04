@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Health Parser — MapleSpike Pipeline
+ * Quebec Health Parser — Quill
  *
  * Normalizes raw Quebec health records from RAMQ and INSPQ sources
  * into the unified RAMQRecord and QCHealthRecord schemas.
