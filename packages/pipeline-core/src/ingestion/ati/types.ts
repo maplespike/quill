@@ -1,5 +1,5 @@
 /**
- * ATI (Access to Information) Types — MapleSpike Pipeline
+ * ATI (Access to Information) Types — Quill
  *
  * Types for completed ATI requests published by federal departments.
  * These are publicly-released records of completed Access to Information

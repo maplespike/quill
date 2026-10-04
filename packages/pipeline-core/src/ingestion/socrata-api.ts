@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Socrata API Client — MapleSpike Pipeline
+ * Socrata API Client — Quill
  *
  * Fetcher for provincial Socrata-based open data portals (NS, NB, PE).
  * Uses the SODA (Socrata Open Data API) catalog and resource endpoints.

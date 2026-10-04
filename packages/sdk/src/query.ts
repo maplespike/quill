@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------
 // MapleSpike SDK — URL builder, headers, response parsing
 // ---------------------------------------------------------------------------
-import type { MapleSpikeResponse, QueryOptions, MapleSpikeApiError } from './types.js';
-import { MapleSpikeError } from './types.js';
+import type { QuillResponse, QueryOptions, QuillApiError } from './types.js';
+import { QuillError } from './types.js';
 import { getApiKey, getJwtToken } from './auth.js';
 
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
@@ -107,13 +107,13 @@ export function buildHeaders(apiKey?: string, jwtToken?: string): Record<string,
   return headers;
 }
 
-/** Parse a fetch Response into a MapleSpikeResponse, throwing on errors */
+/** Parse a fetch Response into a QuillResponse, throwing on errors */
 export async function parseResponse<T = unknown>(
   response: Response,
   lang: 'en' | 'fr' = 'en',
-): Promise<MapleSpikeResponse<T>> {
+): Promise<QuillResponse<T>> {
   if (!response.ok) {
-    let apiError: MapleSpikeApiError;
+    let apiError: QuillApiError;
     try {
       const body = await response.json() as Record<string, unknown>;
       apiError = {
@@ -131,9 +131,9 @@ export async function parseResponse<T = unknown>(
         messageFr: getBilingualError('HTTP_ERROR', 'fr'),
       };
     }
-    throw new MapleSpikeError(apiError);
+    throw new QuillError(apiError);
   }
 
-  const body = (await response.json()) as MapleSpikeResponse<T>;
+  const body = (await response.json()) as QuillResponse<T>;
   return body;
 }

@@ -1,5 +1,5 @@
 /**
- * Data Integrity Tests — MapleSpike Pipeline
+ * Data Integrity Tests — Quill
  *
  * Validates citation hashing, trust scoring, cross-reference consistency,
  * module registry integration, database schema compliance, and source

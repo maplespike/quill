@@ -258,7 +258,7 @@ const stats = await ms.ingestion.stats();
 Every query returns:
 
 ```ts
-interface MapleSpikeResponse<T> {
+interface QuillResponse<T> {
   data: T;                    // Typed response payload
   meta: ResponseMeta;          // Request metadata
   quality: ResponseQuality;    // Data quality signals
@@ -269,12 +269,12 @@ interface MapleSpikeResponse<T> {
 ### Error Handling
 
 ```ts
-import { MapleSpikeError } from '@maplespike/sdk';
+import { QuillError } from '@maplespike/sdk';
 
 try {
   await ms.immigration.permanentResidents();
 } catch (err) {
-  if (err instanceof MapleSpikeError) {
+  if (err instanceof QuillError) {
     console.error(err.status, err.code, err.message, err.requestId);
   }
 }

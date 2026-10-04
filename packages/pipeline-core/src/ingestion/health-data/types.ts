@@ -1,5 +1,5 @@
 /**
- * Health Data Types — MapleSpike Pipeline
+ * Health Data Types — Quill
  *
  * Unified TypeScript interfaces for deep health-data ingestion from:
  *   - PHAC  — Public Health Agency of Canada (disease surveillance, opioids, immunization)

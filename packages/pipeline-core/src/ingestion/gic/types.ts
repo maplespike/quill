@@ -1,5 +1,5 @@
 /**
- * GIC Appointment Types — MapleSpike Pipeline
+ * GIC Appointment Types — Quill
  *
  * Strongly-typed interfaces for Governor-in-Council (GIC) federal appointments
  * to boards, tribunals, commissions, agencies, and courts across the

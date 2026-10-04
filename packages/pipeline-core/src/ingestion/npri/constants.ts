@@ -1,5 +1,5 @@
 /**
- * NPRI (National Pollutant Release Inventory) Constants — MapleSpike Pipeline
+ * NPRI (National Pollutant Release Inventory) Constants — Quill
  *
  * Source URLs, CKAN search configurations, DDL, and defaults for
  * ingesting Canada's National Pollutant Release Inventory data.
@@ -116,7 +116,7 @@ CREATE INDEX IF NOT EXISTS idx_npri_ingested ON npri_records(ingested_at DESC);
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 1000;
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

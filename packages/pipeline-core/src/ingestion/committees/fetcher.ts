@@ -1,5 +1,5 @@
 /**
- * Committee Fetcher — MapleSpike Pipeline
+ * Committee Fetcher — Quill
  *
  * HTTP fetcher for House of Commons committee data.
  * Uses undici for cross-platform HTTP (Node, Workers, Bun).
@@ -30,7 +30,7 @@ export class CommitteeFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 } as const;
 

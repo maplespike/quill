@@ -1,5 +1,5 @@
 /**
- * Lightpanda Browser Fetch — MapleSpike Pipeline
+ * Lightpanda Browser Fetch — Quill
  *
  * Thin wrapper around the `lightpanda` CLI binary (Zig-built headless
  * browser, https://lightpanda.io). Spawns `lightpanda fetch --dump <fmt> <url>`

@@ -1,5 +1,5 @@
 /**
- * Indigenous Relations Data Types — MapleSpike Pipeline
+ * Indigenous Relations Data Types — Quill
  *
  * Types for tracking Canadian Indigenous relations data:
  *   - CIRNAC land claims (active claims, settled amounts, duration)

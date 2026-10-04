@@ -1,5 +1,5 @@
 /**
- * StatCan WDS Low-level API Client — MapleSpike Pipeline
+ * StatCan WDS Low-level API Client — Quill
  *
  * Typed wrapper around the Statistics Canada Web Data Service (WDS) REST API.
  * Provides functions for fetching data, metadata, cube listings, and

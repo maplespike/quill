@@ -1,5 +1,5 @@
 /**
- * Isc Constants — MapleSpike Pipeline
+ * Isc Constants — Quill
  *
  * Configuration for First Nations Communities Directory data sources.
  */

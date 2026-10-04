@@ -1,5 +1,5 @@
 /**
- * Transport Canada Safety Connector — MapleSpike Pipeline
+ * Transport Canada Safety Connector — Quill
  *
  * Fetches Transport Canada safety data:
  *   - Vehicle safety recalls

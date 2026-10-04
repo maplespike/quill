@@ -1,5 +1,5 @@
 /**
- * Shared CSV Utility — MapleSpike Pipeline
+ * Shared CSV Utility — Quill
  *
  * Single canonical implementation of CSV parsing functions.
  * All modules should import from here instead of defining private copies.

@@ -1,5 +1,5 @@
 /**
- * Utility Parser — MapleSpike Pipeline
+ * Utility Parser — Quill
  *
  * Parses Canadian utility provider data (hydro, gas, telecom) into structured records
  * with field extraction, normalization, and deduplication.

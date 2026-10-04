@@ -1,5 +1,5 @@
 /**
- * SEDI Insider Trading Types — MapleSpike Pipeline
+ * SEDI Insider Trading Types — Quill
  *
  * Types for insider transaction data from the Canadian SEDI
  * (System for Electronic Disclosure by Insiders) and SEDAR+.

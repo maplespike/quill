@@ -1,5 +1,5 @@
 /**
- * Influence Database — MapleSpike Pipeline
+ * Influence Database — Quill
  *
  * D1 SQLite persistence for influence tracking tables:
  *   - influence_actors

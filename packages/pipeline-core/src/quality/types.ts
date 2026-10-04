@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Data Quality Scoring Types — MapleSpike Pipeline
+ * Data Quality Scoring Types — Quill
  *
  * Three-axis quality model:
  *   1. Freshness — how recent the data is vs expected update cadence

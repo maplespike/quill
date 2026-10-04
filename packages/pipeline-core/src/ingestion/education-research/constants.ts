@@ -1,5 +1,5 @@
 /**
- * Education & Research Constants — MapleSpike Pipeline
+ * Education & Research Constants — Quill
  *
  * CKAN search queries, source URLs, and DDL for education & research data
  * published on open.canada.ca and other Canadian open data portals.

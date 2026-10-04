@@ -1,5 +1,5 @@
 /**
- * SEDI Constants — MapleSpike Pipeline
+ * SEDI Constants — Quill
  *
  * URLs for the Canadian System for Electronic Disclosure by Insiders (SEDI)
  * and SEDAR+, plus a curated list of major TSX issuers and tracked
@@ -50,7 +50,7 @@ export const INSIDER_SOURCES: Record<InsiderDataSource, { baseUrl: string; searc
 /* ------------------------------------------------------------------ */
 
 export const SEDI_DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'Accept-Language': 'en-CA,en;q=0.9',
   'Content-Type': 'application/x-www-form-urlencoded',

@@ -1,5 +1,5 @@
 /**
- * Provincial Orgs Fetcher — MapleSpike Pipeline
+ * Provincial Orgs Fetcher — Quill
  *
  * HTTP fetchers for provincial oversight body records across all
  * 13 Canadian provinces and territories.

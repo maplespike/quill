@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Health Monitor — MapleSpike Pipeline
+ * Health Monitor — Quill
  *
  * Tracks ingestion success/failure rates per module,
  * computes health status, and provides system-wide health summary.

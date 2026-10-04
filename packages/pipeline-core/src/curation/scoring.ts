@@ -1,5 +1,5 @@
 /**
- * Curation Scoring — MapleSpike Pipeline
+ * Curation Scoring — Quill
  *
  * Types, scoring logic, and threshold evaluation for AI-curated articles.
  *

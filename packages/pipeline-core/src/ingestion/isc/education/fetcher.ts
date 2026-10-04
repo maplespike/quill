@@ -1,5 +1,5 @@
 /**
- * Isc Fetcher — MapleSpike Pipeline
+ * Isc Fetcher — Quill
  *
  * HTTP fetch logic for Indigenous Education Funding data via CKAN API.
  */

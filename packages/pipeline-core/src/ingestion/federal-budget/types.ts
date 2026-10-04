@@ -1,5 +1,5 @@
 /**
- * Federal Budget Types — MapleSpike Pipeline
+ * Federal Budget Types — Quill
  *
  * Strongly-typed interfaces for Canadian federal budget, public accounts,
  * fiscal monitor, and departmental plan data.

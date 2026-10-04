@@ -1,5 +1,5 @@
 /**
- * GoC-Spending Fetcher — MapleSpike Pipeline
+ * GoC-Spending Fetcher — Quill
  *
  * Downloads CSV data from the GoC-Spending project:
  *   1. Combined dataset CSVs (ZIP archives from download page)

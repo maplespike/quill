@@ -1,6 +1,6 @@
 /**
 export { parseCppOasBeneficiary, parseCppOasBeneficiarys } from './parser.js';
- * Social Programs Ingestion — MapleSpike Pipeline
+ * Social Programs Ingestion — Quill
  *
  * Orchestrates ingestion of Canadian social program data from
  * open.canada.ca CKAN and other federal sources:

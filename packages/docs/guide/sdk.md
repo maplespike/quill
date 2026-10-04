@@ -20,9 +20,9 @@ yarn add @maplespike/sdk
 ## Quick Start
 
 ```typescript
-import { MapleSpikeClient } from '@maplespike/sdk';
+import { QuillClient } from '@maplespike/sdk';
 
-const client = new MapleSpikeClient({
+const client = new QuillClient({
   apiKey: 'YOUR_API_KEY',
   baseUrl: 'http://localhost/v1',
 });
@@ -52,7 +52,7 @@ const committees = await client.searchCommittees({
 ### Construction
 
 ```typescript
-const client = new MapleSpikeClient({
+const client = new QuillClient({
   apiKey: string;        // Required: API key
   baseUrl?: string;      // Default: 'http://localhost/v1'
   timeout?: number;      // Default: 15000 (ms)

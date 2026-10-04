@@ -1,5 +1,5 @@
 /**
- * HTTP Utility Tests — MapleSpike Pipeline
+ * HTTP Utility Tests — Quill
  *
  * Hermetic: spins up a local node:http server instead of hitting httpbin.org,
  * so the suite is offline-stable and immune to third-party outages.

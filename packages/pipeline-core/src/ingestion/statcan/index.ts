@@ -1,6 +1,6 @@
 /**
 export { parseStatCanRecord, parseStatCanRecords } from './parser.js';
- * StatCan Ingestion — MapleSpike Pipeline
+ * StatCan Ingestion — Quill
  *
  * Orchestrates Statistics Canada data ingestion across all
  * major economic and social indicator categories via the

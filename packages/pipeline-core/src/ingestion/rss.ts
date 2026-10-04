@@ -1,5 +1,5 @@
 /**
- * RSS Ingestion Module — MapleSpike Pipeline
+ * RSS Ingestion Module — Quill
  *
  * Extracted from MapleSpike Cloudflare Worker.
  * Provides RSS feed fetching, parsing, deduplication, and source management.
@@ -49,7 +49,7 @@ export interface RawArticle {
 /* ------------------------------------------------------------------ */
 
 /**
- * 43+ Canadian news outlets used by the MapleSpike pipeline.
+ * 43+ Canadian news outlets used by the Quill.
  * Single source of truth — the Worker and ingest-rss.js both derive from this.
  */
 export const RSS_SOURCES: RSSSource[] = [

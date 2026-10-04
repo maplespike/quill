@@ -1,5 +1,5 @@
 /**
- * CRTC Ingestion Constants — MapleSpike Pipeline
+ * CRTC Ingestion Constants — Quill
  *
  * CRTC URLs, RSS feed patterns, decision numbering conventions,
  * subject matter classifications, and known data sources.
@@ -269,7 +269,7 @@ export const DEFAULT_TIMEOUT_MS = 30_000;
 
 /** User-Agent for CRTC HTTP requests */
 export const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8',
 } as const;
 

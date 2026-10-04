@@ -1,5 +1,5 @@
 /**
- * AI Gateway Client — MapleSpike Pipeline
+ * AI Gateway Client — Quill
  *
  * Generic fetch-based client for OpenAI-compatible chat completion APIs.
  * Supports rate-limit retry, JSON mode, and safe defaults on failure.

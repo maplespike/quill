@@ -1,5 +1,5 @@
 /**
- * Social Assistance (Provincial Welfare) Ingestion — MapleSpike Pipeline
+ * Social Assistance (Provincial Welfare) Ingestion — Quill
  *
  * Collects provincial/territorial social assistance and welfare rates
  * from provincial government websites. These are HTML scraped since

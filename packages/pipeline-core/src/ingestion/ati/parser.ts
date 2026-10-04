@@ -1,5 +1,5 @@
 /**
- * ATI (Access to Information) Parser — MapleSpike Pipeline
+ * ATI (Access to Information) Parser — Quill
  *
  * Normalizes raw ATI records from CKAN packages, CSV resources,
  * and department HTML pages into the unified AtiRecord schema.

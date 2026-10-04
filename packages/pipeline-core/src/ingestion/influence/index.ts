@@ -1,6 +1,6 @@
 export { parseInfluenceActor, parseInfluenceActors } from './parser.js';
 /**
- * Influence Ingestion — MapleSpike Pipeline
+ * Influence Ingestion — Quill
  *
  * Orchestrates influence tracking across all sources:
  *   1. Actor catalog — register tracked influence organizations

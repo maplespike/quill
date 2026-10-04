@@ -1,5 +1,5 @@
 /**
- * CRTC Parser — MapleSpike Pipeline
+ * CRTC Parser — Quill
  *
  * Parses raw CRTC data (RSS items, HTML pages, decision detail pages)
  * into structured CrtcDecision and CrtcOwnershipRecord records.

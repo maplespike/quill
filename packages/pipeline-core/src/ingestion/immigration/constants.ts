@@ -1,5 +1,5 @@
 /**
- * Immigration & Refugee Constants — MapleSpike Pipeline
+ * Immigration & Refugee Constants — Quill
  *
  * Known CKAN dataset UUIDs and IRCC open data URLs for
  * immigration, refugee, and border enforcement data.

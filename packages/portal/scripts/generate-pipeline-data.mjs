@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * MapleSpike Pipeline Data Generator
+ * Quill Data Generator
  *
  * Fetches real data from ALL 13 pipeline ingestion sources using only
  * Node.js built-ins + global fetch(). No npm dependencies.
@@ -32,7 +32,7 @@ const ASSETS_DIR = resolve(__dirname, '..', 'assets');
 const OUTPUT_FILE = resolve(ASSETS_DIR, 'pipeline-data.json');
 
 const USER_AGENT =
-  'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+  'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 const FETCH_TIMEOUT = 15000;
 const SOURCE_TIMEOUT = 15000;
@@ -1500,7 +1500,7 @@ async function main() {
 
   process.stdout.write(
     '\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n' +
-      '  MapleSpike Pipeline Data Generator\n' +
+      '  Quill Data Generator\n' +
       `  ${new Date().toISOString()}\n` +
       '\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n',
   );

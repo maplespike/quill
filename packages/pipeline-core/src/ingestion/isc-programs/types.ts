@@ -1,5 +1,5 @@
 /**
- * ISC Data Types — MapleSpike Pipeline
+ * ISC Data Types — Quill
  *
  * Types for Indigenous Services Canada community safety programs.
  */

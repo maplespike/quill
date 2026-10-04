@@ -1,5 +1,5 @@
 /**
- * Nrcan Fetcher — MapleSpike Pipeline
+ * Nrcan Fetcher — Quill
  *
  * HTTP fetch logic for Mineral Production data via CKAN API.
  */

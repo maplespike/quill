@@ -1,5 +1,5 @@
 /**
- * GoC-Spending Ingestion — MapleSpike Pipeline
+ * GoC-Spending Ingestion — Quill
  *
  * Orchestrates ingestion of Government of Canada contract spending data
  * from the GoC-Spending project (goc-spending.github.io).

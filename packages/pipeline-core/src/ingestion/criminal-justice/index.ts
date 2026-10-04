@@ -1,6 +1,6 @@
 /**
 export { parseCscPopulation, parseCscPopulations } from './parser.js';
- * Criminal Justice Ingestion Orchestration — MapleSpike Pipeline
+ * Criminal Justice Ingestion Orchestration — Quill
  *
  * Orchestrates the four criminal justice data pipelines:
  *   - CSC (Correctional Service Canada) — prison population, incidents, deaths, costs

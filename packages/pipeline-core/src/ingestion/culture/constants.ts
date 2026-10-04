@@ -1,5 +1,5 @@
 /**
- * Canadian cultural data source constants — MapleSpike Pipeline
+ * Canadian cultural data source constants — Quill
  *
  * Aggregates data from federal and agency-level cultural data portals:
  *   - PCH (Canadian Heritage) grants on open.canada.ca CKAN

@@ -1,5 +1,5 @@
 /**
- * Health Data Ingestion Constants — MapleSpike Pipeline
+ * Health Data Ingestion Constants — Quill
  *
  * Source URLs, DDL statements, and defaults for ingesting deep health-data
  * from PHAC, CFIA, CIHI, CADTH, and PMPRB.

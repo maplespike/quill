@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Fetcher — MapleSpike Pipeline
+ * Provincial Lobbying Fetcher — Quill
  *
  * HTTP fetchers for provincial lobbying registry data.
  * Primary target: Ontario Lobbyists Registry (Integrity Commissioner of Ontario).

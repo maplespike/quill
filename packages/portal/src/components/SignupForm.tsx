@@ -44,8 +44,8 @@ function setAuthState(token: string, userId: string, method: string) {
   localStorage.setItem("maplespike_token", token);
   localStorage.setItem("maplespike_userId", userId);
   localStorage.setItem("maplespike_method", method);
-  if (typeof window !== "undefined" && window.MapleSpikeAuth) {
-    window.MapleSpikeAuth.setAuth(token, userId, method);
+  if (typeof window !== "undefined" && window.QuillAuth) {
+    window.QuillAuth.setAuth(token, userId, method);
   }
 }
 
@@ -55,8 +55,8 @@ function clearAuthState() {
   localStorage.removeItem("maplespike_method");
   localStorage.removeItem("quill-api-key");
   localStorage.removeItem("maplespike_oidc_token");
-  if (typeof window !== "undefined" && window.MapleSpikeAuth) {
-    window.MapleSpikeAuth.logout();
+  if (typeof window !== "undefined" && window.QuillAuth) {
+    window.QuillAuth.logout();
   }
 }
 
@@ -73,7 +73,7 @@ declare global {
       isPhantom?: boolean;
       publicKey?: { toBytes: () => Uint8Array; toBase58: () => string };
     };
-    MapleSpikeAuth?: {
+    QuillAuth?: {
       getAuth: () => { token: string | null; userId: string | null; method: string | null; isAuthenticated: boolean };
       setAuth: (token: string, userId: string, method: string) => void;
       logout: () => void;

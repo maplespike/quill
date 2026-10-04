@@ -8,7 +8,7 @@ import urllib.error
 import urllib.parse
 from typing import Any, Dict, Optional, Tuple
 
-from .types import MapleSpikeResponse, MapleSpikeApiError, MapleSpikeError, ResponseMeta, ResponseQuality, Citation
+from .types import QuillResponse, QuillApiError, QuillError, ResponseMeta, ResponseQuality, Citation
 from .auth import get_api_key, get_jwt_token
 
 DEFAULT_BASE_URL = 'https://api.maplespike.ca'
@@ -121,12 +121,12 @@ def parse_response(
     agent: str = '',
     action: str = '',
     lang: str = 'en',
-) -> MapleSpikeResponse:
-    """Parse an API response into a MapleSpikeResponse."""
+) -> QuillResponse:
+    """Parse an API response into a QuillResponse."""
     if status == 0:
         # Network error
         err_msg = body.get('error', 'Network error') if isinstance(body, dict) else 'Network error'
-        return MapleSpikeResponse(
+        return QuillResponse(
             success=False,
             error=err_msg,
             meta=ResponseMeta(agent=agent, action=action, cache_status='error'),
@@ -136,14 +136,14 @@ def parse_response(
 
     if status >= 400:
         # API error
-        api_error = MapleSpikeApiError(
+        api_error = QuillApiError(
             status=status,
             code=body.get('code', 'HTTP_ERROR') if isinstance(body, dict) else 'HTTP_ERROR',
             message=body.get('message', str(status)) if isinstance(body, dict) else str(status),
             message_fr=body.get('messageFr', '') if isinstance(body, dict) else '',
             request_id=body.get('requestId') if isinstance(body, dict) else None,
         )
-        raise MapleSpikeError(api_error)
+        raise QuillError(api_error)
 
     # Successful response
     meta_dict = body.get('meta', {}) if isinstance(body, dict) else {}
@@ -181,7 +181,7 @@ def parse_response(
         citation_footnote=citation_dict.get('citation_footnote', ''),
     )
 
-    return MapleSpikeResponse(
+    return QuillResponse(
         success=True,
         data=body.get('data') if isinstance(body, dict) else body,
         text=json.dumps(body) if not isinstance(body, str) else body,

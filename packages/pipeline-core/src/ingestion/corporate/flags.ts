@@ -1,5 +1,5 @@
 /**
- * Corporate Data Flagging — MapleSpike Pipeline
+ * Corporate Data Flagging — Quill
  *
  * Statistical flagging for anomalies in corporate/government data:
  *   - Lobbying activity spikes: detect when lobbying on a subject

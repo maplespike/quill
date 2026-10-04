@@ -1,5 +1,5 @@
 /**
- * CRA Charity T3010 Parser — MapleSpike Pipeline
+ * CRA Charity T3010 Parser — Quill
  *
  * Parses CRA List of Charities CSV files into structured CraCharityT3010
  * records. Joins data from multiple CSV files (identification, financial,

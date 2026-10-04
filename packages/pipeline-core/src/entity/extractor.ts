@@ -1,5 +1,5 @@
 /**
- * Entity Extractor — MapleSpike Pipeline
+ * Entity Extractor — Quill
  *
  * Extracts entity mentions from module data records.
  * Uses fuzzy matching via the engine resolver for deduplication.

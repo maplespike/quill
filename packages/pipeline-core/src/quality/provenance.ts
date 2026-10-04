@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Provenance Scoring — MapleSpike Pipeline
+ * Provenance Scoring — Quill
  *
  * Evaluates the trustworthiness and traceability of data sources by
  * combining three dimensions:

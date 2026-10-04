@@ -1,5 +1,5 @@
 /**
- * NRCan Parser — MapleSpike Pipeline
+ * NRCan Parser — Quill
  *
  * Parse and normalize NRCan CSV data into typed records.
  */

@@ -1,5 +1,5 @@
 /**
- * SEDI Parser — MapleSpike Pipeline
+ * SEDI Parser — Quill
  *
  * Parses raw SEDI HTML report data into structured InsiderTransaction records.
  *

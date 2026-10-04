@@ -1,5 +1,5 @@
 /**
- * Agriculture Constants — MapleSpike Pipeline
+ * Agriculture Constants — Quill
  *
  * CKAN dataset IDs, search URLs, and configuration for Canadian
  * agriculture data sources.

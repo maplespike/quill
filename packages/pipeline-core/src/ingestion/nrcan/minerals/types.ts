@@ -1,5 +1,5 @@
 /**
- * Nrcan Data Types — MapleSpike Pipeline
+ * Nrcan Data Types — Quill
  *
  * Types for Mineral Production data ingestion.
  *

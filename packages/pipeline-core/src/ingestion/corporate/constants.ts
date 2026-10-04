@@ -1,5 +1,5 @@
 /**
- * Corporate Constants — MapleSpike Pipeline
+ * Corporate Constants — Quill
  *
  * Known URLs for Canadian corporate public-data sources
  * and a curated list of tracked entities.

@@ -1,5 +1,5 @@
 /**
- * PPSC Connector — MapleSpike Pipeline
+ * PPSC Connector — Quill
  *
  * Fetches Public Prosecution Service of Canada caseload and outcome data
  * from the open.canada.ca CKAN portal and PPSC's annual reports.

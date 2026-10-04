@@ -1,5 +1,5 @@
 /**
- * CRTC Fetcher — MapleSpike Pipeline
+ * CRTC Fetcher — Quill
  *
  * HTTP fetchers for CRTC (Canadian Radio-television and Telecommunications
  * Commission) data from multiple sources:
@@ -10,7 +10,7 @@
  *   4. open.canada.ca CKAN for CRTC open data datasets
  *
  * Uses undici for cross-platform HTTP (Node, Workers, Bun).
- * Consistent with the rest of the MapleSpike pipeline.
+ * Consistent with the rest of the Quill.
  */
 
 import { httpGet } from '../../utils/http.js';

@@ -1,5 +1,5 @@
 /**
- * Food Security Ingestion — MapleSpike Pipeline
+ * Food Security Ingestion — Quill
  *
  * Fetches data on food banks (HungerCount by Food Banks Canada),
  * homelessness (Reaching Home point-in-time counts from CKAN),

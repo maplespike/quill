@@ -1,5 +1,5 @@
 /**
- * Isc Constants — MapleSpike Pipeline
+ * Isc Constants — Quill
  *
  * Configuration for Indigenous Health Funding data sources.
  */

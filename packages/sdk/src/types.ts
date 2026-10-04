@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 /** Structured query payload returned by the API */
-export interface MapleSpikeResponse<T = unknown> {
+export interface QuillResponse<T = unknown> {
   data: T;
   meta: ResponseMeta;
   quality: ResponseQuality;
@@ -88,7 +88,7 @@ export interface SdkConfig extends AuthConfig {
 
 // ─── Error types ────────────────────────────────────────────────────────────
 
-export interface MapleSpikeApiError {
+export interface QuillApiError {
   status: number;
   code: string;
   message: string;
@@ -97,14 +97,14 @@ export interface MapleSpikeApiError {
   messageFr?: string;
 }
 
-export class MapleSpikeError extends Error {
+export class QuillError extends Error {
   public status: number;
   public code: string;
   public requestId?: string;
 
-  constructor(err: MapleSpikeApiError) {
+  constructor(err: QuillApiError) {
     super(err.message);
-    this.name = 'MapleSpikeError';
+    this.name = 'QuillError';
     this.status = err.status;
     this.code = err.code;
     this.requestId = err.requestId;
@@ -131,6 +131,6 @@ export interface AgentDefinition {
 
 export interface AgentProxy {
   agent(name: string): AgentProxy;
-  action(action: string, params?: Record<string, unknown>, options?: QueryOptions): Promise<MapleSpikeResponse<unknown>>;
+  action(action: string, params?: Record<string, unknown>, options?: QueryOptions): Promise<QuillResponse<unknown>>;
   readonly _agent: string;
 }

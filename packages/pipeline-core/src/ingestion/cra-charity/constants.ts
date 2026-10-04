@@ -1,5 +1,5 @@
 /**
- * CRA Charity T3010 Constants — MapleSpike Pipeline
+ * CRA Charity T3010 Constants — Quill
  *
  * CKAN package IDs, download URLs, column mappings, and DDL
  * for the CRA List of Charities open data.

@@ -1,5 +1,5 @@
 /**
- * Species at Risk Registry Types — MapleSpike Pipeline
+ * Species at Risk Registry Types — Quill
  *
  * Strongly-typed interfaces for Canada's Species at Risk Act (SARA) registry.
  * Tracks federal listing decisions, recovery strategies, and critical habitat

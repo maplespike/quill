@@ -44,7 +44,7 @@ describe('browser-fetch (mock-on)', () => {
       waitSelector: 'main#content',
       waitScript: 'window.__ready === true',
       obeyRobots: true,
-      userAgent: 'MapleSpikePipeline/0.1',
+      userAgent: 'Quill/0.1',
       userAgentSuffix: '(audit)',
       httpProxy: '',     // truthy-guarded; NOT pushed to the binary
       proxyBearerToken: '',  // truthy-guarded; NOT pushed to the binary

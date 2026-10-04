@@ -1,5 +1,5 @@
 /**
- * Provincial Legislatures Ingestion — MapleSpike Pipeline
+ * Provincial Legislatures Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for provincial legislative data
  * across all 10 Canadian provinces:

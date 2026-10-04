@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Health Fetcher — MapleSpike Pipeline
+ * Quebec Health Fetcher — Quill
  *
  * Fetches health records from Quebec sources:
  *   - RAMQ medical claims statistics from Données Québec

@@ -1,5 +1,5 @@
 /**
- * Fisheries Ingestion Orchestrator — MapleSpike Pipeline
+ * Fisheries Ingestion Orchestrator — Quill
  *
  * Orchestrates ingestion of Canadian fisheries and oceans data
  * from Fisheries & Oceans Canada, Canadian Coast Guard, aquaculture

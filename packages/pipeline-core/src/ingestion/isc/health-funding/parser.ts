@@ -1,5 +1,5 @@
 /**
- * Isc Parser — MapleSpike Pipeline
+ * Isc Parser — Quill
  *
  * Parse and normalize Indigenous Health Funding CSV data.
  */

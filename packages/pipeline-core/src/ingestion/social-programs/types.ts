@@ -1,5 +1,5 @@
 /**
- * Social Programs Data Types — MapleSpike Pipeline
+ * Social Programs Data Types — Quill
  *
  * Strongly-typed interfaces for Canadian social program data from
  * federal and provincial sources including CPP, OAS, EI, CCB,

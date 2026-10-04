@@ -1,5 +1,5 @@
 /**
- * CMHC (Canada Mortgage and Housing Corporation) Parser — MapleSpike Pipeline
+ * CMHC (Canada Mortgage and Housing Corporation) Parser — Quill
  *
  * Normalizes raw CMHC housing market data records into the unified
  * CmhcRecord schema.

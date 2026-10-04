@@ -1,5 +1,5 @@
 /**
- * HTTP Utility Tests — MapleSpike Pipeline
+ * HTTP Utility Tests — Quill
  */
 
 import { describe, it } from 'node:test';

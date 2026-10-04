@@ -1,5 +1,5 @@
 /**
- * NRCan Constants — MapleSpike Pipeline
+ * NRCan Constants — Quill
  *
  * Configuration for Natural Resources Canada data sources.
  */

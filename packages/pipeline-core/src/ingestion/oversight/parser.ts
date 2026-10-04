@@ -1,5 +1,5 @@
 /**
- * Oversight Bodies Parser — MapleSpike Pipeline
+ * Oversight Bodies Parser — Quill
  *
  * Parses raw HTML report listings from Canada's independent oversight bodies
  * into structured OversightReport and Recommendation records.

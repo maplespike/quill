@@ -1,5 +1,5 @@
 /**
- * Health Canada Fetcher — MapleSpike Pipeline
+ * Health Canada Fetcher — Quill
  *
  * Fetches regulated product records from Health Canada sources:
  *   - Drug Product Database (DPD) — JSON API

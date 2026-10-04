@@ -1,5 +1,5 @@
 /**
- * Isc Ingestion Module — MapleSpike Pipeline
+ * Isc Ingestion Module — Quill
  *
  * Housing Programs data ingestion from open.canada.ca CKAN portal.
  * Fetches CSV, parses records, normalizes with SHA-256 citations.

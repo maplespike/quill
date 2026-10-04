@@ -1,5 +1,5 @@
 /**
- * Crown Corporations Parser — MapleSpike Pipeline
+ * Crown Corporations Parser — Quill
  *
  * Parses HTML listing pages from crown corporation websites to extract
  * report metadata (links, titles, fiscal years, report types).

@@ -132,7 +132,7 @@
   "time": { "from": "now-24h", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "MapleSpike Pipeline Overview",
+  "title": "Quill Overview",
   "uid": "maplespike-pipeline",
   "version": 1,
   "weekStart": ""

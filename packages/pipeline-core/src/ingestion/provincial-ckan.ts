@@ -1,5 +1,5 @@
 /**
- * Provincial CKAN Portal Stubs — MapleSpike Pipeline
+ * Provincial CKAN Portal Stubs — Quill
  *
  * Convenience wrappers around fetchCKANPackages for all 13 Canadian
  * provincial/territorial CKAN portals.

@@ -1,5 +1,5 @@
 /**
- * Infrastructure Canada Connector — MapleSpike Pipeline
+ * Infrastructure Canada Connector — Quill
  *
  * Fetches Infrastructure Canada project funding data:
  *   - Investing in Canada infrastructure program projects

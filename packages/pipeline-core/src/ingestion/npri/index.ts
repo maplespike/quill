@@ -1,5 +1,5 @@
 /**
- * NPRI (National Pollutant Release Inventory) Ingestion — MapleSpike Pipeline
+ * NPRI (National Pollutant Release Inventory) Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Canada's National Pollutant Release
  * Inventory data from the Government of Canada's open.canada.ca portal.

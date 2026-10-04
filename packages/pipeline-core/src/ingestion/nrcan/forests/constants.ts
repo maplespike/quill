@@ -1,5 +1,5 @@
 /**
- * Nrcan Constants — MapleSpike Pipeline
+ * Nrcan Constants — Quill
  *
  * Configuration for National Forest Inventory data sources.
  */

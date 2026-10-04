@@ -49,7 +49,7 @@ export class NWTLobbyingFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/csv,text/plain;q=0.9,*/*;q=0.8',
 } as const;
 

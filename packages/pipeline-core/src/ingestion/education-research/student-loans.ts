@@ -1,5 +1,5 @@
 /**
- * Canada Student Loans (CSL) Ingestion — MapleSpike Pipeline
+ * Canada Student Loans (CSL) Ingestion — Quill
  *
  * Ingests Canada Student Loans program data from open.canada.ca
  * via CKAN package_show API.

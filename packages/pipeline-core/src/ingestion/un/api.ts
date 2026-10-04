@@ -1,5 +1,5 @@
 /**
- * UN Data API Client — MapleSpike Pipeline
+ * UN Data API Client — Quill
  *
  * Typed wrapper around the UNdata SDMX REST API.
  * No authentication required. 32+ databases, ~60M records.

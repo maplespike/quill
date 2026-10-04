@@ -6,7 +6,7 @@
 
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { MapleSpike, MapleSpikeError } from '../../src/index.js';
+import { MapleSpike, QuillError } from '../../src/index.js';
 
 // Configuration for local testing
 const TEST_CONFIG = {
@@ -94,15 +94,15 @@ describe('MapleSpike SDK - Integration Tests', () => {
   });
 
   describe('Error Handling', () => {
-    it('should throw MapleSpikeError on API errors', async () => {
+    it('should throw QuillError on API errors', async () => {
       try {
         await client.query('invalid', 'endpoint', {});
         assert.fail('Should have thrown an error');
       } catch (error) {
-        assert.ok(error instanceof MapleSpikeError);
-        assert.equal(typeof (error as MapleSpikeError).status, 'number');
-        assert.equal(typeof (error as MapleSpikeError).code, 'string');
-        assert.equal(typeof (error as MapleSpikeError).message, 'string');
+        assert.ok(error instanceof QuillError);
+        assert.equal(typeof (error as QuillError).status, 'number');
+        assert.equal(typeof (error as QuillError).code, 'string');
+        assert.equal(typeof (error as QuillError).message, 'string');
       }
     });
 
@@ -111,8 +111,8 @@ describe('MapleSpike SDK - Integration Tests', () => {
         await client.corporate.profile({ businessNumber: '' });
       } catch (error) {
         // Expected to fail - either 400 or 404
-        assert.ok(error instanceof MapleSpikeError);
-        assert.ok((error as MapleSpikeError).status === 400 || (error as MapleSpikeError).status === 404);
+        assert.ok(error instanceof QuillError);
+        assert.ok((error as QuillError).status === 400 || (error as QuillError).status === 404);
       }
     });
   });

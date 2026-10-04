@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry — MapleSpike Pipeline
+ * Elections Canada Third-Party Advertiser Registry — Quill
  *
  * Source metadata, URL patterns, and known data export endpoints for
  * Elections Canada third-party advertising data.

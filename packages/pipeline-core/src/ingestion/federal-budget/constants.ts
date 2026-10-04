@@ -1,5 +1,5 @@
 /**
- * Federal Budget Constants — MapleSpike Pipeline
+ * Federal Budget Constants — Quill
  *
  * Source URLs, department lists, spending categories, CKAN package IDs,
  * and default options for Canadian federal budget data ingestion.
@@ -291,7 +291,7 @@ export const AVAILABLE_BUDGET_YEARS = ['2021', '2022', '2023', '2024', '2025'];
 export const DEFAULT_MAX_RECORDS = 1000;
 
 /** Default User-Agent for HTTP requests */
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 /** Default request timeout in milliseconds */
 export const DEFAULT_TIMEOUT_MS = 30_000;

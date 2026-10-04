@@ -1,5 +1,5 @@
 /**
- * Education & Research Ingestion — MapleSpike Pipeline
+ * Education & Research Ingestion — Quill
  *
  * Orchestrates education & research data ingestion across all sources:
  *   1. Tri-Council grants (CIHR, NSERC, SSHRC) — federal research funding
