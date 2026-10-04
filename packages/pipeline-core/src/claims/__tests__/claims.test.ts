@@ -4,8 +4,26 @@
  * batch merkle commitment, and local hash verification.
  */
 
-import { describe, it } from 'node:test';
+import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+// ── Hermetic DB isolation ────────────────────────────────────────────
+// CitationStore reads/writes go through getRawDb(), which resolves
+// QUILL_DB_PATH else a cwd-relative quill.sqlite. This file and
+// provenance-evidence.test.ts run concurrently under `tsx --test`; sharing
+// one citation_records table they race (CI: "3 !== 2" size assertions;
+// local repro: ~2 in 3 runs). Point this suite at a throwaway temp DB —
+// must be set BEFORE the first getRawDb() call.
+const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-claims-'));
+process.env.QUILL_DB_PATH = path.join(tmpDir, 'quill.db');
+
+after(() => {
+  delete process.env.QUILL_DB_PATH;
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+});
 
 import {
   canonicalJson,

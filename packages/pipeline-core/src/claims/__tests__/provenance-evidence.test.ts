@@ -1,7 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { describe, it } from 'node:test';
+import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+// ── Hermetic DB isolation ────────────────────────────────────────────
+// Shares the citation_records table with claims.test.ts otherwise (both
+// files run concurrently under `tsx --test`). See claims.test.ts for the
+// full note; same throwaway temp DB pattern.
+const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-provenance-'));
+process.env.QUILL_DB_PATH = path.join(tmpDir, 'quill.db');
+
+after(() => {
+  delete process.env.QUILL_DB_PATH;
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+});
 import { createHash } from 'node:crypto';
 import { buildClaimBundle, canonicalJson } from '../index.js';
 import { registerModuleClaims } from '../ingest-hook.js';
