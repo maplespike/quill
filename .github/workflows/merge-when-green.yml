@@ -82,9 +82,17 @@ jobs:
               exit 0
             fi
 
-            CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null || echo '[]')
-            PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
-            FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
+            # Fail closed (#983 follow-up): a transient gh/API failure must
+            # not read as "no pending, no failures". On an unreadable list,
+            # wait and retry; the 20-min loop is the backstop. Observed once:
+            # all-green reported while a check was still in_progress.
+            if ! CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name); then
+              echo "($i/60) check list unreadable — retrying."
+              sleep 20
+              continue
+            fi
+            PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 1)
+            FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 1)
 
             if [[ "$FAILURES" -gt 0 ]]; then
               NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
