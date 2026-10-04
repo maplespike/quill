@@ -39,7 +39,7 @@ export function loadConfig(overrides?: Partial<NotificationConfig>): Notificatio
     fromEmail: overrides?.fromEmail ?? process.env.NOTIFICATION_FROM_EMAIL ?? "noreply@maplespike.ca",
     fromName: overrides?.fromName ?? process.env.NOTIFICATION_FROM_NAME ?? "MapleSpike Alerts",
     pollIntervalMs: overrides?.pollIntervalMs ?? parseInt(process.env.POLL_INTERVAL_MS ?? "60000", 10),
-    dbPath: overrides?.dbPath ?? process.env.QUILL_DB_PATH ?? "./maplespike.db",
+    dbPath: overrides?.dbPath ?? process.env.QUILL_DB_PATH ?? "./quill.db",
     apiBaseUrl: overrides?.apiBaseUrl ?? process.env.QUILL_API_BASE ?? "http://localhost:8082",
     apiKey: overrides?.apiKey ?? process.env.QUILL_API_KEY ?? "dev-key",
     maxEmailsPerCycle: overrides?.maxEmailsPerCycle ?? parseInt(process.env.MAX_EMAILS_PER_CYCLE ?? "50", 10),

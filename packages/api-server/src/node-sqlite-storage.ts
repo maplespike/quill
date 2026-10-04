@@ -19,7 +19,7 @@ export class NodeSqliteStorage implements QuillStorage {
   private db: DatabaseSync;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.QUILL_DB_PATH || './quill.db';
     this.db = new DatabaseSync(path);
     this.db.exec('PRAGMA journal_mode = WAL');
     this.db.exec('PRAGMA foreign_keys = ON');

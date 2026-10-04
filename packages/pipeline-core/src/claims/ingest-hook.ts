@@ -4,7 +4,7 @@
  *
  * Content-addresses every record produced by an ingestion module at parse
  * time, so hashes exist in the citation store before any query is made.
- * This is the step that makes `maplespike.sqlite` actually populate and
+ * This is the step that makes `quill.sqlite` actually populate and
  * turns "tool responses carry hashes" into "everything Quill ingests is
  * verifiable".
  *

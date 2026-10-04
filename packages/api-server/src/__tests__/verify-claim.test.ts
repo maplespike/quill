@@ -18,14 +18,14 @@ import { fileURLToPath } from 'node:url';
 import { makeCtx as makeBaseCtx } from './_helpers.js';
 
 // The CitationStore persists to the shared SQLite DB (getRawDb) — which
-// CREATES maplespike.sqlite at CWD if absent. Clean up so the suite doesn't
+// CREATES quill.sqlite at CWD if absent. Clean up so the suite doesn't
 // pollute packages/api-server/. Resolve relative to THIS test file (never
 // process.cwd()) so a repo-root invocation can't delete the shared DB.
 const API_SERVER_PKG = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 after(() => {
   for (const suffix of ['', '-wal', '-shm']) {
     try {
-      const target = resolve(API_SERVER_PKG, `maplespike.sqlite${suffix}`);
+      const target = resolve(API_SERVER_PKG, `quill.sqlite${suffix}`);
       if (target.startsWith(API_SERVER_PKG + sep)) {
         rmSync(target, { force: true });
       }

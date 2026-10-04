@@ -21,7 +21,7 @@ import {
 // ── Hermetic DB isolation ────────────────────────────────────────────
 // The before/after hooks below DELETE the entity-graph tables and DROP the
 // lobbying/gic source tables. Without isolation they would wipe whichever
-// maplespike.sqlite getRawDb() opens relative to the cwd — including the live
+// quill.sqlite getRawDb() opens relative to the cwd — including the live
 // graph populated by real ingestion (issue #828). Point this suite at a
 // throwaway temp DB so `pnpm test` (or a repo-root tsx invocation) can never
 // destroy live data. Must be set BEFORE the first getRawDb() call.

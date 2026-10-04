@@ -247,7 +247,7 @@ export function initAnnotationStore(db?: any, dbPath?: string): void {
     }
   } else if (dbPath || process.env.QUILL_DB_PATH) {
     try {
-      const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
+      const path = dbPath || process.env.QUILL_DB_PATH || './quill.db';
       const mod = require('better-sqlite3');
       const sqliteDb = new (mod.default || mod)(path);
       sqliteDb.pragma('journal_mode = WAL');

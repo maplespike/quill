@@ -108,7 +108,7 @@ export class SqliteWebhookStore implements WebhookStore {
   private db: any;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.QUILL_DB_PATH || './quill.db';
     try {
       const Database = require('better-sqlite3');
       this.db = new Database(path);

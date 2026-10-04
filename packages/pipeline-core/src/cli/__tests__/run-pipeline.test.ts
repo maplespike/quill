@@ -41,7 +41,7 @@ function makeSpy(result: unknown, options: { throwError?: Error } = {}) {
 
 before(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-ingest-cli-'));
-  process.env.QUILL_DB_PATH = path.join(tmpDir, 'maplespike.db');
+  process.env.QUILL_DB_PATH = path.join(tmpDir, 'quill.db');
 });
 
 after(() => {

@@ -195,7 +195,7 @@ test('ingest status — runs without sources (pre-GH#921 rows) read sources: nul
 
 test('ingest status — the handler answers 200 + unknown on an empty store', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'quill-ingest-status-'));
-  process.env.QUILL_DB_PATH = join(dir, 'maplespike.db');
+  process.env.QUILL_DB_PATH = join(dir, 'quill.db');
   try {
     const { ingestStatusHandler } = await import('../routes/ingest-status.js');
     const res = await ingestStatusHandler({ url: 'http://x/v1/ingest/status' } as never, {

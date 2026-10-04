@@ -17,7 +17,7 @@
  *
  * Environment:
  *   QUILL_PIPELINE           module alias (see PIPELINE_CONFIG) or "all"
- *   QUILL_DB_PATH            shared SQLite file (the API's /data/quill/maplespike.db)
+ *   QUILL_DB_PATH            shared SQLite file (the API's /data/quill/quill.db)
  *   QUILL_INGEST_SCHEDULE    cron expression of the owning CronJob (staleness bound)
  *
  * Supported pipelines:

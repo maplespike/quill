@@ -26,7 +26,7 @@ let dbPath: string;
 
 before(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-run-log-'));
-  dbPath = path.join(tmpDir, 'maplespike.db');
+  dbPath = path.join(tmpDir, 'quill.db');
   process.env.QUILL_DB_PATH = dbPath;
 });
 

@@ -48,7 +48,7 @@ export interface IngestLedgerEntry {
 export function ledgerFilePath(override?: string): string {
   if (override) return override;
   if (process.env.QUILL_INGEST_LEDGER) return process.env.QUILL_INGEST_LEDGER;
-  const dbPath = process.env.QUILL_DB_PATH || './maplespike.db';
+  const dbPath = process.env.QUILL_DB_PATH || './quill.db';
   return path.join(path.dirname(dbPath), 'ingest-ledger.json');
 }
 

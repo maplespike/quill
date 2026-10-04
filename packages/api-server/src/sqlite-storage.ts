@@ -15,7 +15,7 @@ export class SqliteStorage implements QuillStorage {
   private db: Database.Database;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.QUILL_DB_PATH || './quill.db';
     this.db = new Database(path);
 
     // Enable WAL mode for better concurrent read performance

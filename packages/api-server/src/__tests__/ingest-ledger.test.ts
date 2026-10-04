@@ -60,7 +60,7 @@ test('writes are atomic — no temp file is left behind', () => {
 
 test('the default path sits beside the SQLite database', () => {
   const prev = process.env.QUILL_DB_PATH;
-  process.env.QUILL_DB_PATH = '/var/lib/quill/maplespike.db';
+  process.env.QUILL_DB_PATH = '/var/lib/quill/quill.db';
   try {
     assert.equal(ledgerFilePath(), '/var/lib/quill/ingest-ledger.json');
   } finally {
