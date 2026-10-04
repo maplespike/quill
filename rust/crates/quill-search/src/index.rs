@@ -14,8 +14,7 @@ use std::path::Path;
 use tantivy::collector::TopDocs;
 use tantivy::doc;
 use tantivy::query::QueryParser;
-use tantivy::schema::{Field, Schema, Value, INDEXED, STORED, TEXT};
-use tantivy::snippet::{Snippet, SnippetGenerator};
+use tantivy::schema::{Field, Schema, Value, STORED, TEXT};
 use tantivy::{Index, IndexReader, ReloadPolicy, TantivyDocument};
 
 /// Sidecar metadata written next to the tantivy index at build time.
@@ -281,7 +280,7 @@ fn snippet_for(
     let searcher = idx.reader.searcher();
     let snip_generator = tantivy::snippet::SnippetGenerator::create(&searcher, query, text_field);
     match snip_generator {
-        Ok(mut gen) => {
+        Ok(gen) => {
             let text = doc
                 .get_first(text_field)
                 .and_then(|v| v.as_str())

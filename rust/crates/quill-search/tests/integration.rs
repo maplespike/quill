@@ -26,7 +26,7 @@ fn free_port() -> u16 {
 /// alive for the test body; the runtime shuts down when the test ends.
 struct ServeGuard {
     pub public_port: u16,
-    pub metrics_port: u16,
+    pub _metrics_port: u16,
     pub state: AppState,
     _task: tokio::task::JoinHandle<()>,
     _tmp: TempDir,
@@ -54,7 +54,7 @@ async fn spawn_fixture_server() -> ServeGuard {
         }
         bound.unwrap_or_else(|| panic!("cannot bind any free port: {last_err:?}"))
     };
-    let metrics_port = public_port + 1;
+    let _metrics_port = public_port + 1;
 
     let app = quill_search::public_router(state.clone());
     let task = tokio::spawn(async move {
@@ -62,7 +62,7 @@ async fn spawn_fixture_server() -> ServeGuard {
     });
     ServeGuard {
         public_port,
-        metrics_port,
+        _metrics_port,
         state,
         _task: task,
         _tmp: tmp,
@@ -185,14 +185,14 @@ fn search_ranked_hits_limit_and_kind_filter() {
         );
         assert_eq!(status, StatusCode::OK, "body: {body}");
         let v: serde_json::Value = serde_json::from_str(&body).expect("json body");
-        assert_eq!(v["total"].as_u64().unwrap() >= 1, true);
-        assert_eq!(v["took_ms"].is_u64(), true);
+        assert!(v["total"].as_u64().unwrap() >= 1);
+        assert!(v["took_ms"].is_u64());
         assert_eq!(
             v["results"][0]["id"].as_str().unwrap(),
             PINNED_TOP_HIT,
             "HTTP top hit must match the pinned expectation"
         );
-        assert!(v["results"][0]["snippet"].as_str().unwrap().len() > 0);
+        assert!(!v["results"][0]["snippet"].as_str().unwrap().is_empty());
 
         // Kind filter: municipal only excludes the registry module docs.
         let (status, body) = get(

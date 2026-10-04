@@ -10,7 +10,7 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
     routing::get,
-    Json, Router,
+    Router,
 };
 use metrics_exporter_prometheus::PrometheusBuilder;
 use tokio::signal;
@@ -238,7 +238,7 @@ pub async fn serve(index_dir: PathBuf, public_port: u16, metrics_port: u16) -> a
     };
 
     let ctrl_c = async {
-        signal::ctrl_c().await;
+        let _ = signal::ctrl_c().await;
     };
 
     tokio::select! {
