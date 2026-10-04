@@ -1,0 +1,109 @@
+---
+# Merge when green — label-gated auto-merge.
+#
+# Why this exists as a workflow and not a branch-protection rule: this is a
+# private repo on the free plan, so the branch-protection API returns 403 and
+# there is no required-approvals / required-checks safety net (see the header
+# of pr-validation.yml, which exists for the same reason). The merge policy
+# therefore has to live here.
+#
+# The gate is deliberately one deliberate human act — dropping the
+# `ready-to-merge` label after reading the diff. The workflow only removes the
+# two-step dance (watch CI, come back, click merge). It does NOT approve the
+# PR and it does NOT decide that a PR is safe; both stay with the human.
+#
+# Triggers on `labeled` (the gate opening) plus `synchronize`/`reopened`/
+# `ready_for_review` so pushing more commits to an already-labelled PR re-arms
+# the gate rather than leaving it merged against stale checks.
+#
+# "Not my turn" exits 0, never 1: a red check on a PR that is merely waiting
+# for its author to label it is a misleading signal.
+name: "Merge when green"
+on:
+  pull_request_target:
+    types: [labeled, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  merge:
+    # Author gate. Dependabot, or you. NOT "anyone who opened a PR" — a fork
+    # PR would otherwise get this repo's write token via pull_request_target.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.actor == 'dependabot[bot]' || github.actor == 'reverb256')
+    runs-on: [self-hosted, nixos]
+    steps:
+      # Never rely on the runner's ambient `gh` credentials: the
+      # [self-hosted, nixos] pool is not homogeneous (PR 908). github.token is
+      # minted per run and exists everywhere.
+      - name: "Wait for every check to settle, then squash-merge"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_LABEL: ${{ github.event.label.name }}
+          ACTION: ${{ github.event.action }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$PR_LABEL" != "ready-to-merge" ]]; then
+            echo "::notice::event=$ACTION label='$PR_LABEL' — not the merge gate. Nothing to do."
+            exit 0
+          fi
+
+          echo "Gate open on #$PR_NUMBER — waiting for every check to settle."
+
+          # 60 * 20s = 20 min ceiling. Longer than any CI lane in ci.yml
+          # (longest observed ~2m) so this never truncates a healthy run.
+          for i in $(seq 1 60); do
+            META=$(gh pr view "$PR_NUMBER" --json state,isDraft,mergeable,labels,title)
+
+            if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
+              echo "::notice::PR #$PR_NUMBER closed/merged by someone else — stopping."
+              exit 0
+            fi
+            if [[ "$(jq -r '.isDraft' <<<"$META")" == "true" ]]; then
+              echo "::notice::PR #$PR_NUMBER is a draft — stopping."
+              exit 0
+            fi
+            if [[ "$(jq -r 'any(.labels[]; .name == "ready-to-merge")' <<<"$META")" != "true" ]]; then
+              echo "::notice::'ready-to-merge' removed from #$PR_NUMBER — stopping."
+              exit 0
+            fi
+
+            CHECKS=$(gh pr checks "$PR_NUMBER" --json bucket,name 2>/dev/null || echo '[]')
+            PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
+            FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
+
+            if [[ "$FAILURES" -gt 0 ]]; then
+              NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
+              echo "::error::Failing checks on #$PR_NUMBER: $NAMES — refusing to merge."
+              echo "Fix or revert them, then re-apply the label."
+              exit 1
+            fi
+
+            if [[ "$PENDING" -eq 0 ]]; then
+              if [[ "$(jq -r '.mergeable' <<<"$META")" != "MERGEABLE" ]]; then
+                echo "::error::All checks green but the merge is $(jq -r '.mergeable' <<<"$META")."
+                echo "Resolve conflicts, then re-apply the label."
+                exit 1
+              fi
+
+              TITLE=$(jq -r '.title' <<<"$META")
+              echo "All checks green — squash-merging #$PR_NUMBER."
+              gh pr merge "$PR_NUMBER" --squash --delete-branch \
+                --subject "$TITLE (#$PR_NUMBER)"
+              echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
+              exit 0
+            fi
+
+            echo "($i/60) $PENDING checks pending…"
+            sleep 20
+          done
+
+          echo "::error::Timed out after 20 min waiting for checks on #$PR_NUMBER — refusing to merge."
+          echo "Re-apply the label once CI has settled."
+          exit 1
