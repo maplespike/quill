@@ -100,10 +100,21 @@ jobs:
                 exit 1
               fi
 
-              TITLE=$(jq -r '.title' <<<"$META")
+              # No --subject and no --body here, on purpose.
+              #
+              # GitHub composes the default squash message as "<title> (#N)"
+              # followed by the PR body, and auto-closes issues from closing
+              # keywords in the commit message on the default branch. Passing
+              # --subject replaced that whole message, so `Closes #N` never
+              # reached main and every issue stayed open — see #983. Measured:
+              # PRs #979 and #982 merged green through this gate and issues
+              # #978 / #981 both had to be closed by hand.
+              #
+              # GitHub's default is exactly what a human gets from the web UI,
+              # which is the behaviour we want to match. Determinism of the
+              # subject was not worth losing issue closure.
               echo "All checks green — squash-merging #$PR_NUMBER."
-              gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
-                --subject "$TITLE (#$PR_NUMBER)"
+              gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch
               echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
               exit 0
             fi
