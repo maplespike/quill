@@ -14,19 +14,19 @@ import { fileURLToPath } from 'node:url';
 import { makeCtx as makeBaseCtx } from './_helpers.js';
 
 // The handlers touch the shared DB via getRawDb() (default path
-// 'maplespike.sqlite' relative to CWD). better-sqlite3 CREATES the file if
+// 'quill.sqlite' relative to CWD). better-sqlite3 CREATES the file if
 // absent — clean up so the suite doesn't pollute packages/api-server/.
 //
 // IMPORTANT: resolve the cleanup target relative to THIS test file, never
 // process.cwd() — a repo-root test invocation would otherwise delete the
-// shared root maplespike.sqlite holding real ingested data. The target is
+// shared root quill.sqlite holding real ingested data. The target is
 // constructed inside the api-server package dir and the guard re-checks that
 // so this hook can never touch files it didn't create.
 const API_SERVER_PKG = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 after(() => {
   for (const suffix of ['', '-wal', '-shm']) {
     try {
-      const target = resolve(API_SERVER_PKG, `maplespike.sqlite${suffix}`);
+      const target = resolve(API_SERVER_PKG, `quill.sqlite${suffix}`);
       if (target.startsWith(API_SERVER_PKG + sep)) {
         rmSync(target, { force: true });
       }

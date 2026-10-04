@@ -19,15 +19,15 @@ export interface DbConfig {
 let sqliteInstance: Database.Database | null = null;
 let dbInstance: DbClient | null = null;
 
-const DEFAULT_DB_PATH = "maplespike.sqlite";
+const DEFAULT_DB_PATH = "quill.sqlite";
 
 // ─── Connection Factory (internal) ────────────────────────────────────
 
 function buildConnection(config: DbConfig): { sqlite: Database.Database; db: DbClient } {
   const isMemory = config.memory ?? false;
   // Respect QUILL_DB_PATH so shared stores (claims, entity links) land in the
-  // same SQLite file the api-server's NodeSqliteStorage uses (/data/maplespike.db
-  // in prod). Without this, CitationStore opened a relative maplespike.sqlite in
+  // same SQLite file the api-server's NodeSqliteStorage uses (/data/quill.db
+  // in prod). Without this, CitationStore opened a relative quill.sqlite in
   // the pod cwd — ephemeral, so claims never survived a restart. Explicit
   // config.path always wins; QUILL_DB_PATH is the environment default.
   const dbPath = config.path ?? (process.env.QUILL_DB_PATH || (isMemory ? ":memory:" : DEFAULT_DB_PATH));

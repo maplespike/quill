@@ -36,7 +36,7 @@ const METRICS_PORT = parseInt(process.env.QUILL_API_METRICS_PORT || "9464", 10);
 const AI_ENDPOINT = process.env.QUILL_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
 const AI_MODEL = process.env.QUILL_AI_MODEL || 'qwen3.5-27b';
 const QUILL_STORAGE = (process.env.QUILL_STORAGE || 'memory').toLowerCase();
-const QUILL_DB_PATH = process.env.QUILL_DB_PATH || './maplespike.db';
+const QUILL_DB_PATH = process.env.QUILL_DB_PATH || './quill.db';
 
 const KNOWN_PIPELINE_MODULES = new Set(getAllModules().map(({ name }) => name));
 
@@ -52,7 +52,7 @@ const env = {
   QUILL_VERSION: process.env.QUILL_VERSION || '0.1.0',
   QUILL_NAME: process.env.QUILL_NAME || 'Quill',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
-  QUILL_DB_PATH: process.env.QUILL_DB_PATH || './maplespike.db',
+  QUILL_DB_PATH: process.env.QUILL_DB_PATH || './quill.db',
   AI_ENDPOINT,
   AI_MODEL,
   JWT_SECRET,
