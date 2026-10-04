@@ -25,3 +25,4 @@ criterion = "0.5"
 [profile.release]
 lto = "thin"
 codegen-units = 1
+// trigger
