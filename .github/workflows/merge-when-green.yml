@@ -43,6 +43,7 @@ jobs:
       - name: "Wait for every check to settle, then squash-merge"
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_LABEL: ${{ github.event.label.name }}
           ACTION: ${{ github.event.action }}
@@ -59,7 +60,14 @@ jobs:
           # 60 * 20s = 20 min ceiling. Longer than any CI lane in ci.yml
           # (longest observed ~2m) so this never truncates a healthy run.
           for i in $(seq 1 60); do
-            META=$(gh pr view "$PR_NUMBER" --json state,isDraft,mergeable,labels,title)
+            # --repo on every call: this job deliberately has NO checkout, and
+            # `gh` infers the repo from git remotes. It works today only because
+            # the [self-hosted, nixos] runner happens to sit inside a git working
+            # tree — that is an accident of the runner's cwd, not a property of
+            # the job. A runner path change, or a new runner, breaks the gate
+            # outright. media-k8s hit exactly this on 2026-10-04:
+            # "failed to run git: fatal: not a git repository".
+            META=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,isDraft,mergeable,labels,title)
 
             if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
               echo "::notice::PR #$PR_NUMBER closed/merged by someone else — stopping."
@@ -74,7 +82,7 @@ jobs:
               exit 0
             fi
 
-            CHECKS=$(gh pr checks "$PR_NUMBER" --json bucket,name 2>/dev/null || echo '[]')
+            CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null || echo '[]')
             PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
             FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
 
@@ -94,7 +102,7 @@ jobs:
 
               TITLE=$(jq -r '.title' <<<"$META")
               echo "All checks green — squash-merging #$PR_NUMBER."
-              gh pr merge "$PR_NUMBER" --squash --delete-branch \
+              gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
                 --subject "$TITLE (#$PR_NUMBER)"
               echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
               exit 0
