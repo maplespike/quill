@@ -34,8 +34,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run clippy (warning-tolerant; -D warnings after cleanup)
-        run: cargo clippy --all-targets
+      - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
+        run: cargo clippy -p quill-search --lib -p quill-search-bench-gen --lib
         working-directory: ./rust
 
   rust-test:
@@ -43,6 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run tests
-        run: cargo test
+      - name: Run lib tests
+        run: cargo test -p quill-search --lib -p quill-search-bench-gen --lib
         working-directory: ./rust

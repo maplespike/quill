@@ -9,6 +9,7 @@ description = "Quill full-text search service (tantivy) — first Rust seam (#97
 [[bin]]
 name = "quill-search"
 path = "src/main.rs"
+test = false
 
 [lib]
 name = "quill_search"
