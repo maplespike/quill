@@ -20,6 +20,7 @@ import assert from 'node:assert/strict';
 import { McpServer } from '../server.js';
 import { getAllTools } from '../tools/index.js';
 import { QuotaTracker, buildIdentity } from '../quota.js';
+import { mcpMetrics } from '../metrics.js';
 import { mockUpstream } from './helpers/mock-upstream.js';
 
 interface JsonRpcResponse {
@@ -139,11 +140,13 @@ describe('MCP protocol journey', () => {
     assert.equal(parsed['note'], 'structured');
   });
 
-  test('a throwing handler becomes an isError envelope, never a crash', async () => {
+  test('a throwing handler becomes an isError envelope and records a bounded error metric', async () => {
     const [res] = await send(server, req(5, 'tools/call', { name: 'journey_throws', arguments: {} }));
     assert.ok(res, 'the protocol must answer even when the handler throws');
     assert.equal(res!.result!['isError'], true);
-    assert.match(textOf(res!), /^Error: /);
+    assert.equal(textOf(res!), 'Error: fixture explosion');
+    assert.match(mcpMetrics.render(), /tool="journey_throws",outcome="error"/);
+    assert.doesNotMatch(mcpMetrics.render(), /fixture explosion/);
   });
 
   test('a successful call records quota usage; a failing one does not', async () => {

@@ -152,7 +152,7 @@
           "refId": "A"
         },
         {
-          "expr": "rate(quill_mcp_tool_calls_total{status=\"error\"}[5m])",
+          "expr": "rate(quill_mcp_tool_calls_total{outcome=\"error\"}[5m])",
           "legendFormat": "Errors",
           "refId": "B"
         }

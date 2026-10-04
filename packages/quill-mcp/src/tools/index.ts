@@ -236,7 +236,8 @@ function wrapHandler(name: string, handler: ToolHandler): ToolHandler {
       return await handler(args);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      logger.error({ tool: name, err }, 'Tool threw: %s', msg);
+      const errorType = err instanceof Error ? err.name : 'unknown';
+      logger.error({ tool: name, errorType }, 'Tool handler threw');
       return {
         content: {
           tool: name,

@@ -40,6 +40,7 @@ export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 import { initEmailConfig } from './email.js';
 import logger from './logger.js';
+import { registerApiMetricRoute } from './metrics.js';
 
 interface Route {
   pattern: RegExp;
@@ -357,7 +358,7 @@ async function readPeriodCalls(db: QuillStorage, tenantId: string): Promise<numb
     return await db.getMonthlyUsage(tenantId, yearMonth);
   } catch (err) {
     logger.warn(
-      { tenantId, err: err instanceof Error ? err.message : String(err) },
+      { errorType: err instanceof Error ? err.name : 'unknown' },
       'Usage read failed — meta.usage.periodCalls reported as 0',
     );
     return 0;
@@ -511,6 +512,23 @@ function matchRoute(url: string, method: string): { route: Route; params: Record
   return null;
 }
 
+/** Return a bounded route template for metrics, never a request path or ID. */
+export function getMetricsRoute(pathname: string, method: string): string {
+  const matched = matchRoute(pathname, method);
+  if (!matched) return 'unmatched';
+
+  let parameterIndex = 0;
+  const template = matched.route.pattern.source
+    .replace(/^\^/, '')
+    .replace(/\$$/, '')
+    .replaceAll('\\/', '/')
+    .replace(/\\\./g, '.')
+    .replace(/\((?!\?)[^)]*\)/g, () => `:${matched.route.params[parameterIndex++] ?? 'param'}`)
+    .replace(/\/\?$/, '');
+  if (parameterIndex !== matched.route.params.length) return 'unmatched';
+  return registerApiMetricRoute(template);
+}
+
 /**
  * Wrap a response with security headers and CORS headers.
  * Applied to ALL outgoing responses for defense-in-depth.
@@ -548,7 +566,7 @@ export async function handleRequest(
   const queryOptions = parseQueryOptions(url);
   const requestOrigin = request.headers.get('Origin');
 
-  logger.info({ requestId, method: request.method, pathname: url.pathname }, 'Incoming request');
+  logger.info({ requestId, method: request.method }, 'Incoming request');
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
@@ -576,7 +594,7 @@ export async function handleRequest(
     if (cl !== null) {
       const bytes = parseInt(cl, 10);
       if (!isNaN(bytes) && bytes > 1_048_576) {
-        logger.warn({ requestId, pathname: url.pathname, contentLength: bytes }, 'Payload too large — 413');
+        logger.warn({ requestId, contentLength: bytes }, 'Payload too large — 413');
         return finalizeResponse(
           jsonResponse(buildError('PAYLOAD_TOO_LARGE', 'Request body exceeds the 1 MiB limit.', {
             tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
@@ -601,7 +619,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs },
     };
-    logger.warn({ requestId, pathname: url.pathname, durationMs }, 'Route not found');
+    logger.warn({ requestId, durationMs }, 'Route not found');
     return finalizeResponse(jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404, {}, undefined, environment), environment, requestOrigin);
   }
 
@@ -678,7 +696,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs },
     };
-    logger.warn({ requestId, pathname: url.pathname, durationMs }, 'Authentication failed');
+    logger.warn({ requestId, durationMs }, 'Authentication failed');
     return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://quill.maplespike.ca/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
   }
 
@@ -732,7 +750,7 @@ export async function handleRequest(
         },
       },
     };
-    logger.warn({ requestId, pathname: path, tier: 'free' }, 'Free-tier route blocked (upgrade required)');
+    logger.warn({ requestId, tier: 'free' }, 'Free-tier route blocked (upgrade required)');
     await db.logAudit({
       tenantId: ctx.tenant.id,
       apiKeyId: ctx.apiKeyId,

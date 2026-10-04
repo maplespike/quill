@@ -11,6 +11,7 @@ import type { PaymentProof } from './x402-middleware.js';
 import { getToolPrice } from './pricing.js';
 import { getQuotaTracker, type QuotaIdentity, type QuotaTracker } from './quota.js';
 import { runWithIdentity } from './context.js';
+import { mcpMetrics, registerMetricTool } from './metrics.js';
 
 // ── Claim Stack + Agent-native surfaces (WS-1/WS-3) ──────────────
 import { citationStore } from '@maplespike/pipeline-core';
@@ -138,6 +139,7 @@ export class McpServer {
 
   registerTool(definition: ToolDefinition, handler: ToolHandler): void {
     this.tools.set(definition.name, { definition, handler });
+    registerMetricTool(definition.name);
     log.info(`Registered tool: ${definition.name}`);
   }
 
@@ -592,12 +594,14 @@ export class McpServer {
     const args = (params?.arguments as Record<string, unknown>) ?? {};
 
     if (!toolName) {
+      mcpMetrics.record('unregistered', 'rejected');
       send(this.error(id ?? null, -32602, 'Invalid params: must include "name"'));
       return;
     }
 
     const tool = this.tools.get(toolName);
     if (!tool) {
+      mcpMetrics.record('unregistered', 'rejected');
       send(this.error(id ?? null, -32602, `Unknown tool: ${toolName}`));
       return;
     }
@@ -622,6 +626,7 @@ export class McpServer {
       if (gate.allowed === false) {
         // gate is narrowed to the denied variant — toFixed works on toolPriceUsd.
         const cost = gate.toolPriceUsd;
+        mcpMetrics.record(toolName, 'rejected');
         send(this.error(id ?? null, -402, 'Payment Required', {
           ...this.quota.getStatus(identity),
           tool: toolName,
@@ -638,6 +643,7 @@ export class McpServer {
     // ledger + credit deduction). Await it here.
     const paymentCheck = await validatePayment(toolName, resolvedProof, identity);
     if (!paymentCheck.allowed) {
+      mcpMetrics.record(toolName, 'rejected');
       send(this.error(id ?? null, -402, 'Payment Required', {
         ...paymentCheck.paymentRequired,
         tool: toolName,
@@ -651,6 +657,7 @@ export class McpServer {
     // Validate arguments against the tool's inputSchema
     const validationErrors = validateToolArgs(args, tool.definition.inputSchema);
     if (validationErrors.length > 0) {
+      mcpMetrics.record(toolName, 'rejected');
       send(this.result(id ?? null, {
         content: [{ type: 'text', text: validationErrors.join('\n') }],
         isError: true,
@@ -684,26 +691,29 @@ export class McpServer {
     // sees the correct per-request identity even when two SSE clients post
     // tools/call concurrently and their handlers interleave on `await`.
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let started = Date.now();
     try {
       sendProgress(0);
-      const started = Date.now();
+      started = Date.now();
       const resultPromise = identity
         ? runWithIdentity(identity, () => tool.handler(args))
         : tool.handler(args);
       const timeoutPromise = new Promise<never>((_, reject) => {
         timer = setTimeout(() => {
           const msg = `Tool "${toolName}" timed out after ${this.handlerTimeoutMs}ms`;
-          log.error(msg);
+          log.error({ tool: toolName, timeoutMs: this.handlerTimeoutMs }, 'Tool handler timed out');
           reject(new Error(msg));
         }, this.handlerTimeoutMs);
       });
       const rawResult: ToolResponse = await Promise.race([resultPromise, timeoutPromise]);
       clearTimeout(timer);
+      const durationSeconds = (Date.now() - started) / 1000;
       sendProgress(1);
       if (Date.now() - started > 2000) {
-        log.info('Slow tool %s took %dms', toolName, Date.now() - started);
+        log.info({ tool: toolName, durationMs: Date.now() - started }, 'Slow tool handler');
       }
       const result: ToolResponse = sanitizeOutput(rawResult);
+      mcpMetrics.record(toolName, result.isError ? 'error' : 'success', durationSeconds);
 
       // Quota accounting happens on successful calls only — errors and
       // timeouts do not consume the user's monthly budget. Underspending is
@@ -727,6 +737,8 @@ export class McpServer {
       clearTimeout(timer);
       const msg = err instanceof Error ? err.message : String(err);
       const isTimeout = msg.includes('timed out');
+      mcpMetrics.record(toolName, 'error', (Date.now() - started) / 1000);
+      log.error({ tool: toolName, timeout: isTimeout }, 'MCP tool handler failed');
       send(this.result(id ?? null, {
         content: [{ type: 'text', text: `Error: ${msg}` }],
         isError: true,
