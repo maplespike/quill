@@ -167,7 +167,7 @@ export function openDb(): D1Database | null {
   } catch (err) {
     console.error(
       `[CLI] ❌ Cannot open the ingest store (QUILL_DB_PATH=${
-        process.env.QUILL_DB_PATH ?? '(unset — defaults to ./maplespike.sqlite)'
+        process.env.QUILL_DB_PATH ?? '(unset — defaults to ./quill.sqlite)'
       }): ${err instanceof Error ? err.message : String(err)}`,
     );
     return null;

@@ -10,7 +10,7 @@
  *
  * This adapter implements the same D1Database contract on top of the shared
  * better-sqlite3 handle (@maplespike/database getRawDb), so db-first modules
- * can run in-process against maplespike.sqlite. `runModule` injects it
+ * can run in-process against quill.sqlite. `runModule` injects it
  * automatically when the module's main function is db-first and the caller
  * didn't pass a db.
  */
