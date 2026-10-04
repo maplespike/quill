@@ -1,0 +1,52 @@
+# Rust CI lane: runs on changes to rust/** — fmt, clippy, test
+# Self-hosted NixOS runner has cargo/rustc pinned by rust-toolchain.toml.
+# cargo is available on nexus (runs-on: [self-hosted, nixos]).
+name: Rust CI
+
+on:
+  push:
+    branches: [main, prod]
+    paths:
+      - 'rust/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'rust/**'
+      - '.github/workflows/rust-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-fmt:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+        working-directory: ./rust
+
+  rust-clippy:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
+        run: |
+          cargo clippy -p quill-search --lib
+          cargo clippy -p quill-search-bench-gen --lib
+        working-directory: ./rust
+
+  rust-test:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run lib tests
+        run: |
+          cargo test -p quill-search --lib
+          cargo test -p quill-search-bench-gen --lib
+        working-directory: ./rust
