@@ -1,5 +1,5 @@
 /**
- * CRTC Ingestion Module — MapleSpike Pipeline
+ * CRTC Ingestion Module — Quill
  *
  * Orchestrates the ingestion pipeline for CRTC (Canadian Radio-television
  * and Telecommunications Commission) regulatory data.

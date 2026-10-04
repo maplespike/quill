@@ -1,5 +1,5 @@
 /**
- * Gazette Fetcher — MapleSpike Pipeline
+ * Gazette Fetcher — Quill
  *
  * HTTP fetcher for Canada Gazette RSS feeds and regulation detail pages.
  * Uses undici for cross-platform HTTP (Node, Workers, Bun).

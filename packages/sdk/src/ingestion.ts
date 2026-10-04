@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // MapleSpike SDK — Ingestion functionality
 // ---------------------------------------------------------------------------
-import type { MapleSpikeResponse, QueryOptions } from './types.js';
+import type { QuillResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
 
 /** Ingestion job status */
@@ -67,7 +67,7 @@ export class IngestionClient {
   /**
    * Submit a new ingestion job
    */
-  async ingest(request: IngestionRequest): Promise<MapleSpikeResponse<IngestionResult>> {
+  async ingest(request: IngestionRequest): Promise<QuillResponse<IngestionResult>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'submit', {}, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {
@@ -84,7 +84,7 @@ export class IngestionClient {
   /**
    * Get ingestion job status
    */
-  async getJob(jobId: string): Promise<MapleSpikeResponse<IngestionJob>> {
+  async getJob(jobId: string): Promise<QuillResponse<IngestionJob>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'status', { jobId }, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -94,7 +94,7 @@ export class IngestionClient {
   /**
    * List recent ingestion jobs
    */
-  async listJobs(options: { limit?: number; status?: IngestionJobStatus; domain?: string } = {}): Promise<MapleSpikeResponse<IngestionJob[]>> {
+  async listJobs(options: { limit?: number; status?: IngestionJobStatus; domain?: string } = {}): Promise<QuillResponse<IngestionJob[]>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'list', options, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -104,7 +104,7 @@ export class IngestionClient {
   /**
    * Cancel a running ingestion job
    */
-  async cancelJob(jobId: string): Promise<MapleSpikeResponse<{ success: boolean; message: string }>> {
+  async cancelJob(jobId: string): Promise<QuillResponse<{ success: boolean; message: string }>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'cancel', { jobId }, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {
@@ -117,7 +117,7 @@ export class IngestionClient {
   /**
    * Delete an ingestion job and its data
    */
-  async deleteJob(jobId: string): Promise<MapleSpikeResponse<{ success: boolean; message: string }>> {
+  async deleteJob(jobId: string): Promise<QuillResponse<{ success: boolean; message: string }>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'delete', { jobId }, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {
@@ -130,7 +130,7 @@ export class IngestionClient {
   /**
    * Get ingestion statistics
    */
-  async stats(): Promise<MapleSpikeResponse<{ totalJobs: number; activeJobs: number; recordsIngested: number }>> {
+  async stats(): Promise<QuillResponse<{ totalJobs: number; activeJobs: number; recordsIngested: number }>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'stats', {}, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers, method: 'GET' });
@@ -140,7 +140,7 @@ export class IngestionClient {
   /**
    * Validate data before ingestion
    */
-  async validate(request: IngestionRequest): Promise<MapleSpikeResponse<{ valid: boolean; errors: string[]; warnings: string[] }>> {
+  async validate(request: IngestionRequest): Promise<QuillResponse<{ valid: boolean; errors: string[]; warnings: string[] }>> {
     const url = buildUrl(this._baseUrl, 'ingestion', 'validate', {}, {});
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, {

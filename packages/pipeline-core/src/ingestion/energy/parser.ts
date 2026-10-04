@@ -1,5 +1,5 @@
 /**
- * Energy Parser — MapleSpike Pipeline
+ * Energy Parser — Quill
  *
  * Parses energy production data from Canada Energy Regulator (CER) CKAN sources
  * into structured records with field extraction, normalization, and deduplication.

@@ -1,5 +1,5 @@
 /**
- * Health Canada Records Types — MapleSpike Pipeline
+ * Health Canada Records Types — Quill
  *
  * Strongly-typed interfaces for Health Canada regulated product records:
  *   - Drug Product Database (DPD) — approved pharmaceutical drugs

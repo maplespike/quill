@@ -1,5 +1,5 @@
 /**
- * CRA Charity T3010 Fetcher — MapleSpike Pipeline
+ * CRA Charity T3010 Fetcher — Quill
  *
  * HTTP fetcher for the CRA List of Charities open data on open.canada.ca.
  * Downloads identification, financial data, and charitable programs CSVs

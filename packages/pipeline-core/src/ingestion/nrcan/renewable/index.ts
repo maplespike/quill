@@ -1,5 +1,5 @@
 /**
- * Nrcan Ingestion Module — MapleSpike Pipeline
+ * Nrcan Ingestion Module — Quill
  *
  * Renewable Energy Capacity data ingestion from open.canada.ca CKAN portal.
  * Fetches CSV, parses records, normalizes with SHA-256 citations.

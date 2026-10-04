@@ -1,4 +1,4 @@
-/** Veterans Affairs Canada data types — MapleSpike Pipeline */
+/** Veterans Affairs Canada data types — Quill */
 
 export interface VeteransRecord {
   id: string;

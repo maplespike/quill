@@ -1,5 +1,5 @@
 /**
- * Ircc Data Types — MapleSpike Pipeline
+ * Ircc Data Types — Quill
  *
  * Types for IRCC Application Processing Times data ingestion.
  *

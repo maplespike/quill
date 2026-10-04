@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Freshness Scoring — MapleSpike Pipeline
+ * Freshness Scoring — Quill
  *
  * Computes how recent data is by comparing last-ingestion timestamps
  * against each source's expected update cadence. Used as one axis

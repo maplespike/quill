@@ -1,5 +1,5 @@
 /**
- * Committee XML Parser — MapleSpike Pipeline
+ * Committee XML Parser — Quill
  *
  * Parses the House of Commons Hansard XML (evidence transcript) into
  * structured CommitteeMeeting and Intervention records.

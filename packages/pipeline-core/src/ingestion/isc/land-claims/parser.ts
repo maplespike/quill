@@ -1,5 +1,5 @@
 /**
- * Isc Parser — MapleSpike Pipeline
+ * Isc Parser — Quill
  *
  * Parse and normalize Land Claims Agreements CSV data.
  */

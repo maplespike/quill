@@ -1,5 +1,5 @@
 /**
- * Impact Assessment Agency of Canada Types — MapleSpike Pipeline
+ * Impact Assessment Agency of Canada Types — Quill
  *
  * Strongly-typed interfaces for federal project impact assessments conducted
  * by the Impact Assessment Agency of Canada (IAAC).

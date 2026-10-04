@@ -1,5 +1,5 @@
 /**
- * Government Funding Tracker — MapleSpike Pipeline
+ * Government Funding Tracker — Quill
  *
  * Tracks financial flows from the Canadian government to:
  *   - International organizations (UN, WHO, OECD dues)

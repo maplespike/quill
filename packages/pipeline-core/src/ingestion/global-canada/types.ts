@@ -1,5 +1,5 @@
 /**
- * Global Canada (GAC / ECCC / CSIS) Types — MapleSpike Pipeline
+ * Global Canada (GAC / ECCC / CSIS) Types — Quill
  *
  * Combined lighter-weight module tracking three federal sources:
  *   - Global Affairs Canada (GAC): trade agreements, foreign policy, international development projects

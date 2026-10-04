@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Composite Data Quality Score — MapleSpike Pipeline
+ * Composite Data Quality Score — Quill
  *
  * Combines freshness, completeness, and provenance scores into a
  * single quality assessment for a module, source, or dataset.

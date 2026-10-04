@@ -1,5 +1,5 @@
 /**
- * CPP/OAS Ingestion — MapleSpike Pipeline
+ * CPP/OAS Ingestion — Quill
  *
  * Fetches Canada Pension Plan (CPP) and Old Age Security (OAS) beneficiary
  * data from open.canada.ca CKAN, plus CPPIB investment data from

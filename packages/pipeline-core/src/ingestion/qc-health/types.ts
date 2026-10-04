@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /**
- * Quebec Health Records Types — MapleSpike Pipeline
+ * Quebec Health Records Types — Quill
  *
  * Strongly-typed interfaces for Quebec health records:
  *   - RAMQ medical claims statistics

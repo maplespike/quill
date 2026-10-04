@@ -1,5 +1,5 @@
 /**
- * Immigration Data Types — MapleSpike Pipeline
+ * Immigration Data Types — Quill
  *
  * Types for Canadian immigration, refugee, and border data:
  *   - IRCC permanent resident admissions (by category, province, country)

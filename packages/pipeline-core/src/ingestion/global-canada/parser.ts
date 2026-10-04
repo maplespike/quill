@@ -1,5 +1,5 @@
 /**
- * Global Canada (GAC / ECCC / CSIS) Parser — MapleSpike Pipeline
+ * Global Canada (GAC / ECCC / CSIS) Parser — Quill
  *
  * Normalizes raw records from Global Affairs Canada, ECCC, and CSIS
  * into the unified GlobalCanadaRecord schema.

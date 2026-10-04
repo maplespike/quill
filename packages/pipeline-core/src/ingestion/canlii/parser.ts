@@ -1,5 +1,5 @@
 /**
- * CanLII Parser — MapleSpike Pipeline
+ * CanLII Parser — Quill
  *
  * Parses CanLII API JSON responses into structured CanliiDecision objects.
  * Also provides helper functions for extracting citations, party names,

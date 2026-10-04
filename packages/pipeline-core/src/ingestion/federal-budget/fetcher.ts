@@ -1,5 +1,5 @@
 /**
- * Federal Budget Fetcher — MapleSpike Pipeline
+ * Federal Budget Fetcher — Quill
  *
  * HTTP fetchers for Canadian federal budget data, public accounts,
  * fiscal monitor reports, and departmental plans.

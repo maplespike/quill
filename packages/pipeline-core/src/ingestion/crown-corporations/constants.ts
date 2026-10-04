@@ -1,5 +1,5 @@
 /**
- * Crown Corporations Constants — MapleSpike Pipeline
+ * Crown Corporations Constants — Quill
  *
  * Known crown corporation configurations, URLs, reporting patterns,
  * default options, and error types.
@@ -390,7 +390,7 @@ export const ANNUAL_REPORT_URL_PATTERNS: Record<CrownCorporationCode, string> = 
 export const DEFAULT_MAX_RECORDS = 100;
 
 /** Default User-Agent for HTTP requests */
-export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 /** Default request timeout in milliseconds */
 export const DEFAULT_TIMEOUT_MS = 30_000;

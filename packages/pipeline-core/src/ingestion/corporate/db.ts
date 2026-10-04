@@ -1,5 +1,5 @@
 /**
- * Corporate Database — MapleSpike Pipeline
+ * Corporate Database — Quill
  *
  * D1 SQLite persistence for corporate data:
  *   - lobbying_records (federal lobbying registry)

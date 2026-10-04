@@ -1,5 +1,5 @@
 /**
- * Committee Ingestion — MapleSpike Pipeline
+ * Committee Ingestion — Quill
  *
  * Orchestrates the full pipeline for a committee:
  *   1. Fetch meeting list from ourcommons.ca

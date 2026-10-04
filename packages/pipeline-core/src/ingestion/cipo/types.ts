@@ -1,5 +1,5 @@
 /**
- * CIPO (Canadian Intellectual Property Office) Types — MapleSpike Pipeline
+ * CIPO (Canadian Intellectual Property Office) Types — Quill
  *
  * Strongly-typed interfaces for Canadian IP rights records:
  *   - Patents (Canadian Patent Database)

@@ -96,7 +96,7 @@ void describe('@maplespike/sdk', () => {
     }
     if (!result?.data) return;
 
-    // Verify the full MapleSpikeResponse shape is intact
+    // Verify the full QuillResponse shape is intact
     assert.ok(result, 'result should be defined');
     assert.ok(Array.isArray(result.data), 'data should be an array');
     assert.ok(result.data.length > 0, 'mock committees should have data');

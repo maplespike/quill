@@ -1,5 +1,5 @@
 /**
- * First Nations Financial Transparency Connector — MapleSpike Pipeline
+ * First Nations Financial Transparency Connector — Quill
  *
  * Fetches First Nations financial transparency data under the
  * First Nations Financial Transparency Act (FNFT Act):

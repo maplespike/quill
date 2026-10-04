@@ -1,5 +1,5 @@
 /**
- * Bank of Canada Ingestion Module — MapleSpike Pipeline
+ * Bank of Canada Ingestion Module — Quill
  *
  * Orchestrates the ingestion pipeline for Bank of Canada data:
  *   - Interest rate decisions (overnight rate target)

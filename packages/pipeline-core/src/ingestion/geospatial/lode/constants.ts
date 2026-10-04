@@ -1,5 +1,5 @@
 /**
- * LODE (Linkable Open Data Environment) Constants — MapleSpike Pipeline
+ * LODE (Linkable Open Data Environment) Constants — Quill
  *
  * All 12 LODE databases from Statistics Canada's Linkable Open Data Environment.
  * Each entry includes configured download URLs, source metadata, and field information; review terms for each dataset separately.

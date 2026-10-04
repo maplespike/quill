@@ -4,16 +4,16 @@
 """
 High-level client for the MapleSpike API.
 
-Provides ``MapleSpikeClient`` with convenience methods for search,
+Provides ``QuillClient`` with convenience methods for search,
 AI-powered question answering, entity resolution, and data quality
 inspection, plus standalone ``Search``, ``EntityResolution``, and
 ``Ingestion`` helpers.
 
 Usage::
 
-    from quill import MapleSpikeClient
+    from quill import QuillClient
 
-    client = MapleSpikeClient(api_key="msk_live_...")
+    client = QuillClient(api_key="msk_live_...")
 
     # Search across endpoints
     results = client.search("lobbying", agent="corporate")
@@ -36,7 +36,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-from .types import MapleSpikeResponse
+from .types import QuillResponse
 
 
 # ---------------------------------------------------------------------------
@@ -47,8 +47,8 @@ class Search:
     """Query builder for search operations across MapleSpike agents.
 
     This is a lightweight value-object that holds search parameters.
-    Use ``MapleSpikeClient.search(...)`` or construct directly and
-    pass to ``MapleSpikeClient.run_search(...)``.
+    Use ``QuillClient.search(...)`` or construct directly and
+    pass to ``QuillClient.run_search(...)``.
 
     Parameters
     ----------
@@ -118,7 +118,7 @@ class Ingestion:
     """Data ingestion descriptor — describes a dataset to upload.
 
     This is a metadata descriptor; actual upload requires the
-    ``MapleSpikeClient.ingest()`` method (not yet implemented in this
+    ``QuillClient.ingest()`` method (not yet implemented in this
     release — use the REST API directly for ingestion).
 
     Parameters
@@ -150,7 +150,7 @@ class Ingestion:
 # High-level client
 # ---------------------------------------------------------------------------
 
-class MapleSpikeClient:
+class QuillClient:
     """High-level client for the MapleSpike API with convenience methods.
 
     Wraps the core :class:`MapleSpike` client and provides ergonomic
@@ -209,7 +209,7 @@ class MapleSpikeClient:
         action: str,
         params: Optional[Dict[str, Any]] = None,
         **options: Any,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Execute a structured query (passthrough to :meth:`MapleSpike.query`).
 
         See :class:`MapleSpike` for full parameter documentation.
@@ -225,7 +225,7 @@ class MapleSpikeClient:
         limit: Optional[int] = None,
         page: Optional[int] = None,
         **extra: Any,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Search across MapleSpike endpoints.
 
         When ``agent`` is provided the search is scoped to that agent's
@@ -247,7 +247,7 @@ class MapleSpikeClient:
 
         Returns
         -------
-        MapleSpikeResponse
+        QuillResponse
             The search results.
         """
         if agent:
@@ -274,7 +274,7 @@ class MapleSpikeClient:
         prompt: str,
         agent: Optional[str] = None,
         **kwargs: Any,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Ask a natural-language question and get an AI-generated answer.
 
         Delegates to the ``ask`` action on the specified agent (or the
@@ -292,7 +292,7 @@ class MapleSpikeClient:
 
         Returns
         -------
-        MapleSpikeResponse
+        QuillResponse
             The AI response with ``data`` containing the answer.
         """
         target_agent = agent or "_ai"
@@ -309,7 +309,7 @@ class MapleSpikeClient:
         entity_type: str,
         query: Dict[str, Any],
         confidence_threshold: float = 0.6,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Resolve and disambiguate an entity across MapleSpike data sources.
 
         Parameters
@@ -324,7 +324,7 @@ class MapleSpikeClient:
 
         Returns
         -------
-        MapleSpikeResponse
+        QuillResponse
             Resolved entity matches with confidence scores.
         """
         params: Dict[str, Any] = {
@@ -340,7 +340,7 @@ class MapleSpikeClient:
         self,
         agent: str,
         action: str,
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Retrieve data-quality metadata for a specific agent action.
 
         Parameters
@@ -352,7 +352,7 @@ class MapleSpikeClient:
 
         Returns
         -------
-        MapleSpikeResponse
+        QuillResponse
             Quality metrics including freshness, completeness, and
             confidence scores.
         """
@@ -372,7 +372,7 @@ class MapleSpikeClient:
         records: List[Dict[str, Any]],
         source_url: Optional[str] = None,
         format: str = "json",
-    ) -> MapleSpikeResponse:
+    ) -> QuillResponse:
         """Submit data records for ingestion into MapleSpike.
 
         .. note::
@@ -394,7 +394,7 @@ class MapleSpikeClient:
 
         Returns
         -------
-        MapleSpikeResponse
+        QuillResponse
             Ingestion result including any validation errors.
         """
         return self._client.query(

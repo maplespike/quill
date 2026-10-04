@@ -1,5 +1,5 @@
 /**
- * Ontario Health Records Types — MapleSpike Pipeline
+ * Ontario Health Records Types — Quill
  *
  * Strongly-typed interfaces for Ontario health records:
  *   - OHIP Claims — Ontario Health Insurance Plan claims data

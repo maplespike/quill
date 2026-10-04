@@ -1,5 +1,5 @@
 /**
- * Database types — MapleSpike Pipeline
+ * Database types — Quill
  *
  * Defines the DB interface used by pipeline-core modules.
  * The underlying implementation uses better-sqlite3 via Drizzle ORM,

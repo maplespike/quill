@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry — MapleSpike Pipeline
+ * Elections Canada Third-Party Advertiser Registry — Quill
  *
  * Strongly-typed interfaces for the Elections Canada registry of
  * third-party advertisers who spend money on Canadian federal election

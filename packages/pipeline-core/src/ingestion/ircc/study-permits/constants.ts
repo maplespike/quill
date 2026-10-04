@@ -1,5 +1,5 @@
 /**
- * Ircc Constants — MapleSpike Pipeline
+ * Ircc Constants — Quill
  *
  * Configuration for IRCC Study Permit Holders data sources.
  */

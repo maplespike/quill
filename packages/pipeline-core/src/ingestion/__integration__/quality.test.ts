@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Data Quality CI Tests — MapleSpike Pipeline
+ * Data Quality CI Tests — Quill
  *
  * CI validation that verifies:
  * 1. At least 5 registered modules return non-zero records (module viability)

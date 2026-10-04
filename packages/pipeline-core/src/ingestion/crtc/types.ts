@@ -1,5 +1,5 @@
 /**
- * CRTC Ingestion Types — MapleSpike Pipeline
+ * CRTC Ingestion Types — Quill
  *
  * Types for CRTC (Canadian Radio-television and Telecommunications Commission)
  * decisions, ownership changes, and licensing data.

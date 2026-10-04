@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Schema Validator — MapleSpike Pipeline
+ * Schema Validator — Quill
  *
  * Validates parser output against expected data source schemas.
  * Detects when upstream schema changes break existing parsers.

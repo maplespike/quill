@@ -1,5 +1,5 @@
 /**
- * Proactive Disclosure Types — MapleSpike Pipeline
+ * Proactive Disclosure Types — Quill
  *
  * Types for federal government proactive disclosure records published by
  * every Canadian department: contracts over $10K, travel expenses,

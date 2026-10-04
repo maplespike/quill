@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * Completeness Scoring — MapleSpike Pipeline
+ * Completeness Scoring — Quill
  *
  * Evaluates how complete a dataset is by analyzing:
  *   1. Field presence — are expected fields present (non-null, non-empty)?

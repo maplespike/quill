@@ -1,5 +1,5 @@
 /**
- * Newfoundland and Labrador Lobbying Fetcher — MapleSpike Pipeline
+ * Newfoundland and Labrador Lobbying Fetcher — Quill
  *
  * Searches the NL Lobbyists Registry (gov.nl.ca) for lobbying records.
  * Uses undici for HTTP (consistent with the rest of the pipeline).
@@ -27,7 +27,7 @@ export class NLLobbyingFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 } as const;
 

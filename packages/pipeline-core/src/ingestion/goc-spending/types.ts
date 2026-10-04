@@ -1,5 +1,5 @@
 /**
- * GoC-Spending Types — MapleSpike Pipeline
+ * GoC-Spending Types — Quill
  *
  * Types for Government of Canada contract spending data from
  * the GoC-Spending project (goc-spending.github.io).

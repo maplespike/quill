@@ -1,5 +1,5 @@
 /**
- * LMIA Fetcher — MapleSpike Pipeline
+ * LMIA Fetcher — Quill
  *
  * HTTP fetcher for Labour Market Impact Assessment (LMIA) data from
  * open.canada.ca (CKAN) and ESDC quarterly CSV exports.

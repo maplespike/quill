@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * BC Health Parser — MapleSpike Pipeline
+ * BC Health Parser — Quill
  *
  * Normalizes raw BC health data into unified schemas:
  *   - PharmaCareRecord for PharmaCare claims

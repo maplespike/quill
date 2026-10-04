@@ -1,5 +1,5 @@
 /**
- * Global Canada (GAC / ECCC / CSIS) Fetcher — MapleSpike Pipeline
+ * Global Canada (GAC / ECCC / CSIS) Fetcher — Quill
  *
  * Fetches public records from three federal sources:
  *   - GAC: Trade agreements, foreign policy documents, development projects

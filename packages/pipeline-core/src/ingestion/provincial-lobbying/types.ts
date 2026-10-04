@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Types — MapleSpike Pipeline
+ * Provincial Lobbying Types — Quill
  *
  * Types for provincial lobbying registry data across Canadian provinces.
  * Normalized to match the federal LobbyingRecord schema to enable

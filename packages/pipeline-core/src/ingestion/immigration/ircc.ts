@@ -1,5 +1,5 @@
 /**
- * IRCC Connector — MapleSpike Pipeline
+ * IRCC Connector — Quill
  *
  * Fetches immigration, citizenship, and temporary resident data
  * from IRCC's open data portal and CKAN.

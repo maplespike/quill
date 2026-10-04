@@ -1,5 +1,5 @@
 /**
- * Tri-Council Grants Ingestion — MapleSpike Pipeline
+ * Tri-Council Grants Ingestion — Quill
  *
  * Ingests CIHR, NSERC, and SSHRC grant award data from open.canada.ca
  * via CKAN package_search and package_show APIs.

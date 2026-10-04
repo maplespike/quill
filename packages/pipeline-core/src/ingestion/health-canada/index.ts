@@ -1,5 +1,5 @@
 /**
- * Health Canada Ingestion — MapleSpike Pipeline
+ * Health Canada Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Health Canada regulated product records:
  *   - Drug Product Database (DPD) — approved pharmaceutical drugs

@@ -1,5 +1,5 @@
 /**
- * Agriculture Ingestion Orchestrator — MapleSpike Pipeline
+ * Agriculture Ingestion Orchestrator — Quill
  *
  * Orchestrates ingestion of Canadian agriculture and agri-food data
  * from Agriculture & Agri-Food Canada, CFIA, Canadian Grain Commission,

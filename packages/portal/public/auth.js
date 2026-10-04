@@ -3,7 +3,7 @@
  * Injects auth-aware UI into the navbar and exposes auth state to any component.
  *
  * Loaded via BaseLayout <script is:inline> so it runs before React hydration.
- * Components read from window.MapleSpikeAuth.
+ * Components read from window.QuillAuth.
  */
 
 (function () {
@@ -102,7 +102,7 @@
   }
 
   // Expose globally
-  window.MapleSpikeAuth = {
+  window.QuillAuth = {
     getAuth,
     clearAuth,
     isAuthenticated: () => getAuth().isAuthenticated,

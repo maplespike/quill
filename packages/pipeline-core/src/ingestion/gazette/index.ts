@@ -1,5 +1,5 @@
 /**
- * Gazette Ingestion — MapleSpike Pipeline
+ * Gazette Ingestion — Quill
  *
  * Orchestrates the Canada Gazette ingestion pipeline:
  *   1. Fetch RSS feed for the specified Gazette part

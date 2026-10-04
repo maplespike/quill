@@ -1,5 +1,5 @@
 /**
- * Influence Connections — MapleSpike Pipeline
+ * Influence Connections — Quill
  *
  * Cross-references tracked influence actors against:
  *   - Parliamentary committee appearances (already ingested)

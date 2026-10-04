@@ -1,5 +1,5 @@
 /**
- * Influence Tracking Constants — MapleSpike Pipeline
+ * Influence Tracking Constants — Quill
  *
  * Catalog of tracked international organizations, NGOs, think tanks,
  * consultancies, and other influence actors that shape Canadian policy.

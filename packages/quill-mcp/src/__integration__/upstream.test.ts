@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-const USER_AGENT = 'MapleSpikeTest/1.0';
+const USER_AGENT = 'QuillTest/1.0';
 const TIMEOUT = 10_000;
 
 async function fetchOk(url: string): Promise<{ ok: boolean; status: number; body?: string }> {

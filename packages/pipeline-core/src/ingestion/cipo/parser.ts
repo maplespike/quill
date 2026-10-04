@@ -1,5 +1,5 @@
 /**
- * CIPO (Canadian Intellectual Property Office) Parser — MapleSpike Pipeline
+ * CIPO (Canadian Intellectual Property Office) Parser — Quill
  *
  * Normalizes raw CIPO patent, trademark, and industrial design records
  * into the unified CipoRecord schema.

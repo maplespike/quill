@@ -1,5 +1,5 @@
 /**
- * Federal Budget Parser — MapleSpike Pipeline
+ * Federal Budget Parser — Quill
  *
  * Parses CSV, HTML, and JSON data from Canadian federal budget sources
  * into the unified BudgetRecord schema.

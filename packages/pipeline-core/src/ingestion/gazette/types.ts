@@ -1,5 +1,5 @@
 /**
- * Gazette Data Types — MapleSpike Pipeline
+ * Gazette Data Types — Quill
  *
  * Strongly-typed interfaces for Canada Gazette (Parts I, II, III)
  * regulation data ingestion.

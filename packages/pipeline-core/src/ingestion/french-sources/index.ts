@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
- * French Data Sources — MapleSpike Pipeline
+ * French Data Sources — Quill
  *
  * Static configuration and fetch helpers for French-language Canadian
  * government data sources. Each source exposes a common interface for

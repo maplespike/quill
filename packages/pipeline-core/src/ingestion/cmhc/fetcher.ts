@@ -1,5 +1,5 @@
 /**
- * CMHC (Canada Mortgage and Housing Corporation) Fetcher — MapleSpike Pipeline
+ * CMHC (Canada Mortgage and Housing Corporation) Fetcher — Quill
  *
  * Fetches housing market data from CMHC:
  *   - Housing starts, completions, under construction (monthly)

@@ -1,5 +1,5 @@
 /**
- * NPRI (National Pollutant Release Inventory) Fetcher — MapleSpike Pipeline
+ * NPRI (National Pollutant Release Inventory) Fetcher — Quill
  *
  * Fetches NPRI facility pollutant release records from the Government of
  * Canada's open.canada.ca CKAN portal and the ECCC data portal.

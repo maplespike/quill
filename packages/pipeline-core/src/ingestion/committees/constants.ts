@@ -1,5 +1,5 @@
 /**
- * Committee Constants — MapleSpike Pipeline
+ * Committee Constants — Quill
  *
  * Known House of Commons committees and URL patterns.
  * The full list was scraped from: https://www.ourcommons.ca/Committees/en/Home

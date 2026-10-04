@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate training dataset from MapleSpike pipeline data."""
+"""Generate training dataset from Quill data."""
 
 import argparse
 import json

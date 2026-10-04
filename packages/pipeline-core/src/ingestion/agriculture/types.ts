@@ -1,5 +1,5 @@
 /**
- * Agriculture Data Types — MapleSpike Pipeline
+ * Agriculture Data Types — Quill
  *
  * Types for Canadian agriculture and agri-food data from:
  *   - Agriculture & Agri-Food Canada (AAFC)

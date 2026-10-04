@@ -1,5 +1,5 @@
 /**
- * Canadian Cultural Data Ingestion — MapleSpike Pipeline
+ * Canadian Cultural Data Ingestion — Quill
  *
  * Multi-source fetcher for Canadian cultural data including:
  *   - PCH (Canadian Heritage) grants and contributions via open.canada.ca CKAN

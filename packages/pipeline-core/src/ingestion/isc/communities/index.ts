@@ -1,5 +1,5 @@
 /**
- * Isc Ingestion Module — MapleSpike Pipeline
+ * Isc Ingestion Module — Quill
  *
  * First Nations Communities Directory data ingestion from open.canada.ca CKAN portal.
  */

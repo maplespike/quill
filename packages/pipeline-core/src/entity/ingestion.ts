@@ -1,5 +1,5 @@
 /**
- * Entity Mention Ingestion — MapleSpike Pipeline
+ * Entity Mention Ingestion — Quill
  *
  * Ingests entity mentions extracted from module data into
  * the entity_mentions table for cross-module queries.

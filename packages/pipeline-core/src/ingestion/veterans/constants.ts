@@ -1,4 +1,4 @@
-/** Veterans Affairs Canada dataset constants — MapleSpike Pipeline */
+/** Veterans Affairs Canada dataset constants — Quill */
 
 /** Known VAC CKAN dataset identifiers on open.canada.ca */
 export const VAC_DATASETS: Record<string, { id: string; title: string }> = {

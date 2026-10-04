@@ -1,5 +1,5 @@
 /**
- * CIPO (Canadian Intellectual Property Office) Ingestion — MapleSpike Pipeline
+ * CIPO (Canadian Intellectual Property Office) Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for Canadian IP rights records:
  *   - Patents — Canadian Patent Database

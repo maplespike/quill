@@ -1,5 +1,5 @@
 /**
- * Gazette Parser — MapleSpike Pipeline
+ * Gazette Parser — Quill
  *
  * Parses Canada Gazette RSS XML into structured GazetteRecord objects
  * and extracts Regulatory Impact Analysis Statement (RIAS) URLs from

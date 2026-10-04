@@ -1,5 +1,5 @@
 /**
- * CSC Connector — MapleSpike Pipeline
+ * CSC Connector — Quill
  *
  * Fetches Correctional Service Canada data from open.canada.ca CKAN
  * and CSC's open data portal.

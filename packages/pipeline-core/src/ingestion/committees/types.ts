@@ -1,5 +1,5 @@
 /**
- * Committee Data Types — MapleSpike Pipeline
+ * Committee Data Types — Quill
  *
  * Strongly-typed interfaces for Canadian House of Commons committee
  * data, meeting evidence, interventions, and speaker tracking.

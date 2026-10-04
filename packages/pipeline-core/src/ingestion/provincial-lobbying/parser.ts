@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Parser — MapleSpike Pipeline
+ * Provincial Lobbying Parser — Quill
  *
  * Normalizes provincial lobbying registry records to the federal
  * LobbyingRecord schema. This enables cross-jurisdiction queries

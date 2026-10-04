@@ -1,5 +1,5 @@
 /**
- * Transport Infrastructure Constants — MapleSpike Pipeline
+ * Transport Infrastructure Constants — Quill
  *
  * Known CKAN dataset UUIDs, source URLs, and configuration for
  * Canadian transportation safety, infrastructure, and regulatory data.

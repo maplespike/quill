@@ -1,5 +1,5 @@
 /**
- * CRA Charity T3010 Ingestion — MapleSpike Pipeline
+ * CRA Charity T3010 Ingestion — Quill
  *
  * Orchestrates the CRA List of Charities (T3010) ingestion pipeline:
  *   1. Discover available resources for a given year

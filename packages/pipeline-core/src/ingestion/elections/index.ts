@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry Ingestion — MapleSpike Pipeline
+ * Elections Canada Third-Party Advertiser Registry Ingestion — Quill
  *
  * Orchestrates third-party advertiser data ingestion from Elections Canada
  * and open.canada.ca.  This is the "dark money in elections" data source —

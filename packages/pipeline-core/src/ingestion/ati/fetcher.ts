@@ -1,5 +1,5 @@
 /**
- * ATI (Access to Information) Fetcher — MapleSpike Pipeline
+ * ATI (Access to Information) Fetcher — Quill
  *
  * Fetches completed ATI request records from the Government of Canada's
  * open.canada.ca CKAN portal and individual department ATI pages.

@@ -1,5 +1,5 @@
 /**
- * IRB Connector — MapleSpike Pipeline
+ * IRB Connector — Quill
  *
  * Fetches Refugee Protection Division (RPD) decisions from
  * the Immigration and Refugee Board of Canada.

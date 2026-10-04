@@ -1,5 +1,5 @@
 /**
- * Impact Assessment Agency of Canada Ingestion — MapleSpike Pipeline
+ * Impact Assessment Agency of Canada Ingestion — Quill
  *
  * Orchestrates the ingestion pipeline for federal project impact assessments
  * from the Impact Assessment Agency of Canada (IAAC).
