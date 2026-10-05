@@ -27,6 +27,12 @@ permissions:
   contents: write
   pull-requests: write
   checks: read
+  # The deterministic close-loop (#983) reads and closes issues. With the
+  # block declared, an unlisted scope is NONE: on the first live run (#999,
+  # 2026-10-05) `gh issue view` 403'd, `|| true` turned that into an empty
+  # state, and the loop skipped #986 silently. issues:write covers both the
+  # state read and the close.
+  issues: write
   # gh pr checks' GraphQL reads checkSuite.workflowRun; without actions:read
   # the whole query can be refused ("Resource not accessible by integration",
   # measured on #997, 60/60 attempts, 2026-10-04). The REST fallback in the
@@ -156,17 +162,32 @@ jobs:
 
               # Deterministic issue closure (#983): close the OPEN issues
               # referenced with closing keywords in the PR body. A failure
-              # here must never fail the merge.
+              # here must never fail the merge — but it must be VISIBLE:
+              # the first live run (#999, 2026-10-05) skipped silently when
+              # `gh issue view` 403'd (missing issues scope) into an empty
+              # state. Log the parsed refs and every outcome.
               CLOSE_REFS=$(printf '%s\n' "$PR_BODY" \
                 | grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]*(GH)?#[0-9]+' \
                 | grep -oE '#[0-9]+' | tr -d '#' | sort -u || true)
+              echo "Close-loop: closing refs parsed from the PR body: ${CLOSE_REFS:-<none>}"
               for n in $CLOSE_REFS; do
-                state=$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>/dev/null || true)
-                if [[ "$state" == "OPEN" ]]; then
-                  gh issue close "$n" --repo "$GH_REPO" --reason completed \
-                    --comment "Closed by the ready-to-merge gate when #$PR_NUMBER merged (deterministic closure — #983)." \
-                    || echo "::warning::could not close issue #$n"
-                fi
+                state=$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1 || true)
+                case "$state" in
+                  OPEN)
+                    if gh issue close "$n" --repo "$GH_REPO" --reason completed \
+                      --comment "Closed by the ready-to-merge gate when #$PR_NUMBER merged (deterministic closure — #983)."; then
+                      echo "::notice::Close-loop closed #$n (referenced by #$PR_NUMBER)."
+                    else
+                      echo "::warning::could not close issue #$n"
+                    fi
+                    ;;
+                  CLOSED)
+                    echo "Close-loop: #$n already closed."
+                    ;;
+                  *)
+                    echo "::warning::close-loop could not read the state of #$n: $state"
+                    ;;
+                esac
               done
               exit 0
             fi
