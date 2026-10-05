@@ -37,7 +37,7 @@ images:
     digest: "sha256:71dbc76d9dfc0f4e77d4495093d4c60af2831990e06abdabc030d0cfea786338"
     tag: "2026-10-04-e4799bbe-dirty"
   portal:
-    digest: "sha256:c560c64b0e1d24b199eaedf4c23417c098c5e86464cf5fb7ee36dc4fc42ec7f4"
+    digest: "sha256:e25d26b3d31d44b57cc443380208e8c2abf8f8e6e243e55ae5fcb3a23b803cb5"
     tag: "2026-10-04-e4799bbe-dirty"
   # Ingestion CronJobs. The runner must be in the store like the services: a
   # chart-wide tag cannot supply one, and an empty tag renders an invalid
