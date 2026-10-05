@@ -1,8 +1,95 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+/// <reference types="node" />
 
-import type { ClaimItem } from './index.js';
+import { ClaimItem } from './index.js';
 import type { BuildClaimBundleOptions } from './index.js';
 import type { ClaimProvenanceEvidence, SourceArtifactEvidenceInput } from './types.js';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+import { execSync } from 'child_process';
+import fs from 'node:fs';
+
+let buildRevisionCache: string | null = null;
+
+function getBuildRevision(): string | null {
+  if (buildRevisionCache !== null) {
+    return buildRevisionCache;
+  }
+
+  let revision = null;
+
+  try {
+    // Get the worktree root (4 levels up from __dirname: .../packages/pipeline-core/src/claims)
+    const worktreeRoot = join(__dirname, '..', '..', '..', '..');
+    const worktreeGitFile = join(worktreeRoot, '.git');
+    if (existsSync(worktreeGitFile)) {
+      const gitdirContent = readFileSync(worktreeGitFile, 'utf8').trim();
+      if (gitdirContent.startsWith('gitdir: ')) {
+        const gitdir = gitdirContent.slice(8).trim();
+        const headFile = join(gitdir, 'HEAD');
+        if (existsSync(headFile)) {
+          let headContent = readFileSync(headFile, 'utf8').trim();
+          if (headContent.startsWith('ref: ')) {
+            const ref = headContent.slice(5).trim();
+            const refFile = join(gitdir, ref);
+            if (existsSync(refFile)) {
+              revision = readFileSync(refFile, 'utf8').trim();
+            }
+          } else {
+            // detached HEAD
+            revision = headContent;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // ignore and try next method
+  }
+
+  if (!revision) {
+    try {
+      const gitdirOutput = execSync('git rev-parse --git-dir', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+      const headFile = join(gitdirOutput, 'HEAD');
+      if (existsSync(headFile)) {
+        let headContent = readFileSync(headFile, 'utf8').trim();
+        if (headContent.startsWith('ref: ')) {
+          const ref = headContent.slice(5).trim();
+          const refFile = join(gitdirOutput, ref);
+          if (fs.existsSync(refFile)) {
+            revision = readFileSync(refFile, 'utf8').trim();
+          }
+        } else {
+          revision = headContent;
+        }
+      }
+    } catch (e) {
+      // ignore and try next method
+    }
+  }
+
+  if (!revision) {
+    try {
+      revision = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    } catch (e) {
+      // ignore and try next method
+    }
+  }
+
+  if (!revision) {
+    try {
+      const packageJsonPath = join(__dirname, '..', '..', '..', '..', 'package.json');
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+        revision = packageJson.version;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  buildRevisionCache = revision;
+  return revision;
+}
 
 /** Build an evidence inventory without inferring facts that the fetcher did not capture. */
 export function buildProvenanceEvidence(
@@ -62,9 +149,9 @@ export function buildProvenanceEvidence(
       coverage: 'declared-steps-only',
       steps: item.transformations ?? [],
       stages: {
-        module_code_revision: null,
+        module_code_revision: getBuildRevision(),
         parser_version: null,
-        transform_code_revision: null,
+        transform_code_revision: getBuildRevision(),
       },
     },
     publisher_terms: {
