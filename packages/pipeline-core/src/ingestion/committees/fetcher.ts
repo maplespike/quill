@@ -106,7 +106,7 @@ export function extractMetaFromHtml(html: string): Record<string, string> {
 export async function fetchEvidenceXml(
   htmlUrl: string,
   options: { timeoutMs?: number } = {},
-): Promise<string> {
+): Promise<{ xml: string; url: string; statusCode: number; headers: Record<string, string> }> {
   // Step 1: Fetch the HTML page
   const htmlResult = await fetchUrl(htmlUrl, options);
 
@@ -139,7 +139,12 @@ export async function fetchEvidenceXml(
     );
   }
 
-  return xml;
+  return {
+    xml,
+    url: xmlUrl,
+    statusCode: xmlResp.statusCode,
+    headers: xmlResp.headers,
+  };
 }
 
 /**
