@@ -49,7 +49,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |
 | Licensing | Unresolved metadata/SPDX conflicts; see [docs/open-source-audit.md](./docs/open-source-audit.md) — do not summarize packages as one license until the rights holder resolves them |
-| Changesets baseBranch | `prod` (not `main`) |
+| Changesets baseBranch | `main` |
 | Deploy | `scripts/deploy.sh` (reads `.env.deployment`); rollouts via `kubectl rollout restart` (see below) |
 
 ---
