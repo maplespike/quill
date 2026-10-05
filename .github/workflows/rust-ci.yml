@@ -1,0 +1,59 @@
+# Rust CI lane: runs on changes to rust/** — fmt, clippy, test
+# Self-hosted NixOS runner has cargo/rustc pinned by rust-toolchain.toml.
+# cargo is available on nexus (runs-on: [self-hosted, nixos]).
+#
+# The run steps carry a hashFiles guard: this lane also triggers on its own
+# file, so until the `rust/` tree lands (via #998) a missing crate dir skips
+# cleanly instead of failing on `working-directory: ./rust`.
+name: Rust CI
+
+on:
+  push:
+    branches: [main, prod]
+    paths:
+      - 'rust/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'rust/**'
+      - '.github/workflows/rust-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-fmt:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        if: ${{ hashFiles('rust/Cargo.toml') != '' }}
+        run: cargo fmt --all --check
+        working-directory: ./rust
+
+  rust-clippy:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
+        if: ${{ hashFiles('rust/Cargo.toml') != '' }}
+        run: |
+          cargo clippy -p quill-search --lib
+          cargo clippy -p quill-search-bench-gen --lib
+        working-directory: ./rust
+
+  rust-test:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run lib tests
+        if: ${{ hashFiles('rust/Cargo.toml') != '' }}
+        run: |
+          cargo test -p quill-search --lib
+          cargo test -p quill-search-bench-gen --lib
+        working-directory: ./rust
