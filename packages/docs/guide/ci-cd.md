@@ -80,13 +80,13 @@ All results are written to the GitHub Actions step summary for easy review in PR
 | **Linked issue** | PR body must contain `Closes #NNN`, `Fixes #NNN`, etc. |
 | **Commit messages** | Each commit must reference `#NNN` (merge/release exempted) |
 | **Conventional title** | PR title must start with `feat:`, `fix:`, `chore:`, etc. |
-| **Target branch** | Must target `main` or `prod` |
+| **Target branch** | Must target `main` |
 
 ---
 
 ## Auto Create Issues (`auto-issue-creator.yml`)
 
-**Schedule:** Every Monday at 9 AM UTC  
+**Schedule:** Every Monday at 9 AM UTC
 **Manual:** `workflow_dispatch`
 
 ### Jobs
@@ -111,7 +111,7 @@ Auto-generated issues use labels: `documentation`, `auto-generated`, `ci-cd`, `p
 
 ## Cross-Repo Sync (`cross-repo-sync.yml`)
 
-**Schedule:** Every Sunday at midnight UTC  
+**Schedule:** Every Sunday at midnight UTC
 **Manual:** `workflow_dispatch`
 
 ### Checks across repositories
