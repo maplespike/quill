@@ -8,6 +8,8 @@
 #
 # The runner also writes to the store the api-server reads (QUILL_DB_PATH), so
 # it must not run as root: USER 1001 matches the api's file ownership.
+ARG GIT_SHA=unknown
+ENV QUILL_BUILD_REV=${GIT_SHA}
 FROM docker.io/library/node:22-bookworm-slim AS builder
 WORKDIR /app
 
