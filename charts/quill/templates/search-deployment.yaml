@@ -78,7 +78,9 @@ spec:
           periodSeconds: 10
         volumeMounts:
         - name: index
-          mountPath: /data/index
+          # Mount the volume at /data; the index lives in its `index/` subdir
+          # (matches QUILL_SEARCH_INDEX_DIR=/data/index below).
+          mountPath: /data
       volumes:
       - name: index
         persistentVolumeClaim:
