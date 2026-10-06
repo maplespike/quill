@@ -95,9 +95,16 @@ database:
   nodeName: nexus
 portal:
   enabled: true
-  replicas: 1
+  # HA: 2 replicas, spread by topology + anti-affinity, guarded by a PDB
+  # (charts/quill/templates/portal.yaml). The portal is stateless, so unlike
+  # api/mcp/search it needs no node pin.
+  replicas: 2
   port: 8080
-  nodeName: nexus
+  # nodeSelector (not nodeName): keeps the scheduler in control so the two
+  # replicas can spread across the quill.io/workload pool (nexus + forge),
+  # while still restricting to nodes whose containerd store holds the digest.
+  nodeSelector:
+    quill.io/workload: "true"
   resources:
     requests:
       cpu: 50m
