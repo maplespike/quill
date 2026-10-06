@@ -26,7 +26,14 @@ spec:
     rollingUpdate:
       # #758: zero-downtime rollouts for every deployment (matches api).
       maxSurge: 1
-      maxUnavailable: 0
+      # maxUnavailable: 1 ONLY because this deployment has REQUIRED anti-affinity
+      # on a 2-node pool. maxUnavailable: 0 + hard anti-affinity deadlocks: the
+      # new pod cannot schedule while the old one holds the peer slot, and the
+      # old one is not removed until the new one is ready (measured 2026-10-06).
+      # The PDB (minAvailable: 1) still guarantees a drain leaves one serving;
+      # this only permits a brief single-replica window DURING a rollout.
+      # With a 3+ node pool, restore maxUnavailable: 0.
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: quill-portal
