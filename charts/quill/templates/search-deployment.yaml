@@ -39,6 +39,12 @@ spec:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # Numeric UID: the image user is the named account "quill" (uid 1001),
+        # and kubelet cannot verify a named user is non-root under runAsNonRoot.
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
         ports:
         - name: http
           containerPort: 8083
