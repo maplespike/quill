@@ -17,6 +17,14 @@
 //   node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
 //   node scripts/gates/check-image-pins.mjs --values <f> --rendered <helm output>
 //   node scripts/gates/check-image-pins.mjs --values <f> --live   # kubectl read-back
+//   node scripts/gates/check-image-pins.mjs --values <f> --store  # node containerd resolvability
+//
+// --store is the gate that catches the "image is in the store but the pod
+// still ErrImageNeverPull" class: it asserts each pinned digest has a
+// NAMED `<repo>@<digest>` reference in the node's containerd store. A store
+// that holds only the `:latest` tag reports the image in `ctr images ls`
+// (column 3 is the content digest) while CRI has no repo-digest to resolve
+// the chart's `repo@sha256:` reference against — see docs/IMAGE-PINNING.md.
 //
 // Exit 0 + "image pins: OK" on success; exit 1 + every violation otherwise.
 // Pure Node (no deps): CI has no helm and no cluster access.
@@ -241,6 +249,57 @@ export function checkLive(refsByWorkload, valuesText) {
   return violations;
 }
 
+/**
+ * Named image references in the node's containerd store.
+ *
+ * Runs on a k3s NODE (the store is per-node and only nexus holds these
+ * images). Returns a Set of full references such as
+ * "docker.io/library/quill-api@sha256:2733db...".
+ */
+export function readStoreRefs() {
+  let raw;
+  for (const cmd of [
+    ['sudo', '-n', 'k3s', 'ctr', '-n', 'k8s.io', 'images', 'ls', '-q'],
+    ['sudo', '-n', 'ctr', '-n', 'k8s.io', 'images', 'ls', '-q'],
+  ]) {
+    try {
+      raw = execFileSync(cmd[0], cmd.slice(1), { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      break;
+    } catch {
+      /* try the next invocation shape */
+    }
+  }
+  if (raw === undefined) return null; // not a store node — caller must skip
+  return new Set(raw.split('\n').map((l) => l.trim()).filter(Boolean));
+}
+
+/**
+ * Each pinned digest must exist in the store under its own NAME.
+ *
+ * A tag-only store (`repo:latest`) fails this even though `ctr images ls`
+ * lists the content digest: with imagePullPolicy: Never, kubelet resolves
+ * the chart's `repo@sha256:` reference against CRI, and CRI only knows a
+ * repo-digest if the store carries a `@digest` name. Symptom is exactly
+ * ErrImageNeverPull on a rollout that "has" the image.
+ */
+export function checkStore(valuesText, storeRefs) {
+  if (!storeRefs) return [];
+  const violations = [];
+  const images = parseImagesBlock(valuesText);
+  for (const [svc, pin] of Object.entries(images)) {
+    const digest = pin.digest;
+    if (!digest) continue;
+    const want = `${pin.repository || `docker.io/library/quill-${svc}`}@${digest}`;
+    if (!storeRefs.has(want)) {
+      violations.push({
+        ref: svc,
+        reason: `store has no ${want} — tag it first: ctr images tag <repo>:<tag> ${want}`,
+      });
+    }
+  }
+  return violations;
+}
+
 function main(argv) {
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
   const arg = (flag, fallback) => {
@@ -251,6 +310,7 @@ function main(argv) {
   const renderedPath = arg('--rendered', null);
   const templatesDir = arg('--templates', path.join(repo, 'charts/quill/templates'));
   const live = argv.includes('--live');
+  const store = argv.includes('--store');
 
   const values = readFileSync(valuesPath, 'utf8');
   const violations = [
@@ -276,12 +336,25 @@ function main(argv) {
     }
   }
 
+  let storeNote = '';
+  if (store) {
+    const storeRefs = readStoreRefs();
+    if (storeRefs === null) {
+      storeNote = ', store=skipped (not a k3s node)';
+      console.log('  store check: SKIPPED — no containerd/k3s ctr on this host');
+    } else {
+      violations.push(...checkStore(values, storeRefs));
+      storeNote = `, store=${storeRefs.size} refs`;
+      for (const ref of storeRefs) if (/quill/.test(ref)) console.log(`  store: ${ref}`);
+    }
+  }
+
   if (violations.length) {
     for (const v of violations) console.error(`image pin violation: ${v.ref} — ${v.reason}`);
     console.error(`image pins: FAILED (${violations.length} violation(s), ${checked} refs checked)`);
     return 1;
   }
-  console.log(`image pins: OK (${checked} refs checked; values=${path.relative(repo, valuesPath)}${renderedPath ? `, rendered=${renderedPath}` : ''}${live ? ', live=yes' : ''})`);
+  console.log(`image pins: OK (${checked} refs checked; values=${path.relative(repo, valuesPath)}${renderedPath ? `, rendered=${renderedPath}` : ''}${live ? ', live=yes' : ''}${storeNote})`);
   return 0;
 }
 
