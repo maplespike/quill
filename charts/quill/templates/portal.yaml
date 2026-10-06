@@ -63,15 +63,19 @@ spec:
           labelSelector:
             matchLabels:
               app: quill-portal
+      # REQUIRED anti-affinity, not preferred. Measured 2026-10-06: with soft
+      # constraints (and even with DoNotSchedule spread) both replicas
+      # co-located, because during a rollout the scheduler does not count a pod
+      # that is still terminating — so the second replica sees an empty node.
+      # requiredDuringScheduling makes co-location a scheduling ERROR: the
+      # second replica stays Pending until the first node is free of its peer.
       affinity:
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                topologyKey: kubernetes.io/hostname
-                labelSelector:
-                  matchLabels:
-                    app: quill-portal
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: quill-portal
       {{- end }}
       containers:
       - name: portal
