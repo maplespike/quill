@@ -14,7 +14,7 @@ images:
     tag: 2026-10-04-e4799bbe-dirty
   ingest:
     digest: sha256:1f704a5b042435da070ea6b6ea67fe5459d870a407eca184eacec4e5e0c65e39
-    tag: '2026-10-05'
+    tag: '2026-10-05-sha.1f704a5b0424'
   search:
     digest: sha256:b1506586c96ffeabe4c447d456b70e5f22f17610ca0b7492f2261d6eaae93afa
     tag: ''
