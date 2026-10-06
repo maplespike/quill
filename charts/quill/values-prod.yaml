@@ -4,11 +4,11 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: sha256:2733db0206e2133f3df84d8089d0863495d8706361ee50b70cbe8384c0862dd7
-    tag: 2026-10-04-e4799bbe-dirty
+    digest: sha256:6bb25d4e2f5678e4fa35028d953db2a186aa9e81ef90d1fbfbcd52afebfea7c0
+    tag: 2026-10-05-b454ec90-dirty
   mcp:
-    digest: sha256:48777520a354f27b90633af4d8c28339605fa5643db7d7efad49519920b32b25
-    tag: 2026-10-04-e4799bbe-dirty
+    digest: sha256:64392793da52628aa7189ae1c7806dbc212207bb49d8226d6d529a437c890dc7
+    tag: 2026-10-05-b346511c-dirty
   portal:
     digest: sha256:e25d26b3d31d44b57cc443380208e8c2abf8f8e6e243e55ae5fcb3a23b803cb5
     tag: 2026-10-04-e4799bbe-dirty
