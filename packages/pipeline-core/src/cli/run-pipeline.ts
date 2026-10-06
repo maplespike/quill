@@ -25,6 +25,8 @@ import {
 } from '../ingestion/run-log.js';
 import { citationStore } from '../claims/store.js';
 import { createSqliteD1Adapter } from '../ingestion/sqlite-d1.js';
+import { probeAll } from '../ingestion/change-detect.js';
+import { probeUrlsFor } from '../ingestion/probe-urls.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
 
@@ -104,6 +106,12 @@ export const PIPELINE_CONFIG: Record<string, string> = {
 export interface PipelineRunner {
   runModule: typeof runModule;
   runEntityResolution: typeof runEntityResolution;
+  /**
+   * Change probe -- the I/O seam for the ingest gate, injectable for the same
+   * reason runModule is: runOne must stay testable without network access.
+   * Omitted in production, where the real probeAll is used.
+   */
+  probeSources?: typeof probeAll;
 }
 
 const DEFAULT_RUNNER: PipelineRunner = { runModule, runEntityResolution };
@@ -277,6 +285,67 @@ export async function runOne(
           'it is not an ingestion pipeline; remove it from ingestion.schedules',
       );
     }
+    // ── Change gate (event half of the trigger) ────────────────────────
+    // The clock decides only how quickly we NOTICE a change, never whether we
+    // do work. Probe each declared source with conditional requests; when every
+    // one is unchanged, skip the pipeline and record why (status: skipped, with
+    // a declared zero reason, so a quiet run is distinguishable from a silent
+    // failure). probeAll() returns changed:true on ANY probe error, so a broken
+    // source still runs and stays visible — this gate can only skip a run it
+    // PROVED was a no-op. Opt out per run with QUILL_INGEST_FORCE=1.
+    const probeUrls = probeUrlsFor(moduleName);
+    if (probeUrls.length > 0 && process.env['QUILL_INGEST_FORCE'] !== '1') {
+      const probe = runner.probeSources ?? probeAll;
+      // The gate must never be the reason a pipeline does not run. probeAll
+      // already catches per-source errors; this catches a throw from the probe
+      // call ITSELF (a bug, a missing dep) and treats it as 'changed', so a
+      // broken gate degrades to the old always-run behaviour instead of
+      // failing the run before the module is ever called.
+      let changed = true;
+      let results: Awaited<ReturnType<typeof probeAll>>['results'] = [];
+      try {
+        const probed = await probe(probeUrls);
+        changed = probed.changed;
+        results = probed.results;
+      } catch (probeErr) {
+        console.warn(
+          `[CLI] ⚠  Change probe failed for ${moduleName} — running unconditionally: ` +
+            `${probeErr instanceof Error ? probeErr.message : String(probeErr)}`,
+        );
+      }
+      if (!changed) {
+        const summary = `No change across ${probeUrls.length} source(s) since last run`;
+        console.log(`[CLI] ⏭  ${moduleName}: ${summary}`);
+        for (const r of results) {
+          console.log(`[CLI]     ${r.reason} (${r.statusCode}) ${r.url}`);
+        }
+        outcome.records = 0;
+        outcome.sources = {
+          sources: results.map(r => ({
+            source: r.url,
+            status: 'ok' as const,
+            records: 0,
+            error: null,
+          })),
+          zeroReason: 'no-change-since-last-run',
+        };
+        outcome.logged = recordIngestRun({
+          pipeline: alias,
+          startedAt,
+          finishedAt: new Date(),
+          status: 'success',
+          records: 0,
+          claims: 0,
+          schedule: SCHEDULE,
+          error: null,
+          sources: outcome.sources,
+        });
+        console.log(`[CLI] ⏭  ${moduleName}: skipped (unchanged) — logged=${outcome.logged}`);
+        return outcome;
+      }
+      console.log(`[CLI] Change detected for ${moduleName} (${results.filter(r => r.changed).length}/${probeUrls.length} source(s)) — running`);
+    }
+
     // No db argument — the registry injects the adapter for db-first modules
     // and hands the options object to everyone else.
     const result = await runner.runModule(moduleName, {});
