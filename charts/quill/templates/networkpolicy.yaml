@@ -139,6 +139,7 @@ spec:
         values:
           - quill-api
           - quill-mcp
+          - quill-search
   policyTypes:
     - Ingress
   ingress:
@@ -151,6 +152,8 @@ spec:
           port: {{ .Values.api.metricsPort }}
         - protocol: TCP
           port: {{ .Values.mcp.metricsPort }}
+        - protocol: TCP
+          port: {{ .Values.search.metricsPort }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
