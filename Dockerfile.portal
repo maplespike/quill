@@ -1,6 +1,13 @@
+# ARG stays BEFORE the first FROM (global scope) so it is usable in FROM lines.
+# The matching ENV must NOT: an ENV before any FROM creates a stage-less meta
+# instruction and BuildKit fails the whole build with
+#   "failed to solve: no build stage in current context".
+# Each stage re-declares ARG GIT_SHA before consuming it -- a global ARG is not
+# in scope inside a stage, so ENV ${GIT_SHA} there would expand to empty.
 ARG GIT_SHA=unknown
-ENV QUILL_BUILD_REV=${GIT_SHA}
 FROM docker.io/library/alpine:3.20 AS portal
+ARG GIT_SHA
+ENV QUILL_BUILD_REV=${GIT_SHA}
 RUN apk add --no-cache python3 bash coreutils
 COPY packages/portal/dist /app/
 # server.py is the runtime (serves static files + /api reverse proxy) — it
