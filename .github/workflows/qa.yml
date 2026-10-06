@@ -127,6 +127,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Verify portal test dependencies are declared
+        run: node scripts/check-portal-test-deps.mjs
+
       - name: Typecheck api-server
         run: pnpm --filter @maplespike/api-server typecheck
 
