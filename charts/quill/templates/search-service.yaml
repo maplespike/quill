@@ -8,6 +8,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-search
+    # component: metrics lets the quill-services VMServiceScrape select this
+    # Service; without it the search service is invisible to monitoring.
+    component: metrics
 spec:
   type: ClusterIP
   ports:
