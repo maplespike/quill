@@ -116,17 +116,17 @@ jobs:
       # bounds recurrence; this helper also preserves the child exit status
       # despite GitHub's default bash -e behavior and uses a per-step temp log.
       - name: Run api-server unit tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
 
       - name: Run quill-mcp unit tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
 
       - name: Run api-server integration tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
         continue-on-error: true
 
       - name: Run quill-mcp integration tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
         continue-on-error: true
 
   coverage:
@@ -147,12 +147,12 @@ jobs:
           pnpm --filter @maplespike/quill-mcp build
 
       - name: Run api-server coverage (floor-enforced)
-        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+        run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
 
       - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
+        run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
     needs: build-and-test
