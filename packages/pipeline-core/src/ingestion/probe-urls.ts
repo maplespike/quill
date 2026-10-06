@@ -52,8 +52,20 @@ export const PROBE_URLS: Record<string, string[]> = {
     'https://ciec-ccie.parl.gc.ca/en/investigations/Pages/default.aspx',
   ],
 
-  // real-time-feeds subscribes over AMQPS (push), not HTTP -- nothing to probe.
-  // It stays absent on purpose and always runs.
+  // real-time-feeds is deliberately NOT gated -- and this is a design decision,
+  // not an omission. Do not "fix" it by adding URLs.
+  //
+  // It is a CONTINUOUS feed, so it is a stream, not a polling target. Two
+  // measured reasons it cannot be gated on content:
+  //   - its weather-alerts API is a live alert surface whose body differs on
+  //     every fetch, so a content hash reports "changed" every run (the gate
+  //     would never skip) while adding an HTTP round-trip per run -- a net
+  //     negative;
+  //   - the data is SUPPOSED to change, and when it does not (no active alerts)
+  //     the module must still run to record that state.
+  //
+  // The right trigger for a stream is push (see amqps-subscriber.ts), not a
+  // poll with a gate. Until that exists, it runs every 30 minutes by design.
 };
 
 /** The probe URLs for a module, or an empty list when it cannot be gated. */
