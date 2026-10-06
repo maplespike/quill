@@ -1,55 +1,24 @@
-# Quill — Production Values (2026-09-22 rev3)
-# nexus:5000 registry is DEAD and forge is FLAPPING (reboot → offline within
-# the hour). Images are built ON nexus (docker) and imported directly into its
-# k3s containerd store. The whole stack is pinned to nexus — the only node with
-# 4+ days of uptime. registry: prefix = docker.io/library so the full image refs
-# match the imported names; pullPolicy Never forbids network pulls.
-#
-# EVERY workload image is pinned to a content digest (gate A3-IMAGEPIN / #755):
-#   <registry>/quill-<svc>@sha256:<digest>
-# A digest cannot be re-pointed, so no rollout can serve the stale layers a
-# rebuilt `:local` tag used to leave behind. One reproducible step builds,
-# imports and reports the pin:
-#
-#   scripts/pin-images.sh              # build from HEAD, import, print this block
-#   scripts/pin-images.sh --existing   # pin what the node store already holds
-#
-# `tag` is provenance only (the immutable store tag the digest was read from);
-# the chart stamps it on the pod template as quill.maplespike.ca/image-build-tag
-# so a live pod always traces back to a build. See docs/IMAGE-PINNING.md.
-
 image:
-  # Registry prefix for every workload image. The local import path keeps
-  # `docker.io/library` so the refs match the imported names exactly.
-  registry: "docker.io/library"
-  # No chart-wide tag on purpose: production names a digest (or an immutable
-  # tag) per service. The `image.tag` fallback in values.yaml only serves
-  # dev/self-host renders, never this file.
-  tag: ""
-  pullPolicy: Never   # images preloaded into nexus containerd; Never forbids network pulls
-
-# Per-service pins. `digest` is the pin; `tag` is the immutable import tag.
+  registry: docker.io/library
+  tag: ''
+  pullPolicy: Never
 images:
   api:
-    digest: "sha256:2733db0206e2133f3df84d8089d0863495d8706361ee50b70cbe8384c0862dd7"
-    tag: "2026-10-04-e4799bbe-dirty"
+    digest: sha256:7245ab34e09b53226d5c8563cbc6ff424c0f90051366e29e5edccd8a6f938101
+    tag: 2026-10-06-40f059e4-dirty
   mcp:
-    digest: "sha256:48777520a354f27b90633af4d8c28339605fa5643db7d7efad49519920b32b25"
-    tag: "2026-10-04-e4799bbe-dirty"
+    digest: sha256:64392793da52628aa7189ae1c7806dbc212207bb49d8226d6d529a437c890dc7
+    tag: 2026-10-05-b346511c-dirty
   portal:
-    digest: "sha256:e25d26b3d31d44b57cc443380208e8c2abf8f8e6e243e55ae5fcb3a23b803cb5"
-    tag: "2026-10-04-e4799bbe-dirty"
-  # Ingestion CronJobs. The runner must be in the store like the services: a
-  # chart-wide tag cannot supply one, and an empty tag renders an invalid
-  # reference ("docker.io/library/quill-ingest:" -> InvalidImageName).
+    digest: sha256:e25d26b3d31d44b57cc443380208e8c2abf8f8e6e243e55ae5fcb3a23b803cb5
+    tag: 2026-10-04-e4799bbe-dirty
   ingest:
-    digest: "sha256:1f704a5b042435da070ea6b6ea67fe5459d870a407eca184eacec4e5e0c65e39"
-    tag: '2026-10-05-sha.1f704a5b0424'
-
-# API Server
+    digest: sha256:fa454d47c273907a825b875718348e2e29b828bf74ab0a3984cef7c56e73ff5c
+    tag: '2026-10-06-f34547a9-dirty'
+  search:
+    digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
+    tag: '2026-10-06-serve-fix'
 api:
-  # SQLite + RWO PVC → exactly 1 replica (both pods would fight over one
-  # volume). Move to postgres + replicas 2 when write volume warrants it.
   replicas: 1
   port: 8082
   metricsPort: 9464
@@ -61,57 +30,30 @@ api:
       cpu: 500m
       memory: 512Mi
   env:
-    QUILL_API_URL: "http://quill-api:8082/v1"
-    NODE_ENV: "production"
-    # /v1/status + /v1/version report config.environment; unset it says
-    # "development" on a live deployment. (config.ts: env.ENVIRONMENT || 'development')
-    ENVIRONMENT: "production"
-    # SQLite on a PVC (node:sqlite, no native compile) — simpler than PG for
-    # the current scale; flip QUILL_STORAGE to postgres + database.enabled
-    # when write volume warrants it.
-    QUILL_STORAGE: "sqlite"
-    # WebAuthn / passkey — rp.id must match the browser origin domain
-    MAPLESPIKE_DOMAIN: "maplespike.ca"
-    MAPLESPIKE_ORIGIN: "https://quill.maplespike.ca"
-    PORTAL_URL: "https://quill.maplespike.ca"
-    APP_URL: "https://quill.maplespike.ca"
-    GITHUB_REDIRECT_URI: "https://api.maplespike.ca/v1/auth/github/callback"
-    # Generic OAuth flow (portal links to /v1/auth/oauth/<provider>); the
-    # callback becomes ${BASE}/<provider>/callback. Without this the flow
-    # builds a localhost redirect_uri in production.
-    MAPLESPIKE_OAUTH_REDIRECT_BASE: "https://api.maplespike.ca/v1/auth/oauth"
-    TRUST_PROXY: "true"
-    # A2-REDIS (#764, #770): the real cache + rate-limit backend. Before this
-    # the API fell back to a hardcoded `redis.ai-inference` default — a
-    # namespace that has never existed — so the limiter ran in pass-through
-    # and the logs filled with connection errors. This Service is rendered by
-    # this chart (see templates/redis.yaml + the redis: block below).
-    REDIS_URL: "redis://quill-redis:6379"
-    # #806: Stripe environment. 'test' until the go-live secret-swap.
-    STRIPE_ENV: "live"
+    QUILL_API_URL: http://quill-api:8082/v1
+    NODE_ENV: production
+    ENVIRONMENT: production
+    QUILL_STORAGE: sqlite
+    MAPLESPIKE_DOMAIN: maplespike.ca
+    MAPLESPIKE_ORIGIN: https://quill.maplespike.ca
+    PORTAL_URL: https://quill.maplespike.ca
+    APP_URL: https://quill.maplespike.ca
+    GITHUB_REDIRECT_URI: https://api.maplespike.ca/v1/auth/github/callback
+    MAPLESPIKE_OAUTH_REDIRECT_BASE: https://api.maplespike.ca/v1/auth/oauth
+    TRUST_PROXY: 'true'
+    REDIS_URL: redis://quill-redis:6379
+    STRIPE_ENV: live
   ingress:
     host: api.maplespike.ca
     tls: true
-  # Persistent storage for the SQLite DB (api writes billing/tenants/claims)
   storage:
     size: 5Gi
     storageClass: local-path
-    # Pin to nexus: images are imported per-node, the DB must stay with its
-    # pod's node, and nexus is the only node with demonstrated uptime.
     nodeName: nexus
-
-# MCP Server
 mcp:
   replicas: 1
   port: 3001
   metricsPort: 9465
-  # Images are imported per node (nexus containerd store). Without this pin a
-  # rescheduled pod lands on a node with no store and dies with
-  # ErrImageNeverPull — the failure the digest pin cannot fix by itself.
-  # Moving mcp off nexus was tried on 2026-09-22 and REVERTED: a cluster-wide
-  # admission policy already sets nodeName=nexus, so the kubelet rejected pods
-  # created against nodeSelector=forge in a rollout loop. The template supports
-  # nodeSelector as the fallback; flip this once that policy is corrected.
   nodeName: nexus
   resources:
     requests:
@@ -123,19 +65,10 @@ mcp:
   ingress:
     host: mcp.maplespike.ca
     tls: true
-
-# Redis — real cache + rate-limit backend (gate A2-REDIS, #764 / #770).
-# Rendered by this chart (templates/redis.yaml); api.env.REDIS_URL above
-# points at the Service it creates. Deliberately ephemeral (emptyDir, no RDB):
-# a restart resets counters and cached bodies, which is correct for both.
-# Version-pinned (not `:alpine`, not `:latest`) and already present in the
-# nexus containerd store, so IfNotPresent never needs the network. A digest
-# reference was tried first and kubelet could not resolve it through the CRI
-# (ErrImageNeverPull) — see the A2-REDIS card for the probe output.
 redis:
   enabled: true
   replicas: 1
-  image: "public.ecr.aws/docker/library/redis:8.2.3-alpine"
+  image: public.ecr.aws/docker/library/redis:8.2.3-alpine
   pullPolicy: IfNotPresent
   nodeName: nexus
   maxmemory: 128mb
@@ -146,8 +79,6 @@ redis:
     limits:
       cpu: 200m
       memory: 192Mi
-
-# PostgreSQL Database (disabled: sqlite mode is the current storage backend)
 database:
   enabled: false
   image: docker.io/library/postgres:17-alpine
@@ -162,13 +93,10 @@ database:
       cpu: 500m
       memory: 512Mi
   nodeName: nexus
-
-# Portal (static Astro build served by python server.py)
 portal:
   enabled: true
   replicas: 1
   port: 8080
-  # Same local-import constraint and the same 2026-09-22 revert note as mcp.
   nodeName: nexus
   resources:
     requests:
@@ -180,17 +108,13 @@ portal:
   ingress:
     host: maplespike.ca
     tls: true
-
-# Cloudflare Tunnel — DISABLED until the operator supplies the tunnel
-# credential (Secret `cloudflared-creds`, key credentials.json). Everything
-# else is verifiable in-cluster without it; flip enabled=true to go public.
 cloudflared:
   enabled: false
   image: docker.io/cloudflare/cloudflared
-  tag: "2026.8.2"
+  tag: 2026.8.2
   pullPolicy: IfNotPresent
   replicas: 1
-  tunnelId: "66d76492-036b-4177-8fac-8682e0eda37e"
+  tunnelId: 66d76492-036b-4177-8fac-8682e0eda37e
   nodeSelector:
     kubernetes.io/hostname: nexus
   resources:
@@ -201,66 +125,32 @@ cloudflared:
       cpu: 200m
       memory: 128Mi
   ingress:
-    - hostname: api.maplespike.ca
-      service: http://quill-api.maplespike.svc.cluster.local:8082
-    - hostname: mcp.maplespike.ca
-      service: http://quill-mcp.maplespike.svc.cluster.local:3001
-    - hostname: kanban.maplespike.ca
-      service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
-
-# Secrets — NEVER put real values here. Create the referenced K8s Secrets
-# before install (see docs/STANDUP-2026-09-17.md and scripts/sops-sync-k8s.sh,
-# which delivers every credential below from sops-encrypted git):
-#   quill-secrets:        apiKey, jwtSecret, githubClientId, githubClientSecret,
-#                         internalJwtSecret (+ optional opencorporatesApiKey)
-#   maplespike-secrets:   pii-hash-secret, quill-billing-secret, stripe-secret-key,
-#                         stripe-webhook-secret
-#   cloudflared-creds:    credentials.json (operator-gated)
+  - hostname: api.maplespike.ca
+    service: http://quill-api.maplespike.svc.cluster.local:8082
+  - hostname: mcp.maplespike.ca
+    service: http://quill-mcp.maplespike.svc.cluster.local:3001
+  - hostname: kanban.maplespike.ca
+    service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 secrets:
-  # Empty here → secrets.yaml only emits keys for provided values; the api
-  # reads the credentials above from pre-created Secrets. Every auth/billing
-  # ref is REQUIRED: a missing key blocks pod scheduling, so the 2026-09-21
-  # empty-secret incident (OAuth + JWT silently gone from the pod env) fails
-  # loud at schedule time instead of degrading auth. Only opencorporatesApiKey
-  # stays optional — a missing key degrades one pipeline, not the job.
-  apiKey: ""
-  jwtSecret: ""
-  dbPassword: ""
-  stripeSecretKey: ""
-  stripeWebhookSecret: ""
-  stripeAccountId: ""
-  stripePublishableKey: ""
-
-# Ingestion CronJobs (gate A1-INGEST, 2026-09-22).
-#
-# Enabled with the pipelines that carry the public claim/discovery surface.
-# They write into the api pod's SQLite volume (QUILL_DB_PATH) and record a run
-# row in `ingest_runs`, which GET /v1/ingest/status reads back — the health
-# monitor alerts when a pipeline stops. The image must exist in nexus
-# containerd as docker.io/library/quill-ingest:local before the first tick:
-#   ssh nexus 'cd ~/quill-build && docker build -f Dockerfile.ingest -t \
-#     docker.io/library/quill-ingest:local . && docker save ... | k3s ctr images import -'
-# Add a pipeline by adding a schedule key here; the key must be a CLI alias
-# (see packages/pipeline-core/src/cli/run-pipeline.ts PIPELINE_CONFIG).
+  apiKey: ''
+  jwtSecret: ''
+  dbPassword: ''
+  stripeSecretKey: ''
+  stripeWebhookSecret: ''
+  stripeAccountId: ''
+  stripePublishableKey: ''
 ingestion:
   enabled: true
-  # RWO PVC pinning: matches api.storage.nodeName — ingestion cannot run on a
-  # node that does not hold the api's SQLite volume.
   nodeName: nexus
   activeDeadlineSeconds: 1800
   schedules:
-    # Helm merges maps recursively: values.yaml's catalogue survives unless a
-    # key is nulled here. Production schedules only these seven pipelines —
-    # the rest stay in the chart as opt-in cadences (nothing runs unless it is
-    # named below, so enabling one is a one-line change either way).
-    committees: "0 */6 * * *"
-    gazette: "0 */12 * * *"
-    oversight: "0 */12 * * *"
-    corporate: "0 2 * * *"
-    influence: "0 4 * * *"
-    ngo-rss: "*/15 * * * *"
-    realtime: "*/30 * * * *"
-    # Not scheduled in production yet (null removes the values.yaml default).
+    committees: 0 */6 * * *
+    gazette: 0 */12 * * *
+    oversight: 0 */12 * * *
+    corporate: 0 2 * * *
+    influence: 0 4 * * *
+    ngo-rss: '*/15 * * * *'
+    realtime: '*/30 * * * *'
     a2aj: null
     canlii: null
     culture: null
@@ -282,3 +172,22 @@ ingestion:
     limits:
       cpu: 500m
       memory: 512Mi
+search:
+  replicas: 1
+  port: 8083
+  metricsPort: 9466
+  logLevel: info
+  indexStorage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Float across nodes that carry the quill workload label (nexus, forge).
+  # zephyr carries no label and stays out. nodeSelector keeps the scheduler
+  # in control so a local-path PV and the pod can never contradict each
+  # other (the nodeName deadlock, 2026-10-05).
+  nodeSelector:
+    quill.io/workload: "true"

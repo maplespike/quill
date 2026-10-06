@@ -1,0 +1,38 @@
+{{/*
+  Quill Search Service — Service + PVC
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quill.fullname" . }}-search
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-search
+    # component: metrics lets the quill-services VMServiceScrape select this
+    # Service; without it the search service is invisible to monitoring.
+    component: metrics
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8083
+    targetPort: http
+  - name: metrics
+    port: 9466
+    targetPort: metrics
+  selector:
+    app: quill-search
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-search-index
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-search
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.search.indexStorage }}

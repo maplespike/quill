@@ -39,7 +39,16 @@ spec:
       # rejected with OutOfpods (seen 2026-09-25 on quill-ingest-realtime/ngo-rss).
       # The TTL deletes the Job - and with it the pod - 10 minutes after it
       # finishes; widen it via values when debugging a failed ingest.
-      ttlSecondsAfterFinished: {{ $.Values.ingestion.ttlSecondsAfterFinished | default 600 }}
+      {{- /*
+        Opt-in only. A default TTL deletes a finished Job's evidence minutes
+        after the run, so a failed ingest leaves nothing to inspect — the exact
+        blind spot this pipeline exists to remove. Retention is already bounded
+        by successful/failedJobsHistoryLimit; set this only when you want
+        aggressive cleanup and accept the loss of forensics.
+      */}}
+      {{- with $.Values.ingestion.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       template:
         metadata:
           labels:

@@ -161,6 +161,13 @@ function renderMetrics(): string {
     '# TYPE quill_ingest_last_run_records gauge',
     '# HELP quill_ingest_last_run_success Whether the latest pipeline run succeeded (1) or failed (0).',
     '# TYPE quill_ingest_last_run_success gauge',
+    // Skip observability. A change-gate skip is a SUCCESS with 0 records, so a
+    // pipeline that wrongly skips (a bad probe URL, a source that silently
+    // starts answering 304) looks perfectly healthy: success=1, fresh
+    // timestamp, no alert. This gauge surfaces the skip so "running but never
+    // doing work" is visible instead of invisible.
+    '# HELP quill_ingest_last_skip_timestamp_seconds Unix timestamp of the last change-gate skip.',
+    '# TYPE quill_ingest_last_skip_timestamp_seconds gauge',
   ];
   try {
     const successfulRuns = getLatestSuccessfulIngestRuns();
@@ -178,6 +185,15 @@ function renderMetrics(): string {
       const records = Number.isFinite(run.records) ? Math.max(0, Math.trunc(run.records)) : 0;
       lines.push(`quill_ingest_last_run_records{pipeline="${pipeline}"} ${records}`);
       lines.push(`quill_ingest_last_run_success{pipeline="${pipeline}"} ${run.status === 'success' ? 1 : 0}`);
+      // A declared no-change skip: emit when it happened so a gate that never
+      // lets a pipeline through is distinguishable from one that works.
+      const zeroReason = run.sources?.zeroReason ?? null;
+      if (zeroReason === 'no-change-since-last-run') {
+        const skipTs = Date.parse(run.finished_at) / 1000;
+        if (Number.isFinite(skipTs)) {
+          lines.push(`quill_ingest_last_skip_timestamp_seconds{pipeline="${pipeline}"} ${skipTs}`);
+        }
+      }
     }
   } catch (err) {
     log.warn({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Unable to render ingestion metrics');

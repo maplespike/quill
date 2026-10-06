@@ -22,9 +22,10 @@ import { getLatestIngestRuns } from '../../ingestion/run-log.js';
 let tmpDir: string;
 
 /** Spy registry: records every call, never touches an upstream. */
-function makeSpy(result: unknown, options: { throwError?: Error } = {}) {
+function makeSpy(result: unknown, options: { throwError?: Error; probeChanged?: boolean } = {}) {
   const moduleCalls: unknown[][] = [];
   const entityCalls: unknown[][] = [];
+  const probeCalls: string[][] = [];
   const runner: PipelineRunner = {
     runModule: (async (...args: unknown[]) => {
       moduleCalls.push(args);
@@ -35,8 +36,24 @@ function makeSpy(result: unknown, options: { throwError?: Error } = {}) {
       entityCalls.push(args);
       return { mentionsInserted: 0, recordsProcessed: 0, errors: [] };
     }) as PipelineRunner['runEntityResolution'],
+    // The gate's I/O seam. Default 'changed' keeps each test's original intent
+    // (the module runs); the gate tests pass probeChanged:false. This is what
+    // keeps the suite network-free.
+    probeSources: (async (urls: string[]) => {
+      probeCalls.push(urls);
+      const changed = options.probeChanged ?? true;
+      return {
+        changed,
+        results: urls.map(url => ({
+          url,
+          changed,
+          statusCode: changed ? 200 : 304,
+          reason: (changed ? 'changed' : 'not-modified') as 'changed' | 'not-modified',
+        })),
+      };
+    }) as PipelineRunner['probeSources'],
   };
-  return { runner, moduleCalls, entityCalls };
+  return { runner, moduleCalls, entityCalls, probeCalls };
 }
 
 before(() => {
@@ -126,7 +143,7 @@ describe('runOne persistence contract', () => {
 });
 
 describe('runOne honest classification (GH#921)', () => {
-  it('records a failed run when the health check skipped the module', async () => {
+  it('records a failed run when the health check skipped the module (not a gate skip)', async () => {
     // The registry returns {skipped: true, reason} when the upstream health
     // probe fails — previously logged as success with 0 records.
     const { runner } = makeSpy({ skipped: true, reason: 'Upstream at https://x is unreachable' });

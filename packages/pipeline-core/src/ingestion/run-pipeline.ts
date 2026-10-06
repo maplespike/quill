@@ -17,6 +17,8 @@
  */
 
 import { runModule, getModule, getAllModules, healthCheckModule } from './registry.js';
+import { probeAll } from './change-detect.js';
+import { probeUrlsFor } from './probe-urls.js';
 import type { ModuleCategory } from './registry.js';
 
 /**
@@ -240,6 +242,44 @@ async function main() {
     console.log(`[ingestion] Health check OK: ${module.healthCheckUrl}`);
   } else {
     console.log('[ingestion] No health check URL configured — proceeding directly');
+  }
+
+  // ── Change gate (event half of the trigger) ──
+  // The clock decides only how quickly we NOTICE a change, never whether we
+  // do work. Probe each declared source with conditional requests; if every
+  // one is unchanged, skip the pipeline and record why. probeAll() returns
+  // changed:true on any probe error, so a broken source still runs and stays
+  // visible -- this gate can only ever skip a run it PROVED was a no-op.
+  // Opt out with QUILL_INGEST_FORCE=1 (manual/debug runs).
+  const probeUrls = probeUrlsFor(moduleName);
+  if (probeUrls.length > 0 && process.env.QUILL_INGEST_FORCE !== '1') {
+    const { changed, results } = await probeAll(probeUrls);
+    if (!changed) {
+      const summary = `No change across ${probeUrls.length} source(s) since last run`;
+      console.log(`[ingestion] ${summary} — skipping`);
+      for (const r of results) {
+        console.log(`[ingestion]   ${r.reason} (${r.statusCode}) ${r.url}`);
+      }
+      if (pool) {
+        await persistResult(pool, {
+          id: `${pipelineName}-${Date.now()}`,
+          pipeline_name: pipelineName,
+          category: module.category,
+          source: module.sources.map(s => s.name).join(', '),
+          records_count: 0,
+          summary,
+          status: 'skipped',
+          error_message: null,
+          duration_ms: 0,
+        });
+      }
+      await pool?.end().catch(() => {});
+      process.exit(0);
+    }
+    const changedCount = results.filter(r => r.changed).length;
+    console.log(`[ingestion] Change detected (${changedCount}/${probeUrls.length} source(s) changed) — running`);
+  } else if (probeUrls.length === 0) {
+    console.log('[ingestion] No probe URLs for this module — running unconditionally');
   }
 
   // Run the module
