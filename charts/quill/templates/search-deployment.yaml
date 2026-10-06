@@ -27,7 +27,10 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
-      {{- if .Values.search.nodeName }}
+      {{- if .Values.search.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.search.nodeSelector | nindent 8 }}
+      {{- else if .Values.search.nodeName }}
       nodeName: {{ .Values.search.nodeName }}
       {{- end }}
       securityContext:
