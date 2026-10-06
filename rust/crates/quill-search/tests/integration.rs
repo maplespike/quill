@@ -302,3 +302,59 @@ fn atomic_swap_changes_doc_count_without_partial_window() {
         );
     });
 }
+
+/// REGRESSION (2026-10-06): `serve()` awaited a shutdown signal BEFORE calling
+/// `axum::serve`, so the public listener bound and logged "serving" while
+/// accepting nothing — every request hung in CLOSE_WAIT. The tests above bind
+/// their own listener via `public_router()`, which is exactly why they missed
+/// it. This test drives the real `serve()` entry point.
+#[test]
+fn serve_actually_serves_the_public_port() {
+    let rt = tokio::runtime::Runtime::new().expect("runtime");
+    rt.block_on(async {
+        let tmp = TempDir::new().expect("tempdir");
+        let index_dir = tmp.path().join("idx");
+        build_index(&load_fixture(), &index_dir).expect("build index");
+
+        let public_port = free_port();
+        let metrics_port = public_port + 1;
+
+        // The real entry point under test — not public_router().
+        tokio::spawn(async move {
+            let _ = quill_search::serve::serve(index_dir, public_port, metrics_port).await;
+        });
+
+        // Poll until the listener answers, bounded. A never-serving serve()
+        // fails here instead of hanging the suite.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        let mut last: String;
+        loop {
+            match std::net::TcpStream::connect(("127.0.0.1", public_port)) {
+                Ok(mut stream) => {
+                    use std::io::{Read, Write};
+                    let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(2)));
+                    let _ = stream.write_all(
+                        b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n",
+                    );
+                    let mut buf = Vec::new();
+                    if stream.read_to_end(&mut buf).is_ok() && !buf.is_empty() {
+                        let raw = String::from_utf8_lossy(&buf);
+                        assert!(
+                            raw.starts_with("HTTP/1.1 200"),
+                            "serve() must answer /health 200, got: {}",
+                            raw.lines().next().unwrap_or("<empty>")
+                        );
+                        assert!(raw.contains("\"status\":\"ok\""), "body: {raw}");
+                        return;
+                    }
+                    last = "connected but no response".to_string();
+                }
+                Err(e) => last = format!("connect failed: {e}"),
+            }
+            if std::time::Instant::now() >= deadline {
+                panic!("serve() never served the public port; last state: {last}");
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+        }
+    });
+}
