@@ -27,6 +27,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- if .Values.search.nodeName }}
+      nodeName: {{ .Values.search.nodeName }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
       containers:
