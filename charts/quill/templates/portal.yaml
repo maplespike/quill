@@ -47,15 +47,19 @@ spec:
       nodeSelector:
         {{- toYaml (.Values.portal | default dict).nodeSelector | nindent 8 }}
       {{- end }}
-      # Spread replicas across nodes. ScheduleAnyway (not DoNotSchedule): with
-      # a 2-replica service on a 2-node pool, a hard constraint wedges a pod
-      # Pending whenever a node is briefly NotReady — the exact moment you need
-      # the replica. Soft skew prefers balance without blocking a rollout.
+      # Spread replicas across DIFFERENT nodes — hard, not soft. Measured
+      # 2026-10-06: with ScheduleAnyway + preferred anti-affinity both replicas
+      # landed on the same node, because during a simultaneous rollout neither
+      # pod sees the other and the scoring picks one node. That is two things to
+      # lose at once — not HA. DoNotSchedule makes "one replica per node" an
+      # invariant: if a node is unavailable the extra replica stays Pending,
+      # which is correct — a Pending pod is honest, a co-located one is a false
+      # sense of redundancy.
       {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
+          whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
               app: quill-portal
