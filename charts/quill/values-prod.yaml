@@ -185,4 +185,9 @@ search:
     limits:
       cpu: 500m
       memory: 512Mi
-  nodeName: nexus
+  # Float across nodes that carry the quill workload label (nexus, forge).
+  # zephyr carries no label and stays out. nodeSelector keeps the scheduler
+  # in control so a local-path PV and the pod can never contradict each
+  # other (the nodeName deadlock, 2026-10-05).
+  nodeSelector:
+    quill.io/workload: "true"
