@@ -4,8 +4,8 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: sha256:6bb25d4e2f5678e4fa35028d953db2a186aa9e81ef90d1fbfbcd52afebfea7c0
-    tag: 2026-10-05-b454ec90-dirty
+    digest: sha256:7245ab34e09b53226d5c8563cbc6ff424c0f90051366e29e5edccd8a6f938101
+    tag: 2026-10-06-40f059e4-dirty
   mcp:
     digest: sha256:64392793da52628aa7189ae1c7806dbc212207bb49d8226d6d529a437c890dc7
     tag: 2026-10-05-b346511c-dirty
