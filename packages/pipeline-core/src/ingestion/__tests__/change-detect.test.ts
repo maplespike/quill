@@ -122,11 +122,9 @@ describe('change-detect', () => {
     const b = 'https://example.test/all-b';
     const restore = withMockedFetch(async () => ok('stable'));
     try {
-      // Establish a baseline for EACH source first. probeAll short-circuits on
-      // the first change, so a first probeAll([a,b]) would leave b without a
-      // baseline -- correct behaviour, but it makes this assertion racy.
-      await probeSource(a);
-      await probeSource(b);
+      // Establish baselines, then confirm a second pass reports no change.
+      await probeAll([a, b]);
+      await probeAll([a, b]);
       const r = await probeAll([a, b]);
       assert.equal(r.changed, false, 'all unchanged -> skip');
       assert.equal(r.results.length, 2);
@@ -135,7 +133,7 @@ describe('change-detect', () => {
     }
   });
 
-  it('probeAll short-circuits on the first changed source', async () => {
+  it('probeAll probes EVERY source so all baselines land in one run', async () => {
     const urls = [
       'https://example.test/sc-1',
       'https://example.test/sc-2',
@@ -149,8 +147,8 @@ describe('change-detect', () => {
     try {
       const r = await probeAll(urls);
       assert.equal(r.changed, true);
-      assert.equal(calls, 1, 'must stop probing once a change is found');
-      assert.equal(r.results.length, 1);
+      assert.equal(calls, 3, 'every source is probed, not just up to the first change');
+      assert.equal(r.results.length, 3, 'all sources get a baseline in one run');
     } finally {
       restore();
     }

@@ -252,13 +252,18 @@ export async function probeAll(
   options: { timeoutMs?: number } = {},
 ): Promise<{ changed: boolean; results: ProbeResult[] }> {
   if (urls.length === 0) return { changed: true, results: [] };
+  // Probe EVERY source — deliberately not short-circuiting on the first change.
+  // Short-circuiting looks like a saving but is not: it leaves the sources it
+  // skipped WITHOUT a baseline, so a module with N feeds needs N runs before it
+  // can ever report "unchanged" (the gate only skips once every source has been
+  // seen). Probing all establishes every baseline in one run and reports a true
+  // changed-count. A conditional GET is ~100ms; the warmup it avoids is days.
   const results: ProbeResult[] = [];
+  let anyChanged = false;
   for (const url of urls) {
     const result = await probeSource(url, options);
     results.push(result);
-    // Short-circuit on the first change: the pipeline is going to run anyway,
-    // so probing the rest only spends time we are trying to save.
-    if (result.changed) return { changed: true, results };
+    if (result.changed) anyChanged = true;
   }
-  return { changed: false, results };
+  return { changed: anyChanged, results };
 }
