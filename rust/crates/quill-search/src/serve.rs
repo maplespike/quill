@@ -241,12 +241,18 @@ pub async fn serve(index_dir: PathBuf, public_port: u16, metrics_port: u16) -> a
         let _ = signal::ctrl_c().await;
     };
 
-    tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
-    }
-
+    // Serve AND wait for shutdown concurrently. A bare `select!` here awaited a
+    // signal BEFORE axum::serve was ever called, so the public listener bound,
+    // logged "serving", and then accepted nothing — every request hung in
+    // CLOSE_WAIT (found live 2026-10-06). with_graceful_shutdown keeps the two
+    // concurrent, which is what the metrics listener above already does.
     axum::serve(listener, public_router(state))
+        .with_graceful_shutdown(async {
+            tokio::select! {
+                _ = ctrl_c => {},
+                _ = terminate => {},
+            }
+        })
         .await
         .context("public listener failed")?;
     Ok(())
