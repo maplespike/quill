@@ -1,0 +1,41 @@
+# MapleSpike Quill Search Service (Rust / tantivy)
+# Multi-stage: build Rust binary in builder, run in slim runtime
+FROM docker.io/library/rust:1.99-bookworm AS builder
+WORKDIR /build
+
+# Copy workspace manifests first for layer caching
+COPY rust/Cargo.toml rust/Cargo.lock ./
+COPY rust/crates ./crates
+
+# Build the quill-search binary (release profile)
+RUN cargo build --release -p quill-search
+
+# ─── Runtime stage ───────────────────────────────────────────────────────────
+FROM docker.io/library/debian:bookworm-slim AS quill-search
+WORKDIR /app
+
+# Install CA certs for HTTPS
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy the built binary
+COPY --from=builder /build/target/release/quill-search /usr/local/bin/quill-search
+
+# Create non-root user
+RUN useradd --system --no-create-home --uid 1001 quill
+
+# Index data directory
+RUN mkdir -p /data/index && chown quill:quill /data/index
+
+USER quill
+
+# Public HTTP port (search API)
+EXPOSE 8083
+# Private metrics port
+EXPOSE 9466
+
+# Default: serve mode (index must be pre-built and mounted)
+# Override with: quill-search index --corpus /data/corpus.jsonl --out /data/index
+ENTRYPOINT ["quill-search"]
+CMD ["serve", "--index", "/data/index", "--port", "8083", "--metrics-port", "9466"]

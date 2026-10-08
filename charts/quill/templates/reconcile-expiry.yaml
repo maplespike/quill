@@ -1,0 +1,51 @@
+{{- if .Values.billing.reconcileExpiry.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-reconcile-expiry
+  namespace: {{ .Release.Namespace }}
+  labels:
+    component: billing-reconcile
+spec:
+  schedule: "17 3 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            component: billing-reconcile
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: reconcile
+            image: curlimages/curl:8.11.1
+            env:
+            - name: QUILL_BILLING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-secrets
+                  key: quill-billing-secret
+                  optional: false
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              curl -fsS -o /dev/null --connect-timeout 10 --max-time 60 -X POST \
+                -H "X-Billing-Secret: ${QUILL_BILLING_SECRET}" \
+                -H "Content-Type: application/json" \
+                http://{{ include "quill.fullname" . }}-api.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.api.port }}/v1/billing/reconcile-expiry
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
+{{- end }}
