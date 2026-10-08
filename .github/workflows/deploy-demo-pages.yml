@@ -17,6 +17,13 @@
 # is not enabled on it (`has_pages: false`, /pages returns 404) and private-repo
 # Pages needs a paid plan, so the failure is a repo setting, not this code. The
 # build itself is verified locally with GH_PAGES=true. Re-run after the flip.
+#
+# NOTE (2026-10-08): the workflow is ALSO disabled_manually in the GitHub UI
+# (workflow id 339324198) — it was disabled after a duplicate `env:` key in the
+# portal-build step made GitHub reject the file, so every run died in 0.0 s.
+# That key is fixed (actionlint now guards the class), but the workflow stays
+# disabled on purpose: it cannot succeed until Pages is enabled. To bring it
+# back, first enable Pages, then Actions -> this workflow -> Enable, then run.
 
 name: Deploy Demo Portal to GitHub Pages
 
