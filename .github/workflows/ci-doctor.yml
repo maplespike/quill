@@ -11,7 +11,7 @@ name: CI Doctor
 # record); this is the Hermes assist path.
 on:
   workflow_run:
-    workflows: ["CI", "Live Data Check", "QA", "Health Monitor", "Docs Validation", "PR validation"]
+    workflows: ["CI", "Live Data Check", "QA", "Health Monitor", "Docs Validation", "PR validation", "NetworkPolicy validation"]
     types: [completed]
 # Collapse duplicate events for the same workflow+SHA. Without this the doctor
 # queues one job per watched-workflow event on a single-runner pool (2026-09-22:
