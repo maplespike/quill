@@ -70,6 +70,9 @@ jobs:
       - name: Enable auto-merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Untrusted: via env, never interpolated into the script.
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}" \
-            --subject "chore(deps): ${{ github.event.pull_request.title }}"
+          gh pr merge --auto --squash "$PR_URL" \
+            --subject "chore(deps): $PR_TITLE"
