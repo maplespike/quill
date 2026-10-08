@@ -26,10 +26,15 @@ jobs:
 
       - name: Check if safe to auto-merge
         id: check
+        # Untrusted input (PR title/number) arrives via env, never interpolated
+        # into the script — a title containing a quote or a command
+        # substitution would otherwise execute on the runner. Same class that
+        # broke pr-validation.yml once (fixed there via env); actionlint
+        # flagged these two spots on 2026-10-08.
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          PR_TITLE="${{ github.event.pull_request.title }}"
-
           # Determine if this is a safe update (patch or minor, not major)
           if echo "$PR_TITLE" | grep -qiE "major|breaking|BREAKING"; then
             echo "safe=false" >> $GITHUB_OUTPUT
@@ -115,10 +120,12 @@ jobs:
         if: steps.check.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Untrusted: via env, never interpolated into the script.
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          gh pr review $PR_NUMBER --approve --body "Auto-approved: ${{ steps.check.outputs.reason }}"
-          gh pr merge $PR_NUMBER --squash --auto --subject "chore: ${{ github.event.pull_request.title }}"
+          gh pr review "$PR_NUMBER" --approve --body "Auto-approved: ${{ steps.check.outputs.reason }}"
+          gh pr merge "$PR_NUMBER" --squash --auto --subject "chore: $PR_TITLE"
 
       - name: Report skipped merge
         if: steps.check.outputs.safe != 'true'
