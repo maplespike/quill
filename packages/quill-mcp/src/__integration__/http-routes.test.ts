@@ -17,6 +17,7 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
+import { once } from 'node:events';
 import net from 'node:net';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
@@ -65,6 +66,48 @@ async function waitForReady(url: string, timeoutMs = 10_000): Promise<void> {
   throw new Error(`server did not respond at ${url} within ${timeoutMs}ms (last error: ${String(lastErr)})`);
 }
 
+/**
+ * Stop the spawned server AND its whole process group.
+ *
+ * The spawn chain is `pnpm -> pnpm -> tsx -> node`, and `proc.pid` is only the
+ * outer pnpm. Killing just that leaves the real server alive — still listening
+ * and answering /health — with the stdio pipes open, and those open pipes keep
+ * the test process's event loop alive, so `node --test` never exits. Measured
+ * 2026-10-08: an integration job squatted a self-hosted runner until the
+ * 60-minute job timeout while the orphaned server answered HTTP 200 in 2 ms.
+ * `detached: true` puts the whole chain in its own process group, so a single
+ * negative-PID signal reaches every member.
+ *
+ * Also: `proc.killed` is NOT a liveness check — it flips true the moment
+ * kill() is CALLED, not when the process exits, so the previous
+ * `if (!proc.killed) proc.kill('SIGKILL')` fallback could never fire. Wait on
+ * the real 'exit' event instead.
+ */
+async function stopServer(proc: ChildProcess | undefined): Promise<void> {
+  if (!proc || proc.pid === undefined || proc.exitCode !== null) return;
+
+  // Attach the exit listener BEFORE signalling so a fast exit cannot be missed.
+  const exited = once(proc, 'exit');
+  try {
+    process.kill(-proc.pid, 'SIGTERM');
+  } catch {
+    proc.kill('SIGTERM'); // group already gone — signal the direct child
+  }
+
+  const graceful = await Promise.race([
+    exited.then(() => true),
+    new Promise<boolean>((r) => setTimeout(() => r(false), 2000)),
+  ]);
+
+  if (!graceful) {
+    try {
+      process.kill(-proc.pid, 'SIGKILL');
+    } catch {
+      proc.kill('SIGKILL');
+    }
+  }
+}
+
 describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => {
   let port: number;
   let proc: ChildProcess;
@@ -92,6 +135,10 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
           QUOTA_ENABLED: 'false',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
+        // Own process group: the spawn chain is pnpm -> pnpm -> tsx -> node, so
+        // teardown must signal the GROUP (see stopServer) — killing only
+        // proc.pid orphans the real server and the test process never exits.
+        detached: true,
       },
     );
 
@@ -109,19 +156,18 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
 
   // Sanity check the spawn worked before any sub-test runs (faster failure
   // surface than waiting for every subtest to time out).
+  // `exitCode !== null` is the real liveness signal — `proc.killed` only
+  // records that a signal was SENT (see stopServer).
   before((t) => {
-    if (!proc || proc.killed || proc.exitCode !== null) {
+    if (!proc || proc.exitCode !== null) {
       t.skip('index.ts child process failed to spawn — see stderr from before() hook');
     }
   });
 
   after(async () => {
-    if (proc && !proc.killed) {
-      proc.kill('SIGTERM');
-      // give it 500ms to exit gracefully
-      await new Promise((r) => setTimeout(r, 500));
-      if (!proc.killed) proc.kill('SIGKILL');
-    }
+    // Kill the whole process group — the server is a grandchild of `pnpm`,
+    // and an orphaned server keeps this process alive forever (see stopServer).
+    await stopServer(proc);
   });
 
   it('GET /health returns 200 with stable response shape', async () => {
