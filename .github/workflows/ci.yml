@@ -173,7 +173,12 @@ jobs:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
-    timeout-minutes: 60
+    # The suite's normal wall time is <1 min (measured 2026-10-08: 14 s for all
+    # six files). 60 min let a teardown hang squat a runner for a full hour;
+    # 15 min still leaves a ~60x margin while bounding that damage. The real
+    # fix for the 2026-10-08 hang is in http-routes.test.ts (group kill), this
+    # is the backstop.
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
