@@ -34,6 +34,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Fail fast on unresolved merge/rebase conflict markers. A rebase that
+      # ships `<<<<<<< HEAD` into a chart file breaks ArgoCD manifest
+      # generation for the WHOLE chart: the quill app stops syncing anything
+      # and goes Unknown/Degraded until a restore lands (measured 2026-10-08 —
+      # markers in charts/quill/values-prod.yaml broke `helm template`; the
+      # sync was dead until the file was restored). Only tracked files are
+      # searched, because only tracked files reach ArgoCD.
+      - name: No conflict markers
+        run: |
+          if git grep -nE '^(<{7}|>{7})( |$)' -- . ; then
+            echo "::error::Unresolved conflict markers found in tracked files — resolve before pushing."
+            exit 1
+          fi
+          echo "no conflict markers"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
