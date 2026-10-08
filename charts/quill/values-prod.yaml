@@ -172,13 +172,17 @@ ingestion:
     social: null
     unions: null
     universities: null
+  # 512Mi OOMKilled the corporate pipeline on every scheduled run
+  # (quill-ingest-corporate, jobs 29855940 / 29857380 Failed, 2026-10-07).
+  # The limit is shared by every pipeline in charts/quill/templates/cronjobs.yaml,
+  # so it is raised once here rather than per-pipeline.
   resources:
     requests:
       cpu: 50m
       memory: 128Mi
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 2Gi
 search:
   replicas: 1
   port: 8083
