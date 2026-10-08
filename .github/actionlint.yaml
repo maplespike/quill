@@ -1,0 +1,9 @@
+# actionlint configuration.
+#
+# Declares the repo's self-hosted runner labels so actionlint reports real
+# problems instead of unknown-label noise. The label is historical — the hosts
+# run Omarchy/Arch, not NixOS; see the header of ci.yml and
+# docs/GITHUB-ACTIONS-NIX.md.
+self-hosted-runner:
+  labels:
+    - nixos

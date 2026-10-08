@@ -49,6 +49,15 @@ jobs:
           fi
           echo "no conflict markers"
 
+      # Lint the workflow files themselves. actionlint catches schema errors
+      # AND the untrusted-input class — an expression interpolated straight
+      # into a `run:` script — which is how the auto-merge PR-title injection
+      # was found on 2026-10-08. Runs via mise, a system binary present on
+      # every runner (/usr/bin/mise); the config at .github/actionlint.yaml
+      # declares the custom `nixos` runner label.
+      - name: Lint workflows (actionlint)
+        run: mise exec actionlint@1.7.7 -- actionlint
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
