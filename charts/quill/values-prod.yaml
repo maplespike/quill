@@ -7,8 +7,16 @@ images:
     digest: sha256:7245ab34e09b53226d5c8563cbc6ff424c0f90051366e29e5edccd8a6f938101
     tag: 2026-10-06-40f059e4-dirty
   mcp:
+<<<<<<< HEAD
     digest: sha256:64392793da52628aa7189ae1c7806dbc212207bb49d8226d6d529a437c890dc7
     tag: 2026-10-05-b346511c-dirty
+=======
+    digest: "sha256:71dbc76d9dfc0f4e77d4495093d4c60af2831990e06abdabc030d0cfea786338"
+    tag: "2026-10-04-e4799bbe-dirty"
+  search:
+    digest: ""
+    tag: ""
+>>>>>>> b859a62c (fix(ingest): increase memory limits for corporate pipeline to prevent OOMKill)
   portal:
     digest: sha256:e25d26b3d31d44b57cc443380208e8c2abf8f8e6e243e55ae5fcb3a23b803cb5
     tag: 2026-10-04-e4799bbe-dirty
@@ -50,6 +58,16 @@ api:
     size: 5Gi
     storageClass: local-path
     nodeName: nexus
+<<<<<<< HEAD
+=======
+
+# Nightly expiry reconciliation, managed by the same ArgoCD chart as the API.
+billing:
+  reconcileExpiry:
+    enabled: true
+
+# MCP Server
+>>>>>>> b859a62c (fix(ingest): increase memory limits for corporate pipeline to prevent OOMKill)
 mcp:
   replicas: 1
   port: 3001
@@ -178,11 +196,13 @@ ingestion:
   # so it is raised once here rather than per-pipeline.
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 100m
+      memory: 256Mi
     limits:
       cpu: 500m
-      memory: 2Gi
+      memory: 1Gi
+
+# Quill Search Service (Rust / tantivy)
 search:
   replicas: 1
   port: 8083
