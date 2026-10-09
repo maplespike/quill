@@ -107,6 +107,16 @@ jobs:
       - name: Secret lockstep unit tests
         run: pnpm exec tsx --test scripts/test-secret-lockstep.mts
 
+      # Incident rule for runs 37957712708 / 37957968339 (PR #1045): the
+      # full-history secrets gate scanned `--log-opts=--all`, so its verdict
+      # depended on which refs the running clone happened to hold — three
+      # baseline entries lived only on a never-pushed branch and CI could
+      # never see them. These fixtures pin the enforced scope (origin refs +
+      # HEAD), the --all-refs audit escape hatch, the no-remote fallback, the
+      # prune-first failure hint, and --print-baseline regeneration.
+      - name: Secrets history gate unit tests
+        run: pnpm exec tsx --test scripts/test-secrets-history.mts
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.
