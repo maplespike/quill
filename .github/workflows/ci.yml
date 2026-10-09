@@ -263,19 +263,21 @@ jobs:
       - name: Validate the gitleaks baseline
         run: |
           GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
-            bash scripts/check-gitleaks-baseline.sh --require-gitleaks        # The action below only scans the EVENT's commit range (this PR, or
-        # this push), so a leak from months ago is outside every range it looks
-        # at and can never fail the job. This step runs the pinned binary over
-        # `--log-opts=--all` and enforces docs/secrets-history-baseline.txt, so
-        # the check actually covers the history it claims to guard, and the
-        # #854 remediation becomes a reviewed diff instead of a comment.
-        - name: Full-history secrets gate (baseline-enforced)
-          run: |
-            GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
-              bash scripts/check-secrets-history.sh
+            bash scripts/check-gitleaks-baseline.sh --require-gitleaks
 
-        - name: gitleaks (event range)
-          uses: gitleaks/gitleaks-action@v2
+      # The action below only scans the EVENT's commit range (this PR, or this
+      # push), so a leak from months ago is outside every range it looks at and
+      # can never fail the job. This step runs the pinned binary over
+      # `--log-opts=--all` and enforces docs/secrets-history-baseline.txt, so the
+      # check actually covers the history it claims to guard, and the #854
+      # remediation becomes a reviewed diff instead of a comment.
+      - name: Full-history secrets gate (baseline-enforced)
+        run: |
+          GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
+            bash scripts/check-secrets-history.sh
+
+      - name: gitleaks (event range)
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # The action requires a licence key for organisation repos and exits
@@ -330,8 +332,10 @@ jobs:
 
   docker:
     needs: build-and-test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
+    # Already PR-ineligible: github.ref is refs/pull/<n>/merge on a
+    # pull_request event, so this cannot match for a PR at all. No fork
+    # guard needed (and a second `if:` key here would be a duplicate).
     if: github.ref == 'refs/heads/prod'
     # Three multi-stage builds; generous, but not unbounded.
     timeout-minutes: 120
