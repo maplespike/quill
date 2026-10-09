@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — 2026-10-09
+
+### Added
+- **Full-history secrets gate in CI, and a real pre-public audit (2026-10-09):** `scripts/check-secrets-history.sh` scans the whole commit history with a pinned gitleaks and fails on any finding not present in `docs/secrets-history-baseline.txt` (61 pre-existing, reviewed findings, frozen so the gate can land without blocking on a history rewrite). The `secrets` CI job invokes the pinned binary directly rather than the action, so it does not depend on `GITLEAKS_LICENSE`. `docs/security-audit-pre-public.md` records the working-tree + full-history sweep (one benign hit: `.envrc` containing only `use devenv`). Also fixes the 2026-09-21 red-merge class of failure at its source: because branch protection is unavailable on a private free-plan repo there are no required status checks, so native `gh pr merge --auto` merges immediately — the `NONOWN > 0` wait loop in the auto-merge workflows is load-bearing and was kept, but moved off the four-runner self-hosted pool onto `ubuntu-latest` since it uses no toolchain ([#1041](https://github.com/reverb256/quill/issues/1041)). Guard invariant after the change: **20 self-hosted jobs across the PR-triggered workflows, each guarded by `github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository`** so fork PRs never execute on self-hosted runners; verified structurally from parsed YAML, not regex.
+
+### Fixed
+- **A stray top-level `if:` key and a duplicated `if:` key in CI workflow YAML (2026-10-09):** the mechanical guard-insertion pass matched the literal string `runs-on: [self-hosted` inside a header *comment* in `rust-ci.yml` (writing a top-level key that would have invalidated the file) and inserted a second `if:` into `ci.yml`'s `docker` job, whose own condition sits *after* `runs-on:`. Both repaired; `docker`'s pre-existing prod-only condition already excludes every PR, so no guard was needed there. All 32 workflow files now parse as valid YAML.
+
 ## [Unreleased] — 2026-09-23
 
 ### Fixed
