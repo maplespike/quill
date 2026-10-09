@@ -27,7 +27,7 @@ interface JsonRpcRequest {
   params?: Record<string, unknown>;
 }
 
-interface JsonRpcResponse {
+export interface JsonRpcResponse {
   jsonrpc: '2.0';
   /** Absent on notifications (MCP spec: notifications carry no id) */
   id?: string | number | null;
@@ -37,6 +37,13 @@ interface JsonRpcResponse {
   method?: string;
   params?: Record<string, unknown>;
 }
+
+/**
+ * Sink for server->client frames. The SSE transport writes them onto the
+ * client's event stream; the stdio transport writes one JSON line each to
+ * stdout. Transport-agnostic on purpose so both share one dispatcher.
+ */
+export type McpMessageWriter = (response: JsonRpcResponse) => void;
 
 interface ServerCapabilities {
   experimental?: Record<string, unknown>;
