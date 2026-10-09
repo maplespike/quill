@@ -1,0 +1,98 @@
+# MapleSpike Quill MCP Server — stdio image (for registries that run the
+# container and speak MCP over its stdin/stdout, e.g. Glama's evaluation).
+#
+# This mirrors Dockerfile.mcp. The ONLY intentional differences are the last
+# two lines: no EXPOSE (stdio has no port) and a CMD that runs the stdio entry
+# point instead of the hosted SSE server. Docker has no include mechanism, so
+# the build steps are duplicated — keep them in sync with Dockerfile.mcp.
+#
+# The registry's check is "the server starts and answers introspection", so
+# stdout must stay protocol-only: CMD below points at dist/cli.js, whose first
+# act is to divert console.* and the logger to stderr (see src/stdio-guard.ts).
+#
+# ARG stays BEFORE the first FROM (global scope) so it is usable in FROM lines.
+# The matching ENV must NOT: an ENV before any FROM creates a stage-less meta
+# instruction and BuildKit fails the whole build with
+#   "failed to solve: no build stage in current context".
+# Each stage re-declares ARG GIT_SHA before consuming it -- a global ARG is not
+# in scope inside a stage, so ENV ${GIT_SHA} there would expand to empty.
+ARG GIT_SHA=unknown
+FROM docker.io/library/node:22-bookworm-slim AS builder
+ARG GIT_SHA
+ENV QUILL_BUILD_REV=${GIT_SHA}
+WORKDIR /app
+
+# Install pnpm and build dependencies (python3, make, g++ for native modules)
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends \
+      ca-certificates \
+      python3 \
+      make \
+      g++ && \
+    corepack enable && corepack prepare pnpm@10.32.1 --activate && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy entire workspace (respects .dockerignore — excludes node_modules, dist, .git)
+COPY . .
+
+# Install all workspace dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build quill-mcp and its workspace dependency chain (database → pipeline-core → quill-mcp)
+RUN pnpm --filter @maplespike/quill-mcp... build
+
+# ─── Runtime stage ───────────────────────────────────────────────────────────
+FROM docker.io/library/node:22-bookworm-slim AS quill-mcp-stdio
+ARG GIT_SHA
+ENV QUILL_BUILD_REV=${GIT_SHA}
+WORKDIR /app
+
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy built artifacts and production dependencies from builder
+COPY --from=builder /app/package.json /app/
+COPY --from=builder /app/packages/quill-mcp/dist/ /app/packages/quill-mcp/dist/
+COPY --from=builder /app/packages/quill-mcp/package.json /app/packages/quill-mcp/
+COPY --from=builder /app/packages/database/dist/ /app/packages/database/dist/
+COPY --from=builder /app/packages/database/package.json /app/packages/database/
+COPY --from=builder /app/packages/pipeline-core/dist/ /app/packages/pipeline-core/dist/
+COPY --from=builder /app/packages/pipeline-core/package.json /app/packages/pipeline-core/
+COPY --from=builder /app/node_modules/ /app/node_modules/
+
+# pnpm workspaces with inject-workspace-packages=true: each package's runtime
+# deps (pino, etc.) live as symlinks under the *per-package* node_modules dir,
+# pointing into the .pnpm store at the workspace root. ESM resolution starts
+# at the importing file's own node_modules — so copy each package's node_modules
+# (symlink trees) into the runtime stage too.
+COPY --from=builder /app/packages/quill-mcp/node_modules/ /app/packages/quill-mcp/node_modules/
+COPY --from=builder /app/packages/database/node_modules/ /app/packages/database/node_modules/
+COPY --from=builder /app/packages/pipeline-core/node_modules/ /app/packages/pipeline-core/node_modules/
+
+# pnpm workspaces: the runtime stage only copies dist+package.json for
+# workspace deps, so the @maplespike/* links pnpm normally creates under
+# node_modules are missing. Recreate them so ESM resolution works.
+RUN mkdir -p /app/node_modules/@maplespike \
+ && ln -s /app/packages/pipeline-core /app/node_modules/@maplespike/pipeline-core \
+ && ln -s /app/packages/database /app/node_modules/@maplespike/database
+
+# inject-workspace-packages=true: pnpm materializes *injected copies* of
+# workspace deps inside each .pnpm store package's node_modules/@maplespike/.
+# Those copies are taken at `pnpm install` time — before tsc builds dist/ — so
+# they only contain .turbo and ESM resolution fails (ERR_MODULE_NOT_FOUND for
+# @maplespike/database imported from the store's pipeline-core copy). Replace
+# every injected workspace leaf with a symlink to the built /app/packages/*.
+RUN set -e; for d in /app/node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do \
+      [ -d "$d" ] || continue; \
+      for p in database pipeline-core; do \
+        rm -rf "$d/$p"; ln -s "/app/packages/$p" "$d/$p"; \
+      done; \
+    done
+
+ENV NODE_ENV=production
+
+USER 1001
+# stdio transport — the registry writes JSON-RPC frames to this process's stdin
+# and reads the replies from its stdout. No port is exposed by design.
+CMD ["node", "packages/quill-mcp/dist/cli.js"]

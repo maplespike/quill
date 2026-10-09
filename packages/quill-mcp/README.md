@@ -71,17 +71,19 @@ Add to your `claude_desktop_config.json`:
 
 No API key, no config file. Just `npx`. (Stdio calls are tagged `self-hosted` and not counted against the 1,000-call quota.)
 
-### Local dev with quota tracking
+### Local dev (stdio)
 
 ```bash
 cd packages/quill-mcp
-QUOTA_ENABLED=true QUILL_FREE_QUOTA=1000 QUOTA_PERSIST_PATH=./.quota-state.json pnpm start
-# → 🍁 MapleSpike MCP Server ready
-# → Tools: 184 registered
-# → Mode:  standalone (no API server needed)
-# → Cache: in-memory (5 min TTL)
-# → Quota: enabled (1000/mo/identity then x402)
+pnpm build && pnpm start
 ```
+
+`pnpm start` serves the **stdio** transport — JSON-RPC frames in on stdin, replies
+out on stdout — which is what `npx @maplespike/quill-mcp` runs and what an MCP host
+spawns. stdout carries the protocol and nothing else, so logs go to stderr: a
+terminal running `pnpm start` looks idle until you write a frame to it.
+Per-caller quota tracking belongs to the SSE mode below, where callers have an
+identity (API key or IP); stdio callers are `self-hosted` and are not metered.
 
 ### Hosted / SSE mode (with auth)
 
@@ -90,7 +92,7 @@ PORT=3001 \
 QUILL_API_KEY=sk_your_real_key \
 QUOTA_ENABLED=true \
 X402_ENABLED=true X402_RECIPIENT=<solana-wallet> \
-pnpm start
+pnpm start:sse
 # → http://localhost:3001/sse  (requires Bearer token)
 # → http://localhost:3001/health
 # → http://localhost:3001/metrics
