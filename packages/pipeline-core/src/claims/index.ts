@@ -44,6 +44,13 @@ export interface ClaimItem {
   attributionText?: string;
   updateFrequency?: string;
   transformations?: string[];
+  /**
+   * Retained raw artifact: the exact canonical JSON serialization of `value`
+   * that the recorded sha256 was computed over. Persisted so a claim can be
+   * re-verified from retained bytes months later — even if the canonicalization
+   * algorithm itself changes — instead of depending on re-fetching upstream.
+   */
+  rawBody?: string;
 }
 
 export interface ClaimBundle extends ClaimItem {
@@ -63,7 +70,12 @@ export interface BuildClaimBundleOptions {
 }
 
 export async function buildClaimBundle(item: ClaimItem, options: BuildClaimBundleOptions = {}): Promise<ClaimBundle> {
-  const sha256 = await computeHash(canonicalJson(item.value), 'sha256');
+  // The retained raw body IS the hashed artifact: it must serialize exactly
+  // as the digest says it does, so hashing it must reproduce the digest.
+  // When a caller has not retained one, hash the freshly canonicalized value
+  // and retain that exact serialization on the bundle.
+  const hashedBody = item.rawBody ?? canonicalJson(item.value);
+  const sha256 = await computeHash(hashedBody, 'sha256');
   const provenanceEvidence = buildProvenanceEvidence(sha256, item, options);
   const capturedAt = provenanceEvidence.acquisition.artifacts
     .find(artifact => artifact.association === 'url-matched-not-content-verified')?.retrieved_at;
@@ -98,6 +110,8 @@ export async function buildClaimBundle(item: ClaimItem, options: BuildClaimBundl
     licenseBasis: item.licenseBasis ?? 'no-publisher-declaration',
     attributionText: item.attributionText ?? DEFAULT_CLAIM_LICENSE,
     transformations: item.transformations ?? [],
+    // Retention (#989): the bundle carries the exact bytes the digest covers.
+    rawBody: hashedBody,
   };
   bundle.quality = scoreProvenance({
     source: item.sourceName,

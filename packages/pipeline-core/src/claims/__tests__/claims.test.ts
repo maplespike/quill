@@ -6,6 +6,7 @@
 
 import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -107,6 +108,90 @@ describe('claims: buildClaimBatch', () => {
     for (const b of bundles) {
       assert.equal(b.merkleRoot, merkleRoot);
     }
+  });
+});
+
+describe('claims: raw body retention (#989)', () => {
+  it('retains the exact bytes the sha256 was computed over', async () => {
+    const value = { b: 2, a: 1 };
+    const bundle = await buildClaimBundle({
+      claim: 'retained',
+      value,
+      sourceName: 'Example',
+      sourceUrl: 'https://example.ca',
+    });
+    // Retained bytes must be present and must reproduce the digest on their own.
+    assert.equal(typeof bundle.rawBody, 'string');
+    const digest = createHash('sha256').update(bundle.rawBody!, 'utf8').digest('hex');
+    assert.equal(digest, bundle.sha256, 'hashing rawBody must reproduce sha256');
+    assert.equal(bundle.rawBody, '{"a":1,"b":2}', 'rawBody is the canonical serialization');
+  });
+
+  it('hashes a caller-supplied rawBody as-is', async () => {
+    // Retention must not be able to disagree with the digest: when a caller
+    // retains specific bytes, those are the bytes that get hashed.
+    const rawBody = '{"k":"v"}';
+    const bundle = await buildClaimBundle({
+      claim: 'supplied',
+      value: { k: 'v' },
+      sourceName: 'Example',
+      sourceUrl: 'https://example.ca',
+      rawBody,
+    });
+    const digest = createHash('sha256').update(rawBody, 'utf8').digest('hex');
+    assert.equal(bundle.sha256, digest, 'sha256 must cover the supplied rawBody bytes');
+    assert.equal(bundle.rawBody, rawBody);
+  });
+
+  it('survives the citation-store round-trip', async () => {
+    citationStore.clear();
+    const bundle = await buildClaimBundle({
+      claim: 'round-trip',
+      value: { k: 'v' },
+      sourceName: 'Example',
+      sourceUrl: 'https://example.ca',
+    });
+    citationStore.put(bundle);
+    const got = citationStore.get(bundle.sha256);
+    assert.ok(got, 'bundle must be retrievable');
+    assert.equal(got.bundle.rawBody, bundle.rawBody, 'retained bytes persist');
+    const digest = createHash('sha256').update(got.bundle.rawBody!, 'utf8').digest('hex');
+    assert.equal(digest, got.bundle.sha256, 'retained bytes still verify after persistence');
+    citationStore.clear();
+  });
+
+  it('ingest-hook claims carry the canonical record bytes', async () => {
+    citationStore.clear();
+    await registerModuleClaims('rawbody-hook-test', [
+      { id: 'r-1', title: 'Retained record', url: 'https://record.example/1' },
+    ]);
+    const keys = citationStore.keys();
+    assert.equal(keys.length, 1);
+    const got = citationStore.get(keys[0]);
+    assert.ok(got);
+    assert.ok(got.bundle.rawBody, 'hook-registered claims retain bytes');
+    const parsed = JSON.parse(got.bundle.rawBody!);
+    assert.equal(parsed.id, 'r-1');
+    const digest = createHash('sha256').update(got.bundle.rawBody!, 'utf8').digest('hex');
+    assert.equal(digest, got.bundle.sha256, 'retained record bytes reproduce the claim digest');
+    citationStore.clear();
+  });
+
+  it('legacy bundles without rawBody stay readable and un-fabricated', async () => {
+    citationStore.clear();
+    const bundle = await buildClaimBundle({
+      claim: 'legacy-shape',
+      value: { k: 'v' },
+      sourceName: 'Example',
+      sourceUrl: 'https://example.ca',
+    });
+    // Simulate a pre-retention row: persisted citation JSON lacks rawBody.
+    const legacy = { ...bundle, rawBody: undefined } as typeof bundle;
+    citationStore.put(legacy);
+    const got = citationStore.get(legacy.sha256);
+    assert.ok(got, 'legacy bundle stays readable');
+    assert.equal(got.bundle.rawBody, undefined, 'no fabricated bytes for legacy rows');
+    citationStore.clear();
   });
 });
 
