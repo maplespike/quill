@@ -128,6 +128,15 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
+      # Incident rule for the silent unit-lane hangs (#996; CI runs
+      # 37237114470 and 37943276276): a node:test child whose event loop is
+      # held open by a live handle runs with --test-timeout=0, so the lane
+      # only ended at the job timeout. These fixtures pin that both
+      # test:unit scripts carry the flags that bound it and that a
+      # never-settling test fails fast instead of hanging.
+      - name: Unit-lane hang bounds tests
+        run: pnpm exec tsx --test scripts/test-hang-bounds.mts
+
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.
