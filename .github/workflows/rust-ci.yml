@@ -1,5 +1,6 @@
 # Rust CI lane: runs on changes to rust/** — fmt, clippy, test
 # Self-hosted NixOS runner has cargo/rustc pinned by rust-toolchain.toml.
+if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
 # cargo is available on nexus (runs-on: [self-hosted, nixos]).
 #
 # The run steps carry a hashFiles guard: this lane also triggers on its own
@@ -25,6 +26,7 @@ permissions:
 
 jobs:
   rust-fmt:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +37,7 @@ jobs:
         working-directory: ./rust
 
   rust-clippy:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +50,7 @@ jobs:
         working-directory: ./rust
 
   rust-test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
