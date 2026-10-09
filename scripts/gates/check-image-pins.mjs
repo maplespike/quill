@@ -47,8 +47,17 @@ export const DIGEST_REF_RE = /@sha256:[0-9a-f]{64}$/;
 
 // An immutable tag: a date-stamped build tag (2026-09-21-sha.aa7a2c64b55d) or
 // a pinned upstream version (17-alpine, 2026.8.2, v1.2.3-rc1).
+//
+// The version alternative carries a negative lookahead that blocks any
+// date-shaped prefix (2026-10-05, 2026-10, 2026-1, v2026-10-05,
+// 2026-10-5-extra): without it, `2026` + `-10-05` parsed like `v1-2-3` and
+// the gate accepted date-only tags that scripts/test-image-pins.mts rejects —
+// the operator gate said OK on values CI failed (run 37408574389, commit
+// bfe587bb). A date-shaped tag must qualify through the first alternative
+// instead: `YYYY-MM-DD-<suffix>`, the same shape CI enforces. True version
+// pins never start with a 4-digit year followed by dash-digits.
 export const IMMUTABLE_TAG_RE =
-  /^(?:\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
+  /^(?:\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?(?!\d{4}-\d{1,2}(?:-\d{1,2})?(?:-|$))\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
 
 export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal|ingest)(?:$|[:@])/;
 
