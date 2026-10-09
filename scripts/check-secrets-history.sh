@@ -6,9 +6,19 @@
 # The `secrets` job in ci.yml runs gitleaks-action, which scans the *event's*
 # commit range — the PR's commits, or a push's commits. Historic leaks are
 # outside every range, so they are invisible to it by construction. That is why
-# the job has been green on main while a full-history scan
-# (`gitleaks detect --log-opts=--all`) reports 20 findings, including the two
-# age private keys that issue #854 exists for.
+# the job has been green on main while a full-history scan reports 17 findings,
+# including the two age private keys that issue #854 exists for.
+#
+# SCAN SCOPE (read this before regenerating the baseline)
+# -------------------------------------------------------
+# The scope is the origin remote's remote-tracking refs plus HEAD — see the
+# LOG_OPTS block below for why it is not a bare `--all`. The practical rule:
+# run `git fetch --prune origin` in the clone that generates the baseline. A
+# stale remote-tracking ref (its branch was deleted upstream and the clone has
+# not pruned) resolves commits CI will never fetch, so local and CI disagree on
+# the finding set and the gate fails for a reason that has nothing to do with
+# secrets. That is exactly what happened on 2026-10-09 (PR #1045): three
+# baseline entries lived only on stale `origin/wt/*` refs.
 #
 # A gate that cannot see the history it is supposed to guard is worse than no
 # gate: it produces a green check that reads as "history is clean".
@@ -38,6 +48,12 @@
 #   GITLEAKS_BIN=... bash scripts/check-secrets-history.sh --print-baseline
 #     (prints the current finding set in baseline format — use after a
 #      deliberate change to regenerate, then review the diff)
+#   GITLEAKS_BIN=... bash scripts/check-secrets-history.sh --all-refs
+#     (scan `--all` instead of the origin refs: every local and remote-tracking
+#      ref in this clone, including branches that were never pushed. This is the
+#      right scope for a pre-public audit — it is a superset of what CI sees —
+#      but it is the WRONG scope for the enforced gate, because it is not
+#      reproducible in CI.)
 
 set -euo pipefail
 
@@ -49,11 +65,45 @@ CONFIG=".gitleaks.toml"
 GITLEAKS_BIN="${GITLEAKS_BIN:-gitleaks}"
 
 PRINT_ONLY=0
-[[ "${1:-}" == "--print-baseline" ]] && PRINT_ONLY=1
+USE_ALL_REFS=0
+for arg in "$@"; do
+  case "$arg" in
+    --print-baseline) PRINT_ONLY=1 ;;
+    --all-refs)       USE_ALL_REFS=1 ;;
+    *) echo "check-secrets-history: unknown argument: $arg" >&2; exit 2 ;;
+  esac
+done
 
 if ! command -v "$GITLEAKS_BIN" >/dev/null 2>&1; then
   echo "check-secrets-history: gitleaks not found (set GITLEAKS_BIN)" >&2
   exit 2
+fi
+
+# ── Scan scope ───────────────────────────────────────────────────────────────
+# Deliberately NOT a bare `--all`. `--all` resolves every ref in *this clone*,
+# which is a different set in every environment: a remote-tracking ref that is
+# stale (branch deleted upstream, clone not pruned) resolves commits CI cannot
+# fetch, and a local-only branch resolves commits that were never pushed. The
+# same repository then yields different finding sets locally and in CI, and the
+# gate fails over a ref nobody deleted rather than over a secret. Keep the
+# scope explicit so both environments scan the same thing:
+#
+#   refs/remotes/origin/*  what actions/checkout leaves behind at fetch-depth: 0
+#                          (it fetches refs/heads/* into refs/remotes/origin/*),
+#                          and what a pruned local clone has too
+#   HEAD                   the checked-out branch — in CI, the PR's merge ref,
+#                          which already contains that PR's base branch
+#
+# Out of scope by design: branches that were never pushed. Use --all-refs to
+# audit those (a superset), and regenerate the baseline only with the default
+# scope, since only that scope is reproducible in CI.
+if [[ "$USE_ALL_REFS" -eq 1 ]]; then
+  LOG_OPTS="--all"
+elif [[ -n "$(git for-each-ref refs/remotes/origin --format='%(refname)' | head -1)" ]]; then
+  LOG_OPTS="--glob=refs/remotes/origin/* HEAD"
+else
+  echo "check-secrets-history: no refs/remotes/origin/* — no remote fetched? falling back to --all" >&2
+  LOG_OPTS="--all"
 fi
 
 REPORT="$(mktemp -t gitleaks-history.XXXXXX.json)"
@@ -65,7 +115,7 @@ trap 'rm -f "$REPORT"' EXIT
 "$GITLEAKS_BIN" detect \
   --source "$REPO_ROOT" \
   --config "$CONFIG" \
-  --log-opts=--all \
+  --log-opts="$LOG_OPTS" \
   --report-format json \
   --report-path "$REPORT" \
   --redact \
@@ -90,6 +140,7 @@ current="$(printf '%s\n' "$current" | sed '/^$/d' | sort -u)"
 
 if [[ "$PRINT_ONLY" -eq 1 ]]; then
   printf '%s\n' "$current"
+  echo "check-secrets-history: scope was: $LOG_OPTS" >&2
   exit 0
 fi
 
@@ -123,13 +174,20 @@ if [[ -n "$(printf '%s\n' "$gone_findings" | sed '/^$/d')" ]]; then
   echo "check-secrets-history: FAIL — the baseline lists $(printf '%s\n' "$gone_findings" | sed '/^$/d' | wc -l | tr -d ' ') finding(s) that no longer exist in history:"
   printf '%s\n' "$gone_findings" | sed '/^$/d' | sed 's/^/    /'
   echo
-  echo "  History was cleaned, or the scan changed. Remove these lines from"
-  echo "  $BASELINE so the baseline keeps meaning something."
+  echo "  Two causes, and they look identical from here:"
+  echo "    1. History really was cleaned — remove these lines from $BASELINE."
+  echo "    2. The clone that generated the baseline was scanned over a different"
+  echo "       ref set than this run. The usual culprit is a stale"
+  echo "       remote-tracking ref: run 'git fetch --prune origin' and re-run"
+  echo "       before touching the baseline."
+  echo "  (scope this run: $LOG_OPTS)"
 fi
 
 if [[ "$status" -eq 0 ]]; then
   echo "check-secrets-history: PASS — $count_current full-history finding(s), all accounted for in the baseline"
   echo "  (baseline entries: $count_expected)"
 fi
+
+echo "check-secrets-history: scope: $LOG_OPTS"
 
 exit "$status"

@@ -267,8 +267,8 @@ jobs:
 
       # The action below only scans the EVENT's commit range (this PR, or this
       # push), so a leak from months ago is outside every range it looks at and
-      # can never fail the job. This step runs the pinned binary over
-      # `--log-opts=--all` and enforces docs/secrets-history-baseline.txt, so the
+      # can never fail the job. This step runs the pinned binary over the origin
+      # refs plus HEAD and enforces docs/secrets-history-baseline.txt, so the
       # check actually covers the history it claims to guard, and the #854
       # remediation becomes a reviewed diff instead of a comment.
       - name: Full-history secrets gate (baseline-enforced)
