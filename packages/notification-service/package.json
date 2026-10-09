@@ -13,7 +13,7 @@
     "@maplespike/database": "workspace:*",
     "@maplespike/pipeline-core": "workspace:*",
     "better-sqlite3": "^12.11.1",
-    "nodemailer": "^9.0.1"
+    "nodemailer": "^10.0.15"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
