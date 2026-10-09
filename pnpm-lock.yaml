@@ -193,7 +193,7 @@ importers:
         version: 5.9.3
       undici:
         specifier: ^8.9.0
-        version: 8.10.0
+        version: 8.11.2
 
   packages/create-module:
     dependencies:
@@ -365,7 +365,7 @@ importers:
         version: 10.3.1
       undici:
         specifier: ^8.9.0
-        version: 8.10.0
+        version: 8.11.2
     devDependencies:
       '@types/amqplib':
         specifier: ^0.10.7
@@ -6203,8 +6203,8 @@ packages:
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
-  undici@8.10.0:
-    resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
+  undici@8.11.2:
+    resolution: {integrity: sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==}
     engines: {node: '>=22.19.0'}
 
   unenv@2.0.0-rc.24:
@@ -7907,7 +7907,7 @@ snapshots:
       fast-xml-parser: 5.11.1
       pg: 8.20.0
       pino: 10.3.1
-      undici: 8.10.0
+      undici: 8.11.2
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -7947,7 +7947,7 @@ snapshots:
       fast-xml-parser: 5.11.1
       pg: 8.20.0
       pino: 10.3.1
-      undici: 8.10.0
+      undici: 8.11.2
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -7987,7 +7987,7 @@ snapshots:
       fast-xml-parser: 5.11.1
       pg: 8.20.0
       pino: 10.3.1
-      undici: 8.10.0
+      undici: 8.11.2
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -8575,13 +8575,13 @@ snapshots:
     dependencies:
       '@qdrant/openapi-typescript-fetch': 1.2.6
       typescript: 5.9.3
-      undici: 8.10.0
+      undici: 8.11.2
 
   '@qdrant/js-client-rest@1.18.0(typescript@6.0.3)':
     dependencies:
       '@qdrant/openapi-typescript-fetch': 1.2.6
       typescript: 6.0.3
-      undici: 8.10.0
+      undici: 8.11.2
 
   '@qdrant/openapi-typescript-fetch@1.2.6': {}
 
@@ -11689,7 +11689,7 @@ snapshots:
       parse5: 8.0.1
       saxes: 6.0.0
       tough-cookie: 6.0.2
-      undici: 8.10.0
+      undici: 8.11.2
       w3c-xmlserializer: 6.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -11916,7 +11916,7 @@ snapshots:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.35.4(@types/node@26.6.1)
-      undici: 8.10.0
+      undici: 8.11.2
       workerd: 1.20260708.1
       ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       youch: 4.1.0-beta.10
@@ -12990,7 +12990,7 @@ snapshots:
   undici-types@8.9.0:
     optional: true
 
-  undici@8.10.0: {}
+  undici@8.11.2: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
@@ -13010,7 +13010,7 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
       ohash: 2.0.11
-      undici: 8.10.0
+      undici: 8.11.2
 
   unist-util-is@6.0.1:
     dependencies:
