@@ -20,7 +20,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -56,6 +58,31 @@ test('classifyRef rejects a malformed digest', () => {
   const c = classifyRef('docker.io/library/quill-api@sha256:not-a-digest');
   assert.equal(c.ok, false);
   assert.equal(c.kind, 'digest');
+});
+
+// Regression: 2026-10-06, CI run 37408574389 (SHA 31f810d7). Commit bfe587bb
+// pinned `images.ingest.tag: '2026-10-05'` — a date with no build suffix. The
+// operator gate (check-image-pins.mjs) called it OK because IMMUTABLE_TAG_RE's
+// version alternative matched `2026` + `-10-05` like `v1-2-3`; CI's build-tag
+// regex (this file, "the production values file pins every quill workload to
+// a digest") rejected it and the build went red. The gate must catch what CI
+// catches: a bare date is not a version pin and not a build tag.
+test('classifyRef rejects a date-only tag — the bfe587bb false green (run 37408574389)', () => {
+  const c = classifyRef('docker.io/library/quill-ingest:2026-10-05');
+  assert.equal(c.ok, false, 'a date-only tag must never be accepted');
+  assert.equal(c.kind, 'unpinned');
+  for (const dateish of ['2026-10-5', '2026-1-05', '2026-1-5', '2026-10', '2026-1', 'v2026-10-05', '1999-01-01']) {
+    const d = classifyRef(`docker.io/library/quill-ingest:${dateish}`);
+    assert.equal(d.ok, false, `:${dateish} must be rejected (no date shape may pass as a version)`);
+    assert.equal(d.kind, 'unpinned');
+  }
+  // The version alternative still accepts real upstream pins.
+  assert.equal(classifyRef('docker.io/library/postgres:17-alpine').ok, true);
+  assert.equal(classifyRef('docker.io/library/redis:8.2.3-alpine').ok, true);
+  assert.equal(classifyRef('docker.io/cloudflare/cloudflared:2026.8.2').ok, true);
+  assert.equal(classifyRef('docker.io/some/app:v1.2.3-rc1').ok, true);
+  // The date-stamped build-tag shape CI enforces stays accepted (suffix mandatory).
+  assert.equal(classifyRef('docker.io/library/quill-ingest:2026-10-06-f34547a9-dirty').ok, true);
 });
 
 // Regression: 2026-09-22. `image.tag: ""` in values-prod made the ingestion
@@ -195,4 +222,27 @@ test('the production values file pins every quill workload to a digest', () => {
 
 test('the chart templates hardcode no mutable image tag', () => {
   assert.deepEqual(checkTemplates(TEMPLATES), []);
+});
+
+// Gate-level regression for run 37408574389 / commit bfe587bb: the operator
+// command an author runs before pushing ("node scripts/gates/check-image-pins.mjs
+// --values charts/quill/values-prod.yaml") said OK on the exact values CI
+// failed. Spawn the REAL gate script against a values file carrying the
+// bfe587bb ingest tag and assert it exits 1 — the gate must catch what CI
+// catches. Fixture: live values-prod with only the ingest tag flipped.
+test('the operator gate itself rejects values carrying the bfe587bb date-only ingest tag', () => {
+  const GATE = path.join(REPO, 'scripts/gates/check-image-pins.mjs');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'image-pins-'));
+  const values = fs
+    .readFileSync(VALUES_PROD, 'utf8')
+    .replace(/^(\s*tag:\s*)'?2026-10-06-f34547a9-dirty'?$/m, "$1'2026-10-05'");
+  fs.writeFileSync(path.join(tmp, 'values-prod.yaml'), values);
+  const flipped = /tag: '2026-10-05'/.test(values);
+  assert.equal(flipped, true, 'fixture must actually carry the bad tag — did the good tag shape change?');
+  const r = spawnSync('node', [GATE, '--values', path.join(tmp, 'values-prod.yaml'), '--templates', TEMPLATES], {
+    encoding: 'utf8',
+  });
+  const out = (r.stdout ?? '') + (r.stderr ?? '');
+  assert.equal(r.status, 1, `the gate must fail on the bfe587bb values — gate output:\n${out}`);
+  assert.match(out, /images\.ingest\.tag.*2026-10-05/);
 });
