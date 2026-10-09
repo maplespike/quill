@@ -12,15 +12,19 @@
 > miss a whole key class will always report a clean history; the "none" here
 > says nothing about the repo.
 >
-> Also superseded: the block-everything verdict. A default-rules full-history
-> scan on 2026-10-09 (2,579 commits / 104 MB) finds 20 findings, and the
-> credential that looked most dangerous decrypts to `FIXME` placeholders
-> (verified by decryption — see the #854 thread).
+> Also superseded: the block-everything verdict. A default-rules scan on
+> 2026-10-09 finds **17 findings**, and the credential that looked most
+> dangerous decrypts to `FIXME` placeholders (verified by decryption — see the
+> #854 thread). This count is scope-dependent by construction: an earlier note
+> in this file said 20, because that run scanned a clone holding three stale
+> `origin/wt/*` refs (branches already deleted upstream). The enforced scope is
+> the origin remote's refs plus HEAD, so 17 is the number that CI acts on; see
+> the header of the baseline for why the scope is pinned rather than `--all`.
 >
 > **The living authority is now executable, not a report:**
 > `scripts/check-secrets-history.sh` enforces
-> `docs/secrets-history-baseline.txt` over the full history on every CI run.
-> Treat this document as a dated snapshot of a superseded method.
+> `docs/secrets-history-baseline.txt` over the origin refs plus HEAD on every CI
+> run. Treat this document as a dated snapshot of a superseded method.
 
 - **Run:** 2026-07-01T06:10:17Z
 - **Repo:** maplespike (working tree: \/home/j_kro/Projects/maplespike)
