@@ -26,7 +26,7 @@
     "gen:og-image": "node scripts/gen-og-image.mjs",
     "gen:plans": "node scripts/generate-plans.mjs",
     "smoke:dist": "node scripts/smoke-test-dist.mjs",
-    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-plans.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-agent-discovery.mjs && node scripts/generate-openapi.mjs && timeout 60 node scripts/generate-pipeline-data.mjs || true && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs",
+    "gen:all": "node scripts/gen-icons.mjs && node scripts/gen-og-image.mjs && node scripts/generate-plans.mjs && node scripts/generate-agents-json.mjs && node scripts/generate-agent-discovery.mjs && node scripts/generate-openapi.mjs && (timeout 60 node scripts/generate-pipeline-data.mjs || true) && node scripts/generate-llms.mjs && node ../../scripts/gen-security-audit.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -53,7 +53,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
-    "lucide-react": "^0.510.0",
+    "lucide-react": "^1.54.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-hook-form": "^7.76.0",

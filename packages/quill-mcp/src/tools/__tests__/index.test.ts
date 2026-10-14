@@ -9,6 +9,9 @@
  * This file tests the registry module's own logic and edge cases.
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { getAllTools, getToolNames } from '../index.js';
@@ -105,6 +108,17 @@ describe('getToolNames', () => {
     const tools = getAllTools();
     const names = getToolNames();
     assert.equal(tools.length, names.length);
+  });
+
+  it('tool-index.json lists every live tool name and a 200-character description', () => {
+    const indexPath = join(dirname(fileURLToPath(import.meta.url)), '../tool-index.json');
+    const index = JSON.parse(readFileSync(indexPath, 'utf8')) as Array<{ n: string; d: string }>;
+    const live = getAllTools().map((mod) => ({
+      n: mod.definition.name,
+      d: mod.definition.description.slice(0, 200),
+    }));
+    assert.equal(index.length, live.length);
+    assert.deepEqual(index, live);
   });
 
   it('each name corresponds to a tool definition', () => {

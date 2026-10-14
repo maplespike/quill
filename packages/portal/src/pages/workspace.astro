@@ -30,9 +30,16 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       <div class="font-semibold text-sm">{t("Welcome to MapleSpike", "Bienvenue chez MapleSpike")}</div>
       <div class="text-xs text-muted-foreground mt-1">
         {t(
-          "You're signed in. Your API key has been provisioned automatically. Next steps: review the checklist below, try a quick API call, and explore the data catalog.",
-          "Vous êtes connecté. Votre clé API a été provisionnée automatiquement. Prochaines étapes : passez en revue la liste de vérification ci-dessous, essayez un appel API rapide et explorez le catalogue de données.",
+          "You're signed in. Copy your API key below if you have not already. It is stored in this browser. Next steps: review the checklist, try a quick API call, and explore the data catalog.",
+          "Vous êtes connecté. Copiez votre clé API ci-dessous si ce n'est pas déjà fait. Elle est enregistrée dans ce navigateur. Prochaines étapes : la liste de vérification, un appel API, puis le catalogue.",
         )}
+      </div>
+      <div id="welcome-api-key" class="hidden mt-3 space-y-2">
+        <code id="welcome-api-key-value" class="block break-all font-mono text-sm"></code>
+        <pre id="welcome-api-key-curl" class="whitespace-pre-wrap break-all font-mono text-xs"></pre>
+        <p class="text-xs text-muted-foreground">
+          <a href={localeUrl("/dashboard", lang)} class="underline">{t("Manage keys", "Gérer les clés")}</a>
+        </p>
       </div>
     </div>
     <button id="welcome-banner-close" type="button"
@@ -456,6 +463,14 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       const cfg = window.MAPLESPIKE || {};
       const base = cfg.apiBase || "http://127.0.0.1:8082";
 
+      const storedOnLoad = localStorage.getItem("quill-api-key");
+      if (storedOnLoad) {
+        const visibleNow = document.getElementById("api-key-visible");
+        const quickstartNow = document.getElementById("quickstart-key");
+        if (visibleNow) visibleNow.textContent = storedOnLoad;
+        if (quickstartNow) quickstartNow.textContent = storedOnLoad;
+      }
+
       const FR = window.__LANG === "fr";
       const L = (en: string, fr: string) => (FR ? fr : en);
 
@@ -621,6 +636,19 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
         if (url.searchParams.get("new") !== "1") return;
 
         banner.classList.remove("hidden");
+
+        const storedKey = localStorage.getItem("quill-api-key");
+        const keyBox = document.getElementById("welcome-api-key");
+        const keyValue = document.getElementById("welcome-api-key-value");
+        const keyCurl = document.getElementById("welcome-api-key-curl");
+        if (storedKey && keyBox && keyValue && keyCurl) {
+          keyValue.textContent = storedKey;
+          keyCurl.textContent = `curl -s -H "x-api-key: ${storedKey}" ${base}/v1/llms.txt`;
+          keyBox.classList.remove("hidden");
+          if (visibleEl) visibleEl.textContent = storedKey;
+          const quickstart = document.getElementById("quickstart-key");
+          if (quickstart) quickstart.textContent = storedKey;
+        }
 
         // Strip the query param so reload/back doesn't re-fire.
         url.searchParams.delete("new");

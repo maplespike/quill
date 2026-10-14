@@ -142,4 +142,39 @@ describe('SignupForm', () => {
     const passkeyButton = passkeyButtons[0]
     expect(passkeyButton).toBeInTheDocument()
   })
+
+  test('shows the full API key after a successful passkey registration', async () => {
+    const key = 'qk_live_reveal_test_key_0123456789abcdef'
+    const user = userEvent.setup()
+    vi.mocked(fetch).mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/providers')) {
+        return { json: async () => ({ data: { providers: [] } }) } as Response
+      }
+      if (url.includes('register/begin')) {
+        return { json: async () => ({ success: true, data: { options: {}, registrationId: 'reg-1' } }) } as Response
+      }
+      if (url.includes('register/complete')) {
+        return { json: async () => ({ success: true, data: { apiKey: { key } } }) } as Response
+      }
+      if (url.includes('login/begin')) {
+        return { json: async () => ({ success: false, error: { message: 'skip login' } }) } as Response
+      }
+      throw new Error(`unexpected fetch ${url}`)
+    })
+    vi.mocked(startRegistration).mockResolvedValue({} as any)
+
+    render(<SignupForm />)
+
+    const create = await screen.findByRole('button', { name: /create passkey/i })
+    await user.click(create)
+
+    const shown = await screen.findByTestId('api-key-value')
+    expect(shown).toHaveTextContent(key)
+    expect(shown.textContent).not.toContain('...')
+    expect(screen.getByText(/stored in this browser/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/dashboard')
+    expect(screen.getByText(/\/v1\/llms\.txt/)).toBeInTheDocument()
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('quill-api-key', key)
+  })
 })

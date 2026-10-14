@@ -7,8 +7,8 @@ mcp:
   servers:
     quill:
       transport: stdio
-      command: npx
-      args: ["@maplespike/quill-mcp"]
+      command: node
+      args: ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
 
 skills:
   # Quill skills (copy from the repo, or point external_dirs at it)
