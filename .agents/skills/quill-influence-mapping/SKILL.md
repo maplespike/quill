@@ -14,8 +14,9 @@ metadata:
 # Quill Influence Mapping
 
 Maps the influence network of a Canadian person or organization across federal
-registries, using the Quill MCP server (`npx @maplespike/quill-mcp` or
-`https://mcp.maplespike.ca/sse`). Every claim the skill surfaces must carry the
+registries, using the Quill MCP server (local stdio at
+`packages/quill-mcp/dist/cli.js`, or `https://mcp.maplespike.ca/sse`).
+`@maplespike/quill-mcp` is not published on npm. Every claim the skill surfaces must carry the
 SHA-256 hash from the tool response so the trail is independently verifiable.
 
 ## When to use

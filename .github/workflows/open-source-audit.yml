@@ -44,6 +44,7 @@ permissions:
 
 jobs:
   audit:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
