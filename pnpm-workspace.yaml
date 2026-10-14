@@ -3,6 +3,11 @@ packages:
   - "!packages/dashboard"
   - "!packages/flywheel-agent"
 
+# Refresh hard-linked workspace copies after compilation so runtime imports
+# see database/pipeline dist files produced after the initial install.
+syncInjectedDepsAfterScripts:
+  - build
+
 onlyBuiltDependencies:
   - "@tailwindcss/oxide"
   - "better-sqlite3"
