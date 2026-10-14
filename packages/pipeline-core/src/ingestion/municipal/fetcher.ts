@@ -81,7 +81,10 @@ function hydrateFromRegistry(): void {
     hydrated++;
   }
   if (hydrated > 0) {
-    console.log(`[Municipal] hydrated ${hydrated} pre-discovered IDs from build-time registry`);
+    // stderr, not stdout: this runs while the module is imported, and stdout
+    // is the wire for the MCP stdio transport (see quill-mcp/src/stdio-guard.ts)
+    // — a stray line there is a malformed JSON-RPC frame to the host.
+    console.error(`[Municipal] hydrated ${hydrated} pre-discovered IDs from build-time registry`);
   }
 }
 

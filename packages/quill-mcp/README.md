@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-04
+last-reviewed: 2026-10-14
 status: active
 ---
 
@@ -9,7 +9,7 @@ status: active
 
 Model Context Protocol server for Canadian government data. **184 tools** (incl. `x402-deposit`) (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **207 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
 
-> **Quickstart:** `npx @maplespike/quill-mcp` and it just works. The first **1,000 calls/month are free**, regardless of which tool you use. After that, paid tools charge per-call via x402 (Solana USDC) — see [Pricing](#pricing) below.
+> **Quickstart:** Build this repo. Run `node packages/quill-mcp/dist/cli.js`. `@maplespike/quill-mcp` is not published on npm. `npx` cannot install it. The hosted server gives the first **1,000 calls/month** at no charge. After that, paid tools charge per call via x402 (Solana USDC). See [Pricing](#pricing).
 
 - **Package:** `@maplespike/quill-mcp`
 - **Transports:** stdio (local — Claude Desktop / Cursor / any MCP host) and HTTP/SSE (hosted)
@@ -44,7 +44,7 @@ The full price map lives in [`src/pricing.ts`](./src/pricing.ts).
 
 | Mode | When | Quota |
 |------|------|--------|
-| `self-hosted:<session>` | stdio / `npx` | **No quota** — you run the server. |
+| `self-hosted:<session>` | local stdio process | **No quota**. You run the server. |
 | `api-key:<sha256>` | SSE with `Authorization: Bearer` | **1,000/mo, then x402** |
 | `anonymous-ip:<sha256>` | SSE without Bearer (dev mode) | **1,000/mo, then x402** — IP-keyed, easily rotated, dev-only. |
 
@@ -62,26 +62,25 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "quill": {
-      "command": "npx",
-      "args": ["@maplespike/quill-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
     }
   }
 }
 ```
 
-No API key, no config file. Just `npx`. (Stdio calls are tagged `self-hosted` and not counted against the 1,000-call quota.)
+Build the package first (`pnpm --filter @maplespike/quill-mcp... build`). `dist/cli.js` is the stdio entry point. `dist/index.js` starts the HTTP/SSE server. Do not point a stdio host at it. No API key is required. Stdio calls are tagged `self-hosted` and are not counted against the 1,000-call quota.
 
-### Local dev with quota tracking
+### Local dev (stdio)
 
 ```bash
 cd packages/quill-mcp
-QUOTA_ENABLED=true QUILL_FREE_QUOTA=1000 QUOTA_PERSIST_PATH=./.quota-state.json pnpm start
-# → 🍁 MapleSpike MCP Server ready
-# → Tools: 184 registered
-# → Mode:  standalone (no API server needed)
-# → Cache: in-memory (5 min TTL)
-# → Quota: enabled (1000/mo/identity then x402)
+pnpm build && pnpm start
 ```
+
+`pnpm start` runs `node dist/cli.js`. That process is the **stdio** transport. JSON-RPC frames come in on stdin. Replies go out on stdout. An MCP host spawns this same file. stdout carries the protocol and nothing else, so logs go to stderr. A terminal that runs `pnpm start` looks idle until you write a frame to it.
+Per-caller quota tracking belongs to the SSE mode below, where callers have an
+identity (API key or IP); stdio callers are `self-hosted` and are not metered.
 
 ### Hosted / SSE mode (with auth)
 
@@ -90,7 +89,7 @@ PORT=3001 \
 QUILL_API_KEY=sk_your_real_key \
 QUOTA_ENABLED=true \
 X402_ENABLED=true X402_RECIPIENT=<solana-wallet> \
-pnpm start
+pnpm start:sse
 # → http://localhost:3001/sse  (requires Bearer token)
 # → http://localhost:3001/health
 # → http://localhost:3001/metrics
@@ -155,7 +154,7 @@ AI Agent (Claude / Cursor / any MCP host)
         └── api-client.ts   ──► Optional: QUILL_API_URL (if API server available)
 ```
 
-The quota tracker is **off by default** so the public `npx` experience stays zero-friction; opt in with `QUOTA_ENABLED=true`.
+The quota tracker is **off by default**. Turn it on with `QUOTA_ENABLED=true` on the hosted SSE server.
 
 ---
 
