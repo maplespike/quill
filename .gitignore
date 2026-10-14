@@ -55,6 +55,16 @@ secrets/decrypted/
 secrets/*.dec
 secrets/*.plaintext
 secrets/*.env
+# SOPS editor/decrypt temp files (mktemp-style names: tmp.ZMFRg0.yaml,
+# tmp2zgn9_f1.yaml — 2026-10-14 incident fd4f6e08). A WIP backup sweep
+# committed these PLAINTEXT decrypts of secrets/runtime.yaml and pushed the
+# branch, leaking live Stripe/JWT/OAuth credentials into remote history and
+# failing every main CI run (runs 38612919742/38617463045). The temps hold
+# live material; they must never enter any commit.
+secrets/tmp*
+# sops edit leaves this behind when the editor dies mid-edit. Same incident
+# class: an untracked plaintext-adjacent artifact swept into a pushed branch.
+.sops.yaml.tmp
 !.env.example
 .DS_Store
 *.log
@@ -119,3 +129,11 @@ packages/flywheel-agent/
 
 # build scratch (pin-images.sh TMPDIR default)
 .tmp/
+
+# SBOM artifacts (syft output: *.spdx.json + *.meta). Local-only by design —
+# scripts/generate-sbom.sh writes them next to the repo root and nothing
+# consumes them from git (charts pin images by digest, not from sbom/).
+# The *.meta files trip the gitleaks generic-api-key rule (image digests),
+# and the 2026-10-14 backup sweep (fd4f6e08) committed and pushed them,
+# failing every main CI run (runs 38612919742/38617463045).
+sbom/
