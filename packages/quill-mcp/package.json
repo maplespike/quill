@@ -22,7 +22,7 @@
     "test:integration": "NODE_ENV=test tsx --test --test-timeout=180000 'src/__integration__/**/*.test.ts'",
     "test:all": "NODE_ENV=test tsx --test 'src/**/*.test.ts'",
     "test:coverage": "NODE_ENV=test tsx --experimental-test-coverage --test-coverage-exclude='dist/**' --test 'src/**/*.test.ts'",
-    "test:coverage:unit": "NODE_ENV=test tsx --experimental-test-coverage --test-coverage-exclude='dist/**' --test 'src/*.test.ts' 'src/__tests__/**/*.test.ts'"
+    "test:coverage:unit": "NODE_ENV=test tsx --experimental-test-coverage --test-coverage-exclude='dist/**' --test --test-timeout=180000 --test-force-exit --test-concurrency=1 'src/*.test.ts' 'src/__tests__/**/*.test.ts'"
   },
   "dependencies": {
     "@maplespike/database": "workspace:*",
