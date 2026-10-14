@@ -71,6 +71,37 @@ for (const pkg of ['packages/api-server', 'packages/quill-mcp']) {
   });
 }
 
+// ── Coverage lanes (2026-10-14, #1061) ────────────────────────────────────
+// The api-server coverage step hung for the full 25m step cap (exit 124, zero
+// output): `test:coverage` still ran unbounded while `test:unit` has carried
+// the three flags since #996. The quill-mcp coverage lane
+// (`test:coverage:unit`) had the same gap. Pin both lanes the same way.
+
+const COVERAGE_LANES: Array<[string, string]> = [
+  ['packages/api-server', 'test:coverage'],
+  ['packages/quill-mcp', 'test:coverage:unit'],
+];
+
+for (const [pkg, lane] of COVERAGE_LANES) {
+  test(`scripts.${lane} for ${pkg} pins hang-bound flags (#1061)`, () => {
+    const pkgJson = JSON.parse(
+      fs.readFileSync(path.join(REPO, pkg, 'package.json'), 'utf8'),
+    );
+    const script = pkgJson.scripts?.[lane];
+    assert.ok(script, `${pkg} must define scripts.${lane}`);
+    for (const flag of [
+      '--test-timeout=180000',
+      '--test-force-exit',
+      '--test-concurrency=1',
+    ]) {
+      assert.ok(
+        script.includes(flag),
+        `${pkg} ${lane} lost ${flag} — an unbounded coverage lane can hang CI for the full step cap (run 38609213975)`,
+      );
+    }
+  });
+}
+
 // ── Behavioural bound: a never-settling test must fail, not hang ──────────
 
 const HANG_FIXTURE = `
