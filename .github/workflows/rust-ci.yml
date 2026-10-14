@@ -1,6 +1,8 @@
 # Rust CI lane: runs on changes to rust/** — fmt, clippy, test
 # Runner shells are non-login: resolve the provisioned Rust toolchain explicitly.
 # rust/rust-toolchain.toml selects the toolchain; missing tooling fails preflight.
+# Jobs require the 'rust' runner label: only runners with the provisioned toolchain
+# carry it (forge does not — a rust job there fails the preflight, #1061).
 #
 # The run steps carry a hashFiles guard: this lane also triggers on its own
 # file, so until the `rust/` tree lands (via #998) a missing crate dir skips
@@ -29,7 +31,7 @@ jobs:
   rust-fmt:
     # Same-repo PRs only. Fork code must not run on the self-hosted pool (#1045).
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: [self-hosted, nixos, rust]
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +44,7 @@ jobs:
 
   rust-clippy:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: [self-hosted, nixos, rust]
     steps:
       - uses: actions/checkout@v4
 
@@ -56,7 +58,7 @@ jobs:
 
   rust-test:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: [self-hosted, nixos, rust]
     steps:
       - uses: actions/checkout@v4
 
