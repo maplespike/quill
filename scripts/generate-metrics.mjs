@@ -11,15 +11,48 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { resolve, join } from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
-function run(cmd) {
-  return execSync(cmd, { encoding: 'utf-8', cwd: ROOT }).trim();
+/**
+ * Count `.ts` files and their lines under `dir`.
+ *
+ * Skips `node_modules` and `dist`. Does not use `xargs wc`: on a package the
+ * size of pipeline-core, xargs splits the file list and `tail -1` kept only
+ * the last chunk (recorded as 78 lines, then 4,174, against ~156k real lines).
+ *
+ * A line is a newline-terminated row, plus a final row when the file does not
+ * end in a newline. An empty file counts as one file and zero lines.
+ */
+export function countTsFiles(dir) {
+  let files = 0;
+  let lines = 0;
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return { files: 0, lines: 0 };
+  }
+  for (const ent of entries) {
+    if (ent.name === 'node_modules' || ent.name === 'dist') continue;
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) {
+      const sub = countTsFiles(p);
+      files += sub.files;
+      lines += sub.lines;
+    } else if (ent.isFile() && ent.name.endsWith('.ts')) {
+      files += 1;
+      const text = readFileSync(p, 'utf8');
+      if (text.length === 0) continue;
+      const rows = text.split('\n');
+      lines += text.endsWith('\n') ? rows.length - 1 : rows.length;
+    }
+  }
+  return { files, lines };
 }
 
+async function generate() {
 // ── 1. Registry count ────────────────────────────────────────
 // Prefer the runtime registry when pipeline-core is built: getAllModules()
 // is what module consumers actually receive. Fall back to counting quoted
@@ -120,29 +153,14 @@ const allPackages = [...new Set([...npmPackages, ...knownNonNpm])].sort();
 
 // ── 5. TS files/lines per package ────────────────────────────
 const perPackage = {};
-let totalFiles = 0;
-let totalLines = 0;
-
 for (const pkg of npmPackages) {
-  const pkgDir = join(ROOT, 'packages', pkg);
-  const findCmd = `find "${pkgDir}" -name '*.ts' -not -path '*/node_modules/*' -not -path '*/dist/*' 2>/dev/null`;
-
-  const filesResult = run(`${findCmd} | wc -l`);
-  const fileCount = parseInt(filesResult, 10);
-
-  if (fileCount > 0) {
-    const linesResult = run(`${findCmd} | xargs wc -l 2>/dev/null | tail -1`);
-    const lineCount = parseInt(linesResult ? linesResult.trim().split(/\s+/)[0] : '0', 10) || 0;
-    perPackage[pkg] = { files: fileCount, lines: lineCount };
-    totalFiles += fileCount;
-    totalLines += lineCount;
-  }
+  const counted = countTsFiles(join(ROOT, 'packages', pkg));
+  if (counted.files > 0) perPackage[pkg] = counted;
 }
 
-const extraTsResult = run(`find packages -name '*.ts' -not -path '*/node_modules/*' -not -path '*/dist/*' | wc -l`);
-const overallTsFiles = parseInt(extraTsResult, 10);
-const extraTsLinesResult = run(`find packages -name '*.ts' -not -path '*/node_modules/*' -not -path '*/dist/*' | xargs wc -l 2>/dev/null | tail -1`);
-const overallTsLines = parseInt(extraTsLinesResult.trim().split(/\s+/)[0], 10) || 0;
+const overall = countTsFiles(join(ROOT, 'packages'));
+const overallTsFiles = overall.files;
+const overallTsLines = overall.lines;
 
 // ── 6. Build output ──────────────────────────────────────────
 const today = new Date().toISOString().slice(0, 10);
@@ -183,3 +201,10 @@ const metricsPath = join(ROOT, 'docs/metrics.json');
 writeFileSync(metricsPath, JSON.stringify(metrics, null, 2) + '\n');
 
 console.log(`Modules: ${registryCount}, MCP Tools: ${mcpToolCount}, TS Files: ${overallTsFiles}, TS Lines: ${overallTsLines}`);
+}
+
+const invokedDirectly = process.argv[1]
+  && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invokedDirectly) {
+  await generate();
+}
