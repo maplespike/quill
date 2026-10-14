@@ -137,6 +137,12 @@ jobs:
       - name: Unit-lane hang bounds tests
         run: pnpm exec tsx --test scripts/test-hang-bounds.mts
 
+      # Stall watchdog regression tests (#996): four CI steps hung silently
+      # for 59-198 minutes on 2026-10-04. scripts/run-with-log-tail.sh now
+      # warns (and can kill) on silence; these tests prove a deliberately
+      # silenced child triggers the watchdog line inside the window.
+      - name: Stall watchdog unit tests
+        run: pnpm exec tsx --test scripts/test-stall-watchdog.mts
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.
