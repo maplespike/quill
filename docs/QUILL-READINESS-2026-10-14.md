@@ -8,13 +8,13 @@ Issue: https://github.com/maplespike/quill/issues/1058
 Umbrella: https://github.com/maplespike/quill/pull/1059 (draft reference; do not merge)
 Base: `fc807cc0`
 
-| Order | Branch | Slice |
-| --- | --- | --- |
-| 1 | `cursor/mcp-sse-session-597b` | MCP transport and session isolation |
-| 2 | `cursor/workspace-build-sync-597b` | Workspace build sync and portal generation |
-| 3 | `cursor/dep-audit-overrides-597b` | Security dependency overrides |
-| 4 | `cursor/rust-ci-env-597b` | Rust CI toolchain lookup |
-| 5 | `cursor/discovery-version-index-597b` | Discovery artifacts, version 0.4.0, 184-tool index |
+| Order | PR | Branch | Slice |
+| --- | --- | --- | --- |
+| 1 | https://github.com/maplespike/quill/pull/1063 | `cursor/mcp-sse-session-597b` | MCP transport and session isolation |
+| 2 | https://github.com/maplespike/quill/pull/1060 | `cursor/workspace-build-sync-597b` | Workspace build sync and portal generation |
+| 3 | https://github.com/maplespike/quill/pull/1062 | `cursor/dep-audit-overrides-597b` | Security dependency overrides |
+| 4 | https://github.com/maplespike/quill/pull/1061 | `cursor/rust-ci-env-597b` | Rust CI toolchain lookup |
+| 5 | https://github.com/maplespike/quill/pull/1064 | `cursor/discovery-version-index-597b` | Discovery artifacts, version 0.4.0, 184-tool index |
 
 Each slice builds from `main` by itself. Review them in that order. Slices 2 and 3 both edit `pnpm-workspace.yaml` in different regions.
 
