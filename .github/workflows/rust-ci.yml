@@ -1,6 +1,6 @@
 # Rust CI lane: runs on changes to rust/** — fmt, clippy, test
-# Self-hosted NixOS runner has cargo/rustc pinned by rust-toolchain.toml.
-# cargo is available on nexus (runs-on: [self-hosted, nixos]).
+# Runner shells are non-login: resolve the provisioned Rust toolchain explicitly.
+# rust/rust-toolchain.toml selects the toolchain; missing tooling fails preflight.
 #
 # The run steps carry a hashFiles guard: this lane also triggers on its own
 # file, so until the `rust/` tree lands (via #998) a missing crate dir skips
@@ -13,11 +13,13 @@ on:
     paths:
       - 'rust/**'
       - '.github/workflows/rust-ci.yml'
+      - 'scripts/ci-rust-env.sh'
   pull_request:
     branches: [main, prod]
     paths:
       - 'rust/**'
       - '.github/workflows/rust-ci.yml'
+      - 'scripts/ci-rust-env.sh'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +27,7 @@ permissions:
 
 jobs:
   rust-fmt:
+    # Same-repo PRs only. Fork code must not run on the self-hosted pool (#1045).
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
@@ -32,7 +35,9 @@ jobs:
 
       - name: Check formatting
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
-        run: cargo fmt --all --check
+        run: |
+          source ../scripts/ci-rust-env.sh
+          cargo fmt --all --check
         working-directory: ./rust
 
   rust-clippy:
@@ -44,6 +49,7 @@ jobs:
       - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
         run: |
+          source ../scripts/ci-rust-env.sh
           cargo clippy -p quill-search --lib
           cargo clippy -p quill-search-bench-gen --lib
         working-directory: ./rust
@@ -57,6 +63,7 @@ jobs:
       - name: Run lib tests
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
         run: |
+          source ../scripts/ci-rust-env.sh
           cargo test -p quill-search --lib
           cargo test -p quill-search-bench-gen --lib
         working-directory: ./rust
