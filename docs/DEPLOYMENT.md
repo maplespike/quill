@@ -84,8 +84,8 @@ PORT=3001 pnpm start:sse
 # {
 #   "mcpServers": {
 #     "maplespike-canada": {
-#       "command": "npx",
-#       "args": ["@maplespike/quill-mcp"]
+#       "command": "node",
+#       "args": ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
 #     }
 #   }
 # }

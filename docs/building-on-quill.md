@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-09
+last-reviewed: 2026-10-14
 status: active
 ---
 
@@ -10,8 +10,9 @@ status: active
 > provenance, or cross-referencing. This guide is for **MCP authors and local
 > agent builders** who want to compose with Quill rather than re-fetch CKAN.
 
-Everything here is grounded in the live server (`npx @maplespike/quill-mcp` or
-`https://mcp.maplespike.ca/sse`). The companion strategy/roadmap lives in
+Everything here is grounded in the live server (local stdio from a checkout,
+or `https://mcp.maplespike.ca/sse`). `@maplespike/quill-mcp` is not published
+on npm. The companion strategy lives in
 [`docs/ECOSYSTEM-EXECUTION-PLAN.md`](./ECOSYSTEM-EXECUTION-PLAN.md).
 
 ---
@@ -19,13 +20,18 @@ Everything here is grounded in the live server (`npx @maplespike/quill-mcp` or
 ## 1. Quick start
 
 ```bash
-# Zero-config local (stdio) — self-hosted, not counted against the free quota
-npx @maplespike/quill-mcp
+# Local stdio. Build the package first. Self-hosted calls are not counted
+# against the hosted free quota.
+pnpm --filter @maplespike/quill-mcp... build
+node packages/quill-mcp/dist/cli.js
 
 # In any MCP client:
 {
   "mcpServers": {
-    "quill": { "command": "npx", "args": ["@maplespike/quill-mcp"] }
+    "quill": {
+      "command": "node",
+      "args": ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
+    }
   }
 }
 ```

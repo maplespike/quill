@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getApiBase } from "@/lib/api-base";
+import { ApiKeyReveal } from "@/components/ApiKeyReveal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -97,6 +98,7 @@ export default function SignupForm() {
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
   const [hasSolanaWallet, setHasSolanaWallet] = useState(false);
+  const [freshKey, setFreshKey] = useState<string | null>(null);
 
   useEffect(() => {
     setAuth(getAuthState());
@@ -155,9 +157,11 @@ export default function SignupForm() {
 
       const { apiKey } = completeData.data;
 
-      // Store API key for API calls
+      // Store API key for API calls, then block on the full key until the
+      // user continues. A later account card may truncate it.
       if (apiKey?.key) {
         localStorage.setItem("quill-api-key", apiKey.key);
+        setFreshKey(apiKey.key);
       }
 
       // Immediately log in with the passkey to get a JWT for Convex auth.
@@ -343,7 +347,10 @@ export default function SignupForm() {
       if (!verifyData.success) throw new Error(verifyData.error?.message || "Solana login failed");
 
       const apiKey = verifyData.data?.apiKey?.key || "";
-      if (apiKey) localStorage.setItem("quill-api-key", apiKey);
+      if (apiKey) {
+        localStorage.setItem("quill-api-key", apiKey);
+        setFreshKey(apiKey);
+      }
       setAuthState(apiKey, publicKey, "solana");
       setAuth({ token: apiKey, userId: publicKey, method: "solana" });
     } catch (e) {
@@ -362,6 +369,7 @@ export default function SignupForm() {
 
   function handleLogout() {
     clearAuthState();
+    setFreshKey(null);
     setAuth({ token: null, userId: null, method: null });
   }
 
@@ -376,6 +384,24 @@ export default function SignupForm() {
   const storedApiKey = typeof window !== "undefined" ? localStorage.getItem("quill-api-key") : null;
   const shownKey = storedApiKey || authState.token;
   const isApiKey = !!storedApiKey;
+
+  if (freshKey) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Save your API key</CardTitle>
+          <CardDescription>This is the only time the full key is shown here.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ApiKeyReveal
+            apiKey={freshKey}
+            apiBase={getApiBase()}
+            onContinue={() => setFreshKey(null)}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (authState.token || authState.method === "passkey") {
     return (
