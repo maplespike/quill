@@ -16,13 +16,6 @@ pnpm --filter @maplespike/sdk build
 # (exit 127 broke the Live Data Check lane nightly, 2026-09-18 → 09-21).
 pnpm exec tsc -b
 
-# Layer 2: standalone builds. Drift checks build workspace packages only so
-# their generators do not run twice or contact live data sources.
-if [ "${QUILL_BUILD_WORKSPACE_ONLY:-0}" != "1" ]; then
-  pnpm --filter @maplespike/docs build
-  pnpm --filter @maplespike/portal build
-fi
-
 # Layer 3: repair injected workspace copies.
 # inject-workspace-packages=true: pnpm materializes *injected copies* of
 # workspace deps inside each .pnpm store package's node_modules/@maplespike/
@@ -41,3 +34,10 @@ for d in node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do
     ln -s "$PWD/packages/$p" "$d/$p"
   done
 done
+
+# Layer 2: standalone builds. Drift checks build workspace packages only so
+# their generators do not run twice or contact live data sources.
+if [ "${QUILL_BUILD_WORKSPACE_ONLY:-0}" != "1" ]; then
+  pnpm --filter @maplespike/docs build
+  pnpm --filter @maplespike/portal build
+fi
