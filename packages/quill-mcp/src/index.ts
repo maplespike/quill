@@ -15,6 +15,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { createHash, randomUUID } from 'node:crypto';
 import { mcpMetrics } from './metrics.js';
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
@@ -38,9 +39,22 @@ installStreamErrorGuard({
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 const METRICS_PORT = parseInt(process.env.QUILL_MCP_METRICS_PORT ?? '9465', 10);
-const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
 const X402_ENABLED = process.env.X402_ENABLED === 'true';
 const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
+const MAX_BODY_SIZE = 1024 * 1024;
+const MAX_SSE_CLIENTS = positiveInt(process.env.QUILL_SSE_MAX_CLIENTS, 128);
+const SSE_IDLE_MS = positiveInt(process.env.QUILL_SSE_IDLE_MS, 15 * 60_000);
+const SSE_MAX_BUFFER = positiveInt(process.env.QUILL_SSE_MAX_BUFFER, 1024 * 1024);
+const HEARTBEAT_MS = positiveInt(process.env.QUILL_SSE_HEARTBEAT_MS, 30_000);
+
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const parsed = Number.parseInt(raw ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function apiKey(): string {
+  return process.env.QUILL_API_KEY ?? 'dev-key';
+}
 
 // ── In-memory rate limiter (token bucket) ───────────────
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
@@ -81,18 +95,73 @@ interface SseClient {
   id: string;
   res: ServerResponse;
   locale: string;
+  credentialHash: string;
+  identity: QuotaIdentity;
+  heartbeat?: ReturnType<typeof setInterval>;
+  idle?: ReturnType<typeof setTimeout>;
 }
 
-let clientIdCounter = 0;
+function bearerToken(req: IncomingMessage): string {
+  return (req.headers.authorization ?? '').match(/^Bearer\s+(.+)$/i)?.[1].trim() ?? '';
+}
+
+function credentialHash(req: IncomingMessage): string {
+  return createHash('sha256').update(bearerToken(req)).digest('hex');
+}
+
+function clientIp(req: IncomingMessage): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (process.env.TRUST_PROXY === 'true' && typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket.remoteAddress || 'unknown';
+}
+
 const clients = new Map<string, SseClient>();
 
-function sendSse(res: ServerResponse, event: string, data: unknown): void {
-  const body = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-  res.write(body);
+function dropClient(clientId: string): void {
+  const client = clients.get(clientId);
+  if (!client) return;
+  clients.delete(clientId);
+  if (client.heartbeat) clearInterval(client.heartbeat);
+  if (client.idle) clearTimeout(client.idle);
+  if (!client.res.writableEnded) {
+    try { client.res.end(); } catch { /* already closed */ }
+  }
+}
+
+function armIdle(client: SseClient): void {
+  if (client.idle) clearTimeout(client.idle);
+  client.idle = setTimeout(() => dropClient(client.id), SSE_IDLE_MS);
+  client.idle.unref?.();
+}
+
+function writeToClient(client: SseClient, chunk: string): boolean {
+  if (!clients.has(client.id) || client.res.destroyed || client.res.writableEnded) return false;
+  if (client.res.writableLength > SSE_MAX_BUFFER) {
+    dropClient(client.id);
+    return false;
+  }
+  try {
+    const ok = client.res.write(chunk);
+    if (!ok && client.res.writableLength > SSE_MAX_BUFFER) {
+      dropClient(client.id);
+      return false;
+    }
+    return true;
+  } catch {
+    dropClient(client.id);
+    return false;
+  }
+}
+
+function sendSse(client: SseClient, event: string, data: unknown): boolean {
+  return writeToClient(client, `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
 async function authenticate(req: IncomingMessage): Promise<boolean> {
-  if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
+  const key = apiKey();
+  if (key === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
 
   const auth = req.headers.authorization ?? '';
   const match = auth.match(/^Bearer\s+(.+)$/i);
@@ -100,8 +169,9 @@ async function authenticate(req: IncomingMessage): Promise<boolean> {
 
   const token = match[1];
 
-  // Method 1: Check against configured API key
-  if (token === API_KEY || token === Buffer.from(API_KEY).toString('base64')) {
+  // Method 1: Check against configured API key. Read on each call so a
+  // rotated in-process value is not kept alive by an open stream.
+  if (token === key || token === Buffer.from(key).toString('base64')) {
     return true;
   }
 
@@ -186,7 +256,17 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    const clientId = `client-${++clientIdCounter}`;
+    if (clients.size >= MAX_SSE_CLIENTS) {
+      res.writeHead(503, { 'Content-Type': 'application/json', 'Retry-After': '30' });
+      res.end(JSON.stringify({ error: 'Too many sessions' }));
+      return;
+    }
+
+    const clientId = randomUUID();
+    const token = bearerToken(req);
+    const identity = token
+      ? buildIdentity('api-key', token)
+      : buildIdentity('anonymous-ip', clientIp(req));
     const acceptLang = req.headers['accept-language'] || '';
     const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
 
@@ -197,24 +277,29 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       'Access-Control-Allow-Origin': '*',
     });
 
-    // Send initial endpoint event so client knows where to POST messages
-    sendSse(res, 'endpoint', { endpoint: `/messages?clientId=${clientId}` });
-
-    clients.set(clientId, { id: clientId, res, locale });
+    const client: SseClient = {
+      id: clientId,
+      res,
+      locale,
+      credentialHash: credentialHash(req),
+      identity,
+    };
+    clients.set(clientId, client);
+    armIdle(client);
+    // Plain relative URI. MCP clients read this event, not a JSON object.
+    writeToClient(client, `event: endpoint\ndata: /messages?clientId=${clientId}\n\n`);
 
     logger.info('SSE client connected (total: %d)', clients.size);
 
-    // Heartbeat every 30s to keep connection alive
-    const heartbeat = setInterval(() => {
-      try {
-        res.write(': heartbeat\n\n');
-      } catch {
-        clearInterval(heartbeat);
-      }
-    }, 30_000);
+    client.heartbeat = setInterval(() => {
+      writeToClient(client, ': heartbeat\n\n');
+    }, HEARTBEAT_MS);
+    client.heartbeat.unref?.();
 
     req.on('close', () => {
-      clearInterval(heartbeat);
+      const current = clients.get(clientId);
+      if (current?.heartbeat) clearInterval(current.heartbeat);
+      if (current?.idle) clearTimeout(current.idle);
       clients.delete(clientId);
       logger.info('SSE client disconnected (total: %d)', clients.size);
     });
@@ -232,85 +317,79 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    // Rate limit by client IP
-    const clientIp = req.headers['x-forwarded-for'] as string
-      || req.socket.remoteAddress || 'unknown';
-    if (!checkRateLimit(clientIp)) {
+    // A session ID is not authentication. The hash must match the stream owner.
+    if (credentialHash(req) !== client.credentialHash) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+
+    // Re-check the credential. A key revoked or expired after GET /sse must not
+    // keep posting on the open stream. A different still-valid key fails the
+    // hash check above and does not close this session.
+    if (!await authenticate(req)) {
+      dropClient(client.id);
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+
+    // Only trust proxy-provided IPs when explicitly configured.
+    if (!checkRateLimit(clientIp(req))) {
       res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
       res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
       return;
     }
 
-    // Body size limit: reject >1MB before parsing
-    const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+    const declared = Number(req.headers['content-length'] ?? '');
+    if (Number.isFinite(declared) && declared > MAX_BODY_SIZE) {
+      res.writeHead(413, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }));
+      req.resume();
+      return;
+    }
+
     let bodySize = 0;
     let body = '';
-    req.on('data', (chunk: string) => {
-      bodySize += Buffer.byteLength(chunk, 'utf8');
+    let rejected = false;
+    req.on('data', (chunk: Buffer | string) => {
+      if (rejected) return;
+      bodySize += Buffer.byteLength(chunk);
       if (bodySize > MAX_BODY_SIZE) {
-        req.destroy(new Error('Request body too large'));
+        rejected = true;
         res.writeHead(413, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }));
+        req.destroy();
         return;
       }
-      body += chunk;
+      body += chunk.toString();
     });
     req.on('end', () => {
+      if (rejected || res.headersSent || !clients.has(client.id)) return;
+      armIdle(client);
       let parsed: unknown;
       try {
         parsed = JSON.parse(body);
       } catch {
-        // Send parse error back through SSE
-        sendSse(client.res, 'error', { code: -32700, message: 'Parse error' });
+        sendSse(client, 'error', { code: -32700, message: 'Parse error' });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
         return;
       }
 
-      // Extract x402 payment proof from header if enabled
       const paymentProof = X402_ENABLED
         ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
         : undefined;
 
-      // Build identity for the SSE caller.
-      // NOTE: in `index.ts` (hosted) the auth path requires Authorization
-      // (see authenticate()), so we expect a Bearer token to be present on
-      // every authenticated SSE call. If somehow no token slipped through, fall
-      // back to IP — BUT we only honor X-Forwarded-For when TRUST_PROXY=true,
-      // otherwise any client can rotate the IP key and bypass quota.
-      let identity: QuotaIdentity;
-      { // scope to keep the warning logs readable
-        const auth = req.headers.authorization;
-        if (typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')) {
-          identity = buildIdentity('api-key', auth.slice(7).trim());
-        } else {
-          const trustProxy = process.env.TRUST_PROXY === 'true';
-          const fwd = req.headers['x-forwarded-for'];
-          const ip = trustProxy
-            ? (Array.isArray(fwd)
-                ? fwd[0]
-                : (typeof fwd === 'string' ? fwd.split(',')[0].trim() : req.socket.remoteAddress || 'unknown'))
-            : (req.socket.remoteAddress || 'unknown');
-          identity = buildIdentity('anonymous-ip', ip);
-          if (process.env.NODE_ENV === 'production') {
-            if (typeof fwd === 'string') {
-              logger.warn('SSE without Bearer, X-Forwarded-For present — using %s remoteAddress for IP-keyed quota.', trustProxy ? 'XFF' : 'socket');
-            } else {
-              logger.warn('SSE without Bearer — quota keyed by a hashed IP. Set TRUST_PROXY=true only behind a known proxy envelope.');
-            }
-          }
-        }
-      }
-
+      const identity = client.identity;
       const quotaStatus = getQuotaTracker().getStatus(identity);
 
-      // Send response back through the client's SSE stream
       server.handleMessage(parsed, client.locale, (response) => {
-        // Attach quota status to each tool response so SSE clients can see pressure.
+        if (!clients.has(client.id)) return;
         if (response.result && typeof response.result === 'object') {
           (response.result as Record<string, unknown>)._quota = quotaStatus;
         }
-        sendSse(client.res, 'message', response);
+        sendSse(client, 'message', response);
       }, paymentProof, identity).catch((err: unknown) => logger.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Error handling MCP message'));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
@@ -335,19 +414,13 @@ httpServer.listen(PORT, () => {
   logger.info('Tools loaded: %d', tools.length);
 });
 
-process.on('SIGINT', () => {
-  logger.warn('SIGINT received, closing SSE connections');
+function shutdown(signal: string): void {
+  logger.warn('%s received, closing SSE connections', signal);
   getQuotaTracker().flushSync();
-  for (const { res } of clients.values()) {
-    res.end();
-  }
+  for (const id of [...clients.keys()]) dropClient(id);
   metricsServer.close();
   httpServer.close(() => process.exit(0));
-});
+}
 
-process.on('SIGTERM', () => {
-  logger.warn('SIGTERM received, shutting down');
-  getQuotaTracker().flushSync();
-  metricsServer.close();
-  httpServer.close(() => process.exit(0));
-});
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
