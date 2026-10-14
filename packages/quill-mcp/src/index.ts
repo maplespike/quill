@@ -61,12 +61,12 @@ const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX_REQS = 60;       // 60 req/min
 const rateBuckets = new Map<string, { tokens: number; resetAt: number }>();
 
-function checkRateLimit(clientIp: string): boolean {
+function checkRateLimit(bucketKey: string): boolean {
   const now = Date.now();
-  let bucket = rateBuckets.get(clientIp);
+  let bucket = rateBuckets.get(bucketKey);
   if (!bucket || now > bucket.resetAt) {
     bucket = { tokens: RATE_LIMIT_MAX_REQS, resetAt: now + RATE_LIMIT_WINDOW_MS };
-    rateBuckets.set(clientIp, bucket);
+    rateBuckets.set(bucketKey, bucket);
   }
   if (bucket.tokens <= 0) return false;
   bucket.tokens--;
@@ -107,6 +107,18 @@ function bearerToken(req: IncomingMessage): string {
 
 function credentialHash(req: IncomingMessage): string {
   return createHash('sha256').update(bearerToken(req)).digest('hex');
+}
+
+const EMPTY_CREDENTIAL_HASH = createHash('sha256').update('').digest('hex');
+
+/**
+ * Authenticated posts share a bucket per credential, so tenants behind one
+ * cloudflared socket do not share 60/min. A session with no bearer falls
+ * back to the TCP peer. X-Forwarded-For is never the key.
+ */
+function rateLimitKey(ownerHash: string, req: IncomingMessage): string {
+  if (ownerHash !== EMPTY_CREDENTIAL_HASH) return `cred:${ownerHash}`;
+  return `ip:${req.socket.remoteAddress || 'unknown'}`;
 }
 
 function clientIp(req: IncomingMessage): string {
@@ -163,11 +175,8 @@ async function authenticate(req: IncomingMessage): Promise<boolean> {
   const key = apiKey();
   if (key === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
 
-  const auth = req.headers.authorization ?? '';
-  const match = auth.match(/^Bearer\s+(.+)$/i);
-  if (!match) return false;
-
-  const token = match[1];
+  const token = bearerToken(req);
+  if (!token) return false;
 
   // Method 1: Check against configured API key. Read on each call so a
   // rotated in-process value is not kept alive by an open stream.
@@ -334,8 +343,9 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    // Only trust proxy-provided IPs when explicitly configured.
-    if (!checkRateLimit(clientIp(req))) {
+    // Credential bucket. Do not use the peer address or X-Forwarded-For:
+    // production has one replica behind cloudflared and does not set TRUST_PROXY.
+    if (!checkRateLimit(rateLimitKey(client.credentialHash, req))) {
       res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
       res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
       return;
