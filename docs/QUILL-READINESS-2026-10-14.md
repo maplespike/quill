@@ -55,7 +55,7 @@ The mcprush public page now says `Publisher Verified`. No marketplace edit was s
 
 - Auth must say **Bearer API key required**, not `None — open`. Live unauthenticated `/sse` returns 401. Keep production auth enabled.
 - Publish the 184-tool catalog after the hosted transport fix is deployed and authenticated introspection is verified.
-- Version 0.4.0 matches package metadata, but the dispatcher still reports 0.1.0. Version unification is unfinished.
+- `initialize` reports the `@maplespike/quill-mcp` package version (0.4.0). The root package version is 0.4.0. API response headers still report 0.1.0.
 - Replace the Lifestyle & Local classification with the closest government/public-data/research category available in the publisher dashboard.
 - State that mcprush charges nothing, while hosted Quill has its own free quota and paid plans. Do not promise unlimited hosted usage.
 - Scope SHA-256 provenance claims to supported claim/cross-reference surfaces. Do not imply every legacy row has evidence.
@@ -73,7 +73,7 @@ Canonical discovery: https://quill.maplespike.ca/.well-known/mcp/server-cards.js
 
 ## Unresolved release blockers
 
-1. **Unpatched dependency:** `http-cache-semantics <=4.2.0`, GHSA-ch52-4w7c-c8xp / CVE-2026-93748. Audit remains nonzero. Astro uses it for remote-image build caching. The static portal runs under Python, not an Astro Node server; inspected Astro code constructs build requests rather than accepting client max-stale headers. This limits the observed production path but does not remove or patch the package. No audit suppression was added. See #1047.
+1. **Unpatched dependency:** `http-cache-semantics`, GHSA-ch52-4w7c-c8xp / CVE-2026-93748. GitHub marks 4.2.0 as last affected and publishes no fixed version. npm 4.3.0 (2026-10-04) changes `Vary: *` matching and adds a status field. The `max-stale` path that serves a security-zeroed entry is unchanged, so 4.3.0 is not a patch and is not overridden. Audit remains nonzero. Astro uses the package for remote-image build caching. The static portal runs under Python, not an Astro Node server; inspected Astro code constructs build requests rather than accepting client max-stale headers. This limits the observed production path but does not remove or patch the package. No audit suppression was added. See #1047.
 2. **Live rollout:** local fixes are uncommitted and undeployed. Production API/MCP health return 200, MCP reports 184 tools, portal landing/signup/pricing/privacy/terms/status return 200. Authenticated live initialization and tools/call were not run with a customer key. No production signup, email, charge, or account mutation was made.
 3. **Stdio release:** #1046 passes its focused tests but remains a separate open PR. Main still has the old bin behavior until it is integrated. npm publication was not attempted.
 4. **Privacy/CASL/renewal:** #1038 preserves unfinished work in `Projects/quill-1038`. It has not been ported or approved. Sender postal/contact details, consent/suppression evidence, processor locations, policy accuracy, checkout adjacency, and qualified legal review remain required. Do not invent a mailing address or compliance certification.

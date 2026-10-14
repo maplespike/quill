@@ -10,9 +10,11 @@
 - [x] Repair Rust non-login PATH discovery; verify formatting, Clippy, library tests, and nexus preflight.
 - [x] Verify existing stdio PR independently (19 passing tests); do not duplicate or merge it.
 - [x] Document marketplace corrections and live rollout limitations in docs/QUILL-READINESS-2026-10-14.md.
+- [x] Report the quill-mcp package version (0.4.0) from `initialize`, and set the root package version to 0.4.0.
+- [x] Regenerate `packages/quill-mcp/src/tools/tool-index.json` from `getAllTools()` (name + description sliced to 200 characters).
 - [ ] Review and integrate changes through the normal PR workflow; do not deploy implicitly.
 - [ ] Verify authenticated live MCP after an approved rollout.
 
 ## Scope Notes
 
-Runtime verification exposed missing injected build artifacts and mandatory generator failures hidden by the portal shell command. Those root causes had to be repaired to test the compiled interface. Dependency remediation follows existing issue #1047; Rust runner remediation follows #1048. The remaining unpatched high advisory is not suppressed. Privacy/credential/licensing decisions remain separate blockers, not completed tasks.
+Runtime verification exposed missing injected build artifacts and mandatory generator failures hidden by the portal shell command. Those root causes had to be repaired to test the compiled interface. Dependency remediation follows existing issue #1047; Rust runner remediation follows #1048. The remaining unpatched high advisory is not suppressed. `http-cache-semantics@4.3.0` does not fix GHSA-ch52-4w7c-c8xp. Privacy/credential/licensing decisions remain separate blockers, not completed tasks. API header version 0.1.0 is unchanged.
