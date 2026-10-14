@@ -20,6 +20,9 @@ const REQUIRED_FILES = [
   "llms.txt",
   "robots.txt",
   "sitemap.xml",
+  ".well-known/mcp/server-card.json",
+  ".well-known/mcp/server-cards.json",
+  "agent-card.json",
   "checkout.html",
   "checkout/return.html",
 ];
@@ -27,6 +30,16 @@ const REQUIRED_FILES = [
 describe.skipIf(!built)("portal dist", () => {
   test.each(REQUIRED_FILES)("ships %s", (file) => {
     expect(existsSync(join(dist, file))).toBe(true);
+  });
+
+  test("discovery dates match the canonical metrics in the built site", () => {
+    const metrics = JSON.parse(readFileSync(join(process.cwd(), "../../docs/metrics.json"), "utf8"));
+    const card = JSON.parse(readFileSync(join(dist, ".well-known/mcp/server-card.json"), "utf8"));
+    const agent = JSON.parse(readFileSync(join(dist, "agent-card.json"), "utf8"));
+    expect(card._meta["ca.maplespike/quill"].countsAsOf).toBe(metrics["//_generated"]);
+    expect(agent.counts.asOf).toBe(metrics["//_generated"]);
+    expect(readFileSync(join(dist, ".well-known/mcp/server-cards.json"), "utf8"))
+      .toBe(readFileSync(join(dist, ".well-known/mcp/server-card.json"), "utf8"));
   });
 
   test("the landing page is real HTML, not an empty shell", () => {
