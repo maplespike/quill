@@ -141,7 +141,9 @@ describe('quill-mcp stdio entrypoint (src/cli.ts)', () => {
   let pkgRoot: string;
 
   before(() => {
-    pkgRoot = new URL('../../..', import.meta.url).pathname;
+    // __integration__ sits two levels under the package root (src/__integration__).
+    // Three `..` segments land in packages/ and the child cannot find src/cli.ts.
+    pkgRoot = new URL('../..', import.meta.url).pathname;
     child = spawnStdioServer(pkgRoot);
   });
 

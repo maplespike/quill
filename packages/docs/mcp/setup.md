@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-10-14
 status: active
 ---
 
@@ -34,37 +34,29 @@ Add to your `claude_desktop_config.json`:
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-### Option 2: Local stdio (npm)
+### Option 2: Local stdio (from a checkout)
 
-```json
-{
-  "mcpServers": {
-    "maplespike-canada": {
-      "command": "npx",
-      "args": ["@maplespike/quill-mcp"],
-      "env": {
-        "QUILL_API_KEY": "your-api-key-here"
-      }
-    }
-  }
-}
-```
+`@maplespike/quill-mcp` is not published on npm. `npx` cannot install it.
+Build this repo. Point the host at `dist/cli.js`.
 
-### Option 3: Local stdio (from source)
+`dist/index.js` is the HTTP/SSE server. Do not use it for stdio.
 
 ```json
 {
   "mcpServers": {
     "maplespike": {
       "command": "node",
-      "args": ["/path/to/maplespike/packages/quill-mcp/dist/index.js"],
-      "env": {
-        "QUILL_API_KEY": "maplespike-dev-key",
-        "NODE_PATH": "/path/to/maplespike/node_modules"
-      }
+      "args": ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
     }
   }
 }
+```
+
+Build first:
+
+```bash
+pnpm install
+pnpm --filter @maplespike/quill-mcp... build
 ```
 
 ## Cursor Configuration
@@ -82,9 +74,10 @@ Or for local mode:
 ```
 Name: MapleSpike
 Type: command
-Command: npx @maplespike/quill-mcp
-Environment: QUILL_API_KEY=your-api-key
+Command: node /absolute/path/to/quill/packages/quill-mcp/dist/cli.js
 ```
+
+Build the package first. The command must be `dist/cli.js`. `dist/index.js` starts SSE.
 
 ## VS Code Extension (claude-dev / Continue)
 
@@ -105,17 +98,13 @@ For VS Code MCP extensions, add to your config:
 ### Build and Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/reverb256/quill.git
-cd maplespike
+git clone https://github.com/maplespike/quill.git
+cd quill
 
-# Install dependencies
 pnpm install
+pnpm --filter @maplespike/quill-mcp... build
 
-# Build all packages
-pnpm run build
-
-# Start MCP server in stdio mode
+# Start MCP server in stdio mode. The entry point is dist/cli.js.
 cd packages/quill-mcp
 pnpm start
 ```
@@ -131,8 +120,8 @@ pnpm start
 ### SSE Mode
 
 ```bash
-# Start in SSE mode
-npm run start:sse
+# Start in SSE mode. This runs dist/index.js, not the stdio bin.
+pnpm start:sse
 
 # Server listens at http://localhost:3001/sse
 ```
@@ -149,14 +138,14 @@ curl http://localhost:3001/health
 ### Test stdio Mode
 
 ```bash
-# Send a tools/list request
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | \
-  node dist/index.js
+# Send one initialize frame. The process writes one JSON-RPC line and exits 0.
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"local","version":"0"}}}' | \
+  node dist/cli.js
 ```
 
 ## Available Tools
 
-Once connected, all 34 tools are available. See the [Tools Reference](./tools) for complete documentation.
+Once connected, the live registry is available (184 tools; see [docs/metrics.json](../../../docs/metrics.json)). See the [Tools Reference](./tools) for the catalog.
 
 ### Example Prompts to Try
 

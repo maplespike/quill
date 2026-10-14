@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Quill MCP zero-config entry point — stdio transport.
 //
-// Run: npx @maplespike/quill-mcp   (or `pnpm start`) — stdio, for local MCP
-//      hosts: Claude Desktop, Cursor, any MCP host.
-//      `pnpm start:sse` starts the hosted HTTP/SSE server instead (src/index.ts).
+// Run, after a local build: `node dist/cli.js` or `pnpm start`.
+// That is the stdio entry for Claude Desktop, Cursor, and any MCP host.
+// `@maplespike/quill-mcp` is not published on npm. `npx` cannot install it.
+// `pnpm start:sse` starts the hosted HTTP/SSE server instead (src/index.ts).
 //
 // stdout belongs to the JSON-RPC protocol here, so this module claims stdout
 // before loading anything that could print to it:

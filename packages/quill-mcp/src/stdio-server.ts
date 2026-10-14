@@ -2,8 +2,8 @@
  * Quill MCP — stdio transport
  *
  * Serves the MCP protocol over stdin/stdout for local hosts (Claude Desktop,
- * Cursor, any MCP host). This is the transport `npx @maplespike/quill-mcp` and
- * `pnpm start` use; `src/index.ts` remains the hosted HTTP/SSE server.
+ * Cursor, any MCP host). `node dist/cli.js` and `pnpm start` use this
+ * transport. `src/index.ts` remains the hosted HTTP/SSE server.
  *
  * Framing: newline-delimited JSON, one JSON-RPC message per line — not the
  * `Content-Length:` header framing some other JSON-RPC transports use.

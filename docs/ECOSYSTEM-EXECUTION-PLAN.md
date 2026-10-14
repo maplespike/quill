@@ -35,7 +35,7 @@ is the least-real part of the stack.** It must be made real first; everything el
 | 3 | MCP resources/prompts | `packages/quill-mcp/src/server.ts` advertises `capabilities: { tools: {} }` only; `handleMessage` handles initialize / initialized / tools-list / tools-call. No `resources/*`, no `prompts/*`, no streaming, no progress | ❌ Absent |
 | 3 | Discovery | `discover_tools` (BM25 over a **hard-coded** tool index in `discover-tools.ts`), `explore_catalog`; bilingual fr-CA descriptions | ✅ Partial |
 | 3 | Long-running / job support | None (55s handler timeout, `QUILL_HANDLER_TIMEOUT_MS`) | ❌ Absent |
-| 4 | Zero-config local path | `npx @maplespike/quill-mcp` stdio; free tier 1,000 calls/mo (`src/quota.ts`); x402 per-call pricing (`src/pricing.ts`) | ✅ Real |
+| 4 | Zero-config local path | Local stdio entry is `node packages/quill-mcp/dist/cli.js` after `pnpm --filter @maplespike/quill-mcp... build`. `@maplespike/quill-mcp` is not on npm (checked 2026-10-14), so `npx` does not install it. Hosted quota and x402 stay on the SSE server. | ⚠️ Checkout build |
 | 4 | "Building on Quill" / ecosystem docs | **None.** `docs/` has ops/architecture docs only. `docs/products/quill.md` is **0 bytes** (empty). No `docs/mcp/`, no `docs/guide/` | ❌ Absent |
 | 4 | Quill Lite / read-replica mode | Implicit (stdio `npx` = no DB). Not documented as a product | ⚠️ Implicit |
 | 5 | Reliability / go-live | ROADMAP Phase 4 in progress; Cloudflare tunnel DNS wired (quill/api/mcp/data/datafabric.maplespike.ca); K3s drift items tracked (forge node, sops secrets, cloudflared-creds); MVP tracker #665 at ~30% | 🔄 In flight |
