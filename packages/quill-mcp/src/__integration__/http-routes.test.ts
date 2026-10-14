@@ -19,7 +19,7 @@ import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
-import { createServer as createHttpServer, type Server } from 'node:http';
+import { createServer as createHttpServer, request as httpRequest, type IncomingMessage, type Server } from 'node:http';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_REASON = 'SKIP_NETWORK_TESTS=1';
@@ -535,6 +535,182 @@ describe('SSE session limits', { skip: SKIP && SKIP_REASON }, () => {
       });
       assert.equal(posted.status, 404);
     } finally {
+      await stopServer(proc);
+    }
+  });
+
+  it('gives each credential its own rate-limit bucket behind one peer', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, { TRUST_PROXY: 'true' });
+    const base = `http://127.0.0.1:${port}`;
+    const alias = Buffer.from('test-secret-key').toString('base64');
+    const controllers: AbortController[] = [];
+    try {
+      await waitForReady(`${base}/health`);
+      const open = async (authorization: string) => {
+        const controller = new AbortController();
+        controllers.push(controller);
+        const headers = { Authorization: authorization, 'X-Forwarded-For': '203.0.113.9' };
+        const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+        assert.equal(stream.status, 200);
+        const reader = stream.body!.getReader();
+        const decoder = new TextDecoder();
+        let pending = '';
+        while (!pending.includes('\n\n')) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          pending += decoder.decode(chunk.value, { stream: true });
+        }
+        const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+        assert.ok(clientId);
+        const post = () => fetch(`${base}/messages?clientId=${clientId}`, {
+          method: 'POST',
+          headers: { ...headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }),
+        });
+        return { post };
+      };
+      const first = await open('Bearer test-secret-key');
+      const second = await open(`Bearer ${alias}`);
+      let limited = 0;
+      for (let i = 0; i < 60; i++) {
+        const res = await first.post();
+        assert.equal(res.status, 202);
+        await res.body?.cancel();
+      }
+      const blocked = await first.post();
+      limited = blocked.status;
+      await blocked.body?.cancel();
+      const other = await second.post();
+      await other.body?.cancel();
+      assert.equal(limited, 429);
+      assert.equal(other.status, 202);
+    } finally {
+      for (const controller of controllers) controller.abort();
+      await stopServer(proc);
+    }
+  });
+
+  it('accepts a bearer with surrounding whitespace as the same credential', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, {});
+    const base = `http://127.0.0.1:${port}`;
+    const controller = new AbortController();
+    try {
+      await waitForReady(`${base}/health`);
+      const stream = await fetch(`${base}/sse`, {
+        headers: { Authorization: 'Bearer test-secret-key' },
+        signal: controller.signal,
+      });
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      const posted = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer  test-secret-key  ', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+      });
+      assert.equal(posted.status, 202);
+      const again = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer test-secret-key', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }),
+      });
+      assert.equal(again.status, 202);
+    } finally {
+      controller.abort();
+      await stopServer(proc);
+    }
+  });
+
+  it('drops a slow client once the write buffer exceeds the cap', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, { QUILL_SSE_MAX_BUFFER: '64', QUILL_SSE_HEARTBEAT_MS: '60000' });
+    const base = `http://127.0.0.1:${port}`;
+    const controller = new AbortController();
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      assert.equal(stream.status, 200);
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      assert.ok(clientId);
+      const posted = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/list' }),
+      });
+      assert.equal(posted.status, 202);
+      await posted.body?.cancel();
+      // Leave the SSE body unread so the catalog frame queues past the cap.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const again = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }),
+      });
+      assert.equal(again.status, 404);
+    } finally {
+      controller.abort();
+      await stopServer(proc);
+    }
+  });
+
+  it('rejects a chunked body over 1 MiB without a Content-Length', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, {});
+    const base = `http://127.0.0.1:${port}`;
+    const controller = new AbortController();
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      const status = await new Promise<number>((resolve, reject) => {
+        const req = httpRequest({
+          host: '127.0.0.1',
+          port,
+          method: 'POST',
+          path: `/messages?clientId=${clientId}`,
+          headers: { Authorization: headers.Authorization, 'Content-Type': 'application/json' },
+        }, (res: IncomingMessage) => {
+          res.resume();
+          res.on('end', () => resolve(res.statusCode ?? 0));
+        });
+        req.on('error', reject);
+        req.write('{"pad":"');
+        req.write('x'.repeat(1024 * 1024 + 64));
+        req.end('"}');
+      });
+      assert.equal(status, 413);
+      const listed = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 9, method: 'tools/list' }),
+      });
+      assert.equal(listed.status, 202);
+    } finally {
+      controller.abort();
       await stopServer(proc);
     }
   });
