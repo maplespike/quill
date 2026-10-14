@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — 2026-10-14
+
+### Fixed
+- **Recurrence hole for the 2026-10-14 WIP-backup secrets leak (runs 38612919742 / 38617463045):** a "WIP backup (atlas)" sweep (commit `fd4f6e08` on `wip/atlas-backup-20261014`) committed the working clone's untracked files wholesale and pushed the branch — including `secrets/tmp.*.yaml`, SOPS editor temps holding **plaintext decrypts of `secrets/runtime.yaml`** (live Stripe `sk_live` key, `whsec` webhook secret, `JWT_SECRET`, GitHub OAuth client secret), plus `sbom/*.meta` and portal `debug-*` fixtures. The full-history secrets gate (correctly) failed every main CI run with 34 un-baselined findings until the ref was deleted. Rotation is tracked in [#1070](https://github.com/maplespike/quill/issues/1070). The recurrence hole is now closed at the source: `.gitignore` covers the three machine-artifact classes the sweep picked up (`secrets/tmp*`, `.sops.yaml.tmp`, `sbom/`), and **regression tests in `scripts/test-secrets-history.mts`** pin the closure by behaviour (`git check-ignore` against the repo's real rules) — both directions: the leaked shapes must stay ignored, and the encrypted-secrets lane (`secrets/*.yaml` SOPS files) must stay committable.
+
 ## [Unreleased] — 2026-10-09
 
 ### Added

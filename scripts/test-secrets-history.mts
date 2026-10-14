@@ -22,6 +22,16 @@
  *      cleaned".
  *   5. `--print-baseline` regenerates from the enforced scope only.
  *
+ * Plus the 2026-10-14 incident class (runs 38612919742 / 38617463045): a
+ * "WIP backup" sweep (commit fd4f6e08 on wip/atlas-backup-20261014) committed
+ * the clone's untracked files wholesale — including SOPS editor temps holding
+ * PLAINTEXT decrypts of secrets/runtime.yaml (live Stripe/JWT/OAuth
+ * credentials) — and pushed the branch, so every main CI run failed with 34
+ * un-baselined findings. Deleting the ref removed the findings; the RECURRENCE
+ * hole was that git never ignored the files, so any `git add -A` sweep could
+ * re-leak them. The gitignore tests pin that closure against the real
+ * repository's rules, by behaviour (`git check-ignore`), not by pattern text.
+ *
  * No real gitleaks binary is needed: the fake stands in for it, so the suite
  * runs on any runner with bash + git + python3.
  *
@@ -228,4 +238,59 @@ test('unknown argument exits 2 with a usage line', () => {
   const r = h.runGate(['--bogus']);
   assert.equal(r.status, 2);
   assert.match(r.out, /unknown argument: --bogus/);
+});
+
+// ── 2026-10-14 incident (runs 38612919742 / 38617463045): gitignore closure ────
+//
+// The "WIP backup" sweep that leaked the SOPS temps worked via `git add -A`
+// over untracked files. These tests fail if anyone removes the .gitignore
+// rules that keep the three leaked file classes out of every future sweep.
+// They check BEHAVIOUR (`git check-ignore`) against THIS repository's real
+// .gitignore, so they survive pattern rewrites and never test text trivia.
+
+/** Paths that must be ignored: the exact shapes the incident committed. */
+const MUST_IGNORE = [
+  // SOPS editor temps of secrets/runtime.yaml — PLAINTEXT live credentials.
+  // Real names from commit fd4f6e08, wildcards pinned by behaviour not text.
+  'secrets/tmp.ZMFRg0.yaml',
+  'secrets/tmp.y8ns8n.yaml',
+  'secrets/tmp2zgn9_f1.yaml',
+  'secrets/tmp.anything.yaml',
+  'secrets/tmpXYZ.yaml',
+  // sops edit debris when the editor dies mid-edit.
+  '.sops.yaml.tmp',
+  // SBOM artifacts — local-only, nothing consumes them from git.
+  'sbom/docker.io_library_quill-api_2026-10-05-b454ec90-dirty.meta',
+  'sbom/anything.spdx.json',
+];
+
+/** Paths that must NOT be ignored: the encrypted/documented lane stays committable. */
+const MUST_TRACK = [
+  'secrets/runtime.yaml',       // SOPS-encrypted — safe to commit by design
+  'secrets/runtime.yaml.example',
+  'secrets/README.md',
+  'docs/secrets-history-baseline.txt',
+  'scripts/check-secrets-history.sh',
+];
+
+test('the SOPS-temp, sops-edit-debris and sbom classes are gitignored (fd4f6e08 incident)', () => {
+  for (const p of MUST_IGNORE) {
+    const r = spawnSync('git', ['check-ignore', '-q', p], { cwd: REPO, encoding: 'utf8' });
+    assert.equal(
+      r.status, 0,
+      `git check-ignore must match ${p}: a WIP-backup sweep (git add -A) would commit it again.\n` +
+      'Restore the secrets/tmp*, .sops.yaml.tmp and sbom/ rules in .gitignore.',
+    );
+  }
+});
+
+test('the encrypted-secrets and gate lanes are still committable (no over-broad ignore)', () => {
+  for (const p of MUST_TRACK) {
+    const r = spawnSync('git', ['check-ignore', '-q', p], { cwd: REPO, encoding: 'utf8' });
+    assert.equal(
+      r.status, 1,
+      `git check-ignore must NOT match ${p}: the encrypted-secrets lane is safe to commit.\n` +
+      'An ignore rule is swallowing a file that belongs in git — tighten it.',
+    );
+  }
 });
