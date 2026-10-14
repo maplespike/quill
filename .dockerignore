@@ -12,6 +12,16 @@
 # Version control
 .git/
 
+# Sibling git worktrees. These are live agent working data — do not delete them,
+# and do not ship them. `**/node_modules/` below already drops each worktree's
+# dependency tree, but ~160MB of plain worktree *source* survived it and landed
+# in every build context. Measured on nexus: 17.34MB from a clean `git archive`
+# tree vs 171.7MB from a checkout carrying .worktrees. The first is what a build
+# actually needs; the second grows with whatever worktrees exist right now, so
+# two identical commits produce two different images.
+.worktrees/
+**/.worktrees/
+
 # Environment files
 .env
 .env.*

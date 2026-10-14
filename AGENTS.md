@@ -104,6 +104,37 @@ Portal serves Astro static + a custom Python HTTP server (`server.py`) that adds
 
 ---
 
+## Cursor Cloud specific instructions
+
+Cloud Agents run Quill on a single-node k3s cluster (v1.37.0+k3s1). systemd is not PID 1. Start k3s with `k3s server`. Do not use `systemctl`.
+
+This VM cannot create a VXLAN device. Pass `--flannel-backend=host-gw`. The iptables multiport module is also missing, so Quill pods use `hostNetwork`. Do not use `hostPort`.
+
+Put Node 22.23.3 (or newer) first on `PATH`. Node 22.14 crashes in `undici` 8 because `zlib.createZstdDecompress` is absent. Use the static pnpm 10.32.1 binary at `/usr/local/bin/pnpm`. Corepack rejects the `packageManager` checksum in `package.json`.
+
+After boot these URLs respond:
+
+- API: `http://127.0.0.1:8082/v1/health`
+- MCP: `http://127.0.0.1:3001/health`
+- Portal: `http://127.0.0.1:4321/`
+
+Use `sudo k3s kubectl`. The kubeconfig is `/etc/rancher/k3s/k3s.yaml`. First boot writes dev JWT and PII hash secrets under `/var/lib/quill-dev/`. Do not commit those files.
+
+After a code change, rebuild the package and roll its pod. The pods mount `/workspace` and run the files on disk.
+
+```bash
+pnpm --filter @maplespike/api-server build
+sudo k3s kubectl -n maplespike rollout restart deploy/quill-api
+```
+
+A leaf-only `pnpm --filter <pkg> build` does not build workspace dependencies and does not refresh pnpm's injected copies, so a runtime `ERR_MODULE_NOT_FOUND` for `@maplespike/database/dist` or `pipeline-core/dist` is expected after one. If the pod logs that, run `bash scripts/build-packages.sh` (whole graph plus the injected-copy repair) and roll the pod again — see the `#859` note in that script.
+
+Use the same pattern for `@maplespike/quill-mcp` (`deploy/quill-mcp`) and `@maplespike/i18n` (`deploy/quill-portal`).
+
+Do not use `./scripts/dev-up.sh` in Cloud Agents. That path needs Docker and the operator registry. Use the local k3s stack.
+
+---
+
 ## Local Infrastructure & Deployment
 
 > **Production note:** Quill runs on a private home-lab K3s cluster behind a

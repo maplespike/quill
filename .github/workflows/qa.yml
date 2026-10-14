@@ -18,7 +18,11 @@ permissions:
 
 jobs:
   test-framework:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
+    # Self-hosted runners otherwise inherit a 5-day job cap; a wedged step
+    # must not squat a runner from the pool (#996).
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -47,7 +51,9 @@ jobs:
         working-directory: packages/pipeline-core
 
   qa-module-validation:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -83,7 +89,9 @@ jobs:
         working-directory: packages/pipeline-core
 
   attestation-chain:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -121,7 +129,13 @@ jobs:
         working-directory: packages/pipeline-core
 
   api-and-mcp-validation:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
+    # 2026-10-04 (#996): this job once ran 3h17m with zero output because a
+    # wedged unit-test child held the step open and the job had no bound of
+    # its own. Bound it like every other QA job, and run the test steps
+    # through the stall watchdog so a silent hang is visible and fatal.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -143,12 +157,24 @@ jobs:
         run: pnpm --filter @maplespike/quill-mcp lint
 
       - name: Build api-server + quill-mcp
+        # The `...` suffix builds workspace dependencies too. A leaf-only
+        # `pnpm --filter @maplespike/quill-mcp build` leaves the injected
+        # @maplespike/database copy without dist/, and `node dist/cli.js`
+        # then dies with ERR_MODULE_NOT_FOUND before any stdio frame.
         run: |
-          pnpm --filter @maplespike/api-server build
-          pnpm --filter @maplespike/quill-mcp build
+          pnpm --filter "@maplespike/api-server..." build
+          pnpm --filter "@maplespike/quill-mcp..." build
 
       - name: Run api-server unit tests
-        run: timeout 25m pnpm --filter @maplespike/api-server test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
+        env:
+          # #996: warn after 5 minutes of silence, kill the process group
+          # after 25. The outer `timeout 25m` is the wall-clock backstop.
+          STALL_WATCHDOG_MINUTES: '5'
+          STALL_KILL_AFTER_MINUTES: '25'
 
       - name: Run quill-mcp unit tests
-        run: timeout 25m pnpm --filter @maplespike/quill-mcp test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
+        env:
+          STALL_WATCHDOG_MINUTES: '5'
+          STALL_KILL_AFTER_MINUTES: '25'

@@ -5,6 +5,9 @@
  * JSON-RPC 2.0 based, supporting tools/list and tools/call methods.
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js';
 import { validatePayment, extractPaymentFromArgs } from './x402-middleware.js';
 import type { PaymentProof } from './x402-middleware.js';
@@ -27,7 +30,7 @@ interface JsonRpcRequest {
   params?: Record<string, unknown>;
 }
 
-interface JsonRpcResponse {
+export interface JsonRpcResponse {
   jsonrpc: '2.0';
   /** Absent on notifications (MCP spec: notifications carry no id) */
   id?: string | number | null;
@@ -37,6 +40,13 @@ interface JsonRpcResponse {
   method?: string;
   params?: Record<string, unknown>;
 }
+
+/**
+ * Sink for server->client frames. The SSE transport writes them onto the
+ * client's event stream; the stdio transport writes one JSON line each to
+ * stdout. Transport-agnostic on purpose so both share one dispatcher.
+ */
+export type McpMessageWriter = (response: JsonRpcResponse) => void;
 
 interface ServerCapabilities {
   experimental?: Record<string, unknown>;
@@ -91,6 +101,16 @@ function sanitizeValue(value: unknown): unknown {
   return value;
 }
 
+function readDispatcherVersion(): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const pkgPath = join(here, '..', 'package.json');
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { version?: unknown };
+  if (typeof pkg.version !== 'string' || pkg.version.length === 0) {
+    throw new Error(`Missing version in ${pkgPath}`);
+  }
+  return pkg.version;
+}
+
 function sanitizeOutput(response: ToolResponse): ToolResponse {
   const content = response.content;
   let sanitized: ToolResponse['content'];
@@ -115,7 +135,8 @@ export class McpServer {
   private tools = new Map<string, { definition: ToolDefinition; handler: ToolHandler }>();
   private initialized = false;
   private clientCapabilities: Record<string, unknown> = {};
-  private serverVersion = '0.1.0';
+  /** Matches packages/quill-mcp/package.json. src/ and dist/ both sit one level below it. */
+  private serverVersion = readDispatcherVersion();
   private serverName = 'maplespike-canada-mcp';
   /** Optional quota tracker — when present, gates calls after the free tier. */
   private quota: QuotaTracker | null = null;
