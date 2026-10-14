@@ -49,6 +49,15 @@ The server MUST bound concurrent streams, command idle time, and per-session wri
 - **When** a command is posted for that session
 - **Then** the POST returns 404
 
+### Requirement: Credential rate limit
+The server MUST rate-limit message posts per authenticated credential. It MUST NOT use the TCP peer address or `X-Forwarded-For` as that key. A session with no bearer MUST use the socket address.
+
+#### Scenario: Two credentials share a proxy
+- **Given** two sessions opened with different credentials from the same peer
+- **When** one credential exceeds 60 posts in the window
+- **Then** that credential receives 429
+- **And** the other credential's post is still accepted
+
 ### Requirement: Body limit
 The server MUST reject a message body larger than 1 MiB and MUST NOT run that command.
 
