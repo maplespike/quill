@@ -14,6 +14,9 @@
  *   - successful call      -> quota records the call (errors do not)
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -102,8 +105,9 @@ describe('MCP protocol journey', () => {
     assert.equal(res!.id, 1, 'the response echoes the request id');
     const result = res!.result ?? {};
     const info = (result['serverInfo'] ?? {}) as Record<string, unknown>;
+    const pkg = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8')) as { version: string };
     assert.ok(info['name'], 'serverInfo.name is required');
-    assert.ok(info['version'], 'serverInfo.version is required');
+    assert.equal(info['version'], pkg.version, 'initialize reports the quill-mcp package version');
     assert.ok(result['protocolVersion'], 'protocolVersion is required');
     assert.ok(result['capabilities'], 'capabilities are required');
   });
