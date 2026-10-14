@@ -17,6 +17,13 @@
 # is not enabled on it (`has_pages: false`, /pages returns 404) and private-repo
 # Pages needs a paid plan, so the failure is a repo setting, not this code. The
 # build itself is verified locally with GH_PAGES=true. Re-run after the flip.
+#
+# NOTE (2026-10-08): the workflow is ALSO disabled_manually in the GitHub UI
+# (workflow id 339324198) — it was disabled after a duplicate `env:` key in the
+# portal-build step made GitHub reject the file, so every run died in 0.0 s.
+# That key is fixed (actionlint now guards the class), but the workflow stays
+# disabled on purpose: it cannot succeed until Pages is enabled. To bring it
+# back, first enable Pages, then Actions -> this workflow -> Enable, then run.
 
 name: Deploy Demo Portal to GitHub Pages
 
@@ -69,10 +76,13 @@ jobs:
 
       - name: Build portal (GitHub Pages base)
         run: pnpm --filter @maplespike/portal build
+        # ONE env block. A second `env:` key in the same step is accepted by
+        # every local YAML parser but GitHub rejects the file (or silently
+        # keeps only the last block — YAML last-key-wins), so the Stripe key
+        # never reached the build. Found by actionlint, 2026-10-08.
         env:
           # Publishable by design: ships in the portal's client bundle anyway.
           PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-        env:
           GH_PAGES: "true"
           PUBLIC_API_BASE: "https://api.maplespike.ca/v1"
 

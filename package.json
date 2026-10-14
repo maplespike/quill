@@ -1,14 +1,14 @@
 {
   "name": "quill",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "private": true,
   "description": "MapleSpike — civilian intelligence data platform",
   "workspaces": [
     "packages/*"
   ],
   "overrides": {
-    "undici": ">=8.5.0",
-    "nodemailer": ">=9.0.1",
+    "undici": ">=8.10.2",
+    "nodemailer": ">=10.0.9",
     "ws": ">=8.21.0",
     "uuid": ">=11.1.1",
     "esbuild": ">=0.28.1",
@@ -30,7 +30,7 @@
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
     "build:engine": "pnpm --filter @maplespike/engine build",
     "build:sdk": "pnpm --filter @maplespike/sdk build",
-    "test": "turbo test && pnpm run test:docs && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:lockstep && pnpm run test:workflow-gh",
+    "test": "turbo test && pnpm run test:docs && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:lockstep && pnpm run test:workflow-gh && pnpm run test:hang-bounds",
     "test:packages": "turbo test",
     "test:docs": "pnpm exec tsx --test scripts/test-doc-links.mts",
     "test:external": "pnpm exec tsx --test scripts/test-external-hosts.mts",
@@ -40,6 +40,7 @@
     "test:workflow-yaml": "node scripts/gates/check-workflow-yaml.mjs",
     "audit:provenance": "python3 scripts/compare-provenance.py",
     "test:workflow-gh": "pnpm exec tsx --test scripts/test-workflow-gh-auth.mts",
+    "test:hang-bounds": "pnpm exec tsx --test scripts/test-hang-bounds.mts",
     "test:routes": "pnpm exec tsx --test 'packages/*/src/__integration__/**/*.test.ts'",
     "e2e:smoke": "bash scripts/e2e-smoke.sh --mode=local",
     "dev:up": "bash scripts/dev-up.sh",

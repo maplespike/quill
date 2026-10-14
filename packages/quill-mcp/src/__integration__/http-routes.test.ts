@@ -17,7 +17,9 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
+import { once } from 'node:events';
 import net from 'node:net';
+import { createServer as createHttpServer, type Server } from 'node:http';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_REASON = 'SKIP_NETWORK_TESTS=1';
@@ -65,6 +67,44 @@ async function waitForReady(url: string, timeoutMs = 10_000): Promise<void> {
   throw new Error(`server did not respond at ${url} within ${timeoutMs}ms (last error: ${String(lastErr)})`);
 }
 
+/**
+ * Stop the spawned server AND its whole process group.
+ *
+ * The server runs directly under Node. `detached: true` gives it a process
+ * group so cleanup also reaches logging workers. The previous pnpm wrapper
+ * left the actual server alive when only the wrapper was killed; its open
+ * pipes kept the test process alive until the CI job timeout.
+ *
+ * Also: `proc.killed` is NOT a liveness check — it flips true the moment
+ * kill() is CALLED, not when the process exits, so the previous
+ * `if (!proc.killed) proc.kill('SIGKILL')` fallback could never fire. Wait on
+ * the real 'exit' event instead.
+ */
+async function stopServer(proc: ChildProcess | undefined): Promise<void> {
+  if (!proc || proc.pid === undefined || proc.exitCode !== null) return;
+
+  // Attach the exit listener BEFORE signalling so a fast exit cannot be missed.
+  const exited = once(proc, 'exit');
+  try {
+    process.kill(-proc.pid, 'SIGTERM');
+  } catch {
+    proc.kill('SIGTERM'); // group already gone — signal the direct child
+  }
+
+  const graceful = await Promise.race([
+    exited.then(() => true),
+    new Promise<boolean>((r) => setTimeout(() => r(false), 2000)),
+  ]);
+
+  if (!graceful) {
+    try {
+      process.kill(-proc.pid, 'SIGKILL');
+    } catch {
+      proc.kill('SIGKILL');
+    }
+  }
+}
+
 describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => {
   let port: number;
   let proc: ChildProcess;
@@ -73,25 +113,36 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
   before(async () => {
     port = await getFreePort();
     baseUrl = `http://127.0.0.1:${port}`;
-    const pkgRoot = new URL('../../..', import.meta.url).pathname;
+    const pkgRoot = new URL('../..', import.meta.url).pathname;
 
-    // Spawn via `pnpm --filter ... exec tsx` so pnpm resolves tsx from
-    // the package's own devDependencies regardless of how node_modules is
-    // laid out (hoisted vs isolated). Avoids ENOENTs from PATH/npx lookup.
+    // Launch Node directly so shutdown assertions observe the server's exit,
+    // not a pnpm wrapper killed by the same process-group signal.
     proc = spawn(
-      'pnpm',
-      ['--filter', '@maplespike/quill-mcp', 'exec', 'tsx', 'src/index.ts'],
+      process.execPath,
+      process.env.QUILL_TEST_BUILT === '1'
+        ? ['dist/index.js']
+        : ['--import', 'tsx', 'src/index.ts'],
       {
         cwd: pkgRoot,
         env: {
           ...process.env,
           PORT: String(port),
+          QUILL_MCP_METRICS_PORT: '0',
           NODE_ENV: 'test',
+          QUILL_API_URL: '',
+          ASTRAL_KEY_URL: '',
+          QUILL_LOG_LEVEL: 'silent',
+          LOG_LEVEL: 'silent',
+          TRUST_PROXY: 'false',
+          QUOTA_ENABLED: 'true',
+          QUOTA_PERSIST_PATH: '',
           QUILL_API_KEY: 'test-secret-key', // non-dev key so auth is enforced
           X402_ENABLED: 'false',
-          QUOTA_ENABLED: 'false',
+
         },
         stdio: ['ignore', 'pipe', 'pipe'],
+        // Keep any worker descendants in the server's process group for cleanup.
+        detached: true,
       },
     );
 
@@ -109,19 +160,18 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
 
   // Sanity check the spawn worked before any sub-test runs (faster failure
   // surface than waiting for every subtest to time out).
+  // `exitCode !== null` is the real liveness signal — `proc.killed` only
+  // records that a signal was SENT (see stopServer).
   before((t) => {
-    if (!proc || proc.killed || proc.exitCode !== null) {
+    if (!proc || proc.exitCode !== null) {
       t.skip('index.ts child process failed to spawn — see stderr from before() hook');
     }
   });
 
   after(async () => {
-    if (proc && !proc.killed) {
-      proc.kill('SIGTERM');
-      // give it 500ms to exit gracefully
-      await new Promise((r) => setTimeout(r, 500));
-      if (!proc.killed) proc.kill('SIGKILL');
-    }
+    // Kill the whole process group — the server is a grandchild of `pnpm`,
+    // and an orphaned server keeps this process alive forever (see stopServer).
+    await stopServer(proc);
   });
 
   it('GET /health returns 200 with stable response shape', async () => {
@@ -166,5 +216,323 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     const body = await res.json() as Record<string, unknown>;
     assert.equal(body.error, 'Not found');
     assert.equal(body.path, '/nope-this-does-not-exist');
+  });
+
+  it('authenticated SSE uses standard framing and owner-bound message delivery', async () => {
+    const controller = new AbortController();
+    const headers = { Authorization: 'Bearer test-secret-key' };
+    const stream = await fetch(`${baseUrl}/sse`, { headers, signal: controller.signal });
+    assert.equal(stream.status, 200);
+    const reader = stream.body!.getReader();
+    const decoder = new TextDecoder();
+    let pending = '';
+    async function event(): Promise<{ name: string; data: string }> {
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        assert.equal(chunk.done, false, 'stream ended before its response');
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const end = pending.indexOf('\n\n');
+      const frame = pending.slice(0, end);
+      pending = pending.slice(end + 2);
+      return {
+        name: frame.split('\n').find(line => line.startsWith('event: '))?.slice(7) ?? '',
+        data: frame.split('\n').filter(line => line.startsWith('data: ')).map(line => line.slice(6)).join('\n'),
+      };
+    }
+    try {
+      const endpoint = await event();
+      assert.equal(endpoint.name, 'endpoint');
+      assert.match(endpoint.data, /^\/messages\?clientId=[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+      const target = new URL(endpoint.data, baseUrl);
+      assert.equal(target.origin, baseUrl);
+      const post = (body: unknown, authorization?: string) => fetch(target, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(authorization ? { Authorization: authorization } : {}) },
+        body: JSON.stringify(body),
+      });
+      const request = (id: number, method: string, params = {}) => ({ jsonrpc: '2.0', id, method, params });
+      const initialize = request(1, 'initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'route-test', version: '1' } });
+      assert.equal((await post(initialize)).status, 401);
+      assert.equal((await post(initialize, 'Bearer wrong-owner')).status, 401);
+      // The configured key's base64 alias is also valid auth, but is not this stream's owner.
+      assert.equal((await post(initialize, `Bearer ${Buffer.from('test-secret-key').toString('base64')}`)).status, 401);
+      assert.equal((await post(initialize, headers.Authorization)).status, 202);
+      const initialized = await event();
+      assert.equal(initialized.name, 'message');
+      assert.equal(JSON.parse(initialized.data).id, 1);
+      assert.equal((await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, headers.Authorization)).status, 202);
+      assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
+      const listed = JSON.parse((await event()).data);
+      assert.equal(listed.id, 2);
+      assert.equal(listed.result.tools.length, 184);
+      assert.equal(listed.result._quota.mode, 'api-key');
+      assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
+      const called = JSON.parse((await event()).data);
+      assert.equal(called.id, 3);
+      assert.ok(called.result.content.length > 0);
+      assert.notEqual(called.result.isError, true);
+
+      // Teardown must work while the SSE response is still open.
+      const exited = once(proc, 'exit');
+      process.kill(-proc.pid!, 'SIGTERM');
+      let timeout: NodeJS.Timeout | undefined;
+      try {
+        const code = await Promise.race([
+          exited.then(([code]) => code),
+          new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('SIGTERM did not close the active SSE stream')), 5000); }),
+        ]);
+        assert.equal(code, 0);
+      } finally {
+        clearTimeout(timeout);
+      }
+    } finally {
+      controller.abort();
+      await reader.cancel().catch(() => {});
+    }
+  });
+
+});
+
+async function listen(server: Server): Promise<number> {
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+  const address = server.address();
+  if (typeof address === 'string' || address === null) throw new Error('no port');
+  return address.port;
+}
+
+function startIndex(port: number, env: Record<string, string>): ChildProcess {
+  const pkgRoot = new URL('../..', import.meta.url).pathname;
+  return spawn(process.execPath, ['--import', 'tsx', 'src/index.ts'], {
+    cwd: pkgRoot,
+    env: {
+      ...process.env,
+      PORT: String(port),
+      QUILL_MCP_METRICS_PORT: '0',
+      NODE_ENV: 'test',
+      QUILL_API_URL: '',
+      ASTRAL_KEY_URL: '',
+      QUILL_LOG_LEVEL: 'silent',
+      LOG_LEVEL: 'silent',
+      TRUST_PROXY: 'false',
+      QUOTA_ENABLED: 'true',
+      QUOTA_PERSIST_PATH: '',
+      QUILL_API_KEY: 'test-secret-key',
+      X402_ENABLED: 'false',
+      ...env,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: true,
+  });
+}
+
+describe('SSE session limits', { skip: SKIP && SKIP_REASON }, () => {
+  it('keeps each session message on that session stream', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, {});
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const open = async () => {
+        const controller = new AbortController();
+        const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+        const reader = stream.body!.getReader();
+        const decoder = new TextDecoder();
+        let pending = '';
+        const next = async () => {
+          while (!pending.includes('\n\n')) {
+            const chunk = await reader.read();
+            if (chunk.done) return null;
+            pending += decoder.decode(chunk.value, { stream: true });
+          }
+          const end = pending.indexOf('\n\n');
+          const frame = pending.slice(0, end);
+          pending = pending.slice(end + 2);
+          return frame;
+        };
+        const endpoint = await next();
+        const id = endpoint?.match(/clientId=([0-9a-f-]+)/)?.[1];
+        return { controller, reader, next, id };
+      };
+      const a = await open();
+      const b = await open();
+      assert.ok(a.id && b.id && a.id !== b.id);
+      const posted = await fetch(`${base}/messages?clientId=${a.id}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 7, method: 'tools/list', params: {} }),
+      });
+      assert.equal(posted.status, 202);
+      const frame = await a.next();
+      assert.match(frame ?? '', /"id":7/);
+      const other = await Promise.race([
+        b.next().then((value) => value ?? 'closed'),
+        new Promise<string>((resolve) => setTimeout(() => resolve('quiet'), 400)),
+      ]);
+      assert.equal(other, 'quiet');
+      a.controller.abort();
+      b.controller.abort();
+    } finally {
+      await stopServer(proc);
+    }
+  });
+
+  it('rejects a tenant key after the API revokes it and drops the stream', async () => {
+    let valid = true;
+    const api = createHttpServer((req, res) => {
+      if (req.url === '/v1/auth/me' && valid) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ data: { tenant: { id: 'tenant-1' } } }));
+        return;
+      }
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'revoked' }));
+    });
+    const apiPort = await listen(api);
+    const port = await getFreePort();
+    const proc = startIndex(port, { QUILL_API_URL: `http://127.0.0.1:${apiPort}` });
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer tenant-live-key' };
+      const controller = new AbortController();
+      const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      assert.equal(stream.status, 200);
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      valid = false;
+      const denied = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+      });
+      assert.equal(denied.status, 401);
+      const again = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' }),
+      });
+      assert.equal(again.status, 404);
+      controller.abort();
+    } finally {
+      await stopServer(proc);
+      await new Promise<void>((resolve) => api.close(() => resolve()));
+    }
+  });
+
+  it('refuses a new session when the connection cap is full', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, { QUILL_SSE_MAX_CLIENTS: '1' });
+    const base = `http://127.0.0.1:${port}`;
+    const controller = new AbortController();
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const first = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      assert.equal(first.status, 200);
+      const second = await fetch(`${base}/sse`, { headers });
+      assert.equal(second.status, 503);
+      await second.body?.cancel();
+    } finally {
+      controller.abort();
+      await stopServer(proc);
+    }
+  });
+
+  it('closes an idle session', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, { QUILL_SSE_IDLE_MS: '300' });
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      await waitForReady(`${base}/health`);
+      const stream = await fetch(`${base}/sse`, { headers: { Authorization: 'Bearer test-secret-key' } });
+      assert.equal(stream.status, 200);
+      const reader = stream.body!.getReader();
+      const done = await Promise.race([
+        (async () => {
+          while (true) {
+            const chunk = await reader.read();
+            if (chunk.done) return 'closed';
+          }
+        })(),
+        new Promise<string>((resolve) => setTimeout(() => resolve('open'), 2000)),
+      ]);
+      assert.equal(done, 'closed');
+    } finally {
+      await stopServer(proc);
+    }
+  });
+
+  it('rejects an oversized declared body before running a command', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, {});
+    const base = `http://127.0.0.1:${port}`;
+    const controller = new AbortController();
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      const denied = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: `{"pad":"${'x'.repeat(1024 * 1024 + 32)}"}`,
+      });
+      assert.equal(denied.status, 413);
+      const listed = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 9, method: 'tools/list' }),
+      });
+      assert.equal(listed.status, 202);
+    } finally {
+      controller.abort();
+      await stopServer(proc);
+    }
+  });
+
+  it('forgets a session after the client disconnects', async () => {
+    const port = await getFreePort();
+    const proc = startIndex(port, {});
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      await waitForReady(`${base}/health`);
+      const headers = { Authorization: 'Bearer test-secret-key' };
+      const controller = new AbortController();
+      const stream = await fetch(`${base}/sse`, { headers, signal: controller.signal });
+      const reader = stream.body!.getReader();
+      const decoder = new TextDecoder();
+      let pending = '';
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const clientId = pending.match(/clientId=([0-9a-f-]+)/)?.[1];
+      controller.abort();
+      await reader.cancel().catch(() => {});
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const posted = await fetch(`${base}/messages?clientId=${clientId}`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+      });
+      assert.equal(posted.status, 404);
+    } finally {
+      await stopServer(proc);
+    }
   });
 });

@@ -34,6 +34,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Fail fast on unresolved merge/rebase conflict markers. A rebase that
+      # ships `<<<<<<< HEAD` into a chart file breaks ArgoCD manifest
+      # generation for the WHOLE chart: the quill app stops syncing anything
+      # and goes Unknown/Degraded until a restore lands (measured 2026-10-08 —
+      # markers in charts/quill/values-prod.yaml broke `helm template`; the
+      # sync was dead until the file was restored). Only tracked files are
+      # searched, because only tracked files reach ArgoCD.
+      - name: No conflict markers
+        run: |
+          if git grep -nE '^(<{7}|>{7})( |$)' -- . ; then
+            echo "::error::Unresolved conflict markers found in tracked files — resolve before pushing."
+            exit 1
+          fi
+          echo "no conflict markers"
+
+      # Lint the workflow files themselves. actionlint catches schema errors
+      # AND the untrusted-input class — an expression interpolated straight
+      # into a `run:` script — which is how the auto-merge PR-title injection
+      # was found on 2026-10-08. Runs via mise, a system binary present on
+      # every runner (/usr/bin/mise); the config at .github/actionlint.yaml
+      # declares the custom `nixos` runner label.
+      - name: Lint workflows (actionlint)
+        run: mise exec actionlint@1.7.7 -- actionlint
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -104,6 +128,15 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
+      # Incident rule for the silent unit-lane hangs (#996; CI runs
+      # 37237114470 and 37943276276): a node:test child whose event loop is
+      # held open by a live handle runs with --test-timeout=0, so the lane
+      # only ended at the job timeout. These fixtures pin that both
+      # test:unit scripts carry the flags that bound it and that a
+      # never-settling test fails fast instead of hanging.
+      - name: Unit-lane hang bounds tests
+        run: pnpm exec tsx --test scripts/test-hang-bounds.mts
+
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.
@@ -116,17 +149,17 @@ jobs:
       # bounds recurrence; this helper also preserves the child exit status
       # despite GitHub's default bash -e behavior and uses a per-step temp log.
       - name: Run api-server unit tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit
 
       - name: Run quill-mcp unit tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
 
       - name: Run api-server integration tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:integration
         continue-on-error: true
 
       - name: Run quill-mcp integration tests
-        run: bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
+        run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
         continue-on-error: true
 
   coverage:
@@ -147,18 +180,23 @@ jobs:
           pnpm --filter @maplespike/quill-mcp build
 
       - name: Run api-server coverage (floor-enforced)
-        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+        run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
 
       - name: Run quill-mcp coverage, hermetic unit suite (floor-enforced)
         # Unit suite only: the integration suite deliberately hits live
         # government endpoints and must not gate coverage (#859).
-        run: bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
+        run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
     continue-on-error: true
-    timeout-minutes: 60
+    # The suite's normal wall time is <1 min (measured 2026-10-08: 14 s for all
+    # six files). 60 min let a teardown hang squat a runner for a full hour;
+    # 15 min still leaves a ~60x margin while bounding that damage. The real
+    # fix for the 2026-10-08 hang is in http-routes.test.ts (group kill), this
+    # is the backstop.
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4

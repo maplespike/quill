@@ -76,11 +76,16 @@ async function recordToClaim(
     ? readPublisherTermsEvidence(record)
     : undefined;
   const hasConfiguredLicense = defaultLicense !== NO_REUSE_LICENSE_NOTICE;
+  // Retain the raw artifact: the canonical serialization of this record is
+  // the exact byte string the claim's sha256 covers, so a claim can be
+  // re-verified from retained bytes long after the upstream source changes.
+  const rawBody = canonicalJson(record);
   return buildClaimBundle({
     claim,
     value: record,
     sourceName: moduleName,
     sourceUrl: recordUrl,
+    rawBody,
     retrievedAt: sourceRetrievedAt,
     license: hasPublisherDeclaration || declared.basis === 'source-configuration'
       ? declared.license
