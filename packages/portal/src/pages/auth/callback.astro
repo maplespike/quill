@@ -26,6 +26,16 @@ if (Astro.url.searchParams.has("error")) {
 
       <p id="auth-error" class="hidden text-sm text-destructive"></p>
 
+      <div id="api-key-reveal" class="hidden text-left space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4" role="region" aria-label="Your API key">
+        <p class="text-sm font-medium">Save your API key</p>
+        <p class="text-sm text-muted-foreground">Copy this key now. It is also stored in this browser.</p>
+        <code id="api-key-reveal-value" class="block break-all font-mono text-sm"></code>
+        <button type="button" id="api-key-reveal-copy" class="text-xs text-muted-foreground hover:text-foreground">Copy</button>
+        <pre id="api-key-reveal-curl" class="whitespace-pre-wrap break-all rounded-md border bg-muted/40 p-3 font-mono text-xs"></pre>
+        <p class="text-xs text-muted-foreground">Manage or rotate this key on the <a href="/dashboard" class="underline">dashboard</a>.</p>
+        <a id="api-key-reveal-continue" href="/workspace?new=1" class="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Continue</a>
+      </div>
+
       <a
         href="/signup"
         id="auth-retry"
@@ -119,6 +129,26 @@ if (Astro.url.searchParams.has("error")) {
           // Also store API key if provided
           if (payload?.apiKey?.key) {
             localStorage.setItem("quill-api-key", payload.apiKey.key);
+          }
+
+          // A new account must see the full key before any redirect. The
+          // continue link goes to the workspace welcome, which shows it again.
+          if (payload?.isNewUser && payload?.apiKey?.key) {
+            const reveal = document.getElementById("api-key-reveal");
+            const value = document.getElementById("api-key-reveal-value");
+            const curl = document.getElementById("api-key-reveal-curl");
+            const spinner = document.querySelector(".animate-spin");
+            if (value) value.textContent = payload.apiKey.key;
+            if (curl) {
+              curl.textContent = `curl -s -H "x-api-key: ${payload.apiKey.key}" ${apiBase}/v1/llms.txt`;
+            }
+            document.getElementById("api-key-reveal-copy")?.addEventListener("click", () => {
+              void navigator.clipboard?.writeText(payload.apiKey.key);
+            });
+            if (spinner) spinner.classList.add("hidden");
+            if (reveal) reveal.classList.remove("hidden");
+            if (statusEl) statusEl.textContent = "Your API key is ready.";
+            return;
           }
 
           if (!statusEl) return;

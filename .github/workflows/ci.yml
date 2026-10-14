@@ -117,6 +117,12 @@ jobs:
       - name: Secrets history gate unit tests
         run: pnpm exec tsx --test scripts/test-secrets-history.mts
 
+      # pipeline-core was recorded as 78 lines, then 4,174, because
+      # `xargs wc | tail -1` kept the last chunk. This test fails if the
+      # counter drops files again.
+      - name: TypeScript line-count unit test
+        run: pnpm exec tsx --test scripts/test-count-ts.mts
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.
