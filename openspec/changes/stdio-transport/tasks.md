@@ -15,3 +15,4 @@
 
 - [x] 3.1 Add a test that spawns `dist/cli.js`, requires protocol-only stdout, and requires exit 0 when stdin closes
 - [x] 3.2 Build `@maplespike/quill-mcp` and run that test for `NODE_ENV=production` and `NODE_ENV=development`
+- [x] 3.3 Build workspace dependencies in the QA and coverage jobs (`--filter pkg...`) so the injected `@maplespike/database` copy has `dist/` before `dist/cli.js` is spawned

@@ -51,7 +51,22 @@ function spawnBuilt(nodeEnv: string): BuiltChild {
   const stdoutLines: string[] = [];
   let stderrText = '';
   let buffer = '';
-  const waiters = new Map<string, (frame: Record<string, unknown>) => void>();
+  const waiters = new Map<string, {
+    resolve: (frame: Record<string, unknown>) => void;
+    reject: (err: Error) => void;
+  }>();
+
+  const failWaiters = (err: Error): void => {
+    for (const waiter of waiters.values()) waiter.reject(err);
+    waiters.clear();
+  };
+
+  proc.on('exit', (code) => {
+    failWaiters(new Error(
+      `stdio process exited ${code} before a response frame. `
+      + `stderr tail: ${stderrText.slice(-500)}`,
+    ));
+  });
 
   proc.stdout?.on('data', (chunk: Buffer) => {
     buffer += chunk.toString();
@@ -65,7 +80,7 @@ function spawnBuilt(nodeEnv: string): BuiltChild {
         const waiter = waiters.get(String(frame.id));
         if (waiter && frame.id !== undefined) {
           waiters.delete(String(frame.id));
-          waiter(frame);
+          waiter.resolve(frame);
         }
       } catch {
         // The purity assertion reports the bad line.
@@ -94,9 +109,15 @@ function spawnBuilt(nodeEnv: string): BuiltChild {
             + `stderr tail: ${stderrText.slice(-400)}`,
           ));
         }, READY_TIMEOUT_MS);
-        waiters.set(String(id), (frame) => {
-          clearTimeout(timer);
-          resolve(frame);
+        waiters.set(String(id), {
+          resolve: (frame) => {
+            clearTimeout(timer);
+            resolve(frame);
+          },
+          reject: (err) => {
+            clearTimeout(timer);
+            reject(err);
+          },
         });
       });
     },
