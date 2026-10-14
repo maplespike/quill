@@ -1,3 +1,29 @@
+---
+# Dependabot auto-merge — the single Dependabot merge path (#1041).
+#
+# This repo used to run two workflows against every Dependabot PR, both naming
+# themselves `auto-merge` in the checks list, and neither could merge:
+#
+#   * `auto-merge.yml` called `gh pr review --approve`, which cannot work here
+#     — "GitHub Actions is not permitted to approve pull requests" is a repo
+#     setting, not a code defect. Every allowlisted PR ended on a failed check
+#     that meant nothing (measured on #1051, #1053, #1056, 2026-10-13).
+#   * Both files called `gh pr merge --auto`, but auto-merge is DISABLED on this
+#     repository (`allow_auto_merge: false`, verified 2026-10-14), so that
+#     command cannot succeed regardless of the token.
+#   * The wait loop read `gh pr checks` with no fallback. When the GraphQL read
+#     is refused the loop saw an empty list, waited its full 30 minutes and
+#     exited 1 — the red `auto-merge` check #1041 measured on 8 open PRs whose
+#     real checks were green.
+#
+# Fix: one path, which verifies and then merges directly. `auto-merge.yml` is
+# deleted. `actions: read` plus the REST fallback below is the same treatment
+# `merge-when-green.yml` documents (and needed) for the identical refusal.
+#
+# Policy is unchanged from the allowlist that file carried: only the low-risk
+# packages below, plus patch-level framework updates, auto-merge. Majors and
+# anything unknown are left for a human and get a comment saying why. A human
+# merging anything else uses the `ready-to-merge` label and merge-when-green.yml.
 name: Dependabot Auto-Merge
 
 on:
@@ -8,71 +34,182 @@ permissions:
   contents: write
   pull-requests: write
   checks: read
+  # `gh pr checks` resolves checkSuite.workflowRun through GraphQL, which is
+  # refused outright without this scope ("Resource not accessible by
+  # integration" — measured 60/60 attempts on #997). The REST check-runs
+  # fallback in the wait step covers the residual cases.
+  actions: read
+  issues: write
+
+# One waiter per PR (#1041, suggestion 3). A batch of `@dependabot rebase`
+# comments once stacked several 30-minute waiters; a re-push now supersedes the
+# previous wait instead of racing it.
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   auto-merge:
+    # No fork guard needed: GitHub-hosted runner, and `dependabot[bot]` cannot
+    # be a fork PR.
     if: github.actor == 'dependabot[bot]'
-    runs-on: [self-hosted, nixos]
+    # NOT self-hosted, deliberately (#1041): on the four self-hosted runners a
+    # waiting job holds a slot the checks it is waiting on need, which starved
+    # main CI for 30min+ (measured 2026-10-09). This job runs only `gh`, so a
+    # GitHub-hosted runner costs a fraction of a cent. Do NOT move it back.
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Decide whether this bump may auto-merge
+        id: check
+        # Untrusted input (PR title) arrives via env, never interpolated into
+        # the script — a title containing a quote or a command substitution
+        # would otherwise execute on the runner.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Majors and explicit breaking changes always get a human.
+          if echo "$PR_TITLE" | grep -qiE "major|breaking|BREAKING"; then
+            echo "safe=false" >> $GITHUB_OUTPUT
+            echo "reason=Major version bump — manual review required" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Packages whose updates have never needed review here.
+          LOW_RISK="better-sqlite3|@types/|typescript|eslint|vitest|turbo"
+          if echo "$PR_TITLE" | grep -qiE "$LOW_RISK"; then
+            echo "safe=true" >> $GITHUB_OUTPUT
+            echo "reason=Low-risk dependency" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Framework deps (Next.js, Astro, Drizzle) — patch level only.
+          if echo "$PR_TITLE" | grep -qiE "next|astro|drizzle"; then
+            if echo "$PR_TITLE" | grep -qE "from [0-9]+\.[0-9]+\.[0-9]+ to [0-9]+\.[0-9]+\.[0-9]+"; then
+              FROM=$(echo "$PR_TITLE" | grep -oP 'from \K[0-9]+\.[0-9]+\.[0-9]+')
+              TO=$(echo "$PR_TITLE" | grep -oP 'to \K[0-9]+\.[0-9]+\.[0-9]+')
+              FROM_MAJOR=$(echo "$FROM" | cut -d. -f1)
+              TO_MAJOR=$(echo "$TO" | cut -d. -f1)
+              FROM_MINOR=$(echo "$FROM" | cut -d. -f2)
+              TO_MINOR=$(echo "$TO" | cut -d. -f2)
+              if [ "$FROM_MAJOR" = "$TO_MAJOR" ] && [ "$FROM_MINOR" = "$TO_MINOR" ]; then
+                echo "safe=true" >> $GITHUB_OUTPUT
+                echo "reason=Patch-level framework update" >> $GITHUB_OUTPUT
+              else
+                echo "safe=false" >> $GITHUB_OUTPUT
+                echo "reason=Minor/major framework update — manual review" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "safe=false" >> $GITHUB_OUTPUT
+              echo "reason=Cannot determine version change — manual review" >> $GITHUB_OUTPUT
+            fi
+            exit 0
+          fi
+
+          # Default: don't auto-merge unknown deps. Wording matters here: this
+          # is a dependency-bump allowlist, not a blocklist of trusted authors.
+          echo "safe=false" >> $GITHUB_OUTPUT
+          echo "reason=Dependency-bump allowlist does not cover this package — manual review" >> $GITHUB_OUTPUT
 
       - name: Wait for CI checks
+        if: steps.check.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           # Hardcoded display name (NOT `github.workflow`, which resolves to
           # the workflow FILE basename — `gh pr checks --json name` returns the
-          # DISPLAY name, so only the literal matches).
+          # DISPLAY name, so only the literal matches). pr-validation.yml has a
+          # rename guard asserting this string stays in sync with `name:`.
           WORKFLOW_NAME: "Dependabot Auto-Merge"
         run: |
-          # Native replacement for the unmaintained lewagon/wait-on-check-action.
-          # Polls `gh pr checks` until every required check reports success.
+          set -euo pipefail
+
+          # Resolve by PR NUMBER, never by head SHA: `gh pr checks <sha>` does
+          # not resolve raw commit SHAs, and the previous `|| echo '[]'`
+          # fallback then read "no checks found" as "all checks passed" and
+          # merged RED Dependabot PRs (zod 4, TS 7, ioredis 6 merged red on
+          # 2026-09-21 and broke main).
           #
-          # IMPORTANT: resolve by PR NUMBER, never by head SHA — `gh pr checks
-          # <sha>` does not resolve raw commit SHAs; the previous version's
-          # `|| echo '[]'` fallback then read "no checks found" as "all checks
-          # passed" and merged RED dependabot PRs (zod 4, TS 7, ioredis 6 all
-          # merged red on 2026-09-21 and broke main).
-          echo "Waiting for CI checks on PR #$PR_NUMBER…"
+          # 60 * 20s = 20 min ceiling, longer than any lane in ci.yml/qa.yml.
           for i in $(seq 1 60); do
-            CHECKS=$(gh pr checks "$PR_NUMBER" --json name,bucket 2>/dev/null) || CHECKS=""
-            if [ -z "$CHECKS" ]; then
-              echo "($i/60) checks not resolvable yet…"
-              sleep 30
+            PENDING=""
+            FAILURES=""
+            CHECKS=""
+            RAW=""
+            if CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null); then
+              PENDING=$(jq --arg wf "$WORKFLOW_NAME" \
+                '[.[] | select(.bucket == "pending" and .name != $wf)] | length' \
+                <<<"$CHECKS" 2>/dev/null || true)
+              FAILURES=$(jq --arg wf "$WORKFLOW_NAME" \
+                '[.[] | select(.bucket == "fail" and .name != $wf)] | length' \
+                <<<"$CHECKS" 2>/dev/null || true)
+            else
+              # Fallback (#997): gh pr checks' GraphQL can be refused wholesale.
+              # Read the same data over REST check-runs for the head SHA.
+              HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefOid -q .headRefOid 2>/dev/null || true)
+              if [ -n "$HEAD_SHA" ] && RAW=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA/check-runs?per_page=100" 2>/dev/null); then
+                if [ "$(jq '.check_runs | length' <<<"$RAW" 2>/dev/null || echo 0)" -gt 0 ]; then
+                  PENDING=$(jq --arg wf "$WORKFLOW_NAME" \
+                    '[.check_runs[] | select(.status != "completed" and .name != $wf)] | length' <<<"$RAW")
+                  FAILURES=$(jq --arg wf "$WORKFLOW_NAME" \
+                    '[.check_runs[] | select(.name != $wf and (.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure"))] | length' <<<"$RAW")
+                fi
+              fi
+            fi
+
+            # Fail closed (#983 follow-up): an unreadable list must never read
+            # as "nothing pending, nothing failed". Wait and retry.
+            if [ -z "$PENDING" ] || [ -z "$FAILURES" ]; then
+              echo "($i/60) check list unreadable — retrying."
+              sleep 20
               continue
             fi
-            PENDING=$(jq --arg wf "$WORKFLOW_NAME" \
-              '[.[] | select(.bucket == "pending" and .name != $wf)] | length' \
-              <<<"$CHECKS")
-            FAILURES=$(jq --arg wf "$WORKFLOW_NAME" \
-              '[.[] | select(.bucket == "fail" and .name != $wf)] | length' \
-              <<<"$CHECKS")
-            NONOWN=$(jq --arg wf "$WORKFLOW_NAME" \
-              '[.[] | select(.name != $wf)] | length' \
-              <<<"$CHECKS")
+
             if [ "$FAILURES" -gt 0 ]; then
-              echo "::error::A required check failed before timeout."
+              if [ -n "$CHECKS" ]; then
+                NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
+              else
+                NAMES=$(jq -r '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure") | .name] | join(", ")' <<<"$RAW" 2>/dev/null || true)
+              fi
+              echo "::error::Failing checks on #$PR_NUMBER: $NAMES — refusing to merge."
               exit 1
             fi
-            # Require at least one non-own check to exist AND none pending —
-            # an empty/absent check list must never count as success.
-            if [ "$PENDING" -eq 0 ] && [ "$NONOWN" -gt 0 ]; then
-              echo "All required checks passed."
+
+            if [ "$PENDING" -eq 0 ]; then
+              echo "All checks settled: nothing pending, nothing failed."
               exit 0
             fi
             echo "($i/60) $PENDING checks still pending…"
-            sleep 30
+            sleep 20
           done
-          echo "::error::Timed out waiting for CI after 30 minutes."
+          echo "::error::Timed out waiting for CI after 20 minutes."
           exit 1
 
-      - name: Enable auto-merge
+      - name: Squash-merge
+        if: steps.check.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Untrusted: via env, never interpolated into the script.
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          gh pr merge --auto --squash "$PR_URL" \
-            --subject "chore(deps): $PR_TITLE"
+          set -euo pipefail
+          # No --auto: auto-merge is disabled on this repository, so the
+          # command would fail rather than queue. No --subject: the repo's
+          # squash settings take COMMIT_OR_PR_TITLE, which is Dependabot's own
+          # "chore(deps): bump X from A to B".
+          if ! gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash \
+            --body "Auto-merged by Dependabot Auto-Merge (#1041): every check green and the package is on the low-risk allowlist."; then
+            echo "::error::Merge failed for #$PR_NUMBER. If this is a token permission problem, note that Dependabot-triggered runs get a read-only GITHUB_TOKEN unless write tokens are enabled for them in repository settings."
+            exit 1
+          fi
+          echo "::notice::Auto-merged #$PR_NUMBER."
+
+      - name: Comment when skipped
+        if: steps.check.outputs.safe != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "$GH_REPO" \
+            --body "⏸️ Auto-merge skipped: ${{ steps.check.outputs.reason }}"
