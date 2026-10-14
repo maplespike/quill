@@ -199,9 +199,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build api-server + quill-mcp
+        # Include workspace dependencies. The coverage unit suite spawns
+        # dist/cli.js, which cannot resolve @maplespike/database until that
+        # package's own build has refreshed the injected copy.
         run: |
-          pnpm --filter @maplespike/api-server build
-          pnpm --filter @maplespike/quill-mcp build
+          pnpm --filter "@maplespike/api-server..." build
+          pnpm --filter "@maplespike/quill-mcp..." build
 
       - name: Run api-server coverage (floor-enforced)
         run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
