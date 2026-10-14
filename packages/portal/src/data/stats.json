@@ -1,6 +1,10 @@
 {
   "_meta": {
+<<<<<<< Updated upstream
     "generatedAt": "2026-10-12T18:36:47.000Z",
+=======
+    "generatedAt": "2026-10-14T16:43:21.000Z",
+>>>>>>> Stashed changes
     "sources": [
       "https://mcp.maplespike.ca/health",
       "pipeline-core registry"

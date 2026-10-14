@@ -4,7 +4,11 @@
   "url": "https://maplespike.ca",
   "moduleCount": 27,
   "actionCount": 79,
+<<<<<<< Updated upstream
   "updatedAt": "2026-10-12T18:36:47.000Z",
+=======
+  "updatedAt": "2026-10-14T16:43:21.000Z",
+>>>>>>> Stashed changes
   "tools": [
     {
       "name": "committees",
