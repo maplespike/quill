@@ -50,7 +50,7 @@ Plus a packaged Hermes profile example (`packages/quill-mcp/examples/hermes-quil
 
 | Mode | Description |
 |------|-------------|
-| **Quill Lite** | Zero-config `npx @maplespike/quill-mcp` stdio mode — no SQLite, no API server, in-memory claim store. Perfect for experiments. |
+| **Quill Lite** | Local stdio from a checkout: `node packages/quill-mcp/dist/cli.js`. No SQLite. No API server. In-memory claim store. `@maplespike/quill-mcp` is not on npm. |
 | **SQLite-backed** | Local dev / self-host: full citation store + entity graph. |
 | **K3s / Docker** | Production sovereign deployment (`selfhost.sh`, `charts/quill`, Nix-first images). |
 
@@ -63,14 +63,15 @@ Plus a packaged Hermes profile example (`packages/quill-mcp/examples/hermes-quil
 ## Getting started
 
 ```bash
-# Zero-config MCP server (stdio)
-npx @maplespike/quill-mcp
+# Local stdio MCP server. Build first. The package is not on npm.
+pnpm --filter @maplespike/quill-mcp... build
+node packages/quill-mcp/dist/cli.js
 
 # Local dev stack (Docker Compose)
 ./scripts/dev-up.sh
 
-# SDK (TypeScript)
-npm i @maplespike/sdk
+# SDK (TypeScript) — also not published on npm as of 2026-10-14
+# Build packages/sdk from this repo.
 ```
 
 See [`docs/building-on-quill.md`](../building-on-quill.md) for the full builder guide: schemas, entity IDs, claim verification recipe, composition patterns, rate-limit etiquette, and licensing.

@@ -52,7 +52,10 @@ async function getFreePort(): Promise<number> {
   });
 }
 
-async function waitForReady(url: string, timeoutMs = 10_000): Promise<void> {
+// Cold start registers the full tool set. On a loaded CI runner that has
+// taken about 16s (stdio handshake in the same job). A 10s cap fails the
+// first SSE spawn with "fetch failed" before /health is listening.
+async function waitForReady(url: string, timeoutMs = 30_000): Promise<void> {
   const start = Date.now();
   let lastErr: unknown = null;
   while (Date.now() - start < timeoutMs) {

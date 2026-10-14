@@ -157,9 +157,13 @@ jobs:
         run: pnpm --filter @maplespike/quill-mcp lint
 
       - name: Build api-server + quill-mcp
+        # The `...` suffix builds workspace dependencies too. A leaf-only
+        # `pnpm --filter @maplespike/quill-mcp build` leaves the injected
+        # @maplespike/database copy without dist/, and `node dist/cli.js`
+        # then dies with ERR_MODULE_NOT_FOUND before any stdio frame.
         run: |
-          pnpm --filter @maplespike/api-server build
-          pnpm --filter @maplespike/quill-mcp build
+          pnpm --filter "@maplespike/api-server..." build
+          pnpm --filter "@maplespike/quill-mcp..." build
 
       - name: Run api-server unit tests
         run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/api-server test:unit

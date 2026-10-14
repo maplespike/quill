@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-08-09
+last-reviewed: 2026-10-14
 status: active
 ---
 
@@ -12,18 +12,22 @@ status: active
 
 ## 1. Connect the MCP server
 
-### Local (stdio — zero-config, no API key, free tier)
+### Local (stdio — checkout build, no API key)
 
 ```json
 {
   "mcpServers": {
     "quill": {
-      "command": "npx",
-      "args": ["@maplespike/quill-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/quill/packages/quill-mcp/dist/cli.js"]
     }
   }
 }
 ```
+
+`@maplespike/quill-mcp` is not published on npm. `npx` cannot install it.
+Build the repo first (`pnpm --filter @maplespike/quill-mcp... build`).
+Use `dist/cli.js`. `dist/index.js` starts the HTTP/SSE server.
 
 Stdio calls are tagged `self-hosted` and are **not** counted against the
 1,000-call free quota — you run the server, so the data is yours.
@@ -56,7 +60,7 @@ cp -r packages/quill-mcp/examples/hermes-quill-profile ~/.hermes/profiles/quill-
 hermes profile enable quill-civic
 ```
 
-The profile wires the Quill MCP server (stdio `npx`), declares the two skills
+The profile wires the Quill MCP server (stdio, `node dist/cli.js`), declares the two skills
 (`quill-influence-mapping`, `quill-provenance-briefing`), and sets a SOUL.md
 that instructs the agent to always surface claim hashes.
 
