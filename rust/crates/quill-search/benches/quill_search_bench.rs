@@ -27,6 +27,7 @@ fn bench_index_build(c: &mut Criterion) {
                 let out = tmp.path().join(format!("idx-{docs}"));
                 b.iter(|| {
                     let out = out.join(format!("it-{}", std::process::id()));
+                    let _ = std::fs::remove_dir_all(&out);
                     quill_search::bench_support::build(bc, &out)
                 })
             },
