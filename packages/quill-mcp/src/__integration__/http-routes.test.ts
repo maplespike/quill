@@ -69,14 +69,10 @@ async function waitForReady(url: string, timeoutMs = 10_000): Promise<void> {
 /**
  * Stop the spawned server AND its whole process group.
  *
- * The spawn chain is `pnpm -> pnpm -> tsx -> node`, and `proc.pid` is only the
- * outer pnpm. Killing just that leaves the real server alive — still listening
- * and answering /health — with the stdio pipes open, and those open pipes keep
- * the test process's event loop alive, so `node --test` never exits. Measured
- * 2026-10-08: an integration job squatted a self-hosted runner until the
- * 60-minute job timeout while the orphaned server answered HTTP 200 in 2 ms.
- * `detached: true` puts the whole chain in its own process group, so a single
- * negative-PID signal reaches every member.
+ * The server runs directly under Node. `detached: true` gives it a process
+ * group so cleanup also reaches logging workers. The previous pnpm wrapper
+ * left the actual server alive when only the wrapper was killed; its open
+ * pipes kept the test process alive until the CI job timeout.
  *
  * Also: `proc.killed` is NOT a liveness check — it flips true the moment
  * kill() is CALLED, not when the process exits, so the previous
@@ -116,28 +112,35 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
   before(async () => {
     port = await getFreePort();
     baseUrl = `http://127.0.0.1:${port}`;
-    const pkgRoot = new URL('../../..', import.meta.url).pathname;
+    const pkgRoot = new URL('../..', import.meta.url).pathname;
 
-    // Spawn via `pnpm --filter ... exec tsx` so pnpm resolves tsx from
-    // the package's own devDependencies regardless of how node_modules is
-    // laid out (hoisted vs isolated). Avoids ENOENTs from PATH/npx lookup.
+    // Launch Node directly so shutdown assertions observe the server's exit,
+    // not a pnpm wrapper killed by the same process-group signal.
     proc = spawn(
-      'pnpm',
-      ['--filter', '@maplespike/quill-mcp', 'exec', 'tsx', 'src/index.ts'],
+      process.execPath,
+      process.env.QUILL_TEST_BUILT === '1'
+        ? ['dist/index.js']
+        : ['--import', 'tsx', 'src/index.ts'],
       {
         cwd: pkgRoot,
         env: {
           ...process.env,
           PORT: String(port),
+          QUILL_MCP_METRICS_PORT: '0',
           NODE_ENV: 'test',
+          QUILL_API_URL: '',
+          ASTRAL_KEY_URL: '',
+          QUILL_LOG_LEVEL: 'silent',
+          LOG_LEVEL: 'silent',
+          TRUST_PROXY: 'false',
+          QUOTA_ENABLED: 'true',
+          QUOTA_PERSIST_PATH: '',
           QUILL_API_KEY: 'test-secret-key', // non-dev key so auth is enforced
           X402_ENABLED: 'false',
-          QUOTA_ENABLED: 'false',
+
         },
         stdio: ['ignore', 'pipe', 'pipe'],
-        // Own process group: the spawn chain is pnpm -> pnpm -> tsx -> node, so
-        // teardown must signal the GROUP (see stopServer) — killing only
-        // proc.pid orphans the real server and the test process never exits.
+        // Keep any worker descendants in the server's process group for cleanup.
         detached: true,
       },
     );
@@ -213,4 +216,79 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     assert.equal(body.error, 'Not found');
     assert.equal(body.path, '/nope-this-does-not-exist');
   });
+
+  it('authenticated SSE uses standard framing and owner-bound message delivery', async () => {
+    const controller = new AbortController();
+    const headers = { Authorization: 'Bearer test-secret-key' };
+    const stream = await fetch(`${baseUrl}/sse`, { headers, signal: controller.signal });
+    assert.equal(stream.status, 200);
+    const reader = stream.body!.getReader();
+    const decoder = new TextDecoder();
+    let pending = '';
+    async function event(): Promise<{ name: string; data: string }> {
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        assert.equal(chunk.done, false, 'stream ended before its response');
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const end = pending.indexOf('\n\n');
+      const frame = pending.slice(0, end);
+      pending = pending.slice(end + 2);
+      return {
+        name: frame.split('\n').find(line => line.startsWith('event: '))?.slice(7) ?? '',
+        data: frame.split('\n').filter(line => line.startsWith('data: ')).map(line => line.slice(6)).join('\n'),
+      };
+    }
+    try {
+      const endpoint = await event();
+      assert.equal(endpoint.name, 'endpoint');
+      assert.match(endpoint.data, /^\/messages\?clientId=[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+      const target = new URL(endpoint.data, baseUrl);
+      assert.equal(target.origin, baseUrl);
+      const post = (body: unknown, authorization?: string) => fetch(target, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(authorization ? { Authorization: authorization } : {}) },
+        body: JSON.stringify(body),
+      });
+      const request = (id: number, method: string, params = {}) => ({ jsonrpc: '2.0', id, method, params });
+      const initialize = request(1, 'initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'route-test', version: '1' } });
+      assert.equal((await post(initialize)).status, 401);
+      assert.equal((await post(initialize, 'Bearer wrong-owner')).status, 401);
+      // The configured key's base64 alias is also valid auth, but is not this stream's owner.
+      assert.equal((await post(initialize, `Bearer ${Buffer.from('test-secret-key').toString('base64')}`)).status, 401);
+      assert.equal((await post(initialize, headers.Authorization)).status, 202);
+      const initialized = await event();
+      assert.equal(initialized.name, 'message');
+      assert.equal(JSON.parse(initialized.data).id, 1);
+      assert.equal((await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, headers.Authorization)).status, 202);
+      assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
+      const listed = JSON.parse((await event()).data);
+      assert.equal(listed.id, 2);
+      assert.equal(listed.result.tools.length, 184);
+      assert.equal(listed.result._quota.mode, 'api-key');
+      assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
+      const called = JSON.parse((await event()).data);
+      assert.equal(called.id, 3);
+      assert.ok(called.result.content.length > 0);
+      assert.notEqual(called.result.isError, true);
+
+      // Teardown must work while the SSE response is still open.
+      const exited = once(proc, 'exit');
+      process.kill(-proc.pid!, 'SIGTERM');
+      let timeout: NodeJS.Timeout | undefined;
+      try {
+        const code = await Promise.race([
+          exited.then(([code]) => code),
+          new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('SIGTERM did not close the active SSE stream')), 5000); }),
+        ]);
+        assert.equal(code, 0);
+      } finally {
+        clearTimeout(timeout);
+      }
+    } finally {
+      controller.abort();
+      await reader.cancel().catch(() => {});
+    }
+  });
+
 });

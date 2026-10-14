@@ -15,6 +15,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { createHash, randomUUID } from 'node:crypto';
 import { mcpMetrics } from './metrics.js';
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
@@ -81,9 +82,26 @@ interface SseClient {
   id: string;
   res: ServerResponse;
   locale: string;
+  credentialHash: string;
+  identity: QuotaIdentity;
 }
 
-let clientIdCounter = 0;
+function bearerToken(req: IncomingMessage): string {
+  return (req.headers.authorization ?? '').match(/^Bearer\s+(.+)$/i)?.[1].trim() ?? '';
+}
+
+function credentialHash(req: IncomingMessage): string {
+  return createHash('sha256').update(bearerToken(req)).digest('hex');
+}
+
+function clientIp(req: IncomingMessage): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (process.env.TRUST_PROXY === 'true' && typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket.remoteAddress || 'unknown';
+}
+
 const clients = new Map<string, SseClient>();
 
 function sendSse(res: ServerResponse, event: string, data: unknown): void {
@@ -186,7 +204,11 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    const clientId = `client-${++clientIdCounter}`;
+    const clientId = randomUUID();
+    const token = bearerToken(req);
+    const identity = token
+      ? buildIdentity('api-key', token)
+      : buildIdentity('anonymous-ip', clientIp(req));
     const acceptLang = req.headers['accept-language'] || '';
     const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
 
@@ -198,9 +220,9 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     });
 
     // Send initial endpoint event so client knows where to POST messages
-    sendSse(res, 'endpoint', { endpoint: `/messages?clientId=${clientId}` });
+    res.write(`event: endpoint\ndata: /messages?clientId=${clientId}\n\n`);
 
-    clients.set(clientId, { id: clientId, res, locale });
+    clients.set(clientId, { id: clientId, res, locale, credentialHash: credentialHash(req), identity });
 
     logger.info('SSE client connected (total: %d)', clients.size);
 
@@ -232,10 +254,15 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    // Rate limit by client IP
-    const clientIp = req.headers['x-forwarded-for'] as string
-      || req.socket.remoteAddress || 'unknown';
-    if (!checkRateLimit(clientIp)) {
+    // The stream already authenticated its owner. A session ID alone is not auth.
+    if (credentialHash(req) !== client.credentialHash) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+
+    // Only trust proxy-provided IPs when explicitly configured.
+    if (!checkRateLimit(clientIp(req))) {
       res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
       res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
       return;
@@ -272,36 +299,8 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
         : undefined;
 
-      // Build identity for the SSE caller.
-      // NOTE: in `index.ts` (hosted) the auth path requires Authorization
-      // (see authenticate()), so we expect a Bearer token to be present on
-      // every authenticated SSE call. If somehow no token slipped through, fall
-      // back to IP — BUT we only honor X-Forwarded-For when TRUST_PROXY=true,
-      // otherwise any client can rotate the IP key and bypass quota.
-      let identity: QuotaIdentity;
-      { // scope to keep the warning logs readable
-        const auth = req.headers.authorization;
-        if (typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')) {
-          identity = buildIdentity('api-key', auth.slice(7).trim());
-        } else {
-          const trustProxy = process.env.TRUST_PROXY === 'true';
-          const fwd = req.headers['x-forwarded-for'];
-          const ip = trustProxy
-            ? (Array.isArray(fwd)
-                ? fwd[0]
-                : (typeof fwd === 'string' ? fwd.split(',')[0].trim() : req.socket.remoteAddress || 'unknown'))
-            : (req.socket.remoteAddress || 'unknown');
-          identity = buildIdentity('anonymous-ip', ip);
-          if (process.env.NODE_ENV === 'production') {
-            if (typeof fwd === 'string') {
-              logger.warn('SSE without Bearer, X-Forwarded-For present — using %s remoteAddress for IP-keyed quota.', trustProxy ? 'XFF' : 'socket');
-            } else {
-              logger.warn('SSE without Bearer — quota keyed by a hashed IP. Set TRUST_PROXY=true only behind a known proxy envelope.');
-            }
-          }
-        }
-      }
-
+      // Identity belongs to the authenticated stream, not unverified POST headers.
+      const identity = client.identity;
       const quotaStatus = getQuotaTracker().getStatus(identity);
 
       // Send response back through the client's SSE stream
@@ -348,6 +347,9 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   logger.warn('SIGTERM received, shutting down');
   getQuotaTracker().flushSync();
+  for (const { res } of clients.values()) {
+    res.end();
+  }
   metricsServer.close();
   httpServer.close(() => process.exit(0));
 });
