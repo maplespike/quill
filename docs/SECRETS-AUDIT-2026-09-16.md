@@ -1,5 +1,27 @@
 # Secrets Audit — 2026-09-16 (gitleaks full history)
 
+> ## ⚠️ PARTIALLY SUPERSEDED (2026-10-09)
+>
+> Read this together with `secrets-history-baseline.txt` and `#1043`.
+>
+> 1. **Scope has drifted.** This scan covered 1,017 commits / ~51 MB. The repo
+>    is now 2,579 commits / 104 MB, and a default-rules scan without the
+>    allow-list returns **144** findings (**20** survive `.gitleaks.toml`).
+>    "73 false positives + 2 real" no longer describes the tree.
+> 2. **The conclusion "exactly two real findings" is incomplete.** A real
+>    preview OAuth client secret (`site/src/lib/auth/preview.ts`, deleted at
+>    HEAD but live in history) and a literal CI `JWT_SECRET` across ~8 commits
+>    were never listed. Tracked in #1043.
+> 3. **§1 finding #2 is now resolved by decryption, not by inference.** The
+>    leaked key does open one vault version (blob `384f549c`), and its plaintext
+>    is **entirely `FIXME` placeholders** — so the checklist item "confirm no
+>    still-valid credential was vaulted" is **confirmed clean**. No leaked key
+>    opens `secrets/github-pat.age` at HEAD. See the #854 thread.
+> 4. **The enforcement moved out of this document.**
+>    `scripts/check-secrets-history.sh` + `docs/secrets-history-baseline.txt`
+>    now fail CI on any full-history finding that is not enumerated, in either
+>    direction. A report cannot gate a repo; this file is history.
+
 **Scope:** 1,017 commits, ~51.4 MB scanned. Tool: gitleaks v8 (`gitleaks detect --source . --redact`).
 
 **Verdict: ⛔ PUBLIC FLIP BLOCKED** pending remediation of exactly **two real findings** (§1). Everything else is false positives (§3).
