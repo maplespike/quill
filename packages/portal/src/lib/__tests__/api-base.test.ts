@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { deriveApiBase } from "../api-base";
+import { discoveryCurl } from "../api-key-reveal";
 
 describe("deriveApiBase", () => {
   test("strips a service subdomain and points at api.<apex>", () => {
@@ -31,5 +32,14 @@ describe("deriveApiBase", () => {
 
   test("falls back to the public API with no window", () => {
     expect(deriveApiBase({})).toBe("https://api.maplespike.ca");
+  });
+});
+
+describe("discoveryCurl", () => {
+  test("uses the full key against the free discovery endpoint", () => {
+    const key = "qk_live_full_key_not_a_slice_0123456789";
+    const curl = discoveryCurl("https://api.maplespike.ca/", key);
+    expect(curl).toBe(`curl -s -H "x-api-key: ${key}" https://api.maplespike.ca/v1/llms.txt`);
+    expect(curl).not.toContain("...");
   });
 });

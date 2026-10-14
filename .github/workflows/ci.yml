@@ -26,6 +26,7 @@ env:
 
 jobs:
   build-and-test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
     # an infrastructure or process hang cannot squat a runner for days.
@@ -106,6 +107,22 @@ jobs:
       - name: Secret lockstep unit tests
         run: pnpm exec tsx --test scripts/test-secret-lockstep.mts
 
+      # Incident rule for runs 37957712708 / 37957968339 (PR #1045): the
+      # full-history secrets gate scanned `--log-opts=--all`, so its verdict
+      # depended on which refs the running clone happened to hold — three
+      # baseline entries lived only on a never-pushed branch and CI could
+      # never see them. These fixtures pin the enforced scope (origin refs +
+      # HEAD), the --all-refs audit escape hatch, the no-remote fallback, the
+      # prune-first failure hint, and --print-baseline regeneration.
+      - name: Secrets history gate unit tests
+        run: pnpm exec tsx --test scripts/test-secrets-history.mts
+
+      # pipeline-core was recorded as 78 lines, then 4,174, because
+      # `xargs wc | tail -1` kept the last chunk. This test fails if the
+      # counter drops files again.
+      - name: TypeScript line-count unit test
+        run: pnpm exec tsx --test scripts/test-count-ts.mts
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.
@@ -170,6 +187,7 @@ jobs:
 
   coverage:
     needs: build-and-test
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     continue-on-error: true
     timeout-minutes: 60
@@ -195,6 +213,7 @@ jobs:
 
   integration-test:
     needs: build-and-test
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     continue-on-error: true
     # The suite's normal wall time is <1 min (measured 2026-10-08: 14 s for all
@@ -262,7 +281,18 @@ jobs:
           GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
             bash scripts/check-gitleaks-baseline.sh --require-gitleaks
 
-      - name: gitleaks (full history)
+      # The action below only scans the EVENT's commit range (this PR, or this
+      # push), so a leak from months ago is outside every range it looks at and
+      # can never fail the job. This step runs the pinned binary over the origin
+      # refs plus HEAD and enforces docs/secrets-history-baseline.txt, so the
+      # check actually covers the history it claims to guard, and the #854
+      # remediation becomes a reviewed diff instead of a comment.
+      - name: Full-history secrets gate (baseline-enforced)
+        run: |
+          GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
+            bash scripts/check-secrets-history.sh
+
+      - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -274,6 +304,7 @@ jobs:
 
   audit:
     needs: build-and-test
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
@@ -318,6 +349,9 @@ jobs:
   docker:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
+    # Already PR-ineligible: github.ref is refs/pull/<n>/merge on a
+    # pull_request event, so this cannot match for a PR at all. No fork
+    # guard needed (and a second `if:` key here would be a duplicate).
     if: github.ref == 'refs/heads/prod'
     # Three multi-stage builds; generous, but not unbounded.
     timeout-minutes: 120
