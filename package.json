@@ -46,6 +46,7 @@
     "test:hang-bounds": "pnpm exec tsx --test scripts/test-hang-bounds.mts",
     "test:routes": "pnpm exec tsx --test 'packages/*/src/__integration__/**/*.test.ts'",
     "e2e:smoke": "bash scripts/e2e-smoke.sh --mode=local",
+    "test:e2e:signup": "pnpm exec tsx scripts/e2e-signup-reveal.mts",
     "dev:up": "bash scripts/dev-up.sh",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
   },
