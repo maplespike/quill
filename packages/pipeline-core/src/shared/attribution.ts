@@ -10,6 +10,50 @@
 export const NO_REUSE_LICENSE_NOTICE =
   "The publisher license was not declared in the metadata returned to Quill. Quill does not grant rights in source material; consult the publisher's terms.";
 
+/**
+ * Licences with a fixed, published attribution statement. When a publisher
+ * declares one of these licences and supplies no attribution text of its own,
+ * the licence's own required statement is the correct default. The statements
+ * are the licences' wording, not a Quill grant. Matching is intentionally
+ * narrow — anything that is not one of these exact licences falls through
+ * unchanged.
+ */
+export const OGL_CANADA_LICENCE_URL = 'https://open.canada.ca/en/open-government-licence-canada';
+export const OGL_CANADA_ATTRIBUTION_STATEMENT =
+  'Contains information licensed under the Open Government Licence – Canada.';
+export const LOBBYING_ODLA_LICENCE_URL =
+  'https://lobbycanada.gc.ca/en/open-data/open-data-licence-agreement/';
+export const LOBBYING_ODLA_ATTRIBUTION_STATEMENT =
+  'Contains information licensed under the Open Data Licence Agreement — Office of the Commissioner of Lobbying.';
+
+interface FixedLicenceAttribution {
+  pattern: RegExp;
+  statement: string;
+  url: string;
+}
+
+const FIXED_LICENCE_ATTRIBUTIONS: FixedLicenceAttribution[] = [
+  {
+    pattern: /open government licence\s*[–—-]\s*canada\b/i,
+    statement: OGL_CANADA_ATTRIBUTION_STATEMENT,
+    url: OGL_CANADA_LICENCE_URL,
+  },
+  {
+    pattern: /open data licence agreement\s*[–—-]\s*office of the commissioner of lobbying\b/i,
+    statement: LOBBYING_ODLA_ATTRIBUTION_STATEMENT,
+    url: LOBBYING_ODLA_LICENCE_URL,
+  },
+];
+
+/**
+ * Match a licence label a publisher already declared against licences with a
+ * fixed, published attribution statement. Returns `undefined` for anything
+ * else — no statement and no URL is ever invented for other licences.
+ */
+export function fixedLicenceAttributionFor(label: string): FixedLicenceAttribution | undefined {
+  return FIXED_LICENCE_ATTRIBUTIONS.find((f) => f.pattern.test(label));
+}
+
 export type LicenseMetadataBasis =
   | 'publisher-metadata'
   | 'source-configuration'
@@ -81,10 +125,12 @@ export function resolvePublisherLicense(
       : nestedBasis === 'no-publisher-declaration' || nestedLicense === NO_REUSE_LICENSE_NOTICE
         ? 'no-publisher-declaration'
         : 'source-configuration';
+    const fixed = basis === 'publisher-metadata' ? fixedLicenceAttributionFor(nestedLicense) : undefined;
+    const resolvedUrl = existingUrl ?? fixed?.url;
     return {
       license: basis === 'no-publisher-declaration' ? NO_REUSE_LICENSE_NOTICE : nestedLicense,
-      ...(existingUrl ? { licenseUrl: existingUrl } : {}),
-      attributionText: nestedAttributionText ?? (basis === 'no-publisher-declaration' ? NO_REUSE_LICENSE_NOTICE : nestedLicense),
+      ...(resolvedUrl ? { licenseUrl: resolvedUrl } : {}),
+      attributionText: nestedAttributionText ?? fixed?.statement ?? (basis === 'no-publisher-declaration' ? NO_REUSE_LICENSE_NOTICE : nestedLicense),
       basis,
     };
   }
@@ -96,11 +142,14 @@ export function resolvePublisherLicense(
     };
   }
   if (!existingLicense && nestedLicense && nestedBasis !== 'no-publisher-declaration') {
+    const basis: LicenseMetadataBasis = nestedBasis === 'publisher-metadata' ? 'publisher-metadata' : 'source-configuration';
+    const fixed = basis === 'publisher-metadata' ? fixedLicenceAttributionFor(nestedLicense) : undefined;
+    const resolvedUrl = existingUrl ?? fixed?.url;
     return {
       license: nestedLicense,
-      ...(existingUrl ? { licenseUrl: existingUrl } : {}),
-      attributionText: nestedAttributionText ?? nestedLicense,
-      basis: nestedBasis === 'publisher-metadata' ? 'publisher-metadata' : 'source-configuration',
+      ...(resolvedUrl ? { licenseUrl: resolvedUrl } : {}),
+      attributionText: nestedAttributionText ?? fixed?.statement ?? nestedLicense,
+      basis,
     };
   }
   const effectiveAttribution = existingAttribution ?? nestedAttributionText;
@@ -108,10 +157,12 @@ export function resolvePublisherLicense(
   // Preserve normalized metadata when a response passes through more than
   // one search/cache layer; do not repeatedly prefix its publisher label.
   if (existingBasis === 'publisher-metadata' && existingLicense) {
+    const fixed = fixedLicenceAttributionFor(existingLicense);
+    const resolvedUrl = existingUrl ?? fixed?.url;
     return {
       license: existingLicense,
-      ...(existingUrl ? { licenseUrl: existingUrl } : {}),
-      attributionText: effectiveAttribution ?? existingLicense,
+      ...(resolvedUrl ? { licenseUrl: resolvedUrl } : {}),
+      attributionText: effectiveAttribution ?? fixed?.statement ?? existingLicense,
       basis: 'publisher-metadata',
     };
   }
@@ -152,11 +203,14 @@ export function resolvePublisherLicense(
     };
   }
 
+  const fixed = fixedLicenceAttributionFor(effectiveLabel);
+  const resolvedUrl = licenseUrl ?? fixed?.url;
   return {
     license: `Publisher-declared: ${effectiveLabel}`,
-    ...(licenseUrl ? { licenseUrl } : {}),
+    ...(resolvedUrl ? { licenseUrl: resolvedUrl } : {}),
     attributionText: publisherAttribution
-      ?? `Publisher-declared license: ${effectiveLabel}${licenseUrl ? ` (${licenseUrl})` : ''}. Follow the publisher's attribution and exclusions.`,
+      ?? fixed?.statement
+      ?? `Publisher-declared license: ${effectiveLabel}${resolvedUrl ? ` (${resolvedUrl})` : ''}. Follow the publisher's attribution and exclusions.`,
     basis: 'publisher-metadata',
   };
 }
