@@ -141,6 +141,16 @@ spec:
             secretKeyRef:
               name: maplespike-secrets
               key: pii-hash-secret
+        # Dual-key PII rotation (Decision 0002): lookups also accept hashes
+        # written under the retiring secret. Optional — absent means
+        # single-key mode (pre-rotation behavior). Delivered from BSM
+        # maplespike-secrets.pii-hash-secret-previous.
+        - name: QUILL_PII_HASH_SECRET_PREVIOUS
+          valueFrom:
+            secretKeyRef:
+              name: maplespike-secrets
+              key: pii-hash-secret-previous
+              optional: true
         # #806: Stripe billing secrets (sourced from quill-owned secret).
         - name: STRIPE_SECRET_KEY
           valueFrom:
