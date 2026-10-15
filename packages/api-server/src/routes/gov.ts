@@ -16,12 +16,15 @@ import {
   fetchStatCanReleases,
   fetchCKANPackages,
   GOV_DATA_SOURCES,
+  statcanAttributionNotice,
 } from '@maplespike/pipeline-core';
 import type { GovRelease } from '@maplespike/pipeline-core';
 
 interface ReleaseEnvelope {
   releases: GovRelease[];
   total: number;
+  /** Required Statistics Canada source notice (Open Licence — "as is" reproduction). */
+  attribution: string;
   sources: { name: string; jurisdiction: string }[];
   filters: { jurisdiction: string | null; category: string | null; limit: number };
   provenance: {
@@ -71,6 +74,7 @@ export const listReleasesHandler: RouteHandler = async (request, ctx) => {
   const envelope: ReleaseEnvelope = {
     releases,
     total: releases.length,
+    attribution: statcanAttributionNotice(),
     sources: GOV_DATA_SOURCES.map((s) => ({
       name: s.name,
       jurisdiction: s.jurisdiction,
