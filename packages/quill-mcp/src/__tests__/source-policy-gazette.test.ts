@@ -62,10 +62,8 @@ describe('search_legislation applies the not-official-version policy', () => {
     const { content } = await runSearchLegislation(
       { query: 'loi électorale', lang: 'fr' },
       {
-        fetchJsonFn: async () => ({
-          results: [{ title: 'Loi électorale du Canada' }],
-          total: 1,
-        }),
+        fetchJsonFn: async <T,>() =>
+          ({ results: [{ title: 'Loi électorale du Canada' }], total: 1 }) as T,
       },
     );
     const results = content.results as Record<string, unknown>[];
