@@ -117,6 +117,18 @@ jobs:
       - name: Secrets history gate unit tests
         run: pnpm exec tsx --test scripts/test-secrets-history.mts
 
+      # Incident rule for run 38617463045 / issue #1070: the 2026-10-14
+      # "WIP backup (atlas)" sweep committed three plaintext decrypts of
+      # secrets/runtime.yaml (secrets/tmp.*.yaml, live sk_live_ key) because
+      # .gitignore's decrypt-artifact rules never matched the mktemp shapes.
+      # The branch was deleted (rotation in #1070), but the sweep's trigger
+      # is unidentified and the temps are still on the atlas disk. These
+      # fixtures pin that the .gitignore rules bite: every incident path
+      # shape reads as ignored, mktemp variants are covered, sealed SOPS
+      # files stay committable.
+      - name: Secrets leak-shape gitignore tests
+        run: pnpm exec tsx --test scripts/test-gitignore-leak-shapes.mts
+
       # pipeline-core was recorded as 78 lines, then 4,174, because
       # `xargs wc | tail -1` kept the last chunk. This test fails if the
       # counter drops files again.
