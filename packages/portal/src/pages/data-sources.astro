@@ -86,6 +86,28 @@ const provincialLicences = [
 
       <Card>
         <CardHeader>
+          <CardTitle class="text-lg">{t("How these limits are enforced", "Comment ces limites sont appliquées")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Some sources are served in restricted forms by design, not by accident: committee and other parliamentary content is discovery-only in every tier (metadata, short factual summaries, and links — no full text; excluded from bulk export and paid features); Statistics Canada data is served in aggregate form only and is never linked or merged to identify any individual, business, or organization; CanLII, SEDAR+/SEDI, and news feeds are served as citations, metadata, and links with short excerpts only; and federal law reproductions carry a \"not an official version\" notice.",
+            "Certaines sources sont servies sous des formes restreintes par conception, et non par accident : le contenu des comités et d'autres contenus parlementaires est limité à la découverte dans tous les paliers (métadonnées, courts résumés factuels et liens — sans texte intégral; exclu de l'exportation en bloc et des fonctionnalités payantes); les données de Statistique Canada sont servies sous forme agrégée seulement et ne sont jamais liées ou fusionnées pour identifier une personne, une entreprise ou une organisation; CanLII, SEDAR+/SEDI et les fils de nouvelles sont servis sous forme de citations, métadonnées et liens avec de courts extraits; et les reproductions de la législation fédérale portent l'avis « version non officielle ».",
+          )}</p>
+          <p>{t(
+            "The service applies these limits in code for every response — see",
+            "Le service applique ces limites dans le code pour chaque réponse — voir",
+          )} <a href="https://github.com/maplespike/quill/blob/main/packages/pipeline-core/src/shared/source-policy.ts" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">source-policy.ts</a> {t(
+            "and the compliance gate that keeps the inventory and the runtime in sync.",
+            "et la barrière de conformité qui garde l'inventaire et l'exécution synchronisés.",
+          )}</p>
+          <p>{t(
+            "To request a correction or removal of a record, see our",
+            "Pour demander la correction ou le retrait d'un enregistrement, consultez notre",
+          )} <a href="/privacy" class="text-primary hover:underline">{t("privacy policy", "politique de confidentialité")}</a> {t("(privacy@maplespike.ca).", "(privacy@maplespike.ca).")}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
           <CardTitle class="text-lg">{t("Government of Canada open data", "Données ouvertes du gouvernement du Canada")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
