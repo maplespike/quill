@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRSS, hashString, deduplicateItems, RSS_SOURCES, fetchFeed } from '../rss.js';
+import { parseRSS, hashString, deduplicateItems, RSS_SOURCES, fetchFeed, RSS_EXCERPT_MAX } from '../rss.js';
 import type { RSSItem } from '../rss.js';
 
 describe('RSS Module', () => {
@@ -201,6 +201,25 @@ describe('RSS Module', () => {
       assert.ok(categories.has('news'), 'Should have news category');
       assert.ok(categories.has('politics'), 'Should have politics category');
       assert.ok(categories.has('policy'), 'Should have policy category');
+    });
+  });
+
+  describe('excerpt policy (licence compliance)', () => {
+    it('stores only a short plain-text excerpt, never the full content', () => {
+      const long = 'word '.repeat(200);
+      const xml = `<?xml version="1.0"?>\n<rss version="2.0">\n  <channel>\n    <item>\n      <title>Headline</title>\n      <link>https://example.com/long</link>\n      <description><![CDATA[<p>${long}</p>]]></description>\n    </item>\n  </channel>\n</rss>`;
+      const item = parseRSS(xml).items![0];
+      assert.ok(item.contentSnippet && item.contentSnippet.length <= RSS_EXCERPT_MAX);
+      assert.equal(item.content, item.contentSnippet);
+      assert.ok(!item.contentSnippet!.includes('<'));
+    });
+
+    it('falls back to content:encoded for the excerpt when description is absent', () => {
+      const long = 'word '.repeat(200);
+      const xml = `<?xml version="1.0"?>\n<rss version="2.0">\n  <channel>\n    <item>\n      <title>T</title>\n      <link>https://example.com/body-only</link>\n      <content:encoded><![CDATA[<div>${long}</div>]]></content:encoded>\n    </item>\n  </channel>\n</rss>`;
+      const item = parseRSS(xml).items![0];
+      assert.ok(item.contentSnippet && item.contentSnippet.length <= RSS_EXCERPT_MAX);
+      assert.equal(item.content, item.contentSnippet);
     });
   });
 

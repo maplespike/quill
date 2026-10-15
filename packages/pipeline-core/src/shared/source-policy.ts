@@ -62,6 +62,15 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   // stay aggregate and never enter the entity graph.
   statcan: { aggregateOnly: true },
   'nu-statcan': { aggregateOnly: true },
+  // CanLII / SEDAR+ / SEDI: publisher terms restrict automated and bulk
+  // reuse — serve citations, metadata, and links only.
+  canlii: { linkOnly: true },
+  'sedar-plus': { linkOnly: true },
+  sedi: { linkOnly: true },
+  // RSS/news feeds: headline + link + short excerpt only; no full-text
+  // republication without a licence.
+  'media-broadcasting': { linkOnly: true },
+  'ngo-influence-rss': { linkOnly: true },
 };
 
 /** Module name -> source-family id, where the two differ. */
@@ -69,6 +78,33 @@ export const MODULE_SOURCE_ALIASES: Record<string, string> = {
   // The entity graph and its backfills use the umbrella name 'lobbying' for
   // every lobbying registry; the inventory records the specific families.
   lobbying: 'federal-lobbying-monthly',
+  // Module names that differ from their inventory family id. The compliance
+  // gate fails when a registry module resolves to no licence family.
+  'canlii-fr': 'canlii',
+  'gov-api': 'federal',
+  indigenous: 'indigenous-relations',
+  'ircc-citizenship': 'ircc',
+  'ircc-entry-exit': 'ircc',
+  'ircc-express-entry': 'ircc',
+  'ircc-pr-admissions': 'ircc',
+  'ircc-processing-times': 'ircc',
+  'ircc-study-permits': 'ircc',
+  'ircc-work-permits': 'ircc',
+  'isc-communities': 'isc',
+  'isc-education': 'isc',
+  'isc-health-funding': 'isc',
+  'isc-housing': 'isc',
+  'isc-jordan-principle': 'isc',
+  'isc-land-claims': 'isc',
+  'isc-water': 'isc',
+  'nrcan-energy': 'nrcan',
+  'nrcan-fires': 'nrcan',
+  'nrcan-forests': 'nrcan',
+  'nrcan-minerals': 'nrcan',
+  'nrcan-renewable': 'nrcan',
+  'provincial-ckan': 'provincial',
+  rss: 'media-broadcasting',
+  'un-data': 'un',
 };
 
 export function policyForSource(familyId: string): SourcePolicy {
