@@ -10,6 +10,8 @@
 - [docs/products/quill.md](docs/products/quill.md): Quill — the data-layer MCP product
 - [docs/VISION.md](docs/VISION.md): Project vision, roadmap, principles
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Local dev + production deployment
+- [DATA-LICENSES.md](DATA-LICENSES.md): Data licences, attribution statements, and required notices
+- [docs/licensing-audit.md](docs/licensing-audit.md): Data-source licence and provenance audit
 - [docs/decisions/](docs/decisions/): Architecture Decision Records
 - [CONTRIBUTING.md](CONTRIBUTING.md): Contributor guide
 - [packages/quill-mcp/README.md](packages/quill-mcp/README.md): MCP server (data-layer MCP, 184 tools)
