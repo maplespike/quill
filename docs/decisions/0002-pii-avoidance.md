@@ -94,6 +94,25 @@ MapleSpike can run with *zero* PII retention if we architect for it.
 - Does it make sense to keep IMAP e-Transfer as **opt-in** for
   non-PIPEDA jurisdictions?
 
+## Rotation & dual-key support (2026-10-15)
+
+`QUILL_PII_HASH_SECRET` is now rotatable without invalidating existing
+`emailHash` rows:
+
+1. **One window:** set `QUILL_PII_HASH_SECRET_PREVIOUS` to the retiring
+   value and `QUILL_PII_HASH_SECRET` to the new value, then restart the API.
+   Reads (`hashPiiCandidates`) accept either secret; writes always use the
+   new one.
+2. **A rehash is impossible by design** — plaintext is discarded at write
+   time, so existing rows cannot be migrated to the new secret. Keep the
+   previous secret staffed until no rows carry its hashes. Never rotate
+   without setting `_PREVIOUS` in the same change: without it, lookups of
+   pre-rotation rows miss.
+3. The previous value is delivered from BSM
+   (`maplespike-secrets.pii-hash-secret-previous`) through the optional
+   `QUILL_PII_HASH_SECRET_PREVIOUS` chart ref; absent means single-key mode.
+   A malformed value is ignored and logged, never fatal.
+
 ## References
 
 - Decision 0001 (`IDENTITY.md`) — Canonical Identity Path → goes
