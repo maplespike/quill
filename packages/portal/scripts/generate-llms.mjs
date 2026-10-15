@@ -118,6 +118,8 @@ function buildLlmsTxt() {
   out += 'Auth: Authorization: Bearer header or X-API-Key header\n';
   out += 'Response: { success, data, quality, citation, meta }; payload and citation fields vary by endpoint.\n';
   out += 'Record hashes check canonical Quill record integrity only; source terms vary by publisher and dataset. Consult the original source before reuse.\n\n';
+  out += 'Attribution and publisher terms: https://quill.maplespike.ca/data-sources\n';
+  out += 'Repository licence inventory: https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md\n\n';
   out += '### Endpoints\n';
   for (const endpoint of endpoints) out += `- ${endpoint.method} ${endpoint.path} — ${endpoint.desc}\n`;
   out += '\n### Data Categories\n';
@@ -155,6 +157,12 @@ function buildLlmsFull() {
   out += '- transformations: declared pipeline steps only; module/parser revisions may be unknown.\n';
   out += '- publisher_terms: publisher metadata, Quill configuration, or not observed; missing evidence is not a rights conclusion.\n\n';
   out += 'A URL match is labeled `url-matched-not-content-verified`; it does not prove that an artifact produced a record. A matching record hash checks integrity, not source identity, completeness, accuracy, legal status, or reuse rights. Consult the original publisher terms.\n\n';
+  out += '## Data Sources & Licences\n\n';
+  out += 'Publisher terms vary by dataset, and some carry required attribution statements or notices:\n\n';
+  out += '- Open Government Licence – Canada: "Contains information licensed under the Open Government Licence – Canada."\n';
+  out += '- Statistics Canada Open Licence: "Source: Statistics Canada, name of product, reference date. Reproduced and distributed on an \\"as is\\" basis with the permission of Statistics Canada."\n';
+  out += '- House of Commons and Senate proceedings: reproduction permitted only when accurate, not presented as official, and not for financial gain.\n';
+  out += '- Per-source statements and links: https://quill.maplespike.ca/data-sources · https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md · machine-readable: https://github.com/maplespike/quill/blob/main/data-source-licenses.json\n\n';
   out += '## Authentication\n\n';
   out += '- API Key: Send as X-API-Key header (recommended for servers)\n';
   out += '- OAuth: GitHub, Google, Apple via /v1/auth/oauth/providers\n';

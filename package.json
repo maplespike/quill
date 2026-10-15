@@ -23,6 +23,8 @@
     "audit:open-source": "node scripts/audit-open-source.mjs",
     "audit:open-source:prod": "node scripts/audit-open-source.mjs --prod",
     "test:audit:open-source": "node --test scripts/test-audit-open-source.mjs",
+    "generate-data-licenses": "node scripts/generate-data-licenses.mjs",
+    "test:data-licenses": "node --test scripts/test-data-licenses.mjs",
     "check:artifact-drift": "node scripts/check-portal-artifact-drift.mjs",
     "build:docs": "node scripts/build-docs.mjs",
     "build:quill": "pnpm --filter @maplespike/quill-mcp build",

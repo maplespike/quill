@@ -11,6 +11,9 @@ Auth: Authorization: Bearer header or X-API-Key header
 Response: { success, data, quality, citation, meta }; payload and citation fields vary by endpoint.
 Record hashes check canonical Quill record integrity only; source terms vary by publisher and dataset. Consult the original source before reuse.
 
+Attribution and publisher terms: https://quill.maplespike.ca/data-sources
+Repository licence inventory: https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md
+
 ### Endpoints
 - GET /v1/health — API health check with usage stats
 - GET /v1/openapi.json — OpenAPI 3.1 specification
