@@ -71,6 +71,10 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   // republication without a licence.
   'media-broadcasting': { linkOnly: true },
   'ngo-influence-rss': { linkOnly: true },
+  // Canada Gazette / federal legislation: reproduce accurately, never as an
+  // official version (Reproduction of Federal Law Order SI/97-5).
+  gazette: { notOfficialVersion: true },
+  legislation: { notOfficialVersion: true },
 };
 
 /** Module name -> source-family id, where the two differ. */
@@ -170,9 +174,19 @@ export function statcanAttributionNotice(
   return `Source: Statistics Canada${suffix}. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.`;
 }
 
+/**
+ * Reproduction of Federal Law Order (SI/97-5): reproductions must be
+ * accurate and must never be presented as an official version.
+ */
+export const NOT_OFFICIAL_VERSION_NOTICE =
+  'Not an official version. Reproduced under the Reproduction of Federal Law Order (SI/97-5); ' +
+  'consult the official publication for authoritative text.';
+
 const NOTICES_BY_SOURCE: Record<string, string[]> = {
   committees: [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
   'parliamentary-voting': [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
+  gazette: [NOT_OFFICIAL_VERSION_NOTICE],
+  legislation: [NOT_OFFICIAL_VERSION_NOTICE],
 };
 
 /** Required notices for a source family (empty for sources with none). */
@@ -387,6 +401,17 @@ export function applySourcePolicy(sourceId: string, records: unknown[]): Applied
             typeof r.period === "string" ? r.period : typeof r.date === "string" ? r.date : undefined,
         }),
       };
+    });
+  }
+  if (policy.notOfficialVersion) {
+    // Reproduction of Federal Law Order: never present reproductions as an
+    // official version; the notice rides with every record.
+    out = out.map((record) => {
+      if (!record || typeof record !== "object") return record;
+      const r = record as Record<string, unknown>;
+      const existing = typeof r.notice === "string" && r.notice.trim();
+      if (existing) return r;
+      return { ...r, notice: NOT_OFFICIAL_VERSION_NOTICE };
     });
   }
   return {
