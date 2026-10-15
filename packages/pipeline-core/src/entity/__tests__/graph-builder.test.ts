@@ -238,4 +238,22 @@ describe('entity:graph-builder', () => {
     assert.ok(typeof result.entities === 'number');
     assert.ok(Array.isArray(result.errors));
   });
+
+  it('never entity-links aggregate-only sources (Statistics Canada)', async () => {
+    const direct = buildEntityGraphFromRecords('statcan', [
+      { id: 'sc-1', title: 'Labour force characteristics', geography: 'Ontario' },
+    ], 'https://www150.statcan.gc.ca');
+    assert.deepStrictEqual(
+      { e: direct.entities, m: direct.mentions, l: direct.links, r: direct.recordsProcessed },
+      { e: 0, m: 0, l: 0, r: 0 },
+      'statcan records must not enter the entity graph',
+    );
+
+    const composed = await buildEntityGraph('statcan', {
+      records: [{ id: 'sc-2', geography: 'Canada' }],
+    });
+    assert.strictEqual(composed.entities, 0);
+    assert.strictEqual(composed.mentions, 0);
+    assert.strictEqual(composed.links, 0);
+  });
 });

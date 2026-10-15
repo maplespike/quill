@@ -15,6 +15,7 @@
 
 import { getRawDb } from '@maplespike/database';
 import type { Database } from '@maplespike/database';
+import { aggregateOnlySources } from '../shared/source-policy.js';
 
 /* ------------------------------------------------------------------ */
 /*  Canonical Entity URI scheme (WS-2)                                 */
@@ -288,6 +289,13 @@ export function findConnections(
 
   const db = getSqlite();
 
+  // Licence policy: aggregate-only sources never link (defense-in-depth for
+  // rows written before the policy landed).
+  const excludedSources = aggregateOnlySources();
+  const linkPolicyFilter = excludedSources.length
+    ? ` AND el.source NOT IN (${excludedSources.map(() => '?').join(',')})`
+    : '';
+
   // Find direct connections from entity_links
   const directLinks = db
     .prepare(
@@ -304,10 +312,10 @@ export function findConnections(
       FROM entity_links el
       JOIN entities e_src ON el.source_entity_id = e_src.id
       JOIN entities e_tgt ON el.target_entity_id = e_tgt.id
-      WHERE el.source_entity_id = ? OR el.target_entity_id = ?
+      WHERE (el.source_entity_id = ? OR el.target_entity_id = ?)${linkPolicyFilter}
       ORDER BY el.weight DESC`,
     )
-    .all(center.id, center.id) as Array<{
+    .all(center.id, center.id, ...excludedSources) as Array<{
     link_type: string;
     weight: number;
     source: string;
@@ -493,6 +501,12 @@ function findEntityAppearances(
     .get() as { name: string } | undefined;
 
   if (tables) {
+    // Licence policy: aggregate-only sources (Statistics Canada) are never
+    // composed into entity appearances — their data must not be linked to
+    // identify individuals or businesses. Rows written before the policy
+    // landed are filtered here too.
+    const excluded = aggregateOnlySources();
+    const notIn = excluded.length ? ` AND em.module_name NOT IN (${excluded.map(() => '?').join(',')})` : '';
     return db
       .prepare(
         `SELECT
@@ -502,13 +516,18 @@ function findEntityAppearances(
           COALESCE(em.date, '') AS date,
           COALESCE(em.source_url, '') AS source_url
          FROM entity_mentions em
-         WHERE em.entity_id = ?
+         WHERE em.entity_id = ?${notIn}
          ORDER BY em.date DESC`,
       )
-      .all(entityId) as AppearanceRow[];
+      .all(entityId, ...excluded) as AppearanceRow[];
   }
 
-  // Fallback: infer appearances from entity_links
+  // Fallback: infer appearances from entity_links (aggregate-only sources
+  // excluded — same policy as the mentions path).
+  const excludedLinks = aggregateOnlySources();
+  const linkNotIn = excludedLinks.length
+    ? ` AND el.source NOT IN (${excludedLinks.map(() => '?').join(',')})`
+    : '';
   return db
     .prepare(
       `SELECT DISTINCT
@@ -518,10 +537,10 @@ function findEntityAppearances(
         COALESCE(el.created_at, '') AS date,
         '' AS source_url
        FROM entity_links el
-       WHERE el.source_entity_id = ? OR el.target_entity_id = ?
+       WHERE (el.source_entity_id = ? OR el.target_entity_id = ?)${linkNotIn}
        ORDER BY el.created_at DESC`,
     )
-    .all(entityId, entityId) as AppearanceRow[];
+    .all(entityId, entityId, ...excludedLinks) as AppearanceRow[];
 }
 
 function findEntityAliases(db: Database, entityId: string): string[] {
