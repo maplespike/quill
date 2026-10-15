@@ -55,6 +55,19 @@ secrets/decrypted/
 secrets/*.dec
 secrets/*.plaintext
 secrets/*.env
+# mktemp-shaped decrypt leftovers. 2026-10-14 (run 38617463045, #1070): a
+# "WIP backup" sweep on the atlas clone committed three plaintext decrypts of
+# secrets/runtime.yaml under exactly these shapes (tmp.ZMFRg0.yaml,
+# tmp.y8ns8n.yaml, tmp2zgn9_f1.yaml) and pushed them, leaking the live
+# sk_live_ key. The *.dec/*.plaintext rules above never matched because
+# mktemp puts its random suffix mid-name. Prefix + suffix rules cover every
+# mktemp variant; sealed *.yaml files stay committable (see test:
+# scripts/test-gitignore-leak-shapes.mts).
+secrets/tmp*
+secrets/*.tmp
+# SOPS creation-rule editor temp (observed in the same incident commit).
+.sops.yaml.tmp
+.sops.yaml.tmp*
 !.env.example
 .DS_Store
 *.log
@@ -119,3 +132,12 @@ packages/flywheel-agent/
 
 # build scratch (pin-images.sh TMPDIR default)
 .tmp/
+
+# Generated SBOMs (scripts/pin-images.sh SBOM_DIR default). Machine state, not
+# source; two .meta files were swept into the 2026-10-14 atlas backup commit
+# (run 38617463045, #1070) and tripped the secrets gate.
+sbom/
+
+# Agent worktree bookkeeping (per-worktree branch-name files). ~120 of these
+# were swept into the same atlas backup commit. Local-only, like .hermes/.
+.worktrees/
