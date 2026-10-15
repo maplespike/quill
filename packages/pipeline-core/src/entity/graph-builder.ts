@@ -32,7 +32,7 @@ import type { Database } from '@maplespike/database';
 import { extractEntities } from './extractor.js';
 import { getExtractionConfig } from './ingestion.js';
 import { normalizeName } from './normalize.js';
-import { restrictsPersonProfiles } from '../shared/source-policy.js';
+import { policyForModule, restrictsPersonProfiles } from '../shared/source-policy.js';
 
 /* ------------------------------------------------------------------ */
 /*  Schema — matches the live table definitions exactly                */
@@ -162,6 +162,11 @@ export function buildEntityGraphFromRecords(
     (r): r is Record<string, unknown> => r !== null && typeof r === 'object',
   );
   if (objects.length === 0) return result;
+
+  // Licence policy: aggregate-only sources (Statistics Canada) never enter
+  // the entity graph — their data must not be linked to identify
+  // individuals, businesses, or organizations.
+  if (policyForModule(moduleName).aggregateOnly) return result;
 
   const sampled = objects.slice(0, MAX_ENTITIES_PER_RUN);
   // Licence policy: personal-information sources never materialize person-level
@@ -668,6 +673,14 @@ export async function buildEntityGraph(
   result: unknown,
   sourceUrl = '',
 ): Promise<GraphBuildResult> {
+  // Licence policy: aggregate-only sources are never entity-linked.
+  if (policyForModule(moduleName).aggregateOnly) {
+    console.log(
+      `[graph] Skipping entity graph for aggregate-only source '${moduleName}' (no linkage; Statistics Canada Open Licence)`,
+    );
+    return { entities: 0, mentions: 0, links: 0, recordsProcessed: 0, errors: [] };
+  }
+
   const generic = await registerModuleResultEntities(moduleName, result, sourceUrl);
   let backfill: GraphBuildResult = { entities: 0, mentions: 0, links: 0, recordsProcessed: 0, errors: [] };
   try {

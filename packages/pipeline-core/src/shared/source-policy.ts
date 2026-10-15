@@ -57,6 +57,11 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   'ontario-lobbying': { minimizePersonalInformation: true },
   'cra-charity': { minimizePersonalInformation: true },
   'political-donations': { minimizePersonalInformation: true },
+  // Statistics Canada Open Licence: data must not be merged or linked to
+  // attempt to identify an individual, business, or organization — records
+  // stay aggregate and never enter the entity graph.
+  statcan: { aggregateOnly: true },
+  'nu-statcan': { aggregateOnly: true },
 };
 
 /** Module name -> source-family id, where the two differ. */
@@ -89,6 +94,13 @@ export function restrictsPersonProfiles(sourceOrModule: string): boolean {
   return policyForModule(sourceOrModule).minimizePersonalInformation;
 }
 
+/** Source families whose records must never be entity-linked. */
+export function aggregateOnlySources(): string[] {
+  return Object.entries(SOURCE_POLICIES)
+    .filter(([, policy]) => policy.aggregateOnly === true)
+    .map(([id]) => id);
+}
+
 /* ------------------------------------------------------------------ */
 /*  Required notices                                                   */
 /* ------------------------------------------------------------------ */
@@ -103,6 +115,24 @@ export const SENATE_REPRODUCTION_NOTICE =
   'Regarding Reproduction (https://sencanada.ca/en/intellectual-property). Reproduction ' +
   'is accurate and not presented as official; it does not extend to any use for ' +
   'purposes of financial gain.';
+
+/**
+ * Statistics Canada Open Licence notice. The licence requires the product
+ * and reference date when they are known; the generic form is used when the
+ * fields are unavailable ("as is" reproduction notice).
+ */
+export function statcanAttributionNotice(
+  options: { product?: string; referenceDate?: string; adapted?: boolean } = {},
+): string {
+  const product = options.product?.trim();
+  const date = options.referenceDate?.trim();
+  const subject = product && date ? `${product}, ${date}` : product ?? date ?? "";
+  const suffix = subject ? `, ${subject}` : "";
+  if (options.adapted) {
+    return `Adapted from Statistics Canada${suffix}. This does not constitute an endorsement by Statistics Canada of this product.`;
+  }
+  return `Source: Statistics Canada${suffix}. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.`;
+}
 
 const NOTICES_BY_SOURCE: Record<string, string[]> = {
   committees: [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
@@ -305,6 +335,24 @@ export function applySourcePolicy(sourceId: string, records: unknown[]): Applied
     out = minimizePersonalInfo(out);
   }
   const familyId = MODULE_SOURCE_ALIASES[sourceId] ?? sourceId;
+  if (policy.aggregateOnly && (familyId === "statcan" || familyId === "nu-statcan")) {
+    // Statistics Canada Open Licence: carry the required source notice with
+    // every record; publisher-supplied attribution text still wins.
+    out = out.map((record) => {
+      if (!record || typeof record !== "object") return record;
+      const r = record as Record<string, unknown>;
+      const existing = typeof r.attribution_text === "string" && r.attribution_text.trim();
+      if (existing) return r;
+      return {
+        ...r,
+        attribution_text: statcanAttributionNotice({
+          product: typeof r.productId === "string" ? r.productId : undefined,
+          referenceDate:
+            typeof r.period === "string" ? r.period : typeof r.date === "string" ? r.date : undefined,
+        }),
+      };
+    });
+  }
   return {
     records: out,
     policy: {

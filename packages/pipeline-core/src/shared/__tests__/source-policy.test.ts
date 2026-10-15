@@ -6,6 +6,8 @@ import {
   policyForSource,
   isCommercialUseBlocked,
   restrictsPersonProfiles,
+  aggregateOnlySources,
+  statcanAttributionNotice,
   applySourcePolicy,
   stripContentBodies,
   minimizePersonalInfo,
@@ -38,6 +40,14 @@ describe('source licence policy — flags', () => {
     assert.equal(policyForModule('lobbying').minimizePersonalInformation, true);
     assert.equal(restrictsPersonProfiles('lobbying'), true);
     assert.equal(restrictsPersonProfiles('bank-of-canada'), false);
+  });
+
+  it('Statistics Canada sources are aggregate-only', () => {
+    for (const id of ['statcan', 'nu-statcan']) {
+      assert.equal(policyForModule(id).aggregateOnly, true, `${id} must be aggregate-only`);
+    }
+    assert.equal(aggregateOnlySources().includes('statcan'), true);
+    assert.equal(aggregateOnlySources().includes('committees'), false);
   });
 
   it('unknown sources default to unrestricted (negative control)', () => {
@@ -166,5 +176,41 @@ describe('applySourcePolicy — lobbying minimization', () => {
     const input = [{ id: 'b1', email: 'contact@bankofcanada.ca', phone: '1-800-303-1282' }];
     const { records } = applySourcePolicy('bank-of-canada', input);
     assert.deepEqual(records, input);
+  });
+});
+
+describe('applySourcePolicy — Statistics Canada notices', () => {
+  it('builds the licence notices with and without product details', () => {
+    assert.equal(
+      statcanAttributionNotice(),
+      'Source: Statistics Canada. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.',
+    );
+    assert.equal(
+      statcanAttributionNotice({ product: 'Table 18-10-0004-01', referenceDate: '2026-08' }),
+      'Source: Statistics Canada, Table 18-10-0004-01, 2026-08. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.',
+    );
+    assert.equal(
+      statcanAttributionNotice({ product: 'CPI', referenceDate: '2026-08', adapted: true }),
+      'Adapted from Statistics Canada, CPI, 2026-08. This does not constitute an endorsement by Statistics Canada of this product.',
+    );
+  });
+
+  it('attaches the source notice to StatCan records that carry product fields', () => {
+    const { records, policy } = applySourcePolicy('statcan', [
+      { id: 's1', productId: '18-10-0004-01', period: '2026-08', value: 161.8 },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(
+      record.attribution_text,
+      'Source: Statistics Canada, 18-10-0004-01, 2026-08. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.',
+    );
+    assert.equal(policy.aggregate_only, true);
+  });
+
+  it('keeps publisher-supplied attribution text when present', () => {
+    const { records } = applySourcePolicy('statcan', [
+      { id: 's2', attribution_text: 'Source: Statistics Canada, custom.' },
+    ]);
+    assert.equal((records[0] as Record<string, unknown>).attribution_text, 'Source: Statistics Canada, custom.');
   });
 });
