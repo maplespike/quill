@@ -7,6 +7,7 @@
 
 import { extractEntities, type EntityExtractionConfig, type ExtractionRule, type ExtractedMention } from './extractor.js';
 import type { DB } from '../db/database.js';
+import { restrictsPersonProfiles } from '../shared/source-policy.js';
 
 export interface IngestionResult {
   module: string;
@@ -36,8 +37,13 @@ export async function ingestEntityMentions(
 
       const config = getExtractionConfig(module, recordId, record);
       const mentions = extractEntities(config);
+      // Licence policy: personal-information sources do not materialize
+      // person entities (no cross-source profiles of individuals).
+      const keptMentions = restrictsPersonProfiles(module)
+        ? mentions.filter((mention) => mention.entityType !== 'person')
+        : mentions;
 
-      for (const mention of mentions) {
+      for (const mention of keptMentions) {
         await db.run(
           `INSERT INTO entity_mentions (entity_id, entity_type, entity_name, entity_normalized, module_id, record_id, record_date, confidence_score, citation_sha256, trust_score)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
