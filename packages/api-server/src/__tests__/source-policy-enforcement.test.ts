@@ -115,5 +115,10 @@ describe('committee sources are discovery-only on the export surface', () => {
     const charity = data.modules.find((m: { name: string }) => m.name === 'cra-charity');
     assert.ok(charity, 'cra-charity module must be listed');
     assert.equal(charity.policy.minimize_personal_information, true);
+
+    // Aggregate-only (never entity-linked) is flagged for Statistics Canada.
+    const statcan = data.modules.find((m: { name: string }) => m.name === 'statcan');
+    assert.ok(statcan, 'statcan module must be listed');
+    assert.equal(statcan.policy.aggregate_only, true);
   });
 });
