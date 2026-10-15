@@ -18,7 +18,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {i18n.t('terms.title')}
       </h1>
-      <p class="mt-2 text-muted-foreground">{i18n.t('terms.last_updated', { date: 'July 1, 2026' })}</p>
+      <p class="mt-2 text-muted-foreground">{i18n.t('terms.last_updated', { date: 'October 14, 2026' })}</p>
     </div>
   </section>
 
@@ -49,6 +49,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "The Service searches and presents information from government and other public-sector sources. License terms vary by publisher, dataset, API, and jurisdiction. A public listing or a source portal does not by itself grant reuse rights. Where the source supplies license metadata, the Service may display it as publisher-provided information; that display is not an independent legal review or a grant by MapleSpike. Consult the original source terms before copying, redistributing, or using source material commercially.",
             "Le Service recherche et présente des informations provenant de sources gouvernementales et d'autres sources du secteur public. Les conditions de licence varient selon l'éditeur, le jeu de données, l'API et le territoire. Une fiche publique ou un portail source ne confère pas à lui seul des droits de réutilisation. Lorsque la source fournit des métadonnées de licence, le Service peut les afficher comme information provenant de l'éditeur; cet affichage ne constitue ni une vérification juridique indépendante ni une licence accordée par MapleSpike. Consultez les conditions de la source originale avant de copier, redistribuer ou utiliser commercialement le contenu source."
           )}</p>
+          <p>{t(
+            "Some sources are served in restricted forms by design. Committee and other parliamentary content is discovery-only in every tier: metadata, short factual summaries, and links to the official source — never full text, and never part of bulk export or paid features. Statistics Canada data is served in aggregate form only; it is not linked or merged to identify any individual, business, or organization. Court and securities material from CanLII, SEDAR+ and SEDI, and news feeds, are served as citations, metadata, and links with short excerpts only. Federal law reproductions carry a \"not an official version\" notice.",
+            "Certaines sources sont servies sous des formes restreintes par conception. Le contenu des comités et d'autres contenus parlementaires est limité à la découverte dans tous les paliers : métadonnées, courts résumés factuels et liens vers la source officielle — jamais le texte intégral, et jamais dans l'exportation en bloc ni dans les fonctionnalités payantes. Les données de Statistique Canada sont servies sous forme agrégée seulement; elles ne sont ni liées ni fusionnées pour identifier une personne, une entreprise ou une organisation. Les décisions judiciaires et les documents des autorités en valeurs mobilières provenant de CanLII, SEDAR+ et SEDI, ainsi que les fils de nouvelles, sont servis sous forme de citations, métadonnées et liens avec de courts extraits seulement. Les reproductions de la législation fédérale portent l'avis « version non officielle ».",
+          )}</p>
         </CardContent>
       </Card>
 
@@ -64,6 +68,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             <li>{t("Copy, redistribute, or commercially use source material without first checking the terms and restrictions that apply to that specific source and dataset", "Copier, redistribuer ou utiliser commercialement du contenu source sans vérifier d'abord les conditions et restrictions applicables à cette source et à ce jeu de données")}</li>
             <li>{t("Use the Service for automated scraping that exceeds your plan's rate limits", "Utiliser le Service pour un extraction automatique qui dépasse les limites de débit de votre forfait")}</li>
             <li>{t("Submit queries designed to extract personal information about identifiable individuals", "Soumettre des requêtes conçues pour extraire des renseignements personnels sur des personnes identifiables")}</li>
+            <li>{t("Bulk or automated scrape CanLII, SEDAR+, SEDI, or other sources whose terms do not permit it; use the citations, metadata, and links the Service provides instead", "Extraire en bloc ou automatiquement le contenu de CanLII, SEDAR+, SEDI ou d'autres sources dont les conditions ne le permettent pas; utilisez plutôt les citations, métadonnées et liens fournis par le Service")}</li>
+            <li>{t("Use Statistics Canada data to identify or link an individual, business, or organization", "Utiliser les données de Statistique Canada pour identifier ou relier une personne, une entreprise ou une organisation")}</li>
+            <li>{t("Present reproductions of federal law or Canada Gazette content as an official version", "Présenter des reproductions de la législation fédérale ou du contenu de la Gazette du Canada comme une version officielle")}</li>
             <li>{t("Use AI-generated content from the Service without verification for factual accuracy", "Utiliser le contenu généré par IA du Service sans vérifier son exactitude factuelle")}</li>
           </ul>
         </CardContent>

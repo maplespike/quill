@@ -18,6 +18,30 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const BEGIN_MARKER = '<!-- BEGIN GENERATED SOURCE INDEX -->';
 export const END_MARKER = '<!-- END GENERATED SOURCE INDEX -->';
 
+/** Human labels for the enforced-policy flags shown in the index table. */
+export const POLICY_LABELS = {
+  commercialUse: 'non-commercial',
+  discoveryOnly: 'discovery-only',
+  linkOnly: 'link-only',
+  aggregateOnly: 'aggregate-only',
+  minimizePersonalInformation: 'pii-minimized',
+  notOfficialVersion: 'not-official-version',
+};
+
+/** Labels for a family policy block (empty array when unflagged). */
+export function policyLabels(policy) {
+  if (!policy || typeof policy !== 'object') return [];
+  const labels = [];
+  for (const [flag, value] of Object.entries(policy)) {
+    if (flag === 'commercialUse') {
+      if (value === false) labels.push('non-commercial');
+      continue;
+    }
+    if (value === true) labels.push(POLICY_LABELS[flag] ?? flag);
+  }
+  return labels;
+}
+
 /**
  * Render the markdown index table for every source family, sorted by id.
  * Families without a single recorded terms URL are labelled, not invented.
@@ -25,14 +49,15 @@ export const END_MARKER = '<!-- END GENERATED SOURCE INDEX -->';
 export function buildIndexTable(sources) {
   const rows = [...sources].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const lines = [
-    '| Source family | Publisher terms lead |',
-    '| --- | --- |',
+    '| Source family | Publisher terms lead | Enforced policy |',
+    '| --- | --- | --- |',
   ];
   for (const s of rows) {
     const terms = typeof s.source_terms === 'string' && s.source_terms.trim()
       ? s.source_terms.trim()
       : '_no single terms URL recorded — see the source family note_';
-    lines.push(`| \`${s.id}\` | ${terms} |`);
+    const labels = policyLabels(s.policy);
+    lines.push(`| \`${s.id}\` | ${terms} | ${labels.length ? labels.join(', ') : '—'} |`);
   }
   return lines.join('\n');
 }

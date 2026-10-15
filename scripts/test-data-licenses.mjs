@@ -20,7 +20,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { renderLicenceFile } from './generate-data-licenses.mjs';
+import { renderLicenceFile, policyLabels } from './generate-data-licenses.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sources = JSON.parse(readFileSync(resolve(ROOT, 'data-source-licenses.json'), 'utf8')).sources;
@@ -72,5 +72,18 @@ test('required licence statements and notices are documented', () => {
   ];
   for (const r of required) {
     assert.ok(licences.includes(r), `DATA-LICENSES.md is missing required text: ${r}`);
+  }
+});
+
+test('generated index surfaces enforced policy flags for every flagged family', () => {
+  const rendered = renderLicenceFile(licences, sources);
+  for (const s of sources) {
+    const labels = policyLabels(s.policy);
+    if (!labels.length) continue;
+    const row = rendered.split('\n').find((l) => l.startsWith('| \`' + s.id + '\` |'));
+    assert.ok(row, `${s.id}: missing index row`);
+    for (const label of labels) {
+      assert.ok(row.includes(label), `${s.id}: index row missing policy label "${label}"`);
+    }
   }
 });
