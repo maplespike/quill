@@ -6,6 +6,12 @@ import { createI18n } from "@maplespike/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
 import statsData from "@/data/stats.json";
+import {
+  OGL_CANADA_ATTRIBUTION_STATEMENT,
+  OGL_CANADA_ATTRIBUTION_STATEMENT_FR,
+  NON_ENDORSEMENT_DISCLAIMER,
+  NON_ENDORSEMENT_DISCLAIMER_FR,
+} from "@/lib/attribution-notices";
 
 export interface Props {
   title: string;
@@ -448,6 +454,7 @@ const isActive = (match: string) =>
             <ul class="space-y-2 text-sm text-muted-foreground">
               <li><a href={localeUrl('/privacy', lang)} class="transition-colors hover:text-foreground">{i18n.t('footer.privacy')}</a></li>
               <li><a href={localeUrl('/terms', lang)} class="transition-colors hover:text-foreground">{i18n.t('footer.terms')}</a></li>
+              <li><a href={localeUrl('/data-sources', lang)} class="transition-colors hover:text-foreground">{lang === 'fr' ? 'Sources de données et licences' : 'Data sources & licences'}</a></li>
               <li><a href="/llms.txt" class="transition-colors hover:text-foreground">llms.txt</a></li>
               <li><a href="/robots.txt" class="transition-colors hover:text-foreground">robots.txt</a></li>
             </ul>
@@ -466,6 +473,14 @@ const isActive = (match: string) =>
             ? 'Les conditions de licence varient selon la source et le jeu de données; consultez les conditions de l’éditeur original.'
             : 'License terms vary by source and dataset; consult the original publisher terms.'
           }</p>
+          <p class="mt-1">{lang === 'fr' ? OGL_CANADA_ATTRIBUTION_STATEMENT_FR : OGL_CANADA_ATTRIBUTION_STATEMENT}</p>
+          <p class="mt-1">
+            <a href={localeUrl('/data-sources', lang)} class="underline underline-offset-2 transition-colors hover:text-foreground">
+              {lang === 'fr' ? 'Sources de données et licences' : 'Data sources & licences'}
+            </a>
+            <span class="mx-2" aria-hidden="true">·</span>
+            <span>{lang === 'fr' ? NON_ENDORSEMENT_DISCLAIMER_FR : NON_ENDORSEMENT_DISCLAIMER}</span>
+          </p>
         </div>
       </div>
     </footer>

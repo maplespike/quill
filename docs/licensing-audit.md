@@ -35,6 +35,10 @@ For each dataset and actual Quill use, record:
 
 The audit research consulted official or publisher terms for federal Open Government Licence – Canada, Statistics Canada Open Licence, CanLII Terms of Use, Ontario Open Data Terms of Use, BC Open Government Licence, Toronto Open Data Licence, Données Québec licence, Alberta Open Government Licence, Yukon Open Government Licence, and Newfoundland and Labrador licence pages. These sources differ in scope and exclusions. The registry links are not proof that every Quill dataset from those sources is covered by the terms.
 
+## Attribution notices and required statements
+
+The publisher-group table, the required attribution statements (OGL–Canada, Statistics Canada Open Licence, House of Commons Speaker's Permission, Senate reproduction permission, Reproduction of Federal Law Order, lobbying open data licence), and the generated source-family index live in [`DATA-LICENSES.md`](../DATA-LICENSES.md). The portal mirrors the statements at `/data-sources` (rendered from `packages/portal/src/lib/attribution-notices.ts`), and the site footer carries the OGL attribution statement and the non-endorsement disclaimer. `scripts/test-data-licenses.mjs` fails if a required statement disappears from `DATA-LICENSES.md` or if the index drifts from `data-source-licenses.json`.
+
 ## Software licensing is separate
 
 This file concerns upstream data provenance only. It does not resolve the repository's own package/SPDX conflicts, dependency notices, code provenance, or OCI image licensing. See [`open-source-audit.md`](./open-source-audit.md), [`LICENSE.md`](../LICENSE.md), and [`CREDITS.md`](../CREDITS.md).
