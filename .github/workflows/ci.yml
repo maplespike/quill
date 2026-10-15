@@ -135,6 +135,16 @@ jobs:
       - name: TypeScript line-count unit test
         run: pnpm exec tsx --test scripts/test-count-ts.mts
 
+      # Gate A6-COMPLIANCE: licence coverage + policy drift + paid-tier
+      # enforcement tripwires. Fails when a registry module lacks a licence
+      # entry or when the runtime policy table drifts from
+      # data-source-licenses.json. Pure Node — no build, no cluster.
+      - name: Source compliance gate
+        run: node scripts/gates/check-source-compliance.mjs
+
+      - name: Source compliance gate unit tests
+        run: node --test scripts/test-source-compliance.mjs
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.
