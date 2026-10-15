@@ -28,18 +28,14 @@
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { getAllModules } from '../packages/api-server/src/registry-snapshot.js';
+import { policyForModule } from '../packages/pipeline-core/src/shared/source-policy.js';
 
 // ── CLI ─────────────────────────────────────────────────────────────────────
 
-const args = process.argv.slice(2);
-const outIdx = args.indexOf('--out');
-if (outIdx === -1 || !args[outIdx + 1]) {
-  console.error('usage: tsx scripts/export-search-corpus.mts --out <corpus.jsonl> [--no-db]');
-  process.exit(2);
-}
-const OUT = resolve(args[outIdx + 1]);
-const NO_DB = args.includes('--no-db');
+// argv-derived flags are safe to read on import; only main() acts on them.
+const NO_DB = process.argv.includes('--no-db');
 const DB_PATH = process.env.QUILL_DB_PATH ?? '';
 
 interface OutDoc {
@@ -162,49 +158,77 @@ function municipalDocs(rows: CacheRow[]): OutDoc[] {
 
 // ── Module registry docs ─────────────────────────────────────────────────────
 
-function moduleDocs(): OutDoc[] {
-  return getAllModules().map((m) => ({
-    id: `module:${m.name}`,
-    kind: 'module' as const,
-    title: m.name,
-    text: `${m.name} — ${m.description}. Sources: ${m.sources
-      .map((s) => `${s.name} (${s.format})`)
-      .join('; ')}. Update frequency: ${m.updateFrequency}.`,
-    url: 'https://quill.maplespike.ca',
-    source: 'module registry',
-    published: '',
-    updated: '',
-    meta: {
-      category: m.category,
-      module_path: m.modulePath,
-      update_frequency: m.updateFrequency,
-      status: m.status ?? 'active',
-      source_count: m.sources.length,
-    },
-  }));
+export function moduleDocs(): OutDoc[] {
+  return getAllModules().map((m) => {
+    const p = policyForModule(m.name);
+    return {
+      id: `module:${m.name}`,
+      kind: 'module' as const,
+      title: m.name,
+      text: `${m.name} — ${m.description}. Sources: ${m.sources
+        .map((s) => `${s.name} (${s.format})`)
+        .join('; ')}. Update frequency: ${m.updateFrequency}.`,
+      url: 'https://quill.maplespike.ca',
+      source: 'module registry',
+      published: '',
+      updated: '',
+      meta: {
+        category: m.category,
+        module_path: m.modulePath,
+        update_frequency: m.updateFrequency,
+        status: m.status ?? 'active',
+        source_count: m.sources.length,
+        // Licence policy flags travel with each doc so the index/search
+        // layer can filter or degrade documents from restricted sources.
+        policy: {
+          commercial_use: p.commercialUse,
+          discovery_only: p.discoveryOnly,
+          link_only: p.linkOnly,
+          aggregate_only: p.aggregateOnly,
+          minimize_personal_information: p.minimizePersonalInformation,
+          not_official_version: p.notOfficialVersion,
+        },
+      },
+    };
+  });
 }
 
-// ── Emit ────────────────────────────────────────────────────────────────────
+// ── Emit (CLI) ──────────────────────────────────────────────────────────────
+// Guarded so tests can import { moduleDocs } without running the export.
 
-const modules = moduleDocs();
-const municipal = NO_DB ? [] : municipalDocs(readMunicipalRows());
+function main(): void {
+  const args = process.argv.slice(2);
+  const outIdx = args.indexOf('--out');
+  if (outIdx === -1 || !args[outIdx + 1]) {
+    console.error('usage: tsx scripts/export-search-corpus.mts --out <corpus.jsonl> [--no-db]');
+    process.exit(2);
+  }
+  const OUT = resolve(args[outIdx + 1]);
 
-// Deterministic overall order: municipal first (already sorted), then modules
-// (registry order). Nothing depends on Map/Set iteration order.
-const all = [...municipal, ...modules];
+  const modules = moduleDocs();
+  const municipal = NO_DB ? [] : municipalDocs(readMunicipalRows());
 
-const outDir = resolve(OUT, '..');
-mkdirSync(outDir, { recursive: true });
-const lines = all.map((d) => JSON.stringify(d));
-writeFileSync(OUT, lines.join('\n') + (lines.length ? '\n' : ''));
+  // Deterministic overall order: municipal first (already sorted), then
+  // modules (registry order). Nothing depends on Map/Set iteration order.
+  const all = [...municipal, ...modules];
 
-const kinds = all.reduce<Record<string, number>>((acc, d) => {
-  acc[d.kind] = (acc[d.kind] ?? 0) + 1;
-  return acc;
-}, {});
-console.error(
-  `exported ${all.length} docs to ${OUT} (${JSON.stringify(kinds)}; municipal rows from ${
-    NO_DB ? 'skipped (--no-db)' : DB_PATH || '(no QUILL_DB_PATH)'
-  })`,
-);
-process.exit(0);
+  const outDir = resolve(OUT, '..');
+  mkdirSync(outDir, { recursive: true });
+  const lines = all.map((d) => JSON.stringify(d));
+  writeFileSync(OUT, lines.join('\n') + (lines.length ? '\n' : ''));
+
+  const kinds = all.reduce<Record<string, number>>((acc, d) => {
+    acc[d.kind] = (acc[d.kind] ?? 0) + 1;
+    return acc;
+  }, {});
+  console.error(
+    `exported ${all.length} docs to ${OUT} (${JSON.stringify(kinds)}; municipal rows from ${
+      NO_DB ? 'skipped (--no-db)' : DB_PATH || '(no QUILL_DB_PATH)'
+    })`,
+  );
+  process.exit(0);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

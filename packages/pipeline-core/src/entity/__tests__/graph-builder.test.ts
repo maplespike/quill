@@ -60,7 +60,10 @@ describe('entity:graph-builder', () => {
     assert.strictEqual(entityIdFor('john smith', 'person'), `ent_${entityIdHash('john smith', 'person')}`);
   });
 
-  it('should populate entities, mentions and links from lobbying records', () => {
+  it('does not materialize person profiles from lobbying records (licence policy)', () => {
+    // Incident rule: pins the 2026-10-14 compliance design — the lobbying
+    // registries' licences do not grant personal-information rights, so the
+    // graph must never build cross-source person profiles from them.
     const result = buildEntityGraphFromRecords('lobbying', [
       {
         id: 'lob-001',
@@ -79,27 +82,43 @@ describe('entity:graph-builder', () => {
     ], 'https://lobbycanada.gc.ca');
 
     assert.strictEqual(result.recordsProcessed, 2);
-    assert.ok(result.entities >= 3, `expected >=3 entities, got ${result.entities}`);
-    assert.ok(result.mentions >= 4, `expected >=4 mentions, got ${result.mentions}`);
-    assert.ok(result.links >= 2, `expected >=2 links, got ${result.links}`);
+    // Organizations still land; persons do not.
+    assert.ok(result.entities >= 2, `expected >=2 entities, got ${result.entities}`);
+    assert.ok(result.mentions >= 2, `expected >=2 mentions, got ${result.mentions}`);
+    assert.strictEqual(result.links, 0, 'no person-involving links may be created');
 
     const db = getRawDb();
     const entities = db.prepare('SELECT id, canonical_name, type, confidence FROM entities').all() as any[];
-    assert.ok(entities.some((e) => e.canonical_name === 'Jane Doe' && e.type === 'person'));
+    assert.ok(
+      !entities.some((e) => e.canonical_name === 'Jane Doe' || e.canonical_name === 'Bob Smith'),
+      'person entities must not be materialized from lobbying records',
+    );
     assert.ok(entities.some((e) => e.canonical_name === 'Acme Consulting Inc.' && e.type === 'organization'));
 
     const mentions = db.prepare(
       "SELECT entity_id, module_name, source_table, role, date, source_url FROM entity_mentions WHERE module_name = 'lobbying'",
     ).all() as any[];
-    assert.ok(mentions.length >= 4);
+    assert.ok(mentions.length >= 2);
     assert.ok(mentions.every((m) => m.module_name === 'lobbying'));
-    assert.ok(mentions.some((m) => m.role === 'Lobbyist' || m.role === 'Client'));
+    const personMentions = mentions.filter((m) => {
+      const entity = db.prepare('SELECT type FROM entities WHERE id = ?').get(m.entity_id) as any;
+      return entity?.type === 'person';
+    });
+    assert.strictEqual(personMentions.length, 0, 'no person mentions from lobbying');
+    assert.ok(mentions.some((m) => m.role === 'Client'));
+  });
 
-    const links = db.prepare("SELECT * FROM entity_links WHERE source = 'lobbying'").all() as any[];
-    assert.ok(links.length >= 2);
-    // Links collapse A→B / B→A into one canonical row.
-    const srcs = links.map((l) => l.source_entity_id).sort();
-    assert.strictEqual(srcs.length, new Set(srcs).size);
+  it('applies the same policy to the specific lobbying family names', () => {
+    // The family-name module falls to the generic extraction path, where
+    // *_name fields map to person and *_organization to organization — the
+    // policy still drops the person mention and keeps the org.
+    const result = buildEntityGraphFromRecords('federal-lobbying-monthly', [
+      { id: 'fl-1', lobbyist_name: 'Casey Person', client_organization: 'Northwind Corp' },
+    ]);
+    assert.ok(result.entities >= 1, `expected the org mention, got ${result.entities}`);
+    const db = getRawDb();
+    const person = db.prepare("SELECT COUNT(*) as n FROM entities WHERE canonical_name = 'Casey Person'").get() as any;
+    assert.strictEqual(person.n, 0);
   });
 
   it('should handle dict-shaped results (committees style) via registerModuleResultEntities', async () => {
@@ -149,7 +168,7 @@ describe('entity:graph-builder', () => {
     assert.ok(Array.isArray(second.errors));
   });
 
-  it('should backfill lobbying and GIC tables when present', () => {
+  it('should backfill lobbying and GIC tables — organizations yes, lobbying persons no', () => {
     const db = getRawDb();
     db.exec(`
       CREATE TABLE IF NOT EXISTS lobbying_records (
@@ -178,16 +197,22 @@ describe('entity:graph-builder', () => {
 
     const lobby = backfillLobbyingEntityGraph();
     assert.ok(lobby.recordsProcessed >= 1);
-    assert.ok(lobby.entities >= 3, `expected >=3 lobbying entities, got ${lobby.entities}`);
-    assert.ok(lobby.links >= 2, `expected >=2 lobbying links, got ${lobby.links}`);
+    // Persons are not materialized from lobbying records; organizations are.
+    assert.ok(lobby.entities >= 2, `expected >=2 lobbying entities, got ${lobby.entities}`);
+    assert.strictEqual(lobby.links, 0, 'person-involving links must not be created');
 
+    // The GIC backfill is unaffected — public office holders are public in
+    // their professional capacity and are not a flagged source.
     const gic = backfillGicEntityGraph();
     assert.ok(gic.recordsProcessed >= 1);
     assert.ok(gic.entities >= 2, `expected >=2 gic entities, got ${gic.entities}`);
     assert.ok(gic.links >= 1, `expected >=1 gic link, got ${gic.links}`);
 
     const entities = db.prepare('SELECT canonical_name FROM entities').all() as any[];
-    assert.ok(entities.some((e) => e.canonical_name === 'Jane Lobbyist'));
+    assert.ok(
+      !entities.some((e) => e.canonical_name === 'Jane Lobbyist'),
+      'lobbyist person must not be materialized',
+    );
     assert.ok(entities.some((e) => e.canonical_name === 'Acme Corp'));
     assert.ok(entities.some((e) => e.canonical_name === 'Grace Appointee'));
     assert.ok(entities.some((e) => e.canonical_name === 'Bank of Canada'));
@@ -204,6 +229,8 @@ describe('entity:graph-builder', () => {
     }));
     const result = buildEntityGraphFromRecords('lobbying', records);
     assert.ok(result.recordsProcessed <= MAX_ENTITIES_PER_RUN);
+    // All-person records produce nothing under the personal-information policy.
+    assert.strictEqual(result.entities, 0);
   });
 
   it('buildEntityGraph should compose generic + backfill without throwing', async () => {
