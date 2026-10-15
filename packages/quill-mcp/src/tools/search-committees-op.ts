@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchParliamentCommittees } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_committees_op',
@@ -12,13 +13,39 @@ export const definition: ToolDefinition = {
   }, required: ['query'] },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
-  const query = String(args.query ?? ''); const limit = Math.min((args.limit as number) ?? 10, 50);
-  if (!query.trim()) return { content: { tool: 'search_committees_op', error: 'No query' }, isError: true };
+/**
+ * Core search — injectable fetcher for tests. Committee content is
+ * discovery-only; results pass through applySourcePolicy('committees', …).
+ */
+export async function runSearchCommitteesOp(
+  args: { query: string; limit?: number },
+  fetchFn: typeof fetchParliamentCommittees = fetchParliamentCommittees,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query;
+  const limit = Math.min(args.limit ?? 10, 50);
   try {
-    const { results, total } = await fetchParliamentCommittees(query, limit);
-    return { content: { tool: 'search_committees_op', query, limit, committees: results, totalCount: total } };
+    const { results, total } = await fetchFn(query, limit);
+    const applied = applySourcePolicy('committees', results);
+    return {
+      content: {
+        tool: 'search_committees_op',
+        query,
+        limit,
+        committees: applied.records,
+        totalCount: total,
+        policy: applied.policy,
+      },
+    };
   } catch (error) {
-    return { content: { tool: 'search_committees_op', status: 'error', error: (error as Error).message }, isError: true };
+    return {
+      content: { tool: 'search_committees_op', query, limit, status: 'error', error: (error as Error).message },
+      isError: true,
+    };
   }
+}
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  const query = String(args.query ?? '');
+  if (!query.trim()) return { content: { tool: 'search_committees_op', error: 'No query' }, isError: true };
+  return runSearchCommitteesOp({ query, limit: (args.limit as number) ?? 10 });
 };
