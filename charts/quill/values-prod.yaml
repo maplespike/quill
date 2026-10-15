@@ -48,7 +48,9 @@ api:
     tls: true
   storage:
     size: 5Gi
-    storageClass: local-path
+    # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
+    # the single-nexus failure domain for the API's SQLite volume.
+    storageClass: longhorn
     nodeName: nexus
 mcp:
   replicas: 1
