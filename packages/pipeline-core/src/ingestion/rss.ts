@@ -33,6 +33,10 @@ export interface RSSSource {
   preferHttp1?: boolean;
 }
 
+/** Max plain-text excerpt length for feed items (licence policy: headline +
+ *  link + short excerpt only; no full-text republication). */
+export const RSS_EXCERPT_MAX = 300;
+
 /** Canonical article shape produced by the pipeline. */
 export interface RawArticle {
   title: string;
@@ -168,13 +172,24 @@ export function parseRSS(xmlText: string): RSSFeed {
 
     const descMatch = itemBlock.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
     if (descMatch) {
-      item.contentSnippet = descMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      item.content = descMatch[1];
+      // Licence policy: news feeds serve a short excerpt only — never store
+      // the publisher’s full content.
+      const plainDesc = descMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      item.contentSnippet = plainDesc.length > RSS_EXCERPT_MAX
+        ? `${plainDesc.slice(0, RSS_EXCERPT_MAX - 1)}…`
+        : plainDesc;
+      item.content = item.contentSnippet;
     }
 
     const contentMatch = itemBlock.match(/<content:encoded[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content:encoded>/i);
-    if (contentMatch) {
-      item.content = contentMatch[1];
+    if (contentMatch && !item.contentSnippet) {
+      // Fallback excerpt when the feed carries no description; the full
+      // body is deliberately not stored (licence policy).
+      const plainBody = contentMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      item.contentSnippet = plainBody.length > RSS_EXCERPT_MAX
+        ? `${plainBody.slice(0, RSS_EXCERPT_MAX - 1)}…`
+        : plainBody;
+      item.content = item.contentSnippet;
     }
 
     if (item.title || item.link) {

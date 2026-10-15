@@ -50,6 +50,15 @@ describe('source licence policy — flags', () => {
     assert.equal(aggregateOnlySources().includes('committees'), false);
   });
 
+  it('link-only sources restrict content to citations, metadata, and short excerpts', () => {
+    for (const id of ['canlii', 'sedar-plus', 'sedi', 'media-broadcasting', 'ngo-influence-rss']) {
+      assert.equal(policyForModule(id).linkOnly, true, `${id} must be link-only`);
+    }
+    // Module aliases resolve to the underlying family policy.
+    assert.equal(policyForModule('canlii-fr').linkOnly, true);
+    assert.equal(policyForModule('rss').linkOnly, true);
+  });
+
   it('unknown sources default to unrestricted (negative control)', () => {
     assert.deepEqual(policyForSource('no-such-family'), DEFAULT_SOURCE_POLICY);
     assert.deepEqual(policyForModule('bank-of-canada'), DEFAULT_SOURCE_POLICY);
@@ -212,5 +221,33 @@ describe('applySourcePolicy — Statistics Canada notices', () => {
       { id: 's2', attribution_text: 'Source: Statistics Canada, custom.' },
     ]);
     assert.equal((records[0] as Record<string, unknown>).attribution_text, 'Source: Statistics Canada, custom.');
+  });
+});
+
+describe('applySourcePolicy — link-only sources', () => {
+  it('keeps citations/metadata, drops content bodies, and cuts summaries to a short excerpt', () => {
+    const { records, policy } = applySourcePolicy('canlii', [
+      {
+        id: 'c1',
+        caseName: 'Dunsmuir v. New Brunswick',
+        citation: '2008 SCC 9 (CanLII)',
+        url: 'https://www.canlii.org/en/ca/scc/doc/2008/2008scc9/',
+        text: 'full decision text',
+        summary: 's'.repeat(500),
+      },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.text, undefined);
+    assert.equal(record.caseName, 'Dunsmuir v. New Brunswick');
+    assert.equal(record.citation, '2008 SCC 9 (CanLII)');
+    assert.equal(record.url, 'https://www.canlii.org/en/ca/scc/doc/2008/2008scc9/');
+    assert.ok(typeof record.summary === 'string' && record.summary.length <= SHORT_EXCERPT_MAX);
+    assert.equal(policy.link_only, true);
+  });
+
+  it('negative control: unflagged sources keep content fields', () => {
+    const input = [{ id: 'x1', text: 'kept for unflagged sources' }];
+    const { records } = applySourcePolicy('bank-of-canada', input);
+    assert.deepEqual(records, input);
   });
 });
