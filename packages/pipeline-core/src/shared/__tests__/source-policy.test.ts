@@ -59,6 +59,12 @@ describe('source licence policy — flags', () => {
     assert.equal(policyForModule('rss').linkOnly, true);
   });
 
+  it('Gazette and legislation carry the not-official-version policy', () => {
+    for (const id of ['gazette', 'legislation']) {
+      assert.equal(policyForModule(id).notOfficialVersion, true, `${id} must carry the notice`);
+    }
+  });
+
   it('unknown sources default to unrestricted (negative control)', () => {
     assert.deepEqual(policyForSource('no-such-family'), DEFAULT_SOURCE_POLICY);
     assert.deepEqual(policyForModule('bank-of-canada'), DEFAULT_SOURCE_POLICY);
@@ -249,5 +255,24 @@ describe('applySourcePolicy — link-only sources', () => {
     const input = [{ id: 'x1', text: 'kept for unflagged sources' }];
     const { records } = applySourcePolicy('bank-of-canada', input);
     assert.deepEqual(records, input);
+  });
+});
+
+describe('applySourcePolicy — not-official-version notices', () => {
+  it('attaches the notice to Gazette records and the policy block', () => {
+    const { records, policy } = applySourcePolicy('gazette', [
+      { id: 'g1', title: 'SOR/2026-123' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.ok(String(record.notice).includes('Not an official version'));
+    assert.equal(policy.not_official_version, true);
+    assert.ok(policy.notices.some((n) => n.includes('official version')));
+  });
+
+  it('keeps an existing notice field', () => {
+    const { records } = applySourcePolicy('legislation', [
+      { id: 'l1', notice: 'custom' },
+    ]);
+    assert.equal((records[0] as Record<string, unknown>).notice, 'custom');
   });
 });

@@ -120,5 +120,10 @@ describe('committee sources are discovery-only on the export surface', () => {
     const statcan = data.modules.find((m: { name: string }) => m.name === 'statcan');
     assert.ok(statcan, 'statcan module must be listed');
     assert.equal(statcan.policy.aggregate_only, true);
+
+    // Not-official-version notice is flagged for Gazette/legislation content.
+    const gazette = data.modules.find((m: { name: string }) => m.name === 'gazette');
+    assert.ok(gazette, 'gazette module must be listed');
+    assert.equal(gazette.policy.not_official_version, true);
   });
 });

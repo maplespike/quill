@@ -1,9 +1,15 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchGazette } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 /**
  * Search the Canada Gazette — official newspaper of the Government of Canada
  * publishing proposed regulations, enacted laws, and government notices.
+ *
+ * Licence policy: federal law reproductions must be accurate and must never be
+ * presented as an official version (Reproduction of Federal Law Order,
+ * SI/97-5). Results pass through applySourcePolicy('gazette', …) and carry the
+ * notice. Regression tests: src/__tests__/source-policy-gazette.test.ts.
  */
 export const definition: ToolDefinition = {
   name: 'search_gazette',
@@ -44,8 +50,12 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args) => {
-  const query = (args.query as string) ?? '';
+/** Core search — injectable fetcher for tests; applies the not-official-version policy. */
+export async function runSearchGazette(
+  args: { query: string; part?: string; limit?: number; lang?: string },
+  fetchFn: typeof fetchGazette = fetchGazette,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query;
   if (!query.trim()) {
     return {
       content: {
@@ -57,14 +67,13 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const part = (args.part as string) ?? 'all';
-  const limit = Math.min((args.limit as number) ?? 10, 50);
-  const lang = (args.lang as string) ?? 'en';
+  const part = args.part ?? 'all';
+  const limit = Math.min(args.limit ?? 10, 50);
+  const lang = args.lang ?? 'en';
 
   // Live search via API server
-  const result = await fetchGazette(query, limit, lang);
-  let results = result.results;
-  let total = result.total;
+  const result = await fetchFn(query, limit, lang);
+  const results = result.results;
 
   // Apply part filter if provided
   let filteredResults = results;
@@ -76,14 +85,52 @@ export const handler: ToolHandler = async (args) => {
     );
   }
 
+  const applied = applySourcePolicy('gazette', filteredResults);
+
   return {
     content: {
       tool: 'search_gazette',
       query,
       part,
       limit,
-      results: filteredResults,
-      totalCount: part !== 'all' ? filteredResults.length : total,
+      results: applied.records,
+      totalCount: part !== 'all' ? applied.records.length : result.total,
+      policy: applied.policy,
     },
   };
+}
+
+/** Shared runner for the Part I/II/III convenience tools. */
+export async function runGazettePart(
+  partLabel: string,
+  args: { query: string; limit?: number },
+  fetchFn: typeof fetchGazette = fetchGazette,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = String(args.query ?? '').trim();
+  const limit = Math.min((args.limit as number) ?? 10, 50);
+  if (!query) return { content: { tool: `search_gazette_${partLabel}`, error: 'No query' }, isError: true };
+  try {
+    const { results, total } = await fetchFn(query, limit);
+    const applied = applySourcePolicy('gazette', results);
+    return {
+      content: {
+        tool: `search_gazette_${partLabel}`,
+        query,
+        results: applied.records,
+        totalCount: total,
+        policy: applied.policy,
+      },
+    };
+  } catch (error) {
+    return { content: { tool: `search_gazette_${partLabel}`, error: (error as Error).message }, isError: true };
+  }
+}
+
+export const handler: ToolHandler = async (args) => {
+  return runSearchGazette({
+    query: (args.query as string) ?? '',
+    part: (args.part as string) ?? 'all',
+    limit: (args.limit as number) ?? 10,
+    lang: (args.lang as string) ?? 'en',
+  });
 };
