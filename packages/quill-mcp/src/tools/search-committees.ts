@@ -1,9 +1,16 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchCommittees } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 /**
  * Search available House of Commons and Senate committee records returned by configured sources.
  * Coverage and fields vary; in-camera designations do not disclose non-public discussions.
+ *
+ * Licence policy: committee content is discovery-only (the parliamentary
+ * reproduction permissions exclude commercial use). Results pass through
+ * applySourcePolicy('committees', …) — content bodies are stripped, summaries
+ * are cut to a short excerpt, and the required notices ride with the policy
+ * block. Regression tests: src/__tests__/source-policy-committees.test.ts.
  */
 export const definition: ToolDefinition = {
   name: 'search_committees',
@@ -41,32 +48,23 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args) => {
-  const query = (args.query as string) ?? '';
-  if (!query.trim()) {
-    return {
-      content: {
-        tool: 'search_committees',
-        query: '',
-        error: 'No search query provided. Please specify search terms (e.g., "carbon tax", "arrivecan").',
-      },
-      isError: true,
-    };
-  }
-
-  const chamber = (args.chamber as string) ?? 'all';
-  const committeeCode = (args.committee as string) ?? '';
-  const limit = Math.min((args.limit as number) ?? 10, 50);
-
-  // Map chamber filter to source keys
-  let sourceKeys: string[] = [];
-  if (chamber === 'house' || chamber === 'all') sourceKeys.push('hoc');
-  if (chamber === 'senate' || chamber === 'all') sourceKeys.push('senate');
+/**
+ * Core search — injectable fetcher for tests. Applies the discovery-only
+ * licence policy to the results before they leave the tool.
+ */
+export async function runSearchCommittees(
+  args: { query: string; chamber?: string; committee?: string; limit?: number },
+  fetchFn: typeof fetchCommittees = fetchCommittees,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query ?? '';
+  const chamber = args.chamber ?? 'all';
+  const committeeCode = args.committee ?? '';
+  const limit = Math.min(args.limit ?? 10, 50);
 
   let results: Record<string, unknown>[];
   let total: number;
   try {
-    const result = await fetchCommittees(query, limit);
+    const result = await fetchFn(query, limit);
     results = result.results;
     total = result.total;
   } catch {
@@ -89,11 +87,14 @@ export const handler: ToolHandler = async (args) => {
   let filteredResults = results;
   if (committeeCode) {
     const cc = committeeCode.toLowerCase();
-    filteredResults = results.filter((r: any) =>
-      (r.committee || '').toLowerCase().includes(cc) ||
-      (r.name || '').toLowerCase().includes(cc)
+    filteredResults = results.filter(
+      (r) =>
+        String(r.committee ?? '').toLowerCase().includes(cc) ||
+        String(r.name ?? '').toLowerCase().includes(cc),
     );
   }
+
+  const applied = applySourcePolicy('committees', filteredResults);
 
   return {
     content: {
@@ -102,8 +103,30 @@ export const handler: ToolHandler = async (args) => {
       chamber,
       committee: committeeCode || undefined,
       limit,
-      results: filteredResults,
+      results: applied.records,
       totalCount: committeeCode ? filteredResults.length : total,
+      policy: applied.policy,
     },
   };
+}
+
+export const handler: ToolHandler = async (args) => {
+  const query = (args.query as string) ?? '';
+  if (!query.trim()) {
+    return {
+      content: {
+        tool: 'search_committees',
+        query: '',
+        error: 'No search query provided. Please specify search terms (e.g., "carbon tax", "arrivecan").',
+      },
+      isError: true,
+    };
+  }
+
+  return runSearchCommittees({
+    query,
+    chamber: (args.chamber as string) ?? 'all',
+    committee: (args.committee as string) ?? '',
+    limit: (args.limit as number) ?? 10,
+  });
 };

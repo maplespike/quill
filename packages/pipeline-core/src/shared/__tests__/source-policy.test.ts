@@ -1,0 +1,122 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  DEFAULT_SOURCE_POLICY,
+  policyForModule,
+  policyForSource,
+  isCommercialUseBlocked,
+  applySourcePolicy,
+  stripContentBodies,
+  minimizePersonalInfo,
+  SHORT_EXCERPT_MAX,
+} from '../source-policy.js';
+
+describe('source licence policy — flags', () => {
+  it('committee sources are commercial-use-blocked and discovery-only', () => {
+    for (const id of ['committees', 'parliamentary-voting']) {
+      const policy = policyForModule(id);
+      assert.equal(policy.commercialUse, false, `${id} must block commercial use`);
+      assert.equal(policy.discoveryOnly, true, `${id} must be discovery-only`);
+    }
+    assert.equal(isCommercialUseBlocked('committees'), true);
+    assert.equal(isCommercialUseBlocked('committees-not'), false);
+  });
+
+  it('unknown sources default to unrestricted (negative control)', () => {
+    assert.deepEqual(policyForSource('no-such-family'), DEFAULT_SOURCE_POLICY);
+    assert.deepEqual(policyForModule('bank-of-canada'), DEFAULT_SOURCE_POLICY);
+  });
+});
+
+describe('content projection', () => {
+  it('strips content bodies at any depth and keeps metadata', () => {
+    const record = {
+      id: 'm1',
+      title: 'Meeting 37',
+      date: '2026-01-15',
+      url: 'https://www.ourcommons.ca/example',
+      interventions: [
+        { speakerName: 'A. Person', text: 'long speech', speech: 'x', transcript: 'y' },
+      ],
+      content: '<html>',
+    };
+    const out = stripContentBodies(record) as Record<string, never>;
+    const intervention = (out.interventions as unknown as Record<string, unknown>[])[0];
+    assert.equal(intervention.text, undefined);
+    assert.equal(intervention.speech, undefined);
+    assert.equal(intervention.transcript, undefined);
+    assert.equal(out.content, undefined);
+    assert.equal(intervention.speakerName, 'A. Person');
+    assert.equal(out.title, 'Meeting 37');
+    assert.equal(out.url, 'https://www.ourcommons.ca/example');
+  });
+
+  it('truncates summaries to the short excerpt limit when asked', () => {
+    const out = stripContentBodies(
+      { summary: 'x'.repeat(600), description: 'short', abstract: 'y'.repeat(400) },
+      { maxSummaryLength: SHORT_EXCERPT_MAX },
+    ) as Record<string, string>;
+    assert.equal(out.summary.length, SHORT_EXCERPT_MAX);
+    assert.equal(out.description, 'short');
+    assert.equal(out.abstract.length, SHORT_EXCERPT_MAX);
+  });
+});
+
+describe('personal-information minimization', () => {
+  it('strips personal contact fields inside person-like objects', () => {
+    const record = {
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      phone: '555-1234',
+      role: 'Registrant',
+    };
+    const out = minimizePersonalInfo(record) as Record<string, unknown>;
+    assert.equal(out.email, undefined);
+    assert.equal(out.phone, undefined);
+    assert.equal(out.name, 'Jane Doe');
+    assert.equal(out.role, 'Registrant');
+  });
+
+  it('keeps organization contact details on org-like objects (negative control)', () => {
+    const record = {
+      name: 'Acme Foundation',
+      bn: '123456789RR0001',
+      email: 'info@acme.org',
+      address: '1 Main St',
+    };
+    const out = minimizePersonalInfo(record) as Record<string, unknown>;
+    assert.equal(out.email, 'info@acme.org');
+    assert.equal(out.address, '1 Main St');
+  });
+
+  it('always strips home addresses and government identifiers', () => {
+    const record = { org: 'X', homeAddress: '12 Elm St', sin: '123-456-789' };
+    const out = minimizePersonalInfo(record) as Record<string, unknown>;
+    assert.equal(out.homeAddress, undefined);
+    assert.equal(out.sin, undefined);
+    assert.equal(out.org, 'X');
+  });
+});
+
+describe('applySourcePolicy — committees', () => {
+  it('discovery-only projection drops text and attaches the required notices', () => {
+    const { records, policy } = applySourcePolicy('committees', [
+      { id: 'i1', speakerName: 'X', text: 'speech body', timestamp: '10:00' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.text, undefined);
+    assert.equal(record.speakerName, 'X');
+    assert.equal(policy.discovery_only, true);
+    assert.equal(policy.commercial_use, false);
+    assert.ok(policy.notices.some((n) => n.includes("Speaker's Permission")));
+    assert.ok(policy.notices.some((n) => n.includes('Senate')));
+  });
+
+  it('negative control: unflagged sources pass through unchanged', () => {
+    const input = [{ id: 'r1', title: 'Rate', text: 'kept for unflagged sources' }];
+    const { records, policy } = applySourcePolicy('bank-of-canada', input);
+    assert.deepEqual(records, input);
+    assert.equal(policy.discovery_only, false);
+    assert.equal(policy.notices.length, 0);
+  });
+});
