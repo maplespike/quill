@@ -62,7 +62,7 @@ describe('committee sources are discovery-only on the export surface', () => {
     assert.ok(data.policy.notices.length >= 1, 'required notices must be attached');
     assert.ok(
       data.policy.notices.some((n: string) => n.includes("Speaker's Permission")),
-      'the Speaker's Permission notice must ride with the response',
+      "the Speaker's Permission notice must ride with the response",
     );
     assert.ok(String(data.provenance.reason).includes('not offered'));
   });
