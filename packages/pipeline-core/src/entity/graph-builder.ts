@@ -32,6 +32,7 @@ import type { Database } from '@maplespike/database';
 import { extractEntities } from './extractor.js';
 import { getExtractionConfig } from './ingestion.js';
 import { normalizeName } from './normalize.js';
+import { restrictsPersonProfiles } from '../shared/source-policy.js';
 
 /* ------------------------------------------------------------------ */
 /*  Schema — matches the live table definitions exactly                */
@@ -163,6 +164,10 @@ export function buildEntityGraphFromRecords(
   if (objects.length === 0) return result;
 
   const sampled = objects.slice(0, MAX_ENTITIES_PER_RUN);
+  // Licence policy: personal-information sources never materialize person-level
+  // entities (no cross-source profiles of individuals). Organization mentions
+  // still land.
+  const restrictPersons = restrictsPersonProfiles(moduleName);
   if (sampled.length < objects.length) {
     console.warn(
       `[graph] ${moduleName}: truncating entity extraction to ${sampled.length} of ${objects.length} records (QUILL_GRAPH_MAX=${MAX_ENTITIES_PER_RUN})`,
@@ -203,8 +208,18 @@ export function buildEntityGraphFromRecords(
             (record.sourceUrl as string) ||
             sourceUrl;
 
-          for (let k = 0; k < mentions.length; k++) {
-            const mention = mentions[k];
+          // Filter person mentions as pairs (not indexes) so the rule-field
+          // zip stays aligned when persons are dropped.
+          const mentionPairs = mentions.map((mention, k) => ({
+            mention,
+            field: producedFields[k] ?? mention.entityType,
+          }));
+          const keptPairs = restrictPersons
+            ? mentionPairs.filter((pair) => pair.mention.entityType !== 'person')
+            : mentionPairs;
+          if (keptPairs.length === 0) continue;
+
+          for (const { mention, field } of keptPairs) {
             const entityId = entityIdFor(mention.entityNormalized, mention.entityType);
             upsertEntity(db, entityId, mention.entityName.trim(), mention.entityType, mention.confidenceScore);
             upsertAlias(db, entityId, mention.entityNormalized);
@@ -212,7 +227,7 @@ export function buildEntityGraphFromRecords(
               entityId,
               moduleName,
               sourceTable: moduleName,
-              role: roleForField(producedFields[k] ?? mention.entityType),
+              role: roleForField(field),
               date: recordDate || mention.recordDate || '',
               sourceUrl: recordUrl,
             });
@@ -224,7 +239,7 @@ export function buildEntityGraphFromRecords(
           // to a canonical A<B order and the link label is derived FROM the
           // collapsed order, so the stored direction always matches the label
           // (person→org with 'affiliation', never org→person with 'affiliation').
-          const ids = mentions.map((m) => ({
+          const ids = keptPairs.map(({ mention: m }) => ({
             id: entityIdFor(m.entityNormalized, m.entityType),
             type: m.entityType,
             confidence: m.confidenceScore,
@@ -465,6 +480,11 @@ export function backfillCommitteeEntityGraph(): GraphBuildResult {
  */
 export function backfillLobbyingEntityGraph(): GraphBuildResult {
   const result: GraphBuildResult = { entities: 0, mentions: 0, links: 0, recordsProcessed: 0, errors: [] };
+  // Licence policy: no person-level profiles from lobbying records — the
+  // registrant and public-office-holder nodes are persons, and the registry
+  // licences do not grant personal-information rights. Organization mentions
+  // (clients, institutions) still land.
+  const restrictPersons = restrictsPersonProfiles('lobbying');
 
   let db: Database;
   try {
@@ -500,14 +520,16 @@ export function backfillLobbyingEntityGraph(): GraphBuildResult {
       const date = r.communication_date ?? '';
       const url = r.source_url ?? '';
       const registrantId = entityIdFor(normalizeName(r.registrant_name), 'person');
-      upsertEntity(db, registrantId, r.registrant_name.trim(), 'person', 0.85);
-      upsertAlias(db, registrantId, normalizeName(r.registrant_name));
-      upsertMention(db, {
-        entityId: registrantId, moduleName: 'lobbying', sourceTable: 'lobbying_records',
-        role: 'Registrant', date, sourceUrl: url,
-      });
-      result.entities++;
-      result.mentions++;
+      if (!restrictPersons) {
+        upsertEntity(db, registrantId, r.registrant_name.trim(), 'person', 0.85);
+        upsertAlias(db, registrantId, normalizeName(r.registrant_name));
+        upsertMention(db, {
+          entityId: registrantId, moduleName: 'lobbying', sourceTable: 'lobbying_records',
+          role: 'Registrant', date, sourceUrl: url,
+        });
+        result.entities++;
+        result.mentions++;
+      }
 
       if (r.client_name && r.client_name.trim()) {
         const clientId = entityIdFor(normalizeName(r.client_name), 'organization');
@@ -517,13 +539,15 @@ export function backfillLobbyingEntityGraph(): GraphBuildResult {
           entityId: clientId, moduleName: 'lobbying', sourceTable: 'lobbying_records',
           role: 'Client', date, sourceUrl: url,
         });
-        upsertLink(db, { id: registrantId, type: 'person', confidence: 0.85 }, { id: clientId, type: 'organization', confidence: 0.9 }, 'lobbying');
+        if (!restrictPersons) {
+          upsertLink(db, { id: registrantId, type: 'person', confidence: 0.85 }, { id: clientId, type: 'organization', confidence: 0.9 }, 'lobbying');
+          result.links++;
+        }
         result.entities++;
         result.mentions++;
-        result.links++;
       }
 
-      if (r.public_office_holder && r.public_office_holder.trim()) {
+      if (!restrictPersons && r.public_office_holder && r.public_office_holder.trim()) {
         const holderId = entityIdFor(normalizeName(r.public_office_holder), 'person');
         upsertEntity(db, holderId, r.public_office_holder.trim(), 'person', 0.8);
         upsertAlias(db, holderId, normalizeName(r.public_office_holder));
@@ -541,9 +565,11 @@ export function backfillLobbyingEntityGraph(): GraphBuildResult {
         const instId = entityIdFor(normalizeName(r.government_institution), 'organization');
         upsertEntity(db, instId, r.government_institution.trim(), 'organization', 0.75);
         upsertAlias(db, instId, normalizeName(r.government_institution));
-        upsertLink(db, { id: registrantId, type: 'person', confidence: 0.85 }, { id: instId, type: 'organization', confidence: 0.75 }, 'lobbying');
+        if (!restrictPersons) {
+          upsertLink(db, { id: registrantId, type: 'person', confidence: 0.85 }, { id: instId, type: 'organization', confidence: 0.75 }, 'lobbying');
+          result.links++;
+        }
         result.entities++;
-        result.links++;
       }
       result.recordsProcessed++;
     }

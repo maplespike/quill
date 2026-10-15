@@ -1,9 +1,16 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchCkan } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 /**
  * Search provincial lobbying registries across Canadian provinces.
  * Covers Ontario, British Columbia, Alberta, Quebec, and other provincial registries.
+ *
+ * Licence policy: lobbying records minimize personal contact details and are
+ * not used to build cross-source person profiles — the registries' licences
+ * do not grant personal-information rights. Results pass through
+ * applySourcePolicy('provincial-lobbying', …). Regression tests:
+ * src/__tests__/source-policy-pii.test.ts.
  */
 export const definition: ToolDefinition = {
   name: 'search_provincial_lobbying',
@@ -47,8 +54,12 @@ const provinceMap: Record<string, string> = {
   quebec: 'QC',
 };
 
-export const handler: ToolHandler = async (args) => {
-  const query = (args.query as string) ?? '';
+/** Core search — injectable fetcher for tests; applies the source licence policy. */
+export async function runSearchProvincialLobbying(
+  args: { query: string; province?: string; limit?: number },
+  fetchFn: typeof searchCkan = searchCkan,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query;
   if (!query.trim()) {
     return {
       content: {
@@ -60,23 +71,24 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const province = (args.province as string) ?? 'all';
-  const limit = Math.min((args.limit as number) ?? 10, 50);
+  const province = args.province ?? 'all';
+  const limit = Math.min(args.limit ?? 10, 50);
 
-  const result = await searchCkan(query, limit);
-  let results = result.results;
-  let total = result.total;
+  const result = await fetchFn(query, limit);
+  const results = result.results;
 
   // Apply province filter if provided
   let filteredResults = results;
   if (province !== 'all') {
     const provCode = provinceMap[province] || '';
     if (provCode) {
-      filteredResults = results.filter((r: any) =>
-        (r.province || '').toLowerCase() === provCode.toLowerCase()
+      filteredResults = results.filter(
+        (r) => String(r.province ?? '').toLowerCase() === provCode.toLowerCase(),
       );
     }
   }
+
+  const applied = applySourcePolicy('provincial-lobbying', filteredResults);
 
   return {
     content: {
@@ -84,8 +96,18 @@ export const handler: ToolHandler = async (args) => {
       query,
       province,
       limit,
-      results: filteredResults,
-      totalCount: province !== 'all' ? filteredResults.length : total,
+      results: applied.records,
+      totalCount: province !== 'all' ? filteredResults.length : result.total,
+      policy: applied.policy,
     },
   };
+}
+
+export const handler: ToolHandler = async (args) => {
+  const query = (args.query as string) ?? '';
+  return runSearchProvincialLobbying({
+    query,
+    province: (args.province as string) ?? 'all',
+    limit: (args.limit as number) ?? 10,
+  });
 };

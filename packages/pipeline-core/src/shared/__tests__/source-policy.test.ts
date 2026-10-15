@@ -5,6 +5,7 @@ import {
   policyForModule,
   policyForSource,
   isCommercialUseBlocked,
+  restrictsPersonProfiles,
   applySourcePolicy,
   stripContentBodies,
   minimizePersonalInfo,
@@ -20,6 +21,23 @@ describe('source licence policy — flags', () => {
     }
     assert.equal(isCommercialUseBlocked('committees'), true);
     assert.equal(isCommercialUseBlocked('committees-not'), false);
+  });
+
+  it('lobbying and charity sources minimize personal information', () => {
+    for (const id of [
+      'federal-lobbying-monthly',
+      'provincial-lobbying',
+      'quebec-lobbying',
+      'ontario-lobbying',
+      'cra-charity',
+      'political-donations',
+    ]) {
+      assert.equal(policyForModule(id).minimizePersonalInformation, true, `${id} must minimize PII`);
+    }
+    // The entity graph and backfills use the umbrella name 'lobbying'.
+    assert.equal(policyForModule('lobbying').minimizePersonalInformation, true);
+    assert.equal(restrictsPersonProfiles('lobbying'), true);
+    assert.equal(restrictsPersonProfiles('bank-of-canada'), false);
   });
 
   it('unknown sources default to unrestricted (negative control)', () => {
@@ -118,5 +136,35 @@ describe('applySourcePolicy — committees', () => {
     assert.deepEqual(records, input);
     assert.equal(policy.discovery_only, false);
     assert.equal(policy.notices.length, 0);
+  });
+});
+
+describe('applySourcePolicy — lobbying minimization', () => {
+  it('minimizes personal contact fields on lobbying records', () => {
+    const { records, policy } = applySourcePolicy('federal-lobbying-monthly', [
+      {
+        id: 'l1',
+        client_name: 'Acme Corp',
+        registrant: {
+          name: 'Jane Doe',
+          email: 'jane@example.com',
+          phone: '555-1234',
+          homeAddress: '12 Elm St',
+        },
+      },
+    ]);
+    const record = records[0] as Record<string, any>;
+    assert.equal(record.registrant.email, undefined);
+    assert.equal(record.registrant.phone, undefined);
+    assert.equal(record.registrant.homeAddress, undefined);
+    assert.equal(record.registrant.name, 'Jane Doe');
+    assert.equal(record.client_name, 'Acme Corp');
+    assert.equal(policy.minimize_personal_information, true);
+  });
+
+  it('negative control: unflagged sources keep contact fields', () => {
+    const input = [{ id: 'b1', email: 'contact@bankofcanada.ca', phone: '1-800-303-1282' }];
+    const { records } = applySourcePolicy('bank-of-canada', input);
+    assert.deepEqual(records, input);
   });
 });
