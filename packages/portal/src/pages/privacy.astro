@@ -18,7 +18,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {i18n.t('privacy.title')}
       </h1>
-      <p class="mt-2 text-muted-foreground">{i18n.t('privacy.last_updated', { date: 'July 1, 2026' })}</p>
+      <p class="mt-2 text-muted-foreground">{i18n.t('privacy.last_updated', { date: 'October 14, 2026' })}</p>
     </div>
   </section>
 
@@ -106,7 +106,30 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">5. {t("Your Rights", "Vos droits")}</CardTitle>
+          <CardTitle class="text-lg">5. {t("Source Records & Personal Information", "Dossiers de sources et renseignements personnels")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Source records can include an individual's name as published by the source (for example, a lobbying registration or a charity's directors). We present individuals only in their public or professional capacity as published by the source. We minimize personal contact details in records we serve, and we do not build derived profiles that aggregate a private individual across sources.",
+            "Les dossiers de sources peuvent inclure le nom d'une personne tel que publié par la source (par exemple, un enregistrement de lobbyisme ou les administrateurs d'un organisme de bienfaisance). Nous présentons les personnes uniquement dans leur capacité publique ou professionnelle telle que publiée par la source. Nous minimisons les coordonnées personnelles dans les dossiers que nous servons et nous ne créons pas de profils dérivés regroupant une personne privée à partir de plusieurs sources.",
+          )}</p>
+          <p><strong>{t("Retention:", "Conservation :")}</strong> {t(
+            "Source records are kept only as long as needed to provide and improve the Service; derived indexes and caches are rebuilt from source data and are not kept longer than the records they serve. Account and audit data follow the retention periods described in Sections 2 and 4.",
+            "Les dossiers de sources ne sont conservés que le temps nécessaire pour fournir et améliorer le Service ; les index et caches dérivés sont reconstruits à partir des données de source et ne sont pas conservés plus longtemps que les dossiers qu'ils servent. Les données de compte et d'audit suivent les périodes de conservation décrites aux sections 2 et 4.",
+          )}</p>
+          <p><strong>{t("Corrections and removal requests:", "Demandes de correction ou de retrait :")}</strong> {t(
+            "If a record we serve contains personal information that should be corrected or removed, email",
+            "Si un dossier que nous servons contient des renseignements personnels qui devraient être corrigés ou retirés, écrivez à",
+          )} <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a> {t(
+            "with the record link or citation. We assess the request, work with the originating publisher where the record comes from, and respond within 30 days.",
+            "avec le lien ou la citation du dossier. Nous évaluons la demande, collaborons avec l'éditeur d'origine lorsque le dossier provient de celui-ci, et répondons dans les 30 jours.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">6. {t("Your Rights", "Vos droits")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <ul class="list-disc pl-5 space-y-1.5">
@@ -131,7 +154,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">6. {t("Cookies", "Témoins")}</CardTitle>
+          <CardTitle class="text-lg">7. {t("Cookies", "Témoins")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <p>{t(
@@ -143,7 +166,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">7. {t("Contact", "Contact")}</CardTitle>
+          <CardTitle class="text-lg">8. {t("Contact", "Contact")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <p>{t(

@@ -110,5 +110,10 @@ describe('committee sources are discovery-only on the export surface', () => {
     assert.ok(bank, 'bank-of-canada module must be listed');
     assert.equal(bank.policy.discovery_only, false);
     assert.equal(bank.policy.commercial_use, true);
+
+    // Personal-information minimization is flagged for lobbying/charity sources.
+    const charity = data.modules.find((m: { name: string }) => m.name === 'cra-charity');
+    assert.ok(charity, 'cra-charity module must be listed');
+    assert.equal(charity.policy.minimize_personal_information, true);
   });
 });

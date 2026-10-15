@@ -47,10 +47,24 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   // only — and do NOT extend to commercial purposes or financial gain.
   committees: { commercialUse: false, discoveryOnly: true },
   'parliamentary-voting': { commercialUse: false, discoveryOnly: true },
+  // Lobbying, charity, and political-finance records can carry individuals’
+  // names. The licences do not grant personal-information rights (Privacy Act
+  // s. 3 exemption), so output is minimized and no cross-source person
+  // profiles are built from these sources.
+  'federal-lobbying-monthly': { minimizePersonalInformation: true },
+  'provincial-lobbying': { minimizePersonalInformation: true },
+  'quebec-lobbying': { minimizePersonalInformation: true },
+  'ontario-lobbying': { minimizePersonalInformation: true },
+  'cra-charity': { minimizePersonalInformation: true },
+  'political-donations': { minimizePersonalInformation: true },
 };
 
 /** Module name -> source-family id, where the two differ. */
-export const MODULE_SOURCE_ALIASES: Record<string, string> = {};
+export const MODULE_SOURCE_ALIASES: Record<string, string> = {
+  // The entity graph and its backfills use the umbrella name 'lobbying' for
+  // every lobbying registry; the inventory records the specific families.
+  lobbying: 'federal-lobbying-monthly',
+};
 
 export function policyForSource(familyId: string): SourcePolicy {
   return { ...DEFAULT_SOURCE_POLICY, ...(SOURCE_POLICIES[familyId] ?? {}) };
@@ -63,6 +77,16 @@ export function policyForModule(moduleName: string): SourcePolicy {
 /** True when the source must not be used in a paid/commercial context. */
 export function isCommercialUseBlocked(sourceOrModule: string): boolean {
   return !policyForModule(sourceOrModule).commercialUse;
+}
+
+/**
+ * True when person-level profiles must not be built from this source’s
+ * records (no cross-source aggregation of individuals). Record output is
+ * still minimized by `minimizePersonalInfo`; this flag governs the entity
+ * graph and other derived-profile surfaces.
+ */
+export function restrictsPersonProfiles(sourceOrModule: string): boolean {
+  return policyForModule(sourceOrModule).minimizePersonalInformation;
 }
 
 /* ------------------------------------------------------------------ */
