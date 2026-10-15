@@ -12,7 +12,7 @@ import * as crypto from 'node:crypto';
 // at runtime in any ESM-only loader. This fixed version lives
 // next to the storage adapters so every `emailHashIndex` lookup
 // uses the same HMAC secret policy.
-import { hashPii } from './pii-hash.js';
+import { hashPii, hashPiiCandidates } from './pii-hash.js';
 
 /* ------------------------------------------------------------------ */
 /*  In-Memory Stores                                                   */
@@ -56,9 +56,13 @@ export function createUser(githubProfile: GitHubProfile): User {
   let emailHash: string | null = null;
   if (githubProfile.email) {
     emailHash = hashPii(githubProfile.email);
-    const existing = emailHashIndex.get(emailHash);
-    if (existing) {
-      const user = userStore.get(existing);
+    // Dual-key rotation support (Decision 0002): an account created before a
+    // secret rotation is indexed under the previous secret's hash — match both.
+    const existingUserId = hashPiiCandidates(githubProfile.email)
+      .map((candidate) => emailHashIndex.get(candidate))
+      .find((userId) => userId !== undefined);
+    if (existingUserId) {
+      const user = userStore.get(existingUserId);
       if (user) {
         githubIdIndex.set(githubProfile.id.toString(), user.id);
         user.githubId = githubProfile.id.toString();
@@ -134,9 +138,13 @@ export function getUser(id: string): User | undefined {
  * the plaintext is never persisted in the returned user record.
  */
 export function getUserByEmail(email: string): User | undefined {
-  const userId = emailHashIndex.get(hashPii(email));
-  if (!userId) return undefined;
-  return userStore.get(userId);
+  // Dual-key rotation support: try the current secret first, then the
+  // previous one (see pii-hash.ts) so pre-rotation rows stay findable.
+  for (const candidate of hashPiiCandidates(email)) {
+    const userId = emailHashIndex.get(candidate);
+    if (userId) return userStore.get(userId);
+  }
+  return undefined;
 }
 
 export function getUserByGithubId(githubId: string): User | undefined {
