@@ -11,12 +11,20 @@
  * real registry (`getAllModules()`). No fabricated record counts. No
  * hardcoded sample records.
  *
+ * LICENCE POLICY: every response passes records through
+ * `applySourcePolicy(moduleName, …)` (pipeline-core source-policy). Sources
+ * whose publisher terms exclude commercial use (for example parliamentary
+ * proceedings) are discovery-only: bulk record export is not offered for
+ * them, the response carries the policy block and its required notices, and
+ * content bodies are never dumped. Regression tests:
+ * `src/__tests__/source-policy-enforcement.test.ts`.
+ *
  * CONTRACT (camelCase keys preserved):
  *   - listModulesHandler returns { total, modules: [{ name, description,
- *     recordCount, lastUpdated, ... }] }   — recordCount and lastUpdated
- *     are now `null` since no live count is pre-computed.
+ *     recordCount, lastUpdated, ..., policy }] }   — recordCount and
+ *     lastUpdated are now `null` since no live count is pre-computed.
  *   - exportModuleHandler still returns { module, total, limit, offset,
- *     records, exportUrl } on the happy path.
+ *     records, exportUrl } on the happy path, plus `policy`.
  */
 
 import type { RouteHandler } from '../types.js';
@@ -25,6 +33,9 @@ import {
   getAllModules,
   runModule,
   getModule,
+  applySourcePolicy,
+  policyForModule,
+  DISCOVERY_ONLY_BULK_EXPORT_REASON,
   type ModuleInfo,
 } from '@maplespike/pipeline-core';
 
@@ -39,25 +50,45 @@ interface ModuleExportEntry {
   sources: { name: string; format: string }[];
   updateFrequency: string;
   endpoint: string;
+  /** Licence policy flags enforced at runtime (pipeline-core source-policy). */
+  policy: {
+    commercial_use: boolean;
+    discovery_only: boolean;
+    link_only: boolean;
+    aggregate_only: boolean;
+    minimize_personal_information: boolean;
+    not_official_version: boolean;
+  };
 }
 
 /** GET /v1/export/modules — real catalog from pipeline-core registry */
 export const listModulesHandler: RouteHandler = async (_req, ctx) => {
   const modules = getAllModules() as ModuleInfo[];
-  const entries: ModuleExportEntry[] = modules.map((mod) => ({
-    name: mod.name,
-    description: mod.description,
-    // No fake `100` placeholder — explicitly null until a live run
-    // populates the count. Clients reading this field get a typed null
-    // instead of an undefined.
-    recordCount: null,
-    lastUpdated: null,
-    category: mod.category,
-    status: mod.status ?? 'active',
-    sources: mod.sources ?? [],
-    updateFrequency: mod.updateFrequency,
-    endpoint: `/v1/export/${mod.name}`,
-  }));
+  const entries: ModuleExportEntry[] = modules.map((mod) => {
+    const policy = policyForModule(mod.name);
+    return {
+      name: mod.name,
+      description: mod.description,
+      // No fake `100` placeholder — explicitly null until a live run
+      // populates the count. Clients reading this field get a typed null
+      // instead of an undefined.
+      recordCount: null,
+      lastUpdated: null,
+      category: mod.category,
+      status: mod.status ?? 'active',
+      sources: mod.sources ?? [],
+      updateFrequency: mod.updateFrequency,
+      endpoint: `/v1/export/${mod.name}`,
+      policy: {
+        commercial_use: policy.commercialUse,
+        discovery_only: policy.discoveryOnly,
+        link_only: policy.linkOnly,
+        aggregate_only: policy.aggregateOnly,
+        minimize_personal_information: policy.minimizePersonalInformation,
+        not_official_version: policy.notOfficialVersion,
+      },
+    };
+  });
 
   return jsonResponse(
     buildSuccess(
@@ -104,6 +135,43 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
         ctx,
       ),
       404,
+    );
+  }
+
+  // Licence policy gate — discovery-only sources are never dumped in bulk.
+  // No ingestion runs for these modules: callers get the module's discovery
+  // metadata, the policy block, and the required notices instead.
+  const policy = policyForModule(moduleName);
+  if (policy.discoveryOnly) {
+    const applied = applySourcePolicy(moduleName, []);
+    return jsonResponse(
+      buildSuccess(
+        {
+          module: moduleName,
+          module_info: {
+            description: moduleInfo.description,
+            category: moduleInfo.category,
+            status: moduleInfo.status ?? 'active',
+            updateFrequency: moduleInfo.updateFrequency,
+          },
+          policy: applied.policy,
+          records: [],
+          total: 0,
+          limit,
+          offset,
+          exportUrl: `${url.origin}/v1/export/${moduleName}`,
+          provenance: {
+            status: 'restricted',
+            source_count: 0,
+            fetched_at: new Date().toISOString(),
+            errors: [],
+            module: moduleName,
+            module_status: moduleInfo.status ?? 'active',
+            reason: DISCOVERY_ONLY_BULK_EXPORT_REASON,
+          },
+        },
+        ctx,
+      ),
     );
   }
 
@@ -172,11 +240,13 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
         404,
       );
     }
+    const applied = applySourcePolicy(moduleName, [record]);
     return jsonResponse(
       buildSuccess(
         {
           module: moduleName,
-          record,
+          record: applied.records[0],
+          policy: applied.policy,
           provenance,
         },
         ctx,
@@ -185,6 +255,7 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
   }
 
   // Paginated list view
+  const applied = applySourcePolicy(moduleName, paginatedRecords);
   return jsonResponse(
     buildSuccess(
       {
@@ -198,7 +269,8 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
         total: rawRecords.length,
         limit,
         offset,
-        records: paginatedRecords,
+        records: applied.records,
+        policy: applied.policy,
         exportUrl: `${url.origin}/v1/export/${moduleName}`,
         provenance,
       },
