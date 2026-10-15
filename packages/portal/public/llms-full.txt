@@ -1,7 +1,7 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-10-12
+> Auto-generated: 2026-10-15
 > Software and source-data terms vary by package, dataset, and publisher. Consult repository license notices and original source terms.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
@@ -326,6 +326,15 @@ Citation and provenance fields vary by endpoint and source. Claim-verification r
 - publisher_terms: publisher metadata, Quill configuration, or not observed; missing evidence is not a rights conclusion.
 
 A URL match is labeled `url-matched-not-content-verified`; it does not prove that an artifact produced a record. A matching record hash checks integrity, not source identity, completeness, accuracy, legal status, or reuse rights. Consult the original publisher terms.
+
+## Data Sources & Licences
+
+Publisher terms vary by dataset, and some carry required attribution statements or notices:
+
+- Open Government Licence – Canada: "Contains information licensed under the Open Government Licence – Canada."
+- Statistics Canada Open Licence: "Source: Statistics Canada, name of product, reference date. Reproduced and distributed on an \"as is\" basis with the permission of Statistics Canada."
+- House of Commons and Senate proceedings: reproduction permitted only when accurate, not presented as official, and not for financial gain.
+- Per-source statements and links: https://quill.maplespike.ca/data-sources · https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md · machine-readable: https://github.com/maplespike/quill/blob/main/data-source-licenses.json
 
 ## Authentication
 

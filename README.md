@@ -289,7 +289,7 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 
 Repository, package, and file-level license declarations conflict. Do not treat this README or the root `LICENSE` as a definitive grant for every package or artifact. Review the [open-source audit](./docs/open-source-audit.md) and [licensing facts](./LICENSE.md); the rights holder has not resolved the conflicts.
 
-Source-data terms are separate from software licenses. They vary by publisher and dataset. Quill does not grant independent reuse rights in source material. See [the data-source audit](./docs/licensing-audit.md) and consult the original publisher's terms.
+Source-data terms are separate from software licenses. They vary by publisher and dataset. Quill does not grant independent reuse rights in source material. Required attribution statements and notices are listed in [DATA-LICENSES.md](./DATA-LICENSES.md) (mirrored on the site at `/data-sources`); see [the data-source audit](./docs/licensing-audit.md) and consult the original publisher's terms.
 
 ## How this is built
 

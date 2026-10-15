@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createI18n } from "@maplespike/i18n";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
+import { localeUrl } from "@/utils/localeUrl";
 import statsData from "@/data/stats.json";
 import toolsData from "@/data/tools.json";
 
@@ -45,6 +46,7 @@ const sections: { id: string; num: string; label: Bi; badge?: string }[] = [
   { id: "rate-limits", num: "09", label: { en: "Rate Limits", fr: "Limites de débit" } },
   { id: "errors", num: "10", label: { en: "Errors", fr: "Erreurs" } },
   { id: "faq", num: "11", label: { en: "FAQ", fr: "FAQ" } },
+  { id: "data-sources", num: "12", label: { en: "Data Sources & Licences", fr: "Sources de données et licences" } },
 ];
 
 const apiEndpoints: { method: string; path: string; desc: Bi }[] = [
@@ -984,6 +986,49 @@ const errorCodes = [
             </CardContent>
           </Card>
         ))}
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 12: DATA SOURCES & LICENCES ═══ -->
+      <section id="data-sources" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">12</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">{t("Data Sources & Licences", "Sources de données et licences")}</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">{t("Who publishes this data, and under what terms.", "Qui publie ces données, et sous quelles conditions.")}</h2>
+        <p class="text-muted-foreground mb-4">{t(
+          "Quill aggregates material from government and other public-sector publishers. Terms vary by publisher and dataset, and some licences require a specific attribution statement:",
+          "Quill agrège du contenu d'éditeurs gouvernementaux et d'autres éditeurs du secteur public. Les conditions varient selon l'éditeur et le jeu de données, et certaines licences exigent un énoncé d'attribution précis :",
+        )}</p>
+        <ul class="list-disc pl-5 space-y-1.5 text-muted-foreground mb-4">
+          <li>{t(
+            "Open Government Licence – Canada: “Contains information licensed under the Open Government Licence – Canada.”",
+            "Licence du gouvernement ouvert – Canada : « Contient de l'information visée par la Licence du gouvernement ouvert – Canada. »",
+          )}</li>
+          <li>{t(
+            "Statistics Canada Open Licence: source and adapted-from notices naming the product and reference date.",
+            "Licence ouverte de Statistique Canada : avis de source et d'adaptation nommant le produit et la date de référence.",
+          )}</li>
+          <li>{t(
+            "House of Commons and Senate proceedings: reproduction permitted only when accurate, not presented as official, and not for financial gain.",
+            "Travaux de la Chambre des communes et du Sénat : reproduction permise seulement si elle est exacte, non présentée comme officielle et sans fins lucratives.",
+          )}</li>
+        </ul>
+        <ul class="list-disc pl-5 space-y-1.5 text-muted-foreground">
+          <li>
+            <a href={localeUrl("/data-sources", lang)} class="text-primary hover:underline">{t("Data sources & licences", "Sources de données et licences")}</a>
+            — {t("publisher-by-publisher attribution and notices", "attribution et avis éditeur par éditeur")}
+          </li>
+          <li>
+            <a href="https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">DATA-LICENSES.md</a>
+            — {t("repository licence inventory and source index", "inventaire des licences du dépôt et index des sources")}
+          </li>
+        </ul>
+        <p class="text-sm text-muted-foreground mt-4">{t(
+          "Not affiliated with or endorsed by the Government of Canada.",
+          "N'est pas affilié au gouvernement du Canada ni approuvé par celui-ci.",
+        )}</p>
       </section>
     </main>
   </div>

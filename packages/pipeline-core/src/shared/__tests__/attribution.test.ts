@@ -4,6 +4,8 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   NO_REUSE_LICENSE_NOTICE,
+  OGL_CANADA_ATTRIBUTION_STATEMENT,
+  LOBBYING_ODLA_ATTRIBUTION_STATEMENT,
   buildAttribution,
   formatAttribution,
   resolvePublisherLicense,
@@ -128,5 +130,67 @@ describe('publisher license metadata', () => {
     assert.match(text, /Example Dataset/);
     assert.match(text, /CC BY 4.0/);
     assert.match(text, /creativecommons.org/);
+  });
+});
+
+describe('fixed licence attribution statements', () => {
+  it('uses the OGL–Canada required statement when the publisher declares OGL–Canada', () => {
+    const terms = withPublisherLicenseForTest({
+      license_id: 'ca-ogl-lgo',
+      license_title: 'Open Government Licence - Canada',
+      license_url: 'https://open.canada.ca/en/open-government-licence-canada',
+    });
+    assert.equal(terms.license, 'Publisher-declared: Open Government Licence - Canada');
+    assert.equal(terms.attribution_text, 'Contains information licensed under the Open Government Licence – Canada.');
+    assert.equal(terms.license_basis, 'publisher-metadata');
+    assert.equal(terms.license_url, 'https://open.canada.ca/en/open-government-licence-canada');
+  });
+
+  it('defaults the OGL–Canada licence URL when the declaration omits a link', () => {
+    const terms = resolvePublisherLicense({ license_title: 'Open Government Licence – Canada' });
+    assert.equal(terms.licenseUrl, 'https://open.canada.ca/en/open-government-licence-canada');
+    assert.equal(terms.attributionText, OGL_CANADA_ATTRIBUTION_STATEMENT);
+  });
+
+  it('does not attach the federal OGL statement to a non-federal open government licence', () => {
+    const terms = resolvePublisherLicense({
+      license_title: 'Open Government Licence - Alberta',
+      license_url: 'https://open.alberta.ca/licence',
+    });
+    assert.match(terms.attributionText, /Alberta/);
+    assert.doesNotMatch(terms.attributionText, /licence\s*[–—-]\s*canada/i);
+    assert.equal(terms.licenseUrl, 'https://open.alberta.ca/licence');
+  });
+
+  it('uses the lobbying open data licence statement when the publisher declares it', () => {
+    const terms = resolvePublisherLicense({
+      license_title: 'Open Data Licence Agreement - Office of the Commissioner of Lobbying',
+      license_url: 'https://lobbycanada.gc.ca/en/open-data/open-data-licence-agreement/',
+    });
+    assert.equal(terms.attributionText, LOBBYING_ODLA_ATTRIBUTION_STATEMENT);
+  });
+
+  it('keeps a publisher-supplied attribution text instead of the default statement', () => {
+    const terms = resolvePublisherLicense({
+      license_title: 'Open Government Licence - Canada',
+      attribution_text: 'Source: Example Department, dataset X.',
+    });
+    assert.equal(terms.attributionText, 'Source: Example Department, dataset X.');
+  });
+
+  it('keeps the fixed statement across a cache pass', () => {
+    const record = withPublisherLicenseForTest({
+      license_title: 'Open Government Licence - Canada',
+      license_url: 'https://open.canada.ca/open-government-licence-canada',
+    });
+    const terms = resolvePublisherLicense(record);
+    assert.equal(terms.attributionText, OGL_CANADA_ATTRIBUTION_STATEMENT);
+    assert.equal(terms.basis, 'publisher-metadata');
+  });
+
+  it('never attaches a fixed statement to a no-declaration record', () => {
+    const terms = resolvePublisherLicense({ title: 'record with no licence fields' });
+    assert.equal(terms.basis, 'no-publisher-declaration');
+    assert.doesNotMatch(terms.attributionText, /Contains information licensed/);
   });
 });

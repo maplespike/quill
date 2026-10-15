@@ -1,0 +1,289 @@
+---
+/**
+ * /data-sources — Data sources, licences and attribution.
+ *
+ * Lists the publisher groups Quill ingests, the licence (or terms) applicable
+ * to each, and the attribution / notice that applies. Mirrors DATA-LICENSES.md
+ * at the repository root. This page is not legal advice and is not a licence
+ * for any source material.
+ *
+ * Reached from the site footer; a French mirror is generated at
+ * /fr/data-sources by fr/[...page].astro.
+ */
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { pick } from "@/utils/bilingual";
+import {
+  OGL_CANADA_ATTRIBUTION_STATEMENT,
+  OGL_CANADA_ATTRIBUTION_STATEMENT_FR,
+  OGL_CANADA_LICENCE_URL,
+  LOBBYING_ODLA_ATTRIBUTION_STATEMENT,
+  LOBBYING_ODLA_LICENCE_URL,
+  STATCAN_SOURCE_NOTICE,
+  STATCAN_ADAPTED_NOTICE,
+  STATCAN_LICENCE_URL,
+  HOC_TERMS_URL,
+  SENATE_IP_URL,
+  RFLO_URL,
+  CANADA_TERMS_URL,
+  NON_ENDORSEMENT_DISCLAIMER,
+  NON_ENDORSEMENT_DISCLAIMER_FR,
+} from "@/lib/attribution-notices";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const t = (en: string, fr: string) => pick(lang, en, fr);
+
+const provincialLicences = [
+  { name: "Alberta", url: "https://open.alberta.ca/licence" },
+  { name: "British Columbia", url: "https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc" },
+  { name: "Ontario", url: "https://www.ontario.ca/page/open-government-licence-ontario" },
+  { name: "Québec", url: "https://www.donneesquebec.ca/licence/" },
+];
+---
+
+<BaseLayout
+  title={t("Data sources & licences", "Sources de données et licences")}
+  description={t(
+    "Publishers, licences, and the attribution statements and notices that apply to data surfaced by Quill. Not legal advice.",
+    "Éditeurs, licences, et les énoncés d'attribution et avis applicables aux données présentées par Quill. Ne constitue pas un avis juridique.",
+  )}
+  lang={lang}
+>
+  <section class="border-b py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+        {t("Data sources & licences", "Sources de données et licences")}
+      </h1>
+      <p class="mt-2 text-muted-foreground">
+        {t(
+          "Publishers, licence terms, and the attribution this site carries for the sources it ingests.",
+          "Éditeurs, conditions de licence et attribution que ce site porte pour les sources qu'il ingère.",
+        )}
+      </p>
+      <p class="mt-2 text-sm text-muted-foreground">
+        {t(NON_ENDORSEMENT_DISCLAIMER, NON_ENDORSEMENT_DISCLAIMER_FR)}
+      </p>
+    </div>
+  </section>
+
+  <section class="container mx-auto px-4 py-12 md:py-16 max-w-3xl">
+    <div class="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("How attribution works here", "Comment fonctionne l'attribution ici")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Quill aggregates information from government and other public-sector publishers. The publisher for each dataset states the licence (or terms) that applies, and those terms differ from source to source. Where a publisher supplies an attribution statement or licence with the data, Quill carries it into records and API citations as publisher metadata. Where no declaration is supplied, the citation says so and points back to the publisher.",
+            "Quill agrège de l'information provenant d'éditeurs gouvernementaux et d'autres éditeurs du secteur public. L'éditeur de chaque jeu de données précise la licence (ou les conditions) applicable, et ces conditions varient d'une source à l'autre. Lorsqu'un éditeur fournit un énoncé d'attribution ou une licence avec ses données, Quill le transmet dans les enregistrements et les citations de l'API à titre de métadonnées de l'éditeur. En l'absence de déclaration, la citation l'indique et renvoie à l'éditeur.",
+          )}</p>
+          <p>{t(
+            "The statements on this page are the publishers' own required notices, reproduced so you can carry them forward when reusing material. This page is not legal advice, does not grant rights in any source material, and does not replace the publisher's terms for your specific use.",
+            "Les énoncés de cette page sont les avis exigés par les éditeurs eux-mêmes, reproduits pour que vous puissiez les reprendre lors de la réutilisation du contenu. Cette page ne constitue pas un avis juridique, n'accorde aucun droit sur le contenu source et ne remplace pas les conditions de l'éditeur pour votre utilisation précise.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Government of Canada open data", "Données ouvertes du gouvernement du Canada")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Federal datasets that are offered under the Open Government Licence – Canada (for example, many open.canada.ca / CKAN datasets such as proactive disclosure and grants and contributions data) carry this required attribution statement:",
+            "Les jeux de données fédéraux offerts sous la Licence du gouvernement ouvert – Canada (par exemple, de nombreux jeux de données d'ouvert.canada.ca / CKAN comme la divulgation proactive et les subventions et contributions) portent l'énoncé d'attribution exigé suivant :",
+          )}</p>
+          <p class="rounded-lg border border-border/60 bg-muted/40 p-3 font-medium text-foreground">
+            {t(OGL_CANADA_ATTRIBUTION_STATEMENT, OGL_CANADA_ATTRIBUTION_STATEMENT_FR)}
+          </p>
+          <p>
+            <a href={OGL_CANADA_LICENCE_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+              {t("Open Government Licence – Canada (full text)", "Licence du gouvernement ouvert – Canada (texte intégral)")}
+            </a>
+          </p>
+          <p>{t(
+            "The licence excludes, among other things: personal information; third-party rights the provider is not authorized to license; the names, crests, logos or other official symbols of the provider; and information subject to other intellectual-property rights. It does not grant any right to suggest that the provider endorses you or your use of the information.",
+            "La licence exclut, entre autres : les renseignements personnels; les droits de tiers que le fournisseur n'est pas autorisé à concéder; les noms, emblèmes, logos ou autres symboles officiels du fournisseur; et l'information assujettie à d'autres droits de propriété intellectuelle. Elle n'accorde aucun droit de laisser entendre que le fournisseur vous appuie ou approuve votre utilisation de l'information.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Statistics Canada", "Statistique Canada")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Statistics Canada data is offered under the Statistics Canada Open Licence, which requires these notices:",
+            "Les données de Statistique Canada sont offertes sous la Licence ouverte de Statistique Canada, qui exige les avis suivants :",
+          )}</p>
+          <p class="rounded-lg border border-border/60 bg-muted/40 p-3">
+            <span class="block text-foreground">{STATCAN_SOURCE_NOTICE}</span>
+            <span class="mt-2 block text-foreground">{STATCAN_ADAPTED_NOTICE}</span>
+          </p>
+          <p>
+            <a href={STATCAN_LICENCE_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+              {t("Statistics Canada Open Licence (full text)", "Licence ouverte de Statistique Canada (texte intégral)")}
+            </a>
+          </p>
+          <p>{t(
+            "The licence also requires accurate reproduction, no implied endorsement, and prohibits merging or linking the information to identify an individual, business or organization. Reproducing the Statistics Canada name, crest, logos or the official symbols of the Government of Canada (including the Canada wordmark) requires written authorization from the Treasury Board of Canada Secretariat.",
+            "La licence exige aussi une reproduction exacte, interdit d'impliquer une approbation et interdit de fusionner ou de lier l'information pour identifier une personne, une entreprise ou une organisation. La reproduction du nom, de l'emblème ou des logos de Statistique Canada, ou des symboles officiels du gouvernement du Canada (y compris le mot-symbole « Canada »), exige une autorisation écrite du Conseil du Trésor du Canada.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Parliament of Canada — House of Commons and Senate", "Parlement du Canada — Chambre des communes et Sénat")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Committee proceedings, debates, and other parliamentary content are protected by parliamentary privilege; all copyrights in the proceedings are reserved. Reproduction of the proceedings of the House of Commons and its committees is permitted only where the reproduction is accurate and is not presented as official — and does not extend to use for a commercial purpose or financial gain. The Senate's permission for its proceedings and committee content carries the same core conditions: accurate, not presented as official, and not for purposes of financial gain; commercial reproduction requires written permission.",
+            "Les travaux de comités, les débats et les autres contenus parlementaires sont protégés par le privilège parlementaire; tous les droits d'auteur sur les travaux sont réservés. La reproduction des travaux de la Chambre des communes et de ses comités n'est permise que si la reproduction est exacte et n'est pas présentée comme officielle — et ne s'étend pas à un usage à des fins commerciales ou lucratives. La permission du Sénat pour ses travaux et le contenu de ses comités comporte les mêmes conditions essentielles : reproduction exacte, non présentée comme officielle et sans fins lucratives; la reproduction commerciale exige une permission écrite.",
+          )}</p>
+          <p>{t(
+            "Where a reproduction includes briefs or material submitted to a committee, authorization may also be required from the authors. Quill surfaces this content with its source identified and presents it as-is, without suggesting any status conferred by either House.",
+            "Lorsqu'une reproduction comprend des mémoires ou du contenu soumis à un comité, l'autorisation des auteurs peut également être requise. Quill présente ce contenu en identifiant sa source et tel quel, sans suggérer un statut conféré par l'une ou l'autre des chambres.",
+          )}</p>
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li>
+              <a href={HOC_TERMS_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("House of Commons — important notices (Speaker's Permission)", "Chambre des communes — avis importants (permission du Président)")}
+              </a>
+            </li>
+            <li>
+              <a href={SENATE_IP_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("Senate of Canada — intellectual property", "Sénat du Canada — propriété intellectuelle")}
+              </a>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Canada Gazette and federal law", "Gazette du Canada et lois fédérales")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Under the Reproduction of Federal Law Order, anyone may — without charge or permission — reproduce enactments and consolidations of enactments of the Government of Canada and decisions of federally constituted courts and tribunals, provided due diligence is exercised in accuracy and the reproduction is not represented as an official version. Other Canada Gazette items and general Government of Canada website content follow the Government of Canada terms and conditions (non-commercial reproduction with conditions; commercial reproduction requires permission from the responsible institution).",
+            "En vertu du Décret sur la reproduction de la législation fédérale, il est permis à quiconque — sans frais ni permission — de reproduire les textes législatifs et leurs codifications du gouvernement du Canada ainsi que les décisions des tribunaux et organismes fédéraux, à condition d'exercer la diligence raisonnable quant à l'exactitude et de ne pas présenter la reproduction comme une version officielle. Les autres éléments de la Gazette du Canada et le contenu général des sites du gouvernement du Canada suivent les conditions d'utilisation du gouvernement du Canada (reproduction non commerciale avec conditions; la reproduction commerciale exige la permission de l'institution responsable).",
+          )}</p>
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li>
+              <a href={RFLO_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("Reproduction of Federal Law Order (SI/97-5)", "Décret sur la reproduction de la législation fédérale (TR/97-5)")}
+              </a>
+            </li>
+            <li>
+              <a href={CANADA_TERMS_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("Government of Canada terms and conditions", "Avis et conditions du gouvernement du Canada")}
+              </a>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Lobbying registry", "Registre du lobbying")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "The Office of the Commissioner of Lobbying publishes its registrations data under its own open data licence, which requires this attribution statement:",
+            "Le Commissariat au lobbying publie ses données d'enregistrement sous sa propre licence de données ouvertes, qui exige l'énoncé d'attribution suivant :",
+          )}</p>
+          <p class="rounded-lg border border-border/60 bg-muted/40 p-3 font-medium text-foreground">
+            {LOBBYING_ODLA_ATTRIBUTION_STATEMENT}
+          </p>
+          <p>
+            <a href={LOBBYING_ODLA_LICENCE_URL} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+              {t("Lobbying open data licence agreement (full text)", "Entente de licence de données ouvertes sur le lobbying (texte intégral)")}
+            </a>
+          </p>
+          <p>{t(
+            "The licence carries the same exclusions as the federal OGL, including personal information.",
+            "La licence comporte les mêmes exclusions que la LGO fédérale, y compris les renseignements personnels.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Provincial, territorial and municipal sources", "Sources provinciales, territoriales et municipales")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Provincial, territorial and municipal publishers each apply their own licence — often a provincial Open Government Licence or a municipal open data licence — with their own attribution requirements and exclusions. Examples:",
+            "Les éditeurs provinciaux, territoriaux et municipaux appliquent chacun leur propre licence — souvent une licence du gouvernement ouvert provinciale ou une licence municipale de données ouvertes — avec leurs propres exigences d'attribution et exclusions. Exemples :",
+          )}</p>
+          <ul class="list-disc pl-5 space-y-1.5">
+            {provincialLicences.map((p) => (
+              <li>
+                <a href={p.url} class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">{p.name}</a>
+              </li>
+            ))}
+            <li>
+              <a href="https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-licence/" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("City of Toronto open data licence", "Licence de données ouvertes de la Ville de Toronto")}
+              </a>
+            </li>
+            <li>
+              <a href="https://opendata.vancouver.ca/pages/licence" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                {t("City of Vancouver open data licence", "Licence de données ouvertes de la Ville de Vancouver")}
+              </a>
+            </li>
+          </ul>
+          <p>{t(
+            "The complete per-source-family list, including publisher terms links for courts, regulators, oversight bodies, international organisations, and news and RSS publishers, is recorded in DATA-LICENSES.md and the machine-readable inventory below.",
+            "La liste complète par famille de sources, y compris les liens vers les conditions des éditeurs pour les tribunaux, les organismes de réglementation, les organismes de surveillance, les organisations internationales et les éditeurs de nouvelles et de flux RSS, figure dans DATA-LICENSES.md et dans l'inventaire lisible par machine ci-dessous.",
+          )}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Personal information", "Renseignements personnels")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "The federal Open Government Licence and the lobbying open data licence do not grant any right to use personal information, and some source datasets (for example charity or lobbying registrations) can include individuals' names in their published records. Quill's terms prohibit using the service to extract personal information about identifiable individuals. If you believe a record improperly exposes personal information, contact",
+            "La Licence du gouvernement ouvert fédérale et la licence de données ouvertes sur le lobbying n'accordent aucun droit d'utiliser des renseignements personnels, et certains jeux de données sources (par exemple les registres d'organismes de bienfaisance ou de lobbyistes) peuvent inclure des noms de personnes dans leurs enregistrements publiés. Les conditions de Quill interdisent d'utiliser le service pour extraire des renseignements personnels sur des personnes identifiables. Si vous estimez qu'un enregistrement expose indûment des renseignements personnels, contactez",
+          )} <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a>.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Official symbols and endorsement", "Symboles officiels et approbation")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>{t(
+            "Quill does not reproduce the names, crests, logos or other official symbols of any government publisher, and its use of source information does not suggest any official status or endorsement. The official symbols of the Government of Canada (including the Canada wordmark, the Arms of Canada and the flag symbol) may not be reproduced without prior written authorization.",
+            "Quill ne reproduit ni les noms, ni les emblèmes, ni les logos, ni les autres symboles officiels d'un éditeur gouvernemental, et son utilisation de l'information source ne suggère aucun statut officiel ni approbation. Les symboles officiels du gouvernement du Canada (y compris le mot-symbole « Canada », les armoiries du Canada et le symbole du drapeau) ne peuvent être reproduits sans autorisation écrite préalable.",
+          )}</p>
+          <p class="font-medium text-foreground">{t(NON_ENDORSEMENT_DISCLAIMER, NON_ENDORSEMENT_DISCLAIMER_FR)}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">{t("Full inventory", "Inventaire complet")}</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li><a href="https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">DATA-LICENSES.md</a> — {t("publisher groups, required notices, and the full source-family index", "groupes d'éditeurs, avis exigés et index complet des familles de sources")}</li>
+            <li><a href="https://github.com/maplespike/quill/blob/main/data-source-licenses.json" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">data-source-licenses.json</a> — {t("machine-readable source-family inventory with publisher terms links", "inventaire lisible par machine des familles de sources avec liens vers les conditions des éditeurs")}</li>
+            <li><a href="https://github.com/maplespike/quill/blob/main/docs/licensing-audit.md" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">docs/licensing-audit.md</a> — {t("data-source licence and provenance audit", "audit des licences et de la provenance des sources")}</li>
+            <li><a href="https://github.com/maplespike/quill/blob/main/docs/open-source-audit.md" class="text-primary hover:underline" rel="noopener noreferrer" target="_blank">docs/open-source-audit.md</a> — {t("software licence audit (separate question)", "audit des licences logicielles (question distincte)")}</li>
+          </ul>
+          <p>{t(
+            "This page is not legal advice. For any reuse beyond the licence conditions above, verify the current publisher terms for the specific dataset.",
+            "Cette page ne constitue pas un avis juridique. Pour toute réutilisation au-delà des conditions ci-dessus, vérifiez les conditions actuelles de l'éditeur pour le jeu de données concerné.",
+          )}</p>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+</BaseLayout>
