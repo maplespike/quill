@@ -44,4 +44,5 @@ export * from './test-framework/index.js';
 export * from './doc-generator/index.js';
 export * from './quality/index.js';
 export * from './shared/attribution.js';
+export * from './shared/source-policy.js';
 export { sanitizeOutput, scanPII } from './utils/privacy-filter.js';
