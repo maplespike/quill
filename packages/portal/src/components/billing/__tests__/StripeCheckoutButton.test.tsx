@@ -6,7 +6,8 @@ import '@testing-library/jest-dom/vitest'
 import StripeCheckoutButton from '@/components/billing/StripeCheckoutButton'
 
 // Mock fetch
-global.fetch = vi.fn()
+const fetchMock = vi.fn()
+global.fetch = fetchMock
 
 // Mock window.location
 let locationMock = {
@@ -49,6 +50,8 @@ beforeEach(() => {
 
   // Mock window.sessionStorage
   window.sessionStorage = {
+    length: 0,
+    key: vi.fn(),
     getItem: vi.fn(),
     setItem: vi.fn(),
     removeItem: vi.fn(),
@@ -62,6 +65,13 @@ afterEach(() => {
 })
 
 describe('StripeCheckoutButton', () => {
+  test('renders the explicit French route locale and keeps the signup handoff French', async () => {
+    Object.defineProperty(window, 'MAPLESPIKE', { value: { apiKey: null }, writable: true, configurable: true })
+    const { container } = render(<StripeCheckoutButton planId="pro" lang="fr" />)
+    await userEvent.click(within(container).getByRole('button', { name: 'Acheter Pro' }))
+    expect(locationMock.href).toBe('/fr/signup?plan=pro&return=/fr/pricing')
+  })
+
   test('redirects to signup when no API key is provided', async () => {
     // Mock MAPLESPIKE with no apiKey
     Object.defineProperty(window, 'MAPLESPIKE', {
@@ -94,7 +104,7 @@ describe('StripeCheckoutButton', () => {
         currency: 'usd'
       }
     }
-    fetch.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       json: async () => mockResponse
     })
 
@@ -117,7 +127,7 @@ describe('StripeCheckoutButton', () => {
         message: 'Upgrade required to Pro plan'
       }
     }
-    fetch.mockResolvedValueOnce({
+    fetchMock.mockResolvedValueOnce({
       json: async () => mockResponse
     })
 

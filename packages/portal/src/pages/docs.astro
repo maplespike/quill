@@ -110,15 +110,15 @@ const errorCodes = [
 <BaseLayout title={i18n.t('docs.title')} description={t(            "Quill API documentation — quickstart guide, REST API reference, MCP configuration, and SDK usage. Source terms vary by publisher and dataset.",
             "Documentation de l'API Quill — démarrage rapide, référence REST, configuration MCP et utilisation des SDK. Les conditions varient selon l'éditeur et le jeu de données.",
 )} ogImage="/og-image-docs.png" lang={lang}>
-  <div class="flex">
+  <div class="docs-layout page-width">
     <!-- Sidebar -->
-    <aside class="hidden lg:block w-64 shrink-0 border-r min-h-[calc(100vh-4rem)] sticky top-16 self-start">
+    <aside class="docs-sidebar hidden lg:block" aria-label={t('Documentation sections', 'Sections de la documentation')}>
       <div class="p-4">
         <div class="relative mb-4">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <Input placeholder={t("Search docs...", "Rechercher dans la documentation…")} class="pl-9 text-sm" />
+          <Input placeholder={t("Search docs...", "Rechercher dans la documentation…")} className="pl-9 text-sm" />
         </div>
-        <nav class="space-y-1">
+        <nav class="space-y-1" aria-label={t('On this page', 'Sur cette page')}>
           {sections.map((s) => (
             <a
               href={`#${s.id}`}
@@ -136,7 +136,7 @@ const errorCodes = [
     </aside>
 
     <!-- Main content -->
-    <main class="flex-1 min-w-0 px-6 py-8 lg:px-10 lg:py-12 max-w-4xl">
+    <div class="docs-content">
       <!-- ═══ 00: QUICKSTART ═══ -->
       <section id="quickstart" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-2">
@@ -144,18 +144,19 @@ const errorCodes = [
           <span class="text-primary/80">00</span>
           <span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("Quickstart", "Démarrage rapide")}</span>
-          <Badge variant="default" class="text-[10px] px-1.5 py-0.5">LIVE</Badge>
+          <Badge variant="default" className="text-[10px] px-1.5 py-0.5">LIVE</Badge>
         </div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-          {t("One API key.", "Une seule clé API.")}<br />{t(` ${statsData.modules} public-sector data modules. Provenance fields where available.`, ` ${statsData.modules} modules de données du secteur public. Champs de provenance lorsqu'ils sont disponibles.`)}
+          {t('Build with the public record.', 'Créez avec les dossiers publics.')}
         </h1>
+        <p class="text-muted-foreground mb-3">{t(`${statsData.modules} data modules. MCP and REST. Source metadata where available.`, `${statsData.modules} modules de données. MCP et REST. Métadonnées de source lorsqu’elles sont disponibles.`)}</p>
         <p class="text-muted-foreground mb-8">{t(
           "Get an API key, make your first call, and see the citation contract — in under 5 minutes.",
           "Obtenez une clé API, effectuez votre premier appel et découvrez le contrat de citation — en moins de 5 minutes.",
         )}</p>
 
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">// {t("30-second quickstart", "Démarrage rapide en 30 secondes")}</span><br /><br />
             <span class="text-muted-foreground">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
@@ -175,8 +176,8 @@ const errorCodes = [
           </CardContent>
         </Card>
 
-        <Card class="border-primary/20 bg-primary/5">
-          <CardContent class="p-4 text-sm">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4 text-sm">
             <strong class="text-primary">{t("No key?", "Pas de clé ?")}</strong>
             <span class="text-muted-foreground"> {t(
               "Get one free at",
@@ -189,7 +190,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 01: AUTHENTICATION ═══ -->
       <section id="authentication" class="mb-16 scroll-mt-24">
@@ -211,8 +212,8 @@ const errorCodes = [
           "then send it as the",
           "puis envoyez-la dans l'en-tête",
         )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">X-API-Key</code> :</p>
-        <Card class="mb-6">
-          <CardContent class="p-3 font-mono text-sm">
+        <Card className="mb-6">
+          <CardContent className="p-3 font-mono text-sm">
             <span class="text-muted-foreground">$</span> curl -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> https://api.maplespike.ca/v1/health
           </CardContent>
         </Card>
@@ -222,8 +223,8 @@ const errorCodes = [
           "Sign in with GitHub, Google, or any OIDC provider:",
           "Connectez-vous avec GitHub, Google ou tout fournisseur OIDC :",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-3 font-mono text-sm">
+        <Card className="mb-6">
+          <CardContent className="p-3 font-mono text-sm">
             <span class="text-muted-foreground"># {t("List configured providers", "Lister les fournisseurs configurés")}</span><br />
             <span class="text-muted-foreground">$</span> curl https://api.maplespike.ca/v1/auth/oauth/providers
           </CardContent>
@@ -234,8 +235,8 @@ const errorCodes = [
           "Sign a SIWE (EIP-4361) message with your wallet:",
           "Signez un message SIWE (EIP-4361) avec votre portefeuille :",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-3 font-mono text-sm">
+        <Card className="mb-6">
+          <CardContent className="p-3 font-mono text-sm">
             POST /v1/auth/web3/challenge {'{'}{' '}<span class="text-[#D4A017]">&quot;address&quot;</span>: <span class="text-[#0891B2]">&quot;0x...&quot;</span>{' '}{'}'}
           </CardContent>
         </Card>
@@ -245,8 +246,8 @@ const errorCodes = [
           "Register a passkey (Touch ID, Windows Hello, YubiKey):",
           "Enregistrez une clé d'accès (Touch ID, Windows Hello, YubiKey) :",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-3 font-mono text-sm">
+        <Card className="mb-6">
+          <CardContent className="p-3 font-mono text-sm">
             POST /v1/auth/passkey/register/begin {'{'}{' '}<span class="text-[#D4A017]">&quot;userId&quot;</span>: <span class="text-[#0891B2]">&quot;...&quot;</span>{' '}{'}'}
           </CardContent>
         </Card>
@@ -257,7 +258,7 @@ const errorCodes = [
         )}</p>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 02: REQUEST + RESPONSE ═══ -->
       <section id="request-response" class="mb-16 scroll-mt-24">
@@ -272,7 +273,7 @@ const errorCodes = [
         )}</p>
 
         <Card>
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123; /* structured payload */ &#125;,<br />
@@ -293,7 +294,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 03: ENDPOINTS ═══ -->
       <section id="endpoints" class="mb-16 scroll-mt-24">
@@ -304,7 +305,7 @@ const errorCodes = [
         <h2 class="text-2xl font-bold mb-4">{t("REST endpoints", "Points de terminaison REST")}</h2>
 
         <Card>
-          <CardContent class="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
@@ -335,14 +336,14 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 04: AI ENDPOINTS ═══ -->
       <section id="ai-endpoints" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">04</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("AI Endpoints", "Points de terminaison IA")}</span>
-          <Badge variant="default" class="text-[10px] px-1.5 py-0.5">EDGE</Badge>
+          <Badge variant="default" className="text-[10px] px-1.5 py-0.5">EDGE</Badge>
         </div>
         <h2 class="text-2xl font-bold mb-4">{t("Edge AI — ask, search, analyze", "IA de périphérie — questionnez, recherchez, analysez")}</h2>
         <p class="text-muted-foreground mb-6">{t(
@@ -355,8 +356,8 @@ const errorCodes = [
           "Ask a natural language question about Canadian government data. The response includes the answer, model used, inference source (edge/homelab/byok), and token usage.",
           "Posez une question en langage naturel sur les données gouvernementales canadiennes. La réponse inclut la réponse, le modèle utilisé, la source d'inférence (périphérie/laboratoire maison/byok) et l'utilisation de jetons.",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/ask \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
@@ -394,8 +395,8 @@ const errorCodes = [
           "Semantic search using edge-generated embeddings (BGE base) routed to the homelab Qdrant vector database. Falls back to keyword search if embedding generation fails.",
           "Recherche sémantique utilisant des plongements générés en périphérie (BGE base) acheminés vers la base vectorielle Qdrant du laboratoire maison. Repli sur la recherche par mots-clés si la génération de plongements échoue.",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/search \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
@@ -424,8 +425,8 @@ const errorCodes = [
 
         <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/analyze <span class="text-xs font-normal text-muted-foreground">(Pro tier+)</span></h3>
         <p class="text-sm text-muted-foreground mb-3">Submit a document or transcript for LLM-powered analysis. The model extracts key topics, notable entities, and an overall summary. Optionally specify a <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">mode</code> (e.g. <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"legal"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"financial"</code>) to hint the analysis focus. Defaults to <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code> if omitted.</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/analyze \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
@@ -448,8 +449,8 @@ const errorCodes = [
 
         <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/ai/models</h3>
         <p class="text-sm text-muted-foreground mb-3">List available models and tier-aware routing rules. Public endpoint — no API key required.</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s https://api.maplespike.ca/v1/ai/models | jq .<br /><br />
             <span class="text-muted-foreground">// Response</span><br />
             &#123;<br />
@@ -472,7 +473,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 05: BROWSER EXTRACTION ═══ -->
       <section id="extraction" class="mb-16 scroll-mt-24">
@@ -486,8 +487,8 @@ const errorCodes = [
           "Certains portails gouvernementaux (T.N.-O., Nunavut) n'ont pas d'API lisible par machine. Le système d'extraction permet au client du portail de rendre les pages dans le navigateur de l'utilisateur, d'extraire les liens de téléchargement et de mettre en cache les résultats côté serveur pour que les outils MCP les utilisent en repli.",
         )}</p>
 
-        <Card class="mb-6 border-primary/20 bg-primary/5">
-          <CardContent class="p-4 text-sm">
+        <Card className="mb-6 border-primary/20 bg-primary/5">
+          <CardContent className="p-4 text-sm">
             <strong class="text-primary">{t("Flow:", "Flux :")}</strong>
             <span class="text-muted-foreground"> {t(
               "1. Client GETs extraction tasks → 2. Browser visits source URLs → 3. Client POSTs extracted results → 4. MCP tools GET cached results as fallback",
@@ -501,8 +502,8 @@ const errorCodes = [
           "List extraction tasks for sources that need browser rendering. Optionally filter by jurisdiction via path param or query param.",
           "Lister les tâches d'extraction pour les sources nécessitant un rendu navigateur. Filtrer facultativement par compétence via un paramètre de chemin ou de requête.",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground"># {t("All extraction tasks", "Toutes les tâches d'extraction")}</span><br />
             <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/tasks | jq .<br /><br />
@@ -533,8 +534,8 @@ const errorCodes = [
           "Submit extracted data from the browser client. The server validates the source_id, blocks SSRF attempts (private IPs, localhost), and caches results with a timestamp.",
           "Soumettre les données extraites depuis le client navigateur. Le serveur valide le source_id, bloque les tentatives SSRF (IP privées, localhost) et met en cache les résultats avec un horodatage.",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/extraction/results \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
@@ -581,8 +582,8 @@ const errorCodes = [
           "MCP tools use this as fallback when live sources are unavailable.",
           "Les outils MCP utilisent ce mécanisme en repli lorsque les sources en direct sont indisponibles.",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/cached/nunavut-bureau-statistics | jq .<br /><br />
             <span class="text-muted-foreground">// {t("Response (fresh cache)", "Réponse (cache frais)")}</span><br />
@@ -609,8 +610,8 @@ const errorCodes = [
           </CardContent>
         </Card>
 
-        <Card class="border-primary/20 bg-primary/5">
-          <CardContent class="p-4 text-sm">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4 text-sm">
             <strong class="text-primary">{t("Currently tracked sources:", "Sources actuellement suivies :")}</strong>
             <span class="text-muted-foreground"> {t(
               "NWT Open Government Product, Nunavut Bureau of Statistics (3 sub-sources: demographics, economic, main). Cache TTL: 168 hours (7 days).",
@@ -620,7 +621,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 06: TOKEN OPTIMIZATION ═══ -->
       <section id="token-optimization" class="mb-16 scroll-mt-24">
@@ -635,7 +636,7 @@ const errorCodes = [
         )}</p>
 
         <Card>
-          <CardContent class="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
@@ -665,7 +666,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 05: CITATION CONTRACT ═══ -->
       <section id="citation-contract" class="mb-16 scroll-mt-24">
@@ -680,7 +681,7 @@ const errorCodes = [
         )}</p>
 
         <Card>
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
@@ -702,14 +703,14 @@ const errorCodes = [
         )}</p>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 06: MCP TOOLS ═══ -->
       <section id="mcp-tools" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">08</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">{t("MCP Tools", "Outils MCP")}</span>
-          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">{mcpTools.length} {t("TOOLS", "OUTILS")}</Badge>
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">{mcpTools.length} {t("TOOLS", "OUTILS")}</Badge>
         </div>
         <h2 class="text-2xl font-bold mb-4">{t("Data tools for AI agents", "Outils de données pour agents IA")}</h2>
         <p class="text-muted-foreground mb-6">{t(
@@ -717,8 +718,8 @@ const errorCodes = [
           "Tous les outils renvoient la même enveloppe",
         )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">&#123; data, quality, citation &#125;</code>.</p>
 
-        <Card class="mb-6">
-          <CardContent class="p-3 font-mono text-sm leading-relaxed">
+        <Card className="mb-6">
+          <CardContent className="p-3 font-mono text-sm leading-relaxed">
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;mcpServers&quot;</span>: &#123;<br />
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;maplespike&quot;</span>: &#123;<br />
@@ -735,7 +736,7 @@ const errorCodes = [
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <div class="relative flex-1">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <Input id="mcp-search" placeholder={t(`Filter ${statsData.tools} tools by name or description...`, `Filtrer ${statsData.tools} outils par nom ou description…`)} class="pl-9 text-sm" />
+            <Input id="mcp-search" placeholder={t(`Filter ${statsData.tools} tools by name or description...`, `Filtrer ${statsData.tools} outils par nom ou description…`)} className="pl-9 text-sm" />
           </div>
           <select id="mcp-category" class="text-sm border rounded-md px-3 py-2 bg-background">
             <option value="">{t("All categories", "Toutes les catégories")}</option>
@@ -745,7 +746,7 @@ const errorCodes = [
         <div class="text-sm text-muted-foreground mb-2"><span id="mcp-count">{mcpTools.length}</span> {t("tools", "outils")} <span id="mcp-filtered-label" class="hidden">{t("matching filter", "correspondant au filtre")}</span></div>
 
         <Card>
-          <CardContent class="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
@@ -826,7 +827,7 @@ const errorCodes = [
         })();
       </script>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 07: RATE LIMITS ═══ -->
       <section id="rate-limits" class="mb-16 scroll-mt-24">
@@ -841,7 +842,7 @@ const errorCodes = [
         )}</p>
 
         <Card>
-          <CardContent class="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
@@ -866,7 +867,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 08: ERRORS ═══ -->
       <section id="errors" class="mb-16 scroll-mt-24">
@@ -897,8 +898,8 @@ const errorCodes = [
           "Every API error returns both an English and a French message. Example 429 response:",
           "Chaque erreur API renvoie un message en anglais et en français. Exemple de réponse 429 :",
         )}</p>
-        <Card class="mb-6">
-          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+        <Card className="mb-6">
+          <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: false,<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;error&quot;</span>: &#123;<br />
@@ -924,7 +925,7 @@ const errorCodes = [
         <h3 class="text-lg font-semibold mt-8 mb-3">{t("Error reference", "Référence des erreurs")}</h3>
 
         <Card>
-          <CardContent class="p-0 overflow-x-auto">
+          <CardContent className="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
@@ -961,7 +962,7 @@ const errorCodes = [
         </Card>
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 09: FAQ ═══ -->
       <section id="faq" class="mb-16 scroll-mt-24">
@@ -979,8 +980,8 @@ const errorCodes = [
           { q: { en: "What is the cross-reference engine?", fr: "Qu'est-ce que le moteur de recoupement ?" }, a: { en: "Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline.", fr: "Recherchez une personne ou une entreprise et obtenez son empreinte gouvernementale complète — réunions de lobbying, témoignages en comité, nominations aux conseils par décret, contrats d'approvisionnement, dossiers judiciaires et dons de campagne — dans une chronologie unifiée." } },
           { q: { en: "Is my API key secure?", fr: "Ma clé API est-elle sécurisée ?" }, a: { en: "Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.", fr: "Les clés sont hachées avec SHA-256 au repos — nous ne les voyons qu'au moment de la vérification. Transit HTTPS uniquement. Rotation instantanée depuis l'espace de travail." } },
         ].map((faq) => (
-          <Card class="mb-4">
-            <CardContent class="p-4">
+          <Card className="mb-4">
+            <CardContent className="p-4">
               <p class="font-semibold mb-1">{tb(faq.q)}</p>
               <p class="text-sm text-muted-foreground">{tb(faq.a)}</p>
             </CardContent>
@@ -988,7 +989,7 @@ const errorCodes = [
         ))}
       </section>
 
-      <Separator class="mb-16" />
+      <Separator className="mb-16" />
 
       <!-- ═══ 12: DATA SOURCES & LICENCES ═══ -->
       <section id="data-sources" class="mb-16 scroll-mt-24">
@@ -1030,6 +1031,6 @@ const errorCodes = [
           "N'est pas affilié au gouvernement du Canada ni approuvé par celui-ci.",
         )}</p>
       </section>
-    </main>
+    </div>
   </div>
 </BaseLayout>

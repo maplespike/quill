@@ -68,12 +68,12 @@ const tb = (bi: Bi) => pickBi(lang, bi);
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 max-w-4xl">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <Card class="text-center">
+        <Card className="text-center">
           <CardHeader>
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
             </div>
-            <CardTitle class="text-lg">{t("Collect", "Collecter")}</CardTitle>
+            <CardTitle className="text-lg">{t("Collect", "Collecter")}</CardTitle>
             <CardDescription>
               {t(
               "Data is fetched from government and other public-sector sources through APIs, CKAN portals, RSS feeds, and XML dumps. Source coverage and terms vary.",
@@ -82,12 +82,12 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card class="text-center">
+        <Card className="text-center">
           <CardHeader>
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
             </div>
-            <CardTitle class="text-lg">{t("Verify", "Vérifier")}</CardTitle>
+            <CardTitle className="text-lg">{t("Verify", "Vérifier")}</CardTitle>
             <CardDescription>
               {t(
                 "Quill's record hash covers canonicalized record JSON. Captured source-artifact hashes cover the HTTP-client response body; the evidence block reports retrieval time and response metadata when available. A matching request URL is labeled as such but does not verify that the response produced the record.",
@@ -96,12 +96,12 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card class="text-center">
+        <Card className="text-center">
           <CardHeader>
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
             </div>
-            <CardTitle class="text-lg">{t("Cite", "Citer")}</CardTitle>
+            <CardTitle className="text-lg">{t("Cite", "Citer")}</CardTitle>
             <CardDescription>
               {t(
                 "API responses may include citation hashes and verification commands. These support integrity checks; check the source's terms before reusing its material.",
@@ -114,9 +114,9 @@ const tb = (bi: Bi) => pickBi(lang, bi);
 
       <!-- Citation Hash Format -->
       <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Citation Hash Format", "Format du hachage de citation")}</h2>
-      <Card class="mb-12">
+      <Card className="mb-12">
         <CardHeader>
-          <CardTitle class="text-base font-mono">sha256:&lt;64-hex-characters&gt;</CardTitle>
+          <CardTitle className="text-base font-mono">sha256:&lt;64-hex-characters&gt;</CardTitle>
           <CardDescription>
             {t(
               "When supplied, a record-integrity citation uses SHA-256 with the",
@@ -127,7 +127,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent class="space-y-4">
+        <CardContent className="space-y-4">
           <div class="rounded-md bg-muted p-4">
             <p class="text-sm font-mono text-muted-foreground break-all">
               sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
@@ -144,9 +144,9 @@ const tb = (bi: Bi) => pickBi(lang, bi);
 
       <!-- Verify Command -->
       <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Verifying a Citation", "Vérifier une citation")}</h2>
-      <Card class="mb-12">
+      <Card className="mb-12">
         <CardHeader>
-          <CardTitle class="text-base">{t("Shell Verification", "Vérification en ligne de commande")}</CardTitle>
+          <CardTitle className="text-base">{t("Shell Verification", "Vérification en ligne de commande")}</CardTitle>
           <CardDescription>
             {t(
               "Some citation responses include a",
@@ -169,9 +169,9 @@ const tb = (bi: Bi) => pickBi(lang, bi);
 
       <!-- Trust Score -->
       <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Trust Scores", "Scores de confiance")}</h2>
-      <Card class="mb-12">
+      <Card className="mb-12">
         <CardHeader>
-          <CardTitle class="text-base">{t("How Trust Is Measured", "Comment la confiance est mesurée")}</CardTitle>
+          <CardTitle className="text-base">{t("How Trust Is Measured", "Comment la confiance est mesurée")}</CardTitle>
           <CardDescription>
             {t(
               "Where available, a trust score (0–100%) summarizes Quill's confidence signals for a record. It is not a legal or publisher verification.",
@@ -179,7 +179,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent class="space-y-4">
+        <CardContent className="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="rounded-md border border-green-500/30 bg-green-500/5 p-4">
               <p class="text-sm font-semibold text-green-500 mb-1">90–100 % — {t("Verified", "Vérifié")}</p>
@@ -222,11 +222,11 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           <Card key={example.label.en}>
             <CardHeader>
               <div class="flex items-center justify-between gap-2">
-                <CardTitle class="text-base">{tb(example.label)}</CardTitle>
-                <Badge variant="outline" class="font-mono text-[10px]">{example.source}</Badge>
+                <CardTitle className="text-base">{tb(example.label)}</CardTitle>
+                <Badge variant="outline" className="font-mono text-[10px]">{example.source}</Badge>
               </div>
             </CardHeader>
-            <CardContent class="space-y-3">
+            <CardContent className="space-y-3">
               <p class="text-sm text-muted-foreground">{tb(example.example)}</p>
               <div class="rounded-md bg-muted p-3">
                 <p class="text-xs font-mono text-muted-foreground break-all">{example.hash}</p>
@@ -240,7 +240,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
       <h2 class="text-2xl font-bold tracking-tight mt-16 mb-6">{i18n.t('citation.source')}</h2>
       <Card>
         <CardHeader>
-          <CardTitle class="text-base">{i18n.t('api_explorer.title')}</CardTitle>
+          <CardTitle className="text-base">{i18n.t('api_explorer.title')}</CardTitle>
           <CardDescription>
             {t(
               "Look up a citation by its SHA-256 hash using the API endpoint, when a hash is available.",
@@ -248,7 +248,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent class="space-y-4">
+        <CardContent className="space-y-4">
           <div class="rounded-md bg-muted p-4">
             <code class="text-sm text-muted-foreground block">
               GET /v1/citation/{`{sha256_hash}`}

@@ -160,10 +160,10 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
           )}
         </p>
         <div class="flex flex-wrap gap-3 mt-6">
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.modules} {t("Data Modules", "modules de données")}</Badge>
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.tools} {t("MCP Tools", "outils MCP")}</Badge>
-          <Badge variant="secondary" class="text-xs">        {t("SHA-256 Integrity", "Intégrité SHA-256")}</Badge>
-          <Badge variant="secondary" class="text-xs">{t("TypeScript & Python SDKs", "SDK TypeScript et Python")}</Badge>
+          <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.modules} {t("Data Modules", "modules de données")}</Badge>
+          <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary text-xs">{statsData.tools} {t("MCP Tools", "outils MCP")}</Badge>
+          <Badge variant="secondary" className="text-xs">        {t("SHA-256 Integrity", "Intégrité SHA-256")}</Badge>
+          <Badge variant="secondary" className="text-xs">{t("TypeScript & Python SDKs", "SDK TypeScript et Python")}</Badge>
         </div>
       </div>
     </div>
@@ -178,8 +178,8 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
           <h2 class="text-2xl font-bold tracking-tight mb-8">{t("Everything you get", "Tout ce que vous obtenez")}</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
-              <Card key={feature.title.en} class="card-hover border-border/60">
-                <CardHeader class="p-4">
+              <Card key={feature.title.en} className="card-hover border-border/60">
+                <CardHeader className="p-4">
                   <div class="flex items-start gap-3">
                     <div class="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
                       <svg
@@ -198,8 +198,8 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
                       </svg>
                     </div>
                     <div>
-                      <CardTitle class="text-sm font-semibold">{tb(feature.title)}</CardTitle>
-                      <CardDescription class="text-xs mt-1">{tb(feature.description)}</CardDescription>
+                      <CardTitle className="text-sm font-semibold">{tb(feature.title)}</CardTitle>
+                      <CardDescription className="text-xs mt-1">{tb(feature.description)}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -222,23 +222,23 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
       <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">{t("Choose your plan", "Choisissez votre forfait")}</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {planCards.map((card) => (
-          <Card class={card.highlighted
+          <Card className={card.highlighted
             ? "card-hover border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5 relative"
             : "card-hover border-border/60 relative"}>
             {card.badge && (
               <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge class="btn-sheen">{tb(card.badge)}</Badge>
+                <Badge className="btn-sheen">{tb(card.badge)}</Badge>
               </div>
             )}
             <CardHeader>
-              <CardTitle class="text-lg">{tb(card.name)}</CardTitle>
+              <CardTitle className="text-lg">{tb(card.name)}</CardTitle>
               <CardDescription>{tb(card.desc)}</CardDescription>
               <p class="text-3xl font-bold mt-4">
                 {card.price}
                 <span class="text-sm font-normal text-muted-foreground">{t("/month", "/mois")}</span>
               </p>
             </CardHeader>
-            <CardContent class="space-y-3">
+            <CardContent className="space-y-3">
               {card.features.map((feature) => (
                 <div class="flex items-center gap-2 text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>

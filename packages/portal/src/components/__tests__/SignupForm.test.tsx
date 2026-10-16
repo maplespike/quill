@@ -25,7 +25,8 @@ vi.mock('bs58', () => ({
 }))
 
 // Mock the fetch API
-global.fetch = vi.fn()
+const fetchMock = vi.fn()
+global.fetch = fetchMock
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -109,7 +110,7 @@ describe('SignupForm', () => {
 
   test('renders sign up text', async () => {
     // Mock providers endpoint to return empty array (so loading finishes)
-    fetch.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
+    fetchMock.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
 
     render(<SignupForm />)
 
@@ -124,7 +125,7 @@ describe('SignupForm', () => {
 
   test('displays passkey registration option when WebAuthn is supported', async () => {
     // Mock providers endpoint to return empty array (so loading finishes)
-    fetch.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
+    fetchMock.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
 
     render(<SignupForm />)
 

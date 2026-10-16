@@ -31,7 +31,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             )}
           </p>
         </div>
-        <Badge variant="outline" class="ml-auto text-xs font-mono" id="last-check">
+        <Badge variant="outline" className="ml-auto text-xs font-mono" id="last-check">
           {t("Checking…", "Vérification…")}
         </Badge>
       </div>
@@ -58,7 +58,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <div class="container mx-auto px-4">
       <div class="grid gap-4 md:grid-cols-2">
         <!-- API Server -->
-        <Card class="service-card" data-service="api">
+        <Card className="service-card" data-service="api">
           <CardHeader>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -66,11 +66,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 </div>
                 <div>
-                  <CardTitle class="text-base">{t("API Server", "Serveur API")}</CardTitle>
-                  <CardDescription class="text-xs">api.maplespike.ca</CardDescription>
+                  <CardTitle className="text-base">{t("API Server", "Serveur API")}</CardTitle>
+                  <CardDescription className="text-xs">api.maplespike.ca</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" class="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
+              <Badge variant="outline" className="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -84,7 +84,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </Card>
 
         <!-- Edge AI Worker -->
-        <Card class="service-card" data-service="edge">
+        <Card className="service-card" data-service="edge">
           <CardHeader>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -92,11 +92,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10 10 10 0 0 0-10-10z"/><path d="M12 6v6l4 2"/></svg>
                 </div>
                 <div>
-                  <CardTitle class="text-base">{t("Edge AI Worker", "Travailleur IA de périphérie")}</CardTitle>
-                  <CardDescription class="text-xs">{t("Cloudflare Workers AI", "IA des Workers Cloudflare")}</CardDescription>
+                  <CardTitle className="text-base">{t("Edge AI Worker", "Travailleur IA de périphérie")}</CardTitle>
+                  <CardDescription className="text-xs">{t("Cloudflare Workers AI", "IA des Workers Cloudflare")}</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" class="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
+              <Badge variant="outline" className="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -110,7 +110,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </Card>
 
         <!-- MCP Server -->
-        <Card class="service-card" data-service="mcp">
+        <Card className="service-card" data-service="mcp">
           <CardHeader>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -118,11 +118,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                 </div>
                 <div>
-                  <CardTitle class="text-base">MCP {t("Server", "Serveur")}</CardTitle>
-                  <CardDescription class="text-xs">mcp.maplespike.ca</CardDescription>
+                  <CardTitle className="text-base">MCP {t("Server", "Serveur")}</CardTitle>
+                  <CardDescription className="text-xs">mcp.maplespike.ca</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" class="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
+              <Badge variant="outline" className="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -136,7 +136,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </Card>
 
         <!-- Portal / Pages -->
-        <Card class="service-card" data-service="portal">
+        <Card className="service-card" data-service="portal">
           <CardHeader>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
@@ -144,11 +144,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                 </div>
                 <div>
-                  <CardTitle class="text-base">{t("Portal", "Portail")}</CardTitle>
-                  <CardDescription class="text-xs">maplespike.ca ({t("Cloudflare Pages", "Pages Cloudflare")})</CardDescription>
+                  <CardTitle className="text-base">{t("Portal", "Portail")}</CardTitle>
+                  <CardDescription className="text-xs">maplespike.ca ({t("Cloudflare Pages", "Pages Cloudflare")})</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" class="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
+              <Badge variant="outline" className="service-status text-xs">{t("Checking…", "Vérification…")}</Badge>
             </div>
           </CardHeader>
           <CardContent>
@@ -163,10 +163,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </div>
 
       <!-- Dependency Detail Table -->
-      <Card class="mt-6">
+      <Card className="mt-6">
         <CardHeader>
-          <CardTitle class="text-base">{t("API Dependency Breakdown", "Ventilation des dépendances de l'API")}</CardTitle>
-          <CardDescription class="text-xs">{t(
+          <CardTitle className="text-base">{t("API Dependency Breakdown", "Ventilation des dépendances de l'API")}</CardTitle>
+          <CardDescription className="text-xs">{t(
             "Storage, cache, and engine status from the API health endpoint",
             "État du stockage, du cache et du moteur à partir du point de terminaison de santé de l'API",
           )}</CardDescription>
@@ -179,10 +179,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       </Card>
 
       <!-- Incident History (placeholder for future) -->
-      <Card class="mt-6">
+      <Card className="mt-6">
         <CardHeader>
-          <CardTitle class="text-base">{t("Incident History", "Historique des incidents")}</CardTitle>
-          <CardDescription class="text-xs">{t(
+          <CardTitle className="text-base">{t("Incident History", "Historique des incidents")}</CardTitle>
+          <CardDescription className="text-xs">{t(
             "Recent service disruptions and maintenance windows",
             "Interruptions de service et fenêtres de maintenance récentes",
           )}</CardDescription>
@@ -211,7 +211,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     </div>
   </section>
 
-  <script is:inline>
+  <script is:inline data-astro-rerun>
     (function () {
       "use strict";
 
@@ -253,8 +253,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       var overallSub = document.getElementById("overall-sub");
       var overallSpinner = document.getElementById("overall-spinner");
       var depTable = document.getElementById("dep-table");
+      if (!overallBanner || !overallText || !overallSub || overallBanner.dataset.pollBound) return;
+      overallBanner.dataset.pollBound = 'true';
 
       function setStatusBadge(card, status, label) {
+        if (!card || !card.isConnected) return;
         var badge = card.querySelector(".service-status");
         badge.textContent = label || status;
         badge.className = "service-status text-xs " + (
@@ -266,6 +269,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       }
 
       function setLatency(card, ms) {
+        if (!card || !card.isConnected) return;
         card.querySelector(".service-latency").textContent = ms != null ? ms + "ms" : "—";
       }
 
@@ -390,11 +394,13 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       }
 
       async function runChecks() {
+        if (!overallBanner.isConnected) return;
         if (overallSpinner) overallSpinner.style.display = "block";
         overallText.textContent = S.checking;
         overallSub.textContent = S.fetching;
 
         var results = await Promise.all([checkApi(), checkEdge(), checkMcp(), checkPortal()]);
+        if (!overallBanner.isConnected) return;
 
         var okCount = results.filter(function (r) { return r === "ok"; }).length;
         var totalCount = results.length;
@@ -424,6 +430,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       var statusInterval = null;
 
       function startStatusPolling() {
+        if (!overallBanner.isConnected) return;
         runChecks();
         if (statusInterval) clearInterval(statusInterval);
         statusInterval = setInterval(runChecks, 30000);
@@ -437,7 +444,10 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       }
 
       // Handle Astro view transitions — clear and restart interval on navigation.
-      document.addEventListener("astro:before-swap", stopStatusPolling);
+      document.addEventListener("astro:before-swap", function () {
+        stopStatusPolling();
+        document.removeEventListener("astro:page-load", startStatusPolling);
+      }, { once: true });
       document.addEventListener("astro:page-load", startStatusPolling);
     })();
   </script>
