@@ -47,7 +47,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile
@@ -59,7 +59,7 @@ jobs:
         run: node scripts/audit-open-source.mjs --format json --output open-source-audit.json
 
       - name: Publish audit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: quill-open-source-audit-${{ github.sha }}
           path: open-source-audit.json
