@@ -37,10 +37,10 @@ failures=0
 pass() { printf 'ok    %s\n' "$*"; }
 fail() { printf 'FAIL  %s\n' "$*" >&2; failures=$((failures + 1)); }
 
-# The commit that failed run 35676870104. Its literal is removed; the
-# fingerprint in .gitleaksignore stops a scan that still reaches the commit
-# from re-flagging it.
-incident_commit="87355b7c2d5cc10c5b8df7d096dbbf3529f16994"
+# 2026-10-16: the literal that failed run 35676870104 (.github/workflows/
+# live-data-check.yml) was removed from ALL history by the #854 rewrite
+# (git filter-repo). No incident fingerprint is required any more; this check
+# now only guards the file's shape: every entry must be a finding fingerprint.
 
 # ── 1. .gitleaksignore: fingerprints only ────────────────────────────
 printf '\n.gitleaksignore\n'
@@ -65,11 +65,7 @@ else
     fi
   done < .gitleaksignore
   [ "$ignore_bad" -eq 0 ] && pass "every entry is a finding fingerprint"
-  if grep -q "^${incident_commit}:" .gitleaksignore; then
-    pass "carries the run-35676870104 fingerprint"
-  else
-    fail "no fingerprint for ${incident_commit} (the run 35676870104 leak)"
-  fi
+  # (No required fingerprint since the 2026-10-16 rewrite; shape checked above.)
 fi
 
 # ── 2. .gitleaks.toml: defaults kept, no catch-all ───────────────────
