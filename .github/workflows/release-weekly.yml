@@ -208,7 +208,8 @@ jobs:
                 'That link opens the pull-request form with the title and body pre-filled — review the',
                 'version bump, then create the PR.',
                 '',
-                '_Automated by the weekly release lane (`.github/workflows/release-weekly.yml`)._ Adding a fine-grained PAT as the `RELEASE_TOKEN` secret makes this lane open the PR directly._'
+                '_Automated by the weekly release lane (`.github/workflows/release-weekly.yml`)._',
+                '_Adding a fine-grained PAT as the `RELEASE_TOKEN` secret makes this lane open the PR directly._'
               ].join('\n');
 
               const { data: open } = await github.rest.issues.listForRepo({
