@@ -28,6 +28,15 @@
  *      (check-workflow-gh-auth class), and every deploy step is gated on the
  *      verdict — so the gating cannot be silently dropped in a refactor.
  *
+ * The deploy steps are matched by action NAME with any major version, never
+ * by a pinned major. An earlier revision asserted the literals
+ * `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` and
+ * `actions/deploy-pages@v4`, so run 38929822621 (PR #966, 2026-10-16) failed
+ * this lane when Dependabot bumped those majors (v5→v6, v3→v5, v4→v5) — a
+ * routine dependency update reported as a gating regression. The invariant
+ * this lane protects is the `if:` on each deploy step; the action's major is
+ * Dependabot's business.
+ *
  * Runs as `tsx --test` via `pnpm run test:pages-gating` (part of `pnpm test`)
  * and as a CI step in .github/workflows/ci.yml.
  */
@@ -214,27 +223,75 @@ test('deploy-docs.yml runs the probe with a per-run token in scope (#909 class)'
   assert.match(probeStep[0], /continue-on-error: true/);
 });
 
-test('every deploy step is gated on verdict=enabled', () => {
-  for (const action of [
-    'actions/configure-pages@v5',
-    'actions/upload-pages-artifact@v3',
-    'actions/deploy-pages@v4',
-  ]) {
+/** The official Pages actions whose steps must carry the gating `if:`. */
+const DEPLOY_ACTIONS = [
+  'actions/configure-pages',
+  'actions/upload-pages-artifact',
+  'actions/deploy-pages',
+] as const;
+
+/** The gating expression every deploy step must carry. */
+const GATING_IF = /if: steps\.pages-probe\.outputs\.verdict == 'enabled'/;
+
+const escapeRe = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Names of the deploy actions whose step is missing, or whose step carries no
+ * gating `if:`.
+ *
+ * The action's major version is deliberately NOT part of the match — see the
+ * run 38929822621 / PR #966 note in the header. Pure over the workflow text so
+ * the fixtures below can drive it: a matcher that silently matches nothing
+ * must fail a fixture, never read as green.
+ */
+function ungatedDeploySteps(workflow: string): string[] {
+  const offenders: string[] = [];
+  for (const action of DEPLOY_ACTIONS) {
     // A step block is "- name:" at 6-space indent through the next
     // 6-space-indent "- name:" (or EOF). `uses:` sits inside it.
-    const step = wf.match(
+    const step = workflow.match(
       new RegExp(
-        `^      - name: [^\\n]*\\n(?: {7,}\\S[^\\n]*\\n|\\s*\\n)*?^ {8}uses: ${action.replace(/[.@]/g, (c) => `\\${c}`)}$`,
+        `^      - name: [^\\n]*\\n(?: {7,}\\S[^\\n]*\\n|\\s*\\n)*?^ {8}uses: ${escapeRe(action)}@v\\d+(?:\\.\\d+)*$`,
         'm',
       ),
     );
-    assert.ok(step, `deploy-docs.yml must still use ${action}`);
-    assert.match(
-      step[0],
-      /if: steps\.pages-probe\.outputs\.verdict == 'enabled'/,
-      `${action} must be gated on the probe verdict — an ungated deploy step is exactly the always-red state of run 38768479350`,
-    );
+    if (!step || !GATING_IF.test(step[0])) offenders.push(action);
   }
+  return offenders;
+}
+
+test('every deploy step is gated on verdict=enabled', () => {
+  assert.deepEqual(
+    ungatedDeploySteps(wf),
+    [],
+    'an ungated (or missing) deploy step is exactly the always-red state of run 38768479350',
+  );
+});
+
+test('a bumped Pages action major does not fail this lane (run 38929822621, PR #966)', () => {
+  // The fixture models what Dependabot does to this workflow: it rewrites the
+  // three deploy actions' majors and touches nothing else.
+  const bumped = wf.replace(
+    /^( {8}uses: )(actions\/(?:configure-pages|upload-pages-artifact|deploy-pages))@v\d+(?:\.\d+)*$/gm,
+    '$1$2@v99',
+  );
+  assert.notEqual(bumped, wf, 'fixture must rewrite the deploy action versions');
+  assert.equal(
+    bumped.match(/@v99$/gm)?.length,
+    3,
+    'fixture must bump exactly the three deploy actions',
+  );
+  assert.deepEqual(ungatedDeploySteps(bumped), []);
+});
+
+test('the matcher is not vacuous: an ungated or renamed deploy step is still caught', () => {
+  const ungated = wf.replace(new RegExp(GATING_IF.source, 'g'), 'if: true');
+  assert.notEqual(ungated, wf, 'fixture must strip the gating if:');
+  assert.deepEqual(ungatedDeploySteps(ungated), [...DEPLOY_ACTIONS]);
+
+  const renamed = wf.replace('uses: actions/deploy-pages@', 'uses: actions/deploy-pages-v2@');
+  assert.notEqual(renamed, wf, 'fixture must rename the deploy-pages action');
+  assert.deepEqual(ungatedDeploySteps(renamed), ['actions/deploy-pages']);
 });
 
 test('fail-closed step: no verdict fails the job instead of skipping the deploy', () => {
