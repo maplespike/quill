@@ -20,7 +20,7 @@ SHALL NOT assume either state and SHALL NOT hard-code a disabled deploy.
 - **GIVEN** a private repository on a plan that does not include GitHub
   Pages, so `GET /pages` returns 404
 - **WHEN** the workflow runs the probe
-- **THEN** the probe SHALL emit `verdict=not-enabled` and exit 3
+- **THEN** the probe SHALL emit `verdict=not-enabled` and exit 0
 - **AND** the workflow SHALL skip ONLY the deploy steps, emit a warning
   annotation naming the reason and the enabling steps, and finish green
 - **AND** every build step (portal, docs) SHALL still have run

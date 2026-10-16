@@ -19,7 +19,7 @@
  * lane pins both halves of that contract:
  *
  *   1. The probe script's exit/output contract, executed for real against
- *      a stubbed `gh`: enabled (rc 0), not-enabled (rc 3, the live 404
+ *      a stubbed `gh`: enabled (rc 0), not-enabled (rc 0, the live 404
  *      stderr shape captured 2026-10-15: `gh: Not Found (HTTP 404)`), error
  *      (rc 1) — plus every fail-closed precondition (no token, no gh, no
  *      repo) and the crash case: a script that dies WITHOUT a verdict must
@@ -110,12 +110,15 @@ test('pages exists (gh rc 0) → exit 0, verdict=enabled, deploy-possible wordin
   assert.match(r.stdout, /deploy is possible/);
 });
 
-test('404 (the live free-plan shape) → exit 3, verdict=not-enabled', () => {
+test('404 (the live free-plan shape) → exit 0, verdict=not-enabled', () => {
   // Exact stderr captured from the real CLI on 2026-10-15:
   //   $ gh api repos/maplespike/quill/pages ; echo $?
   //   gh: Not Found (HTTP 404)
+  // Exit 0, not a distinct code: GitHub attaches an error annotation to any
+  // non-zero step exit (measured: run 38853460606 carried "exit code 3" as an
+  // X on an otherwise green run), so the expected state must exit clean.
   const r = runProbe({ ghExit: 1, ghStderr: 'gh: Not Found (HTTP 404)' });
-  assert.equal(r.status, 3);
+  assert.equal(r.status, 0);
   assert.match(r.emitted, /^verdict=not-enabled\n$/m);
   assert.match(r.stdout, /not enabled/);
 });
