@@ -37,7 +37,19 @@ jobs:
           # *.lan hosts are excluded: CI cannot resolve the private LAN.
           # localhost is excluded: dev-stack URLs are unreachable from CI by definition.
           # Frostbite-Gazette is a PRIVATE repo (404s anonymously). nixos.wiki 403s bots.
-          args: --verbose --no-progress --accept 200,206,401 --exclude 'gitlawb://' --exclude 'did:key:' --exclude '^https://github.com/maplespike/quill/(blob|tree)/' --exclude 'https://github.com/reverb256/Frostbite-Gazette' --exclude '^https?://localhost' --exclude 'https?://[a-zA-Z0-9.-]+\.lan(/|$)' --exclude 'https://nixos.wiki' --exclude-mail ./README.md ./docs ./packages/*/README.md ./llms.txt ./llms-full.txt
+          #
+          # `--exclude-mail` is deliberately NOT passed. Upstream lychee removed
+          # the flag in v0.19.0 (lycheeverse/lychee#1669, PR #1691) after
+          # deprecating it in 2023, and mail checking has been off by default
+          # since — so its removal changes nothing the gate checks. The action
+          # bundles a pinned lychee binary that moves with the tag
+          # (v2.0.2 -> v0.16.1, v2.9.0 -> v0.24.2), so on the older binary the
+          # flag was only a warning while on the newer one it is a hard error:
+          # run 38932597379 died with "unexpected argument '--exclude-mail'"
+          # (exit 2) before checking a single link, the moment the Dependabot
+          # actions bump (#966) moved the pin. scripts/test-readme-lint-flags.mts
+          # is the incident-rule lane that keeps a pin bump from re-arming it.
+          args: --verbose --no-progress --accept 200,206,401 --exclude 'gitlawb://' --exclude 'did:key:' --exclude '^https://github.com/maplespike/quill/(blob|tree)/' --exclude 'https://github.com/reverb256/Frostbite-Gazette' --exclude '^https?://localhost' --exclude 'https?://[a-zA-Z0-9.-]+\.lan(/|$)' --exclude 'https://nixos.wiki' ./README.md ./docs ./packages/*/README.md ./llms.txt ./llms-full.txt
           fail: true
 
       - name: "Lint markdown (markdownlint-cli2)"
