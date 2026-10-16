@@ -1,10 +1,25 @@
 import pino from 'pino';
+import { createRequire } from 'node:module';
 
 const LOG_LEVEL = process.env.QUILL_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
 
+function canResolvePinoPretty(): boolean {
+  try {
+    createRequire(import.meta.url).resolve('pino-pretty');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const USE_PRETTY_TRANSPORT =
+  process.env.NODE_ENV !== 'production' &&
+  process.env.NODE_ENV !== 'test' &&
+  canResolvePinoPretty();
+
 const logger = pino({
   level: LOG_LEVEL,
-  transport: process.env.NODE_ENV !== 'production'
+  transport: USE_PRETTY_TRANSPORT
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
   redact: ['req.headers.authorization', 'req.headers.cookie', 'apiKey', 'password'],

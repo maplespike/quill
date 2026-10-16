@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { localeUrl } from "@/utils/localeUrl";
 import { createI18n } from "@maplespike/i18n";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
 import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
@@ -243,11 +244,12 @@ const featureValues: Record<string, Bi[]> = {
                 <div class="w-full space-y-2">
                   <StripeCheckoutButton
                     planId="pro"
+                    lang={lang}
                     client:load
                     className="w-full"
                   />
                   <a
-                    href="/checkout?plan=pro"
+                    href={`${localeUrl('/checkout', lang)}?plan=pro`}
                     class="block text-center text-xs underline opacity-70 hover:opacity-100"
                   >
                     {t("or pay on this page", "ou payez sur cette page")}
@@ -258,11 +260,12 @@ const featureValues: Record<string, Bi[]> = {
                 <div class="w-full space-y-2">
                   <StripeCheckoutButton
                     planId="business"
+                    lang={lang}
                     client:load
                     className="w-full"
                   />
                   <a
-                    href="/checkout?plan=business"
+                    href={`${localeUrl('/checkout', lang)}?plan=business`}
                     class="block text-center text-xs underline opacity-70 hover:opacity-100"
                   >
                     {t("or pay on this page", "ou payez sur cette page")}

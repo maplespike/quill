@@ -18,7 +18,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">{t("Get in touch", "Communiquez avec nous")}</Badge>
+      <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/5 text-primary">{t("Get in touch", "Communiquez avec nous")}</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
         {i18n.t('contact.title')}
       </h1>
@@ -106,7 +106,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
                   "Tell us about your use case, data needs, or any questions...",
                   "Parlez-nous de votre cas d'usage, de vos besoins en données ou de vos questions...",
                 )}
-                class="min-h-[160px]"
+                className="min-h-[160px]"
                 required
               />
             </div>

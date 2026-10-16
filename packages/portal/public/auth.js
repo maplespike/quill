@@ -30,6 +30,8 @@
 
   function updateNav() {
     const auth = getAuth();
+    const french = document.documentElement.lang.startsWith('fr');
+    const localePath = (path) => french ? '/fr' + path : path;
     const navAuth = document.getElementById("nav-auth-container");
     if (!navAuth) return;
 
@@ -54,21 +56,21 @@
           <div id="nav-account-dropdown"
             class="absolute right-0 top-11 hidden w-56 rounded-xl border border-border/60 bg-card/95 p-2 backdrop-blur-xl shadow-xl z-50">
             <div class="px-3 py-2 border-b border-border/40 mb-1">
-              <div class="text-xs text-muted-foreground">Signed in via</div>
+              <div class="text-xs text-muted-foreground">${french ? 'Connexion par' : 'Signed in via'}</div>
               <div class="text-sm font-medium capitalize">${auth.method || "API key"}</div>
             </div>
-            <a href="/dashboard" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground transition-colors">
+            <a href="${localePath('/dashboard')}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-              Dashboard
+              ${french ? 'Tableau de bord' : 'Dashboard'}
             </a>
-            <a href="/dashboard#keys" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground transition-colors">
+            <a href="${localePath('/dashboard')}#keys" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-              API Keys
+              ${french ? 'Clés API' : 'API Keys'}
             </a>
             <button id="nav-logout-btn"
               class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-              Sign out
+              ${french ? 'Déconnexion' : 'Sign out'}
             </button>
           </div>
         </div>
@@ -93,9 +95,9 @@
       }
     } else {
       navAuth.innerHTML = `
-        <a href="/signup"
-          class="btn-sheen inline-flex h-9 items-center rounded-full px-5 text-sm font-medium text-primary-foreground transition-colors">
-          Sign in
+        <a href="${localePath('/signup')}"
+          class="nav-signin inline-flex items-center px-2 text-sm font-medium transition-colors">
+          ${french ? 'Connexion' : 'Sign in'}
         </a>
       `;
     }

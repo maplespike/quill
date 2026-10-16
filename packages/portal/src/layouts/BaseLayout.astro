@@ -3,7 +3,8 @@ import "@/styles/globals.css";
 import "@/styles/themes/ink-and-paper.css";
 import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
-import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import "@/styles/editorial.css";
 import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
 import statsData from "@/data/stats.json";
 import {
@@ -20,14 +21,12 @@ export interface Props {
   lang?: "en" | "fr";
 }
 
-// 2026-07-06: harmonization baseline — default description now matches the
-// Landing.tsx brand voice. Pages that pass `:title=...` but rely on the
-// default `description` get a brand-aligned meta description automatically.
+// Keep product metadata aligned with the source and licence disclosures.
 const {
   title,
   // Module/tool counts come from src/data/stats.json (single source — see
   // scripts/generate-plans.mjs). Never hardcode them in descriptions.
-  description = `MapleSpike: open-source self-sovereign infrastructure for Canada's public record. ${statsData.modules} modules · ${statsData.tools} MCP tools. Forkable. Reproducible end to end.`,
+  description = `Quill connects Canadian public-sector sources to research and AI tools. ${statsData.modules} data modules · ${statsData.tools} MCP tools. Coverage and source terms vary.`,
   ogImage = '/og-image.png',
   lang = "en",
 } = Astro.props;
@@ -66,21 +65,8 @@ const descriptionResolved = lang === 'fr'
   ? `Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes — comités, lobbyisme, décisions judiciaires, règlements, et plus. ${statsData.tools}+ outils MCP, offre gratuite disponible.`
   : description;
 
-const navLinks = [
-  { href: "/", key: "nav.home" as const, match: "/" },
-  { href: "/explorer", key: "nav.explorer" as const, match: "/explorer" },
-  { href: "/agents", key: "nav.agents" as const, match: "/agents" },
-  { href: "/dashboard", key: "nav.dashboard" as const, match: "/dashboard" },
-  { href: "/pricing", key: "nav.pricing" as const, match: "/pricing" },
-  { href: "/docs", key: "nav.docs" as const, match: "/docs" },
-];
-
-// ── Product-surface theme (GH#918) ──────────────────────────────────────────
-// Ink-and-paper is the product-surface default (decision j_kro 2026-09-23).
-// cleanPath is already language-normalised (/fr/docs -> /docs), so the /fr
-// mirrors of every product route pick the theme up for free. Prefix matching
-// covers nested routes under a product root (e.g. /checkout/return,
-// /dashboard/billing, /fr/checkout/return).
+// The theme is shared by every route. Product routes also get the research
+// tool rail and denser content rhythm. Match nested and French routes too.
 const PRODUCT_SURFACES = [
   "/docs",
   "/explorer",
@@ -96,28 +82,21 @@ const PRODUCT_SURFACES = [
   "/workspace",
   "/signup",
   "/checkout",
+  "/claims",
 ] as const;
 
 const isProductSurface = PRODUCT_SURFACES.some(
   (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`),
 );
 
-const isActive = (match: string) =>
-  match === "/" ? cleanPath === "/" || cleanPath === "" : cleanPath.startsWith(match);
 ---
 
 <!DOCTYPE html>
-<html
-  lang={lang}
-  data-theme={isProductSurface ? "ink-and-paper" : "dark"}
-  class:list={[
-    isProductSurface ? "theme-ink-and-paper" : "dark",
-  ]}
->
+<html lang={lang} data-theme="ink-and-paper" class="theme-ink-and-paper">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | MapleSpike</title>
+    <title>{title} | Quill</title>
     <meta name="description" content={descriptionResolved} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" href={canonicalEn} hreflang="en-CA" />
@@ -136,77 +115,12 @@ const isActive = (match: string) =>
     <meta name="twitter:image" content={`${base}${ogImageUrl}`} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta
-      name="theme-color"
-      content={isProductSurface ? "#f4f2ec" : "#0A0A0F"}
-      media={isProductSurface ? "(prefers-color-scheme: light)" : "(prefers-color-scheme: dark)"}
-    />
-    {!isProductSurface && (
-      <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
-    )}
+    <meta name="theme-color" content="#f4f2ec" />
+    <link rel="preload" href="/fonts/source-sans-3.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin />
     <ClientRouter />
-    <style is:global>
-      html { view-transition-name: none; }
-      ::view-transition-old(root) { animation: 100ms ease-out both fadeOut; }
-      ::view-transition-new(root) { animation: 100ms ease-out both fadeIn; }
-      @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-      @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
-
-      /* Navbar scroll shrink */
-      header.header-scrolled .header-inner {
-        height: 3.25rem;
-      }
-      header.header-scrolled .header-inner img {
-        height: 1.75rem;
-        width: 1.75rem;
-      }
-      header.header-scrolled .header-inner .text-lg {
-        font-size: 0.95rem;
-      }
-      /* Pill nav hides on scroll — pure CSS driven by header-scrolled class */
-      header.header-scrolled .nav-pills {
-        opacity: 0;
-        transform: translateY(-0.5rem);
-        pointer-events: none;
-      }
-    </style>
-    {
-      /* Brand surfaces load Inter/JetBrains Mono from Google Fonts; product
-         surfaces self-host Newsreader/Source Sans 3/IBM Plex Mono (GH#918:
-         no Google Fonts request from a sovereign product). */
-      !isProductSurface && (
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-            rel="stylesheet"
-          />
-        </>
-      )
-    }
-    <script is:inline>
-      (function () {
-        // Product surfaces (GH#918) are ink-and-paper by default — a fixed
-        // light scheme. The stored dark/light preference only governs brand
-        // surfaces, so leave those untouched here.
-        if (document.documentElement.classList.contains("theme-ink-and-paper")) {
-          return;
-        }
-        var theme = localStorage.getItem("maplespike-theme") || localStorage.getItem("data-theme") || "dark";
-        document.documentElement.setAttribute("data-theme", theme);
-        if (theme === "dark") document.documentElement.classList.add("dark");
-        else document.documentElement.classList.remove("dark");
-      })();
-      // Client-side language redirect — ONLY on bare root `/`
-      (function() {
-        var path = window.location.pathname.replace(/\/$/, '');
-        if (path === '') {
-          var stored = localStorage.getItem('maplespike_lang') || navigator.language || 'en';
-          var lang = stored.startsWith('fr') ? 'fr' : 'en';
-          window.location.href = '/' + lang;
-        }
-      })();
+    <script is:inline define:vars={{ lang }}>
+      window.__LANG = lang;
     </script>
     <!-- Plausible Analytics — privacy-first, no cookies, no cross-site tracking -->
     <script defer is:inline data-domain="quill.maplespike.ca" src="https://plausible.io/js/script.js"></script>
@@ -230,165 +144,13 @@ const isActive = (match: string) =>
        React island renders content sections only — no internal TopBar/SiteFooter. -->
   <body class="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-maple/30">
 
-    <!-- Navigation -->
-    <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 transition-all duration-300 ease-out">
-      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 ease-out header-inner">
-        <!-- Logo -->
-        <a href={localeUrl('/', lang)} class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-          <img
-            src="/assets/maplespike_logo.svg"
-            alt="MapleSpike"
-            class="h-8 w-8 rounded-lg"
-          />
-          <span class="text-lg font-bold tracking-tight">MapleSpike</span>
-        </a>
-
-        <!-- Desktop nav — vanishes on scroll -->
-        <nav class="hidden items-center md:flex">
-          <div class="flex items-center rounded-full border border-border/60 bg-card/30 p-0.5 backdrop-blur-sm transition-all duration-300 ease-out nav-pills">
-            {
-              navLinks.map((link) => (
-                <a
-                  href={localeUrl(link.href, lang)}
-                  aria-current={isActive(link.match) ? "page" : undefined}
-                  class:list={[
-                    "relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ease-out",
-                    isActive(link.match)
-                      ? "bg-[var(--maple)] text-white shadow-sm shadow-maple/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
-                  ]}
-                >
-                  {i18n.t(link.key)}
-                </a>
-              ))
-            }
-          </div>
-        </nav>
-
-        <!-- Right actions -->
-        <div class="flex items-center gap-2">
-          <LanguageSwitcher currentLang={lang} currentPath={pathname} />
-          <button
-            id="theme-toggle"
-            class:list={[
-              "press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground",
-              { hidden: isProductSurface },
-            ]}
-            aria-label="Toggle theme"
-            {...(isProductSurface ? { inert: true } : {})}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="dark:hidden"
-            ><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="hidden dark:block"
-            ><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
-          </button>
-          <a
-            href={localeUrl('/signup', lang)}
-            class="btn-sheen press-feedback hidden h-9 items-center rounded-full px-5 text-sm font-medium text-primary-foreground transition-colors duration-200 ease-out sm:inline-flex"
-          >{i18n.t('nav.signup')}</a
-          >
-          <!-- Auth-aware container — populated by auth.js -->
-          <div id="nav-auth-container" class="flex items-center"></div>
-          <!-- Mobile menu button -->
-          <button
-            id="mobile-menu-toggle"
-            class="press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground md:hidden"
-            aria-label={i18n.t('common.more')}
-            aria-expanded="false"
-          >
-            <svg
-              id="menu-icon-open"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
-            <svg
-              id="menu-icon-close"
-              class="hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mobile nav drawer -->
-      <div
-        id="mobile-nav"
-        class="hidden border-t border-border/40 bg-background/95 backdrop-blur-xl md:hidden"
-      >
-        <nav class="mx-auto max-w-7xl px-4 py-4 sm:px-6">
-          <div class="flex flex-col gap-1">
-            {
-              navLinks.map((link) => (
-                <a
-                  href={localeUrl(link.href, lang)}
-                  aria-current={isActive(link.match) ? "page" : undefined}
-                  class:list={[
-                    "rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-                    isActive(link.match)
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
-                  ]}
-                >
-                  {i18n.t(link.key)}
-                </a>
-              ))
-            }
-            <div class="mt-2 flex items-center gap-2 border-t border-border/40 pt-2">
-              <LanguageSwitcher currentLang={lang} currentPath={pathname} />
-              <span class="text-xs text-muted-foreground">{i18n.t('lang.switch')}</span>
-            </div>
-          </div>
-          <a
-            href={localeUrl('/signup', lang)}
-            class="btn-sheen press-feedback mt-3 flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 ease-out"
-          >{i18n.t('nav.signup')}</a
-          >
-        </nav>
-      </div>
-    </header>
-
-    <!-- Page Content -->
-    <main>
+    <SiteHeader lang={lang} cleanPath={cleanPath} pathname={pathname} product={isProductSurface} />
+    <main id="main-content" tabindex="-1" data-surface={isProductSurface ? "product" : "editorial"} data-route={cleanPath}>
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-border/40 bg-card/20 py-12 md:py-16">
+    <footer class="site-footer border-t border-border/40 bg-card/20 py-12 md:py-16">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 gap-8 sm:gap-10 md:grid-cols-6">
           <div class="col-span-2 md:col-span-2">
@@ -398,7 +160,7 @@ const isActive = (match: string) =>
                 alt="MapleSpike"
                 class="h-8 w-8 rounded-lg"
               />
-              <span class="text-lg font-bold tracking-tight">MapleSpike</span>
+              <span class="footer-wordmark">Quill<span class="wordmark-byline">{lang === 'fr' ? 'par MapleSpike' : 'by MapleSpike'}</span></span>
             </a>
             <p class="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {i18n.t('footer.tagline')}
@@ -485,65 +247,10 @@ const isActive = (match: string) =>
       </div>
     </footer>
 
-    <script is:inline>
-      // Mobile menu toggle — re-binds on every ClientRouter navigation.
-      // astro:page-load fires on initial load AND after SPA transitions.
-      (function () {
-        function setupMobileMenu() {
-          var toggle = document.getElementById("mobile-menu-toggle");
-          var nav = document.getElementById("mobile-nav");
-          var iconOpen = document.getElementById("menu-icon-open");
-          var iconClose = document.getElementById("menu-icon-close");
-          if (!toggle || !nav) return;
-          // Dedup: astro:page-load fires on initial load AND every SPA
-          // navigation. Without a marker, each navigation stacks another
-          // listener on the same button — one click then toggles `hidden`
-          // twice, a visible no-op (the "hamburger doesn't work" bug).
-          if (toggle.dataset.menuBound) return;
-          toggle.dataset.menuBound = "1";
-          toggle.addEventListener("click", function () {
-            var isHidden = nav.classList.contains("hidden");
-            nav.classList.toggle("hidden");
-            toggle.setAttribute("aria-expanded", String(isHidden));
-            if (iconOpen && iconClose) {
-              iconOpen.classList.toggle("hidden", isHidden);
-              iconClose.classList.toggle("hidden", !isHidden);
-            }
-          });
-        }
-        document.addEventListener("astro:page-load", setupMobileMenu);
-      })();
-      // Scroll shrink is handled by nav-scroll.js (loaded below) via
-      // navScroll.start({ selector: 'header.sticky', className: 'header-scrolled' }).
-    </script>
-
     <!-- Runtime config (sets window.MAPLESPIKE before any island runs) -->
     <script src={`/config.js?v=${assetVersion}`} is:inline></script>
     <!-- Load auth state manager (runs before React hydration) -->
     <script src={`/auth.js?v=${assetVersion}`} is:inline></script>
-    <!-- Shared scroll-shrink utility (DRY with static landing page) -->
-    <script src={`/nav-scroll.js?v=${assetVersion}`} is:inline></script>
-    <script is:inline>
-      // Wire nav-scroll.js into Astro ClientRouter lifecycle
-      (function () {
-        function startScroll() {
-          if (window.navScroll) {
-            window.navScroll.start({
-              selector: 'header.sticky',
-              threshold: 40,
-              className: 'header-scrolled'
-            });
-          }
-        }
-        startScroll();
-        document.addEventListener("astro:page-load", startScroll);
-      })();
-    </script>
-    <script is:inline>
-      // Expose current language for client-side React components
-      window.__LANG = "{lang}";
-    </script>
-
     <!-- Load script.js for pages that need it -->
     <script src={`/script.js?v=${assetVersion}`} is:inline></script>
     <!-- WebMCP — register structured tools for AI agents -->

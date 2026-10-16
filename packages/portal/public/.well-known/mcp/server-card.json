@@ -24,7 +24,7 @@
       "auth": "Authorization: Bearer <api key> — keys are issued at https://quill.maplespike.ca/signup",
       "toolCount": 184,
       "moduleCount": 207,
-      "countsAsOf": "2026-10-12",
+      "countsAsOf": "2026-10-14",
       "documents": {
         "llms": "https://quill.maplespike.ca/llms.txt",
         "agentsIndex": "https://quill.maplespike.ca/agents.json",

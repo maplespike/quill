@@ -32,7 +32,7 @@ describe("createEmbeddedSession", () => {
   const okJson = { success: true, data: { client_secret: "cs_live_secret_123" } };
 
   test("posts embedded:true with the tenant bearer key and returns the secret", async () => {
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify(okJson), { status: 200 }));
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(okJson), { status: 200 }));
     const r = await createEmbeddedSession({
       apiBase: "https://api.maplespike.ca",
       apiKey: "qk_tenant",
@@ -40,16 +40,17 @@ describe("createEmbeddedSession", () => {
       fetchImpl: fetchImpl as unknown as typeof fetch,
     });
     expect(r).toEqual({ ok: true, clientSecret: "cs_live_secret_123" });
-    const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(init).toBeDefined();
     expect(url).toBe("https://api.maplespike.ca/v1/billing/stripe/checkout");
-    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer qk_tenant");
-    expect(JSON.parse(init.body as string)).toEqual({ plan_id: "pro", embedded: true });
+    expect((init!.headers as Record<string, string>).Authorization).toBe("Bearer qk_tenant");
+    expect(JSON.parse(init!.body as string)).toEqual({ plan_id: "pro", embedded: true });
   });
 
   test("strips a trailing slash so the path is not doubled", async () => {
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify(okJson), { status: 200 }));
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(okJson), { status: 200 }));
     await createEmbeddedSession({ apiBase: "https://api.maplespike.ca/", apiKey: "k", planId: "pro", fetchImpl: fetchImpl as unknown as typeof fetch });
-    expect((fetchImpl.mock.calls[0] as [string])[0]).toBe("https://api.maplespike.ca/v1/billing/stripe/checkout");
+    expect(fetchImpl.mock.calls[0][0]).toBe("https://api.maplespike.ca/v1/billing/stripe/checkout");
   });
 
   test("surfaces the api error message when billing is not configured", async () => {

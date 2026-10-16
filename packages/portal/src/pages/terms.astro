@@ -26,9 +26,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <div class="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">1. {t("Acceptance of Terms", "Acceptation des conditions")}</CardTitle>
+          <CardTitle className="text-lg">1. {t("Acceptance of Terms", "Acceptation des conditions")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "By accessing or using MapleSpike's API, web portal, MCP tools, or SDKs (\"the Service\"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.",
             "En accédant ou en utilisant l'API, le portail Web, les outils MCP ou les SDK de MapleSpike (« le Service »), vous acceptez d'être lié par les présentes conditions d'utilisation. Si vous n'êtes pas d'accord, n'utilisez pas le Service.",
@@ -38,9 +38,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">2. {t("Description of Service", "Description du service")}</CardTitle>
+          <CardTitle className="text-lg">2. {t("Description of Service", "Description du service")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "MapleSpike provides a unified API for Canadian government data, including but not limited to: parliamentary committees, lobbying registries, procurement records, regulatory filings, court decisions, and statistical data. The Service includes REST API access, MCP server integration for AI agents, TypeScript and Python SDKs, and a web-based data explorer.",
             "MapleSpike offre une API unifiée pour les données gouvernementales canadiennes, notamment : comités parlementaires, registres de lobbying, dossiers d'approvisionnement, dépôts réglementaires, décisions judiciaires et données statistiques. Le Service comprend l'accès à l'API REST, l'intégration du serveur MCP pour les agents IA, des SDK TypeScript et Python ainsi qu'un explorateur de données Web.",
@@ -58,9 +58,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">3. {t("Acceptable Use", "Utilisation acceptable")}</CardTitle>
+          <CardTitle className="text-lg">3. {t("Acceptable Use", "Utilisation acceptable")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t("You agree NOT to:", "Vous acceptez de NE PAS :")}</p>
           <ul class="list-disc pl-5 space-y-1.5">
             <li>{t("Use the Service to violate any Canadian law or regulation", "Utiliser le Service pour enfreindre une loi ou un règlement canadien")}</li>
@@ -78,9 +78,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">4. {t("Plans, Billing & Refunds", "Forfaits, facturation et remboursements")}</CardTitle>
+          <CardTitle className="text-lg">4. {t("Plans, Billing & Refunds", "Forfaits, facturation et remboursements")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Free tier includes 1,000 API calls per month with no credit card required. Paid plans — Pro ($50 CAD/month) and Business ($200 CAD/month) — unlock higher rate limits and additional features as described on our",
             "Le palier gratuit inclut 1 000 appels API par mois sans carte de crédit requise. Les forfaits payants — Pro (50 $ CA/mois) et Affaires (200 $ CA/mois) — débloquent des limites de débit supérieures et des fonctionnalités supplémentaires, comme décrit sur notre",
@@ -123,9 +123,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">5. {t("Citation & Attribution", "Citation et attribution")}</CardTitle>
+          <CardTitle className="text-lg">5. {t("Citation & Attribution", "Citation et attribution")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Responses may include provenance fields such as the source name, source URL, SHA-256 hash, and publisher-provided license metadata when available. Check the original publisher's terms for any attribution duties that apply to your use; Quill's citation is not a legal review or a substitute for those terms.",
             "Les réponses peuvent inclure des champs de provenance comme le nom de la source, son URL, un hachage SHA-256 et les métadonnées de licence fournies par l'éditeur, si elles sont disponibles. Consultez les conditions de l'éditeur d'origine pour connaître les obligations d'attribution qui s'appliquent à votre utilisation; la citation de Quill n'est ni une vérification juridique ni un substitut à ces conditions.",
@@ -136,9 +136,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">6. {t("Data Accuracy Disclaimer", "Avis de non-responsabilité sur l'exactitude des données")}</CardTitle>
+          <CardTitle className="text-lg">6. {t("Data Accuracy Disclaimer", "Avis de non-responsabilité sur l'exactitude des données")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Where provided, SHA-256 hashes and quality metadata can help assess data integrity and freshness. Response fields vary by endpoint and source. We do not guarantee the accuracy, completeness, or timeliness of source data.",
             "Lorsqu'ils sont fournis, les hachages SHA-256 et les métadonnées de qualité peuvent aider à évaluer l'intégrité et la fraîcheur des données. Les champs de réponse varient selon le point de terminaison et la source. Nous ne garantissons pas l'exactitude, l'exhaustivité ou l'actualité des données sources.",
@@ -152,9 +152,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">7. {t("Limitation of Liability", "Limitation de responsabilité")}</CardTitle>
+          <CardTitle className="text-lg">7. {t("Limitation of Liability", "Limitation de responsabilité")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "MapleSpike is provided \"as is\" without warranty of any kind. We are not liable for indirect, incidental, or consequential damages arising from the use of the Service, including but not limited to decisions made based on data served by the API.",
             "MapleSpike est fourni « tel quel », sans garantie d'aucune sorte. Nous ne sommes pas responsables des dommages indirects, accessoires ou consécutifs découlant de l'utilisation du Service, y compris, sans s'y limiter, les décisions prises en fonction des données servies par l'API.",
@@ -168,9 +168,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">8. {t("Changes to Terms", "Modifications des conditions")}</CardTitle>
+          <CardTitle className="text-lg">8. {t("Changes to Terms", "Modifications des conditions")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "We may update these Terms from time to time. Material changes will be announced via the",
             "Nous pouvons mettre à jour ces conditions de temps à autre. Les changements importants seront annoncés via le",
@@ -183,9 +183,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">9. {t("Contact", "Contact")}</CardTitle>
+          <CardTitle className="text-lg">9. {t("Contact", "Contact")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Questions about these Terms? Email",
             "Des questions sur ces conditions ? Écrivez à",

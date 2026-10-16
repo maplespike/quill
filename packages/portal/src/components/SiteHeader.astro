@@ -1,0 +1,82 @@
+---
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import { localeUrl } from "@/utils/localeUrl";
+interface Props { lang: "en" | "fr"; cleanPath: string; pathname: string; product: boolean }
+const { lang, cleanPath, pathname, product } = Astro.props;
+const t = (en: string, fr: string) => lang === "fr" ? fr : en;
+const links = [
+  { href: "/explorer", label: t("Explore", "Explorer") },
+  { href: "/agents", label: t("For AI agents", "Pour les agents IA") },
+  { href: "/docs", label: t("Documentation", "Documentation") },
+  { href: "/pricing", label: t("Pricing", "Tarifs") },
+];
+const tools = [
+  { href: "/explorer", label: t("Data explorer", "Explorateur"), icon: "⌕" },
+  { href: "/ask", label: t("Ask Quill", "Demander à Quill"), icon: "↗" },
+  { href: "/workspace", label: t("Workspace", "Espace de travail"), icon: "▤" },
+  { href: "/signal", label: t("Signals", "Signaux"), icon: "⌁" },
+  { href: "/watcher", label: t("Watchers", "Veille"), icon: "◉" },
+  { href: "/verify", label: t("Verify a record", "Vérifier un dossier"), icon: "✓" },
+  { href: "/api-explorer", label: "API", icon: "{ }" },
+  { href: "/dashboard", label: t("Dashboard", "Tableau de bord"), icon: "▦" },
+];
+const active = (href: string) => cleanPath === href || cleanPath.startsWith(href + "/");
+---
+<a class="skip-link" href="#main-content">{t("Skip to content", "Aller au contenu")}</a>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href={localeUrl('/', lang)} class="quill-wordmark" aria-label={t("Quill home", "Accueil Quill")}>
+      <span class="quill-mark" aria-hidden="true">q<span>·</span></span>
+      <span>Quill<span class="wordmark-byline">{t("by MapleSpike", "par MapleSpike")}</span></span>
+    </a>
+    <nav class="primary-nav" aria-label={t("Main navigation", "Navigation principale")}>
+      {links.map(link => <a href={localeUrl(link.href, lang)} aria-current={active(link.href) ? "page" : undefined}>{link.label}</a>)}
+    </nav>
+    <div class="header-actions">
+      <LanguageSwitcher currentLang={lang} currentPath={pathname} />
+      <a href={localeUrl('/signup', lang)} class="quill-button header-signup">{t("Get API key", "Obtenir une clé API")} <span aria-hidden="true">↗</span></a>
+      <div id="nav-auth-container" class="flex items-center"></div>
+      <button id="mobile-menu-toggle" type="button" class="menu-toggle" aria-controls="mobile-nav" aria-expanded="false" aria-label={t("Open navigation", "Ouvrir la navigation")} data-open-label={t("Open navigation", "Ouvrir la navigation")} data-close-label={t("Close navigation", "Fermer la navigation")}><span aria-hidden="true">☰</span></button>
+    </div>
+  </div>
+  <nav id="mobile-nav" class="mobile-navigation" hidden aria-label={t("Mobile navigation", "Navigation mobile")}>
+    {links.map(link => <a href={localeUrl(link.href, lang)} aria-current={active(link.href) ? "page" : undefined}>{link.label}<span aria-hidden="true">↗</span></a>)}
+    <a href={localeUrl('/signup', lang)}>{t("Get your API key", "Obtenir votre clé API")}<span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+{product && <nav class="tool-navigation" aria-label={t("Research tools", "Outils de recherche")}>
+  <div class="tool-navigation-inner"><span class="tool-nav-label">{t("RESEARCH DESK", "BUREAU DE RECHERCHE")}</span>
+    <div class="tool-links">{tools.map(tool => <a href={localeUrl(tool.href, lang)} aria-current={active(tool.href) ? "page" : undefined}><span aria-hidden="true">{tool.icon}</span>{tool.label}</a>)}</div>
+  </div>
+</nav>}
+<script>
+  function setupNavigation() {
+    const toggle = document.querySelector<HTMLButtonElement>('#mobile-menu-toggle');
+    const nav = document.querySelector<HTMLElement>('#mobile-nav');
+    if (!toggle || !nav || toggle.dataset.menuBound) return;
+    toggle.dataset.menuBound = 'true';
+    const setOpen = (open: boolean) => {
+      nav.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', (open ? toggle.dataset.closeLabel : toggle.dataset.openLabel) || 'Navigation');
+      const icon = toggle.querySelector('span');
+      if (icon) icon.textContent = open ? '×' : '☰';
+    };
+    toggle.addEventListener('click', () => setOpen(nav.hasAttribute('hidden')));
+    nav.addEventListener('click', event => {
+      if ((event.target as Element).closest('a')) setOpen(false);
+    });
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !nav.hidden) { setOpen(false); toggle.focus(); }
+    };
+    document.addEventListener('keydown', dismiss);
+    document.addEventListener('astro:before-swap', () => document.removeEventListener('keydown', dismiss), { once: true });
+    const wide = matchMedia('(min-width: 1100px)');
+    const resize = () => { if (wide.matches) setOpen(false); };
+    wide.addEventListener('change', resize);
+    document.addEventListener('astro:before-swap', () => wide.removeEventListener('change', resize), { once: true });
+  }
+  setupNavigation();
+  document.addEventListener('astro:page-load', setupNavigation);
+</script>
+<noscript><nav class="no-js-navigation page-width" aria-label={t('Navigation without JavaScript', 'Navigation sans JavaScript')}>{links.map(link => <a href={localeUrl(link.href, lang)}>{link.label}</a>)}<a href={localeUrl('/signup', lang)}>{t('Get API key', 'Obtenir une clé API')}</a></nav></noscript>

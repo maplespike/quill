@@ -1,476 +1,240 @@
 ---
-version: alpha
+version: public-record-1
 name: Quill
-description: Sovereign MCP server + REST API for Canada's public record — 198 modules, 166 tools (incl. `x402-deposit`), dark-theme React + Tailwind dashboard
+updated: 2026-10-16
+description: Canadian public-sector sources for research and AI tools.
 colors:
-  background: "#090909"
-  foreground: "#fafafa"
-  card: "#111111"
-  popover: "#111111"
-  muted: "#1a1a1a"
-  muted-foreground: "#a3a3a3"
-  primary: "#e84545"
-  secondary: "#06b6d4"
-  tertiary: "#22c55e"
-  accent: "#6b1d1d"
-  destructive: "#8f2020"
-  border: "#262626"
-  input: "#292929"
-  ring: "#06b6d4"
-  chart-1: "#3b82f6"
-  chart-2: "#3bcc9a"
-  chart-3: "#e8923b"
-  chart-4: "#b366d9"
-  chart-5: "#e84d8c"
+  background: "#f4f2ec"
+  foreground: "#161614"
+  card: "#fbfaf6"
+  paper-deep: "#e7e3d8"
+  muted: "#ece8de"
+  muted-foreground: "#534f46"
+  primary: "#161614"
+  primary-foreground: "#f4f2ec"
+  border: "#ddd8cc"
+  input: "#cfc8b8"
+  editorial-red: "#a63029"
+  on-ink: "#f6f4ef"
+  on-ink-muted: "#b9b5aa"
+  on-ink-line: "#3a3a34"
 typography:
-  h1:
-    fontFamily: Inter
-    fontSize: 1.5rem
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: -0.02em
-  h2:
-    fontFamily: Inter
-    fontSize: 1rem
-    fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: -0.01em
-  body:
-    fontFamily: Inter
-    fontSize: 0.85rem
-    lineHeight: 1.5
-  body-small:
-    fontFamily: Inter
-    fontSize: 0.78rem
-    lineHeight: 1.4
-  code:
-    fontFamily: JetBrains Mono
-    fontSize: 0.85rem
-    lineHeight: 1.4
-  nav:
-    fontFamily: JetBrains Mono
-    fontSize: 0.82rem
-    letterSpacing: 0.02em
-    fontWeight: 500
-  stat-value:
-    fontFamily: Inter
-    fontSize: 1.5rem
-    fontWeight: 700
-    fontVariant: tabular-nums
-  stat-label:
-    fontFamily: Inter
-    fontSize: 0.78rem
-    fontWeight: 500
-rounded:
-  none: 0px
-  sm: 4px
-  md: 8px
-  lg: 12px
-  full: 9999px
-spacing:
-  xs: 4px
-  sm: 8px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  xxl: 48px
+  display: Newsreader
+  text: Source Sans 3
+  data: IBM Plex Mono
+layout:
+  max-width: 1280px
+  gutter: "clamp(20px, 4vw, 64px)"
+  header-desktop: 88px
+  header-mobile: 76px
+  navigation-breakpoint: 1100px
+  mobile-breakpoint: 768px
 motion:
-  instant: 0ms
-  fast: 100ms
-  normal: 200ms
-  slow: 300ms
-  shimmer-duration: 1500ms
-  ease-out: "cubic-bezier(0.23, 1, 0.32, 1)"
-  ease-in-out: "cubic-bezier(0.77, 0, 0.175, 1)"
-  ease-drawer: "cubic-bezier(0.32, 0.72, 0, 1)"
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "#ffffff"
-    rounded: "{rounded.md}"
-    padding: 12px 24px
-    fontWeight: 600
-    fontSize: 0.9rem
-    transition: "opacity {motion.normal} {motion.ease-out}"
-  button-primary-hover:
-    opacity: 0.85
-  button-primary-active:
-    opacity: 0.7
-    transform: "scale(0.97)"
-  button-secondary:
-    backgroundColor: transparent
-    textColor: "{colors.primary}"
-    rounded: "{rounded.md}"
-    padding: 6px 14px
-    border: "1px solid {colors.primary}"
-    fontSize: 0.78rem
-    transition: "background-color {motion.normal} {motion.ease-out}"
-  button-secondary-hover:
-    backgroundColor: "rgba(232,69,69,0.08)"
-  card:
-    backgroundColor: "{colors.surface}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.lg}"
-    padding: 24px
-    transition: "border-color {motion.normal} {motion.ease-out}, box-shadow {motion.normal} {motion.ease-out}"
-  card-hover:
-    border-color: "#2d4a6a"
-    boxShadow: "0 0 0 1px rgba(6,182,212,0.1)"
-  card-entrance:
-    animation: "fadeIn {motion.slow} {motion.ease-out}, slideUp {motion.slow} {motion.ease-out}"
-  input:
-    backgroundColor: "{colors.surface-elevated}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.md}"
-    padding: 12px 16px
-    textColor: "{colors.text-primary}"
-    fontSize: 0.9rem
-    transition: "border-color {motion.normal} {motion.ease-out}"
-  input-focus:
-    border-color: "{colors.secondary}"
-    outline: "none"
-    boxShadow: "0 0 0 3px rgba(6,182,212,0.15)"
-  nav-link:
-    textColor: "{colors.text-secondary}"
-    fontSize: 0.82rem
-    letterSpacing: 0.02em
-    transition: "color {motion.normal} {motion.ease-out}"
-  nav-link-hover:
-    textColor: "{colors.text-primary}"
-  badge:
-    backgroundColor: "{colors.surface-elevated}"
-    textColor: "{colors.text-secondary}"
-    rounded: "{rounded.full}"
-    padding: 2px 10px
-    fontSize: 0.72rem
-    fontWeight: 600
-    fontFamily: JetBrains Mono
-  stat-card:
-    backgroundColor: "{colors.surface}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.lg}"
-    padding: 20px
-    transition: "border-color {motion.normal} {motion.ease-out}, box-shadow {motion.normal} {motion.ease-out}"
-  stat-card-hover:
-    border-color: "#2d4a6a"
-    boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
-  stat-card-entrance:
-    animation: "slideUp {motion.slow} {motion.ease-out}"
-  shimmer:
-    background: "linear-gradient(90deg, {colors.surface} 25%, {colors.surface-elevated} 50%, {colors.surface} 75%)"
-    backgroundSize: "200% 100%"
-    animation: "shimmer {motion.shimmer-duration} infinite"
+  duration: 150ms
+  ease: "cubic-bezier(0.22, 1, 0.36, 1)"
 ---
 
-## Overview
+# Quill design system — Public Record
 
-**Quill** is the first product shipped under the MapleSpike brand — an MCP server + REST API exposing 166 tools across 198 modules of Canada's public record. Parliamentary debates, federal open data, regulatory filings, corporate lobbying records, provincial datasets, and CanLII case law — all queryable through a single endpoint. The product page at `quill.maplespike.ca` and the in-app dashboard share this design system.
+## Direction
 
-> **Note (2026-07):** This repo was renamed `reverb256/maplespike` → `maplespike/quill`. Brand-level identifiers — domain `maplespike.ca`, npm scope `@maplespike/*` — are preserved. See [CHANGELOG.md](./CHANGELOG.md) for the rename entry.
+Quill is a research instrument, not a generic AI landing page. Its interface must feel clear, precise, and human. Use an editorial composition: warm paper, strong ink typography, fine rules, generous space, and a restrained red accent.
 
-The UI evokes a command center: dark foundation, high-contrast data, color only for signal and severity. Tailwind handles all styling. Every number is tabular, every ID is mono, every transition is intentional.
+One identity serves the whole portal. Marketing, research, documentation, signup, pricing, and account pages use the same ink-and-paper foundation. Do not restore the former split between dark marketing pages and light product pages.
 
-## Quill Page Layout
+Quill is the product. MapleSpike is the parent brand. Display **Quill** in the primary wordmark, with **by MapleSpike** or **par MapleSpike** as secondary text. Preserve publisher attributions and legal notices.
 
-The product landing page at `quill.maplespike.ca` follows a single-scroll narrative:
+### Principles
 
-### Section Sequence
-1. **TopBar** — JetBrains Mono nav links, GitHub + Sign-in CTAs
-2. **QuillHero** — Product name, one-line value prop, terminal-style install snippet, aurora + bg-grid effects
-3. **Stats bar** — Key metrics (207 modules, 184 tools, 13 jurisdictions, ~220K lines TS) as stat cards with tabular counters
-4. **McpServerBlock** — Claude Desktop config JSON snippet, MCP SSE endpoint, REST base URL, platform integration grid
-5. **ToolGrid** — 6-column responsive grid of module categories (Parliamentary, Federal open data, Oversight, Corporate + influence, Provincial + municipal, Justice + CanLII)
-6. **Sovereignty** — Tech stack badges: Nix, Cloudflare Pages, AGPL-3.0, SHA-256 provenance
-7. **CTA** — Call-to-action with "Get started free" linking to signup
-8. **QuillFooter** — Repo link, license, MapleSpike brand attribution
+1. **The source comes first.** Make source discovery and inspection easy.
+2. **Ink creates hierarchy.** Colour is not a substitute for structure.
+3. **Organise by task.** Help people discover, research, verify, and connect tools.
+4. **Evidence has limits.** Never imply that a hash proves authenticity or grants reuse rights.
+5. **Content is visible by default.** JavaScript and animation must not gate static content.
+6. **French is a first-class route.** Translate controls and preserve language through navigation and hydration.
 
-### Terminal Snippet Design
-```
-$ curl -H "Authorization: Bearer $QUILL_KEY" \
-       https://quill.maplespike.ca/v1/search?q=lobbying+registrations
-```
-Mono font, surface-elevated background, 8px radius, copy-to-clipboard button on hover.
+## Implementation authority
 
-### Module Category Cards
-Each ToolGrid card:
-- Icon + title (Inter 600, 1rem)
-- Bullet list of tool names (Inter, 0.78rem, text-secondary)
-- Surface background, hover → border brightens
-- Entrance: stagger 50–80ms per card
+| Concern | Source |
+| --- | --- |
+| Colour roles, local font faces, focus contrast | `packages/portal/src/styles/themes/ink-and-paper.css` |
+| Editorial composition, shared page rhythm, responsive rules | `packages/portal/src/styles/editorial.css` |
+| Metadata, main landmark, footer, runtime hooks | `packages/portal/src/layouts/BaseLayout.astro` |
+| Primary navigation, mobile menu, research rail | `packages/portal/src/components/SiteHeader.astro` |
+| Bilingual landing | `packages/portal/src/components/LandingBody.astro` |
+| Functional React primitives | `packages/portal/src/components/ui/` |
+| Published coverage counts | `packages/portal/src/data/stats.json` |
+| Canonical repository metrics | `docs/metrics.json` |
+| Prices and plan limits | `packages/portal/src/data/plans.json` |
 
-## Color System & Tokens
+The tables in this document describe the system. CSS defines its rendered values. Do not hardcode tool counts, module counts, prices, or plan limits in page copy or this document. Read the generated data instead.
 
-### Background Hierarchy
-- **Background (#090909):** Near-black foundation (shadcn dark default).
-- **Card (#111111):** Card and container backgrounds.
-- **Muted (#1a1a1a):** Elevated elements — inputs, hovered cards, modals.
+Use Astro for static structure and React islands for stateful features. Reuse existing dependencies. In Astro, pass React component styling through **`className`**, not `class`. Native HTML elements use `class`. The current Astro-to-React integration can drop component `class` props before the component receives them.
 
-### Semantic Colors
-- **Primary (#e84545):** Red for CTAs, active states, severity.
-- **Secondary (#06b6d4):** Cyan for links (ring focus, parliament accent), code highlighting, secondary actions.
-- **Tertiary (#22c55e):** Green for success states, moss accent.
-- **Accent (#6b1d1d):** Dark red for subtle accent surfaces.
+## Colour
 
-### Text
-- **Foreground (#fafafa):** High-emphasis — headings, body, table cells.
-- **Muted-foreground (#a3a3a3):** Medium-emphasis — metadata, labels, placeholders.
+### Paper planes
 
-### Contrast (WCAG AA)
-| Pair | Ratio | Pass |
-|------|-------|------|
-| primary on white | 4.8:1 | AA |
-| primary on surface | 6.2:1 | AA |
-| text-primary on surface | 11.5:1 | AAA |
+- **Paper `#f4f2ec`:** the page.
+- **Surface `#fbfaf6`:** panels, forms, and elevated content.
+- **Paper deep `#e7e3d8`:** restrained section separation.
+- **Chip `#ece8de`:** secondary controls and selected backgrounds.
+- **Line `#ddd8cc`:** ordinary dividers.
+- **Strong line `#cfc8b8`:** input boundaries and major rules.
+
+### Ink and emphasis
+
+- **Ink `#161614`:** body text, headings, primary actions.
+- **Soft ink `#2c2c28`:** hover and secondary dark planes.
+- **Muted ink `#534f46`:** readable secondary text.
+- **Editorial red `#a63029`:** small markers, active underlines, numbered labels, and occasional display emphasis. It is not the default body or button colour.
+
+### Reversed planes
+
+Use dark ink for the landing integration console, not as a competing site theme. Pair it with on-ink `#f6f4ef`, muted on-ink `#b9b5aa`, and on-ink line `#3a3a34`. The console interior is `#1d1d1a`.
+
+Use explicit focus colours on reversed planes. Preserve readable status text, not just red/green dots. Do not use the former bright maple red `#e84545` for body text on paper: it fails the normal-text AA contrast floor.
+
+### Contrast requirements
+
+Normal text must meet 4.5:1. Focus indicators must meet 3:1 against their surroundings. The tested paper theme uses an ink/60 focus ring; ink/40 fails. Keep the colour-role and contrast tests in `ink-and-paper.test.ts`. New colour pairs need measured coverage, not an assumed pass.
 
 ## Typography
 
-- **Inter:** Primary — headings, body, labels, stats.
-- **JetBrains Mono:** Nav, code, data identifiers.
+All portal fonts are self-hosted under `packages/portal/public/fonts/`. Do not request Google Fonts.
 
-Scale: `11 → 12 → 13 → 14 → 16 → 20 → 24 → 32px`
+| Role | Family | Use |
+| --- | --- | --- |
+| Display | Newsreader | Page titles, section titles, editorial emphasis |
+| Text | Source Sans 3 | Body text, labels, navigation, form controls |
+| Data | IBM Plex Mono | Code, identifiers, counts, small editorial labels |
 
-All numbers use `font-variant-numeric: tabular-nums`.
+- Landing hero: `clamp(46px, 4.5vw, 67px)` on desktop; `clamp(45px, 8.8vw, 65px)` below 768px.
+- Product title: `clamp(35px, 3.5vw, 48px)`.
+- Landing section title: `clamp(34px, 3.4vw, 48px)`.
+- Display weight: usually 500. Keep line height tight and tracking slightly negative.
+- Body: 16–18px in editorial sections, with 1.6–1.65 line height.
+- Data tables and navigation: 13–14px where appropriate.
+- Eyebrows: 10px mono, increased tracking. Use for short supplementary labels only.
+- Use italic Newsreader for a deliberate second phrase, not whole paragraphs.
+- Use tabular figures for comparable numeric values. Keep long identifiers in mono.
 
-### Optical sizing & tracking
-- Large display text uses **negative tracking** (`-0.02em`) because letters read too far apart as size grows.
-- Body text stays near `0` tracking; small labels get slightly positive tracking for legibility.
-- Leading is tight on headings (`1.2`) and looser on body copy (`1.5`).
-- Respect the user's text-size setting by sizing spacing in `rem`/`em`.
+Do not reduce important content to small uppercase metadata. Use real heading elements for document hierarchy. Shared card titles are visual labels; they do not replace the page heading structure.
 
-## Component Catalog
+## Layout and navigation
 
-**Cards:** Surface, 1px border, 12px radius, 24px padding. Entrance: fadeIn + slideUp 300ms. Hover: border brightens + cyan glow.
+### Shared frame
 
-**Stat Cards:** Metric hero (1.5rem, bold, tabular-nums). SlideUp entrance. Hover: shadow lift.
+The content width is at most 1280px. Gutters scale from 20px to 64px. The header stays visible after scroll. Do not hide primary navigation or shrink it into an unusable state.
 
-**Buttons:** Primary = red fill, white text, 8px radius. Active: scale(0.97). Secondary = transparent, red border. Hover: bg fill 8%.
+Primary navigation: Explore, For AI agents, Documentation, Pricing. Keep the language switch, API-key action, and auth-aware account container. Preserve `nav-auth-container` for `auth.js`.
 
-**Inputs:** Elevated surface, 1px border, 8px radius. Focus: cyan border + 3px glow ring.
+Below 1100px, show a mobile menu. It must:
 
-**Badges:** Full radius pill. 11px, uppercase, mono. Tailwind utility classes for label centering.
+- Use a button with `aria-controls` and accurate `aria-expanded`.
+- Open and close with a click.
+- Close on Escape and return focus to the menu button.
+- Close on navigation and on resize to desktop.
+- Rebind once per new DOM node after `astro:page-load`.
+- Remove document-level listeners before the node leaves the page.
+- Offer visible static navigation when JavaScript is disabled.
 
-**Tables:** 28-32px rows, sticky header, right-aligned numbers, mono IDs.
+### Research rail
 
-**Shimmer:** 1.5s gradient loop. Never use spinners.
+Product routes get a labelled research-tool rail: Data explorer, Ask Quill, Workspace, Signals, Watchers, Verify a record, API, Dashboard. Mark the current route with `aria-current="page"`. Allow horizontal scroll inside the rail on small screens; never widen the document.
 
-## Component State Matrix
+### Product rhythm
 
-| Component | Hover | Active | Focus | Disabled | Loading |
-|-----------|-------|--------|-------|----------|---------|
-| button-primary | opacity 0.85 | scale 0.97 | — | opacity 0.4 | shimmer |
-| button-secondary | bg 8% red | — | — | opacity 0.4 | — |
-| input | — | — | cyan glow | opacity 0.5 | — |
-| card | border ↑ | — | — | — | — |
-| stat-card | shadow ↑ | — | — | — | shimmer |
-| nav-link | primary | — | — | — | — |
+Use compact introductions rather than full-screen heroes. Product sections start with about 32–44px of vertical space. Shared cards use a 7px radius and fine borders. Do not apply hover lift to passive information panels.
 
-## Layout
+Keep grid children shrinkable. Let code blocks, tables, and documentation panel content scroll inside their own boundaries. Do not fix overflow with `overflow-x: hidden` on the document.
 
-- 4px base grid. All spacing multiples of 4.
-- Max content: 1280px. Dashboards: full viewport.
-- Sidebar: 220-260px, collapsible to 48px rail.
-- Card grid: auto-fill, minmax(180px, 1fr), 16px gap.
+### Documentation
 
-## Elevation
+Use a 240px contents rail and a readable main column above 1024px. Below that, use one column. The rail can scroll within the viewport. Keep one main landmark; do not nest a second `<main>` inside BaseLayout.
 
-Flat. Depth via background layers. Shadows only for: dropdowns, modals (blur 4px), tooltips. No shadows on cards or panels in default state.
+## Landing narrative
 
-## Motion
+1. **Search-first hero:** editorial title, short explanation, labelled search field, useful query links, and an AI integration link. Submit to the locale-aware explorer with the existing `query` parameter.
+2. **Decorative artwork:** a paper archive still life, framed as field notes. It carries no data claim.
+3. **Coverage band:** generated module, tool, and jurisdiction counts. No invented live counters.
+4. **Research pathways:** three numbered paths for discovery, research, and integration. Use clear whole-row/card links.
+5. **Source directory:** federal, provincial/territorial, municipal, and corporate/influence entry points. Use working query URLs; do not imply unsupported category filters work.
+6. **Provenance principle:** explain source inspection, available evidence, and the limits of integrity checks.
+7. **Connection desk:** a reversed-ink MCP/REST console with real hostnames, selectable code, copy controls, and translated success/failure feedback.
+8. **Final invitation:** return to the explorer. Keep source terms and licence-review notices visible.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| instant | 0ms | Badge changes |
-| fast | 100ms | Color transitions |
-| normal | 200ms | Hover, focus |
-| slow | 300ms | Card entrance, modal |
-| shimmer | 1500ms | Loading loop |
+The landing is useful without hydration. Do not replace it with an empty React shell, a fabricated result feed, or a video that obscures the task.
 
-Easing: ease-out for entrances. ease-in-out for state changes. Card entrance stagger: 50–80ms delay between items.
+## Components
 
-### Custom easing curves
-```css
---ease-out: cubic-bezier(0.23, 1, 0.32, 1);
---ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
---ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+### Buttons and links
+
+Primary buttons are ink on paper, with a 4px radius. On ink planes, reverse the pair. Make action labels specific. Keep target height at least 44px; primary editorial actions are 46px. Do not rely on hover to reveal an essential control.
+
+Text links can remain inline. Give navigational links an underline, border, or other clear affordance. External links that open a new tab use safe rel attributes.
+
+### Panels
+
+Shared primitives expose `data-slot` markers for card, header, title, description, content, and button. Style these hooks instead of brittle utility-class substring selectors. Preserve consumers' functional props and event handlers.
+
+A panel separates related information. It is not a decorative sticker. Use hairline borders and restrained shadows. Keep documentation code and tables scrollable within the panel content.
+
+### Inputs and feedback
+
+Use visible or screen-reader labels. Inputs are at least 46px high in the shared theme. Provide readable empty, error, loading, and success states. Never show a fake successful result when a request fails.
+
+Copy actions must report both success and failure through a live status region. Rebind them after ClientRouter navigation. Do not expose real credentials in examples, logs, screenshots, or artwork.
+
+## Artwork and brand assets
+
+The landing illustration is generated locally through the existing ComfyUI service. `public/assets/public-record-art.json` records the model, prompt, seed, and workflow. `scripts/generate-editorial-art.py` reproduces the job; the delivered WebP is optimised separately.
+
+- Decorative image: empty alt text, dimensions set, honest AI-illustration caption.
+- No fabricated maps, charts, documents, source seals, or evidence.
+- Budget: under 100KB for the delivered landing illustration. Current asset is about 42KB.
+- Keep text and all product meaning in HTML.
+- Favicon and touch icon use the Quill ink-and-red monogram.
+- `scripts/gen-og-image.mjs` generates bilingual 1200×630 PNG share cards in the same paper/ink style.
+
+## Motion and accessibility
+
+Prefer 150ms colour and opacity transitions. Use no large entrance animation, continuous decorative loop, or hover lift for passive content. Static content remains visible even if observers never run.
+
+Respect `prefers-reduced-motion`. Keep the skip-to-content link, visible keyboard focus, labelled navigation, and one main landmark. On small screens, reflow sections instead of squeezing desktop columns. Test at 390px, 768px, and 1440px. Check larger text and translated strings when a layout changes.
+
+## Language and truthfulness
+
+English routes use bare paths; French routes use `/fr`. The route owns the language. A saved browser preference must not overwrite the rendered document language. Pass language explicitly into hydrated islands so their first client render matches server HTML.
+
+Use short, active sentences. Describe what the product actually does. Avoid unsupported claims about coverage, freshness, source authenticity, legal rights, or production readiness. Retain publisher attribution, non-endorsement notices, and licence limitations on every applicable surface.
+
+## Verification and release
+
+Run checks from the repository root unless noted:
+
+```bash
+pnpm --filter @maplespike/portal exec astro check
+pnpm --filter @maplespike/portal test
+pnpm --filter @maplespike/portal... build
+pnpm --filter @maplespike/portal smoke:dist
 ```
 
-## Animation Decision Framework
+Serve the built site through its actual Python runtime:
 
-Before adding any animation, answer: *should this animate at all?*
-
-| Frequency | Decision |
-| --- | --- |
-| 100+ times/day (keyboard shortcuts, command palette toggle) | No animation. Ever. |
-| Tens of times/day (hover effects, list navigation) | Remove or drastically reduce |
-| Occasional (modals, drawers, toasts) | Standard animation |
-| Rare / first-time (onboarding, feedback, celebrations) | Can add delight |
-
-**Never animate keyboard-initiated actions.** They repeat hundreds of times daily; animation makes them feel slow and disconnected.
-
-Valid purposes for motion: spatial consistency, state indication, explanation, feedback, preventing jarring change. "It looks cool" on a frequently-seen element is not valid.
-
-### Easing & Timing
-- **Enter/exit:** `ease-out` or custom `cubic-bezier(0.23, 1, 0.32, 1)`.
-- **Move/morph on screen:** `ease-in-out` or `cubic-bezier(0.77, 0, 0.175, 1)`.
-- **Hover/color:** `ease`.
-- **UI animations stay under 300ms.** Button press: 100–160ms. Dropdowns/selects: 150–250ms. Modals/drawers: 200–500ms.
-- **Never use `ease-in` on UI** — it delays the moment the user watches most.
-
-### Physicality
-- Never animate from `scale(0)`. Start from `scale(0.95)` + `opacity: 0`.
-- Popovers/dropdowns scale from their trigger; modals stay centered.
-- Buttons use `transform: scale(0.97)` on `:active` with 160ms `ease-out`.
-
-### Interruptibility & Performance
-- Prefer CSS transitions over keyframes for rapidly-triggered UI (toasts, toggles).
-- Only animate `transform` and `opacity` for GPU compositing.
-- Gate hover motion behind `@media (hover: hover) and (pointer: fine)`.
-- Honor `prefers-reduced-motion: reduce` — keep opacity/color transitions, drop movement.
-
-### Stagger
-- Group entrances stagger 30–80ms between items.
-- Never block interaction while stagger plays.
-
-## Apple-Style Fluid Interactions
-
-Where Quill uses drag, sheets, or gesture-driven UI, follow these principles:
-
-1. **Response on pointer-down.** Show feedback the instant the user presses. Waiting for `click` feels dead.
-2. **Direct manipulation — 1:1 tracking.** Content stays glued to the finger; respect the grab offset.
-3. **Interruptibility.** Never lock out input during a transition. Animate from the current on-screen value, not the target value.
-4. **Velocity handoff.** When a gesture ends, the animation continues at the finger's exact velocity.
-5. **Momentum projection.** Snap to the target nearest the projected resting point, not the release point.
-6. **Rubber-banding.** At boundaries, resist progressively instead of stopping hard.
-7. **Spatial consistency.** Enter and exit along the same path; anchor popovers to their trigger.
-
-## Accessibility
-
-- Visible focus states (cyan outline).
-- Color never sole indicator — use icons + labels.
-- WCAG AA contrast minimum.
-- Keyboard-navigable.
-- Tailwind-based layouts respect WCAG resize.
-
-### Reduced motion
-```css
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+```bash
+cd packages/portal
+PORT=4390 python3 server.py
 ```
 
-### Hover gating
-```css
-@media (hover: hover) and (pointer: fine) {
-  .card-hover:hover { transform: translateY(-3px); }
-}
+In another terminal, run the browser suite:
+
+```bash
+node packages/portal/scripts/check-design-browser.mjs
 ```
 
-## Responsive
+`QUILL_PREVIEW_URL`, `QUILL_DESIGN_OUTPUT`, and `CHROME_BIN` can override the preview host, evidence directory, and Chromium path. The suite checks route status, overflow, landmarks, fonts, language, keyboard use, SPA navigation, clipboard failure, search handoff, auth display, no-JavaScript use, and reduced motion. Test fixtures do not prove live billing or authenticated API behavior.
 
-- Desktop-first. Dashboards are wide.
-- Tablet >768px: single cards, 2-col stats, collapsed sidebar.
-- Mobile <768px: full-width, stacked, hidden sidebar.
-- Tables scroll horizontally with sticky first column.
+Keep screenshots and machine-readable results with release evidence. A build alone is not acceptance. Rerun affected checks after a repair. Preserve failed checks as limitations; never weaken assertions to make a release pass.
 
-## Code Snippets
-
-### Theme tokens
-
-```css
-/* Actual globals.css uses shadcn-style HSL variable references */
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-}
-
-/* Dark theme values (applied via .dark class) */
-:root.dark {
-  --background: 0 0% 3.5%;    --foreground: 0 0% 98%;
-  --card: 0 0% 6.5%;          --card-foreground: 0 0% 98%;
-  --popover: 0 0% 6.5%;       --popover-foreground: 0 0% 98%;
-  --primary: 0 72% 51%;       --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 11%;      --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 10%;          --muted-foreground: 0 0% 63.9%;
-  --accent: 0 72% 14%;        --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%; --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 15%;         --input: 0 0% 16%;
-  --ring: 191 96% 42%;
-}
-```
-
-### Animations
-```css
-@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-@keyframes staggerIn { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
-@keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
-```
-
-## Implementation Status (2026-07-10)
-
-The spec above is the canonical design intent for Quill. Three implementation layers exist; this section captures what is wired where so future work can land in the right place.
-
-### Live portal (`packages/portal/src/` — Astro + React + Tailwind v4 + shadcn)
-
-* **Wired to spec**: Inter + JetBrains Mono (BaseLayout), dark-canvas default + light toggle, card pattern (12px radius, 24px padding), `.font-mono-num` utility, `aria-current="page"` nav highlight, i18n en-CA + fr-CA (`@maplespike/i18n`), mobile drawer, `prefers-reduced-motion` reset.
-* **Token reconciliation (in `globals.css`)**: `--ring` + `--sidebar-ring` use spec cyan `hsl(191 96% 42%)` (≈ `#06b6d4`, parliamentary).
-* **Animation tokens (in `globals.css`)**: custom easing variables `--ease-out`, `--ease-in-out`, `--ease-drawer`; `reveal-on-scroll`, `stagger-*`, and `press-feedback` utilities added.
-* **Quill Page Layout (in `LandingBody.astro`)**: section sequence now maps to `TopBar` (BaseLayout), `QuillHero`, `Stats bar`, `McpServerBlock`, `ToolGrid`, `Sovereignty`, `CTA`, and `QuillFooter` (BaseLayout). Added reveal-on-scroll, staggered card entrances, tabular-numeral stats, and terminal-style snippet copy.
-
-### Canonical reference render (`packages/portal/public/readme.html`)
-
-A faithful, self-contained ~1,000-line reference HTML that encodes every token + component pattern from this spec verbatim into the live portal's `public/` static assets. Used as:
-
-* the canonical mood board for new components,
-* the build target when wiring the narrative into Astro islands.
-
-Includes exact hex tokens mirroring the YAML frontmatter, animated maple-leaf hero + aurora glow + bg-grid + reveal-on-scroll, metric cards with `IntersectionObserver`-animated counters and tabular-nums stats, timeline · repo-tree · service-grid · table · callout · code-block patterns with copy-to-clipboard, and `@media (prefers-reduced-motion: reduce)` reset. Header comment in the file reads: *"MapleSpike design system — extracted from packages/portal and DESIGN.md. Tokens are the source of truth; document CSS is a thin expressive layer over them."*
-
-### Brand marketing layers (separate `maplespike-brand` repo)
-
-Live at `maplespike.ca`. Maintains design cohesion with Quill via shared `colors.primary` (`#e84545`) + `colors.secondary` (`#06b6d4`) tokens.
-
-## Design Skills & References
-
-This design system is augmented by the following project skills under `.agents/skills/`:
-
-- **`emil-design-eng`** — UI polish, animation decision framework, component craft, and the invisible details that make software feel right.
-- **`apple-design`** — Fluid interfaces, springs, gesture-driven UI, translucent materials, typography, and reduced-motion/accessibility.
-- **`animation-vocabulary`** — Reverse-lookup glossary for naming motion effects.
-- **`review-animations`** + **`STANDARDS.md`** — Concrete animation standards (curves, durations, physicality, performance, a11y) used when reviewing motion code.
-
-Use these skills whenever adding or reviewing motion, gestures, or visual polish in Quill.
-
-## Agent Prompt Guide
-
-**Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 166 tools (incl. `x402-deposit`), 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/maplespike/quill`.
-
-**Bias:** dark canvas, tabular numerals, JetBrains Mono for code/IDs, red accent, dense tables, shimmer. Terminal snippets on elevated surface with copy button. Tool counts as stat cards.
-
-**Reject:** light backgrounds, serif fonts, hero illustrations, spinners, center-aligned numbers, shadows on cards, hardcoded CSS heights.
-
-**Tailwind:** use utility classes for all styling. Prefer CSS animations/transitions for predetermined motion; use Framer Motion springs only for interruptible, gesture-driven React islands. Never use inline styles for layout.
+Deploy through the repository's reviewed PR and GitOps process. Build and scan the portal image, import it into each eligible node's containerd store, pin its digest in Helm values, and let ArgoCD reconcile. Do not patch the live deployment's image outside git. Record operations in the ops log. Verify the public hostname and both portal replicas after rollout. Rollback uses the prior chart digest; no data migration is part of this design change.

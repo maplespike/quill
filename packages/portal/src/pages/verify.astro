@@ -35,9 +35,9 @@ const i18n = createI18n(lang);
   <section class="py-16 md:py-20">
     <div class="container mx-auto px-4 max-w-4xl">
       <!-- Hash input -->
-      <Card class="mb-8">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle class="text-base">{i18n.t('verify.input.label')}</CardTitle>
+          <CardTitle className="text-base">{i18n.t('verify.input.label')}</CardTitle>
           <CardDescription>
             Paste a SHA-256 claim hash — with or without the <code class="font-mono">sha256:</code> prefix.
           </CardDescription>
@@ -95,9 +95,9 @@ const i18n = createI18n(lang);
         </div>
 
         <!-- Provenance card -->
-        <Card class="mb-4" id="result-provenance">
+        <Card className="mb-4" id="result-provenance">
           <CardHeader>
-            <CardTitle class="text-base">Provenance</CardTitle>
+            <CardTitle className="text-base">Provenance</CardTitle>
             <CardDescription>Available source provenance and publisher terms metadata. Check the original source for reuse conditions.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -137,7 +137,7 @@ const i18n = createI18n(lang);
         <!-- Reproduce hash -->
         <Card>
           <CardHeader>
-            <CardTitle class="text-base">{i18n.t('verify.result.command')}</CardTitle>
+            <CardTitle className="text-base">{i18n.t('verify.result.command')}</CardTitle>
             <CardDescription>Reproduce the SHA-256 from the canonicalized Quill record value. A match checks that record representation, not the upstream source artifact or its authenticity.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -157,7 +157,7 @@ const i18n = createI18n(lang);
       <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle class="text-base">🔍 {i18n.t('verify.how.title')}</CardTitle>
+            <CardTitle className="text-base">🔍 {i18n.t('verify.how.title')}</CardTitle>
             <CardDescription>
               {i18n.t('verify.how.body')}
             </CardDescription>
@@ -165,7 +165,7 @@ const i18n = createI18n(lang);
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle class="text-base">⚙️ {i18n.t('verify.public.title')}</CardTitle>
+            <CardTitle className="text-base">⚙️ {i18n.t('verify.public.title')}</CardTitle>
             <CardDescription>
               {i18n.t('verify.public.body')}
             </CardDescription>
@@ -188,14 +188,14 @@ const i18n = createI18n(lang);
       </div>
 
       <!-- Verify your own data -->
-      <Card class="mt-8">
+      <Card className="mt-8">
         <CardHeader>
-          <CardTitle class="text-base">🧮 {i18n.t('verify.other.title')}</CardTitle>
+          <CardTitle className="text-base">🧮 {i18n.t('verify.other.title')}</CardTitle>
           <CardDescription>
             {i18n.t('verify.other.body')}
           </CardDescription>
         </CardHeader>
-        <CardContent class="space-y-4">
+        <CardContent className="space-y-4">
           <div class="flex flex-col gap-3">
             <label for="data-input" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{i18n.t('verify.other.input')}</label>
             <textarea
