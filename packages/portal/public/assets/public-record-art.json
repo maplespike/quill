@@ -1,0 +1,94 @@
+{
+  "purpose": "Decorative AI illustration. Not a map, source record, or data visualisation.",
+  "model": "epicrealismXL_pureFix.safetensors",
+  "prompt": "Editorial architectural still life, a sculptural archive of Canadian public records, ivory paper sheets folded into abstract mountain ridges, one small deep vermilion red circular sun, fine black engraved contour lines, tactile uncoated cream paper, Swiss modernist art direction, museum print, restrained monochrome palette, warm soft side light, quiet and precise, generous negative space, overhead view, beautiful subtle paper grain, no lettering, no typography, no words",
+  "negative_prompt": "text, letters, words, watermark, logo, neon, purple, blue, glossy, plastic, busy, blurry, flag, people",
+  "seed": 10902026,
+  "workflow": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": "epicrealismXL_pureFix.safetensors"
+      }
+    },
+    "2": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "Editorial architectural still life, a sculptural archive of Canadian public records, ivory paper sheets folded into abstract mountain ridges, one small deep vermilion red circular sun, fine black engraved contour lines, tactile uncoated cream paper, Swiss modernist art direction, museum print, restrained monochrome palette, warm soft side light, quiet and precise, generous negative space, overhead view, beautiful subtle paper grain, no lettering, no typography, no words",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "3": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "text, letters, words, watermark, logo, neon, purple, blue, glossy, plastic, busy, blurry, flag, people",
+        "clip": [
+          "1",
+          1
+        ]
+      }
+    },
+    "4": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 1
+      }
+    },
+    "5": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "2",
+          0
+        ],
+        "negative": [
+          "3",
+          0
+        ],
+        "latent_image": [
+          "4",
+          0
+        ],
+        "seed": 10902026,
+        "steps": 26,
+        "cfg": 5.5,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 1
+      }
+    },
+    "6": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "5",
+          0
+        ],
+        "vae": [
+          "1",
+          2
+        ]
+      }
+    },
+    "7": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": [
+          "6",
+          0
+        ],
+        "filename_prefix": "quill-public-record-1090"
+      }
+    }
+  },
+  "prompt_id": "f9759308-0e5a-4e3f-a56e-c6d9eaa5a648"
+}

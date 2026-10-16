@@ -98,8 +98,16 @@ else fail("dist/script.js is missing the reveal-on-scroll observer");
 // ── 4. SPA re-bind guards shipped ─────────────────────────────────
 if (scriptJs.includes("themeBound")) pass("theme-toggle re-bind guard shipped");
 else fail("dist/script.js is missing the themeBound re-bind guard");
-if (index.includes("menuBound")) pass("mobile-menu dedup guard shipped");
-else fail("index.html is missing the menuBound dedup guard");
+// Astro can inline small modules or emit larger ones as bundled assets.
+// Check both delivered forms so the guard survives build optimisation.
+const headerScripts = [...index.matchAll(/<script[^>]+src=["']([^"']+)["']/g)]
+  .map((match) => match[1].replace(/^\//, ''))
+  .filter((path) => path.startsWith('_astro/'))
+  .map((path) => read(path) ?? '')
+  .join('\n') + '\n' + [...index.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map(match => match[1]).join('\n');
+if (headerScripts.includes("menuBound") && headerScripts.includes("astro:page-load"))
+  pass("bundled mobile-menu dedup and SPA guards shipped");
+else fail("built header script is missing the mobile-menu dedup or SPA guard");
 
 // ── 5. Pricing numbers match plans.json ───────────────────────────
 try {

@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 interface StripeCheckoutButtonProps {
   planId: "pro" | "business";
   className?: string;
+  /** Route locale, shared by server render and client hydration. */
+  lang?: "en" | "fr";
   /** Override the public API base (otherwise derived from window.location). */
   apiBase?: string;
   /**
@@ -99,10 +101,10 @@ export default function StripeCheckoutButton({
   apiKey,
   label,
   notSignedInHref,
+  lang = "en",
 }: StripeCheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const lang = (typeof window !== "undefined" ? (window as any).__LANG : "en") === "fr" ? "fr" : "en";
   const copy = COPY[planId];
 
   function resolveLabel(): string {
@@ -119,7 +121,8 @@ export default function StripeCheckoutButton({
       // expose localStorage fallback because that would defeat the whole
       // "no XSS exfil" goal. The /signup page must complete OAuth/passkey
       // exchange before returning.
-      const fallbackHref = notSignedInHref ?? `/signup?plan=${planId}&return=/pricing`;
+      const prefix = lang === "fr" ? "/fr" : "";
+      const fallbackHref = notSignedInHref ?? `${prefix}/signup?plan=${planId}&return=${prefix}/pricing`;
       window.location.href = fallbackHref;
       return;
     }

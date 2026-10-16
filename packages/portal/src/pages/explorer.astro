@@ -29,7 +29,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 reveal-on-scroll">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-        Data <span class="text-gradient">Explorer</span>
+        {t('The data explorer.', 'L’explorateur de données.')}
       </h1>
       <p class="mt-2 text-lg text-muted-foreground">
         {t(
@@ -55,10 +55,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="explorer-form" class="space-y-4" method="GET" action="/explorer">
+        <form id="explorer-form" class="space-y-4" method="GET" action={lang === 'fr' ? '/fr/explorer' : '/explorer'}>
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <label for="query" class="sr-only">{t('Search public data', 'Rechercher des données publiques')}</label>
               <Input id="query" name="query" type="search" placeholder={t("Search committees, lobbying records, legislation...", "Rechercher des comités, des dossiers de lobbying, de la législation…")} className="pl-10" />
             </div>
             <Button type="submit" className="press-feedback">{t("Search", "Rechercher")}</Button>
@@ -118,7 +119,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     </div>
 
     <!-- Results Summary -->
-    <div class="flex items-center justify-between mb-4 reveal-on-scroll">
+    <div class="explorer-results-summary flex flex-wrap gap-3 items-center justify-between mb-4 reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
         {t("Showing", "Affichage de")} <span id="results-shown" class="font-medium text-foreground">1&ndash;10</span> {t("of", "sur")}
         <span id="results-total" class="font-medium text-foreground">12,847</span> {t("results", "résultats")}
@@ -316,7 +317,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     </div>
   </section>
 
-  <script is:inline>
+  <script is:inline data-astro-rerun>
     (function () {
       "use strict";
 
@@ -331,7 +332,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       var shownEl = document.getElementById("results-shown");
       var totalEl = document.getElementById("results-total");
       var statusEl = document.getElementById("results-status");
-      if (!form || !tbody) return;
+      if (!form || !tbody || form.dataset.searchBound) return;
+      form.dataset.searchBound = 'true';
 
       var FR = window.__LANG === "fr";
       function L(en, fr) { return FR ? fr : en; }

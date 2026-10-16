@@ -116,7 +116,7 @@ describe("ink-and-paper roles", () => {
     expect(css).toMatch(/\.theme-ink-and-paper\b/);
   });
 
-  test.each(Object.entries(ROLE_HEXES))<string, string>(
+  test.each(Object.entries(ROLE_HEXES))(
     "%s resolves to its spec hex",
     (name: string, hex: string) => {
     const v = token(name);
@@ -158,7 +158,7 @@ describe("ink-and-paper roles", () => {
 const SEMANTIC = ["background", "foreground", "card", "primary", "border", "ring"];
 
 describe("semantic role vars under .theme-ink-and-paper", () => {
-  test.each(SEMANTIC)<string>("--%s resolves to an hsl triplet", (name: string) => {
+  test.each(SEMANTIC)("--%s resolves to an hsl triplet", (name: string) => {
     const v = token(name);
     expect(v, `--${name} missing`).toBeDefined();
     expect(() => parseTriplet(v!)).not.toThrow();
@@ -216,11 +216,7 @@ describe("WCAG contrast floor", () => {
     ["on-ink-muted on ink", hx2rgb("#b9b5aa"), ink],
   ];
 
-  test.each(textPairs)<
-    string,
-    [number, number, number],
-    [number, number, number]
-  >("%s >= 4.5:1", (_label: string, fg: [number, number, number], bg: [number, number, number]) => {
+  test.each(textPairs)("%s >= 4.5:1", (_label: string, fg: [number, number, number], bg: [number, number, number]) => {
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(4.5);
   });
 

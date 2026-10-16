@@ -98,7 +98,7 @@ const portalReturn = url.searchParams.get("portal") === "return";
               : "To view your current plan, your payments, and manage your subscription, open the Stripe Customer Portal."}
           </p>
         </CardContent>
-        <CardFooter class="flex flex-wrap gap-3">
+        <CardFooter className="flex flex-wrap gap-3">
           <ManageSubscriptionButton client:load label={{
             en: "Manage subscription",
             fr: "Gérer l'abonnement",
@@ -124,7 +124,7 @@ const portalReturn = url.searchParams.get("portal") === "return";
               : "No active subscription yet. Choose a plan to get started."}
           </CardDescription>
         </CardHeader>
-        <CardContent class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div class="rounded-lg border border-border/60 p-4 transition-colors duration-200 ease-out hover:border-primary/40">
             <h3 class="font-semibold">Pro</h3>
             <p class="mt-1 text-sm text-muted-foreground">

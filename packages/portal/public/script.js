@@ -63,7 +63,11 @@
   function applyI18n(data) {
     if (!data) return;
     i18nData = data;
-    document.documentElement.lang = data.meta?.locale || currentLocale;
+    // The route owns the language on Astro pages. Legacy standalone pages
+    // still use the dictionary locale.
+    if (!document.getElementById('main-content')) {
+      document.documentElement.lang = data.meta?.locale || currentLocale;
+    }
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -136,6 +140,7 @@
   }
 
   function initTheme() {
+    if (document.documentElement.classList.contains('theme-ink-and-paper')) return;
     const saved = localStorage.getItem(LS_THEME);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     applyTheme(saved || (prefersDark ? 'dark' : 'light'));
@@ -737,16 +742,18 @@
     initTicker();
     setupMobileMenu();
 
-    const data = await loadI18n(currentLocale);
-    applyI18n(data);
-    setupLangToggle();
+    if (!document.getElementById('main-content')) {
+      const data = await loadI18n(currentLocale);
+      applyI18n(data);
+      setupLangToggle();
+    }
 
     setupScrollReveal();
     setupStatCounters();
     setupGlossary();
     setupDemoBox();
     setupCopyButtons();
-    setupNavScroll();
+    if (!document.getElementById('main-content')) setupNavScroll();
     setupUsageChart();
     setupLiveStats();
     setupDashboardCopy();

@@ -23,13 +23,16 @@ export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: st
 
   useEffect(() => {
     if (!usability.ok) return;
-    stripePromise.current = loadStripe(key);
     const apiKey = (window as unknown as { MAPLESPIKE?: { apiKey?: string } }).MAPLESPIKE?.apiKey || "";
     if (!apiKey) {
       setError("Sign in first — embedded checkout needs your API key.");
       return;
     }
     let cancelled = false;
+    stripePromise.current = loadStripe(key).catch((cause: Error) => {
+      if (!cancelled) setError(`Payment form could not load: ${cause.message}`);
+      return null;
+    });
     createEmbeddedSession({ apiBase: deriveApiBase(window.location), apiKey, planId })
       .then((r) => {
         if (cancelled) return;

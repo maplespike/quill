@@ -9,7 +9,7 @@
   "counts": {
     "modules": 207,
     "mcpTools": 184,
-    "asOf": "2026-10-12"
+    "asOf": "2026-10-14"
   },
   "mcp": {
     "endpoint": "https://mcp.maplespike.ca/sse",
@@ -43,5 +43,5 @@
     ],
     "verification": "SHA-256 claim bundles on cross-reference tools; verify any hash publicly via GET /v1/claims/verify/{hash} or the get_citation MCP tool"
   },
-  "updatedAt": "2026-10-12"
+  "updatedAt": "2026-10-14"
 }

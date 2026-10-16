@@ -26,9 +26,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <div class="max-w-none space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">1. {t("Overview", "Aperçu")}</CardTitle>
+          <CardTitle className="text-lg">1. {t("Overview", "Aperçu")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "MapleSpike (\"we\", \"us\", \"our\") provides a government data intelligence platform that aggregates, processes, and serves Canadian public-sector data via REST API, MCP tools, and a web portal. This policy explains what data we collect, how we use it, and your rights.",
             "MapleSpike (« nous », « notre ») offre une plateforme d'intelligence des données gouvernementales qui agrège, traite et sert les données du secteur public canadien via une API REST, des outils MCP et un portail Web. Cette politique explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits.",
@@ -42,9 +42,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">2. {t("Data We Collect", "Données que nous collectons")}</CardTitle>
+          <CardTitle className="text-lg">2. {t("Data We Collect", "Données que nous collectons")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p><strong>{t("Account data:", "Données de compte :")}</strong> {t(
             "Email address, OAuth provider ID (GitHub, Google, Apple), wallet address (if Web3 auth), and tenant tier. We store the minimum required to authenticate you.",
             "Adresse courriel, identifiant du fournisseur OAuth (GitHub, Google, Apple), adresse de portefeuille (si authentification Web3) et palier du locataire. Nous stockons le minimum requis pour vous authentifier.",
@@ -70,9 +70,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">3. {t("How We Use Your Data", "Comment nous utilisons vos données")}</CardTitle>
+          <CardTitle className="text-lg">3. {t("How We Use Your Data", "Comment nous utilisons vos données")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <ul class="list-disc pl-5 space-y-1.5">
             <li>{t("Authenticate you and manage your account", "Vous authentifier et gérer votre compte")}</li>
             <li>{t("Enforce rate limits and API quotas per your plan tier", "Appliquer les limites de débit et les quotas API selon votre palier")}</li>
@@ -86,9 +86,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">4. {t("Data Storage & Security", "Stockage et sécurité des données")}</CardTitle>
+          <CardTitle className="text-lg">4. {t("Data Storage & Security", "Stockage et sécurité des données")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "API keys are stored as SHA-256 hashes — we cannot recover your plaintext key after issuance. Authentication uses JWT tokens with short-lived refresh cycles.",
             "Les clés API sont stockées sous forme de hachages SHA-256 — nous ne pouvons pas récupérer votre clé en clair après son émission. L'authentification utilise des jetons JWT avec de courts cycles d'actualisation.",
@@ -106,9 +106,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">5. {t("Source Records & Personal Information", "Dossiers de sources et renseignements personnels")}</CardTitle>
+          <CardTitle className="text-lg">5. {t("Source Records & Personal Information", "Dossiers de sources et renseignements personnels")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Source records can include an individual's name as published by the source (for example, a lobbying registration or a charity's directors). We present individuals only in their public or professional capacity as published by the source. We minimize personal contact details in records we serve, and we do not build derived profiles that aggregate a private individual across sources.",
             "Les dossiers de sources peuvent inclure le nom d'une personne tel que publié par la source (par exemple, un enregistrement de lobbyisme ou les administrateurs d'un organisme de bienfaisance). Nous présentons les personnes uniquement dans leur capacité publique ou professionnelle telle que publiée par la source. Nous minimisons les coordonnées personnelles dans les dossiers que nous servons et nous ne créons pas de profils dérivés regroupant une personne privée à partir de plusieurs sources.",
@@ -129,9 +129,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">6. {t("Your Rights", "Vos droits")}</CardTitle>
+          <CardTitle className="text-lg">6. {t("Your Rights", "Vos droits")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <ul class="list-disc pl-5 space-y-1.5">
             <li><strong>{t("Access:", "Accès :")}</strong> {t("Request a copy of your account data", "Demander une copie de vos données de compte")}</li>
             <li><strong>{t("Deletion:", "Suppression :")}</strong> {t("Request permanent deletion of your account and associated data", "Demander la suppression permanente de votre compte et des données associées")}</li>
@@ -154,9 +154,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">7. {t("Cookies", "Témoins")}</CardTitle>
+          <CardTitle className="text-lg">7. {t("Cookies", "Témoins")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "We use a single session cookie for authentication (JWT) and localStorage for UI preferences (dark/light theme). We do not use third-party tracking cookies, advertising pixels, or analytics scripts that profile individual users.",
             "Nous utilisons un seul témoin de session pour l'authentification (JWT) et localStorage pour les préférences d'interface (thème sombre/clair). Nous n'utilisons pas de témoins de suivi tiers, de pixels publicitaires ni de scripts d'analyse qui profilent les utilisateurs individuels.",
@@ -166,9 +166,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">8. {t("Contact", "Contact")}</CardTitle>
+          <CardTitle className="text-lg">8. {t("Contact", "Contact")}</CardTitle>
         </CardHeader>
-        <CardContent class="text-sm text-muted-foreground space-y-3">
+        <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
             "Questions about this policy? Email",
             "Des questions sur cette politique ? Écrivez à",

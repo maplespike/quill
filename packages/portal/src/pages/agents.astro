@@ -160,8 +160,8 @@ const tb = (bi: Bi) => pickBi(lang, bi);
           "Copiez ceci dans les paramètres MCP de votre IA. Les 12 plateformes ci-dessus utilisent exactement la même config.",
         )}
       </p>
-      <Card class="text-left mx-auto border-primary/20 bg-primary/5 mb-6">
-        <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+      <Card className="text-left mx-auto border-primary/20 bg-primary/5 mb-6">
+        <CardContent className="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
           &#123;<br />
           &nbsp;&nbsp;<span class="text-[#D4A017]">"mcpServers"</span>: &#123;<br />
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">"maplespike"</span>: &#123;<br />
@@ -187,16 +187,16 @@ const tb = (bi: Bi) => pickBi(lang, bi);
       <p class="text-muted-foreground mb-10 text-center">{t("One config for every platform", "Une config pour chaque plateforme")}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
         {platforms.map((p) => (
-          <Card class="card-hover flex flex-col border-border/60">
-            <CardHeader class="p-4 pb-2">
+          <Card className="card-hover flex flex-col border-border/60">
+            <CardHeader className="p-4 pb-2">
               <div class="flex items-center gap-2">
                 <span class="text-xl" aria-hidden="true">{p.icon}</span>
-                <CardTitle class="text-base">{p.name}</CardTitle>
+                <CardTitle className="text-base">{p.name}</CardTitle>
               </div>
-              <CardDescription class="text-xs mt-2 leading-relaxed">{tb(p.description)}</CardDescription>
+              <CardDescription className="text-xs mt-2 leading-relaxed">{tb(p.description)}</CardDescription>
             </CardHeader>
-            <CardContent class="p-4 pt-0 mt-auto">
-              <Badge variant="secondary" class="text-[10px] font-mono">{p.setup}</Badge>
+            <CardContent className="p-4 pt-0 mt-auto">
+              <Badge variant="secondary" className="text-[10px] font-mono">{p.setup}</Badge>
             </CardContent>
           </Card>
         ))}
