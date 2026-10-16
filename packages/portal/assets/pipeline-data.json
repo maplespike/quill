@@ -1,33 +1,22 @@
 {
-  "generatedAt": "2026-10-04T16:36:34.560Z",
+  "generatedAt": "2026-10-16T20:08:30.122Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
       "status": "ok",
-      "records": 2,
-      "errors": 16,
+      "records": 1,
+      "errors": 15,
       "data": [
         {
           "committee": "PACP",
           "name": "Public Accounts",
-          "meeting": 47,
-          "date": null,
-          "inCamera": true,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-47/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/PACP/Evidence/EV14235928/PACPEV47-E.XML"
-        },
-        {
-          "committee": "ETHI",
-          "name": "Access to Information, Privacy and Ethics",
-          "meeting": 49,
+          "meeting": 48,
           "date": null,
           "inCamera": false,
           "witnesses": [],
           "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-49/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14220180/ETHIEV49-E.XML"
+          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-48/evidence",
+          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/PACP/Evidence/EV14250602/PACPEV48-E.XML"
         }
       ]
     },
@@ -629,9 +618,9 @@
           "url": "https://open.canada.ca/data/dataset/8a59f5b5-1d94-46b8-bca8-f3fa92e040bc"
         },
         {
-          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Government Operations and Estimates – February 2026",
-          "resources": 5,
-          "url": "https://open.canada.ca/data/dataset/8ff62354-7e7c-440f-91a4-4953c0576e48"
+          "dataset": "Air transportation safety investigation A18W0098",
+          "resources": 2,
+          "url": "https://open.canada.ca/data/dataset/2d77b174-b11b-4516-9c36-209791c6d539"
         }
       ]
     },
@@ -712,8 +701,8 @@
     }
   },
   "stats": {
-    "totalRecords": 86,
-    "hoc": 2,
+    "totalRecords": 85,
+    "hoc": 1,
     "senate": 0,
     "gazette": 0,
     "gic": 12,
@@ -736,208 +725,208 @@
   },
   "activity": [
     {
-      "action": "Hoc: PACP #47 — 2 meetings",
+      "action": "Hoc: PACP #48 — 1 meetings",
       "type": "hoc",
-      "time": "2026-10-04T16:36:34.553Z",
-      "count": 2
+      "time": "2026-10-16T20:08:30.105Z",
+      "count": 1
     },
     {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 15
     },
     {
       "action": "Elections: \"2021 Municipal Election — Sections (polling day offices)\" — 15 resources",
       "type": "elections",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 15
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 1
     },
     {
       "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
       "type": "immigration",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 4
     },
     {
       "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
       "type": "transport",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 5
     },
     {
       "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
       "type": "defence",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 1
     },
     {
       "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
       "type": "education",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 5
     },
     {
       "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
       "type": "science",
-      "time": "2026-10-04T16:36:34.553Z",
+      "time": "2026-10-16T20:08:30.105Z",
       "count": 6
     }
   ],
   "pipeline": {
     "hoc": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
-      "records": 2,
-      "errors": 16
+      "lastRun": "2026-10-16T20:08:30.122Z",
+      "records": 1,
+      "errors": 15
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.122Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.122Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.122Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.122Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 15,
       "errors": 1
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 15,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 2,
       "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 1,
       "errors": 0
     },
     "immigration": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 4,
       "errors": 0
     },
     "indigenous": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 0,
       "errors": 2
     },
     "transport": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 5,
       "errors": 0
     },
     "defence": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 1,
       "errors": 1
     },
     "health": {
       "status": "error",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 0,
       "errors": 2
     },
     "education": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 5,
       "errors": 0
     },
     "science": {
       "status": "ok",
-      "lastRun": "2026-10-04T16:36:34.560Z",
+      "lastRun": "2026-10-16T20:08:30.123Z",
       "records": 6,
       "errors": 0
     }
@@ -1132,6 +1121,6 @@
         "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
       }
     ],
-    "ingestedAt": "2026-10-04T16:36:34.560Z"
+    "ingestedAt": "2026-10-16T20:08:30.122Z"
   }
 }
