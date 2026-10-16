@@ -17,9 +17,12 @@ hard-code "disabled" or delete the deploy path. Three verdicts, one probe:
 writes `verdict=<…>` to `$GITHUB_OUTPUT`:
 
 - exit 0 + `verdict=enabled` — a Pages site exists.
-- exit 3 + `verdict=not-enabled` — 404. `gh`'s exact live stderr shape is
+- exit 0 + `verdict=not-enabled` — 404. `gh`'s exact live stderr shape is
   `gh: Not Found (HTTP 404)`; the script greps for `HTTP 404`, not the
-  message text, so a re-worded error still classifies correctly.
+  message text, so a re-worded error still classifies correctly. Exits 0,
+  not 3: GitHub attaches an error annotation to any non-zero step exit, and
+  run 38853460606 carried "Process completed with exit code 3" as an X on an
+  otherwise green run — the verdict is the channel, not the exit code.
 - exit 1 + `verdict=error` — any other failure, and every missing
   precondition (no `GH_TOKEN`/`GITHUB_TOKEN`, no `gh` on PATH, no
   `GH_REPO`). Each also emits `::error::`.
@@ -66,7 +69,7 @@ steps are gated.
 `scripts/test-deploy-docs-pages-gating.mts` (tsx --test):
 
 1. Probe contract, executed for real against a stubbed `gh`: rc 0 →
-   enabled; the live 404 stderr shape → rc 3 / not-enabled; 401 / 422 /
+   enabled; the live 404 stderr shape → rc 0 / not-enabled; 401 / 422 /
    bare crash → rc 1 / error; every missing precondition → rc 1 / error;
    `GITHUB_TOKEN` accepted as the token name.
 2. Workflow wiring, asserted on the file: the probe step exists with

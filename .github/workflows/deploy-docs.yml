@@ -16,7 +16,7 @@
 # does not support GitHub Pages for this repository" (org-owner token), because
 # the repo is private on the free org plan. Unlike the 2026-09-22 note below,
 # the workflow no longer dies red on that state: the deploy steps are gated on
-# scripts/gates/pages-probe.sh, which tells "not enabled" (exit 3) apart from a
+# scripts/gates/pages-probe.sh, which tells "not enabled" (verdict=not-enabled) apart from a
 # real error (exit 1). Not-enabled skips ONLY the deploy with a loud warning —
 # the build above it still runs and is verified, so a push to main is green
 # when the build is green and red only when something in the repo is actually

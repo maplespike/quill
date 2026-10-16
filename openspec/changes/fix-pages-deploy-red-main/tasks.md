@@ -1,6 +1,6 @@
 ## 1. Probe
 
-- [x] 1.1 `scripts/gates/pages-probe.sh`: classify `GET /repos/{repo}/pages` — enabled (exit 0) / not-enabled on 404 (exit 3) / error (exit 1, fail-closed preconditions for missing token, gh, repo)
+- [x] 1.1 `scripts/gates/pages-probe.sh`: classify `GET /repos/{repo}/pages` — enabled (exit 0) / not-enabled on 404 (exit 0, verdict carries the state) / error (exit 1, fail-closed preconditions for missing token, gh, repo)
 - [x] 1.2 Emit `verdict=<…>` to `$GITHUB_OUTPUT` on every path (including errors) so the workflow gates on a value, never on absence
 
 ## 2. Workflow gating
@@ -20,7 +20,7 @@
 
 ## 4. Verification
 
-- [x] 4.1 Probe runs green locally against the live repo (verdict=not-enabled, exit 3)
+- [x] 4.1 Probe runs green locally against the live repo (verdict=not-enabled, exit 0)
 - [x] 4.2 `pnpm run test:pages-gating` — all tests pass locally
 - [x] 4.3 actionlint + workflow-YAML gate + gh-auth gate pass on the edited workflows
 - [x] 4.4 CI green on the branch
