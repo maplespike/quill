@@ -18,6 +18,7 @@ MapleSpike uses **GitHub Actions** for all CI/CD, running on a **self-hosted Nix
 | **PR Validation** | PR opened/edited/synced | Branch naming, issue linking, commit messages, title format |
 | **Auto Create Issues** | Weekly (Mon 9AM) + manual | Stale docs, missing metadata, metrics drift |
 | **Cross-Repo Sync** | Weekly (Sun midnight) + manual | AGENTS.md and workflow consistency across repos |
+| **Weekly Release** | Weekly (Fri 2PM) + manual | Version the pending changesets, push the release branch, hand the release PR to a human |
 
 ---
 
@@ -122,6 +123,32 @@ Runs against `reverb256/quill`, `reverb256/frostbite-gazette`, and `reverb256/mc
 - **Workflows** — lists all `.github/workflows/*.yml` files
 
 Results printed to the action summary — no auto-issues created (currently informational).
+
+---
+
+## Weekly Release (`release-weekly.yml`)
+
+**Schedule:** Every Friday at 2 PM
+**Manual:** `workflow_dispatch`
+
+### What it does
+
+1. Count the pending `.changeset/*.md` files. With none, it stops and writes that to the summary.
+2. Run `pnpm changeset version` and show the diff in the step summary.
+3. Push the version bump to `changeset-release/main`.
+4. Open the release PR (`changeset-release/main` → `main`), or hand it off when the platform refuses.
+
+### Why it does not open the PR itself
+
+The repository sets `can_approve_pull_request_reviews: false`. GitHub Actions therefore may not create or approve pull requests, and `pulls.create` with the workflow `GITHUB_TOKEN` fails with HTTP 403:
+
+```
+GitHub Actions is not permitted to create or approve pull requests.
+```
+
+That refusal is deliberate — see #1041, which works around the same limit in `dependabot-auto-merge.yml`. The step handles it: it posts the handoff issue with a one-click compare link and exits 0. To make the lane open the PR directly, store a fine-grained PAT with `contents: write` and `pull_requests: write` on this repository as the secret `RELEASE_TOKEN`; the workflow uses it when it exists.
+
+The release PR targets `main`, because the `prod` branch was retired in #1020. `BASE_BRANCH` in the workflow must equal `baseBranch` in `.changeset/config.json`; `scripts/gates/check-release-workflow.mjs` fails the build when they drift.
 
 ---
 
