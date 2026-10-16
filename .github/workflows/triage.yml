@@ -9,7 +9,7 @@ jobs:
   triage:
     runs-on: [self-hosted, nixos]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: chmod +x scripts/quill-issue-triage.sh && bash scripts/quill-issue-triage.sh ${{ github.event.issue.number }} ${{ github.repository }}
         env:
           GH_TOKEN: ${{ github.token }}

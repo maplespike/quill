@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Find Sprint-to-Live v1 milestone
         id: find-milestone
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { data: milestones } = await github.rest.issues.listMilestones({
@@ -41,7 +41,7 @@ jobs:
 
       - name: Assign milestone to PR / Issue
         if: steps.find-milestone.outputs.milestone_number != '0'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const milestoneNumber = parseInt('${{ steps.find-milestone.outputs.milestone_number }}');

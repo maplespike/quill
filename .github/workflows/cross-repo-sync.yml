@@ -20,7 +20,7 @@ jobs:
           # - reverb256/frostbite-gazette  # PRIVATE repo — needs a cross-repo PAT; re-add when one is configured
           - reverb256/mcp-canada
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repo }}
 
