@@ -210,21 +210,29 @@ function expectRejected(v: Verdict, label: string): Bad {
 
 /** Rewrite the args scalar of the lychee step, for fixtures. */
 function withArgs(workflow: string, mutate: (args: string) => string): string {
+  assert.match(workflow, /^\s*args:\s*\S/m, 'fixture: the lychee step must pass args');
   const next = workflow.replace(
     /^(\s*args:\s*)(.+)$/m,
     (_match, prefix: string, args: string) => prefix + mutate(args),
   );
-  assert.notEqual(next, workflow, 'fixture: the args line must exist to be rewritten');
+  // Deliberately no "must differ" assert: a mutate that lands on the value
+  // already present is a no-op, not a broken fixture. Each fixture states the
+  // effect it needs asserted.
   return next;
 }
 
+/**
+ * Point the workflow at `ref`. A SET, not a change: this lane runs against
+ * trees where the pin is already the target (PR #966's rebase is main + the
+ * bump), and a change-or-fail helper there would red the lane on a correct
+ * tree — the false-red class this repo already paid for once (#1091).
+ */
 function withPin(workflow: string, ref: string): string {
-  const next = workflow.replace(
+  assert.match(workflow, /lycheeverse\/lychee-action@[^\s#]+/, 'fixture: the action must be pinned');
+  return workflow.replace(
     /lycheeverse\/lychee-action@[^\s#]+/,
     `lycheeverse/lychee-action@${ref}`,
   );
-  assert.notEqual(next, workflow, 'fixture: the action pin must exist to be rewritten');
-  return next;
 }
 
 // ── the live workflow ─────────────────────────────────────────────────────
@@ -286,6 +294,31 @@ test('the bump alone, with the fixed args, stays green', () => {
   // This is PR #966's workflow once this change has landed on main.
   const v = expectOk(vetReadmeLint(withPin(wf, 'v2.9.0')), 'bumped pin');
   assert.equal(v.lychee, 'v0.24.2');
+});
+
+test('the fixtures are idempotent: a tree already on the bumped pin stays green', () => {
+  // The rebase IS main + the bump, so this lane runs on trees where the pin is
+  // already v2.9.0. A change-or-fail fixture would red a correct tree there —
+  // the false-red class of #1091. Guards this lane against re-introducing it.
+  const bumped = withPin(wf, 'v2.9.0');
+  const again = withPin(bumped, 'v2.9.0');
+  assert.equal(again, bumped, 'withPin must SET the pin, not require a change');
+  const v = expectOk(vetReadmeLint(again), 'already-bumped tree');
+  assert.equal(v.ref, 'v2.9.0');
+  assert.equal(v.lychee, 'v0.24.2');
+});
+
+test('withArgs tolerates a mutation that changes nothing (no change-or-fail)', () => {
+  // The helper must not require the mutation to differ from its input: a
+  // fixture whose mutation is already satisfied is a no-op, not a broken
+  // fixture. Combined with the pin test above, no fixture can red a correct
+  // tree just because that tree already looks like the fixture's target.
+  assert.equal(withArgs(wf, (args) => args), wf);
+  const v = expectOk(
+    vetReadmeLint(withPin(withArgs(wf, (args) => args), 'v2.9.0')),
+    'no-op mutation + bumped pin',
+  );
+  assert.equal(v.ref, 'v2.9.0');
 });
 
 test('re-adding `--exclude-mail` on the bumped pin fails the guard (the incident shape)', () => {
