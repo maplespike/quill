@@ -15,10 +15,10 @@
 
 Browser evidence: `/tmp/quill-design-review/results.json` and 18 desktop/mobile screenshots. These are local review artifacts, not committed production files.
 
-## Workspace test limitation
+## Workspace test repair
 The first full test run failed MCP startup and pipeline tests. The documented `scripts/build-packages.sh` injected-copy repair resolved MCP startup: all 256 active MCP tests passed; 10 existing tests skipped. API tests also passed.
 
-After the repair, `NODE_ENV=test pnpm test` completed with 20/21 Turbo tasks successful. The unchanged pipeline-core suite failed. Its Qdrant embedder tests import `src/utils/logger.ts`, which configures `pino-pretty` outside production, but pipeline-core does not declare or resolve that package. A direct isolated embedder test reproduces `unable to determine transport target for "pino-pretty"`. This change does not alter that logger, dependency manifest, or test suite. The full workspace suite is not reported as passing.
+The unchanged pipeline-core suite then failed in Qdrant embedder tests because `packages/pipeline-core/src/utils/logger.ts` configured `pino-pretty` whenever `NODE_ENV !== 'production'`, even though `pipeline-core` does not declare `pino-pretty` as a dependency. Guarding `logger.ts` so `pino-pretty` is only used outside `production`/`test` when resolvable fixed all 1,242 active `pipeline-core` tests (4 skipped). With that repair in place, the full workspace `NODE_ENV=test pnpm test` suite passed (all 21 Turbo tasks and all repository gate tests exit 0).
 
 No live purchases, account creation, credential rotation, or user-data mutation were performed. Browser auth/search fixtures prove presentation and request handoff, not live payment processing.
 
