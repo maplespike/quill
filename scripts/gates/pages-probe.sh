@@ -16,12 +16,19 @@
 # Verdict contract (pinned by scripts/test-deploy-docs-pages-gating.mts):
 #   - writes "verdict=enabled"      to $GITHUB_OUTPUT and exits 0 when a
 #     Pages site exists        → caller deploys (unchanged path)
-#   - writes "verdict=not-enabled"   and exits 3 on 404 (the documented
+#   - writes "verdict=not-enabled"   and exits 0 on 404 (the documented
 #     free-plan-private-repo state) → caller skips ONLY the deploy, green
 #   - writes "verdict=error"         and exits 1 on anything else (auth,
 #     rate limit, 5xx, missing gh/token/repo) → caller must fail loudly
 #   - a crash that writes no verdict at all must be treated by the caller
 #     as an error (fail-closed), never as "not-enabled"
+#
+# Why not-enabled exits 0, not 3: a non-zero step exit makes GitHub attach
+# an error annotation ("Process completed with exit code 3") to an otherwise
+# green run — measured live on run 38853460606 — so every future run would
+# carry a fake error signal for the expected free-plan state. The verdict is
+# the only channel; unclassified failures are the only non-zero exits. Same
+# convention as merge-when-green.yml's "not my turn exits 0, never 1".
 #
 # Requires GH_TOKEN or GITHUB_TOKEN in scope (minted per run; see
 # scripts/gates/check-workflow-gh-auth.mjs for why ambient credentials are
@@ -70,10 +77,12 @@ fi
 # is real and must fail the run. Bash's [[ ]] substring test is a builtin:
 # the probe stays self-contained even on a minimal PATH (pinned by
 # scripts/test-deploy-docs-pages-gating.mts, which runs it with PATH=stubdir).
+# Exit 0, not 3: the run is green and must not carry an error annotation for
+# the expected state (run 38853460606 carried "exit code 3" as an X).
 if [[ "$ERR" == *"HTTP 404"* ]]; then
   echo "pages-probe: no Pages site on ${GH_REPO} (404) — Pages is not enabled under the current plan."
   emit not-enabled
-  exit 3
+  exit 0
 fi
 
 echo "::error::pages-probe: gh api exited ${rc}: ${ERR}" >&2
