@@ -177,6 +177,18 @@ jobs:
       - name: Pages deploy gating unit tests
         run: pnpm exec tsx --test scripts/test-deploy-docs-pages-gating.mts
 
+      # Incident rule for run 38932597379 (PR #966, README Lint): Dependabot's
+      # actions bump moved lychee-action v2.0.2 -> v2.9.0, and the action
+      # downloads a lychee binary that moves with the tag (v0.16.1 -> v0.24.2).
+      # Upstream lychee removed `--exclude-mail` in v0.19.0
+      # (lycheeverse/lychee#1669), so the flag the workflow still passed made
+      # lychee exit 2 before it checked a single link. These fixtures resolve
+      # the binary each pinned tag governs and red the lane on any removed flag
+      # the args still carry, so a bump can neither break the link gate nor
+      # leave it silently checking nothing.
+      - name: README Lint lychee flag tests
+        run: pnpm exec tsx --test scripts/test-readme-lint-flags.mts
+
       # Incident rule for the silent unit-lane hangs (#996; CI runs
       # 37237114470 and 37943276276): a node:test child whose event loop is
       # held open by a live handle runs with --test-timeout=0, so the lane
