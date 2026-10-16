@@ -24,7 +24,7 @@ jobs:
     # must not squat a runner from the pool (#996).
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - run: pnpm install --frozen-lockfile
 
@@ -55,7 +55,7 @@ jobs:
     runs-on: [self-hosted, nixos]
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - run: pnpm install --frozen-lockfile
 
@@ -93,7 +93,7 @@ jobs:
     runs-on: [self-hosted, nixos]
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - run: pnpm install --frozen-lockfile
 
@@ -137,7 +137,7 @@ jobs:
     # through the stall watchdog so a silent hang is visible and fatal.
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - run: pnpm install --frozen-lockfile
 
