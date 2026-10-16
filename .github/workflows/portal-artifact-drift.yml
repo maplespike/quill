@@ -69,7 +69,7 @@ jobs:
     runs-on: [self-hosted, nixos]
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: the drift checker compares the worktree against
           # `git show HEAD:<path>`, and the generators resolve their timestamp

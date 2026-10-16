@@ -33,7 +33,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos, rust]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check formatting
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -46,7 +46,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos, rust]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -60,7 +60,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos, rust]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Run lib tests
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}

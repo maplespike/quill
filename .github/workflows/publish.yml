@@ -22,7 +22,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: [self-hosted, nixos]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/build-packages.sh
@@ -43,10 +43,10 @@ jobs:
       run:
         working-directory: packages/sdk-python
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: { python-version: "3.12" }
 
       - name: Install build tools
