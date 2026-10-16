@@ -1,3 +1,60 @@
+# =============================================================================
+# MapleSpike — Weekly Release
+#
+# WHAT THIS LANE DOES
+#
+# It takes the changesets pending on `main`, runs `changeset version`, pushes
+# the result to `changeset-release/main`, and gets a release PR opened for
+# review. Two things about that are measured facts, not preferences:
+#
+# 1. This lane cannot open the PR by itself. The repository does not permit
+#    GitHub Actions to create or approve pull requests
+#    (`can_approve_pull_request_reviews: false` — deliberate; #1041 works
+#    around the same refusal in dependabot-auto-merge.yml). `pulls.create`
+#    with the workflow GITHUB_TOKEN is refused:
+#
+#      RequestError [HttpError]: GitHub Actions is not permitted to create or
+#      approve pull requests.     (403, run 38942770925, 2026-10-16 17:51)
+#
+#    So the PR step attempts the PR, and when the platform refuses it posts a
+#    handoff issue instead (branch pushed, one-click compare link) and exits 0.
+#    If a fine-grained PAT with `contents: write` + `pull_requests: write` on
+#    this repository is ever stored as the secret RELEASE_TOKEN, this same step
+#    opens the PR directly and the handoff never runs.
+#
+# 2. The release PR targets `main`, not `prod`. The prod branch was retired in
+#    #1020 (2026-10-05, "publish on tags, changeset baseBranch=main") and no
+#    longer exists — `GET /repos/maplespike/quill/branches/prod` returns 404. A
+#    PR into a missing branch cannot be created even by a token that may open
+#    PRs. BASE_BRANCH below is the single source of truth for the target and
+#    must equal `.changeset/config.json`'s `baseBranch`;
+#    scripts/gates/check-release-workflow.mjs fails the build if they drift.
+#
+# INCIDENT RULES FIXED HERE (live bugs, measured — not style)
+#
+#   * `head: 'changeset-release/prod'` — GitHub IGNORES a `head` filter that is
+#     not owner-qualified (`owner:branch`) and returns the repository's open
+#     PRs unfiltered. While any unrelated PR happened to be open, this lane read
+#     it as "the release PR already exists" and exited 0 without pushing
+#     anything: a false green on 2026-09-25, 10-02 and 10-09 (a Dependabot PR
+#     was open on each of those days). The first Friday with zero open PRs
+#     (2026-10-16, 17:50) fell through to the real path and went red. The filter
+#     is now `${owner}:${branch}`, and scripts/gates/check-release-workflow.mjs
+#     forbids an unqualified `head:` filter anywhere in .github/workflows.
+#
+#   * The old step committed the version bump and then failed on the PR call, so
+#     the branch was pushed but the run never said what a human should do next.
+#     The branch is now force-pushed, because it is regenerated from the current
+#     base every week and last week's branch is a different commit on a
+#     different base — a plain push is rejected as non-fast-forward.
+#
+#   * `labels: ['release', 'automation']` — no `release` label exists in this
+#     repository, so `addLabels` would have failed with 422 on the first PR this
+#     lane ever opened. It now uses labels that exist (`ci`, `automation`).
+#
+# Runner label `nixos` is historical: the hosts run Omarchy (Arch) with node,
+# pnpm and gh installed as system packages (see the header of ci.yml).
+# =============================================================================
 name: Weekly Release
 
 on:
@@ -8,7 +65,12 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
+  issues: write
+
+env:
+  # The release PR's base branch. MUST equal `.changeset/config.json`'s
+  # `baseBranch`; scripts/gates/check-release-workflow.mjs enforces it.
+  BASE_BRANCH: main
 
 jobs:
   prepare-release:
@@ -17,6 +79,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Resolve the release branch name
+        run: |
+          set -euo pipefail
+          echo "RELEASE_BRANCH=changeset-release/${BASE_BRANCH}" >> "$GITHUB_ENV"
+          echo "Release branch: changeset-release/${BASE_BRANCH} (base ${BASE_BRANCH})" >> "$GITHUB_STEP_SUMMARY"
 
       - run: pnpm install --frozen-lockfile
 
@@ -36,6 +104,7 @@ jobs:
         env:
           # changesets' changelog generation reads GITHUB_TOKEN; without it the
           # step dies with "Please create a GitHub personal access token ..."
+          # (that was the 2026-09-18 red, fixed by 5e51012c on 2026-09-20).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm changeset version
@@ -43,48 +112,135 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           git diff --stat HEAD >> $GITHUB_STEP_SUMMARY
 
-      - name: Create Release PR
+      - name: Open the release PR (or hand off to an issue)
         if: steps.check-changesets.outputs.has_changesets == 'true'
         uses: actions/github-script@v9
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # RELEASE_TOKEN is a fine-grained PAT (contents:write,
+          # pull_requests:write on this repository) when one is configured;
+          # GITHUB_TOKEN otherwise. The repository refuses GITHUB_TOKEN for PR
+          # creation, which the script below handles explicitly.
+          github-token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const base = process.env.BASE_BRANCH;
+            const branch = process.env.RELEASE_BRANCH;
+            const title = 'chore: weekly release';
+            const body = [
+              '## 📦 Weekly Release',
+              '',
+              `Automated version bump and changelog generation from the pending changesets on \`${base}\`.`,
+              '',
+              '_Prepared by the weekly release lane._'
+            ].join('\n');
+
+            // The `head` filter MUST be owner-qualified. GitHub ignores
+            // `head: 'changeset-release/prod'` (no `owner:` prefix) and returns
+            // every open PR instead — which is how this lane reported a false
+            // green for three weeks (2026-09-25, 10-02, 10-09) while doing
+            // nothing. See the header of this workflow.
             const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner,
+              repo,
               state: 'open',
-              head: 'changeset-release/prod'
+              head: `${owner}:${branch}`
             });
 
-            if (prs.length === 0) {
-              // Commit and push version changes
-              const { execSync } = require('child_process');
-              execSync('git config user.name "maple-automation"');
-              execSync('git config user.email "automation@maplespike.ca"');
-              execSync('git add -A');
-              execSync('git commit -m "chore: version packages for weekly release"');
-              execSync('git push origin HEAD:changeset-release/prod');
+            if (prs.length > 0) {
+              core.notice(`Release PR already open: #${prs[0].number} (${branch} -> ${base}). Nothing to do.`);
+              return `Release PR already open: #${prs[0].number}`;
+            }
 
-              // Create PR
+            // Commit the version bump and publish it on the release branch. The
+            // branch is regenerated from the current base every week, so it is
+            // force-pushed: last week's branch is a different commit on a
+            // different base and a plain push is rejected as non-fast-forward.
+            const { execSync } = require('child_process');
+            execSync('git config user.name "maple-automation"');
+            execSync('git config user.email "automation@maplespike.ca"');
+            execSync('git add -A');
+            if (execSync('git status --porcelain').toString().trim() === '') {
+              core.notice('changeset version produced no changes — nothing to release.');
+              return 'No version changes';
+            }
+            execSync('git commit -m "chore: version packages for weekly release"');
+            execSync(`git push --force origin HEAD:refs/heads/${branch}`, { stdio: 'inherit' });
+            core.notice(`Pushed ${branch} (base ${base}).`);
+
+            // Attempt the PR. On this repository the workflow token is refused
+            // ("GitHub Actions is not permitted to create or approve pull
+            // requests.") — that refusal is the expected outcome, so it hands
+            // off below instead of failing the run. Every other error is real
+            // and must fail the step.
+            try {
               const { data: pr } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'chore: weekly release',
-                head: 'changeset-release/prod',
-                base: 'prod',
-                body: '## 📦 Weekly Release\n\nAutomated version bump and changelog generation.\n\n_Generated by weekly-release workflow_'
+                owner,
+                repo,
+                title,
+                head: branch,
+                base,
+                body
               });
-
               await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner,
+                repo,
                 issue_number: pr.number,
-                labels: ['release', 'automation']
+                labels: ['ci', 'automation']
               });
-
+              core.notice(`Opened release PR #${pr.number} (${branch} -> ${base}).`);
               return `Created PR #${pr.number}`;
-            } else {
-              return `Release PR already exists: #${prs[0].number}`;
+            } catch (err) {
+              if (err.status !== 403 || !/not permitted to create/i.test(String(err.message))) throw err;
+
+              // Handoff: the branch is pushed, so one click on the compare page
+              // opens the PR with the title and body already filled in.
+              const compare = `https://github.com/${owner}/${repo}/compare/${base}...${branch}?expand=1`;
+              const issueTitle = `Weekly release ready — open the PR: ${branch} -> ${base}`;
+              const handoffBody = [
+                'This repository does not permit GitHub Actions to create or approve pull requests',
+                '(`can_approve_pull_request_reviews: false`, deliberate — see #1041), so the weekly',
+                'release lane cannot open its own PR. The release branch is pushed and ready:',
+                '',
+                `* **Branch:** \`${branch}\` (base \`${base}\`, force-pushed this run from the current ${base})`,
+                `* **Open the PR:** ${compare}`,
+                '',
+                'That link opens the pull-request form with the title and body pre-filled — review the',
+                'version bump, then create the PR.',
+                '',
+                '_Automated by the weekly release lane (`.github/workflows/release-weekly.yml`)._',
+                '_Adding a fine-grained PAT as the `RELEASE_TOKEN` secret makes this lane open the PR directly._'
+              ].join('\n');
+
+              const { data: open } = await github.rest.issues.listForRepo({
+                owner,
+                repo,
+                state: 'open',
+                labels: 'automation',
+                per_page: 100
+              });
+              const existing = open.find((issue) => issue.title === issueTitle && !issue.pull_request);
+
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body: `Release branch \`${branch}\` re-pushed on a fresh \`${base}\`. ${compare}`
+                });
+                core.notice(`GitHub Actions may not open the PR — refresh posted on handoff issue #${existing.number}.`);
+                return `Handed off (existing issue #${existing.number})`;
+              }
+
+              const { data: issue } = await github.rest.issues.create({
+                owner,
+                repo,
+                title: issueTitle,
+                body: handoffBody,
+                labels: ['ci', 'automation']
+              });
+              core.notice(`GitHub Actions may not open the PR — handed off in issue #${issue.number}.`);
+              return `Handed off in issue #${issue.number}`;
             }
 
       - name: No changesets
