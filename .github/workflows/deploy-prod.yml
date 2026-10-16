@@ -57,7 +57,7 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -79,7 +79,7 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # A full history is needed: pin-images.sh stamps the import tag with
           # the commit SHA, and a shallow clone makes that ambiguous.
