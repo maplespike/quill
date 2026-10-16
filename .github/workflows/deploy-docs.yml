@@ -11,6 +11,19 @@
 # Required Secrets:
 #   None — the GITHUB_TOKEN used by actions/deploy-pages is auto-provided.
 # =============================================================================
+# NOTE (2026-10-15, #1086): Pages is STILL not enabled and CANNOT be enabled
+# today — `POST /repos/{repo}/pages` is refused with 422 "Your current plan
+# does not support GitHub Pages for this repository" (org-owner token), because
+# the repo is private on the free org plan. Unlike the 2026-09-22 note below,
+# the workflow no longer dies red on that state: the deploy steps are gated on
+# scripts/gates/pages-probe.sh, which tells "not enabled" (exit 3) apart from a
+# real error (exit 1). Not-enabled skips ONLY the deploy with a loud warning —
+# the build above it still runs and is verified, so a push to main is green
+# when the build is green and red only when something in the repo is actually
+# broken. The deploy path itself is unchanged and self-heals the moment Pages
+# becomes available (public flip or paid plan — issue #1086 lists the owner
+# steps). #1086 also pins this gating in scripts/test-deploy-docs-pages-gating.mts.
+#
 # NOTE (2026-09-22): these runs fail until the repository is public. GitHub Pages
 # is not enabled on it (`has_pages: false`, /pages returns 404) and private-repo
 # Pages needs a paid plan, so the failure is a repo setting, not this code. The
@@ -94,14 +107,47 @@ jobs:
           cp packages/portal/styles.css packages/portal/dist/styles.css
           cp packages/portal/docs-pretext.js packages/portal/dist/docs-pretext.js
 
+      - name: Probe GitHub Pages availability
+        # #1086: verdict=enabled → deploy (unchanged path); verdict=not-enabled
+        # (404, free-plan private repo) → skip ONLY the deploy, stay green;
+        # verdict=error → fail loud. The probe's contract is pinned by
+        # scripts/test-deploy-docs-pages-gating.mts.
+        id: pages-probe
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: bash scripts/gates/pages-probe.sh
+
+      - name: Fail loud on probe error (never guess a deploy)
+        # Fail-closed (#1086): a probe that crashed without a verdict must
+        # never read as "not-enabled" — that would silently skip deploys on a
+        # repo where Pages IS enabled.
+        if: steps.pages-probe.outputs.verdict != 'enabled' && steps.pages-probe.outputs.verdict != 'not-enabled'
+        run: |
+          echo "::error::pages-probe returned no verdict (outcome: ${{ steps.pages-probe.outcome }}). Refusing to guess — this is a real failure, not the not-enabled skip."
+          exit 1
+
+      - name: Skip Pages deploy (not enabled on this plan)
+        # The org plan refuses Pages on a private repo (POST /pages → 422).
+        # Skipping ONLY the deploy keeps the build verification signal: a
+        # green run means "build verified, no deploy", never "deployed".
+        # Loud, so nobody mistakes the skip for a success.
+        if: steps.pages-probe.outputs.verdict == 'not-enabled'
+        run: |
+          echo "::warning::Pages is not enabled on ${{ github.repository }} (private repo on the free plan — POST /pages is refused with 422). The portal + docs build above IS verified; the deploy is skipped. Enable Pages (public flip or paid plan — see issue #1086), then re-run: the deploy path is unchanged and will fire on the next run."
+
       - name: Setup GitHub Pages
+        if: steps.pages-probe.outputs.verdict == 'enabled'
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: steps.pages-probe.outputs.verdict == 'enabled'
         uses: actions/upload-pages-artifact@v3
         with:
           path: packages/portal/dist
 
       - name: Deploy to GitHub Pages
+        if: steps.pages-probe.outputs.verdict == 'enabled'
         id: deployment
         uses: actions/deploy-pages@v4
