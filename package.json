@@ -65,7 +65,7 @@
   "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@10.32.1+sha512.dcffc7b9dc455aa8555b7c0a5f71c9032fa9ff0d31308a81d0d13cb6c642b4893698c9f1fb4d36d2ae7e77a891f048f09574a7c8a215a8b4a3af53818378a75b",
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^2.31.0",
     "@chenglou/pretext": "^0.0.8",
     "@eslint/js": "^10.0.1",
