@@ -195,11 +195,11 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     assert.equal(location, '/sse');
   });
 
-  it('GET /sse returns 401 when no auth provided', async () => {
-    const res = await fetch(`${baseUrl}/sse`);
-    assert.equal(res.status, 401);
-    const body = await res.json() as Record<string, unknown>;
-    assert.equal(body.error, 'Unauthorized');
+  it('GET /sse opens anonymously for discovery', async () => {
+    const res = await fetch(`${baseUrl}/sse`, { headers: { Accept: 'text/event-stream' } });
+    assert.equal(res.status, 200);
+    // consume/close
+    res.body?.cancel();
   });
 
   it('POST /messages returns 404 without SSE clientId', async () => {

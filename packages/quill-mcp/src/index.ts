@@ -259,10 +259,26 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
   }
 
   if (path === '/sse' && req.method === 'GET') {
-    if (!await authenticate(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
+    const token = bearerToken(req);
+    // Anonymous discovery is allowed: directories (glama/mcprush) must be
+    // able to open the SSE handshake without a key. Authenticated callers
+    // still validate their bearer. Anonymous surface is rate-limited per IP.
+    if (token) {
+      if (!await authenticate(req)) {
+        res.writeHead(401, {
+          'Content-Type': 'application/json',
+          'WWW-Authenticate': 'Bearer realm="quill"',
+        });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
+    } else {
+      if (!checkRateLimit(`ip:${clientIp(req)}`)) {
+        logger.warn({ ip: clientIp(req) }, 'SSE anonymous rate limit exceeded');
+        res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+        res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
+        return;
+      }
     }
 
     if (clients.size >= MAX_SSE_CLIENTS) {
@@ -272,9 +288,9 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     }
 
     const clientId = randomUUID();
-    const token = bearerToken(req);
-    const identity = token
-      ? buildIdentity('api-key', token)
+    const streamToken = bearerToken(req);
+    const identity = streamToken
+      ? buildIdentity('api-key', streamToken)
       : buildIdentity('anonymous-ip', clientIp(req));
     const acceptLang = req.headers['accept-language'] || '';
     const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
@@ -336,11 +352,17 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     // Re-check the credential. A key revoked or expired after GET /sse must not
     // keep posting on the open stream. A different still-valid key fails the
     // hash check above and does not close this session.
-    if (!await authenticate(req)) {
-      dropClient(client.id);
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
+    const isAnonymousSession = client.credentialHash === EMPTY_CREDENTIAL_HASH;
+    if (!isAnonymousSession) {
+      if (!await authenticate(req)) {
+        dropClient(client.id);
+        res.writeHead(401, {
+          'Content-Type': 'application/json',
+          'WWW-Authenticate': 'Bearer realm="quill"',
+        });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
     }
 
     // Credential bucket. Do not use the peer address or X-Forwarded-For:
@@ -390,6 +412,19 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       const paymentProof = X402_ENABLED
         ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
         : undefined;
+
+      // Anonymous discovery allowlist: only init/handshake/ping/tools/list.
+      const anonAllowed = new Set(['initialize', 'notifications/initialized', 'ping', 'tools/list']);
+      const method = (parsed as { method?: unknown })?.method;
+      if (isAnonymousSession && !(typeof method === 'string' && anonAllowed.has(method))) {
+        logger.warn({ method }, 'Anonymous MCP call rejected');
+        res.writeHead(401, {
+          'Content-Type': 'application/json',
+          'WWW-Authenticate': 'Bearer realm="quill"',
+        });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
 
       const identity = client.identity;
       const quotaStatus = getQuotaTracker().getStatus(identity);
