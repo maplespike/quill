@@ -22,6 +22,7 @@ name = "quill-ai"
 main = "src/ai-worker.ts"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
+upload_source_maps = false
 
 # ── AI Binding (Workers AI) ─────────────────────────────────────────────
 [ai]
