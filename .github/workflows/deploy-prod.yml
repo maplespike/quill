@@ -101,6 +101,16 @@ jobs:
             exit 1
           fi
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the portal output
+        # pin-images.sh refuses to build the portal image without
+        # packages/portal/dist: Dockerfile.portal COPYs the built Astro output
+        # rather than building it inside the image. The ci job builds it in its
+        # own workspace, which this job does not inherit (run 39633262674).
+        run: pnpm --filter @maplespike/portal build
+
       - name: Build, scan, and import images
         # Writes a per-image SBOM next to the images and refuses an empty one.
         # Needs k3s (containerd) and syft on the host; both are required, and a
