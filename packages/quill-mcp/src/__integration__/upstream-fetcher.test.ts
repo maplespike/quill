@@ -68,7 +68,12 @@ after(() => {
 // The module under test uses module-level imports for cache functions,
 // so we import it inside each describe block after cacheClear().
 
-describe('upstream-fetcher — CKAN-based functions', () => {
+// Live upstreams must never gate a deploy. deploy-prod runs the suite with
+// SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
+const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
+const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
+
+describe('upstream-fetcher — CKAN-based functions', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const CKAN_RESPONSE = {
     result: {
       results: [
@@ -149,7 +154,7 @@ describe('upstream-fetcher — CKAN-based functions', () => {
   });
 });
 
-describe('upstream-fetcher — Gazette RSS parsing', () => {
+describe('upstream-fetcher — Gazette RSS parsing', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const SAMPLE_RSS = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
@@ -213,7 +218,7 @@ describe('upstream-fetcher — Gazette RSS parsing', () => {
   });
 });
 
-describe('upstream-fetcher — Socrata functions', () => {
+describe('upstream-fetcher — Socrata functions', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const SOCRATA_RESPONSE = [
     { id: 'view1', name: 'Population Statistics', owner: 'city' },
     { id: 'view2', name: 'Budget 2025', owner: 'finance' },
@@ -251,7 +256,7 @@ describe('upstream-fetcher — Socrata functions', () => {
   });
 });
 
-describe('upstream-fetcher — CKAN error handling', () => {
+describe('upstream-fetcher — CKAN error handling', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   before(() => {
     cacheClear();
     setupFetchMock(async () => mockJsonResponse({ result: { results: [], total: 0 } }));
@@ -270,7 +275,7 @@ describe('upstream-fetcher — CKAN error handling', () => {
   });
 });
 
-describe('upstream-fetcher — HTTP error handling', () => {
+describe('upstream-fetcher — HTTP error handling', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   before(() => {
     cacheClear();
     setupFetchMock(async () => mockErrorResponse(500, 'Server Error'));
@@ -298,7 +303,7 @@ describe('upstream-fetcher — HTTP error handling', () => {
   });
 });
 
-describe('upstream-fetcher — caching behavior', () => {
+describe('upstream-fetcher — caching behavior', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   let fetchCount = 0;
 
   before(() => {
@@ -338,7 +343,7 @@ describe('upstream-fetcher — caching behavior', () => {
   });
 });
 
-describe('upstream-fetcher — Provincial CKAN routing', () => {
+describe('upstream-fetcher — Provincial CKAN routing', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const PROVINCIAL_RESPONSE = {
     result: { results: [{ name: 'QC Data', id: 'qc-1' }], total: 1 },
   };
@@ -374,7 +379,7 @@ describe('upstream-fetcher — Provincial CKAN routing', () => {
   });
 });
 
-describe('upstream-fetcher — ArcGIS functions', () => {
+describe('upstream-fetcher — ArcGIS functions', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const ARCGIS_RESPONSE = {
     services: [
       { name: 'CrownLands', type: 'FeatureServer' },
@@ -419,7 +424,7 @@ describe('upstream-fetcher — ArcGIS functions', () => {
   });
 });
 
-describe('upstream-fetcher — Municipal data routing', () => {
+describe('upstream-fetcher — Municipal data routing', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const MUNI_RESPONSE = {
     result: { results: [{ name: 'Vancouver Parks', id: 'vp-1' }], total: 1 },
   };
@@ -455,7 +460,7 @@ describe('upstream-fetcher — Municipal data routing', () => {
   });
 });
 
-describe('upstream-fetcher — Entity cross-reference', () => {
+describe('upstream-fetcher — Entity cross-reference', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const XREF_RESPONSE = {
     objects: [{ name: 'John Smith', party: 'Liberal', id: 123 }],
     result: { results: [{ name: 'Lobby Group A' }], total: 5 },
@@ -488,7 +493,7 @@ describe('upstream-fetcher — Entity cross-reference', () => {
   });
 });
 
-describe('upstream-fetcher — Open Parliament API functions', () => {
+describe('upstream-fetcher — Open Parliament API functions', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   const PARLIAMENT_RESPONSE = {
     objects: [
       { name_en: 'Debate on Climate Policy', date: '2025-01-15', id: 1 },

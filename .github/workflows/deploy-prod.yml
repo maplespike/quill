@@ -69,6 +69,14 @@ jobs:
         run: pnpm -r typecheck || true
 
       - name: Test
+        # The deploy gate must not depend on third-party uptime. Several suites
+        # fetch live government endpoints and fail on an upstream 500/503
+        # (2026-10-21: donneesquebec.ca 503, opendata.gov.nl.ca 500, plus the
+        # corporate-filings/gtfs-transit/sedar-plus integrations). Those suites
+        # honour SKIP_NETWORK_TESTS=1; PR CI still runs them for real, so
+        # availability problems surface there instead of blocking a release.
+        env:
+          SKIP_NETWORK_TESTS: '1'
         run: pnpm test
 
   build-and-pin:
