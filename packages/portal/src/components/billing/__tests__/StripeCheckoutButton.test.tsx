@@ -49,14 +49,18 @@ beforeEach(() => {
   })
 
   // Mock window.sessionStorage
-  window.sessionStorage = {
-    length: 0,
-    key: vi.fn(),
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-  }
+  Object.defineProperty(window, 'sessionStorage', {
+    value: {
+      length: 0,
+      key: vi.fn(),
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    },
+    writable: true,
+    configurable: true,
+  })
 })
 
 afterEach(() => {
