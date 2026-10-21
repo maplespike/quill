@@ -12,14 +12,14 @@
     "start": "node --loader tsx ./src/cli.ts"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12"
   },
   "dependencies": {
     "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "license": "MIT"
 }
