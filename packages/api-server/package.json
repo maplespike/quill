@@ -33,7 +33,7 @@
     "@simplewebauthn/server": "^13.3.0",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.4",
-    "hono": "^4.6.0",
+    "hono": "^4.13.11",
     "ioredis": "^5.5.0",
     "imap": "^0.8.19",
     "jose": "^5.9.0",
