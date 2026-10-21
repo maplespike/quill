@@ -4,17 +4,17 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: sha256:385e728a04140415ed36790ed43c2823e91d4c7824aa6946c591987ea0c48c08
-    tag: 2026-10-14-8af73140
+    digest: "sha256:e4dca23c99ef4527757231a109f32c4fee6c1650d2f3ffecda69ccd2b4ca6ebb"
+    tag: "2026-10-21-3b73a98f-dirty"
   mcp:
-    digest: sha256:482b732f51d471b9e07e385c1b56c02dd46fc6d15257903d06b48aa835c5c235
-    tag: 2026-10-14-8af73140
+    digest: "sha256:abe13f494939243133783400d0afa1fed85b8e475295e87f806a6fb164391261"
+    tag: "2026-10-21-3b73a98f-dirty"
   portal:
-    digest: "sha256:38ba7703830468f3e8dace56854849da1832193b099983a4eb6a7e114cbb72e5"
-    tag: "2026-10-16-ad43f396"
+    digest: "sha256:73581393fc903a5952d23559c3b6fdfed97b0bf04ccbb84fb2382c38772cd32f"
+    tag: "2026-10-21-3b73a98f-dirty"
   ingest:
-    digest: sha256:fa454d47c273907a825b875718348e2e29b828bf74ab0a3984cef7c56e73ff5c
-    tag: '2026-10-06-f34547a9-dirty'
+    digest: "sha256:c19228ee7ededb902f6022d4586be178c7d8305ac4da45fcaad5350a25393e97"
+    tag: "2026-10-21-3b73a98f-dirty"
   search:
     digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
     tag: '2026-10-06-serve-fix'
