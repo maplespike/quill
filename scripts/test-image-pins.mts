@@ -233,12 +233,17 @@ test('the chart templates hardcode no mutable image tag', () => {
 test('the operator gate itself rejects values carrying the bfe587bb date-only ingest tag', () => {
   const GATE = path.join(REPO, 'scripts/gates/check-image-pins.mjs');
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'image-pins-'));
-  const values = fs
-    .readFileSync(VALUES_PROD, 'utf8')
-    .replace(/^(\s*tag:\s*)'?2026-10-06-f34547a9-dirty'?$/m, "$1'2026-10-05'");
+  // Flip whatever ingest tag is currently pinned to a bare date. The tag used
+  // to be hardcoded (2026-10-06-f34547a9-dirty), so every deploy broke this
+  // test: the replace matched nothing and the fixture assertion fired with
+  // "did the good tag shape change?". Read the live value instead.
+  const base = fs.readFileSync(VALUES_PROD, 'utf8');
+  const values = base.replace(/^  ingest:\n((?:    .*\n)*)/m, (_m, block: string) =>
+    `  ingest:\n${block.replace(/^    tag:\s*.*$/m, "    tag: '2026-10-05'")}`,
+  );
   fs.writeFileSync(path.join(tmp, 'values-prod.yaml'), values);
-  const flipped = /tag: '2026-10-05'/.test(values);
-  assert.equal(flipped, true, 'fixture must actually carry the bad tag — did the good tag shape change?');
+  const flipped = /^  ingest:\n(?:    .*\n)*?    tag: '2026-10-05'$/m.test(values);
+  assert.equal(flipped, true, 'fixture must actually carry the bad tag — did the ingest block shape change?');
   const r = spawnSync('node', [GATE, '--values', path.join(tmp, 'values-prod.yaml'), '--templates', TEMPLATES], {
     encoding: 'utf8',
   });
