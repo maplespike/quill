@@ -238,6 +238,7 @@ for SVC in $SERVICES; do
     docker save "$SRC" -o "$TAR"
     echo "  import:  k3s ctr -n $CTR_NS images import"
     ctr images import "$TAR" >/dev/null
+    rm -f "$TAR"
   fi
 
   # The store-reported digest IS the pin: it exists by construction, so a typo
@@ -268,22 +269,23 @@ for SVC in $SERVICES; do
   # ── Mirror the pin into every node the scheduler may use ────────────────
   # Names matter as much as bytes: kubelet resolves the digest ref with
   # imagePullPolicy: Never, so each peer needs both the imported content and
-  # the `repo@sha256:…` name. A peer that cannot be reached fails the pin —
-  # shipping a digest that half the pool cannot resolve is how the 2026-10-21
-  # rollout deadlocked.
-  if [[ "$SKIP_IMPORT" == false && -n "$SYNC_NODES" ]]; then
+  # the `repo@sha256:…` name. Stream the pinned digest straight out of the local
+  # store, so this works in --existing mode too (no build tar required) — an
+  # operator must be able to repair a peer with the same script.
+  # A peer that cannot be reached fails the pin: shipping a digest that half the
+  # pool cannot resolve is how the 2026-10-21 rollout deadlocked.
+  if [[ -n "$SYNC_NODES" ]]; then
     for host in $SYNC_NODES; do
       echo "  sync:    $host"
-      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
-        "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" < "$TAR" \
+      ctr images export - "$REPO_REF@$DIGEST" \
+        | ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
+            "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" \
         || { echo "  ERROR: import on $host failed — it could not pull $REPO_REF@$DIGEST" >&2; exit 1; }
       ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
-        "sudo -n k3s ctr -n $CTR_NS images tag --force '$SRC' '$REPO_REF@$DIGEST' >/dev/null && \
-         sudo -n k3s ctr -n $CTR_NS images tag --force '$SRC' '$REPO_REF:$BUILD_TAG' >/dev/null" \
-        || { echo "  ERROR: tagging on $host failed — $REPO_REF@$DIGEST would not resolve" >&2; exit 1; }
+        "sudo -n k3s ctr -n $CTR_NS images tag --force '$REPO_REF@$DIGEST' '$REPO_REF:$BUILD_TAG' >/dev/null" \
+        || { echo "  ERROR: tagging on $host failed — $REPO_REF:$BUILD_TAG would not resolve" >&2; exit 1; }
     done
   fi
-  if [[ "$SKIP_IMPORT" == false ]]; then rm -f "$TAR"; fi
 
   echo "  digest:  $DIGEST"
   echo "  tag:     $BUILD_TAG"
