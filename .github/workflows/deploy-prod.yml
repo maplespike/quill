@@ -175,9 +175,20 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - name: Configure kubectl
+        # KUBECONFIG_PROD has been pasted both raw and base64-encoded over its
+        # lifetime; `| base64 -d` on a raw kubeconfig fails with "invalid input"
+        # and every later step in this job silently skips (run 39665582123, so
+        # the rollout and smoke gate never ran). Accept either form.
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
+          if printf '%s' "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > /tmp/kubeconfig 2>/dev/null && [ -s /tmp/kubeconfig ]; then
+            echo "kubeconfig: decoded from base64"
+          else
+            printf '%s' "${{ secrets.KUBECONFIG_PROD }}" > /tmp/kubeconfig
+            echo "kubeconfig: used raw value"
+          fi
+          test -s /tmp/kubeconfig || { echo "::error::KUBECONFIG_PROD is empty"; exit 1; }
+          mv /tmp/kubeconfig ~/.kube/config
 
       - name: Wait for ArgoCD to sync
         # ArgoCD polls; the commit above is not the deploy. Wait for the app to
