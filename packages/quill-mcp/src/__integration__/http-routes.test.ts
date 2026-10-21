@@ -7,7 +7,7 @@
  *
  *   GET  /                 → 301 → /sse  (root redirect)
  *   GET  /health           → 200 {status, tools}
- *   GET  /sse              → 401 (no auth in test mode — auth required)
+ *   GET  /sse              → 200 stream (anonymous discovery; keyed methods 401)
  *   POST /messages         → 404 (no SSE client without clientId)
  *   GET  /random           → 404 NOT_FOUND
  *
@@ -195,9 +195,63 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     assert.equal(location, '/sse');
   });
 
-  it('GET /sse returns 401 when no auth provided', async () => {
-    const res = await fetch(`${baseUrl}/sse`);
+  it('anonymous stream answers discovery and refuses tools/call (directory indexing)', async () => {
+    const controller = new AbortController();
+    const stream = await fetch(`${baseUrl}/sse`, { signal: controller.signal });
+    assert.equal(stream.status, 200);
+    assert.match(stream.headers.get('content-type') || '', /text\/event-stream/);
+    const reader = stream.body!.getReader();
+    const decoder = new TextDecoder();
+    let pending = '';
+    const event = async (): Promise<{ name: string; data: string }> => {
+      while (!pending.includes('\n\n')) {
+        const chunk = await reader.read();
+        assert.equal(chunk.done, false, 'stream ended before its response');
+        pending += decoder.decode(chunk.value, { stream: true });
+      }
+      const end = pending.indexOf('\n\n');
+      const frame = pending.slice(0, end);
+      pending = pending.slice(end + 2);
+      return {
+        name: frame.split('\n').find((line) => line.startsWith('event: '))?.slice(7) ?? '',
+        data: frame.split('\n').filter((line) => line.startsWith('data: ')).map((line) => line.slice(6)).join('\n'),
+      };
+    };
+    try {
+      const endpoint = await event();
+      assert.equal(endpoint.name, 'endpoint');
+      const target = new URL(endpoint.data, baseUrl);
+      const post = (body: unknown) => fetch(target, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const request = (id: number, method: string, params = {}) => ({ jsonrpc: '2.0', id, method, params });
+
+      assert.equal((await post(request(1, 'initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'dir-indexer', version: '1' } }))).status, 202);
+      assert.equal(JSON.parse((await event()).data).id, 1);
+      assert.equal((await post({ jsonrpc: '2.0', method: 'notifications/initialized' })).status, 202);
+      assert.equal((await post(request(2, 'tools/list'))).status, 202);
+      const listed = JSON.parse((await event()).data);
+      assert.equal(listed.id, 2);
+      assert.equal(listed.result.tools.length, 184, 'directories index the full tool surface');
+
+      const call = await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }));
+      assert.equal(call.status, 401);
+      assert.match(call.headers.get('www-authenticate') || '', /^Bearer realm="quill"/);
+      assert.equal((await call.json() as Record<string, unknown>).error, 'Unauthorized');
+      // Anything outside the discovery allowlist is refused on the same stream.
+      assert.equal((await post(request(4, 'resources/list'))).status, 401);
+    } finally {
+      controller.abort();
+      await reader.cancel().catch(() => {});
+    }
+  });
+
+  it('GET /sse with a wrong bearer returns 401 with a challenge', async () => {
+    const res = await fetch(`${baseUrl}/sse`, { headers: { Authorization: 'Bearer not-a-real-key' } });
     assert.equal(res.status, 401);
+    assert.match(res.headers.get('www-authenticate') || '', /^Bearer realm="quill"/);
     const body = await res.json() as Record<string, unknown>;
     assert.equal(body.error, 'Unauthorized');
   });
