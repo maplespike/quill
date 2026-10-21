@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-10-20
 status: active
 ---
 
@@ -103,6 +103,25 @@ Add MCP Server:
   }
 }
 ```
+
+## Anonymous discovery (directory indexing)
+
+MCP directories (glama.ai, mcprush) and registry health checks index a remote server
+by opening its stream and asking what it can do. They hold no API key, so the SSE
+handshake and a small read-only method set answer without one:
+
+| Method | Anonymous stream | Keyed stream |
+|--------|------------------|--------------|
+| `initialize` | ✅ | ✅ |
+| `notifications/initialized`, `notifications/cancelled` | ✅ | ✅ |
+| `ping` | ✅ | ✅ |
+| `tools/list` | ✅ | ✅ |
+| everything else (`tools/call`, `resources/*`, `prompts/*`, `logging/*`, …) | ❌ `401` + `WWW-Authenticate: Bearer realm="quill"` | ✅ |
+
+Anonymous connects are rate-limited per peer (`sse-anon:<ip>` bucket, 60/min) and still
+count against `QUILL_SSE_MAX_CLIENTS`, so scraping the open surface cannot lock out real
+clients. Anonymous sessions carry the `anonymous-ip` quota identity: they can inspect the
+tool surface, and every tool call is refused.
 
 ## vs stdio Transport
 
