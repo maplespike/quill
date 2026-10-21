@@ -42,6 +42,15 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
 NODE="nexus"
+
+# Nodes whose containerd store must ALSO carry the pinned digest. Quill images
+# are consumed with imagePullPolicy: Never, and the portal is the one workload
+# scheduled dynamically across the quill.io/workload=true pool (nexus + forge).
+# An image that exists only in the build node's store leaves the second replica
+# ErrImageNeverPull and the rollout stuck at "old replicas pending termination"
+# (measured 2026-10-21: portal pod on forge, image only on nexus).
+# Set QUILL_IMAGE_SYNC_NODES="" to keep the old single-store behaviour.
+SYNC_NODES="${QUILL_IMAGE_SYNC_NODES-forge}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRY="docker.io/library"
 EXISTING=false
@@ -229,7 +238,6 @@ for SVC in $SERVICES; do
     docker save "$SRC" -o "$TAR"
     echo "  import:  k3s ctr -n $CTR_NS images import"
     ctr images import "$TAR" >/dev/null
-    rm -f "$TAR"
   fi
 
   # The store-reported digest IS the pin: it exists by construction, so a typo
@@ -256,6 +264,26 @@ for SVC in $SERVICES; do
     echo "  ERROR: digest name $REPO_REF@$DIGEST is not resolvable in the store" >&2
     exit 1
   fi
+
+  # ── Mirror the pin into every node the scheduler may use ────────────────
+  # Names matter as much as bytes: kubelet resolves the digest ref with
+  # imagePullPolicy: Never, so each peer needs both the imported content and
+  # the `repo@sha256:…` name. A peer that cannot be reached fails the pin —
+  # shipping a digest that half the pool cannot resolve is how the 2026-10-21
+  # rollout deadlocked.
+  if [[ "$SKIP_IMPORT" == false && -n "$SYNC_NODES" ]]; then
+    for host in $SYNC_NODES; do
+      echo "  sync:    $host"
+      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
+        "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" < "$TAR" \
+        || { echo "  ERROR: import on $host failed — it could not pull $REPO_REF@$DIGEST" >&2; exit 1; }
+      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
+        "sudo -n k3s ctr -n $CTR_NS images tag --force '$SRC' '$REPO_REF@$DIGEST' >/dev/null && \
+         sudo -n k3s ctr -n $CTR_NS images tag --force '$SRC' '$REPO_REF:$BUILD_TAG' >/dev/null" \
+        || { echo "  ERROR: tagging on $host failed — $REPO_REF@$DIGEST would not resolve" >&2; exit 1; }
+    done
+  fi
+  if [[ "$SKIP_IMPORT" == false ]]; then rm -f "$TAR"; fi
 
   echo "  digest:  $DIGEST"
   echo "  tag:     $BUILD_TAG"
