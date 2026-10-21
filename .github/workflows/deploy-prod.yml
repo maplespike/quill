@@ -74,7 +74,12 @@ jobs:
   build-and-pin:
     name: Build images, scan, and record pins
     needs: ci
-    runs-on: [self-hosted, nixos]
+    # The images land in the LOCAL containerd store of nexus, and
+    # scripts/pin-images.sh refuses to run anywhere else (it compares
+    # `hostname -s` against NODE=nexus). Unpinned, this job lands on whichever
+    # runner is free and dies — 2026-10-21 run 39630307172 claimed sentry and
+    # produced an empty pin block.
+    runs-on: [self-hosted, nixos, nexus]
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
     steps:
@@ -102,7 +107,17 @@ jobs:
         # missing one fails the deploy rather than shipping an un-enumerated
         # image.
         run: |
+          # pipefail is load-bearing. Without it `| tee` hides pin-images.sh's
+          # exit status, the job proceeds with a truncated log, and the failure
+          # surfaces two steps later as "no pins found in input" — which reads
+          # like a parser bug instead of a refused build (run 39630307172).
+          set -o pipefail
           bash scripts/pin-images.sh 2>&1 | tee pin-images.log
+          sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log > pin-block.txt
+          if [[ ! -s pin-block.txt ]]; then
+            echo "::error::pin-images.sh produced no pin block — refusing to continue (see pin-images.log)"
+            exit 1
+          fi
 
       - name: Write pins into values-prod.yaml
         run: |
