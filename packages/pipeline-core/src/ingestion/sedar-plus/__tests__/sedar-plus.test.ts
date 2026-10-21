@@ -14,7 +14,12 @@ import {
 
 import type { SedarIngestionResult } from '../types.js';
 
-describe('SEDAR+ Module', () => {
+// Live upstreams must never gate a deploy. deploy-prod runs the suite with
+// SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
+const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
+const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
+
+describe('SEDAR+ Module', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
 
   /* ------------------------------------------------------------------ */
   /*  Constants & Lookup Tests                                           */

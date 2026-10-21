@@ -21,7 +21,12 @@ async function fetchOk(url: string): Promise<{ ok: boolean; status: number; body
 
 // ── Upstream reachability tests (MCP tool critical path) ──────────
 
-describe('CKAN upstreams', () => {
+// Live upstreams must never gate a deploy. deploy-prod runs the suite with
+// SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
+const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
+const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
+
+describe('CKAN upstreams', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('ouvert.canada.ca returns datasets', async () => {
     const r = await fetchOk('https://ouvert.canada.ca/data/api/3/action/package_search?q=test&rows=1');
     assert.equal(r.ok, true, `ouvert.canada.ca: ${r.status}`);
@@ -62,7 +67,7 @@ describe('CKAN upstreams', () => {
   });
 });
 
-describe('RSS feeds', () => {
+describe('RSS feeds', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('Gazette Part I RSS returns items', async () => {
     const r = await fetchOk('https://www.gazette.gc.ca/rss/p1-eng.xml');
     assert.equal(r.ok, true, `Gazette I: ${r.status}`);
@@ -78,7 +83,7 @@ describe('RSS feeds', () => {
   });
 });
 
-describe('Other key sources', () => {
+describe('Other key sources', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('StatCan WDS API responds', async () => {
     const r = await fetchOk('https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1');
     assert.ok(r.status < 500, `StatCan: ${r.status}`);
@@ -92,7 +97,7 @@ describe('Other key sources', () => {
 
 // ── MCP tool output shape tests ──────────────────────────────────
 
-describe('MCP tool response shapes', () => {
+describe('MCP tool response shapes', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('explore_catalog returns categories', async () => {
     const { getAllTools } = await import('../tools/index.js');
     const tools = getAllTools();
@@ -125,7 +130,7 @@ describe('MCP tool response shapes', () => {
 
 // ── Signal store tests ────────────────────────────────────────────
 
-describe('signal-store', () => {
+describe('signal-store', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('tracks seen items per source', async () => {
     const { getNewItems, getSourceStats, registerSeen } = await import('../tools/signal-store.js');
     registerSeen('test-source', 'id-1', 'Item 1');
@@ -148,7 +153,7 @@ describe('signal-store', () => {
 
 // ── Upstream fetcher cache integration tests ──────────────────────
 
-describe('upstream-fetcher cache', () => {
+describe('upstream-fetcher cache', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('searchCkan returns expected shape', async () => {
     const { searchCkan } = await import('../tools/upstream-fetcher.js');
     const result = await searchCkan('test', 1);

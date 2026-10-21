@@ -1,7 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-describe('gtfs-transit Module', () => {
+// Live upstreams must never gate a deploy. deploy-prod runs the suite with
+// SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
+const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
+const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
+
+describe('gtfs-transit Module', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('has required exports', async () => {
     const mod = await import('../index.js');
     assert.ok(mod, 'Module loaded');
