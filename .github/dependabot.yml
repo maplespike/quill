@@ -13,6 +13,15 @@ updates:
     labels:
       - "dependencies"
       - "automation"
+    ignore:
+      # typescript-eslint has no TypeScript 7 support yet
+      # (typescript-eslint/typescript-eslint#10940). Hold until it does.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]
+      # Node is 22 on CI and in every image. @types/node must track the
+      # runtime, not the newest DefinitelyTyped release.
+      - dependency-name: "@types/node"
+        versions: [">=23.0.0"]
     groups:
       typescript:
         patterns:

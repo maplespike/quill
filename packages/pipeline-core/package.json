@@ -245,10 +245,9 @@
     "undici": "^8.5.0"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.7",
     "@types/pg": "^8.20.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.7.0",
+    "typescript": "^6.0.3",
     "@types/node": "^22.20.4"
   },
   "sideEffects": false,

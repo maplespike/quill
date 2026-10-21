@@ -110,7 +110,7 @@ void main(void){
     const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: false });
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     const plane = new Plane();
 
     const resize = () => {
@@ -124,7 +124,8 @@ void main(void){
     };
 
     const renderLoop = () => {
-      plane.render(clock.getDelta());
+      timer.update();
+      plane.render(timer.getDelta());
       renderer.render(scene, camera);
       requestAnimationFrame(renderLoop);
     };
