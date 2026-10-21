@@ -125,6 +125,23 @@ jobs:
         # mcp-then-portal (run 39663210447, missing @maplespike/database dist).
         run: pnpm build
 
+      - name: Restore generated sources so the image tag stays commit-only
+        # `pnpm build` rewrites 18 tracked portal artifacts (agents.json,
+        # pipeline-data.json, og-images, plans/tools/stats). pin-images.sh
+        # appends "-dirty" to the tag whenever `git status` is not clean, so the
+        # 2026-10-21 deploy shipped 2026-10-21-3b73a98f-dirty. That weakens
+        # provenance and broke the operator-gate fixture, which expects a stable
+        # tag shape. The built dist/ is what the image copies; these are
+        # regenerated sources, so restore them and assert a clean tree.
+        run: |
+          git status --porcelain
+          git checkout -- .
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "::error::tree still dirty after restoring generated files; refusing a -dirty tag"
+            git status --porcelain
+            exit 1
+          fi
+
       - name: Build, scan, and import images
         # Writes a per-image SBOM next to the images and refuses an empty one.
         # Needs k3s (containerd) and syft on the host; both are required, and a
