@@ -117,7 +117,13 @@ jobs:
         # packages/portal/dist: Dockerfile.portal COPYs the built Astro output
         # rather than building it inside the image. The ci job builds it in its
         # own workspace, which this job does not inherit (run 39633262674).
-        run: pnpm --filter @maplespike/portal build
+        #
+        # The portal build reads the built MCP registry
+        # (packages/quill-mcp/dist/tools/index.js), so the MCP package must be
+        # built first — otherwise generate-plans.mjs exits 1 (run 39660155111).
+        run: |
+          pnpm --filter @maplespike/quill-mcp build
+          pnpm --filter @maplespike/portal build
 
       - name: Build, scan, and import images
         # Writes a per-image SBOM next to the images and refuses an empty one.
