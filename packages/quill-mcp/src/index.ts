@@ -47,6 +47,21 @@ const SSE_IDLE_MS = positiveInt(process.env.QUILL_SSE_IDLE_MS, 15 * 60_000);
 const SSE_MAX_BUFFER = positiveInt(process.env.QUILL_SSE_MAX_BUFFER, 1024 * 1024);
 const HEARTBEAT_MS = positiveInt(process.env.QUILL_SSE_HEARTBEAT_MS, 30_000);
 
+// ── Anonymous discovery (directory indexing) ────────────────────────────
+// MCP directories (glama.ai, mcprush) index and grade a remote server from its
+// tool declarations: they open the stream and ask the server what it can do.
+// They hold no key, so the handshake and these read-only discovery methods
+// answer on an unauthenticated stream. Everything else — tools/call above all —
+// stays keyed and answers 401 with WWW-Authenticate.
+const WWW_AUTHENTICATE = 'Bearer realm="quill"';
+const ANONYMOUS_DISCOVERY_METHODS = new Set([
+  'initialize',
+  'notifications/initialized',
+  'notifications/cancelled',
+  'ping',
+  'tools/list',
+]);
+
 function positiveInt(raw: string | undefined, fallback: number): number {
   const parsed = Number.parseInt(raw ?? '', 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -259,8 +274,17 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
   }
 
   if (path === '/sse' && req.method === 'GET') {
-    if (!await authenticate(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
+    // No bearer = an anonymous discovery stream. It may only ask the allowlisted
+    // discovery methods below; the connect is rate-limited per peer so the open
+    // surface cannot be used to exhaust MAX_SSE_CLIENTS.
+    const anonymous = !bearerToken(req);
+    if (anonymous && !checkRateLimit(`sse-anon:${clientIp(req)}`)) {
+      res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+      res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
+      return;
+    }
+    if (!anonymous && !await authenticate(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
       res.end(JSON.stringify({ error: 'Unauthorized' }));
       return;
     }
@@ -328,17 +352,20 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 
     // A session ID is not authentication. The hash must match the stream owner.
     if (credentialHash(req) !== client.credentialHash) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
       res.end(JSON.stringify({ error: 'Unauthorized' }));
       return;
     }
 
-    // Re-check the credential. A key revoked or expired after GET /sse must not
-    // keep posting on the open stream. A different still-valid key fails the
-    // hash check above and does not close this session.
-    if (!await authenticate(req)) {
+    // Anonymous discovery streams (opened without a bearer) skip the credential
+    // re-check — there is no credential to re-check — and are held to the
+    // ANONYMOUS_DISCOVERY_METHODS allowlist after the body is parsed. Keyed
+    // streams keep the re-check: a key revoked or expired after GET /sse must
+    // not keep posting on the open stream.
+    const anonymousSession = client.credentialHash === EMPTY_CREDENTIAL_HASH;
+    if (!anonymousSession && !await authenticate(req)) {
       dropClient(client.id);
-      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
       res.end(JSON.stringify({ error: 'Unauthorized' }));
       return;
     }
@@ -385,6 +412,24 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
         return;
+      }
+
+      // Anonymous streams answer discovery only. tools/call, resources/*,
+      // prompts/*, logging/* and anything unlisted get 401 with the challenge
+      // header, which is the signal directories expect for "key required".
+      if (anonymousSession) {
+        const messages = Array.isArray(parsed) ? parsed : [parsed];
+        const discoveryOnly = messages.length > 0 && messages.every((msg) => {
+          const method = msg !== null && typeof msg === 'object'
+            ? (msg as { method?: unknown }).method
+            : undefined;
+          return typeof method === 'string' && ANONYMOUS_DISCOVERY_METHODS.has(method);
+        });
+        if (!discoveryOnly) {
+          res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
+          res.end(JSON.stringify({ error: 'Unauthorized' }));
+          return;
+        }
       }
 
       const paymentProof = X402_ENABLED
