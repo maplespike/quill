@@ -8,3 +8,10 @@ self-hosted-runner:
   labels:
     - nixos
     - rust
+    # Per-host labels. `nexus` is load-bearing: deploy-prod's image build must
+    # run on nexus because scripts/pin-images.sh pins into that node's local
+    # containerd store and refuses every other host.
+    - nexus
+    - sentry
+    - forge
+    - quill
