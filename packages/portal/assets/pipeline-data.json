@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T20:08:30.122Z",
+  "generatedAt": "2026-10-19T08:22:50.513Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
@@ -547,17 +547,10 @@
       ]
     },
     "provincialLobbying": {
-      "status": "ok",
-      "records": 1,
-      "errors": 0,
-      "data": [
-        {
-          "type": "registration",
-          "title": "Lobbyists Registry",
-          "url": "http://www.oico.on.ca/home/lobbyists-registration",
-          "province": "ON"
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
     },
     "immigration": {
       "status": "ok",
@@ -701,7 +694,7 @@
     }
   },
   "stats": {
-    "totalRecords": 85,
+    "totalRecords": 84,
     "hoc": 1,
     "senate": 0,
     "gazette": 0,
@@ -714,7 +707,7 @@
     "lobbying": 2,
     "procurement": 0,
     "influence": 5,
-    "provincialLobbying": 1,
+    "provincialLobbying": 0,
     "immigration": 4,
     "indigenous": 0,
     "transport": 5,
@@ -727,206 +720,200 @@
     {
       "action": "Hoc: PACP #48 — 1 meetings",
       "type": "hoc",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 1
     },
     {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 15
     },
     {
       "action": "Elections: \"2021 Municipal Election — Sections (polling day offices)\" — 15 resources",
       "type": "elections",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 15
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 5
-    },
-    {
-      "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
-      "type": "provincialLobbying",
-      "time": "2026-10-16T20:08:30.105Z",
-      "count": 1
     },
     {
       "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
       "type": "immigration",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 4
     },
     {
       "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
       "type": "transport",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 5
     },
     {
       "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
       "type": "defence",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 1
     },
     {
       "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
       "type": "education",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 5
     },
     {
       "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
       "type": "science",
-      "time": "2026-10-16T20:08:30.105Z",
+      "time": "2026-10-19T08:22:50.504Z",
       "count": 6
     }
   ],
   "pipeline": {
     "hoc": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.122Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 1,
       "errors": 15
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.122Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.122Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.122Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.122Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 15,
       "errors": 1
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 15,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 2,
       "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
-      "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
-      "records": 1,
-      "errors": 0
+      "status": "error",
+      "lastRun": "2026-10-19T08:22:50.513Z",
+      "records": 0,
+      "errors": 2
     },
     "immigration": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 4,
       "errors": 0
     },
     "indigenous": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 2
     },
     "transport": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 5,
       "errors": 0
     },
     "defence": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 1,
       "errors": 1
     },
     "health": {
       "status": "error",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 0,
       "errors": 2
     },
     "education": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 5,
       "errors": 0
     },
     "science": {
       "status": "ok",
-      "lastRun": "2026-10-16T20:08:30.123Z",
+      "lastRun": "2026-10-19T08:22:50.513Z",
       "records": 6,
       "errors": 0
     }
@@ -1121,6 +1108,6 @@
         "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
       }
     ],
-    "ingestedAt": "2026-10-16T20:08:30.122Z"
+    "ingestedAt": "2026-10-19T08:22:50.513Z"
   }
 }
