@@ -129,31 +129,77 @@ function buildFixture(f: Fixture): Harness {
   fs.writeFileSync(fake, FAKE_GITLEAKS);
   fs.chmodSync(fake, 0o755);
 
-  const git = (args: string[]) =>
-    spawnSync('git', args, { cwd: root, encoding: 'utf8' });
-  const commit = (msg: string) => {
-    fs.writeFileSync(path.join(root, 'probe.txt'), `${msg}\n`);
-    git(['add', 'probe.txt']);
-    git(['-c', 'user.email=ci@example.invalid', '-c', 'user.name=ci', 'commit', '-qm', msg]);
+  // Every fixture git call runs with global and system config switched off.
+  //
+  // WHY: on a self-hosted runner this suite inherited the host's global git
+  // config, including the fleet's `core.hooksPath`. The commit below then died
+  // in the leakguard pre-commit hook (its synthetic `ci@example.invalid`
+  // identity is deliberately not a noreply address), so the fixture repo had no
+  // HEAD, `update-ref` failed with "HEAD: not a valid SHA1", and the gate fell
+  // back to `--all`. The scope assertions failed for a reason that had nothing
+  // to do with secrets. A test fixture must not depend on the host's git
+  // config: these cases pin the GATE's behaviour, not the runner's.
+  const env = (): NodeJS.ProcessEnv => {
+    const e: NodeJS.ProcessEnv = { ...process.env };
+    e.GIT_CONFIG_GLOBAL = '/dev/null';
+    e.GIT_CONFIG_SYSTEM = '/dev/null';
+    e.GIT_CONFIG_NOSYSTEM = '1';
+    e.GIT_TERMINAL_PROMPT = '0';
+    for (const k of [
+      'GIT_DIR',
+      'GIT_WORK_TREE',
+      'GIT_INDEX_FILE',
+      'GIT_OBJECT_DIRECTORY',
+      'GIT_COMMON_DIR',
+    ]) {
+      delete e[k];
+    }
+    return e;
   };
 
-  git(['init', '-q', '-b', 'main']);
+  // Fail loudly. A silently ignored git error here produces a fixture with no
+  // commits, which reads downstream as "the gate widened its scope".
+  const git = (args: string[], what: string) => {
+    const r = spawnSync('git', args, { cwd: root, encoding: 'utf8', env: env() });
+    if (r.status !== 0) {
+      throw new Error(
+        `fixture git ${what} failed (rc=${r.status ?? 'null'}): git ${args.join(' ')}\n` +
+          `${r.stderr ?? ''}${r.error ? String(r.error) : ''}`,
+      );
+    }
+    return r;
+  };
+  const ident = ['-c', 'user.email=ci@example.invalid', '-c', 'user.name=ci'];
+  const commit = (msg: string) => {
+    fs.writeFileSync(path.join(root, 'probe.txt'), `${msg}\n`);
+    git(['add', 'probe.txt'], 'add');
+    git([...ident, 'commit', '-qm', msg], 'commit');
+  };
+
+  git(['init', '-q', '-b', 'main'], 'init');
   commit('fixture: on-origin history');
   if (f.originRefs !== false) {
-    git(['update-ref', 'refs/remotes/origin/main', 'HEAD']);
+    git(['update-ref', 'refs/remotes/origin/main', 'HEAD'], 'update-ref refs/remotes/origin/main');
+    const refs = git(
+      ['for-each-ref', 'refs/remotes/origin', '--format=%(refname)'],
+      'for-each-ref refs/remotes/origin',
+    ).stdout;
+    if (!String(refs).trim()) {
+      throw new Error('fixture: refs/remotes/origin/* was not created');
+    }
   }
   // The ref class that caused the incident: a local branch that was NEVER
   // pushed, so `--all` resolves it here but CI's clone cannot fetch it.
-  git(['checkout', '-q', '-b', 'wt/never-pushed']);
-  git(['commit', '-q', '--allow-empty', '-m', 'fixture: never-pushed commit']);
-  git(['checkout', '-q', 'main']);
+  git(['checkout', '-q', '-b', 'wt/never-pushed'], 'checkout wt/never-pushed');
+  git([...ident, 'commit', '-q', '--allow-empty', '-m', 'fixture: never-pushed commit'], 'commit empty');
+  git(['checkout', '-q', 'main'], 'checkout main');
 
   const runGate = (args: string[]) => {
     const r = spawnSync('bash', [path.join(root, 'scripts/check-secrets-history.sh'), ...args], {
       cwd: root,
       encoding: 'utf8',
       env: {
-        ...process.env,
+        ...env(),
         GITLEAKS_BIN: fake,
         FAKE_STATE_DIR: state,
         FAKE_FINDINGS_ALL: ALL_SET,
