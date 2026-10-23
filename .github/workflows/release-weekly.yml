@@ -157,14 +157,30 @@ jobs:
             // force-pushed: last week's branch is a different commit on a
             // different base and a plain push is rejected as non-fast-forward.
             const { execSync } = require('child_process');
-            execSync('git config user.name "maple-automation"');
-            execSync('git config user.email "automation@maplespike.ca"');
+            // The runner is self-hosted and carries the fleet leakguard hooks, so a
+            // commit whose identity is not a GitHub noreply address is refused (R15).
+            // That is what failed the 2026-10-23 run: `automation@maplespike.ca` is
+            // not a noreply address, git commit exited 1, and the job died before
+            // the push. Commit as the account the release token belongs to.
+            execSync('git config user.name "reverb256"');
+            execSync('git config user.email "129622142+reverb256@users.noreply.github.com"');
             execSync('git add -A');
             if (execSync('git status --porcelain').toString().trim() === '') {
               core.notice('changeset version produced no changes — nothing to release.');
               return 'No version changes';
             }
             execSync('git commit -m "chore: version packages for weekly release"');
+            // This branch is regenerated from the current base every run, so the push
+            // is an intentional rewrite of a branch this job owns. The same leakguard
+            // hooks refuse a non-fast-forward push (R5) unless the documented opt-out
+            // file exists; the hook logs the opt-out to its audit log. It unlocks
+            // nothing else — the secret scan, the identity check and the blanket-stage
+            // check still run on this commit.
+            const gitCommonDir = execSync('git rev-parse --git-common-dir').toString().trim();
+            require('fs').writeFileSync(
+              `${gitCommonDir}/leakguard-force-ok`,
+              'weekly release: changeset-release branch is regenerated every run\n'
+            );
             execSync(`git push --force origin HEAD:refs/heads/${branch}`, { stdio: 'inherit' });
             core.notice(`Pushed ${branch} (base ${base}).`);
 
