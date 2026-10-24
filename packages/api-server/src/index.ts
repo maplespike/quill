@@ -609,6 +609,25 @@ export async function handleRequest(
     }
   }
 
+  // --- /health → /v1/health (308) ---
+  // Kernel probes, k8s manifests, ops docs and third-party monitors cite
+  // `/health`; the API's real liveness path is `/v1/health`, so `/health` used
+  // to answer 404 NOT_FOUND (QUILL-AUDIT.md 2026-10-24, P2). 308 keeps the
+  // method and the query string, and is cacheable — a redirect is a property
+  // of the path, not of the request.
+  if (url.pathname === '/health' || url.pathname === '/health/') {
+    const target = new URL('/v1/health', url);
+    target.search = url.search;
+    return finalizeResponse(
+      new Response(null, {
+        status: 308,
+        headers: { Location: target.toString(), 'Cache-Control': 'public, max-age=86400' },
+      }),
+      environment,
+      requestOrigin,
+    );
+  }
+
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const durationMs = Date.now() - startTime;
