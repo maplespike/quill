@@ -4,6 +4,7 @@ import "@/styles/themes/ink-and-paper.css";
 import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
 import SiteHeader from "@/components/SiteHeader.astro";
+import UpstreamNotice from "@/components/UpstreamNotice.astro";
 import "@/styles/editorial.css";
 import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
 import statsData from "@/data/stats.json";
@@ -145,6 +146,9 @@ const isProductSurface = PRODUCT_SURFACES.some(
   <body class="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-maple/30">
 
     <SiteHeader lang={lang} cleanPath={cleanPath} pathname={pathname} product={isProductSurface} />
+    <!-- Upstream outage notice: one line, only when a government source is not
+         up, and only wording the API derives from the declarative config. -->
+    <UpstreamNotice lang={lang} />
     <main id="main-content" tabindex="-1" data-surface={isProductSurface ? "product" : "editorial"} data-route={cleanPath}>
       <slot />
     </main>

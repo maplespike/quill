@@ -182,6 +182,10 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   // boundary 402'd it (found live on 2026-09-22).
   '/v1/ingest/status',
   '/v1/status',
+  // Upstream health: public observability, same class as /v1/status. The site
+  // banner reads it before sign-in, so the Free boundary must not 402 it
+  // (verified live: without this entry the route answered UPGRADE_REQUIRED).
+  '/v1/upstream/status',
   '/v1/openapi',
   // AI-discovery docs (llms.txt / llms-full.txt) — same class as openapi.
   '/v1/llms',

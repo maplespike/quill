@@ -50,6 +50,10 @@ spec:
           value: {{ .Values.api.metricsPort | quote }}
         - name: NODE_ENV
           value: "{{ .Values.api.env.NODE_ENV }}"
+        # In-process upstream prober behind GET /v1/upstream/status
+        # (UPSTREAM-OUTAGES.md §6). "0" serves the route with no probes.
+        - name: QUILL_UPSTREAM_PROBE
+          value: "{{ .Values.api.env.QUILL_UPSTREAM_PROBE | default "1" }}"
         - name: ENVIRONMENT
           value: "{{ .Values.api.env.ENVIRONMENT | default "production" }}"
         - name: QUILL_STORAGE

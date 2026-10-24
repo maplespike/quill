@@ -24,6 +24,9 @@ api:
     NODE_ENV: "production"
     # #806: Stripe environment. Default 'test'; flip to 'live' at go-live.
     STRIPE_ENV: "test"
+    # In-process probe behind /v1/upstream/status (UPSTREAM-OUTAGES.md §6).
+    # "0" disables probing; the API then reports unknown states, no banner.
+    QUILL_UPSTREAM_PROBE: "1"
   ingress:
     host: api.maplespike.ca
     tls: true
