@@ -2,96 +2,144 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import {
+  skipIfNetworkError,
+  skipIfUpstreamDown,
+  type UpstreamFetchResult,
+} from '../testing/upstream-outage.js';
 
 const USER_AGENT = 'QuillTest/1.0';
 const TIMEOUT = 10_000;
 
-async function fetchOk(url: string): Promise<{ ok: boolean; status: number; body?: string }> {
+/**
+ * Fetch a live upstream and normalise the outcome.
+ *
+ * A rejection becomes `{ status: 0, error }` instead of a throw, so each test
+ * can decide: an upstream outage skips, a 4xx or a bad body fails. See
+ * `upstream-outage.ts` for the policy.
+ */
+async function fetchUpstream(url: string): Promise<UpstreamFetchResult> {
   try {
     const resp = await fetch(url, {
       headers: { 'User-Agent': USER_AGENT },
       signal: AbortSignal.timeout(TIMEOUT),
     });
     const body = await resp.text().catch(() => '');
-    return { ok: resp.ok, status: resp.status, body };
-  } catch {
-    return { ok: false, status: 0 };
+    return { status: resp.status, body };
+  } catch (err) {
+    return { status: 0, error: err };
   }
+}
+
+/** Parse a CKAN body. A malformed payload is a failure, never a skip. */
+function ckanBody(r: UpstreamFetchResult, name: string): Record<string, unknown> {
+  assert.ok(r.body, `${name}: empty body on HTTP ${r.status}`);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(r.body as string);
+  } catch (err) {
+    assert.fail(`${name}: malformed JSON on HTTP ${r.status}: ${(err as Error).message}`);
+  }
+  assert.ok(parsed !== null && typeof parsed === 'object', `${name}: body is not a JSON object`);
+  return parsed as Record<string, unknown>;
 }
 
 // ── Upstream reachability tests (MCP tool critical path) ──────────
 
 // Live upstreams must never gate a deploy. deploy-prod runs the suite with
 // SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
+// An upstream outage inside those runs skips the affected test (see
+// `upstream-outage.ts`); a 4xx or a malformed payload still fails.
 const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
 
 describe('CKAN upstreams', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
-  it('ouvert.canada.ca returns datasets', async () => {
-    const r = await fetchOk('https://ouvert.canada.ca/data/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `ouvert.canada.ca: ${r.status}`);
-    if (r.body) {
-      const j = JSON.parse(r.body);
-      assert.ok(j.result?.results?.length >= 0);
-    }
+  it('ouvert.canada.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://ouvert.canada.ca/data/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'ouvert.canada.ca')) return;
+    assert.equal(r.status, 200, `ouvert.canada.ca: ${r.status}`);
+    const j = ckanBody(r, 'ouvert.canada.ca') as { result?: { results?: unknown[] } };
+    assert.ok(Array.isArray(j.result?.results), 'ouvert.canada.ca: result.results missing');
   });
 
-  it('data.ontario.ca returns datasets', async () => {
-    const r = await fetchOk('https://data.ontario.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `data.ontario.ca: ${r.status}`);
+  it('data.ontario.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://data.ontario.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'data.ontario.ca')) return;
+    assert.equal(r.status, 200, `data.ontario.ca: ${r.status}`);
+    ckanBody(r, 'data.ontario.ca');
   });
 
-  it('catalogue.data.gov.bc.ca returns datasets', async () => {
-    const r = await fetchOk('https://catalogue.data.gov.bc.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `BC CKAN: ${r.status}`);
+  it('catalogue.data.gov.bc.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://catalogue.data.gov.bc.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'catalogue.data.gov.bc.ca')) return;
+    assert.equal(r.status, 200, `BC CKAN: ${r.status}`);
+    ckanBody(r, 'catalogue.data.gov.bc.ca');
   });
 
-  it('open.alberta.ca returns datasets', async () => {
-    const r = await fetchOk('https://open.alberta.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `Alberta CKAN: ${r.status}`);
+  it('open.alberta.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://open.alberta.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'open.alberta.ca')) return;
+    assert.equal(r.status, 200, `Alberta CKAN: ${r.status}`);
+    ckanBody(r, 'open.alberta.ca');
   });
 
-  it('donneesquebec.ca returns datasets', async () => {
-    const r = await fetchOk('https://www.donneesquebec.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `Quebec CKAN: ${r.status}`);
+  it('donneesquebec.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://www.donneesquebec.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'donneesquebec.ca')) return;
+    assert.equal(r.status, 200, `Quebec CKAN: ${r.status}`);
+    ckanBody(r, 'donneesquebec.ca');
   });
 
-  it('opendata.gov.nt.ca returns datasets', async () => {
-    const r = await fetchOk('https://opendata.gov.nt.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `NWT CKAN: ${r.status}`);
+  it('opendata.gov.nt.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://opendata.gov.nt.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'opendata.gov.nt.ca')) return;
+    assert.equal(r.status, 200, `NWT CKAN: ${r.status}`);
+    ckanBody(r, 'opendata.gov.nt.ca');
   });
 
-  it('opendata.gov.nl.ca returns datasets', async () => {
-    const r = await fetchOk('https://opendata.gov.nl.ca/api/3/action/package_search?q=test&rows=1');
-    assert.equal(r.ok, true, `NL CKAN: ${r.status}`);
+  it('opendata.gov.nl.ca returns datasets', async (t) => {
+    const r = await fetchUpstream('https://opendata.gov.nl.ca/api/3/action/package_search?q=test&rows=1');
+    if (skipIfUpstreamDown(t, r, 'opendata.gov.nl.ca')) return;
+    assert.equal(r.status, 200, `NL CKAN: ${r.status}`);
+    ckanBody(r, 'opendata.gov.nl.ca');
   });
 });
 
 describe('RSS feeds', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
-  it('Gazette Part I RSS returns items', async () => {
-    const r = await fetchOk('https://www.gazette.gc.ca/rss/p1-eng.xml');
-    assert.equal(r.ok, true, `Gazette I: ${r.status}`);
+  it('Gazette Part I RSS returns items', async (t) => {
+    const r = await fetchUpstream('https://www.gazette.gc.ca/rss/p1-eng.xml');
+    if (skipIfUpstreamDown(t, r, 'gazette.gc.ca Part I RSS')) return;
+    assert.equal(r.status, 200, `Gazette I: ${r.status}`);
     const items = (r.body ?? '').match(/<item>/g) || [];
     assert.ok(items.length > 0, `Gazette I has ${items.length} items`);
   });
 
-  it('Gazette Part II RSS returns items', async () => {
-    const r = await fetchOk('https://www.gazette.gc.ca/rss/p2-eng.xml');
-    assert.equal(r.ok, true, `Gazette II: ${r.status}`);
+  it('Gazette Part II RSS returns items', async (t) => {
+    const r = await fetchUpstream('https://www.gazette.gc.ca/rss/p2-eng.xml');
+    if (skipIfUpstreamDown(t, r, 'gazette.gc.ca Part II RSS')) return;
+    assert.equal(r.status, 200, `Gazette II: ${r.status}`);
     const items = (r.body ?? '').match(/<item>/g) || [];
     assert.ok(items.length > 0, `Gazette II has ${items.length} items`);
   });
 });
 
 describe('Other key sources', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
-  it('StatCan WDS API responds', async () => {
-    const r = await fetchOk('https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1');
-    assert.ok(r.status < 500, `StatCan: ${r.status}`);
+  it('StatCan WDS API responds', async (t) => {
+    const r = await fetchUpstream('https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1');
+    if (skipIfUpstreamDown(t, r, 'www150.statcan.gc.ca WDS')) return;
+    // WDS answers 200, and 409 while the nightly data lock is active
+    // (00:00-08:30 ET on weekdays). Both mean the service is up.
+    assert.ok(
+      r.status === 200 || r.status === 409,
+      `StatCan: ${r.status} (expected 200, or 409 during the nightly data lock)`,
+    );
   });
 
-  it('CanLII has fallback (CKAN)', async () => {
-    const r = await fetchOk('https://ouvert.canada.ca/data/api/3/action/package_search?q=court+decision&rows=1');
-    assert.equal(r.ok, true, `CanLII fallback CKAN: ${r.status}`);
+  it('CanLII has fallback (CKAN)', async (t) => {
+    const r = await fetchUpstream('https://ouvert.canada.ca/data/api/3/action/package_search?q=court+decision&rows=1');
+    if (skipIfUpstreamDown(t, r, 'ouvert.canada.ca CanLII fallback')) return;
+    assert.equal(r.status, 200, `CanLII fallback CKAN: ${r.status}`);
+    ckanBody(r, 'ouvert.canada.ca CanLII fallback');
   });
 });
 
@@ -137,7 +185,7 @@ describe('signal-store', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
     const newItems = getNewItems('test-source', new Set(['id-1', 'id-2']));
     assert.equal(newItems.length, 1);
     assert.equal(newItems[0].id, 'id-2');
-    
+
     const stats = getSourceStats();
     assert.ok(stats['test-source']);
     assert.equal(stats['test-source'].totalSeen, 2);
@@ -154,9 +202,18 @@ describe('signal-store', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
 // ── Upstream fetcher cache integration tests ──────────────────────
 
 describe('upstream-fetcher cache', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
-  it('searchCkan returns expected shape', async () => {
+  it('searchCkan returns expected shape', async (t) => {
     const { searchCkan } = await import('../tools/upstream-fetcher.js');
-    const result = await searchCkan('test', 1);
+    let result: { results: unknown[]; total: number };
+    try {
+      result = await searchCkan('test', 1);
+    } catch (err) {
+      // searchCkan has no fallback: a transport failure here means the portal
+      // is unreachable, not that the tool's shape regressed. A 4xx or a bad
+      // payload is rethrown and fails the test.
+      if (skipIfNetworkError(t, err, 'open.canada.ca CKAN search (searchCkan)')) return;
+      throw err;
+    }
     assert.ok(Array.isArray(result.results));
     assert.ok(typeof result.total === 'number');
   });

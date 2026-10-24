@@ -15,6 +15,60 @@ import * as latestReleases from '../tools/latest-releases.js';
 import * as queryGovData from '../tools/query-gov-data.js';
 import * as searchCommittees from '../tools/search-committees.js';
 import * as searchCorporate from '../tools/search-corporate.js';
+import { probeUpstream } from '../testing/upstream-outage.js';
+
+/* ------------------------------------------------------------------ */
+/*  Live-upstream preflight                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * These tests call handlers that fetch real government hosts. When a host is
+ * unavailable (network error, 429, 5xx) the handler returns `isError` with the
+ * fields the shape assertions expect, so the suite would fail on someone
+ * else's outage. One probe per host, run once, decides whether to skip the
+ * affected block — the skip message names the host and the reason.
+ *
+ * A host that answers 4xx or a malformed payload is NOT an outage: the probes
+ * below only report 0 / 429 / 5xx (see `upstream-outage.ts`). Those failures
+ * still fail the test.
+ */
+const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
+
+const LIVE_HOSTS = {
+  /** open.canada.ca CKAN — query_gov_data, search_corporate, fact_check */
+  ckan: 'https://ouvert.canada.ca/data/api/3/action/package_search?q=test&rows=1',
+  /** StatCan Web Data Service — latest_releases, fact_check */
+  statcan: 'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1',
+  /** Canada Gazette RSS — latest_releases */
+  gazette: 'https://www.gazette.gc.ca/rss/p1-eng.xml',
+  /** Open Parliament API — search_committees */
+  parliament: 'https://api.openparliament.ca/committees/?limit=1&format=json',
+} as const;
+
+type LiveHost = keyof typeof LIVE_HOSTS;
+
+async function probeLiveHosts(): Promise<Record<LiveHost, string | null>> {
+  if (SKIP_LIVE) {
+    const host = Object.keys(LIVE_HOSTS) as LiveHost[];
+    return Object.fromEntries(host.map((h) => [h, 'SKIP_NETWORK_TESTS=1'])) as Record<LiveHost, string | null>;
+  }
+  const entries = await Promise.all(
+    (Object.entries(LIVE_HOSTS) as Array<[LiveHost, string]>).map(
+      async ([host, url]) => [host, await probeUpstream(host, url)] as const,
+    ),
+  );
+  return Object.fromEntries(entries) as Record<LiveHost, string | null>;
+}
+
+/** `false` keeps the block running; a string makes node:test skip it. */
+function skipLive(...hosts: LiveHost[]): boolean | string {
+  const reason = hosts.map((h) => liveUpstreams[h]).find((r) => r !== null);
+  if (reason) return reason;
+  return SKIP_LIVE ? 'SKIP_NETWORK_TESTS=1' : false;
+}
+
+const liveUpstreams = await probeLiveHosts();
+
 
 /* ------------------------------------------------------------------ */
 /*  Helper: assert common response contract                            */
@@ -34,7 +88,7 @@ function assertToolResponse(result: unknown, expectedTool: string): void {
 /* ------------------------------------------------------------------ */
 /*  fact_check — pass a known query, verify response shape             */
 /* ------------------------------------------------------------------ */
-describe('e2e: fact_check', () => {
+describe('e2e: fact_check', { skip: skipLive('statcan', 'ckan') }, () => {
   it('returns evidence for a known economic claim', async () => {
     let result: unknown;
     try {
@@ -145,7 +199,7 @@ describe('e2e: get_citation', () => {
 /* ------------------------------------------------------------------ */
 /*  latest_releases — call without args, verify returns array          */
 /* ------------------------------------------------------------------ */
-describe('e2e: latest_releases', () => {
+describe('e2e: latest_releases', { skip: skipLive('gazette', 'statcan') }, () => {
   it('returns releases array with default args', async () => {
     let result: unknown;
     try {
@@ -220,7 +274,7 @@ describe('e2e: latest_releases', () => {
 /* ------------------------------------------------------------------ */
 /*  query_gov_data — pass a search term, verify response               */
 /* ------------------------------------------------------------------ */
-describe('e2e: query_gov_data', () => {
+describe('e2e: query_gov_data', { skip: skipLive('ckan') }, () => {
   it('returns results for a known data search term', async () => {
     let result: unknown;
     try {
@@ -296,7 +350,7 @@ describe('e2e: query_gov_data', () => {
 /* ------------------------------------------------------------------ */
 /*  search_committees — pass a committee name, verify response          */
 /* ------------------------------------------------------------------ */
-describe('e2e: search_committees', () => {
+describe('e2e: search_committees', { skip: skipLive('parliament') }, () => {
   it('returns results for a committee search query', async () => {
     let result: unknown;
     try {
@@ -366,7 +420,7 @@ describe('e2e: search_committees', () => {
 /* ------------------------------------------------------------------ */
 /*  search_corporate — pass a company name, verify response             */
 /* ------------------------------------------------------------------ */
-describe('e2e: search_corporate', () => {
+describe('e2e: search_corporate', { skip: skipLive('ckan') }, () => {
   it('returns results for a company search query', async () => {
     let result: unknown;
     try {

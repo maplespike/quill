@@ -95,19 +95,30 @@ jobs:
           [ "$GS" = "401" ] || { echo "FAIL: anonymous gov/search should require a key (401), got $GS"; exit 1; }
           echo "auth-lane smoke: OK"
 
+      # The pipeline-core `test` glob is `src/**/__tests__/*.test.ts` plus one
+      # explicit file. The live suite sits one level deeper, at
+      # src/ingestion/__tests__/live/endpoint-smoke.test.ts, so `pnpm test`
+      # never matched it — 1135 tests ran and zero of them were live probes
+      # (UPSTREAM-OUTAGES.md §5.1). This step runs that file by path, so the
+      # only workflow whose job is upstream health actually probes upstreams.
       - name: Run live endpoint smoke tests
         id: live-tests
         run: |
           cd packages/pipeline-core
-          LIVE_DATA_TEST=true pnpm test 2>&1 | tee /tmp/live-test-output.txt
+          LIVE_DATA_TEST=true pnpm exec tsx --test \
+            "src/ingestion/__tests__/live/endpoint-smoke.test.ts" \
+            2>&1 | tee /tmp/live-test-output.txt
         continue-on-error: true
 
       - name: Check for failures
         id: check-failures
         run: |
-          if grep -q '^not ok' /tmp/live-test-output.txt; then
+          # Failures can arrive as TAP `not ok` (spec reporter) or as the
+          # `# fail N` summary line (both node:test reporters). Either one
+          # opens the issue.
+          if grep -qE '^not ok|^# fail [1-9]' /tmp/live-test-output.txt; then
             echo "failures<<EOF" >> $GITHUB_ENV
-            grep '^not ok' /tmp/live-test-output.txt | head -20 >> $GITHUB_ENV
+            grep -E '^not ok|^# fail [1-9]' /tmp/live-test-output.txt | head -20 >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
             echo "has_failures=true" >> $GITHUB_ENV
           else
