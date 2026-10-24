@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchAHSData, fetchAllAHSData, fetchABHealthPublications } from './fetcher.js';
 import { parseAHSRecord, parseAHSBatch, parseABHealthPublication, parseABHealthPublicationBatch } from './parser.js';

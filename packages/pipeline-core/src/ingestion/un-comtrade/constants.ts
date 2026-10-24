@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const COMTRADE_BASE_URL = 'https://comtrade.un.org/api/v2';
 export const COMTRADE_PLUS_URL = 'https://comtradeplus.un.org/api/v2';

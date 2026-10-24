@@ -19,7 +19,7 @@
     "./formatters": "./dist/formatters.js",
     "./types": "./dist/types.js"
   },
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "tsx": "^4.22.5",
     "@types/node": "^22.19.19"

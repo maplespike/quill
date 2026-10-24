@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Ingestion change detection -- the EVENT half of the ingest trigger.
  *

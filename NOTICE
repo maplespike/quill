@@ -1,0 +1,159 @@
+---
+last-reviewed: 2026-10-24
+status: final
+---
+
+# NOTICE
+
+This repository is licensed under the **GNU Affero General Public License, version 3
+only** (`AGPL-3.0-only`). The licence text is in [`LICENSE`](./LICENSE). Every
+workspace package declares the same licence in its `package.json`, and every
+first-party source file carries the same `SPDX-License-Identifier`.
+
+This file records two separate things that the software licence does not cover:
+
+1. Attribution and copyright notices for **public data** that Quill reads and
+   serves.
+2. Notices for **third-party material** that Quill vendors or adapts.
+
+The software licence grants no rights in either. Read the publisher's terms for
+each dataset before you reuse data. [`DATA-LICENSES.md`](./DATA-LICENSES.md) holds
+the full publisher table and [`data-source-licenses.json`](./data-source-licenses.json)
+holds the machine-readable inventory.
+
+## Public data: required attribution
+
+Quill serves records from Government of Canada open datasets that are published
+under the Open Government Licence – Canada. Reproduction of those records must
+carry this statement:
+
+> Contains information licensed under the Open Government Licence – Canada.
+
+Licence: <https://open.canada.ca/en/open-government-licence-canada>
+
+French form: `Contient de l'information visée par la Licence du gouvernement
+ouvert – Canada.`
+
+Where a dataset declares the Open Data Licence Agreement of the Office of the
+Commissioner of Lobbying, reproduction must carry:
+
+> Contains information licensed under the Open Data Licence Agreement — Office of the Commissioner of Lobbying.
+
+Licence: <https://lobbycanada.gc.ca/en/open-data/open-data-licence-agreement/>
+
+Where a record comes from Statistics Canada, reproduction must carry:
+
+> Source: Statistics Canada, name of product, reference date. Reproduced and
+> distributed on an "as is" basis with the permission of Statistics Canada.
+
+Adapted products use: `Adapted from Statistics Canada, name of product,
+reference date. This does not constitute an endorsement by Statistics Canada of
+this product.`
+
+Licence: <https://www.statcan.gc.ca/en/reference/licence>
+
+## Crown copyright
+
+Works of the Government of Canada are subject to Crown copyright. The Open
+Government Licence – Canada is a licence that the Crown grants; it is not a
+waiver of copyright and it is not a transfer of ownership. The licence covers
+only the rights that the publisher holds. It does not cover:
+
+- personal information, as defined in section 3 of the *Privacy Act*;
+- third-party works that the publisher cannot license;
+- the names, crests, logos, and official symbols of the publisher.
+
+Quill does not grant any right in Crown material beyond the rights that the
+publisher grants. Do not present reproduced material as an official version.
+Do not suggest that the Government of Canada endorses Quill.
+
+The official symbols of the Government of Canada, including the Canada wordmark,
+the Arms of Canada, and the flag symbol, may not be reproduced, for commercial or
+non-commercial purposes, without prior written authorization:
+<https://www.canada.ca/en/transparency/terms.html>
+
+Quill carries this disclaimer: **Not affiliated with or endorsed by the
+Government of Canada.**
+
+## Parliamentary copyright
+
+The House of Commons and the Senate of Canada each reserve copyright in their
+proceedings. Each House grants a limited permission to reproduce. The
+permissions are not open licences and they exclude commercial use.
+
+**House of Commons — Speaker's Permission** (<https://www.ourcommons.ca/en/important-notices>):
+
+> Reproduction of the proceedings of the House of Commons and its Committees, in
+> whole or in part and in any medium, is hereby permitted provided that the
+> reproduction is accurate and is not presented as official. This permission does
+> not extend to reproduction, distribution or use for commercial purpose of
+> financial gain. [...] All copyrights therein are also reserved.
+
+**Senate of Canada — Permission Regarding Reproduction** (<https://sencanada.ca/en/intellectual-property>):
+
+> Reproduction of the proceedings of the Senate and its committees, in whole or in
+> part and in any medium, is hereby permitted provided that the reproduction is not
+> presented as official and is accurate [...] This permission does not extend to
+> any use for purposes of financial gain. [...] All copyrights of the proceedings
+> of the Senate and its committees are also reserved.
+
+Non-commercial reproduction of Senate material must name the Senate as author,
+include the title, and link the original. Commercial redistribution is prohibited
+without written permission from the Senate.
+
+Quill enforces these limits in code. Sources with `commercialUse: false` are
+discovery-only in every tier: metadata, short factual summaries, and links to the
+official source. The policy table is
+[`packages/pipeline-core/src/shared/source-policy.ts`](./packages/pipeline-core/src/shared/source-policy.ts)
+and the CI gate is
+[`scripts/gates/check-source-compliance.mjs`](./scripts/gates/check-source-compliance.mjs).
+
+## Federal law
+
+Enactments, consolidations, and the decisions of federally constituted courts and
+administrative tribunals may be reproduced under the *Reproduction of Federal Law
+Order* (SI/97-5)
+(<https://laws-lois.justice.gc.ca/eng/regulations/SI-97-5/FullText.html>):
+
+> Anyone may, without charge or request for permission, reproduce enactments and
+> consolidations of enactments of the Government of Canada, and decisions and
+> reasons for decisions of federally-constituted courts and administrative
+> tribunals, provided due diligence is exercised in ensuring the accuracy of the
+> materials reproduced and the reproduction is not represented as an official
+> version.
+
+Every record that comes from this class of source carries a "not an official
+version" notice at the service boundary.
+
+## Personal information
+
+The Open Government Licence – Canada and the lobbying open data licence grant no
+right to use personal information. A dataset can contain individuals' names and
+still not license that personal information. The Statistics Canada Open Licence
+also prohibits merging or linking information to identify an individual person,
+business, or organization. Quill minimises personal contact fields at the service
+boundary. Send correction or removal requests to privacy@maplespike.ca.
+
+## Third-party material
+
+The following material is not Quill's work. It keeps its own licence. The
+`AGPL-3.0-only` grant does not apply to it, and Quill grants no rights in it.
+
+| Material | Licence | Holder |
+| --- | --- | --- |
+| `.agents/skills/review-animations/` (skill text, `STANDARDS.md`) | MIT | Copyright (c) 2026 Emil Kowalski; text in `.agents/skills/review-animations/LICENSE` |
+| `CODE_OF_CONDUCT.md` (adapted Contributor Covenant v2.1 text) | CC BY-SA 4.0 (upstream) | Contributor Covenant contributors; see [`CREDITS.md`](./CREDITS.md) |
+| npm and PyPI dependencies | Per package | Each upstream author; resolved set and licence expressions are in `pnpm-lock.yaml` and [`CREDITS.md`](./CREDITS.md) |
+
+`scripts/audit-open-source.mjs` reports the installed dependency inventory and its
+licence expressions. It does not decide legal questions. An OCI image or an npm
+tarball can contain dependencies that this file does not list; generate the
+artifact SBOM with `scripts/generate-sbom.sh` before you redistribute an image.
+
+## What this file does not do
+
+This file is not legal advice and it is not a clearance opinion. It records the
+notices that Quill must reproduce. Publisher terms govern each dataset; verify
+them per dataset and per use. See [`LICENSE.md`](./LICENSE.md),
+[`DATA-LICENSES.md`](./DATA-LICENSES.md), and
+[`docs/licensing-audit.md`](./docs/licensing-audit.md).

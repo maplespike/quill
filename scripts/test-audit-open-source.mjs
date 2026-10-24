@@ -14,8 +14,28 @@ test('audit emits structured package metadata, findings, and dependency inventor
   assert.equal(report.schemaVersion, '1.0.0');
   assert.ok(report.workspacePackages.length > 0);
   assert.ok(report.installedDependencies.length > 0);
-  assert.ok(report.findings.some(finding => finding.kind === 'missing-manifest-license' && finding.package === '@maplespike/database'));
-  assert.ok(report.findings.some(finding => finding.kind === 'file-spdx-differs-from-manifest' && finding.package === '@maplespike/quill-mcp'));
+  // Since the 2026-10-24 AGPL-3.0-only decision (#1044) every workspace package
+  // declares a license. Ten source headers still differ: those files contain a
+  // Canadian city name that the fleet pre-commit gate blocks, so they cannot be
+  // staged for conversion yet (see scripts/test-license-coherence.mjs). Any other
+  // file that drifts is a failure.
+  assert.deepEqual(report.findings.filter(finding => finding.kind === 'missing-manifest-license'), []);
+  const drift = report.findings
+    .filter(finding => finding.kind === 'file-spdx-differs-from-manifest')
+    .map(finding => finding.path)
+    .sort();
+  assert.deepEqual(drift, [
+    'packages/pipeline-core/src/ingestion/gtfs-transit/constants.ts',
+    'packages/pipeline-core/src/ingestion/library/constants.ts',
+    'packages/pipeline-core/src/ingestion/municipal/constants.ts',
+    'packages/pipeline-core/src/ingestion/municipal/fetcher.ts',
+    'packages/pipeline-core/src/ingestion/municipal/index.ts',
+    'packages/pipeline-core/src/ingestion/registry.ts',
+    'packages/quill-mcp/src/tools/police-data.ts',
+    'packages/quill-mcp/src/tools/search-libraries.ts',
+    'packages/quill-mcp/src/tools/search-municipal-data.ts',
+    'packages/quill-mcp/src/tools/upstream-fetcher.ts',
+  ]);
   assert.ok(report.findings.some(finding => finding.kind === 'third-party-license-unknown'));
   assert.ok(report.scope.disclaimer.includes('not legal advice'));
 });
@@ -23,8 +43,8 @@ test('audit emits structured package metadata, findings, and dependency inventor
 test('audit report does not replace the source license declarations', async () => {
   const manifest = JSON.parse(await readFile(new URL('../packages/quill-mcp/package.json', import.meta.url), 'utf8'));
   const source = await readFile(new URL('../packages/quill-mcp/src/tools/statcan-helper.ts', import.meta.url), 'utf8');
-  assert.equal(manifest.license, 'Apache-2.0');
-  assert.match(source.split(/\r?\n/, 1)[0], /SPDX-License-Identifier: AGPL-3.0-or-later/);
+  assert.equal(manifest.license, 'AGPL-3.0-only');
+  assert.match(source.split(/\r?\n/, 1)[0], /SPDX-License-Identifier: AGPL-3\.0-only/);
 });
 
 // ---------------------------------------------------------------------------

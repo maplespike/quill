@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchHdrIndicator } from './api.js';
 import { parseHdrResponse } from './parser.js';

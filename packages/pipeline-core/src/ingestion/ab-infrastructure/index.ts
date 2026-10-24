@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchAbInfrastructureRecords } from './fetcher.js';
 import { parseAbInfrastructureRecord, parseAbInfrastructureBatch } from './parser.js';

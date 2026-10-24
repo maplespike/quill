@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const UNHCR_API_URL = 'https://data.unhcr.org/api/v1';
 export const UNHCR_TIMEOUT_MS = 20_000;

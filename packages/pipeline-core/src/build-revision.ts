@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Build revision injected at image-build time.
  * Fallback to 'unknown' for local/dev/test runs.

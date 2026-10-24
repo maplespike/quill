@@ -200,7 +200,7 @@ CREATE INDEX IF NOT EXISTS idx_gc_ingested ON global_canada_records(ingested_at 
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const POLICING_SECURITY_SOURCES = {
   RCMP: 'https://www150.statcan.gc.ca/t1/wds/rest/getFullTableDownload/CSV/35100178',
@@ -23,7 +23,7 @@ CREATE INDEX IF NOT EXISTS idx_policingSecurity_published ON policing_records(pu
 `;
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

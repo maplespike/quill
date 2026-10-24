@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const FIRE_DEPARTMENTS = [
   { city: 'Edmonton', province: 'AB', url: 'https://data.edmonton.ca/api/id/c6f4-cgw5.json' },

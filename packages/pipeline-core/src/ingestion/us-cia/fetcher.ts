@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { CIA_BASE_URL, CIA_TIMEOUT_MS, CIA_THROTTLE, CIA_USER_AGENT } from './constants.js';

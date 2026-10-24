@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 /**
  * Shared StatCan table fetcher — downloads ZIP from WDS, extracts CSV, parses rows.

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchOnCourtsRecords } from './fetcher.js';
 import { parseOnCourtsRecord, parseOnCourtsBatch } from './parser.js';

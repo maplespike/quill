@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const WHO_GHO_API_URL = 'https://ghoapi.azureedge.net/api';
 export const WHO_GHO_TIMEOUT_MS = 30_000;

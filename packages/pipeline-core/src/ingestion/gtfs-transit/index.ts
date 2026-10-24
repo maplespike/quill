@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { GTFS_AGENCIES, GTFS_TIMEOUT_MS, GTFS_USER_AGENT, GTFS_FEED_URLS } from './constants.js';
 import { fetchGtfsFeed } from './fetcher.js';

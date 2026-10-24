@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Alberta Health Ingestion Constants — Quill
  *
@@ -175,7 +175,7 @@ CREATE INDEX IF NOT EXISTS idx_ab_health_pub_ingested ON ab_health_publications(
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 500;
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

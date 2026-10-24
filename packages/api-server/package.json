@@ -58,5 +58,5 @@
     "undici": "^8.12.2"
   },
   "sideEffects": false,
-  "license": "Apache-2.0"
+  "license": "AGPL-3.0-only"
 }

@@ -145,6 +145,14 @@ jobs:
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 
+      # Gate A6-LICENCE (#1044): every manifest, source header, package licence
+      # copy, and the Python/Rust manifests must agree on AGPL-3.0-only, and the
+      # NOTICE must carry the OGL/Crown/parliamentary statements. This is the
+      # regression check for the pre-2026-10-24 tree, which declared four
+      # licences at once and shipped 453 disagreeing source headers.
+      - name: Licence coherence gate
+        run: node --test scripts/test-license-coherence.mjs
+
       # Gate A3-IMAGEPIN (#755): no mutable image tags anywhere, every quill
       # workload pinned by digest, and no `imagePullPolicy: Never` workload
       # without a node pin. Pure Node — no cluster, no helm required.

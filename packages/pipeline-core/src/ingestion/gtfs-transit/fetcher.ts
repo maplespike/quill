@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { GTFS_AGENCIES, GTFS_FEED_URLS, GTFS_TIMEOUT_MS, GTFS_USER_AGENT } from './constants.js';

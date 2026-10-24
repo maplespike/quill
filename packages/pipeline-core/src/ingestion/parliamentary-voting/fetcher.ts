@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { PARLIAMENT_SOURCES, PARLIAMENT_TIMEOUT_MS, PARLIAMENT_USER_AGENT } from './constants.js';

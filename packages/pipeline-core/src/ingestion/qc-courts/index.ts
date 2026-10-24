@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchQcCourtsRecords } from './fetcher.js';
 import { parseQcCourtsRecord, parseQcCourtsBatch } from './parser.js';

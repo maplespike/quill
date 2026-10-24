@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Ingestion run log — cross-process evidence that an ingest CronJob ran.
  *

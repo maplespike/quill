@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestGTFSAgency, GTFS_AGENCIES, GTFS_FEED_URLS } from '@maplespike/pipeline-core/gtfs-transit';

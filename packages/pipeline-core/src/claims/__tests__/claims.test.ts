@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Claim Stack unit tests — canonical JSON determinism, bundle building,
  * batch merkle commitment, and local hash verification.

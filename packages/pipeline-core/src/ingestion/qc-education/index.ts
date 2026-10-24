@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchQcEducationRecords } from './fetcher.js';
 import { parseQcEducationRecord, parseQcEducationBatch } from './parser.js';

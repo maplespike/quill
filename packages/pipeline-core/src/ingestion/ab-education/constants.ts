@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const ABEDUCATION_DDL = `
 CREATE TABLE IF NOT EXISTS ab_education_records (
@@ -33,7 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_ab_education_ingested ON ab_education_records(ing
 export const DEFAULT_MAX_RECORDS = 400;
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
-const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker.ca)';
+const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
 
 export const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': DEFAULT_USER_AGENT,

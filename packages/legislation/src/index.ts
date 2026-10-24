@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MapleSpike Legislation — point-in-time federal & provincial legislation
  *

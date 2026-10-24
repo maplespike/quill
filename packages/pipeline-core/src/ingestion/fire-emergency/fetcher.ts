@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { FIRE_DEPARTMENTS, FIRE_TIMEOUT_MS, FIRE_USER_AGENT } from './constants.js';

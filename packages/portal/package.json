@@ -82,5 +82,5 @@
     "@testing-library/user-event": "^14.6.7",
     "@testing-library/jest-dom": "^7.0.1"
   },
-  "license": "MIT"
+  "license": "AGPL-3.0-only"
 }
