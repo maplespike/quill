@@ -328,26 +328,26 @@ describe('RateLimiter — client identity (A2-REDIS: everyone shared one bucket)
   it('falls back to the socket peer address when there is no XFF and no req.ip', () => {
     const rl = new RateLimiter();
     // A raw Node IncomingMessage: no `ip` property at all.
-    const req = { headers: {}, socket: { remoteAddress: '10.42.0.7' } };
+    const req = { headers: {}, socket: { remoteAddress: '198.51.100.7' } };
 
-    assert.equal(rl.extractIP(req), '10.42.0.7');
+    assert.equal(rl.extractIP(req), '198.51.100.7');
   });
 
   it('still prefers x-forwarded-for when a proxy sets it', () => {
     const rl = new RateLimiter();
     const req = {
-      headers: { 'x-forwarded-for': '203.0.113.9, 10.42.0.1' },
-      socket: { remoteAddress: '10.42.0.1' },
+      headers: { 'x-forwarded-for': '203.0.113.9, 198.51.100.1' },
+      socket: { remoteAddress: '198.51.100.1' },
     };
 
     assert.equal(rl.extractIP(req), '203.0.113.9');
   });
 
   it('normalises ports and IPv4-mapped IPv6 addresses', () => {
-    assert.equal(normalizeIp('::ffff:10.42.0.7'), '10.42.0.7');
-    assert.equal(normalizeIp('10.42.0.7:5555'), '10.42.0.7');
+    assert.equal(normalizeIp('::ffff:198.51.100.7'), '198.51.100.7');
+    assert.equal(normalizeIp('198.51.100.7:5555'), '198.51.100.7');
     assert.equal(normalizeIp('[::1]:5555'), '::1');
-    assert.equal(normalizeIp('  10.42.0.7  '), '10.42.0.7');
+    assert.equal(normalizeIp('  198.51.100.7  '), '198.51.100.7');
     assert.equal(normalizeIp(''), null);
     assert.equal(normalizeIp(undefined), null);
   });
@@ -357,15 +357,15 @@ describe('RateLimiter — client identity (A2-REDIS: everyone shared one bucket)
     const rl = new RateLimiter(fake);
     await rl.init('redis://quill-redis:6379');
 
-    const peerA = { headers: {}, socket: { remoteAddress: '::ffff:10.42.0.7' } };
-    const peerB = { headers: {}, socket: { remoteAddress: '10.42.0.8' } };
+    const peerA = { headers: {}, socket: { remoteAddress: '::ffff:198.51.100.7' } };
+    const peerB = { headers: {}, socket: { remoteAddress: '198.51.100.8' } };
 
     await rl.check(rl.extractIP(peerA), 'FREE');
     await rl.check(rl.extractIP(peerB), 'FREE');
 
     assert.deepEqual(
       fake.calls.map((call) => call.args[0]),
-      ['ratelimit:FREE:10.42.0.7', 'ratelimit:FREE:10.42.0.8'],
+      ['ratelimit:FREE:198.51.100.7', 'ratelimit:FREE:198.51.100.8'],
     );
   });
 });

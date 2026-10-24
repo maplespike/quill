@@ -254,9 +254,30 @@ describe('getAllowedOrigin', () => {
     );
   });
 
-  it('allows LAN origins', () => {
-    assert.equal(getAllowedOrigin('http://10.1.1.120:4321'), 'http://10.1.1.120:4321');
+  it('allows the in-cluster .lan aliases', () => {
     assert.equal(getAllowedOrigin('https://quill-api.lan'), 'https://quill-api.lan');
+  });
+
+  it('does not hard-code an operator-supplied origin', () => {
+    // A tracked file must not publish the operator's LAN plan. Operators add
+    // their own host through ALLOWED_ORIGINS_OVERRIDE (tested below).
+    assert.equal(getAllowedOrigin('http://198.51.100.20:4321'), 'null');
+    assert.equal(getAllowedOrigin('http://192.0.2.10:4321'), 'null');
+  });
+
+  it('honours ALLOWED_ORIGINS_OVERRIDE for a custom origin', () => {
+    const before = process.env.ALLOWED_ORIGINS_OVERRIDE;
+    process.env.ALLOWED_ORIGINS_OVERRIDE = 'http://198.51.100.20:4321,https://portal.example.test';
+    try {
+      assert.equal(getAllowedOrigin('http://198.51.100.20:4321'), 'http://198.51.100.20:4321');
+      assert.equal(getAllowedOrigin('https://portal.example.test/'), 'https://portal.example.test');
+    } finally {
+      if (before === undefined) delete process.env.ALLOWED_ORIGINS_OVERRIDE;
+      else process.env.ALLOWED_ORIGINS_OVERRIDE = before;
+    }
+    // The override must stop applying once it is removed — the list is rebuilt,
+    // not cached from the first call.
+    assert.equal(getAllowedOrigin('http://198.51.100.20:4321'), 'null');
   });
 });
 

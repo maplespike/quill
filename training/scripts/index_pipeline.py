@@ -17,7 +17,7 @@ def http_json(url, method="GET", data=None, headers=None):
     except urllib.error.HTTPError as e:
         return {"status": "error", "detail": str(e)}
 
-QDRANT_URL = os.environ.get("QDRANT_URL", "http://10.1.1.120:6333")
+QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 
 def embed_text(text):
     h = hashlib.sha256(text.encode()).digest()

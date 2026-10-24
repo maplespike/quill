@@ -13,27 +13,27 @@
 
 maplespike.lan {
     tls internal
-    bind 127.0.0.1 10.1.1.110 100.102.39.25
-    reverse_proxy 10.1.1.120:32481
+    bind 127.0.0.1 {$LAN_INGRESS_IP} {$TAILNET_IP}
+    reverse_proxy {$LAN_UPSTREAM_IP}:32481
 }
 
 api.maplespike.lan {
     tls internal
-    bind 127.0.0.1 10.1.1.110 100.102.39.25
-    reverse_proxy 10.1.1.120:32481
+    bind 127.0.0.1 {$LAN_INGRESS_IP} {$TAILNET_IP}
+    reverse_proxy {$LAN_UPSTREAM_IP}:32481
 }
 
 # Phase D legacy alias — 301 redirect to canonical quill.maplespike.lan
 mcp.maplespike.lan {
     tls internal
-    bind 127.0.0.1 10.1.1.110 100.102.39.25
+    bind 127.0.0.1 {$LAN_INGRESS_IP} {$TAILNET_IP}
     redir https://quill.maplespike.lan{uri} permanent
 }
 
 # Phase D canonical — terminate here, forward to maplespike-quill Service
 quill.maplespike.lan {
     tls internal
-    bind 127.0.0.1 10.1.1.110 100.102.39.25
-    reverse_proxy 10.42.0.68:3001
+    bind 127.0.0.1 {$LAN_INGRESS_IP} {$TAILNET_IP}
+    reverse_proxy {$LAN_UPSTREAM_IP}:3001
 }
 

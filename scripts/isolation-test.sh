@@ -61,11 +61,16 @@ for ip in $NODES; do
   expect blocked "kubelet on $ip" "$PROBE" "$ip:10250" "$NS"
 done
 expect blocked "k3s api on $CP" "$PROBE" "$CP:6443" "$NS"
-expect blocked "tailnet memlawb" "$PROBE" "100.76.105.73:8080" "$NS"
+if [ -n "${TAILNET_PROBE_IP:-}" ]; then
+  expect blocked "tailnet probe" "$PROBE" "$TAILNET_PROBE_IP:8080" "$NS"
+else
+  echo "SKIP tailnet probe — set TAILNET_PROBE_IP to test that path"
+fi
 expect blocked "grafana nodeport" "$PROBE" "$CP:30300" "$NS"
 
 echo "== legitimate flows must still work =="
-expect ok "cluster dns" "$PROBE" "10.43.0.10:53" "$NS"
+CLUSTER_DNS="${CLUSTER_DNS:-$(svcof kube-system kube-dns)}"
+expect ok "cluster dns" "$PROBE" "${CLUSTER_DNS}:53" "$NS"
 expect ok "internet" "$PROBE" "1.1.1.1:443" "$NS"
 expect ok "portal service" "$PROBE" "$(svcof $NS quill-portal):8080" "$NS"
 expect ok "api service" "$PROBE" "$(svcof $NS quill-api):8082" "$NS"

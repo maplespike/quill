@@ -39,9 +39,9 @@ Owner key: **[A]** agent-executable (dispatched to the kanban board / done here)
       EXPECT: the endpoint the API is configured with resolves AND the rate limiter stops
       running in pass-through/degraded mode.
       Evidence: `kubectl get svc -A | grep -i redis` → `maplespike quill-redis ClusterIP
-      10.43.131.229 6379/TCP`; `REDIS_URL=redis://quill-redis:6379` on the api Deployment;
-      `getent hosts quill-redis` from inside the pod → `10.43.131.229
-      quill-redis.maplespike.svc.cluster.local`; api banner `Cache: Redis / Rate-limit: Redis`
+      <redis-cluster-ip> 6379/TCP`; `REDIS_URL=redis://quill-redis:6379` on the api Deployment;
+      `getent hosts quill-redis` from inside the pod → the same address,
+      `quill-redis.maplespike.svc.cluster.local`; api banner `Cache: Redis / Rate-limit: Redis`
       and `[rate-limiter] Connected to Redis`; 0 connection-failure lines in 10m of logs.
       Burst test (115 requests, one IP): 30×200 + 85×429, `X-RateLimit-Limit: 100`,
       `x-ratelimit-remaining: 0`, `retry-after: 57`; Redis held `ratelimit:FREE:127.0.0.1`

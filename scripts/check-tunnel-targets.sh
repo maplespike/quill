@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tunnel-target drift check.
 #
-# The Cloudflare tunnel config pins ClusterIPs (e.g. http://10.43.4.171:8080).
+# The Cloudflare tunnel config pins ClusterIPs (e.g. http://<cluster-ip>:8080).
 # If a Service is deleted and recreated with a new ClusterIP, the tunnel goes
 # dark silently. This check resolves every config target against the live
 # cluster and exits non-zero on drift.

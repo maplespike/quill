@@ -1,13 +1,13 @@
 # forge k3s Recovery Runbook — 2026-09-17
 
-forge (10.1.1.130, Tailscale 100.126.31.20) flapped twice and is currently
+forge (`<forge-LAN-IP>`, Tailscale `<forge-tailnet-IP>`) flapped twice and is currently
 booting back (ICMP answers, sshd not yet listening). This is the exact
 procedure to restore it as the third etcd voter.
 
 ## Context (verified before writing this)
 
 - forge is a k3s **server** (control-plane + etcd voter), node-args show it
-  joins via `--server https://10.1.1.120:6443 --token-file /run/secrets/k3s-cluster-token`
+  joins via `--server https://<server-LAN-IP>:6443 --token-file /run/secrets/k3s-cluster-token`
 - Its k3s is **v1.36.1+k3s1**; nexus/sentry run **v1.37.0+k3s1** (the
   system-upgrade plan `k3s-server` completed cluster-wide but forge missed it)
 - The whole stack (quill-api/mcp/portal) is pinned to nexus; zombie pods from
@@ -110,7 +110,7 @@ presents a conflicting member, use the member-remove + clean-db sequence.
 
 ## UPDATE 2026-09-17 (later): forge was RE-IMAGED — fresh-join path
 
-SSH returned via Tailscale (new IP `100.85.63.36`, LAN :22 still refused).
+SSH returned via Tailscale (new IP `<forge-tailnet-IP>`, LAN :22 still refused).
 Recon findings that invalidate the "restart the old install" plan:
 
 - forge is a **fresh Omarchy install** (~30 min uptime): no k3s binary, no
@@ -133,7 +133,7 @@ Recon findings that invalidate the "restart the old install" plan:
 ### The ONE remaining step (needs sudo password — interactive)
 
 ```bash
-ssh 100.85.63.36                      # or: ssh forge once LAN sshd returns
+ssh <forge-tailnet-IP>                # or: ssh forge once LAN sshd returns
 sudo bash ~/k3s-join/install-k3s-forge.sh
 ```
 

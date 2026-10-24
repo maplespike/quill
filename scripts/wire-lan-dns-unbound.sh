@@ -9,9 +9,8 @@
 # hostname to the k3s Traefik ingress IP, then reloads Unbound.
 #
 # Usage:
-#   sudo ./wire-lan-dns-unbound.sh                       # default: 10.1.1.110
-#   sudo ./wire-lan-dns-unbound.sh 10.1.1.120            # custom ingress IP
-#   sudo ./wire-lan-dns-unbound.sh 10.1.1.120 /etc/unbound/conf.d
+#   sudo ./wire-lan-dns-unbound.sh 192.0.2.10                     # ingress IP (required)
+#   sudo ./wire-lan-dns-unbound.sh 192.0.2.10 /etc/unbound/conf.d
 #
 # NixOS users: instead of running this script, drop the contents of
 # `local-zone.conf` into `services.unbound.extraConfig`, OR add:
@@ -26,7 +25,8 @@
 
 set -euo pipefail
 
-INGRESS_IP="${1:-10.1.1.110}"
+# No default: a wrong guess points every *.maplespike.lan host at nothing.
+INGRESS_IP="${1:?usage: wire-lan-dns-unbound.sh <ingress-ip> [conf-dir]}"
 CONF_DIR="${2:-/etc/unbound/conf.d}"
 ZONE_FILE="$CONF_DIR/maplespike-lan.conf"
 
