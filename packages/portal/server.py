@@ -296,35 +296,66 @@ class QuillHandler(SimpleHTTPRequestHandler):
                 except Exception:
                     pass
 
+    # Methods the portal itself serves. Everything else is a client error on a
+    # non-/api path, not a handler crash: Python's http.server implements no
+    # do_POST/do_PUT/do_PATCH/do_DELETE, so calling the superclass method raised
+    # AttributeError, dropped the socket with no response, and cloudflared
+    # rendered it as a 502 (measured 2026-10-24 on quill.maplespike.ca).
+    ALLOWED_METHODS = "GET, HEAD, OPTIONS"
+
+    def _method_not_allowed(self):
+        """Answer an unsupported method with 405 JSON instead of dying."""
+        path = urlparse(self.path).path
+        payload = json.dumps({
+            "error": "METHOD_NOT_ALLOWED",
+            "message": f"{self.command} is not supported on {path}",
+            "allow": self.ALLOWED_METHODS,
+        }).encode("utf-8")
+        self.send_response(405)
+        self.send_header("Allow", self.ALLOWED_METHODS)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        # Base end_headers: a JSON error must not carry the static-site CSP.
+        SimpleHTTPRequestHandler.end_headers(self)
+        self.wfile.write(payload)
+
     def do_POST(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
         else:
-            super().do_POST()
+            self._method_not_allowed()
 
     def do_PUT(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
         else:
-            super().do_PUT()
+            self._method_not_allowed()
 
     def do_PATCH(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
         else:
-            super().do_PATCH()
+            self._method_not_allowed()
 
     def do_DELETE(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
         else:
-            super().do_DELETE()
+            self._method_not_allowed()
 
     def do_OPTIONS(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
         else:
-            super().do_OPTIONS()
+            # Answer the preflight instead of calling a parent method that does
+            # not exist (the same AttributeError bug as do_POST below).
+            self.send_response(204)
+            self.send_header("Allow", self.ALLOWED_METHODS)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", self.ALLOWED_METHODS)
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            self.send_header("Content-Length", "0")
+            SimpleHTTPRequestHandler.end_headers(self)
 
     def do_HEAD(self):
         if self.path.startswith("/api/"):
