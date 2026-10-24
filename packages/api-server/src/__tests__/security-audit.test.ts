@@ -81,11 +81,18 @@ test('a payload with no readable date is rejected', () => {
 /* ── static fallback reader ─────────────────────────────────────────── */
 
 test('readStaticFallback marks a missing file unusable and names the reason', async () => {
-  process.env.QUILL_SECURITY_AUDIT_JSON = join(tmpdir(), 'quill-audit-does-not-exist.json');
+  const configured = join(tmpdir(), 'quill-audit-does-not-exist.json');
+  process.env.QUILL_SECURITY_AUDIT_JSON = configured;
   const result = await readStaticFallback('live audit failed: spawn pnpm ENOENT');
   assert.equal(result.source, 'static');
   assert.equal(result.usable, false);
   assert.match(result.fallbackReason, /pnpm ENOENT/);
+  // Regressing this would let a broken override answer from another snapshot:
+  // CI tracks packages/portal/public/data/security/audit.json, so falling
+  // through to the cwd guesses made this test pass locally and fail in CI
+  // (2026-10-24). The configured path must be named, and no data served.
+  assert.match(result.fallbackReason, /QUILL_SECURITY_AUDIT_JSON/);
+  assert.equal(result.payload.summary.total, 0);
 });
 
 test('readStaticFallback serves a fresh file and refuses an epoch-dated one', async () => {

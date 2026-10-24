@@ -88,14 +88,25 @@ const SEV_RANK: Record<AuditAdvisory['severity'], number> = {
  * `node:fs` import crashes module-init in Workers projects that
  * haven't enabled `nodejs_compat`.
  */
-async function findStaticAuditPath(): Promise<string | null> {
+async function findStaticAuditPath(): Promise<{ path: string | null; missingOverride?: string }> {
   const { existsSync } = await import('node:fs');
   const { resolve } = await import('node:path');
   // Explicit override first: the api image bakes the snapshot at a stable path
   // (/app/data/security/audit.json) that is not one of the cwd-relative
   // guesses below.
+  //
+  // An override is authoritative. When it names a file that is not there, do
+  // NOT fall through to the guesses: the API would then serve a *different*
+  // snapshot as if it were the configured one, which is the same lie this
+  // route exists to stop (2026-10-24: the CI checkout has a committed
+  // packages/portal/public/data/security/audit.json, so a broken override
+  // silently answered from it).
   const override = process.env.QUILL_SECURITY_AUDIT_JSON;
-  if (override && existsSync(override)) return resolve(override);
+  if (override) {
+    return existsSync(override)
+      ? { path: resolve(override) }
+      : { path: null, missingOverride: resolve(override) };
+  }
   const candidates = [
     // dev: cwd = repo root
     'packages/portal/public/data/security/audit.json',
@@ -107,9 +118,9 @@ async function findStaticAuditPath(): Promise<string | null> {
     '/app/data/security/audit.json',
   ];
   for (const c of candidates) {
-    if (existsSync(resolve(c))) return resolve(c);
+    if (existsSync(resolve(c))) return { path: resolve(c) };
   }
-  return null;
+  return { path: null };
 }
 
 /**
@@ -155,9 +166,12 @@ export function snapshotRejection(
  * served as a successful answer; the caller turns that into a 503.
  */
 export async function readStaticFallback(reason: string): Promise<AuditResult> {
-  const path = await findStaticAuditPath();
+  const found = await findStaticAuditPath();
+  const path = found.path;
   if (!path) {
-    const rejection = `no static audit.json found (${reason})`;
+    const rejection = found.missingOverride
+      ? `QUILL_SECURITY_AUDIT_JSON points at ${found.missingOverride}, which does not exist (${reason})`
+      : `no static audit.json found (${reason})`;
     return {
       source: 'static',
       fallbackReason: rejection,
