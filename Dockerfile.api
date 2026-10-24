@@ -28,6 +28,20 @@ COPY . .
 # Install all workspace dependencies
 RUN pnpm install --frozen-lockfile
 
+# Bake a dependency-audit snapshot into the image.
+#
+# /v1/security/audit-summary re-runs `pnpm audit` per request, but the image has
+# no `pnpm` on PATH at runtime (and pnpm audit needs the registry), so the live
+# path always failed and the route fell back to a file that was never in the
+# image: it published an epoch-dated zero report with HTTP 200 (QUILL-AUDIT.md
+# 2026-10-24). Generate the snapshot here, where pnpm and the lockfile exist.
+# The script degrades to a placeholder carrying a `note` when the registry is
+# unreachable; the route refuses placeholders and answers 503 instead of lying.
+RUN node scripts/gen-security-audit.mjs || true
+RUN mkdir -p packages/portal/public/data/security && \
+    test -f packages/portal/public/data/security/audit.json || \
+    printf '%s\n' '{"generatedAt":"1970-01-01T00:00:00.000Z","summary":{"total":0,"critical":0,"high":0,"moderate":0,"low":0,"info":0},"top":[],"note":"audit generation did not run at build time"}'
+
 # Build api-server and its workspace dependency chain (database → pipeline-core → engine → api-server)
 RUN pnpm --filter @maplespike/api-server... build
 
@@ -60,6 +74,11 @@ COPY --from=builder /app/packages/pipeline-core/package.json /app/packages/pipel
 COPY --from=builder /app/packages/engine/dist/ /app/packages/engine/dist/
 COPY --from=builder /app/packages/engine/package.json /app/packages/engine/
 COPY --from=builder /app/node_modules/ /app/node_modules/
+
+# Dependency-audit snapshot for /v1/security/audit-summary (see the builder
+# stage note). A stable absolute path the route probes; QUILL_SECURITY_AUDIT_JSON
+# below points at it explicitly so no cwd guessing is involved.
+COPY --from=builder /app/packages/portal/public/data/security/audit.json /app/data/security/audit.json
 
 # pnpm workspaces with inject-workspace-packages=true: each package's runtime
 # deps (pino, better-sqlite3, etc.) live as symlinks under the *per-package*
@@ -97,6 +116,8 @@ ENV NODE_ENV=production
 ENV PORT=8082
 # Parameterized CA bundle path consumed by entrypoint.sh -> NODE_EXTRA_CA_CERTS
 ENV CA_CERT_PATH=/usr/local/share/ca-certificates/ca-bundle.crt
+# Snapshot path for GET /v1/security/audit-summary (baked by the builder stage).
+ENV QUILL_SECURITY_AUDIT_JSON=/app/data/security/audit.json
 EXPOSE 8082
 
 # Wrapper entrypoint exports NODE_EXTRA_CA_CERTS and execs node (issue #778)
