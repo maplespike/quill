@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-10-24
 status: active
 ---
 
@@ -7,7 +7,7 @@ status: active
 
 ## Reporting Vulnerabilities
 
-Report security vulnerabilities by opening a private issue on [github.com/reverb256/quill](https://github.com/reverb256/quill/issues) or contacting the maintainer directly. Do not file public issues for active vulnerabilities.
+Report security vulnerabilities by opening a private security advisory on [github.com/maplespike/quill](https://github.com/maplespike/quill/security/advisories/new) or by email to [security@maplespike.ca](mailto:security@maplespike.ca). Do not file public issues for active vulnerabilities.
 
 **Response target:** Acknowledgment within 48 hours, triage within 5 business days.
 

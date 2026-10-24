@@ -150,3 +150,27 @@ test(`doc-links: all ${totalLinksChecked} relative .md links resolve`, () => {
     `Found ${broken.length} broken internal .md link(s) across ${files.length} files:\n${sample}${more}`,
   );
 });
+
+/**
+ * Regression: the security policy must name the canonical repository.
+ *
+ * QUILL-AUDIT.md (2026-10-24, P1): SECURITY.md sent vulnerability reports to
+ * `github.com/reverb256/quill`, the pre-move repository. A reporter following
+ * the policy would open a private issue where the maintainers no longer work.
+ * Guard the reporting URL, not the whole file: historical `reverb256` links in
+ * CHANGELOG entries are evidence of past issue numbers and stay as written.
+ */
+test('doc-links: SECURITY.md reporting target is maplespike/quill', () => {
+  const security = fs.readFileSync(path.join(ROOT, 'SECURITY.md'), 'utf8');
+  const urls = [...security.matchAll(/https?:\/\/github\.com\/[^\s)>\]]+/g)].map((m) => m[0]);
+  assert.ok(urls.length > 0, 'SECURITY.md must name a GitHub reporting target');
+  for (const url of urls) {
+    assert.doesNotMatch(
+      url,
+      /github\.com\/reverb256\/quill/i,
+      `SECURITY.md points at the retired repository: ${url}`,
+    );
+    assert.match(url, /github\.com\/maplespike\/quill/i, `unexpected repository: ${url}`);
+  }
+  assert.match(security, /security@maplespike\.ca/, 'SECURITY.md must carry a security mailbox');
+});
