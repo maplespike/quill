@@ -33,7 +33,14 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: {{ $.Values.ingestion.backoffLimit | default 1 }}
-      activeDeadlineSeconds: {{ $.Values.ingestion.activeDeadlineSeconds | default 1800 }}
+      # Per-pipeline override first (ingestion.deadlines.<pipeline>), then the
+      # chart-wide default. One deadline for every pipeline is wrong: the
+      # influence crawl walks actor and funding pages and can legitimately run
+      # past 30 minutes, while a feed reader that needs 30 minutes is stuck.
+      # 2026-10-23 04:00 CDT: Job quill-ingest-influence-29879100 failed with
+      # "Job was active longer than specified deadline" at the 1800s default,
+      # and the next run finished in 9 min (QUILL-AUDIT.md, P2).
+      activeDeadlineSeconds: {{ (get ($.Values.ingestion.deadlines | default dict) $name) | default ($.Values.ingestion.activeDeadlineSeconds | default 1800) }}
       # Finished ingest pods used to linger forever (no TTL, history 3 each), and
       # nexus's kubelet pod cap (110 by default) filled up until later runs were
       # rejected with OutOfpods (seen 2026-09-25 on quill-ingest-realtime/ngo-rss).
