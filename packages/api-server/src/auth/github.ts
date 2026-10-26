@@ -1,8 +1,8 @@
 /**
  * Quill — GitHub OAuth Routes
  *
- * GET  /v1/auth/github          — redirect to GitHub OAuth
- * GET  /v1/auth/github/callback — handle OAuth callback
+ * (Legacy GET /v1/auth/github[/callback] now start the generic flow —
+ *  see legacyGithubLoginHandler in routes/auth-oauth.ts.)
  * POST /v1/auth/refresh         — refresh JWT token
  * GET  /v1/auth/logout          — clear session
  * GET  /v1/auth/me              — current user profile
@@ -10,155 +10,14 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { generateToken, verifyToken, tokenFromRequest, refreshToken } from './jwt.js';
-import { createUser, getUser, getTenantForUser, getUserKeys } from './users.js';
-import type { GitHubProfile } from '../types.js';
+import { tokenFromRequest, refreshToken } from './jwt.js';
+import { getUser, getUserKeys } from './users.js';
 
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
 /* ------------------------------------------------------------------ */
 
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
-const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || 'https://api.maplespike.ca/v1/auth/github/callback';
 const JWT_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
-
-/* ------------------------------------------------------------------ */
-/*  GitHub OAuth Initiation                                            */
-/* ------------------------------------------------------------------ */
-
-/**
- * GET /v1/auth/github
- * Redirect the user to GitHub's OAuth authorization page.
- */
-export const githubLoginHandler: RouteHandler = async (_request, ctx) => {
-  if (!GITHUB_CLIENT_ID) {
-    return jsonResponse(
-      buildError('GITHUB_NOT_CONFIGURED', 'GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.', ctx),
-      501,
-    );
-  }
-
-  const params = new URLSearchParams({
-    client_id: GITHUB_CLIENT_ID,
-    redirect_uri: GITHUB_REDIRECT_URI,
-    scope: 'read:user user:email',
-    state: generateState(ctx.requestId),
-  });
-
-  const redirectUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
-
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: redirectUrl,
-    },
-  });
-};
-
-/* ------------------------------------------------------------------ */
-/*  GitHub OAuth Callback                                              */
-/* ------------------------------------------------------------------ */
-
-/**
- * GET /v1/auth/github/callback
- * Handle the OAuth callback from GitHub.
- * Exchanges the code for an access token, fetches user info, creates/returns user.
- */
-export const githubCallbackHandler: RouteHandler = async (request, ctx) => {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
-
-  if (!code) {
-    return jsonResponse(
-      buildError('GITHUB_AUTH_ERROR', 'No authorization code provided by GitHub.', ctx),
-      400,
-    );
-  }
-
-  // Exchange code for access token
-  let accessToken: string;
-  try {
-    accessToken = await exchangeCodeForToken(code);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Token exchange failed';
-    return jsonResponse(
-      buildError('GITHUB_TOKEN_ERROR', message, ctx),
-      502,
-    );
-  }
-
-  // Fetch GitHub user profile
-  let githubProfile: GitHubProfile;
-  try {
-    githubProfile = await fetchGitHubUser(accessToken);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to fetch GitHub profile';
-    return jsonResponse(
-      buildError('GITHUB_PROFILE_ERROR', message, ctx),
-      502,
-    );
-  }
-
-  // Also fetch emails if the primary email is not public
-  if (!githubProfile.email) {
-    try {
-      const emails = await fetchGitHubEmails(accessToken);
-      const primary = emails.find((e: any) => e.primary && e.verified);
-      if (primary) {
-        githubProfile.email = primary.email;
-      }
-    } catch {
-      // Non-fatal — email is optional
-    }
-  }
-
-  // Create or retrieve user
-  const user = createUser(githubProfile);
-  const tenant = getTenantForUser(user.id);
-
-  // Generate JWT
-  const token = generateToken({
-    sub: user.id,
-    email: (user as any).email || user.emailHash || undefined,
-    tier: user.tier,
-  });
-
-  // Determine redirect or JSON response
-  const accept = request.headers.get('Accept') || '';
-  if (accept.includes('text/html')) {
-    // Set cookie and redirect to app
-    const appUrl = process.env.APP_URL || 'http://localhost:8082';
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: appUrl,
-        'Set-Cookie': serializeCookie('session', token, JWT_COOKIE_MAX_AGE),
-      },
-    });
-  }
-
-  // API response
-  return jsonResponse(buildSuccess({
-    user: {
-      id: user.id,
-      email: (user as any).email || user.emailHash || '',
-      githubLogin: user.githubLogin,
-      githubName: user.githubName,
-      avatarUrl: user.avatarUrl,
-      tier: user.tier,
-    },
-    tenant: tenant ? {
-      id: tenant.id,
-      name: tenant.name,
-      tier: tenant.tier,
-    } : null,
-    token,
-    tokenType: 'Bearer',
-    expiresIn: JWT_COOKIE_MAX_AGE,
-  }, ctx));
-};
 
 /* ------------------------------------------------------------------ */
 /*  Token Refresh                                                      */
@@ -270,72 +129,6 @@ export const meHandler: RouteHandler = async (_request, ctx) => {
 /* ------------------------------------------------------------------ */
 /*  Internal Helpers                                                   */
 /* ------------------------------------------------------------------ */
-
-function generateState(requestId: string): string {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
-  return `${requestId}-${hex}`;
-}
-
-async function exchangeCodeForToken(code: string): Promise<string> {
-  const response = await fetch('https://github.com/login/oauth/access_token', {
-    method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    signal: AbortSignal.timeout(15000),
-    body: JSON.stringify({
-      client_id: GITHUB_CLIENT_ID,
-      client_secret: GITHUB_CLIENT_SECRET,
-      code,
-      redirect_uri: GITHUB_REDIRECT_URI,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub token exchange failed: ${response.status}`);
-  }
-
-  const data = await response.json() as { access_token?: string; error?: string };
-  if (data.error || !data.access_token) {
-    throw new Error(data.error || 'No access token returned');
-  }
-
-  return data.access_token;
-}
-
-async function fetchGitHubUser(accessToken: string): Promise<GitHubProfile> {
-  const response = await fetch('https://api.github.com/user', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/json',
-      'User-Agent': 'MapleSpike-Canada',
-    },
-    signal: AbortSignal.timeout(15000),
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
-  }
-
-  return response.json() as Promise<GitHubProfile>;
-}
-
-async function fetchGitHubEmails(accessToken: string): Promise<any[]> {
-  const response = await fetch('https://api.github.com/user/emails', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/json',
-      'User-Agent': 'MapleSpike-Canada',
-    },
-    signal: AbortSignal.timeout(15000),
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub emails API error: ${response.status}`);
-  }
-
-  return response.json() as Promise<any[]>;
-}
 
 export function serializeCookie(name: string, value: string, maxAgeSeconds: number): string {
   const parts = [

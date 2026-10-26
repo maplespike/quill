@@ -459,15 +459,15 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       '/v1/auth/github': {
         get: {
           tags: ['Auth'],
-          summary: 'Initiate GitHub OAuth login',
+          summary: 'Legacy GitHub login (starts /v1/auth/oauth/github)',
           responses: { '302': { description: 'Redirect to GitHub' } },
         },
       },
       '/v1/auth/github/callback': {
         get: {
           tags: ['Auth'],
-          summary: 'GitHub OAuth callback',
-          responses: { '200': { description: 'Authentication completed' } },
+          summary: 'Legacy GitHub callback (restarts /v1/auth/oauth/github)',
+          responses: { '302': { description: 'Redirect to GitHub (generic OAuth flow)' } },
         },
       },
       '/v1/auth/refresh': {

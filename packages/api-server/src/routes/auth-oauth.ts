@@ -105,6 +105,24 @@ export const oauthLoginHandler: RouteHandler = async (_request, ctx, params) => 
 };
 
 /**
+ * GET /v1/auth/github and GET /v1/auth/github/callback (legacy)
+ *
+ * The pre-framework GitHub flow set a `session` cookie on the API origin and
+ * redirected to the portal root, skipping the portal's /auth/callback
+ * one-time-code exchange — so the portal never learned the token and /me
+ * rendered anonymous. It also minted users under a different identity than
+ * the generic flow and never verified `state`.
+ *
+ * Both legacy routes now start the working generic flow
+ * (/v1/auth/oauth/github), which verifies state and hands off through
+ * /auth/callback. A code that arrives at the legacy callback was issued for
+ * the legacy redirect_uri and cannot be redeemed by the generic flow, so the
+ * callback restarts the login instead (GitHub re-approves silently).
+ */
+export const legacyGithubLoginHandler: RouteHandler = async (request, ctx) =>
+  oauthLoginHandler(request, ctx, { provider: 'github' });
+
+/**
  * GET /v1/auth/oauth/:provider/callback
  *
  * For browser requests (Accept: text/html), mints a one-time exchange
