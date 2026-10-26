@@ -14,11 +14,17 @@
 // 3. A self-hosted `workflow_run` job skips a fork head repository and does
 //    not check out the triggering SHA.
 //
+// Self-hosted means the `self-hosted` label or an ARC runner scale set
+// (`arc-<name>`, e.g. `arc-maplespike` on sentry). Both run on the homelab.
+//
 // A runs-on expression is fork-safe when a fork evaluates it to
 // `ubuntu-latest`. The safe form keeps self-hosted on the same-repo side:
 //
 //   (github.event_name != 'pull_request' || head.repo.full_name == github.repository)
-//     && fromJSON('["self-hosted", ...]') || 'ubuntu-latest'
+//     && 'arc-maplespike' || 'ubuntu-latest'
+//
+// (`fromJSON('["self-hosted", ...]')` in place of `'arc-maplespike'` is
+// treated the same way.)
 //
 // `head.repo.full_name != github.repository` selecting self-hosted fails.
 
@@ -95,8 +101,16 @@ function runsOnText(runsOn) {
   return '';
 }
 
+// ARC runner scale sets are selected by their scale-set name, not by the
+// `self-hosted` label, so they need their own match.
+const ARC_LABEL = /(^|[^\w-])arc-[a-z0-9][a-z0-9-]*/;
+
+function isSelfHostedLabel(text) {
+  return text.includes('self-hosted') || ARC_LABEL.test(text);
+}
+
 function mentionsSelfHosted(runsOn) {
-  return runsOnText(runsOn).includes('self-hosted');
+  return isSelfHostedLabel(runsOnText(runsOn));
 }
 
 function ifText(job) {
@@ -152,13 +166,14 @@ function substitute(expr, scenario) {
     text = text.slice(3, -2).trim();
   }
   text = text.replace(/fromJSON\(\s*'([^']*)'\s*\)/g, (_, inner) => (
-    inner.includes('self-hosted') ? 'SELF' : 'OTHER'
+    isSelfHostedLabel(inner) ? 'SELF' : 'OTHER'
   ));
   text = text.replace(/fromJSON\(\s*"([^"]*)"\s*\)/g, (_, inner) => (
-    inner.includes('self-hosted') ? 'SELF' : 'OTHER'
+    isSelfHostedLabel(inner) ? 'SELF' : 'OTHER'
   ));
   text = text.replace(/'ubuntu-latest'|"ubuntu-latest"/g, 'UBUNTU');
   text = text.replace(/'self-hosted'|"self-hosted"/g, 'SELF');
+  text = text.replace(/'arc-[a-z0-9][a-z0-9-]*'|"arc-[a-z0-9][a-z0-9-]*"/g, 'SELF');
   const pairs = [
     ['github.event.pull_request.head.repo.full_name == github.repository', scenario.headSame],
     ['github.event.pull_request.head.repo.full_name != github.repository', !scenario.headSame],

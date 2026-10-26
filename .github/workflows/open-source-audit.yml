@@ -44,17 +44,17 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           version: 10.32.1
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           node-version: 22
 

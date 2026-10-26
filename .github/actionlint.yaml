@@ -15,3 +15,5 @@ self-hosted-runner:
     - sentry
     - forge
     - quill
+    # ARC runner scale set on sentry (media-k8s helm/apps/arc-runner-maplespike.yaml).
+    - arc-maplespike

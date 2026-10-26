@@ -6,7 +6,7 @@
 # assuming a tool exists. See docs/GITHUB-ACTIONS-NIX.md for the verified list.
 # DO NOT add actions/setup-node or pnpm/action-setup on the self-hosted
 # runners — those tools are already installed, and a second install breaks
-# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted'`
+# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')`
 # and install Node 22 and pnpm 10.32.1 with no cache. See
 # docs/GITHUB-ACTIONS-NIX.md.
 # Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
@@ -32,7 +32,7 @@ jobs:
     # stay on the self-hosted pool. A fork can replace this file. The runner
     # hook is the backstop. scripts/gates/check-fork-runner-policy.mjs checks
     # the workflow files in this repository.
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
     # an infrastructure or process hang cannot squat a runner for days.
     timeout-minutes: 60
@@ -41,12 +41,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           version: 10.32.1
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           node-version: 22
 
@@ -74,7 +74,9 @@ jobs:
       - name: Lint workflows (actionlint)
         run: |
           set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" == "self-hosted" ]]; then
+          # Host runners have mise; the ARC runner image and GitHub-hosted
+          # runners do not, so they download the pinned release instead.
+          if command -v mise >/dev/null 2>&1; then
             mise exec actionlint@1.7.7 -- actionlint
             exit 0
           fi
@@ -320,7 +322,7 @@ jobs:
 
   coverage:
     needs: build-and-test
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     continue-on-error: true
     timeout-minutes: 60
 
@@ -328,12 +330,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           version: 10.32.1
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           node-version: 22
 
@@ -358,7 +360,7 @@ jobs:
 
   integration-test:
     needs: build-and-test
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     # No continue-on-error key on this job. An upstream outage skips
     # (upstream-outage.ts), including a 2xx HTML error page. A regression
     # fails. With the key set, every real failure in this suite was invisible
@@ -374,12 +376,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           version: 10.32.1
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           node-version: 22
 
@@ -470,7 +472,7 @@ jobs:
 
   audit:
     needs: build-and-test
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
@@ -485,12 +487,12 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           version: 10.32.1
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           node-version: 22
 
