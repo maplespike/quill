@@ -28,7 +28,9 @@ fi
 tail -12 "$LOG"
 echo "::endgroup::"
 
-SUMMARY="$(grep -E '^ℹ all files' "$LOG" | tail -1)"
+# node --test prints the spec reporter (ℹ) on some runners and TAP (#) on
+# others (arc-maplespike, PR #1188 coverage job), so accept both prefixes.
+SUMMARY="$(grep -E '^(ℹ|#) all files' "$LOG" | tail -1)"
 if [ -z "$SUMMARY" ]; then
   echo "FAIL: $FILTER produced no coverage summary (did the suite run zero tests?)"
   exit 1
@@ -36,9 +38,9 @@ fi
 
 LINES="$(printf '%s' "$SUMMARY" | awk -F'|' '{gsub(/[ %]/,"",$2); print $2}')"
 BRANCH="$(printf '%s' "$SUMMARY" | awk -F'|' '{gsub(/[ %]/,"",$3); print $3}')"
-TESTS="$(grep -E '^ℹ tests ' "$LOG" | tail -1 | awk '{print $3}')"
-PASS="$(grep -E '^ℹ pass ' "$LOG" | tail -1 | awk '{print $3}')"
-FAIL="$(grep -E '^ℹ fail ' "$LOG" | tail -1 | awk '{print $3}')"
+TESTS="$(grep -E '^(ℹ|#) tests ' "$LOG" | tail -1 | awk '{print $3}')"
+PASS="$(grep -E '^(ℹ|#) pass ' "$LOG" | tail -1 | awk '{print $3}')"
+FAIL="$(grep -E '^(ℹ|#) fail ' "$LOG" | tail -1 | awk '{print $3}')"
 
 echo "$FILTER: tests=${TESTS:-?} pass=${PASS:-?} fail=${FAIL:-?} lines=${LINES}% branch=${BRANCH}% (floor ${MIN_LINES}%/${MIN_BRANCH}%)"
 
