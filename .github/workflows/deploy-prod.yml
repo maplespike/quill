@@ -71,6 +71,12 @@ jobs:
       - name: Typecheck
         run: pnpm -r typecheck || true
 
+      # `pnpm test` includes test:chart-probes, which since #1184 fails when
+      # helm is missing instead of skipping. helm is not on the host runner
+      # service PATH (deploy-prod run 40328070737).
+      - name: Install helm
+        uses: azure/setup-helm@v5
+
       - name: Test
         # The deploy gate must not depend on third-party uptime. Several suites
         # fetch live government endpoints and fail on an upstream 500/503
