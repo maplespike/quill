@@ -277,7 +277,7 @@ class MapleSpike:
                 'Provide credentials to connect to the live MapleSpike API:\n\n'
                 '    ms = MapleSpike(api_key="ms_live_...")\n'
                 '    result = ms.query("committees", "committee-membership", ...)\n\n'
-                'See https://maplespike.ca/docs for an API key.'
+                'See https://quill.maplespike.ca/docs for an API key.'
             )
 
         url = build_url(self._base_url, agent, action, params, options)
