@@ -19,7 +19,7 @@ name: Portal generated-artifact drift
 # commit; deployment health is checked separately.
 
 on:
-  pull_request_target:
+  pull_request:
     branches: [main, prod]
     paths:
       - 'packages/portal/scripts/generate-*.mjs'
@@ -60,49 +60,20 @@ permissions:
 
 # Never let two drift runs fight over the same checkout.
 concurrency:
-  group: portal-artifact-drift-${{ github.event.pull_request.head.sha || github.ref }}
+  group: portal-artifact-drift-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   drift:
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     timeout-minutes: 45
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
         with:
           # Full history: the drift checker compares the worktree against
           # `git show HEAD:<path>`, and the generators resolve their timestamp
-          # from the HEAD commit date. The ref is the pull request head.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # from the HEAD commit date.
           fetch-depth: 0
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'

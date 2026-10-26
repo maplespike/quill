@@ -19,7 +19,7 @@ on:
       - 'scripts/audit-open-source.mjs'
       - 'scripts/test-audit-open-source.mjs'
       - '.github/workflows/open-source-audit.yml'
-  pull_request_target:
+  pull_request:
     branches: [main, prod]
     paths:
       - 'package.json'
@@ -44,39 +44,9 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'
@@ -100,7 +70,7 @@ jobs:
       - name: Publish audit report
         uses: actions/upload-artifact@v7
         with:
-          name: quill-open-source-audit-${{ github.event.pull_request.head.sha || github.sha }}
+          name: quill-open-source-audit-${{ github.sha }}
           path: open-source-audit.json
           if-no-files-found: error
           retention-days: 90

@@ -24,10 +24,10 @@ on:
 jobs:
   # Informational job — tools are already on the runner
   show-tools:
-    # && binds before ||. A fork pull_request that calls this file is skipped.
+    # A fork pull_request that calls this file is skipped.
     # A fork can still replace the file when it uses a local path. The runner
     # hook scripts/ci/refuse-untrusted-self-hosted.sh is the backstop.
-    if: github.event_name != 'pull_request' && github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
       - run: |

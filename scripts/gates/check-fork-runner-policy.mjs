@@ -1,29 +1,26 @@
 #!/usr/bin/env node
 // Fail when a workflow can run untrusted fork code on a self-hosted runner.
 //
-// `on: pull_request` uses the workflow file from the merge commit. A fork can
-// delete every `if` and set `runs-on: [self-hosted, nixos]`. Those runners
-// share the host home directory and can reach the cluster.
+// `on: pull_request` uses the workflow file from the merge commit. GitHub
+// withholds secrets from a fork pull request and gives that job a read-only
+// token. The runner still has to be GitHub-hosted. A fork can replace the
+// workflow file, so this gate checks the files in this repository. The runner
+// hook scripts/ci/refuse-untrusted-self-hosted.sh is the backstop.
 //
 // Contract:
-// 1. No workflow uses the `pull_request` trigger. Use `pull_request_target`
-//    so the workflow file is the base branch.
-// 2. A self-hosted job on `pull_request_target` must require a same-repo head,
-//    require `github.event_name == 'push'`, or send forks to ubuntu-latest.
-//    The split form starts with the inline refuse step, checks out the head
-//    SHA with persist-credentials false, and clears GITHUB_TOKEN before
-//    repository code.
-// 3. A self-hosted `workflow_run` job must require
-//    head_repository.full_name == github.repository, and must not check out
-//    the triggering SHA.
-// 4. A job that can run for a fork must not read `secrets.*`, must not have
-//    a write token, and must not run `git commit`.
-// 5. A self-hosted `workflow_call` job must skip untrusted pull_request events
-//    unless the head repository is this repository.
+// 1. No `pull_request_target` job checks out the pull request head.
+// 2. No self-hosted `runs-on` is reachable by a fork `pull_request`,
+//    `pull_request_target`, or `workflow_call`.
+// 3. A self-hosted `workflow_run` job skips a fork head repository and does
+//    not check out the triggering SHA.
 //
-// A workflow file added by the fork is not in the base tree, so this gate
-// cannot see it. scripts/ci/refuse-untrusted-self-hosted.sh is the runner
-// hook that refuses that job. Install it on each self-hosted runner.
+// A runs-on expression is fork-safe when a fork evaluates it to
+// `ubuntu-latest`. The safe form keeps self-hosted on the same-repo side:
+//
+//   (github.event_name != 'pull_request' || head.repo.full_name == github.repository)
+//     && fromJSON('["self-hosted", ...]') || 'ubuntu-latest'
+//
+// `head.repo.full_name != github.repository` selecting self-hosted fails.
 
 import { readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -84,8 +81,6 @@ for path in sys.argv[1:]:
     out.append({
         "path": path,
         "on": triggers(doc),
-        "permissions": doc.get("permissions"),
-        "env": doc.get("env"),
         "jobs": doc.get("jobs") or {},
     })
 print(json.dumps(out))
@@ -100,65 +95,164 @@ function runsOnText(runsOn) {
   return '';
 }
 
-function isSelfHosted(runsOn) {
+function mentionsSelfHosted(runsOn) {
   return runsOnText(runsOn).includes('self-hosted');
 }
 
-function isDynamicRunner(runsOn) {
-  const text = runsOnText(runsOn);
-  return text.includes('ubuntu-latest')
-    && text.includes('self-hosted')
-    && text.includes('head.repo.full_name != github.repository');
-}
-
 function ifText(job) {
-  const value = job && job.if;
-  return typeof value === 'string' ? value : '';
-}
-
-function restrictsToTrusted(job) {
-  const text = ifText(job);
-  if (text.includes('head.repo.full_name == github.repository')) return true;
-  if (text.includes('head_repository.full_name == github.repository')) return true;
-  if (text.includes("github.event_name == 'push'") && !text.includes('pull_request')) return true;
-  return false;
-}
-
-function effectivePerms(workflowPerms, job) {
-  if (job && job.permissions) return job.permissions;
-  return workflowPerms ?? null;
-}
-
-function hasWrite(perms) {
-  if (perms == null) return true;
-  if (typeof perms === 'string') return perms !== 'read-all' && perms !== 'read';
-  return Object.values(perms).some((value) => String(value).includes('write'));
+  if (!job || job.if == null || job.if === '') return '';
+  if (typeof job.if === 'boolean') return job.if ? 'true' : 'false';
+  return String(job.if);
 }
 
 function stepsOf(job) {
-  return Array.isArray(job.steps) ? job.steps : [];
+  return Array.isArray(job?.steps) ? job.steps : [];
 }
 
 function runText(step) {
   return typeof step?.run === 'string' ? step.run : '';
 }
 
-function usesCheckout(step) {
-  return typeof step?.uses === 'string' && step.uses.startsWith('actions/checkout@');
+function checksOutPrHead(step) {
+  const run = runText(step);
+  if (/git\s+checkout/.test(run) && /pull_request\.head|github\.head_ref/.test(run)) return true;
+  if (typeof step?.uses !== 'string' || !step.uses.startsWith('actions/checkout@')) return false;
+  const with_ = step.with || {};
+  const blob = `${with_.ref ?? ''}\n${with_.repository ?? ''}`;
+  return /pull_request\.head|github\.head_ref/.test(blob);
 }
 
-const UNTRUSTED_IN_RUN = [
-  'github.event.pull_request.title',
-  'github.event.pull_request.body',
-  'github.event.pull_request.head.ref',
-  'github.event.pull_request.head.label',
-  'github.head_ref',
-  'github.event.workflow_run.head_branch',
-  'github.event.workflow_run.name',
-  'github.event.workflow_run.html_url',
-  'github.event.workflow_run.display_title',
-  'github.event.workflow_run.head_commit',
-];
+function checksOutTriggeringSha(step) {
+  if (typeof step?.uses !== 'string' || !step.uses.startsWith('actions/checkout@')) return false;
+  const ref = String(step.with?.ref ?? '');
+  return /workflow_run\.head_sha|pull_request\.head/.test(ref);
+}
+
+function truthy(value) {
+  return value !== 'false';
+}
+
+function exprAnd(left, right) {
+  if (left === 'false') return 'false';
+  if (left === 'UNKNOWN') return right === 'false' ? 'false' : 'UNKNOWN';
+  return right;
+}
+
+function exprOr(left, right) {
+  if (left === 'false') return right;
+  if (left === 'UNKNOWN') {
+    return right === 'false' || right === 'UNKNOWN' ? 'UNKNOWN' : right;
+  }
+  return left;
+}
+
+function substitute(expr, scenario) {
+  let text = String(expr).trim();
+  if (text.startsWith('${{') && text.endsWith('}}')) {
+    text = text.slice(3, -2).trim();
+  }
+  text = text.replace(/fromJSON\(\s*'([^']*)'\s*\)/g, (_, inner) => (
+    inner.includes('self-hosted') ? 'SELF' : 'OTHER'
+  ));
+  text = text.replace(/fromJSON\(\s*"([^"]*)"\s*\)/g, (_, inner) => (
+    inner.includes('self-hosted') ? 'SELF' : 'OTHER'
+  ));
+  text = text.replace(/'ubuntu-latest'|"ubuntu-latest"/g, 'UBUNTU');
+  text = text.replace(/'self-hosted'|"self-hosted"/g, 'SELF');
+  const pairs = [
+    ['github.event.pull_request.head.repo.full_name == github.repository', scenario.headSame],
+    ['github.event.pull_request.head.repo.full_name != github.repository', !scenario.headSame],
+    ['github.event.workflow_run.head_repository.full_name == github.repository', scenario.headSame],
+    ['github.event.workflow_run.head_repository.full_name != github.repository', !scenario.headSame],
+    ["github.event_name != 'pull_request_target'", scenario.event !== 'pull_request_target'],
+    ["github.event_name != 'pull_request'", scenario.event !== 'pull_request'],
+    ["github.event_name == 'pull_request_target'", scenario.event === 'pull_request_target'],
+    ["github.event_name == 'pull_request'", scenario.event === 'pull_request'],
+    ["github.event_name == 'push'", scenario.event === 'push'],
+    ["github.ref == 'refs/heads/prod'", scenario.ref === 'refs/heads/prod'],
+  ];
+  for (const [needle, value] of pairs) {
+    text = text.split(needle).join(value ? 'true' : 'false');
+  }
+  text = text.replace(
+    /[A-Za-z_][\w.]*\s*(?:==|!=|>=|<=)\s*(?:'[^']*'|"[^"]*"|[A-Za-z_][\w.]*)/g,
+    'UNKNOWN',
+  );
+  return text;
+}
+
+function evaluate(expr, scenario) {
+  const text = substitute(expr, scenario);
+  let i = 0;
+  function skip() {
+    while (text[i] === ' ' || text[i] === '\n' || text[i] === '\t') i += 1;
+  }
+  function parseOr() {
+    let left = parseAnd();
+    skip();
+    while (text.startsWith('||', i)) {
+      i += 2;
+      left = exprOr(left, parseAnd());
+      skip();
+    }
+    return left;
+  }
+  function parseAnd() {
+    let left = parseUnary();
+    skip();
+    while (text.startsWith('&&', i)) {
+      i += 2;
+      left = exprAnd(left, parseUnary());
+      skip();
+    }
+    return left;
+  }
+  function parseUnary() {
+    skip();
+    if (text[i] === '!') {
+      i += 1;
+      const value = parseUnary();
+      if (value === 'UNKNOWN') return 'UNKNOWN';
+      return truthy(value) ? 'false' : 'true';
+    }
+    return parsePrimary();
+  }
+  function parsePrimary() {
+    skip();
+    if (text[i] === '(') {
+      i += 1;
+      const value = parseOr();
+      skip();
+      if (text[i] !== ')') return 'UNKNOWN';
+      i += 1;
+      return value;
+    }
+    const match = /^(true|false|SELF|UBUNTU|OTHER|UNKNOWN)/.exec(text.slice(i));
+    if (!match) return 'UNKNOWN';
+    i += match[0].length;
+    return match[0];
+  }
+  const value = parseOr();
+  skip();
+  if (i !== text.length) return 'UNKNOWN';
+  return value;
+}
+
+function jobSkipped(job, scenario) {
+  const text = ifText(job).trim();
+  if (!text) return false;
+  const value = evaluate(text, scenario);
+  return value === 'false';
+}
+
+function runnerFor(job, scenario) {
+  const runsOn = job['runs-on'];
+  if (Array.isArray(runsOn) || (typeof runsOn === 'string' && !runsOn.includes('${{'))) {
+    return mentionsSelfHosted(runsOn) ? 'SELF' : 'OTHER';
+  }
+  if (typeof runsOn !== 'string') return 'UNKNOWN';
+  return evaluate(runsOn, scenario);
+}
 
 const files = listWorkflows(dir);
 if (files.length === 0) {
@@ -180,104 +274,49 @@ function fail(path, message) {
 
 for (const wf of workflows) {
   const triggers = Object.keys(wf.on || {});
-  if (triggers.includes('pull_request')) {
-    fail(wf.path, 'uses on.pull_request. Use pull_request_target so the base workflow chooses the runner.');
-  }
-  const forkEvents = triggers.includes('pull_request_target') || triggers.includes('workflow_run');
   const jobs = wf.jobs && typeof wf.jobs === 'object' ? wf.jobs : {};
+  const scenarios = [];
+  if (triggers.includes('pull_request') || triggers.includes('workflow_call')) {
+    scenarios.push({ event: 'pull_request', headSame: false, ref: 'refs/pull/1/merge' });
+  }
+  if (triggers.includes('pull_request_target')) {
+    scenarios.push({ event: 'pull_request_target', headSame: false, ref: 'refs/heads/main' });
+  }
 
   for (const [name, job] of Object.entries(jobs)) {
     if (!job || typeof job !== 'object') continue;
     const where = `${wf.path} job ${name}`;
-    const runsOn = job['runs-on'];
-    const selfHosted = isSelfHosted(runsOn);
-    const dynamic = isDynamicRunner(runsOn);
-    const trusted = restrictsToTrusted(job);
     const steps = stepsOf(job);
 
-    if (triggers.includes('pull_request_target') && selfHosted) {
-      if (dynamic) {
-        const first = runText(steps[0]);
-        if (!first.includes('RUNNER_ENVIRONMENT') || !first.includes('pull_request')) {
-          fail(where, 'dynamic runner must start with the inline self-hosted refuse step.');
-        }
-      } else if (!trusted) {
-        fail(where, 'self-hosted pull_request_target job has no same-repo or push-only guard.');
+    if (triggers.includes('pull_request_target')) {
+      if (steps.some(checksOutPrHead)) {
+        fail(where, 'pull_request_target must not check out the pull request head.');
       }
     }
 
-    if (triggers.includes('workflow_run') && selfHosted) {
-      if (!ifText(job).includes('head_repository.full_name == github.repository')) {
-        fail(where, 'self-hosted workflow_run job must require head_repository.full_name == github.repository.');
-      }
-      for (const step of steps) {
-        if (!usesCheckout(step)) continue;
-        const ref = String(step.with?.ref ?? '');
-        if (ref.includes('workflow_run.head_sha') || ref.includes('pull_request.head')) {
-          fail(where, 'workflow_run must not check out the triggering head on a self-hosted runner.');
-        }
+    if (job['runs-on'] == null) continue;
+    if (!mentionsSelfHosted(job['runs-on'])) continue;
+
+    for (const scenario of scenarios) {
+      if (jobSkipped(job, scenario)) continue;
+      const runner = runnerFor(job, scenario);
+      if (runner === 'SELF' || runner === 'UNKNOWN') {
+        fail(where, `a fork ${scenario.event} can reach a self-hosted runner.`);
       }
     }
 
-    if (triggers.includes('workflow_call') && selfHosted) {
-      const text = ifText(job);
-      const skipsPullRequest = /!= 'pull_request'(?!_)/.test(text);
-      const skipsTarget = text.includes("!= 'pull_request_target'");
-      const sameRepo = text.includes('head.repo.full_name == github.repository');
-      if (!skipsPullRequest || !skipsTarget || !sameRepo) {
-        fail(where, 'self-hosted workflow_call job must skip untrusted pull_request events.');
+    if (triggers.includes('workflow_run')) {
+      const scenario = { event: 'workflow_run', headSame: false, ref: '' };
+      if (!jobSkipped(job, scenario)) {
+        const runner = runnerFor(job, scenario);
+        if (runner === 'SELF' || runner === 'UNKNOWN') {
+          fail(where, 'a fork workflow_run can reach a self-hosted runner.');
+        }
+      }
+      if (steps.some(checksOutTriggeringSha)) {
+        fail(where, 'workflow_run must not check out the triggering head on a self-hosted runner.');
       }
     }
-
-    const forkCapable = triggers.includes('pull_request_target') && !trusted;
-    if (forkCapable) {
-      const blob = JSON.stringify(job);
-      if (blob.includes('secrets.')) {
-        fail(where, 'a job that can run for a fork must not reference secrets.');
-      }
-      if (hasWrite(effectivePerms(wf.permissions, job))) {
-        fail(where, 'a job that can run for a fork must not receive a write token.');
-      }
-      for (const step of steps) {
-        if (/^\s*git commit\b/m.test(runText(step))) {
-          fail(where, 'a job that can run for a fork must not git commit.');
-        }
-      }
-      const checkout = steps.find(usesCheckout);
-      if (checkout) {
-        const creds = checkout.with?.['persist-credentials'];
-        if (creds !== false && creds !== 'false') {
-          fail(where, 'checkout in a fork-capable job must set persist-credentials: false.');
-        }
-        const ref = String(checkout.with?.ref ?? '');
-        if (!ref.includes('pull_request.head.sha')) {
-          fail(where, 'checkout in a fork-capable job must use the pull request head SHA.');
-        }
-        const dropped = steps.some((step) => (
-          runText(step).includes('GITHUB_TOKEN=')
-          && ifText(step).includes('head.repo.full_name != github.repository')
-        ));
-        if (!dropped) {
-          fail(where, 'clear GITHUB_TOKEN after checkout and before repository code on a fork.');
-        }
-      }
-    }
-
-    if (forkEvents) {
-      for (const step of steps) {
-        const run = runText(step);
-        for (const needle of UNTRUSTED_IN_RUN) {
-          if (run.includes(needle)) {
-            fail(where, `pass ${needle} through env, not into run.` );
-          }
-        }
-      }
-    }
-  }
-
-  const anyForkJob = triggers.includes('pull_request_target') && Object.values(jobs).some((job) => job && !restrictsToTrusted(job));
-  if (anyForkJob && JSON.stringify(wf.env ?? {}).includes('secrets.')) {
-    fail(wf.path, 'workflow env passes a secret to a job that can run for a fork.');
   }
 }
 

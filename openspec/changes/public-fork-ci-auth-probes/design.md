@@ -1,8 +1,8 @@
 ## Decision
 
-`pull_request` is removed. `pull_request_target` keeps the workflow file on the base branch. The `runs-on` expression sends a fork to `ubuntu-latest` and every other event to the existing self-hosted labels.
+Code jobs keep `on: pull_request`. The workflow file is the merge commit, so CI on a pull request runs before merge. GitHub withholds secrets from a fork and gives that job a read-only token. The `runs-on` expression sends a fork to `ubuntu-latest`. A same-repo pull request and a push stay on the existing self-hosted labels.
 
-The inline refuse step runs before checkout. Checkout uses the pull request head SHA and `persist-credentials: false`. The next step clears `GITHUB_TOKEN` when the head repository is a fork. Hosted jobs install Node 22 and pnpm 10.32.1 only when `runner.environment == 'github-hosted'`.
+`merge-when-green.yml` is the only `pull_request_target` workflow. It needs a write token to squash-merge. It does not check out pull request code. It runs on `ubuntu-latest`, and only when the head repository is this repository and the actor is Dependabot or the maintainer. Hosted jobs install Node 22 and pnpm 10.32.1 only when `runner.environment == 'github-hosted'`.
 
 A new workflow file in a fork is not visible to the in-repo gate. `scripts/ci/refuse-untrusted-self-hosted.sh` is the runner hook. The operator installs it. GitHub "Require approval for all outside collaborators" is an operator setting. This change does not edit branch protection.
 
@@ -19,4 +19,4 @@ Probes:
 
 ## Rollback
 
-Revert the workflow trigger change and the chart probe values. The MCP auth change is not safe to revert on a public repository.
+Revert the `runs-on` expressions and the chart probe values. The MCP auth change is not safe to revert on a public repository.

@@ -4,7 +4,7 @@ The repository is being prepared to accept pull requests from outside this GitHu
 
 ## What Changes
 
-- Fork pull requests run on GitHub-hosted runners, with a read token and no secrets. Same-repo work stays on the self-hosted pool.
+- Fork pull requests keep the `pull_request` trigger and run on GitHub-hosted runners. GitHub withholds secrets and supplies a read-only token. Same-repo pull requests and pushes stay on the self-hosted pool.
 - `GET /sse`, `POST /messages`, and `POST /mcp` require an API key or an API session JWT. `GET /health` stays public.
 - API, MCP, search, and portal probes use cheap health paths. API, MCP, and search gain a startupProbe. CI renders the chart and smokes the portal health path.
 

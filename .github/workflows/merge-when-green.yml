@@ -41,8 +41,10 @@ permissions:
 
 jobs:
   merge:
-    # Author gate. Dependabot, or you. NOT "anyone who opened a PR" — a fork
-    # PR would otherwise get this repo's write token via pull_request_target.
+    # Author gate. Dependabot, or the maintainer. The head repository must be
+    # this repository. This job does not check out pull request code.
+    # pull_request_target is required so the squash-merge token can write.
+    # A fork pull request does not run.
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.actor == 'dependabot[bot]' || github.actor == 'reverb256')

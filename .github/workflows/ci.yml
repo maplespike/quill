@@ -17,7 +17,7 @@ name: CI
 on:
   push:
     branches: [main, prod]
-  pull_request_target:
+  pull_request:
     branches: [main, prod]
 
 permissions:
@@ -28,45 +28,17 @@ env:
 
 jobs:
   build-and-test:
-    # Forks take ubuntu-latest. The expression is in this base file, so a fork
-    # cannot point the job at the self-hosted pool. scripts/gates/check-fork-runner-policy.mjs
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    # Fork pull requests take ubuntu-latest. Same-repo pull requests and pushes
+    # stay on the self-hosted pool. A fork can replace this file. The runner
+    # hook is the backstop. scripts/gates/check-fork-runner-policy.mjs checks
+    # the workflow files in this repository.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
     # an infrastructure or process hang cannot squat a runner for days.
     timeout-minutes: 60
 
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'
@@ -348,42 +320,12 @@ jobs:
 
   coverage:
     needs: build-and-test
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     continue-on-error: true
     timeout-minutes: 60
 
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'
@@ -416,7 +358,7 @@ jobs:
 
   integration-test:
     needs: build-and-test
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     # No continue-on-error key on this job. An upstream outage skips
     # (upstream-outage.ts), including a 2xx HTML error page. A regression
     # fails. With the key set, every real failure in this suite was invisible
@@ -429,37 +371,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'
@@ -502,13 +414,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0 # full history — gitleaks must see every commit
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       # The baseline is security-critical config: a malformed .gitleaksignore
       # is silently inert (34 warnings, zero exclusions applied — run
@@ -541,7 +447,7 @@ jobs:
   secrets-event-range:
     needs: build-and-test
     # Same-repo only. The action reads the organisation licence secret.
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -550,9 +456,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
-          persist-credentials: false
 
       - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v3
@@ -566,7 +470,7 @@ jobs:
 
   audit:
     needs: build-and-test
-    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
@@ -578,37 +482,7 @@ jobs:
     # the step below enforces that. Bump --audit-level back to high when the open
     # Highs are closed.
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-
-      - name: Drop the job token before repository code
-        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted'
@@ -650,8 +524,7 @@ jobs:
   docker:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
-    # pull_request_target sets github.ref to the base branch. Require a push
-    # so a pull request into prod cannot start an image build on the cluster.
+    # Push to prod only. A pull request does not start an image build.
     if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
     permissions:
       contents: read
@@ -666,33 +539,7 @@ jobs:
     # bumped, replace the login + flip `push: true` + retarget tags to ghcr.io.
 
     steps:
-      - name: Refuse untrusted code on self-hosted runners
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
-          THIS_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
-            exit 0
-          fi
-          case "$EVENT_NAME" in
-            pull_request)
-              echo "::error::A pull_request job must not run on a self-hosted runner."
-              exit 1
-              ;;
-            pull_request_target|workflow_run)
-              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
-                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
-                exit 1
-              fi
-              ;;
-          esac
-
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

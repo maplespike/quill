@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Job-started hook for the self-hosted runners.
 #
-# Workflow files in the repository cannot stop a fork from adding a new
-# workflow that selects `runs-on: [self-hosted, nixos]`. This hook runs on
-# the runner, before the job, and refuses that case.
+# A pull_request workflow runs the file from the merge commit. A fork can
+# replace that file and select the self-hosted labels. This hook runs on the
+# runner, before the job, and refuses a job whose head repository is not
+# this repository.
 #
 # Install on each self-hosted runner. In the runner directory .env set:
 #
@@ -15,7 +16,7 @@
 # Also set GitHub Actions → General → Fork pull request workflows to
 # "Require approval for all outside collaborators". Approval must not be
 # treated as permission to use the cluster runner. This hook still refuses
-# pull_request after an approval.
+# a fork pull_request after an approval. A same-repo pull_request is allowed.
 set -euo pipefail
 
 event="${GITHUB_EVENT_NAME:-}"
@@ -27,13 +28,13 @@ refuse() {
   exit 1
 }
 
-if [[ "$event" == "pull_request" ]]; then
-  refuse "refusing pull_request. Fork jobs must use a GitHub-hosted runner."
-fi
-
-if [[ "$event" != "pull_request_target" && "$event" != "workflow_run" ]]; then
-  exit 0
-fi
+case "$event" in
+  pull_request|pull_request_target|workflow_run)
+    ;;
+  *)
+    exit 0
+    ;;
+esac
 
 if [[ -z "$payload" || ! -f "$payload" ]]; then
   refuse "refusing ${event} because the event payload is missing."
@@ -43,7 +44,7 @@ head="$(python3 - "$payload" "$event" <<'PY'
 import json, sys
 doc = json.load(open(sys.argv[1], encoding="utf-8"))
 event = sys.argv[2]
-if event == "pull_request_target":
+if event in ("pull_request", "pull_request_target"):
     repo = ((doc.get("pull_request") or {}).get("head") or {}).get("repo") or {}
     print(repo.get("full_name") or "")
 elif event == "workflow_run":

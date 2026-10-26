@@ -1,16 +1,16 @@
 name: Auto-assign Sprint-to-Live Milestone
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, reopened]
   issues:
     types: [opened]
 
 jobs:
   assign-milestone:
-    # No checkout. Same-repo only, and not on the cluster runners.
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    # No checkout. A fork pull request is skipped. Same-repo work stays here.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nixos]
     permissions:
       issues: write
       pull-requests: write

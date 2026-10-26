@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const gate = 'scripts/gates/check-fork-runner-policy.mjs';
+const safeRunsOn = "${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('[\"self-hosted\", \"nixos\"]') || 'ubuntu-latest' }}";
 
 function run(dir) {
   return spawnSync(process.execPath, [gate, dir], { encoding: 'utf8' });
@@ -26,67 +27,60 @@ test('repository workflows satisfy the fork runner policy', () => {
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 });
 
-test('pull_request on a self-hosted runner fails', () => {
+test('static self-hosted pull_request fails', () => {
+  withWorkflow('bad.yml', `
+name: bad
+on: pull_request
+jobs:
+  test:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - run: echo hi
+`, (result) => {
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /self-hosted runner/);
+  });
+});
+
+test('same-repo guard on a static self-hosted job passes', () => {
+  withWorkflow('ok.yml', `
+name: ok
+on:
+  pull_request:
+  push:
+jobs:
+  test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nixos]
+    steps:
+      - run: echo hi
+`, (result) => {
+    assert.equal(result.status, 0, result.stderr);
+  });
+});
+
+test('push-safe runs-on expression passes', () => {
+  withWorkflow('ok.yml', `
+name: ok
+on:
+  pull_request:
+  push:
+jobs:
+  test:
+    runs-on: ${safeRunsOn}
+    steps:
+      - uses: actions/checkout@v7
+`, (result) => {
+    assert.equal(result.status, 0, result.stderr);
+  });
+});
+
+test('expression that sends a fork pull_request to self-hosted fails', () => {
   withWorkflow('bad.yml', `
 name: bad
 on:
   pull_request:
-jobs:
-  test:
-    runs-on: [self-hosted, nixos]
-    steps:
-      - run: echo hi
-`, (result) => {
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /pull_request/);
-  });
-});
-
-test('pull_request_target without a runner guard fails', () => {
-  withWorkflow('bad.yml', `
-name: bad
-on:
-  pull_request_target:
-permissions:
-  contents: read
-jobs:
-  test:
-    runs-on: [self-hosted, nixos]
-    steps:
-      - run: echo hi
-`, (result) => {
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /same-repo or push-only/);
-  });
-});
-
-test('a fork-capable job that reads a secret fails', () => {
-  withWorkflow('bad.yml', `
-name: bad
-on:
-  pull_request_target:
-permissions:
-  contents: read
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo hi
-        env:
-          TOKEN: \${{ secrets.EXAMPLE }}
-`, (result) => {
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /must not reference secrets/);
-  });
-});
-
-test('a dynamic runner without the refuse step fails', () => {
-  withWorkflow('bad.yml', `
-name: bad
-on:
-  pull_request_target:
-permissions:
-  contents: read
+  push:
 jobs:
   test:
     runs-on: \${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
@@ -94,7 +88,54 @@ jobs:
       - run: echo hi
 `, (result) => {
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /inline self-hosted refuse step/);
+    assert.match(result.stderr, /self-hosted runner/);
+  });
+});
+
+test('inequality that selects self-hosted fails', () => {
+  withWorkflow('bad.yml', `
+name: bad
+on: pull_request
+jobs:
+  test:
+    runs-on: \${{ github.event.pull_request.head.repo.full_name != github.repository && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    steps:
+      - run: echo hi
+`, (result) => {
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /self-hosted runner/);
+  });
+});
+
+test('pull_request_target that checks out the head SHA fails', () => {
+  withWorkflow('bad.yml', `
+name: bad
+on: pull_request_target
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: \${{ github.event.pull_request.head.sha }}
+`, (result) => {
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /must not check out the pull request head/);
+  });
+});
+
+test('pull_request_target without a checkout passes', () => {
+  withWorkflow('ok.yml', `
+name: ok
+on: pull_request_target
+jobs:
+  merge:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+`, (result) => {
+    assert.equal(result.status, 0, result.stderr);
   });
 });
 
@@ -113,24 +154,6 @@ jobs:
       - run: echo hi
 `, (result) => {
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /head_repository/);
-  });
-});
-
-test('a same-repo self-hosted pull_request_target job passes', () => {
-  withWorkflow('ok.yml', `
-name: ok
-on:
-  pull_request_target:
-permissions:
-  contents: write
-jobs:
-  merge:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo hi
-`, (result) => {
-    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stderr, /workflow_run/);
   });
 });
