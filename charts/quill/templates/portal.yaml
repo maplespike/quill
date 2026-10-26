@@ -6,9 +6,9 @@
   pin. It floats across the labelled nodes (quill.io/workload=true), spread by
   topology + anti-affinity so a single node loss cannot take both replicas.
 
-  The api/mcp/search pods stay pinned because their storage is node-local
-  (local-path PVCs). That is a real constraint, not a preference — see
-  values-prod.yaml. Making THOSE dynamic needs shared storage first.
+  The api pod and the search pod each mount a ReadWriteOnce volume, so each
+  one runs on the node that holds that volume. mcp is pinned because its
+  image is a local import (imagePullPolicy: Never). See values-prod.yaml.
 */}}
 {{- if (.Values.portal | default dict).enabled }}
 apiVersion: apps/v1
