@@ -75,6 +75,12 @@ ingestion:
   # Node holding the api pod's SQLite volume (RWO PVC) when QUILL_STORAGE=sqlite.
   nodeName: ""
   activeDeadlineSeconds: 1800
+  # Per-pipeline deadline overrides (seconds). A pipeline listed here gets its
+  # own activeDeadlineSeconds; everything else uses the value above.
+  # influence: the 2026-10-23 04:00 run hit the 1800s default and failed on
+  # deadline, so it gets twice the headroom rather than a fifth of the chart.
+  deadlines:
+    influence: 3600
   backoffLimit: 1
   startingDeadlineSeconds: 600
   successfulJobsHistoryLimit: 3
