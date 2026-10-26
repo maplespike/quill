@@ -226,6 +226,16 @@ jobs:
     needs: [ci, build-and-pin]
     runs-on: [self-hosted, nixos]
     steps:
+      # Check out the pin commit. Without a checkout this job read
+      # values-prod.yaml and scripts/ from whatever an earlier job left in the
+      # runner workspace (the pre-pin dispatch SHA), so "Confirm the running
+      # images are the pinned ones" compared the freshly rolled-out digests to
+      # the previous pins and failed a good deploy (run 40352443979).
+      - name: Checkout the pin commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build-and-pin.outputs.pin_sha }}
+
       - name: Configure kubectl
         # KUBECONFIG_PROD has been pasted both raw and base64-encoded over its
         # lifetime; `| base64 -d` on a raw kubeconfig fails with "invalid input"
