@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchPharmaCareClaims, fetchBCCDCPublications, fetchAllBCHealthData } from './fetcher.js';
 import { parsePharmaCareRecord, parsePharmaCareBatch, parseBCCDCRecord, parseBCCDCBatch } from './parser.js';

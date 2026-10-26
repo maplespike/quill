@@ -5,5 +5,5 @@
   "scripts": {
     "build": "node ../../scripts/build-docs.mjs"
   },
-  "license": "Apache-2.0"
+  "license": "AGPL-3.0-only"
 }

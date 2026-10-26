@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { ABS_BASE_URL, ABS_TIMEOUT_MS, ABS_THROTTLE, ABS_USER_AGENT } from './constants.js';

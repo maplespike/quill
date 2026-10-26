@@ -210,7 +210,7 @@ function moduleNameToClass(name) {
 
 function generateTypes(moduleId, cfg) {
   const cls = moduleNameToClass(moduleId);
-  return `// SPDX-License-Identifier: AGPL-3.0-or-later
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 
 export interface ${cls}Record {
   id: string;
@@ -251,7 +251,7 @@ function colToCamel(col) {
 
 function generateConstants(moduleId, cfg) {
   const cls = moduleNameToClass(moduleId);
-  return `// SPDX-License-Identifier: AGPL-3.0-or-later
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 
 export const ${cls.toUpperCase()}_DDL = \`
 -- ${cfg.sourceLabel} records
@@ -269,7 +269,7 @@ CREATE INDEX IF NOT EXISTS idx_${cfg.table.replace('_records', '')}_ingested ON 
 \`;
 
 export const DEFAULT_MAX_RECORDS = 400;
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 export const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': DEFAULT_USER_AGENT,
@@ -292,7 +292,7 @@ export class ${cls}Error extends Error {
 
 function generateFetcher(moduleId, cfg) {
   const cls = moduleNameToClass(moduleId);
-  return `// SPDX-License-Identifier: AGPL-3.0-or-later
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import {
@@ -341,7 +341,7 @@ ${cfg.fields.map(f => `        ${f.col}: String(r.${f.col} ?? r.${colToCamel(f.c
 
 function generateParser(moduleId, cfg) {
   const cls = moduleNameToClass(moduleId);
-  return `// SPDX-License-Identifier: AGPL-3.0-or-later
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 
 import { computeHash } from '../../verification/hashing.js';
 import type { ${cls}Record, Raw${cls}Record } from './types.js';
@@ -390,7 +390,7 @@ export async function parse${cls}Batch(
 
 function generateIndex(moduleId, cfg) {
   const cls = moduleNameToClass(moduleId);
-  return `// SPDX-License-Identifier: AGPL-3.0-or-later
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 
 import {
   fetch${cls}Records,

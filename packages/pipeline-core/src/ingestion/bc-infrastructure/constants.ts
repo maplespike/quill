@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const BcInfrastructure_DDL = `
 CREATE TABLE IF NOT EXISTS bc_infrastructure_projects (

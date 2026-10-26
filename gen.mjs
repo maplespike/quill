@@ -69,7 +69,7 @@ for (const [mid, tbl, rtype, sys, ckan, fields] of modules) {
   const searchCols = ['record_type', ...sf.map(f => f[0])];
 
   // types.ts
-  let types = `// SPDX-License-Identifier: AGPL-3.0-or-later\n\n`;
+  let types = `// SPDX-License-Identifier: AGPL-3.0-only\n\n`;
   types += `export interface ${C}Record {\n  id: string;\n  recordType: string;\n`;
   for (const [col, typ] of fields) {
     const ts = typ === 'INTEGER' || typ === 'REAL' ? 'number | null' : 'string | null';
@@ -92,7 +92,7 @@ for (const [mid, tbl, rtype, sys, ckan, fields] of modules) {
   for (const [col] of fields) {
     idxLines += `CREATE INDEX IF NOT EXISTS idx_${tbl.replace('_records','')}_${col} ON ${tbl}(${col});\n`;
   }
-  let constants = `// SPDX-License-Identifier: AGPL-3.0-or-later\n\n`;
+  let constants = `// SPDX-License-Identifier: AGPL-3.0-only\n\n`;
   constants += `export const ${C.toUpperCase()}_DDL = \`\n`;
   constants += `CREATE TABLE IF NOT EXISTS ${tbl} (\n  id TEXT PRIMARY KEY,\n  record_type TEXT NOT NULL,\n${colDDL}  source_url TEXT NOT NULL,\n  source_system TEXT NOT NULL DEFAULT '${sys}',\n  ingested_at TEXT NOT NULL,\n  UNIQUE(record_type, source_url)\n);\n`;
   constants += `${idxLines}CREATE INDEX IF NOT EXISTS idx_${tbl.replace('_records','')}_ingested ON ${tbl}(ingested_at DESC);\n\`;\n\n`;
@@ -105,7 +105,7 @@ for (const [mid, tbl, rtype, sys, ckan, fields] of modules) {
   for (const [col] of fields) {
     fetcherFields += `          ${col}: String(r.${col} ?? r.${toCam(col)} ?? ''),\n`;
   }
-  let fetcher = `// SPDX-License-Identifier: AGPL-3.0-or-later\n\n`;
+  let fetcher = `// SPDX-License-Identifier: AGPL-3.0-only\n\n`;
   fetcher += `import { httpGet } from '../../utils/http.js';\n`;
   fetcher += `import { DEFAULT_TIMEOUT_MS, DEFAULT_HEADERS } from './constants.js';\n\n`;
   fetcher += `export async function fetch${C}Records(options: { limit?: number } = {}): Promise<{ records: any[]; errors: string[] }> {\n`;
@@ -126,7 +126,7 @@ for (const [mid, tbl, rtype, sys, ckan, fields] of modules) {
   for (const [col] of fields) parseFields += `    ${col}: raw.${col},\n`;
   let retFields = '';
   for (const [col] of fields) retFields += `    ${toCam(col)}: raw.${col} ?? null,\n`;
-  let parser = `// SPDX-License-Identifier: AGPL-3.0-or-later\n\n`;
+  let parser = `// SPDX-License-Identifier: AGPL-3.0-only\n\n`;
   parser += `import { computeHash } from '../../verification/hashing.js';\n`;
   parser += `import type { ${C}Record, Raw${C}Record } from './types.js';\n\n`;
   parser += `export async function parse${C}Record(raw: Raw${C}Record, options: { sourceSystem?: string; ingestedAt?: string } = {}): Promise<${C}Record | null> {\n`;
@@ -152,7 +152,7 @@ for (const [mid, tbl, rtype, sys, ckan, fields] of modules) {
     searchIf += `    for (let i = 0; i < ${searchCols.length}; i++) params.push(q);\n  }\n`;
   }
 
-  let index = `// SPDX-License-Identifier: AGPL-3.0-or-later\n\n`;
+  let index = `// SPDX-License-Identifier: AGPL-3.0-only\n\n`;
   index += `import { fetch${C}Records } from './fetcher.js';\n`;
   index += `import { parse${C}Record, parse${C}Batch } from './parser.js';\n`;
   index += `import { ${C.toUpperCase()}_DDL, DEFAULT_MAX_RECORDS, ${C}Error } from './constants.js';\n`;

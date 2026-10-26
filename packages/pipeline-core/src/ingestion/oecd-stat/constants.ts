@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const OECD_BASE_URL = 'https://stats.oecd.org/sdmx-json/data';
 

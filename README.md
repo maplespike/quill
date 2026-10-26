@@ -15,13 +15,13 @@ status: active
 
 <p align="center">
   <a href="https://github.com/maplespike/quill"><img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status: active"></a>
-  <a href="./docs/open-source-audit.md">License metadata under review</a>
+  <a href="./LICENSE">License: AGPL-3.0-only</a>
   <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/maplespike/quill/ci.yml" alt="CI"></a>
 </p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
 
-**Status:** Active development · **License metadata:** unresolved; see the [open-source audit](./docs/open-source-audit.md) · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
+**Status:** Active development · **License:** [`AGPL-3.0-only`](./LICENSE) · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
 > **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:maplespike/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
@@ -287,7 +287,16 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 
 ## Licensing
 
-Repository, package, and file-level license declarations conflict. Do not treat this README or the root `LICENSE` as a definitive grant for every package or artifact. Review the [open-source audit](./docs/open-source-audit.md) and [licensing facts](./LICENSE.md); the rights holder has not resolved the conflicts.
+Quill is licensed under the **GNU Affero General Public License, version 3 only**
+([`AGPL-3.0-only`](./LICENSE)). Every workspace package declares the same licence,
+every first-party source file carries the same `SPDX-License-Identifier`, and each
+published package ships a copy of the licence text. [`LICENSE.md`](./LICENSE.md)
+records the decision and its scope.
+
+[`NOTICE`](./NOTICE) carries the third-party and public-data notices. It holds the
+Open Government Licence – Canada attribution, the Crown copyright statement, the
+House of Commons and Senate reproduction permissions, the *Reproduction of Federal
+Law Order* notice, and the licence notices for vendored and adapted material.
 
 Source-data terms are separate from software licenses. They vary by publisher and dataset. Quill does not grant independent reuse rights in source material. Required attribution statements and notices are listed in [DATA-LICENSES.md](./DATA-LICENSES.md) (mirrored on the site at `/data-sources`); see [the data-source audit](./docs/licensing-audit.md) and consult the original publisher's terms.
 

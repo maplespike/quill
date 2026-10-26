@@ -198,4 +198,9 @@ All MCP server env vars are also documented in repo-root [`.env.example`](../../
 
 ## License
 
-Apache-2.0
+GNU Affero General Public License, version 3 only (`AGPL-3.0-only`). The text is
+in [`LICENSE`](./LICENSE).
+
+Versions already published under Apache-2.0 keep that licence.
+`@reverb256/mcp-server` 0.2.0 is the published release. Releases of
+`@maplespike/quill-mcp` from version 0.4.0 on are `AGPL-3.0-only`.

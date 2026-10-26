@@ -184,7 +184,7 @@ export const DEFAULT_TIMEOUT_MS = 30_000;
 
 /** Default HTTP headers for Bank of Canada requests */
 export const DEFAULT_HEADERS = {
-  'User-Agent': 'Quill/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 } as const;
 

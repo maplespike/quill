@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — resolve-quill-id (Context7-shape shell, 1 of 2)
  *

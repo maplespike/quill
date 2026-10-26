@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { fetchAbEconomicRecords } from './fetcher.js';
 import { parseAbEconomicRecord, parseAbEconomicBatch } from './parser.js';

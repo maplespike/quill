@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchLibraries, LIBRARY_PORTALS } from '@maplespike/pipeline-core/library';

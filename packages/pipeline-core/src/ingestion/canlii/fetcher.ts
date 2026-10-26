@@ -110,7 +110,7 @@ function getApiKey(): string | null {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:hello@maplespike.ca)',
   Accept: 'application/json',
 } as const;
 

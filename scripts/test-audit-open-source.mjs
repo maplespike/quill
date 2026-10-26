@@ -14,8 +14,15 @@ test('audit emits structured package metadata, findings, and dependency inventor
   assert.equal(report.schemaVersion, '1.0.0');
   assert.ok(report.workspacePackages.length > 0);
   assert.ok(report.installedDependencies.length > 0);
-  assert.ok(report.findings.some(finding => finding.kind === 'missing-manifest-license' && finding.package === '@maplespike/database'));
-  assert.ok(report.findings.some(finding => finding.kind === 'file-spdx-differs-from-manifest' && finding.package === '@maplespike/quill-mcp'));
+  // Since the 2026-10-24 AGPL-3.0-only decision (#1044) every workspace package
+  // declares that licence, and every first-party source header agrees with it.
+  // A file that drifts is a failure.
+  assert.deepEqual(report.findings.filter(finding => finding.kind === 'missing-manifest-license'), []);
+  const drift = report.findings
+    .filter(finding => finding.kind === 'file-spdx-differs-from-manifest')
+    .map(finding => finding.path)
+    .sort();
+  assert.deepEqual(drift, []);
   assert.ok(report.findings.some(finding => finding.kind === 'third-party-license-unknown'));
   assert.ok(report.scope.disclaimer.includes('not legal advice'));
 });
@@ -23,8 +30,8 @@ test('audit emits structured package metadata, findings, and dependency inventor
 test('audit report does not replace the source license declarations', async () => {
   const manifest = JSON.parse(await readFile(new URL('../packages/quill-mcp/package.json', import.meta.url), 'utf8'));
   const source = await readFile(new URL('../packages/quill-mcp/src/tools/statcan-helper.ts', import.meta.url), 'utf8');
-  assert.equal(manifest.license, 'Apache-2.0');
-  assert.match(source.split(/\r?\n/, 1)[0], /SPDX-License-Identifier: AGPL-3.0-or-later/);
+  assert.equal(manifest.license, 'AGPL-3.0-only');
+  assert.match(source.split(/\r?\n/, 1)[0], /SPDX-License-Identifier: AGPL-3\.0-only/);
 });
 
 // ---------------------------------------------------------------------------

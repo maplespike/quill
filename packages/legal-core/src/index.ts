@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MapleSpike Legal Core — Canadian case law, legislation & tribunal data
  *

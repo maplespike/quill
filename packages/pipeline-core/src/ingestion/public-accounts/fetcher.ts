@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { PUBLIC_ACCOUNTS_SOURCES, PUBLIC_ACCOUNTS_TIMEOUT_MS, PUBLIC_ACCOUNTS_USER_AGENT } from './constants.js';

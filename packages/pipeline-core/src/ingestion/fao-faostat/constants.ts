@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const FAO_API_BASE = 'https://fenixservices.fao.org/faostat/api/v1/en';
 

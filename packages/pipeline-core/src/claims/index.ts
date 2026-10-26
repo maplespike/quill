@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /** Quill claim hashes cover canonicalized Quill records, not upstream source bytes. */
 
 import { computeHash } from '../verification/hashing.js';

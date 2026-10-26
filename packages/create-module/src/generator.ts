@@ -182,7 +182,7 @@ function generateRegistryEntry(options: ModuleOptions, pascalName: string): stri
 }
 
 function generateConstantsTemplate(options: ModuleOptions, pascalName: string): string {
-  return `// SPDX-License-Identifier: MIT
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * ${pascalName} Constants
  *
@@ -203,7 +203,7 @@ export const ${pascalName.toUpperCase()}_LICENSE = 'https://open.canada.ca/en/op
 }
 
 function generateTypesTemplate(options: ModuleOptions, pascalName: string): string {
-  return `// SPDX-License-Identifier: MIT
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * ${pascalName} Types
  *
@@ -234,7 +234,7 @@ export interface ${pascalName}IngestionResult {
 }
 
 function generateFetcherTemplate(options: ModuleOptions, pascalName: string): string {
-  return `// SPDX-License-Identifier: MIT
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * ${pascalName} Fetcher
  *
@@ -289,7 +289,7 @@ export async function ingestAll${pascalName}(): Promise<Record<string, ${pascalN
 }
 
 function generateParserTemplate(options: ModuleOptions, pascalName: string): string {
-  return `// SPDX-License-Identifier: MIT
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * ${pascalName} Parser
  *
@@ -335,7 +335,7 @@ export async function parse${pascalName}Records(
 }
 
 function generateIndexTemplate(options: ModuleOptions, pascalName: string): string {
-  return `// SPDX-License-Identifier: MIT
+  return `// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * ${pascalName} Module
  *

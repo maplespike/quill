@@ -1,6 +1,18 @@
 # Open-Source License and Provenance Audit
 
-**Status: preliminary, high-risk findings remain open.** This report separates repository observations from legal conclusions. It is not a legal opinion, copyright clearance, license-compatibility determination, or assurance that any package or image is safe to redistribute.
+> **Resolution (2026-10-24).** The rights holder chose `AGPL-3.0-only` for the whole
+> repository ([#1044](https://github.com/maplespike/quill/issues/1044)). Every
+> `package.json`, the Python and Rust manifests, the tracked first-party source
+> headers, and every per-package `LICENSE` copy now state `AGPL-3.0-only`.
+> Versions of the MCP server already published under Apache-2.0 keep that
+> licence. See [`NOTICE`](../NOTICE).
+> The statement, scope, and third-party carve-outs are in [`LICENSE.md`](../LICENSE.md)
+> and [`NOTICE`](../NOTICE); `scripts/test-license-coherence.mjs` enforces them in CI.
+> The observations below record the tree as it was on 2026-09-30 and are kept as the
+> historical audit record. Where they describe conflicts, read them as "before the
+> 2026-10-24 decision".
+
+**Status: resolved for Quill's own code; third-party and data questions remain open.** This report separates repository observations from legal conclusions. It is not a legal opinion, copyright clearance, license-compatibility determination, or assurance that any package or image is safe to redistribute.
 
 Last manually reviewed: 2026-09-30.
 

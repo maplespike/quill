@@ -373,9 +373,11 @@ pnpm test:coverage  # coverage report
 
 ---
 
-## License status
+## License
 
-`package.json` declares MIT, but this repository's root `LICENSE` is AGPL-3.0 and the published package's license/copyright files have not been verified in the packed artifact. See [`LICENSE.md`](../../LICENSE.md) and the [open-source audit](../../docs/open-source-audit.md). Do not use this README as a final distribution grant until the rights holder resolves package scope and confirms the published archive contents.
+`@maplespike/sdk` is licensed under the GNU Affero General Public License,
+version 3 only (`AGPL-3.0-only`). The text is in [`LICENSE`](./LICENSE). See
+[`LICENSE.md`](../../LICENSE.md).
 
 ---
 

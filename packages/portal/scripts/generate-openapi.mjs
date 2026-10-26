@@ -84,7 +84,7 @@ const spec = {
   info: {
     title: 'MapleSpike API', version: '0.2.0',
     description: 'Canadian public-sector data API. Coverage and response fields vary by endpoint and source. Where supplied, Quill record hashes support integrity comparisons but do not establish source authenticity or reuse rights. Publisher terms vary by dataset; consult the original source. Software license declarations vary by repository artifact; see https://github.com/reverb256/quill/blob/main/docs/open-source-audit.md.',
-    contact: { name: 'MapleSpike', url: 'https://maplespike.ca', email: 'dev@maplespike.ca' },
+    contact: { name: 'MapleSpike', url: 'https://maplespike.ca', email: 'hello@maplespike.ca' },
   },
   servers: [
     { url: 'https://api.maplespike.ca/v1', description: 'Production' },

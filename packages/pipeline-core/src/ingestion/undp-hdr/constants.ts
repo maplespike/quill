@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const UNDP_API_BASE = 'https://hdr.undp.org/data-center/api';
 

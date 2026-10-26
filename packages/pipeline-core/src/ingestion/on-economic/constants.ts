@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 export const OnEconomic_DDL = `
 CREATE TABLE IF NOT EXISTS on_economic_indicators (

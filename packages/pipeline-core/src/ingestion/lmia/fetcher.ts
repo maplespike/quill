@@ -35,7 +35,7 @@ export class LmiaFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:hello@maplespike.ca)',
   Accept: 'text/csv,text/plain,application/json,*/*',
 } as const;
 

@@ -20,7 +20,7 @@ import {
 import type { EiRecord, EiCategory } from './types.js';
 
 import { parseCsvLine } from '../../utils/csv.js';
-const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:j_kroeker@reverb256.ca)';
+const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:hello@maplespike.ca)';
 
 interface CkanResource {
   id: string;

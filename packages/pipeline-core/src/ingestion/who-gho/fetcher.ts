@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { httpGet } from '../../utils/http.js';
 import { WHO_GHO_API_URL, WHO_GHO_TIMEOUT_MS, WHO_GHO_USER_AGENT } from './constants.js';

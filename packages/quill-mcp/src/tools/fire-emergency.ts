@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestFireData } from '@maplespike/pipeline-core/fire-emergency';

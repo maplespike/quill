@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import type { IndicatorValue, IdsCountryProfile, IdsComparison, IdsTrendAnalysis } from './types.js';
 import { CORE_INDICATORS } from './constants.js';

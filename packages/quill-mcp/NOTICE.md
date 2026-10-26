@@ -1,13 +1,36 @@
-# @maplespike/quill-mcp — notice status
+# @maplespike/quill-mcp — licence and notices
 
-This file is **not a complete third-party NOTICE or SBOM**. It records project-specific attribution context only. Do not use it as evidence that this package or its OCI image is cleared for redistribution.
+`@maplespike/quill-mcp` is licensed under the **GNU Affero General Public License,
+version 3 only** (`AGPL-3.0-only`). The full text is in the `LICENSE` file in this
+directory and in the repository root [`LICENSE`](../../LICENSE). The repository
+statement is [`LICENSE.md`](../../LICENSE.md). The repository-wide third-party and
+public-data notices are [`NOTICE`](../../NOTICE).
 
-Copyright 2026 MapleSpike contributors. The list of contributors and applicable copyright notices must be verified from the source history and contributor records before public distribution.
+Versions already published under Apache-2.0 keep that licence.
+`@reverb256/mcp-server` 0.2.0 is the published release. Releases from version
+0.4.0 on are `AGPL-3.0-only`.
 
-Quill uses and adapts third-party software and interfaces. The resolved dependency set and license declarations vary by lockfile revision and by artifact. The current [`open-source audit`](../../docs/open-source-audit.md) identifies unresolved package/file declaration conflicts and dependency license candidates. A versioned, artifact-specific SBOM and complete third-party notice bundle have **not** yet been generated and reviewed for this release.
+This file is **not** a complete third-party NOTICE or SBOM. It records the notices
+that this package must reproduce.
 
-This package's `package.json` declares Apache-2.0, its adjacent `LICENSE` contains Apache-2.0 text, and many source files declare other SPDX identifiers. Runtime workspace dependencies include `@maplespike/pipeline-core` (manifest: AGPL-3.0-or-later) and `@maplespike/database` (no manifest license declaration found). The intended licensing and distribution treatment is unresolved. Do not assume Apache-2.0 alone describes every file or the combined application.
+## Copyright
 
-Upstream data terms are source- and dataset-specific. Neither this notice nor the software license grants rights in external data.
+Copyright (C) 2026 MapleSpike contributors.
 
-Before distributing a built package or OCI image, maintainers must produce and review its exact file/dependency inventory, preserve applicable license texts and attribution notices, and resolve the licensing questions documented in [`LICENSE.md`](../../LICENSE.md) and [`docs/open-source-audit.md`](../../docs/open-source-audit.md).
+## Third-party software
+
+Quill uses and adapts third-party software. Each dependency keeps its own licence
+and Quill's `AGPL-3.0-only` grant does not extend to it. The resolved set and its
+licence expressions are in the repository `pnpm-lock.yaml`; the bounded attribution
+sweep is in [`CREDITS.md`](../../CREDITS.md). An npm archive or an OCI image can
+contain dependencies that the package manifest does not list. Generate the artifact
+SBOM with [`scripts/generate-sbom.sh`](../../scripts/generate-sbom.sh) before you
+redistribute a build.
+
+## Source data
+
+Upstream data terms are source- and dataset-specific. Neither this notice nor the
+software licence grants rights in external data. Attribution requirements live in
+[`NOTICE`](../../NOTICE) and [`DATA-LICENSES.md`](../../DATA-LICENSES.md). The
+runtime policy table is
+[`packages/pipeline-core/src/shared/source-policy.ts`](../pipeline-core/src/shared/source-policy.ts).
