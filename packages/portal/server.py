@@ -157,12 +157,12 @@ class QuillHandler(SimpleHTTPRequestHandler):
 
     CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://js.stripe.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
         "style-src 'self' 'unsafe-inline'; "
         "font-src 'self'; "
         "img-src 'self' data: blob:; "
         "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
-        "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://static.cloudflareinsights.com https://api.stripe.com; "
+        "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
         "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
     )
@@ -438,6 +438,18 @@ class QuillHandler(SimpleHTTPRequestHandler):
         # stripped form.)
         if len(p) > 1 and p.endswith("/"):
             p = p[:-1]
+
+        # Cheap process check for the chart probes. Do not read the homepage:
+        # liveness must stay fast and must not depend on a built page.
+        if p == "/health":
+            body = b'{"status":"ok"}\n'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+            return
 
         # ── Extensionless URL rewriting ────────────────────────
         # Astro generates .html files but routes are extensionless (/dashboard/owasp → owasp.html)

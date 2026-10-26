@@ -17,11 +17,11 @@ export const ImplementingPartnerSchema = z.object({
 });
 
 export const GACProjectSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   projectId: z.string(),
   title: z.string(),
   description: z.string(),
