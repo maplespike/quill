@@ -25,6 +25,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
       {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
@@ -250,6 +253,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
       {{- if .Values.mcp.nodeName }}

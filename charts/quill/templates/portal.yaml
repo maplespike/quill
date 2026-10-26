@@ -45,6 +45,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       # Dynamic placement. nodeName would bypass the scheduler entirely and
       # pin the portal to one node; nodeSelector keeps the scheduler in control
       # while restricting to nodes that hold the pinned image.

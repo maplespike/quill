@@ -98,6 +98,9 @@ spec:
           {{- . | nindent 10 }}
           {{- end }}
         spec:
+          {{- with ($.Values.priorityClass | default dict).critical }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
@@ -181,6 +184,9 @@ spec:
             component: backup
             store: search
         spec:
+          {{- with ($.Values.priorityClass | default dict).critical }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
@@ -266,6 +272,9 @@ spec:
             component: backup
             store: postgres
         spec:
+          {{- with ($.Values.priorityClass | default dict).critical }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
@@ -364,6 +373,9 @@ spec:
           {{- . | nindent 10 }}
           {{- end }}
         spec:
+          {{- with ($.Values.priorityClass | default dict).critical }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
@@ -453,6 +465,9 @@ spec:
           {{- . | nindent 10 }}
           {{- end }}
         spec:
+          {{- with ($.Values.priorityClass | default dict).critical }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true
