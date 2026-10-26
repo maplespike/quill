@@ -42,7 +42,15 @@ permissions:
 jobs:
   discover:
     name: Probe portals + refresh registry
-    runs-on: [self-hosted, nixos]
+    # arc-maplespike (ephemeral pod), not the nexus host runners. Every run
+    # since 2026-10-12 failed at "Open draft PR": the host runner user's
+    # global git hooks (leakguard) apply to CI commits there. They flag some
+    # public municipal portal URLs in the registry as a personal
+    # identity string, and a stale automation@maplespike.ca user.email that
+    # release-weekly.yml left in the persistent host workspace. Neither
+    # applies to a bot commit made in a fresh pod. This job only probes
+    # public portals and opens a PR, so it needs no LAN access.
+    runs-on: arc-maplespike
     concurrency:
       # Single in-flight run; a slow probe session shouldn't queue another.
       group: discover-municipal-ids
@@ -56,6 +64,9 @@ jobs:
           # the default shallow clone that fetch fails on a missing ref
           # ("fatal: couldn't find remote ref ...") — the weekly run killer.
           fetch-depth: 0
+
+      - name: Install jq (stock ARC runner image lacks it)
+        run: command -v jq >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends jq; }
 
       - name: Setup Node
         uses: actions/setup-node@v7
