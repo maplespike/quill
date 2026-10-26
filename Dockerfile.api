@@ -7,7 +7,7 @@
 # Each stage re-declares ARG GIT_SHA before consuming it -- a global ARG is not
 # in scope inside a stage, so ENV ${GIT_SHA} there would expand to empty.
 ARG GIT_SHA=unknown
-FROM docker.io/library/node:22-bookworm-slim AS builder
+FROM docker.io/library/node:24-bookworm-slim AS builder
 ARG GIT_SHA
 ENV QUILL_BUILD_REV=${GIT_SHA}
 WORKDIR /app
@@ -32,7 +32,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @maplespike/api-server... build
 
 # ─── Runtime stage ───────────────────────────────────────────────────────────
-FROM docker.io/library/node:22-bookworm-slim AS api-server
+FROM docker.io/library/node:24-bookworm-slim AS api-server
 ARG GIT_SHA
 ENV QUILL_BUILD_REV=${GIT_SHA}
 WORKDIR /app

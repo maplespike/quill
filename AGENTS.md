@@ -364,7 +364,7 @@ age --decrypt /home/j_kro/.config/maplespike-treasury/treasury.keys.age
 | `packages/api-server/src/routes/astral-proxy.ts` | Astral Key auth proxy |
 | `packages/api-server/src/routes/ai-settings.ts` | BYOK provider resolution |
 | `packages/api-server/src/response.ts` | CORS origins, response envelope |
-| `Dockerfile` | Multi-stage build (portal stage is `python:3.13-slim`; api/mcp stages are `node:22-bookworm-slim`) |
+| `Dockerfile` | Multi-stage build (portal stage is `python:3.13-slim`; api/mcp stages are `node:24-bookworm-slim`) |
 | `k8s/base/` | Kustomize base manifests |
 | `k8s/base/kustomization.yaml` | Includes 6 resources + image overrides (`localhost/...`) |
 | `k8s/base/15-ingress-lan.yaml` | LAN ingress (Traefik class) |
