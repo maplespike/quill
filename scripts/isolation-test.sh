@@ -16,33 +16,40 @@ ASTRAL_NS=astral-key
 PROBE="netpol-probe-$$"
 EDGE_PROBE="netpol-edge-$$"
 K="kubectl"
+# Wrap every kubectl call with --request-timeout so a slow or unresponsive
+# cluster API cannot hang the calls for 18+ minutes and cause the self-hosted
+# CI runner to lose communication with the server.
+# Incident: t_d607e6e3, CI run 40295694825 — bare "kubectl" calls with no
+# --request-timeout hung when the cluster API was slow, timing out the
+# Live isolation test step and failing the entire netpol-validation job.
+kc() { "$K" --request-timeout="${KUBECTL_TIMEOUT:-10s}" "$@"; }
 
 command -v kubectl >/dev/null || { echo "kubectl not found" >&2; exit 2; }
 
 cleanup() {
-  "$K" -n "$NS" delete pod "$PROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
-  "$K" -n "$EDGE_NS" delete pod "$EDGE_PROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+  kc -n "$NS" delete pod "$PROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+  kc -n "$EDGE_NS" delete pod "$EDGE_PROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
-ipof() { "$K" -n "$1" get pods -l "$2" -o jsonpath='{.items[0].status.podIP}' 2>/dev/null; }
-svcof() { "$K" -n "$1" get svc "$2" -o jsonpath='{.spec.clusterIP}' 2>/dev/null; }
+ipof() { kc -n "$1" get pods -l "$2" -o jsonpath='{.items[0].status.podIP}' 2>/dev/null; }
+svcof() { kc -n "$1" get svc "$2" -o jsonpath='{.spec.clusterIP}' 2>/dev/null; }
 
 echo "== probe pods =="
-"$K" -n "$NS" run "$PROBE" --image=busybox:stable --restart=Never \
+kc -n "$NS" run "$PROBE" --image=busybox:stable --restart=Never \
   --command -- sleep 600 >/dev/null
-"$K" -n "$EDGE_NS" run "$EDGE_PROBE" --image=busybox:stable --restart=Never \
+kc -n "$EDGE_NS" run "$EDGE_PROBE" --image=busybox:stable --restart=Never \
   --command -- sleep 600 >/dev/null
-"$K" -n "$NS" wait --for=condition=Ready "pod/$PROBE" --timeout=90s >/dev/null
-"$K" -n "$EDGE_NS" wait --for=condition=Ready "pod/$EDGE_PROBE" --timeout=90s >/dev/null
+kc -n "$NS" wait --for=condition=Ready "pod/$PROBE" --timeout=90s >/dev/null
+kc -n "$EDGE_NS" wait --for=condition=Ready "pod/$EDGE_PROBE" --timeout=90s >/dev/null
 
-NODES=$("$K" get nodes -o jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{"\n"}{end}')
+NODES=$(kc get nodes -o jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{"\\n"}{end}')
 CP=$(echo "$NODES" | head -1)
 
 fail=0
 expect() { # expect <blocked|ok> <description> <probe> <ip:port>
   local want=$1 desc=$2 probe=$3 target=$4 out
-  if "$K" -n "$5" exec "$probe" -- timeout 3 nc -z "${target%:*}" "${target#*:}" >/dev/null 2>&1; then
+  if kc -n "$5" exec "$probe" -- timeout 3 nc -z "${target%:*}" "${target#*:}" >/dev/null 2>&1; then
     out=ok
   else
     out=blocked
@@ -84,13 +91,13 @@ expect ok "edge->mcp" "$EDGE_PROBE" "$(svcof $NS quill-mcp):3001" "$EDGE_NS"
 
 echo "== astral-key containment: auth sidecar must not reach hosts either =="
 APROBE="$PROBE-astral"
-"$K" -n "$ASTRAL_NS" run "$APROBE" --image=busybox:stable --restart=Never \
+kc -n "$ASTRAL_NS" run "$APROBE" --image=busybox:stable --restart=Never \
   --command -- sleep 600 >/dev/null
-"$K" -n "$ASTRAL_NS" wait --for=condition=Ready "pod/$APROBE" --timeout=90s >/dev/null
+kc -n "$ASTRAL_NS" wait --for=condition=Ready "pod/$APROBE" --timeout=90s >/dev/null
 expect blocked "host ssh" "$APROBE" "$CP:22" "$ASTRAL_NS"
 expect blocked "kubelet" "$APROBE" "$CP:10250" "$ASTRAL_NS"
 expect ok "internet (rpc endpoints)" "$APROBE" "1.1.1.1:443" "$ASTRAL_NS"
-"$K" -n "$ASTRAL_NS" delete pod "$APROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+kc -n "$ASTRAL_NS" delete pod "$APROBE" --ignore-not-found --wait=false >/dev/null 2>&1 || true
 
 if [ "$fail" -ne 0 ]; then
   echo "ISOLATION REGRESSION DETECTED" >&2
