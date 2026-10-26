@@ -196,23 +196,103 @@ jobs:
         # lifetime; `| base64 -d` on a raw kubeconfig fails with "invalid input"
         # and every later step in this job silently skips (run 39665582123, so
         # the rollout and smoke gate never ran). Accept either form.
+        #
+        # Self-hosted runners on nexus and forge share the host user's HOME.
+        # `mv` onto ~/.kube/config (added in #1135) replaced the operator
+        # kubeconfig: nexus at 23:56 CT on 2026-10-25, forge on 2026-10-21.
+        # /tmp/kubeconfig is shared across jobs on that host too. Write only
+        # under RUNNER_TEMP, mode 600, and export KUBECONFIG. Never read or
+        # write ~/.kube.
+        #
+        # Do not fall back to /etc/rancher/k3s/k3s.yaml. This job is not pinned
+        # to nexus, that file is the node admin kubeconfig (forge's installer
+        # writes it mode 644), and a fallback would hide a stale secret on the
+        # hosts where the file is readable. A rotated cluster CA must fail here.
+        env:
+          KUBECONFIG_PROD: ${{ secrets.KUBECONFIG_PROD }}
         run: |
-          mkdir -p ~/.kube
-          if printf '%s' "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > /tmp/kubeconfig 2>/dev/null && [ -s /tmp/kubeconfig ]; then
+          set -euo pipefail
+          if [[ -z "${RUNNER_TEMP:-}" || ! -d "$RUNNER_TEMP" ]]; then
+            echo "::error::RUNNER_TEMP is missing. Refusing to write a kubeconfig onto the host."
+            exit 1
+          fi
+          # Exclusive create. A fixed path can be a symlink to ~/.kube/config;
+          # mktemp refuses that and still stays inside the per-job temp dir.
+          KCFG="$(mktemp "${RUNNER_TEMP}/kubeconfig.XXXXXX")"
+          chmod 600 "$KCFG"
+          case "$KCFG" in
+            "$RUNNER_TEMP"/*) ;;
+            *)
+              echo "::error::kubeconfig path escaped RUNNER_TEMP. Refusing to continue."
+              rm -f "$KCFG"
+              exit 1
+              ;;
+          esac
+          umask 077
+          is_kubeconfig() {
+            [[ -s "$1" ]] || return 1
+            grep -a -q 'apiVersion:' "$1" || return 1
+            grep -a -q 'clusters:' "$1" || return 1
+            grep -a -q 'server:' "$1" || return 1
+          }
+          if printf '%s' "$KUBECONFIG_PROD" | base64 -d > "$KCFG" 2>/dev/null && is_kubeconfig "$KCFG"; then
             echo "kubeconfig: decoded from base64"
           else
-            printf '%s' "${{ secrets.KUBECONFIG_PROD }}" > /tmp/kubeconfig
+            printf '%s' "$KUBECONFIG_PROD" > "$KCFG"
             echo "kubeconfig: used raw value"
           fi
-          test -s /tmp/kubeconfig || { echo "::error::KUBECONFIG_PROD is empty"; exit 1; }
-          mv /tmp/kubeconfig ~/.kube/config
+          chmod 600 "$KCFG"
+          unset KUBECONFIG_PROD
+          if [[ ! -s "$KCFG" ]]; then
+            echo "::error::KUBECONFIG_PROD is empty"
+            rm -f "$KCFG"
+            exit 1
+          fi
+          if ! is_kubeconfig "$KCFG"; then
+            echo "::error::KUBECONFIG_PROD is not a kubeconfig. Refusing to continue."
+            rm -f "$KCFG"
+            exit 1
+          fi
+          # Same-step export. GITHUB_ENV applies only to later steps, and only
+          # after this probe accepts the file.
+          export KUBECONFIG="$KCFG"
+          probe_err="$RUNNER_TEMP/kubectl-probe.err"
+          rm -f "$probe_err"
+          # `kubectl version --client` never contacts the API server, so it
+          # cannot see a stale certificate-authority-data. `get ns` checks TLS
+          # and auth now, instead of failing inside the rollout wait.
+          if ! kubectl --request-timeout=20s get ns -o name >"$RUNNER_TEMP/kubectl-probe.out" 2>"$probe_err"; then
+            if grep -Eqi 'x509|unknown authority|bad certificate|failed to verify certificate' "$probe_err"; then
+              echo "::error::KUBECONFIG_PROD cluster CA is stale. kubectl rejected the API server certificate (x509). The secret still has the June cluster CA; the live k3s CA dates from 2026-09-12. Update the KUBECONFIG_PROD repository secret. This step did not read ~/.kube or /etc/rancher/k3s/k3s.yaml."
+            else
+              echo "::error::kubectl cannot reach the cluster with KUBECONFIG_PROD, so the rollout was not started. This step did not read ~/.kube or /etc/rancher/k3s/k3s.yaml."
+            fi
+            # Server and x509 text only. Drop credential material and long lines.
+            grep -Ei 'x509|unknown authority|bad certificate|Unable to connect|tls:|Unauthorized|Forbidden|timeout|dial tcp|connection refused|The connection to the server' "$probe_err" \
+              | grep -Eiv 'BEGIN |PRIVATE|client-key-data|client-certificate-data|certificate-authority-data|Bearer |token:' \
+              | awk 'length($0) <= 400' \
+              | grep -m 8 . || true
+            rm -f "$KCFG" "$probe_err" "$RUNNER_TEMP/kubectl-probe.out"
+            exit 1
+          fi
+          rm -f "$probe_err" "$RUNNER_TEMP/kubectl-probe.out"
+          echo "KUBECONFIG=$KCFG" >> "$GITHUB_ENV"
+          echo "kubeconfig: API server accepted the credentials"
 
       - name: Wait for ArgoCD to sync
         # ArgoCD polls; the commit above is not the deploy. Wait for the app to
         # report Synced at the commit we pushed before declaring anything rolled
         # out, otherwise the rollout check below passes against the old images.
         run: |
-          SHA="${{ github.sha }}"
+          case "${KUBECONFIG:-}" in
+            "$RUNNER_TEMP"/*) ;;
+            *)
+              echo "::error::KUBECONFIG is not under RUNNER_TEMP. Refusing to use the host kubeconfig."
+              exit 1
+              ;;
+          esac
+          # Sync revision is the pin commit on main, not github.sha of this
+          # prod-branch run. Wait until ArgoCD reports Synced.
           for i in $(seq 1 40); do
             REV=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo none)
             SYNC=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo unknown)
@@ -227,16 +307,30 @@ jobs:
 
       - name: Wait for rollout
         run: |
+          case "${KUBECONFIG:-}" in
+            "$RUNNER_TEMP"/*) ;;
+            *)
+              echo "::error::KUBECONFIG is not under RUNNER_TEMP. Refusing to use the host kubeconfig."
+              exit 1
+              ;;
+          esac
           # No `|| true` here — a failed rollout must fail the deploy job.
-          kubectl rollout status deployment/quill-api -n $NAMESPACE --timeout=5m
-          kubectl rollout status deployment/quill-mcp -n $NAMESPACE --timeout=5m
-          kubectl rollout status deployment/quill-portal -n $NAMESPACE --timeout=5m
+          kubectl rollout status deployment/quill-api -n "$NAMESPACE" --timeout=5m
+          kubectl rollout status deployment/quill-mcp -n "$NAMESPACE" --timeout=5m
+          kubectl rollout status deployment/quill-portal -n "$NAMESPACE" --timeout=5m
           kubectl rollout status deployment/cloudflared -n cloudflared --timeout=5m
 
       - name: Confirm the running images are the pinned ones
         # Guards against reporting a successful deploy while the cluster runs
         # something other than what was just built.
         run: |
+          case "${KUBECONFIG:-}" in
+            "$RUNNER_TEMP"/*) ;;
+            *)
+              echo "::error::KUBECONFIG is not under RUNNER_TEMP. Refusing to use the host kubeconfig."
+              exit 1
+              ;;
+          esac
           node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
           fail=0
           for svc in api mcp portal; do
