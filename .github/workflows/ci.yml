@@ -155,6 +155,11 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # Backup CronJobs, the Longhorn search claim, and the scratch restore
+      # drill. node:sqlite only — no cluster and no helm.
+      - name: Backup and restore drill tests
+        run: node --test scripts/test-backup-restore.mjs
+
       # The [self-hosted, nixos] runner pool mixes hosts with and without
       # stored `gh` credentials. A step that shells out to `gh` without a
       # token therefore passes or fails by luck of runner selection (#909;

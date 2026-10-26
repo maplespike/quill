@@ -11,11 +11,12 @@ metadata:
     component: search
 spec:
   replicas: {{ .Values.search.replicas }}
+  # The index claim is ReadWriteOnce. A rolling update with maxSurge 1 asks
+  # for a second pod, and that pod cannot mount the volume. Recreate frees
+  # the claim first. Search has no public route, so the gap stays inside the
+  # cluster.
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate
   selector:
     matchLabels:
       app: quill-search
@@ -35,6 +36,37 @@ spec:
       {{- end }}
       securityContext:
         runAsNonRoot: true
+        fsGroup: 1001
+      {{- if .Values.search.migrateLegacyIndex }}
+      initContainers:
+      - name: migrate-legacy-index
+        image: {{ .Values.redis.image | quote }}
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "/scripts/migrate-search-index.sh"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+        resources:
+          requests:
+            cpu: 20m
+            memory: 32Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+        volumeMounts:
+        - name: index
+          mountPath: /data
+        - name: legacy
+          mountPath: /legacy
+          readOnly: true
+        - name: scripts
+          mountPath: /scripts
+          readOnly: true
+      {{- end }}
       containers:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
@@ -84,4 +116,14 @@ spec:
       volumes:
       - name: index
         persistentVolumeClaim:
+          claimName: {{ include "quill.fullname" . }}-search-data
+      {{- if .Values.search.migrateLegacyIndex }}
+      - name: legacy
+        persistentVolumeClaim:
           claimName: {{ include "quill.fullname" . }}-search-index
+          readOnly: true
+      - name: scripts
+        configMap:
+          name: {{ include "quill.fullname" . }}-backup-scripts
+          defaultMode: 0555
+      {{- end }}

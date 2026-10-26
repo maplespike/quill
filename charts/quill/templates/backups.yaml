@@ -1,0 +1,513 @@
+{{/*
+  Quill backups.
+
+  Production state that must survive a pod or a node:
+    - API SQLite file on the quill-api-data claim (QUILL_STORAGE=sqlite)
+    - tantivy index on the quill-search-data claim
+    - Postgres, only when database.enabled is true
+
+  Each daily CronJob writes under the quill-backups claim. That claim uses the
+  same storage class as the API volume (longhorn in production) and
+  ReadWriteMany, so the SQLite job on nexus and the search job on the search
+  node can write it together. Redis is an emptyDir cache and is not backed up.
+
+  The scripts live in charts/quill/files and are mounted from this ConfigMap.
+  The API image already contains node:sqlite. The search archive job reuses
+  the pinned Redis image because that image has tar and a shell and is already
+  allowed in this chart. No new image and no secret values.
+*/}}
+{{- $backups := .Values.backups | default dict }}
+{{- $migrate := and .Values.search .Values.search.migrateLegacyIndex }}
+{{- $sqlite := and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+{{- $postgres := (.Values.database | default dict).enabled }}
+{{- if or $backups.enabled $migrate }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+data:
+  backup-lib.mjs: |
+{{ .Files.Get "files/backup-lib.mjs" | indent 4 }}
+  sqlite-backup.mjs: |
+{{ .Files.Get "files/sqlite-backup.mjs" | indent 4 }}
+  verify-freshness.mjs: |
+{{ .Files.Get "files/verify-freshness.mjs" | indent 4 }}
+  restore-check.mjs: |
+{{ .Files.Get "files/restore-check.mjs" | indent 4 }}
+  search-backup.sh: |
+{{ .Files.Get "files/search-backup.sh" | indent 4 }}
+  postgres-backup.sh: |
+{{ .Files.Get "files/postgres-backup.sh" | indent 4 }}
+  migrate-search-index.sh: |
+{{ .Files.Get "files/migrate-search-index.sh" | indent 4 }}
+{{- end }}
+{{- if $backups.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-backups
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+spec:
+  accessModes:
+    - {{ $backups.accessMode | default "ReadWriteMany" }}
+  storageClassName: {{ $backups.storageClass | default "longhorn" | quote }}
+  resources:
+    requests:
+      storage: {{ $backups.storage | default "30Gi" | quote }}
+{{- if $sqlite }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-sqlite
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    store: sqlite
+spec:
+  schedule: {{ $backups.schedule | default "15 1 * * *" | quote }}
+  timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $backups.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $backups.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: {{ $backups.startingDeadlineSeconds | default 21600 }}
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
+      template:
+        metadata:
+          labels:
+            app: quill-backup
+            component: backup
+            store: sqlite
+          {{- with include "quill.imageAnnotations" (dict "svc" "api" "ctx" $) }}
+          {{- . | nindent 10 }}
+          {{- end }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          {{- if .Values.api.storage.nodeName }}
+          nodeName: {{ .Values.api.storage.nodeName }}
+          {{- else if $backups.nodeName }}
+          nodeName: {{ $backups.nodeName }}
+          {{- end }}
+          containers:
+          - name: sqlite-backup
+            image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["node", "/scripts/sqlite-backup.mjs"]
+            env:
+            - name: QUILL_DB_PATH
+              value: /data/quill/maplespike.db
+            - name: BACKUP_DIR
+              value: /backups/sqlite
+            - name: BACKUP_LABEL
+              value: maplespike
+            - name: RETENTION_DAYS
+              value: {{ $backups.retentionDays | default 14 | quote }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsNonRoot: true
+              runAsUser: 1001
+            resources:
+              {{- toYaml ($backups.resources | default (dict "requests" (dict "cpu" "50m" "memory" "128Mi") "limits" (dict "cpu" "500m" "memory" "512Mi"))) | nindent 14 }}
+            volumeMounts:
+            - name: data
+              mountPath: /data/quill
+            - name: backups
+              mountPath: /backups
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-api-data
+          - name: backups
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-backups
+          - name: scripts
+            configMap:
+              name: {{ include "quill.fullname" . }}-backup-scripts
+              defaultMode: 0555
+{{- end }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-search
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    store: search
+spec:
+  schedule: {{ $backups.searchSchedule | default "45 1 * * *" | quote }}
+  timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $backups.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $backups.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: {{ $backups.startingDeadlineSeconds | default 21600 }}
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
+      template:
+        metadata:
+          labels:
+            app: quill-backup
+            component: backup
+            store: search
+        spec:
+          restartPolicy: Never
+          # Same node as the search pod. The index claim is ReadWriteOnce, so
+          # a second pod can mount it only on the node that already has it.
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    app: quill-search
+                topologyKey: kubernetes.io/hostname
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          {{- if and .Values.search .Values.search.nodeName (not $migrate) }}
+          nodeName: {{ .Values.search.nodeName }}
+          {{- else if and .Values.search .Values.search.nodeSelector }}
+          nodeSelector:
+            {{- toYaml .Values.search.nodeSelector | nindent 12 }}
+          {{- end }}
+          containers:
+          - name: search-backup
+            image: {{ .Values.redis.image | quote }}
+            imagePullPolicy: IfNotPresent
+            command: ["/bin/sh", "/scripts/search-backup.sh"]
+            env:
+            - name: INDEX_DIR
+              value: /search/index
+            - name: DEST_DIR
+              value: /backups/search
+            - name: RETENTION_DAYS
+              value: {{ $backups.retentionDays | default 14 | quote }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsNonRoot: true
+              runAsUser: 1001
+            resources:
+              {{- toYaml ($backups.resources | default (dict "requests" (dict "cpu" "50m" "memory" "128Mi") "limits" (dict "cpu" "500m" "memory" "512Mi"))) | nindent 14 }}
+            volumeMounts:
+            - name: index
+              mountPath: /search
+              readOnly: true
+            - name: backups
+              mountPath: /backups
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: index
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-search-data
+              readOnly: true
+          - name: backups
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-backups
+          - name: scripts
+            configMap:
+              name: {{ include "quill.fullname" . }}-backup-scripts
+              defaultMode: 0555
+{{- if $postgres }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-postgres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    store: postgres
+spec:
+  schedule: {{ $backups.postgresSchedule | default "15 1 * * *" | quote }}
+  timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $backups.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $backups.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: {{ $backups.startingDeadlineSeconds | default 21600 }}
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
+      template:
+        metadata:
+          labels:
+            app: quill-backup
+            component: backup
+            store: postgres
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          {{- if .Values.database.nodeName }}
+          nodeName: {{ .Values.database.nodeName }}
+          {{- end }}
+          containers:
+          - name: postgres-backup
+            image: {{ .Values.database.image | default "postgres:17-alpine" | quote }}
+            imagePullPolicy: IfNotPresent
+            command: ["/bin/sh", "/scripts/postgres-backup.sh"]
+            env:
+            - name: PGHOST
+              value: {{ include "quill.fullname" . }}-db
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: quill-db-secret
+                  key: postgres-user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: quill-db-secret
+                  key: postgres-password
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: quill-db-secret
+                  key: postgres-database
+            - name: DEST_DIR
+              value: /backups/postgres
+            - name: RETENTION_DAYS
+              value: {{ $backups.retentionDays | default 14 | quote }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsNonRoot: true
+              runAsUser: 1001
+            resources:
+              {{- toYaml ($backups.resources | default (dict "requests" (dict "cpu" "50m" "memory" "128Mi") "limits" (dict "cpu" "500m" "memory" "512Mi"))) | nindent 14 }}
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-backups
+          - name: scripts
+            configMap:
+              name: {{ include "quill.fullname" . }}-backup-scripts
+              defaultMode: 0555
+{{- end }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-freshness
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    store: freshness
+spec:
+  schedule: {{ $backups.freshnessSchedule | default "20 */6 * * *" | quote }}
+  timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $backups.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $backups.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: 3600
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels:
+            app: quill-backup
+            component: backup
+            store: freshness
+          {{- with include "quill.imageAnnotations" (dict "svc" "api" "ctx" $) }}
+          {{- . | nindent 10 }}
+          {{- end }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          {{- if .Values.api.storage.nodeName }}
+          nodeName: {{ .Values.api.storage.nodeName }}
+          {{- else if $backups.nodeName }}
+          nodeName: {{ $backups.nodeName }}
+          {{- end }}
+          containers:
+          - name: freshness
+            image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["node", "/scripts/verify-freshness.mjs"]
+            env:
+            - name: BACKUP_ROOT
+              value: /backups
+            - name: MAX_AGE_HOURS
+              value: {{ $backups.maxAgeHours | default 26 | quote }}
+            - name: REQUIRE_SQLITE
+              value: {{ if $sqlite }}"1"{{ else }}"0"{{ end }}
+            - name: REQUIRE_SEARCH
+              value: "1"
+            - name: REQUIRE_POSTGRES
+              value: {{ if $postgres }}"1"{{ else }}"0"{{ end }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsNonRoot: true
+              runAsUser: 1001
+            resources:
+              requests:
+                cpu: 20m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 128Mi
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+              readOnly: true
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-backups
+              readOnly: true
+          - name: scripts
+            configMap:
+              name: {{ include "quill.fullname" . }}-backup-scripts
+              defaultMode: 0555
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" . }}-backup-drill
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    store: drill
+spec:
+  schedule: {{ $backups.drillSchedule | default "30 3 * * 0" | quote }}
+  timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ $backups.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $backups.failedJobsHistoryLimit | default 3 }}
+  startingDeadlineSeconds: {{ $backups.startingDeadlineSeconds | default 21600 }}
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 1800
+      template:
+        metadata:
+          labels:
+            app: quill-backup
+            component: backup
+            store: drill
+          {{- with include "quill.imageAnnotations" (dict "svc" "api" "ctx" $) }}
+          {{- . | nindent 10 }}
+          {{- end }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          {{- if .Values.api.storage.nodeName }}
+          nodeName: {{ .Values.api.storage.nodeName }}
+          {{- else if $backups.nodeName }}
+          nodeName: {{ $backups.nodeName }}
+          {{- end }}
+          containers:
+          - name: drill
+            image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["node", "/scripts/restore-check.mjs"]
+            env:
+            - name: BACKUP_ROOT
+              value: /backups
+            - name: SCRATCH_DIR
+              value: /scratch
+            - name: REQUIRE_SQLITE
+              value: {{ if $sqlite }}"1"{{ else }}"0"{{ end }}
+            - name: REQUIRE_SEARCH
+              value: "1"
+            - name: REQUIRE_POSTGRES
+              value: {{ if $postgres }}"1"{{ else }}"0"{{ end }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              runAsNonRoot: true
+              runAsUser: 1001
+            resources:
+              {{- toYaml ($backups.resources | default (dict "requests" (dict "cpu" "50m" "memory" "128Mi") "limits" (dict "cpu" "500m" "memory" "512Mi"))) | nindent 14 }}
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+              readOnly: true
+            - name: scratch
+              mountPath: /scratch
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: {{ include "quill.fullname" . }}-backups
+              readOnly: true
+          - name: scratch
+            emptyDir: {}
+          - name: scripts
+            configMap:
+              name: {{ include "quill.fullname" . }}-backup-scripts
+              defaultMode: 0555
+{{- end }}

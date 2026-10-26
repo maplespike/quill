@@ -196,6 +196,31 @@ cloudflared:
     - hostname: kanban.maplespike.ca
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
+# Backups. Off unless an environment opts in (values-prod.yaml does).
+# The claim uses longhorn, the same durable class as the API SQLite volume.
+# A cluster without that class sets backups.storageClass and search.storageClass
+# to a class that survives the node. local-path does not. See docs/ops/BACKUPS.md.
+backups:
+  enabled: false
+  schedule: "15 1 * * *"
+  searchSchedule: "45 1 * * *"
+  postgresSchedule: "15 1 * * *"
+  freshnessSchedule: "20 */6 * * *"
+  drillSchedule: "30 3 * * 0"
+  retentionDays: 14
+  maxAgeHours: 26
+  storage: 30Gi
+  storageClass: longhorn
+  accessMode: ReadWriteMany
+  timeZone: Etc/UTC
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
 # Secrets (set via --set or external secrets)
 secrets:
   apiKey: ""

@@ -94,6 +94,7 @@ database:
     limits:
       cpu: 500m
       memory: 512Mi
+  storageClass: longhorn
   nodeName: nexus
 portal:
   enabled: true
@@ -197,6 +198,11 @@ search:
   metricsPort: 9466
   logLevel: info
   indexStorage: 5Gi
+  # Durable class. The new claim is quill-search-data. The old
+  # quill-search-index claim stays until migrateLegacyIndex is turned off
+  # and the operator deletes it. See docs/ops/BACKUPS.md.
+  storageClass: longhorn
+  migrateLegacyIndex: true
   resources:
     requests:
       cpu: 100m
@@ -204,9 +210,36 @@ search:
     limits:
       cpu: 500m
       memory: 512Mi
-  # Float across nodes that carry the quill workload label (nexus, forge).
-  # zephyr carries no label and stays out. nodeSelector keeps the scheduler
-  # in control so a local-path PV and the pod can never contradict each
-  # other (the nodeName deadlock, 2026-10-05).
+  # While migrateLegacyIndex is true the pod also mounts the legacy claim.
+  # That claim has no storage class, so it is pinned to one node (local-path
+  # on this cluster). nodeSelector lets the scheduler pick that node. A
+  # nodeName pin here deadlocks when the legacy volume is on the other node
+  # (2026-10-05). After the copy, set migrateLegacyIndex to false. Then a
+  # nodeName of nexus is safe, because the longhorn claim can attach there.
   nodeSelector:
     quill.io/workload: "true"
+
+# Daily backups of the SQLite file and the search index, plus a freshness
+# check and a weekly restore drill. The claim is longhorn, same class as the
+# API volume, ReadWriteMany so the search job can write it from whichever
+# node holds the index. Redis is not included. Postgres is off in this file
+# (database.enabled: false), so no pg_dump CronJob is rendered.
+backups:
+  enabled: true
+  schedule: "15 1 * * *"
+  searchSchedule: "45 1 * * *"
+  freshnessSchedule: "20 */6 * * *"
+  drillSchedule: "30 3 * * 0"
+  retentionDays: 14
+  maxAgeHours: 26
+  storage: 30Gi
+  storageClass: longhorn
+  accessMode: ReadWriteMany
+  timeZone: Etc/UTC
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

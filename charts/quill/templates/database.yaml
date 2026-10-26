@@ -75,6 +75,9 @@ spec:
       name: data
     spec:
       accessModes: ["ReadWriteOnce"]
+      {{- with .Values.database.storageClass }}
+      storageClassName: {{ . | quote }}
+      {{- end }}
       resources:
         requests:
           storage: {{ .Values.database.storage | default "5Gi" | quote }}
