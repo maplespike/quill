@@ -161,9 +161,9 @@
   --iap-on-ink-muted: 44 9.7% 69.6%; /* #b9b5aa */
   --iap-on-ink-line: 60 5.5% 21.6%; /* #3a3a34 */
 
-  /* ── Radii ─────────────────────────────────────────────────────────── */
-  --iap-radius-control: 0.5rem;
-  --iap-radius-panel: 2rem;
+  /* ── Radii: DESIGN.md — buttons 4px, cards and panels 7px ──────────── */
+  --iap-radius-control: 4px;
+  --iap-radius-panel: 7px;
   --iap-radius-console: 1.75rem;
 
   /* ── Shadow: planes get one shadow, not stickers ────────────────────── */
