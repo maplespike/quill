@@ -384,7 +384,6 @@ version 3 only (`AGPL-3.0-only`). The text is in [`LICENSE`](./LICENSE). See
 ## Links
 
 - [MapleSpike Portal](https://maplespike.ca)
-- [API reference](https://quill.maplespike.ca/api-reference)
 - [API Docs](https://quill.maplespike.ca/docs)
 - [GitHub](https://github.com/reverb256/quill)
 - [Issues](https://github.com/reverb256/quill/issues)

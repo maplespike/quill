@@ -1,6 +1,5 @@
 ---
 "@maplespike/portal": patch
-"@maplespike/sdk": patch
 ---
 
 Point Quill's public docs, sitemap, and API reference at https://quill.maplespike.ca.

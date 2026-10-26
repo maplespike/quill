@@ -83,7 +83,7 @@ tools = get_maplespike_tools(api_key="msk_live_...")
 
 ## Documentation
 
-Full API reference: [https://quill.maplespike.ca/api-reference](https://quill.maplespike.ca/api-reference)
+Full API reference: [https://quill.maplespike.ca/docs](https://quill.maplespike.ca/docs)
 
 ## Development
 
