@@ -24,7 +24,7 @@
  */
 
 import type { RouteHandler } from '../types.js';
-import { buildSuccess, jsonResponse } from '../response.js';
+import { buildError, buildSuccess, jsonResponse } from '../response.js';
 
 /* ------------------------------------------------------------------ */
 /*  Types — match the static audit.json shape verbatim               */
@@ -47,7 +47,7 @@ interface AuditAdvisory {
   url?: string;
 }
 
-interface AuditPayload {
+export interface AuditPayload {
   generatedAt: string;
   summary: AuditSummary;
   top: AuditAdvisory[];
@@ -56,7 +56,7 @@ interface AuditPayload {
 
 type AuditResult =
   | { source: 'live'; payload: AuditPayload }
-  | { source: 'static'; payload: AuditPayload; fallbackReason: string };
+  | { source: 'static'; payload: AuditPayload; fallbackReason: string; usable: boolean };
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                         */
@@ -88,9 +88,25 @@ const SEV_RANK: Record<AuditAdvisory['severity'], number> = {
  * `node:fs` import crashes module-init in Workers projects that
  * haven't enabled `nodejs_compat`.
  */
-async function findStaticAuditPath(): Promise<string | null> {
+async function findStaticAuditPath(): Promise<{ path: string | null; missingOverride?: string }> {
   const { existsSync } = await import('node:fs');
   const { resolve } = await import('node:path');
+  // Explicit override first: the api image bakes the snapshot at a stable path
+  // (/app/data/security/audit.json) that is not one of the cwd-relative
+  // guesses below.
+  //
+  // An override is authoritative. When it names a file that is not there, do
+  // NOT fall through to the guesses: the API would then serve a *different*
+  // snapshot as if it were the configured one, which is the same lie this
+  // route exists to stop (2026-10-24: the CI checkout has a committed
+  // packages/portal/public/data/security/audit.json, so a broken override
+  // silently answered from it).
+  const override = process.env.QUILL_SECURITY_AUDIT_JSON;
+  if (override) {
+    return existsSync(override)
+      ? { path: resolve(override) }
+      : { path: null, missingOverride: resolve(override) };
+  }
   const candidates = [
     // dev: cwd = repo root
     'packages/portal/public/data/security/audit.json',
@@ -98,28 +114,73 @@ async function findStaticAuditPath(): Promise<string | null> {
     '../portal/public/data/security/audit.json',
     // docker: cwd = /app inside the image
     '/app/packages/portal/public/data/security/audit.json',
+    // docker (Dockerfile.api bakes the generated snapshot here)
+    '/app/data/security/audit.json',
   ];
   for (const c of candidates) {
-    if (existsSync(resolve(c))) return resolve(c);
+    if (existsSync(resolve(c))) return { path: resolve(c) };
+  }
+  return { path: null };
+}
+
+/**
+ * Maximum age of a build-time audit snapshot that may be served as a
+ * successful answer. Beyond this the endpoint reports 503: a week-old
+ * dependency audit is not evidence about today's lockfile.
+ */
+export const MAX_SNAPSHOT_AGE_SECONDS = 7 * 24 * 60 * 60;
+
+/**
+ * Why a snapshot may not be served, or null when it is usable.
+ *
+ * QUILL-AUDIT.md (2026-10-24, P1): `/v1/security/audit-summary` published
+ * `generatedAt: 1970-01-01T00:00:00.000Z` with every count at 0 and HTTP 200.
+ * The fallback built that payload when `pnpm audit` failed AND no static file
+ * existed, so the dashboard's "Live Dependency Security" panel read a clean
+ * bill of health from a source that never ran. Absence is not zero.
+ */
+export function snapshotRejection(
+  payload: AuditPayload | null,
+  reason: string,
+  now: number = Date.now(),
+): string | null {
+  if (!payload) return reason;
+  const generatedAt = Date.parse(payload.generatedAt);
+  if (!Number.isFinite(generatedAt)) {
+    return `snapshot generatedAt is not a date (${String(payload.generatedAt)})`;
+  }
+  const ageSeconds = Math.floor((now - generatedAt) / 1000);
+  if (ageSeconds > MAX_SNAPSHOT_AGE_SECONDS) {
+    return `snapshot is stale: generated ${payload.generatedAt} (${ageSeconds}s old, limit ${MAX_SNAPSHOT_AGE_SECONDS}s)`;
+  }
+  // scripts/gen-security-audit.mjs writes `note` only when it could not run
+  // `pnpm audit` — that file is a placeholder, not a scan result.
+  if (typeof payload.note === 'string' && payload.note.trim().length > 0) {
+    return `snapshot is a placeholder, not a scan: ${payload.note.trim()}`;
   }
   return null;
 }
 
 /**
- * Read the static fallback. Returns null on any IO or parse error so
- * the caller can decide whether to 503 or return a stub.
+ * Read the static fallback. `usable` is false when the snapshot must not be
+ * served as a successful answer; the caller turns that into a 503.
  */
-async function readStaticFallback(reason: string): Promise<AuditResult> {
-  const path = await findStaticAuditPath();
+export async function readStaticFallback(reason: string): Promise<AuditResult> {
+  const found = await findStaticAuditPath();
+  const path = found.path;
   if (!path) {
+    const rejection = found.missingOverride
+      ? `QUILL_SECURITY_AUDIT_JSON points at ${found.missingOverride}, which does not exist (${reason})`
+      : `no static audit.json found (${reason})`;
     return {
       source: 'static',
-      fallbackReason: reason,
+      fallbackReason: rejection,
+      usable: false,
       payload: {
         generatedAt: new Date(0).toISOString(),
         summary: { ...ZERO_SUMMARY },
         top: [],
-        note: `${reason}; no static audit.json found either. Run \`pnpm gen:security\` to seed one.`,
+        note: rejection,
       },
     };
   }
@@ -127,9 +188,11 @@ async function readStaticFallback(reason: string): Promise<AuditResult> {
     const { readFileSync } = await import('node:fs');
     const raw = readFileSync(path, 'utf8');
     const parsed = JSON.parse(raw) as AuditPayload;
+    const rejection = snapshotRejection(parsed, reason);
     return {
       source: 'static',
-      fallbackReason: reason,
+      fallbackReason: rejection ?? reason,
+      usable: rejection === null,
       payload: {
         ...parsed,
         note: parsed.note
@@ -139,14 +202,16 @@ async function readStaticFallback(reason: string): Promise<AuditResult> {
     };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    const rejection = `static audit.json at ${path} unreadable: ${msg}`;
     return {
       source: 'static',
-      fallbackReason: reason,
+      fallbackReason: rejection,
+      usable: false,
       payload: {
         generatedAt: new Date(0).toISOString(),
         summary: { ...ZERO_SUMMARY },
         top: [],
-        note: `${reason}; static file at ${path} unreadable: ${msg}`,
+        note: rejection,
       },
     };
   }
@@ -235,6 +300,21 @@ function isNodeRuntime(): boolean {
  * spawning two competing subprocesses.
  */
 let activeAuditPromise: Promise<AuditResult> | null = null;
+
+/**
+ * Test seam: the handler runs `pnpm audit` in Node, which a unit test must not
+ * do. Set a fake to exercise the fallback and 503 paths; reset with null.
+ */
+let auditRunnerForTests: (() => Promise<AuditResult>) | null = null;
+
+export function setAuditRunnerForTests(fn: (() => Promise<AuditResult>) | null): void {
+  auditRunnerForTests = fn;
+}
+
+function runAudit(): Promise<AuditResult> {
+  return auditRunnerForTests ? auditRunnerForTests() : runAuditCoalesced();
+}
+
 
 /**
  * Spawn `pnpm audit --json` from the right cwd and parse the result.
@@ -350,19 +430,33 @@ function runAuditCoalesced(): Promise<AuditResult> {
 /* ------------------------------------------------------------------ */
 
 export const securityAuditSummaryHandler: RouteHandler = async (_request, ctx) => {
-  if (!isNodeRuntime()) {
-    // Cloudflare Workers: no subprocess. Serve the build-time snapshot
-    // so the dashboard still has data. Staleness is explicit via the
-    // payload's generatedAt and the note.
-    const result = await readStaticFallback('running on Cloudflare Workers (no child_process)');
+  const serve = (result: AuditResult) => {
+    if (result.source === 'static' && !result.usable) {
+      // Absence is not zero. A failed live audit with no usable snapshot is a
+      // 503 that names the reason, never a 200 with an epoch-dated zero report.
+      return jsonResponse(
+        buildError(
+          'AUDIT_QUERY_FAILED',
+          `Dependency audit unavailable: ${result.fallbackReason}`,
+          ctx,
+          503,
+          [{ reason: result.fallbackReason, source: 'static', retryAfterSeconds: 60 }],
+        ),
+        503,
+      );
+    }
+    const ageSeconds = Math.floor(
+      (Date.now() - new Date(result.payload.generatedAt).getTime()) / 1000,
+    );
     return jsonResponse(
       buildSuccess(
         {
           ...result.payload,
           _meta: {
             source: result.source,
-            generatedAgeSeconds:
-              Math.floor((Date.now() - new Date(result.payload.generatedAt).getTime()) / 1000),
+            generatedAgeSeconds: ageSeconds,
+            maxSnapshotAgeSeconds: MAX_SNAPSHOT_AGE_SECONDS,
+            ...(result.source === 'static' ? { fallbackReason: result.fallbackReason } : {}),
           },
         },
         ctx,
@@ -372,28 +466,13 @@ export const securityAuditSummaryHandler: RouteHandler = async (_request, ctx) =
       // response.ts + applySecurityHeaders) is exactly what we want for a
       // freshness-explicit observability endpoint; don't try to override it.
     );
+  };
+
+  if (!isNodeRuntime()) {
+    // Cloudflare Workers: no subprocess. Serve the build-time snapshot when it
+    // is fresh, otherwise 503 for the same reason the Node path does.
+    return serve(await readStaticFallback('running on Cloudflare Workers (no child_process)'));
   }
 
-  const result = await runAuditCoalesced();
-  const ageSeconds = Math.floor(
-    (Date.now() - new Date(result.payload.generatedAt).getTime()) / 1000,
-  );
-
-  return jsonResponse(
-    buildSuccess(
-      {
-        ...result.payload,
-        _meta: {
-          source: result.source,
-          generatedAgeSeconds: ageSeconds,
-          ...(result.source === 'static' ? { fallbackReason: result.fallbackReason } : {}),
-        },
-      },
-      ctx,
-    ),
-    200,
-    // Default Cache-Control: no-cache, no-store, must-revalidate (set by
-    // response.ts + applySecurityHeaders) is exactly what we want for a
-    // freshness-explicit observability endpoint; don't try to override it.
-  );
+  return serve(await runAudit());
 };
