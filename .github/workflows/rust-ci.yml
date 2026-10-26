@@ -4,6 +4,8 @@
 # Jobs require the 'rust' runner label: only runners with the provisioned toolchain
 # carry it (forge does not — a rust job there fails the preflight, #1061).
 #
+# Fork pull requests run on ubuntu-latest and install the stable toolchain there.
+# Same-repo runs stay on the self-hosted rust label and do not rustup.
 # The run steps carry a hashFiles guard: this lane also triggers on its own
 # file, so until the `rust/` tree lands (via #998) a missing crate dir skips
 # cleanly instead of failing on `working-directory: ./rust`.
@@ -29,11 +31,14 @@ permissions:
 
 jobs:
   rust-fmt:
-    # Same-repo PRs only. Fork code must not run on the self-hosted pool (#1045).
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Check formatting
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -43,10 +48,14 @@ jobs:
         working-directory: ./rust
 
   rust-clippy:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -57,10 +66,14 @@ jobs:
         working-directory: ./rust
 
   rust-test:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Run lib tests
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}

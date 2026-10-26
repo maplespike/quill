@@ -11,11 +11,11 @@ export const DonationRecipientTypeSchema = z.enum([
 ]);
 
 export const DonationSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   donorName: z.string(),
   donorPersonId: z.string().optional(),
   donorOrganizationId: z.string().optional(),

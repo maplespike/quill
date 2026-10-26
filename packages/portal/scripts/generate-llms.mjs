@@ -118,6 +118,7 @@ function buildLlmsTxt() {
   out += 'Auth: Authorization: Bearer header or X-API-Key header\n';
   out += 'Response: { success, data, quality, citation, meta }; payload and citation fields vary by endpoint.\n';
   out += 'Record hashes check canonical Quill record integrity only; source terms vary by publisher and dataset. Consult the original source before reuse.\n\n';
+  out += 'HTML API reference: https://quill.maplespike.ca/api-reference\n';
   out += 'Attribution and publisher terms: https://quill.maplespike.ca/data-sources\n';
   out += 'Repository licence inventory: https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md\n\n';
   out += '### Endpoints\n';
@@ -134,6 +135,7 @@ function buildLlmsFull() {
   out += `> Auto-generated: ${buildTimestamp().split('T')[0]}\n`;
   out += '> Software and source-data terms vary by package, dataset, and publisher. Consult repository license notices and original source terms.\n';
   out += '> API Base URL: https://api.maplespike.ca/v1\n';
+  out += '> HTML API reference: https://quill.maplespike.ca/api-reference\n';
   out += '> MCP Server: https://mcp.maplespike.ca/sse\n';
   out += '> MCP server card: https://quill.maplespike.ca/.well-known/mcp/server-cards.json\n';
   out += '> Agent card: https://quill.maplespike.ca/agent-card.json\n';

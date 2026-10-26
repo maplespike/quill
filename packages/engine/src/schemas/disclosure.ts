@@ -18,11 +18,11 @@ export const InterestSchema = z.object({
 });
 
 export const DisclosureSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   personName: z.string(),
   personId: z.string().optional(),
   position: z.string(),

@@ -8,4 +8,4 @@ Disallow: /workspace
 Disallow: /ask
 Disallow: /signal
 
-Sitemap: https://maplespike.ca/sitemap.xml
+Sitemap: https://quill.maplespike.ca/sitemap.xml

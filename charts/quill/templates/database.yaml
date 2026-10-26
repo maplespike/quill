@@ -22,6 +22,9 @@ spec:
       labels:
         app: quill-db
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       {{- if .Values.database.nodeName }}
       nodeName: {{ .Values.database.nodeName }}
       {{- end }}

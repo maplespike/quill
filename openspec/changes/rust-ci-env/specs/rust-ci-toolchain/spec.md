@@ -16,14 +16,16 @@ Rust CI MUST resolve the runner's existing cargo and MUST fail when cargo is mis
 - **And** the job does not download a toolchain
 
 ### Requirement: Forks stay off the self-hosted pool
-A pull request from a fork MUST NOT run `rust-fmt`, `rust-clippy`, or `rust-test`.
+A pull request from a fork MUST run `rust-fmt`, `rust-clippy`, and `rust-test` on `ubuntu-latest`. It MUST NOT schedule those jobs on a self-hosted runner.
 
 #### Scenario: Fork pull request
 - **Given** the pull request head repository is not this repository
 - **When** Rust CI is evaluated
-- **Then** the three self-hosted jobs are skipped
+- **Then** the three jobs run on `ubuntu-latest`
+- **And** the stable toolchain is installed only for that hosted runner
 
 #### Scenario: Same-repository pull request
 - **Given** the pull request head repository is this repository
 - **When** Rust CI is evaluated
-- **Then** the three jobs are eligible to run
+- **Then** the three jobs run on the self-hosted runner
+- **And** the job does not install a toolchain

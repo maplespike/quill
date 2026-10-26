@@ -303,6 +303,10 @@ const errorCodes = [
           <span class="font-semibold text-foreground">{t("API Reference", "Référence API")}</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">{t("REST endpoints", "Points de terminaison REST")}</h2>
+        <p class="mb-4 text-muted-foreground">
+          <a href={localeUrl('/api-reference', lang)} class="text-primary hover:underline">{t("Open the HTML API reference", "Ouvrir la référence API HTML")}</a>
+          {t(" — it renders the OpenAPI specification at /v1/openapi.json.", " — elle affiche la spécification OpenAPI à /v1/openapi.json.")}
+        </p>
 
         <Card>
           <CardContent className="p-0 overflow-x-auto">

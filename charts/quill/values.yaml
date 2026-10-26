@@ -1,6 +1,15 @@
 # Quill Helm Chart Values
 # Override per-environment: helm install -f values-prod.yaml
 
+# Scheduling priority (fleet resource policy, 2026-10-26). Both classes exist
+# cluster-wide with preemptionPolicy: Never, so neither can evict a miner.
+# critical: always-on services and every backup/restore-drill/freshness job.
+# batch: ingest and engine CronJobs; the kubelet evicts these first under
+# memory pressure. Set a key to "" to omit priorityClassName for that tier.
+priorityClass:
+  critical: fleet-critical
+  batch: fleet-batch
+
 # Image configuration
 image:
   registry: nexus:5000

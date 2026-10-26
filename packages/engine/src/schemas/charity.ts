@@ -58,7 +58,7 @@ export const CharitySchema = z.object({
   website: z.string().optional(),
   parentOrganizationId: z.string().optional(),
   source: z.string(),
-  rawData: z.record(z.unknown()).optional(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()).optional(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });

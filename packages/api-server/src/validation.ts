@@ -19,7 +19,8 @@ export type { z } from 'zod';
 // immediately and never store the plaintext.
 export const registerSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  email: z.string().trim().email(),
+  // Trim first, then check the address. z.email().trim() checks before trim.
+  email: z.string().trim().pipe(z.email()),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -100,7 +101,7 @@ export type CreateKeyInput = z.infer<typeof createKeySchema>;
  * Returns a success object with `data` on success, or a failure object
  * with formatted error messages on failure.
  */
-export function validateBody<T extends z.ZodTypeAny>(
+export function validateBody<T extends z.ZodType>(
   schema: T,
   body: unknown,
 ):
