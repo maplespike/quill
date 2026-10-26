@@ -138,7 +138,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
     <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          {t("Connect your AI to", "Connectez votre IA à")}<br /><span class="text-gradient">{i18n.t('agents.title')}</span>
+          {t("Connect your AI to", "Connectez votre IA à")}<br /><span class="text-gradient">Quill</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           {t(
@@ -196,7 +196,7 @@ const tb = (bi: Bi) => pickBi(lang, bi);
               <CardDescription className="text-xs mt-2 leading-relaxed">{tb(p.description)}</CardDescription>
             </CardHeader>
             <CardContent className="p-4 pt-0 mt-auto">
-              <Badge variant="secondary" className="text-[10px] font-mono">{p.setup}</Badge>
+              <Badge variant="secondary" className="text-xs font-mono">{p.setup}</Badge>
             </CardContent>
           </Card>
         ))}

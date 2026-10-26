@@ -157,12 +157,12 @@ class QuillHandler(SimpleHTTPRequestHandler):
 
     CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://js.stripe.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
         "style-src 'self' 'unsafe-inline'; "
         "font-src 'self'; "
         "img-src 'self' data: blob:; "
         "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
-        "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://static.cloudflareinsights.com https://api.stripe.com; "
+        "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
         "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
     )

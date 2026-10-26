@@ -10,12 +10,14 @@ on:
     paths:
       - 'charts/quill/**'
       - 'scripts/test-networkpolicy.sh'
+      - 'scripts/isolation-test.sh'
       - '.github/workflows/netpol-validation.yml'
   pull_request:
     branches: [main, prod]
     paths:
       - 'charts/quill/**'
       - 'scripts/test-networkpolicy.sh'
+      - 'scripts/isolation-test.sh'
       - '.github/workflows/netpol-validation.yml'
   workflow_dispatch:
 
@@ -51,6 +53,7 @@ jobs:
       # authoritative weekly run happens from zephyr).
       - name: Live isolation test (if cluster reachable)
         continue-on-error: true
+        timeout-minutes: 10
         run: |
           if kubectl version --request-timeout=5s >/dev/null 2>&1; then
             bash scripts/isolation-test.sh

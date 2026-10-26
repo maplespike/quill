@@ -129,7 +129,7 @@ Do not hand-pick hover or tint hexes. Derive them from the source role with
 
 - `color-scheme: light` on the theme root; Quill has no dark theme by design.
 - `@media (prefers-contrast: more)`: muted text → soft ink (12.5:1), hairlines →
-  strong line, focus ring fully opaque, 10px mono labels → 12px.
+  strong line, focus ring fully opaque (mono labels are already 11–12px).
 - `@media (forced-colors: active)`: system `Highlight` focus, `CanvasText`
   panel borders; the editorial dot keeps its colour (`forced-color-adjust: none`).
 - `prefers-reduced-motion` handling is unchanged (see Motion).
@@ -167,7 +167,7 @@ All portal fonts are self-hosted under `packages/portal/public/fonts/`. Do not r
 - Display weight: usually 500. Keep line height tight and tracking slightly negative.
 - Body: 16–18px in editorial sections, with 1.6–1.65 line height.
 - Data tables and navigation: 13–14px where appropriate.
-- Eyebrows: 10px mono, increased tracking. Use for short supplementary labels only.
+- Eyebrows: 12px mono, increased tracking. Use for short supplementary labels only. Supplementary mono labels (rail labels, link notes, kickers, bylines) are 11px; nothing is set below 11px.
 - Use italic Newsreader for a deliberate second phrase, not whole paragraphs.
 - Use tabular figures for comparable numeric values. Keep long identifiers in mono.
 

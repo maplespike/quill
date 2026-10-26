@@ -289,6 +289,13 @@ jobs:
       # silenced child triggers the watchdog line inside the window.
       - name: Stall watchdog unit tests
         run: pnpm exec tsx --test scripts/test-stall-watchdog.mts
+      # Incident rule for t_d607e6e3 / CI run 40295694825: the netpol-validation
+      # Live isolation test step ran scripts/isolation-test.sh whose bare
+      # "kubectl" calls carried no --request-timeout, hanging the nixos runner
+      # for 18+ minutes. These fixtures pin the kc() wrapper, the absence of any
+      # bare "$K" call, and the workflow timeout-minutes safety net.
+      - name: Isolation-timeout regression tests
+        run: pnpm exec tsx --test scripts/test-isolation-timeout.mts
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.

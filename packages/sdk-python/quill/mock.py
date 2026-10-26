@@ -11,7 +11,7 @@
 #     ms = MapleSpike(api_key='ms_live_...')
 #     result = ms.query('committees', 'committee-membership', {'parliament': 44})
 #
-# See https://maplespike.ca/docs for API key registration.
+# See https://quill.maplespike.ca/docs for API key registration.
 # ---------------------------------------------------------------------------
 
 from typing import Any
@@ -26,7 +26,7 @@ NO_MOCK_MESSAGE = (
     'QUILL_API_KEY environment variable.\n\n'
     '    ms = MapleSpike(api_key="ms_live_...")\n'
     '    result = ms.query("committees", "committee-membership", {"parliament": 44})\n\n'
-    'See https://maplespike.ca/docs for an API key.'
+    'See https://quill.maplespike.ca/docs for an API key.'
 )
 
 

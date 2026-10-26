@@ -24,8 +24,16 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      # #758: zero-downtime rollouts for every deployment (matches api).
-      maxSurge: 1
+      # maxSurge: 0 (2026-10-26). With REQUIRED anti-affinity on the 2-node
+      # quill.io/workload pool, both nodes already hold a replica, so a surge
+      # pod can never schedule: it sits Pending (fleet-critical has
+      # preemptionPolicy Never, so it cannot preempt either). When two syncs
+      # land back to back, that Pending surge pod plus three ReplicaSets
+      # stalled the rollout for 2h past its progress deadline and failed
+      # deploy-prod (run 40331119588). With maxSurge: 0 the controller
+      # removes one old pod first and the replacement schedules into the
+      # freed slot, one node at a time. The other replica keeps serving.
+      maxSurge: 0
       # maxUnavailable: 1 ONLY because this deployment has REQUIRED anti-affinity
       # on a 2-node pool. maxUnavailable: 0 + hard anti-affinity deadlocks: the
       # new pod cannot schedule while the old one holds the peer slot, and the
@@ -45,6 +53,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       # Dynamic placement. nodeName would bypass the scheduler entirely and
       # pin the portal to one node; nodeSelector keeps the scheduler in control
       # while restricting to nodes that hold the pinned image.

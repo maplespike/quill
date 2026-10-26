@@ -4,17 +4,17 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: "sha256:7c7b39c668fe40c59e483c99008969faa4240fd6044eeae07c72c17600feedd3"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:3d46ea7b312528031b122b4c9b8f41ac9af77a4c90e6c01b45c933171bbe71e9"
+    tag: "2026-10-26-8db013b8"
   mcp:
-    digest: "sha256:c0d28d5d6404632fbbf6fd4187d38267263e39bc26101211455047e7cfb409c9"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:bf5204f374727e6e743c9e3904119b9453a67e324535d3395c054980e203e73f"
+    tag: "2026-10-26-8db013b8"
   portal:
-    digest: "sha256:876c814b75c67338c3aac6d18c54bf4a68a0a101176a4dc48efddf537718f651"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:fa9394057c62e508720935db1e8460df861fbbd14ee77a8c261af14d58cb4815"
+    tag: "2026-10-26-8db013b8"
   ingest:
-    digest: "sha256:f5d581a3bc843702801f2a9c0d9d9269fb4d68978c8f33e73f642743a1120859"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:c3f72763b92022ca0145d0a32bf5fbcb2fcf4be56da4388e7882d13fddcf7f8e"
+    tag: "2026-10-26-8db013b8"
   search:
     digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
     tag: '2026-10-06-serve-fix'

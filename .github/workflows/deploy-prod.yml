@@ -55,6 +55,9 @@ jobs:
   ci:
     name: Build & Test
     runs-on: [self-hosted, nixos]
+    # A hung test must fail the deploy, not hold a host runner for the 6 h
+    # default (2026-10-26: api-server api.test.ts idled 24 min at 0% CPU).
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -67,6 +70,12 @@ jobs:
 
       - name: Typecheck
         run: pnpm -r typecheck || true
+
+      # `pnpm test` includes test:chart-probes, which since #1184 fails when
+      # helm is missing instead of skipping. helm is not on the host runner
+      # service PATH (deploy-prod run 40328070737).
+      - name: Install helm
+        uses: azure/setup-helm@v5
 
       - name: Test
         # The deploy gate must not depend on third-party uptime. Several suites
@@ -90,6 +99,7 @@ jobs:
     runs-on: [self-hosted, nixos, nexus]
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      pin_sha: ${{ steps.commit.outputs.pin_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -175,6 +185,9 @@ jobs:
         run: |
           if git diff --quiet -- charts/quill/values-prod.yaml; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            # Nothing pushed: ArgoCD tracks main, so wait for main's head.
+            git fetch -q origin main
+            echo "pin_sha=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
             echo "pins already current; nothing to commit"
             exit 0
           fi
@@ -184,13 +197,45 @@ jobs:
           git add charts/quill/values-prod.yaml
           # The pins are the deploy record, so the message names what shipped.
           git commit -m "chore(deploy): pin images built from ${GITHUB_SHA::8}"
-          git push origin HEAD:main
+          # main may have moved while the images built (a merge during the
+          # run). A plain push was then rejected as non-fast-forward and the
+          # whole deploy failed after a 17-minute build. Rebase the single
+          # pin commit onto the current main and retry. The pins only touch
+          # values-prod.yaml, so a conflict means another deploy pinned in
+          # between; fail loudly rather than guess.
+          pushed=false
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then pushed=true; break; fi
+            echo "push rejected (attempt $attempt); rebasing onto origin/main"
+            git fetch -q origin main
+            if ! git rebase FETCH_HEAD; then
+              git rebase --abort || true
+              echo "::error::pin commit conflicts with origin/main (values-prod.yaml changed upstream)"
+              exit 1
+            fi
+            sleep $((attempt * 3))
+          done
+          if [ "$pushed" != true ]; then
+            echo "::error::could not push the pin commit after 5 attempts"
+            exit 1
+          fi
+          echo "pin_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Wait for ArgoCD rollout and smoke test
     needs: [ci, build-and-pin]
     runs-on: [self-hosted, nixos]
     steps:
+      # Check out the pin commit. Without a checkout this job read
+      # values-prod.yaml and scripts/ from whatever an earlier job left in the
+      # runner workspace (the pre-pin dispatch SHA), so "Confirm the running
+      # images are the pinned ones" compared the freshly rolled-out digests to
+      # the previous pins and failed a good deploy (run 40352443979).
+      - name: Checkout the pin commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build-and-pin.outputs.pin_sha }}
+
       - name: Configure kubectl
         # KUBECONFIG_PROD has been pasted both raw and base64-encoded over its
         # lifetime; `| base64 -d` on a raw kubeconfig fails with "invalid input"
@@ -280,6 +325,8 @@ jobs:
           echo "kubeconfig: API server accepted the credentials"
 
       - name: Wait for ArgoCD to sync
+        env:
+          GH_TOKEN: ${{ github.token }}
         # ArgoCD polls; the commit above is not the deploy. Wait for the app to
         # report Synced at the commit we pushed before declaring anything rolled
         # out, otherwise the rollout check below passes against the old images.
@@ -292,18 +339,39 @@ jobs:
               ;;
           esac
           # Sync revision is the pin commit on main, not github.sha of this
-          # prod-branch run. Wait until ArgoCD reports Synced.
+          # prod-branch run. "Synced" alone is not enough: ArgoCD keeps
+          # reporting Synced at the previous revision until it polls (up to
+          # 3 min), and run 40331119588 checked the rollout against the old
+          # revision. Request a refresh and wait for Synced AT the pin commit.
+          PIN_SHA="${{ needs.build-and-pin.outputs.pin_sha }}"
+          if [[ -z "$PIN_SHA" ]]; then
+            echo "::error::build-and-pin did not report pin_sha"
+            exit 1
+          fi
+          kubectl annotate application quill -n argocd argocd.argoproj.io/refresh=normal --overwrite >/dev/null || true
           for i in $(seq 1 40); do
             REV=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo none)
             SYNC=$(kubectl get application quill -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo unknown)
-            echo "attempt $i: rev=${REV:0:8} sync=$SYNC"
-            if [[ "$SYNC" == "Synced" ]]; then
+            echo "attempt $i: rev=${REV:0:8} want=${PIN_SHA:0:8} sync=$SYNC"
+            # main may move on while we wait; a later revision that contains
+            # the pin commit is fine.
+            OK=false
+            if [[ "$REV" == "$PIN_SHA" ]]; then
+              OK=true
+            elif [[ "$REV" =~ ^[0-9a-f]{40}$ ]]; then
+              CMP=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/${{ github.repository }}/compare/${PIN_SHA}...${REV}" \
+                | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>console.log(JSON.parse(d).status))' 2>/dev/null || echo unknown)
+              [[ "$CMP" == "ahead" ]] && OK=true
+            fi
+            if [[ "$OK" == true && "$SYNC" == "Synced" ]]; then
               echo "ArgoCD synced at ${REV:0:8}"
-              break
+              exit 0
             fi
             sleep 15
           done
-          kubectl get application quill -n argocd -o jsonpath='{.status.sync.status}{"\n"}'
+          echo "::error::ArgoCD did not sync to ${PIN_SHA:0:8} within 10 minutes"
+          exit 1
 
       - name: Wait for rollout
         run: |
