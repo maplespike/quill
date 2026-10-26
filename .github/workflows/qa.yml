@@ -4,12 +4,34 @@ name: QA
 on:
   pull_request:
     branches: [main, prod]
+    paths-ignore:
+      # Docs-only changes skip the heavy jobs; docs-validation.yml covers
+      # markdown. docs/metrics.json is data, not docs, so it is not ignored.
+      - '**/*.md'
+      - 'docs/**/*.md'
+      - 'docs/**/*.png'
+      - 'docs/**/*.svg'
+      - 'LICENSE*'
+      - '.github/ISSUE_TEMPLATE/**'
   push:
     branches: [main, prod]
+    paths-ignore:
+      # Docs-only changes skip the heavy jobs; docs-validation.yml covers
+      # markdown. docs/metrics.json is data, not docs, so it is not ignored.
+      - '**/*.md'
+      - 'docs/**/*.md'
+      - 'docs/**/*.png'
+      - 'docs/**/*.svg'
+      - 'LICENSE*'
+      - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  group: qa-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # One run per PR. A new push to a PR cancels the
+  # superseded run so the single arc-maplespike runner is not spent on stale
+  # commits. Pushes to main/prod group by commit SHA, so they never queue or
+  # cancel each other. deploy-prod.yml has its own non-cancelling group.
+  group: qa-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read

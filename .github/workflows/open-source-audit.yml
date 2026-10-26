@@ -39,6 +39,14 @@ on:
       - '.github/workflows/open-source-audit.yml'
   workflow_dispatch:
 
+concurrency:
+  # One run per PR. A new push to a PR cancels the
+  # superseded run so the single arc-maplespike runner is not spent on stale
+  # commits. Pushes to main/prod group by commit SHA, so they never queue or
+  # cancel each other. deploy-prod.yml has its own non-cancelling group.
+  group: oss-audit-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
