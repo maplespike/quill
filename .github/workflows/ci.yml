@@ -238,9 +238,10 @@ jobs:
       - name: Run quill-mcp unit tests
         run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:unit
 
-      # Upstream outages no longer fail these steps: the live tests skip on
-      # 0 / 429 / 5xx and on transport errors (quill-mcp/src/__integration__/
-      # upstream-outage.ts), while a 4xx or a malformed payload still fails.
+      # Upstream outages no longer fail these steps. The live tests skip on
+      # 0 / 429 / 5xx, on transport errors, and on a 2xx HTML document (the
+      # portal served an error page instead of the API). A 4xx or a malformed
+      # JSON payload still fails. See quill-mcp/src/testing/upstream-outage.ts.
       # `continue-on-error` used to swallow both; 45 of 412 sampled jobs from
       # 2026-08 to 2026-10 had real upstream assertion failures and 11 % of runs
       # were silently green (quill-hermes/UPSTREAM-OUTAGES.md §5.2).
@@ -283,9 +284,10 @@ jobs:
     needs: build-and-test
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nixos]
-    # No `continue-on-error`: an upstream outage skips (upstream-outage.ts), a
-    # regression fails. Removing the flag is the point of this change — with it,
-    # every real failure in this suite was invisible (UPSTREAM-OUTAGES.md §5.2).
+    # No continue-on-error key on this job. An upstream outage skips
+    # (upstream-outage.ts), including a 2xx HTML error page. A regression
+    # fails. With the key set, every real failure in this suite was invisible
+    # (UPSTREAM-OUTAGES.md §5.2).
     # The suite's normal wall time is <1 min (measured 2026-10-08: 14 s for all
     # six files). 60 min let a teardown hang squat a runner for a full hour;
     # 15 min still leaves a ~60x margin while bounding that damage. The real

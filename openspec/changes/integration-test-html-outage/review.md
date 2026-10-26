@@ -1,0 +1,44 @@
+## Spec Compliance
+
+- [x] Every requirement from the specs has at least one corresponding implementation task
+- [x] Every scenario is testable (can write a test for it)
+- [x] No requirements conflict with existing system behavior
+- [x] Requirements are specific enough to verify after implementation
+
+## Design Alignment
+
+- [x] Technical approach sound for this codebase
+- [x] Architecture decisions documented with rationale
+- [x] No unnecessary new dependencies
+- [x] Data flow is correct (if applicable)
+
+## Risk Assessment
+
+- [x] Edge cases identified and handled
+- [x] Rollback plan documented
+- [x] Security implications considered
+- [x] Performance impact evaluated
+- [x] Migration path clear (if schema or API changes)
+
+## Completeness
+
+- [x] All proposal capabilities covered by specs
+- [x] Scope creep identified and flagged
+- [x] Out-of-scope items explicitly called out
+
+## Reviewer Notes
+
+The predicate widens the #1146 outage rule by one shape: a 2xx HTML document. 4xx and malformed JSON stay failures. No host is hard-coded. No retry is added. Node 22 and Node 24 both provide `Response`, `AbortSignal.timeout`, and `Headers.get`.
+
+## Verdict
+
+- [x] **APPROVED** — ready for implementation
+- [ ] **CHANGES REQUESTED** — see specific items above
+- [ ] **BLOCKED** — requires redesign or re-scoping
+
+## CI
+
+Run 1 of the `integration-test` job passed:
+https://github.com/maplespike/quill/actions/runs/40263320950/job/121392047003
+
+135 tests, 0 failed. `opendata.gov.nl.ca` skipped as `HTTP 200 HTML document text/html`. The GitHub token on this agent cannot call the rerun API (`403 Resource not accessible by integration`), so later runs are new pushes of this change.

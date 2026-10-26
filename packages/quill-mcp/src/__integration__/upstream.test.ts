@@ -3,6 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  skipIfHtmlParseError,
   skipIfNetworkError,
   skipIfUpstreamDown,
   type UpstreamFetchResult,
@@ -25,7 +26,11 @@ async function fetchUpstream(url: string): Promise<UpstreamFetchResult> {
       signal: AbortSignal.timeout(TIMEOUT),
     });
     const body = await resp.text().catch(() => '');
-    return { status: resp.status, body };
+    return {
+      status: resp.status,
+      body,
+      contentType: resp.headers.get('content-type') ?? undefined,
+    };
   } catch (err) {
     return { status: 0, error: err };
   }
@@ -49,7 +54,8 @@ function ckanBody(r: UpstreamFetchResult, name: string): Record<string, unknown>
 // Live upstreams must never gate a deploy. deploy-prod runs the suite with
 // SKIP_NETWORK_TESTS=1; PR CI and local runs exercise these for real.
 // An upstream outage inside those runs skips the affected test (see
-// `upstream-outage.ts`); a 4xx or a malformed payload still fails.
+// `upstream-outage.ts`); a 4xx or a malformed JSON payload still fails.
+// A 2xx HTML document is an outage: the portal served an error page.
 const SKIP_LIVE = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_LIVE_REASON = 'SKIP_NETWORK_TESTS=1';
 
@@ -228,6 +234,9 @@ describe('upstream-fetcher cache', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () =
       // is unreachable, not that the tool's shape regressed. A 4xx or a bad
       // payload is rethrown and fails the test.
       if (skipIfNetworkError(t, err, 'open.canada.ca CKAN search (searchCkan)')) return;
+      // searchCkan parses the body itself. An HTML error page surfaces as a
+      // JSON parse error, which is the same outage as a 2xx HTML document.
+      if (skipIfHtmlParseError(t, err, 'open.canada.ca CKAN search (searchCkan)')) return;
       throw err;
     }
     assert.ok(Array.isArray(result.results));
