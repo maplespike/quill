@@ -25,6 +25,8 @@
    ink-and-paper.test.ts.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+@import "./ink-and-paper.oklch.css";
+
 /* ── Self-hosted fonts ────────────────────────────────────────────────────
    Newsreader (display) · Source Sans 3 (text) · IBM Plex Mono (data).
    Files live in public/fonts/ (see manifest.json there for provenance and
