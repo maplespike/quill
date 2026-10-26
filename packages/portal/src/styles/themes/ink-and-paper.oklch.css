@@ -1,0 +1,119 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Ink & Paper — OKLCH colour layer (CSS Color 4/5, Media Queries 5)
+   ═══════════════════════════════════════════════════════════════════════════
+
+   ink-and-paper.css keeps the HSL-triplet roles (--iap-*, --background …)
+   because every portal component consumes them as hsl(var(--x)) and
+   ink-and-paper.test.ts pins them byte-exact. This file adds, without
+   changing any sRGB pixel:
+
+     1. --q-* OKLCH twins of the 12 spec roles + editorial red, for new code
+        and for colour maths (each twin round-trips to the same hex — see
+        ink-and-paper.oklch.test.ts).
+     2. A wide-gamut path: on P3 screens editorial red gains ~40% of the
+        extra chroma available at the same lightness/hue. Paper and ink are
+        near-neutral, so they are deliberately not boosted.
+     3. Derived states from one source colour via color-mix(), upgraded to
+        relative colour syntax where supported.
+     4. prefers-contrast: more and forced-colors: active support.
+
+   Selectors use html.theme-ink-and-paper (0,1,1) so they win over the
+   same-named declarations in ink-and-paper.css / editorial.css regardless of
+   stylesheet order (this file is @imported first).
+
+   Baseline: oklch()/color-mix()/color-gamut/prefers-contrast/forced-colors
+   are Baseline 2023 or older; relative colour syntax is Baseline 2024 and is
+   behind @supports. Engines without oklch() keep the hex fallback below.
+   Canonical token source: ../tokens/quill.tokens.json (W3C DTCG 2025.10). */
+
+html.theme-ink-and-paper {
+  /* sRGB-exact hex first: the fallback for engines without oklch(). */
+  --q-paper: #f4f2ec;
+  --q-paper-deep: #e7e3d8;
+  --q-surface: #fbfaf6;
+  --q-ink: #161614;
+  --q-ink-soft: #2c2c28;
+  --q-muted: #534f46;
+  --q-line: #ddd8cc;
+  --q-line-strong: #cfc8b8;
+  --q-chip: #ece8de;
+  --q-on-ink: #f6f4ef;
+  --q-on-ink-muted: #b9b5aa;
+  --q-on-ink-line: #3a3a34;
+  --q-console: #1d1d1a;
+  --q-red: #a63029;
+}
+
+@supports (color: oklch(0% 0 0)) {
+  html.theme-ink-and-paper {
+    --q-paper: oklch(96.10% 0.0083 91.48);       /* #f4f2ec */
+    --q-paper-deep: oklch(91.59% 0.0154 90.24);  /* #e7e3d8 */
+    --q-surface: oklch(98.48% 0.0054 95.10);     /* #fbfaf6 */
+    --q-ink: oklch(19.94% 0.0039 106.75);        /* #161614 */
+    --q-ink-soft: oklch(29.17% 0.0071 106.83);   /* #2c2c28 */
+    --q-muted: oklch(42.86% 0.0154 86.89);       /* #534f46 */
+    --q-line: oklch(88.29% 0.0171 88.01);        /* #ddd8cc */
+    --q-line-strong: oklch(83.40% 0.0232 87.16); /* #cfc8b8 */
+    --q-chip: oklch(93.14% 0.0140 88.69);        /* #ece8de */
+    --q-on-ink: oklch(96.73% 0.0070 88.64);      /* #f6f4ef */
+    --q-on-ink-muted: oklch(77.32% 0.0160 90.27); /* #b9b5aa */
+    --q-on-ink-line: oklch(34.64% 0.0102 106.92); /* #3a3a34 */
+    --q-console: oklch(22.96% 0.0057 106.84);    /* #1d1d1a */
+    --q-red: oklch(48.84% 0.1554 27.78);         /* #a63029 */
+    /* editorial.css paints markers with --editorial-red; route it through
+       the OKLCH token so the P3 boost below reaches every marker. */
+    --editorial-red: var(--q-red);
+  }
+
+  /* Wide gamut: same L and H, more chroma. 6.1:1 on paper is unchanged
+     within rounding (lightness is held constant). */
+  @media (color-gamut: p3) {
+    html.theme-ink-and-paper {
+      --q-red: oklch(48.84% 0.1832 27.78);
+    }
+  }
+}
+
+/* Derived states — never hand-pick a hover hex. */
+html.theme-ink-and-paper {
+  --q-red-hover: color-mix(in oklch, var(--q-red) 86%, black);
+  --q-red-tint: color-mix(in oklch, var(--q-red) 10%, transparent);
+  --q-ink-hover: color-mix(in oklch, var(--q-ink) 85%, white);
+  --q-focus-ring: color-mix(in oklch, var(--q-ink) 60%, transparent); /* = ink/60, 4.56:1 */
+}
+@supports (color: oklch(from red l c h)) {
+  html.theme-ink-and-paper {
+    --q-red-hover: oklch(from var(--q-red) calc(l - 0.06) c h);
+    --q-red-tint: oklch(from var(--q-red) l c h / 0.1);
+  }
+}
+
+/* Increased contrast: muted text becomes ink-soft, hairlines become strong
+   lines, the focus ring goes fully opaque. */
+@media (prefers-contrast: more) {
+  html.theme-ink-and-paper {
+    --muted-foreground: 60 4.8% 16.5%; /* ink-soft, 12.5:1 on paper */
+    --border: 41.7 19.3% 76.7%;        /* line-strong */
+    --iap-focus-ring: hsl(60 4.8% 8.2% / 1);
+  }
+  html.theme-ink-and-paper .eyebrow,
+  html.theme-ink-and-paper .source-number,
+  html.theme-ink-and-paper .evidence-note li > span {
+    font-size: 12px;
+  }
+}
+
+/* Forced colours (Windows High Contrast): keep structure, use system colours,
+   keep the editorial dot as the brand marker. */
+@media (forced-colors: active) {
+  html.theme-ink-and-paper :focus-visible {
+    outline: 2px solid Highlight;
+  }
+  html.theme-ink-and-paper [data-slot="card"],
+  html.theme-ink-and-paper .card-hover {
+    border: 1px solid CanvasText;
+  }
+  html.theme-ink-and-paper .editorial-dot {
+    forced-color-adjust: none;
+  }
+}

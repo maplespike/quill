@@ -58,6 +58,8 @@ Quill is the product. MapleSpike is the parent brand. Display **Quill** in the p
 | Concern | Source |
 | --- | --- |
 | Colour roles, local font faces, focus contrast | `packages/portal/src/styles/themes/ink-and-paper.css` |
+| OKLCH twins, P3 path, derived colours, contrast/forced-colours layers | `packages/portal/src/styles/themes/ink-and-paper.oklch.css` |
+| Canonical colour tokens (W3C DTCG) | `packages/portal/src/styles/tokens/quill.tokens.json` |
 | Editorial composition, shared page rhythm, responsive rules | `packages/portal/src/styles/editorial.css` |
 | Metadata, main landmark, footer, runtime hooks | `packages/portal/src/layouts/BaseLayout.astro` |
 | Primary navigation, mobile menu, research rail | `packages/portal/src/components/SiteHeader.astro` |
@@ -73,31 +75,81 @@ Use Astro for static structure and React islands for stateful features. Reuse ex
 
 ## Colour
 
+Colour roles are specified in **OKLCH** (CSS Color 4) with the sRGB hex as the
+exact fallback. The canonical token file is
+`packages/portal/src/styles/tokens/quill.tokens.json` (W3C DTCG 2025.10,
+`colorSpace: "oklch"` + `hex`). `ink-and-paper.css` keeps the HSL-triplet
+roles that components consume as `hsl(var(--x))`; `ink-and-paper.oklch.css`
+adds the `--q-*` OKLCH twins, the wide-gamut path, derived states, and the
+contrast/forced-colours layers. Both are pinned by tests.
+
 ### Paper planes
 
-- **Paper `#f4f2ec`:** the page.
-- **Surface `#fbfaf6`:** panels, forms, and elevated content.
-- **Paper deep `#e7e3d8`:** restrained section separation.
-- **Chip `#ece8de`:** secondary controls and selected backgrounds.
-- **Line `#ddd8cc`:** ordinary dividers.
-- **Strong line `#cfc8b8`:** input boundaries and major rules.
+| Role | OKLCH | hex |
+| --- | --- | --- |
+| Paper (the page) | `oklch(96.10% 0.0083 91.48)` | `#f4f2ec` |
+| Surface (panels, forms) | `oklch(98.48% 0.0054 95.10)` | `#fbfaf6` |
+| Paper deep (section separation) | `oklch(91.59% 0.0154 90.24)` | `#e7e3d8` |
+| Chip (secondary controls) | `oklch(93.14% 0.0140 88.69)` | `#ece8de` |
+| Line (dividers) | `oklch(88.29% 0.0171 88.01)` | `#ddd8cc` |
+| Strong line (inputs, major rules) | `oklch(83.40% 0.0232 87.16)` | `#cfc8b8` |
 
 ### Ink and emphasis
 
-- **Ink `#161614`:** body text, headings, primary actions.
-- **Soft ink `#2c2c28`:** hover and secondary dark planes.
-- **Muted ink `#534f46`:** readable secondary text.
-- **Editorial red `#a63029`:** small markers, active underlines, numbered labels, and occasional display emphasis. It is not the default body or button colour.
+| Role | OKLCH | hex | On paper (WCAG 2.2) | APCA Lc |
+| --- | --- | --- | --- | --- |
+| Ink | `oklch(19.94% 0.0039 106.75)` | `#161614` | 16.19:1 | 97 |
+| Soft ink | `oklch(29.17% 0.0071 106.83)` | `#2c2c28` | 12.52:1 | — |
+| Muted ink | `oklch(42.86% 0.0154 86.89)` | `#534f46` | 7.29:1 | 80 |
+| Editorial red | `oklch(48.84% 0.1554 27.78)` | `#a63029` | 6.10:1 | 75 |
+
+**Editorial red** marks small markers, active underlines, numbered labels, and
+occasional display emphasis. It is not the default body or button colour. On
+Display-P3 screens it becomes `oklch(48.84% 0.1832 27.78)` — same lightness and
+hue, ~40% of the extra chroma P3 allows — via `@media (color-gamut: p3)`.
+Paper and ink are near-neutral and are never gamut-boosted.
 
 ### Reversed planes
 
-Use dark ink for the landing integration console, not as a competing site theme. Pair it with on-ink `#f6f4ef`, muted on-ink `#b9b5aa`, and on-ink line `#3a3a34`. The console interior is `#1d1d1a`.
+Use dark ink for the landing integration console, not as a competing site
+theme. On-ink `#f6f4ef` / `oklch(96.73% 0.0070 88.64)`, muted on-ink `#b9b5aa`
+(8.25:1, Lc −61 on the console), on-ink line `#3a3a34`, console interior
+`#1d1d1a`. Use explicit focus colours on reversed planes. Preserve readable
+status text, not just red/green dots. Do not use the former bright maple red
+`#e84545` for text on paper: 3.49:1 fails the normal-text AA floor.
 
-Use explicit focus colours on reversed planes. Preserve readable status text, not just red/green dots. Do not use the former bright maple red `#e84545` for body text on paper: it fails the normal-text AA contrast floor.
+### Derived colours
+
+Do not hand-pick hover or tint hexes. Derive them from the source role with
+`color-mix(in oklch, …)`, upgraded to relative colour syntax under
+`@supports (color: oklch(from red l c h))`. Shipped: `--q-red-hover`,
+`--q-red-tint`, `--q-ink-hover`, `--q-focus-ring` (= ink/60).
+
+### User preferences
+
+- `color-scheme: light` on the theme root; Quill has no dark theme by design.
+- `@media (prefers-contrast: more)`: muted text → soft ink (12.5:1), hairlines →
+  strong line, focus ring fully opaque, 10px mono labels → 12px.
+- `@media (forced-colors: active)`: system `Highlight` focus, `CanvasText`
+  panel borders; the editorial dot keeps its colour (`forced-color-adjust: none`).
+- `prefers-reduced-motion` handling is unchanged (see Motion).
 
 ### Contrast requirements
 
-Normal text must meet 4.5:1. Focus indicators must meet 3:1 against their surroundings. The tested paper theme uses an ink/60 focus ring; ink/40 fails. Keep the colour-role and contrast tests in `ink-and-paper.test.ts`. New colour pairs need measured coverage, not an assumed pass.
+Normal text must meet WCAG 2.2 AA 4.5:1; focus indicators 3:1 against their
+surroundings. The tested paper theme uses an ink/60 focus ring (4.56:1); ink/40
+fails (2.52:1). Alongside WCAG 2.2, the APCA (WCAG 3 draft) floors are tested:
+body ≥ Lc 90, secondary body ≥ Lc 75, markers/display ≥ Lc 60. 10px text is
+below APCA's minimum readable size for anything but non-essential labels.
+Keep `ink-and-paper.test.ts` (WCAG) and `ink-and-paper.oklch.test.ts` (OKLCH
+round-trip, P3 gamut, APCA). New colour pairs need measured coverage, not an
+assumed pass.
+
+### Browser baseline
+
+`oklch()`, `color-mix()`, `color-gamut`, `prefers-contrast`, `forced-colors`
+are Baseline (2023 or earlier). Relative colour syntax is Baseline 2024 and is
+behind `@supports`. Engines without `oklch()` keep the hex declarations.
 
 ## Typography
 
