@@ -29,6 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: azure/setup-helm@v5
 
       - name: Validate network policies

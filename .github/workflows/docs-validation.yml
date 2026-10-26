@@ -31,6 +31,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       # ── Check 1: Metadata coverage ──────────────────────────────
       - name: "Check last-reviewed metadata"
         id: metadata-check

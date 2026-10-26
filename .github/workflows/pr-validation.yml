@@ -18,6 +18,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       # ── Check 1: Branch name follows convention ───────────────────
       # NOTE: all PR-derived strings reach step scripts via `env:` — never
       # interpolate ${{ }} directly into `run:` bodies. Direct interpolation

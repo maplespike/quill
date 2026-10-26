@@ -48,6 +48,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:

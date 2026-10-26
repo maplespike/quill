@@ -1,0 +1,16 @@
+name: ARC runner tools
+description: >-
+  Install the OS packages that the stock ghcr.io/actions/actions-runner image
+  lacks (C toolchain for Rust build scripts, PyYAML for the workflow gates, gh,
+  jq). Call it only on arc-* runners; host runners and GitHub-hosted runners
+  already have these.
+runs:
+  using: composite
+  steps:
+    - name: Install OS packages
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update -qq
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+          build-essential pkg-config libssl-dev python3 python3-yaml jq gh unzip xz-utils

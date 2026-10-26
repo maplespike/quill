@@ -29,6 +29,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: actions/setup-node@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:

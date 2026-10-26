@@ -40,6 +40,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
@@ -329,6 +333,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
@@ -375,6 +383,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
@@ -418,6 +430,10 @@ jobs:
         with:
           fetch-depth: 0 # full history — gitleaks must see every commit
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       # The baseline is security-critical config: a malformed .gitleaksignore
       # is silently inert (34 warnings, zero exclusions applied — run
       # 35676870104), and a too-broad allow-list silently disables the gate.
@@ -460,6 +476,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v3
         env:
@@ -485,6 +505,10 @@ jobs:
     # Highs are closed.
     steps:
       - uses: actions/checkout@v7
+
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
@@ -542,6 +566,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
