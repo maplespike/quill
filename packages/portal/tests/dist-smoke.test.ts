@@ -23,6 +23,7 @@ const REQUIRED_FILES = [
   ".well-known/mcp/server-card.json",
   ".well-known/mcp/server-cards.json",
   "agent-card.json",
+  "api-reference.html",
   "checkout.html",
   "checkout/return.html",
 ];

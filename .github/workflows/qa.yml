@@ -8,23 +8,30 @@ on:
     branches: [main, prod]
 
 concurrency:
-  group: qa-${{ github.ref }}
+  group: qa-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
-  checks: write
 
 jobs:
   test-framework:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     # Self-hosted runners otherwise inherit a 5-day job cap; a wedged step
     # must not squat a runner from the pool (#996).
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - run: pnpm install --frozen-lockfile
 
@@ -51,11 +58,20 @@ jobs:
         working-directory: packages/pipeline-core
 
   qa-module-validation:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - run: pnpm install --frozen-lockfile
 
@@ -89,11 +105,20 @@ jobs:
         working-directory: packages/pipeline-core
 
   attestation-chain:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - run: pnpm install --frozen-lockfile
 
@@ -129,8 +154,7 @@ jobs:
         working-directory: packages/pipeline-core
 
   api-and-mcp-validation:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     # 2026-10-04 (#996): this job once ran 3h17m with zero output because a
     # wedged unit-test child held the step open and the job had no bound of
     # its own. Bound it like every other QA job, and run the test steps
@@ -138,6 +162,16 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - run: pnpm install --frozen-lockfile
 

@@ -58,6 +58,9 @@ spec:
       labels:
         app: cloudflared
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       {{- with .Values.cloudflared.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

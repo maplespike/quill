@@ -10,9 +10,9 @@ import { z } from 'zod';
 
 /** Optional string field */
 const str = () => z.string().optional();
-/** Optional number field (accepts numeric strings too) */
+/** Optional number field (accepts numeric strings too). A missing key stays absent. */
 const num = () => z.coerce.number().optional();
-/** Optional positive integer cap */
+/** Optional positive integer cap. A missing key stays absent. */
 const lim = () => z.coerce.number().int().min(1).max(1000).optional();
 /** Required string */
 const reqStr = () => z.string().min(1);

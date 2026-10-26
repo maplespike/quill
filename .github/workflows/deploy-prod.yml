@@ -55,6 +55,9 @@ jobs:
   ci:
     name: Build & Test
     runs-on: [self-hosted, nixos]
+    # A hung test must fail the deploy, not hold a host runner for the 6 h
+    # default (2026-10-26: api-server api.test.ts idled 24 min at 0% CPU).
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -67,6 +70,12 @@ jobs:
 
       - name: Typecheck
         run: pnpm -r typecheck || true
+
+      # `pnpm test` includes test:chart-probes, which since #1184 fails when
+      # helm is missing instead of skipping. helm is not on the host runner
+      # service PATH (deploy-prod run 40328070737).
+      - name: Install helm
+        uses: azure/setup-helm@v5
 
       - name: Test
         # The deploy gate must not depend on third-party uptime. Several suites

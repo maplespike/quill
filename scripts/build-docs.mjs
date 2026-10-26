@@ -164,7 +164,7 @@ function buildPage(title, description, sectionKey, slug, bodyHtml) {
   <link rel="preconnect" href="https://www.google.com" crossorigin>
   <link rel="manifest" href="/manifest.json">
   <meta name="msapplication-config" content="/browserconfig.xml">
-  <link rel="canonical" href="https://maplespike.ca/docs/${sectionKey}/${slug}.html">
+  <link rel="canonical" href="https://quill.maplespike.ca/docs/${sectionKey}/${slug}.html">
   <meta name="theme-color" content="#C23030">
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
@@ -427,7 +427,7 @@ function main() {
   <meta charset="UTF-8">
   <meta http-equiv="refresh" content="0;url=/docs/guide/what-is-maplespike.html">
   <title>MapleSpike — Documentation</title>
-  <link rel="canonical" href="https://maplespike.ca/docs/guide/what-is-maplespike.html">
+  <link rel="canonical" href="https://quill.maplespike.ca/docs/guide/what-is-maplespike.html">
 </head>
 <body>
   <p>Redirecting to <a href="/docs/guide/what-is-maplespike.html">MapleSpike Documentation</a>.</p>

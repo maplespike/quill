@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-10-26
 status: active
 ---
 
@@ -87,6 +87,30 @@ Or manually:
     echo "pnpm $(pnpm --version)"
     echo "git $(git --version)"
 ```
+
+## Public forks
+
+The repository is prepared to be public. A `pull_request` workflow runs the file from the merge commit. GitHub withholds secrets from a fork pull request and gives that job a read-only token. The self-hosted runners share the host home directory and can reach the cluster. A fork job must use a GitHub-hosted runner.
+
+Rules:
+
+- Keep `on: pull_request` for code jobs.
+- Each job sets `runs-on`. A fork pull request resolves to `ubuntu-latest`. A same-repo pull request and a push resolve to the self-hosted labels.
+- `merge-when-green.yml` is the only `pull_request_target` workflow. It needs a write token to squash-merge. It does not check out pull request code. It runs on `ubuntu-latest`. The head repository must be this repository, and the actor must be Dependabot or the maintainer.
+- `workflow_run` on a self-hosted runner requires `head_repository.full_name == github.repository`. It checks out `main`.
+- `scripts/gates/check-fork-runner-policy.mjs` fails CI when a `pull_request_target` job checks out the pull request head, or when a fork can reach a self-hosted runner.
+
+A fork can still add a new workflow file. This gate cannot see that file. Install the runner hook on every self-hosted runner:
+
+```text
+ACTIONS_RUNNER_HOOK_JOB_STARTED=/absolute/path/scripts/ci/refuse-untrusted-self-hosted.sh
+```
+
+Put that line in the runner directory `.env` and restart the runner. The hook refuses `pull_request`, `pull_request_target`, and `workflow_run` when the head repository is not this repository. A same-repo pull request is allowed. This repository does not install the hook.
+
+In the GitHub repository settings, set Actions → General → Fork pull request workflows to "Require approval for all outside collaborators". Approval does not grant the cluster runner. The hook still refuses a fork job after an approval.
+
+Fork jobs that need Node install it only when `runner.environment == 'github-hosted'`: Node 22 and pnpm 10.32.1, with no cache. Do not add those setup actions on the self-hosted runners.
 
 ## Why
 

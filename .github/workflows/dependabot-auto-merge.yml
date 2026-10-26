@@ -50,9 +50,9 @@ concurrency:
 
 jobs:
   auto-merge:
-    # No fork guard needed: GitHub-hosted runner, and `dependabot[bot]` cannot
-    # be a fork PR.
-    if: github.actor == 'dependabot[bot]'
+    # Dependabot opens same-repo pull requests. The actor check and the head
+    # repository check both have to pass. A fork pull request does not run.
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     # NOT self-hosted, deliberately (#1041): on the four self-hosted runners a
     # waiting job holds a slot the checks it is waiting on need, which starved
     # main CI for 30min+ (measured 2026-10-09). This job runs only `gh`, so a
