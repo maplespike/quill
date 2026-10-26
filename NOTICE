@@ -10,6 +10,10 @@ only** (`AGPL-3.0-only`). The licence text is in [`LICENSE`](./LICENSE). Every
 workspace package declares the same licence in its `package.json`, and every
 first-party source file carries the same `SPDX-License-Identifier`.
 
+Versions already published under Apache-2.0 keep that licence.
+`@reverb256/mcp-server` version 0.2.0 is the release on npm. The package is now
+`@maplespike/quill-mcp`. Releases from version 0.4.0 on are `AGPL-3.0-only`.
+
 This file records two separate things that the software licence does not cover:
 
 1. Attribution and copyright notices for **public data** that Quill reads and

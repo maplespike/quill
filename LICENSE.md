@@ -40,7 +40,10 @@ code, and the OCI images that Quill publishes. It covers no other material.
 - **Published artifacts** carry the same licence. This includes the npm packages
   (`@maplespike/quill-mcp`, `@maplespike/sdk`, `@maplespike/legal-core`,
   `@maplespike/legislation`) and the PyPI package `quill-sdk`. Each such package
-  ships a `LICENSE` copy in its archive.
+  ships a `LICENSE` copy in its archive. Versions already published under
+  Apache-2.0 keep that licence. `@reverb256/mcp-server` 0.2.0 is the published
+  npm release. Releases of `@maplespike/quill-mcp` from version 0.4.0 on are
+  `AGPL-3.0-only`. See [`NOTICE`](./NOTICE).
 - **Network use.** AGPL section 13 applies. A person who runs a modified Quill as
   a network service must offer the corresponding source to the users of that
   service.
@@ -91,11 +94,8 @@ in the root and two packages, Apache-2.0 in four packages, MIT in six packages,
 and no declaration in two packages. Four hundred and fifty-three tracked source
 files carried a non-`AGPL-3.0-only` SPDX header. Issue
 [#1044](https://github.com/maplespike/quill/issues/1044) recorded the conflict.
-The 2026-10-24 decision converted 442 of those 453 headers. Eleven headers remain
-unconverted, and three more files still carry the legacy personal address. Those
-fourteen files contain a Canadian city name that the fleet pre-commit gate reads
-as an identity string (`patterns.txt` line 14), so the gate refuses any commit
-that stages them. `scripts/test-license-coherence.mjs` lists the fourteen paths
-and fails if the list grows or goes stale. The earlier audit record is
+The decision converted those headers to `AGPL-3.0-only`. The public contact in
+the User-Agent, the Helm maintainer, and the Python authors field is
+`hello@maplespike.ca`. The earlier audit record is
 [`docs/open-source-audit.md`](./docs/open-source-audit.md); its observations
 describe the tree as it was before the decision.

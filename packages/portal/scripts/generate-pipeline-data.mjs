@@ -32,7 +32,7 @@ const ASSETS_DIR = resolve(__dirname, '..', 'assets');
 const OUTPUT_FILE = resolve(ASSETS_DIR, 'pipeline-data.json');
 
 const USER_AGENT =
-  'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+  'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 
 const FETCH_TIMEOUT = 15000;
 const SOURCE_TIMEOUT = 15000;

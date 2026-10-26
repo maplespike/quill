@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = "AGPL-3.0-only"
 authors = [
-    { name = "Reverb", email = "dev@maplespike.ca" },
+    { name = "Reverb", email = "hello@maplespike.ca" },
 ]
 keywords = [
     "maplespike", "api", "sdk", "canada", "government",

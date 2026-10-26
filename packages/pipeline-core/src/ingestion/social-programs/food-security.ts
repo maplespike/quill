@@ -22,7 +22,7 @@ import {
 import type { FoodBankRecord, HomelessnessRecord, DisabilityBenefitRecord } from './types.js';
 
 import { parseCsvLine } from '../../utils/csv.js';
-const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:dev@maplespike.ca)';
+const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:hello@maplespike.ca)';
 
 // ─── Food Banks ─────────────────────────────────────────────────────────
 

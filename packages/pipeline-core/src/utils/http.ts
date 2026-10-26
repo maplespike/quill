@@ -60,7 +60,7 @@ declare global {
 
 const DEFAULT_USER_AGENT =
   process.env['DEFAULT_USER_AGENT'] ??
-  'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+  'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 
 const DEFAULT_TIMEOUT_MS = process.env['MAPLESPIKE_HTTP_TIMEOUT_MS'] !== undefined
   ? parseInt(process.env['MAPLESPIKE_HTTP_TIMEOUT_MS'], 10)

@@ -29,7 +29,7 @@ import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { SocialAssistanceRecord } from './types.js';
 
-const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:dev@maplespike.ca)';
+const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:hello@maplespike.ca)';
 
 /**
  * Known social assistance programs by province/territory.

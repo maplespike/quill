@@ -383,7 +383,7 @@ export const ONTARIO = {
   COMMITTEE_EVIDENCE_XML_PATTERN: 'https://www.ola.org/sites/default/files/committee/transcripts/{committee}/{date}.xml',
   COMMITTEES_URL: 'https://www.ola.org/en/legislative-business/committees',
   BILLS_LIST_URL: 'https://www.ola.org/en/legislative-business/bills/current-parliament',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -394,7 +394,7 @@ export const BC = {
   HANSARD_XML_PATTERN: 'https://www.leg.bc.ca/documents-data/hansard/parliament-{parliament}/session-{session}/{date}.xml',
   COMMITTEES_URL: 'https://www.leg.bc.ca/parliamentary-business/committees',
   BILLS_URL: 'https://www.leg.bc.ca/parliamentary-business/bills',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -405,7 +405,7 @@ export const ALBERTA = {
   HANSARD_SEARCH_URL: 'https://www.assembly.ab.ca/search?type=hansard',
   COMMITTEES_URL: 'https://www.assembly.ab.ca/committees',
   BILLS_URL: 'https://www.assembly.ab.ca/bills',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -417,7 +417,7 @@ export const QUEBEC = {
   COMMITTEES_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/commissions/index.html',
   BILLS_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/projets-loi/index.html',
   CKAN_URL: 'https://www.donneesquebec.ca/api/3/action/package_search',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -427,7 +427,7 @@ export const MANITOBA = {
   HANSARD_URL: 'https://www.gov.mb.ca/legislature/hansard/',
   COMMITTEES_URL: 'https://www.gov.mb.ca/legislature/committees/',
   BILLS_URL: 'https://web2.gov.mb.ca/bills/',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -438,7 +438,7 @@ export const SASKATCHEWAN = {
   COMMITTEES_URL: 'https://www.legassembly.sk.ca/committees/',
   BILLS_URL: 'https://publications.saskatchewan.ca/#/products?q=bills',
   CKAN_URL: 'https://dashboard.saskatchewan.ca',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -449,7 +449,7 @@ export const NOVA_SCOTIA = {
   COMMITTEES_URL: 'https://nslegislature.ca/legislative-business/committees',
   BILLS_URL: 'https://nslegislature.ca/legislative-business/bills',
   CKAN_URL: 'https://data.novascotia.ca',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -460,7 +460,7 @@ export const NEW_BRUNSWICK = {
   COMMITTEES_URL: 'https://www.legnb.ca/en/committees',
   BILLS_URL: 'https://www.legnb.ca/en/bills',
   CKAN_URL: 'https://www.snb.ca/api/3/action/package_search',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -471,7 +471,7 @@ export const NFLD = {
   COMMITTEES_URL: 'https://www.assembly.nl.ca/HouseBusiness/Committees/',
   BILLS_URL: 'https://www.assembly.nl.ca/HouseBusiness/Bills/',
   CKAN_URL: 'https://opendata.gov.nl.ca/api/3/action/package_search',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -481,7 +481,7 @@ export const PEI = {
   HANSARD_URL: 'https://www.assembly.pe.ca/hansard',
   COMMITTEES_URL: 'https://www.assembly.pe.ca/committees',
   BILLS_URL: 'https://www.assembly.pe.ca/bills',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -491,7 +491,7 @@ export const YUKON = {
   HANSARD_URL: 'https://yukonassembly.ca/hansard',
   COMMITTEES_URL: 'https://yukonassembly.ca/committees',
   BILLS_URL: 'https://yukonassembly.ca/bills',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -501,7 +501,7 @@ export const NWT = {
   HANSARD_URL: 'https://www.ntlegislativeassembly.ca/documents-proceedings/hansard',
   COMMITTEES_URL: 'https://www.ntlegislativeassembly.ca/committees',
   BILLS_URL: 'https://www.ntlegislativeassembly.ca/documents-proceedings/bills',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /**
@@ -511,7 +511,7 @@ export const NUNAVUT = {
   HANSARD_URL: 'https://assembly.nu.ca/hansard',
   COMMITTEES_URL: 'https://assembly.nu.ca/standing-and-special-committees',
   BILLS_URL: 'https://assembly.nu.ca/bills-and-legislation',
-  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  USER_AGENT: 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
 };
 
 /* ------------------------------------------------------------------ */
@@ -522,7 +522,7 @@ export const NUNAVUT = {
 export const DEFAULT_MAX_RECORDS = 500;
 
 /** Default User-Agent for HTTP requests */
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 
 /** Default request timeout in milliseconds */
 export const DEFAULT_TIMEOUT_MS = 30_000;

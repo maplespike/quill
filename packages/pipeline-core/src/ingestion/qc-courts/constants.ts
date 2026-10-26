@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_qc_court_ingested ON qc_court_records(ingested_at
 export const DEFAULT_MAX_RECORDS = 400;
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
-const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 
 export const DEFAULT_HEADERS: Record<string, string> = {
   'User-Agent': DEFAULT_USER_AGENT,

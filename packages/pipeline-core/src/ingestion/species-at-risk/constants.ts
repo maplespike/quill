@@ -140,7 +140,7 @@ CREATE INDEX IF NOT EXISTS idx_sara_ingested ON species_at_risk_records(ingested
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_MAX_RECORDS = 1000;
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 export const DEFAULT_HEADERS: Record<string, string> = {

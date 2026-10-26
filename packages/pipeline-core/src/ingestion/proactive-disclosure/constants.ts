@@ -59,7 +59,7 @@ export const MAX_PAGE_SIZE = 500;
  * Default headers for CKAN API requests.
  */
 export const CKAN_HEADERS: Record<string, string> = {
-  'User-Agent': 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  'User-Agent': 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
   Accept: 'application/json,text/html,*/*',
 };
 

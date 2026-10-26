@@ -28,7 +28,7 @@ export class GazetteFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:dev@maplespike.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:hello@maplespike.ca)',
   Accept: 'application/rss+xml,application/xml,text/html,text/xml,*/*',
 } as const;
 

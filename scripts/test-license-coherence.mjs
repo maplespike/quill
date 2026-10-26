@@ -29,29 +29,13 @@ const EXEMPT_PREFIXES = ['.agents/'];
 const PRE_DECISION_HEADERS = new Set(['AGPL-3.0-or-later', 'MIT', 'Apache-2.0']);
 
 // Files the fleet pre-commit gate (leakguard) refuses to stage, because they
-// contain the city name that patterns.txt line 14 lists as an identity string.
-// In this repository that name is Canadian public data: municipal and library
-// catalogues, university lists, and the registry that describes them. The header
-// conversion and the address cleanup for these files are written and ready; they
-// cannot land until the pattern stops matching data. Remove a path from this list
-// once it converts — the test fails if a listed file has already converted, so
-// the exemption cannot rot.
-const BLOCKED_BY_FLEET_GATE = new Set([
-  'packages/pipeline-core/src/ingestion/education-research/cfi.ts',
-  'packages/pipeline-core/src/ingestion/education-research/crc.ts',
-  'packages/pipeline-core/src/ingestion/education-research/student-loans.ts',
-  'packages/pipeline-core/src/ingestion/gtfs-transit/constants.ts',
-  'packages/pipeline-core/src/ingestion/library/constants.ts',
-  'packages/pipeline-core/src/ingestion/municipal/constants.ts',
-  'packages/pipeline-core/src/ingestion/municipal/fetcher.ts',
-  'packages/pipeline-core/src/ingestion/municipal/index.ts',
-  'packages/pipeline-core/src/ingestion/registry.ts',
-  'packages/quill-mcp/src/tools/police-data.ts',
-  'packages/quill-mcp/src/tools/search-libraries.ts',
-  'packages/quill-mcp/src/tools/search-municipal-data.ts',
-  'packages/quill-mcp/src/tools/upstream-fetcher.ts',
-  'scripts/lib/municipal-candidate-validation.ts',
-]);
+// contain a city name that patterns.txt lists as an identity string. In this
+// repository that name is Canadian public data. The 2026-10-26 follow-up
+// converted the last headers and the last personal User-Agent addresses, so
+// the list is empty. Add a path only when a file still carries a pre-decision
+// header or a personal address and cannot be staged. The test fails if a
+// listed file has already converted, so the exemption cannot rot.
+const BLOCKED_BY_FLEET_GATE = new Set([]);
 
 // The maintainer's personal address, built from fragments so that this file does
 // not itself carry the string that the gate blocks.
@@ -194,6 +178,9 @@ test('NOTICE carries the attribution and copyright notices that the product must
   assert.match(flat, /Reproduction of Federal Law Order/);
   assert.match(flat, /Statistics Canada/);
   assert.match(flat, /Not affiliated with or endorsed by the Government of Canada/);
+  assert.match(flat, /Versions already published under Apache-2\.0 keep that licence/);
+  assert.match(notice, /@reverb256\/mcp-server/);
+  assert.match(notice, /0\.4\.0/);
 });
 
 test('README and LICENSE.md state the licence and point at NOTICE', () => {
@@ -207,10 +194,9 @@ test('README and LICENSE.md state the licence and point at NOTICE', () => {
 });
 
 test('no personal address in tracked first-party files', () => {
-  // The User-Agent contact and the package author address used the maintainer's
-  // personal address until 2026-10-24. The role mailbox dev@maplespike.ca (already
-  // the OpenAPI contact) replaces it. A personal address in a public tree is both
-  // a privacy leak and a commit that the fleet gate refuses.
+  // The User-Agent contact, the Helm maintainer, and the package author use
+  // hello@maplespike.ca, the address published on maplespike.ca. A personal
+  // address in a public tree fails this test.
   const offenders = [];
   for (const rel of gitTrackedFiles()) {
     if (EXEMPT_PREFIXES.some(prefix => rel.startsWith(prefix))) continue;
@@ -225,4 +211,24 @@ test('no personal address in tracked first-party files', () => {
     if (PERSONAL_ADDRESS.test(text)) offenders.push(rel);
   }
   assert.deepEqual(offenders, [], `personal address in a public file:\n${offenders.join('\n')}`);
+});
+
+test('the public contact is hello@maplespike.ca and no dev mailbox remains', () => {
+  // Split so this file does not itself contain the retired mailbox.
+  const retired = 'dev' + '@maplespike.ca';
+  const offenders = [];
+  for (const rel of gitTrackedFiles()) {
+    if (EXEMPT_PREFIXES.some(prefix => rel.startsWith(prefix))) continue;
+    let text;
+    try {
+      text = readFileSync(path.join(ROOT, rel), 'utf8');
+    } catch {
+      continue;
+    }
+    if (text.includes(retired)) offenders.push(rel);
+  }
+  assert.deepEqual(offenders, [], `retired mailbox remains in:\n${offenders.join('\n')}`);
+  assert.match(read('charts', 'quill', 'Chart.yaml'), /email: hello@maplespike\.ca/);
+  assert.match(read('packages', 'quill-mcp', 'README.md'), /Versions already published under Apache-2\.0 keep that licence/);
+  assert.match(read('packages', 'quill-mcp', 'README.md'), /AGPL-3\.0-only/);
 });

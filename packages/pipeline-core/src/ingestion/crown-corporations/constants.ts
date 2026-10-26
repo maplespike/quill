@@ -390,7 +390,7 @@ export const ANNUAL_REPORT_URL_PATTERNS: Record<CrownCorporationCode, string> = 
 export const DEFAULT_MAX_RECORDS = 100;
 
 /** Default User-Agent for HTTP requests */
-export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:dev@maplespike.ca)';
+export const DEFAULT_USER_AGENT = 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)';
 
 /** Default request timeout in milliseconds */
 export const DEFAULT_TIMEOUT_MS = 30_000;

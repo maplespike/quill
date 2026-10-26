@@ -5,7 +5,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/quill-sdk)](https://pypi.org/project/quill-sdk/)
 [![Python versions](https://img.shields.io/pypi/pyversions/quill-sdk)](https://pypi.org/project/quill-sdk/)
-[![License: MIT](https://img.shields.io/pypi/l/quill-sdk)](LICENSE)
+[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue)](LICENSE)
 
 ---
 
@@ -94,6 +94,9 @@ pip install -e ".[dev]"
 pytest
 ```
 
-## License status
+## License
 
-`pyproject.toml` declares MIT, but no package-local `LICENSE` file was found in the repository. The published sdist/wheel must be inspected to confirm what license and copyright notices are distributed. See [`LICENSE.md`](../../LICENSE.md) and the [open-source audit](../../docs/open-source-audit.md).
+`quill-sdk` is licensed under the GNU Affero General Public License, version 3
+only (`AGPL-3.0-only`). The text is in [`LICENSE`](./LICENSE). See
+[`LICENSE.md`](../../LICENSE.md). Versions already published on PyPI under MIT
+keep that licence. Releases from version 0.4.0 on are `AGPL-3.0-only`.

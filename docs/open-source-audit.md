@@ -2,11 +2,10 @@
 
 > **Resolution (2026-10-24).** The rights holder chose `AGPL-3.0-only` for the whole
 > repository ([#1044](https://github.com/maplespike/quill/issues/1044)). Every
-> `package.json`, the Python and Rust manifests, 442 of the 453 tracked first-party
-> source headers, and every per-package `LICENSE` copy now state `AGPL-3.0-only`.
-> The 14 remaining paths are listed in `scripts/test-license-coherence.mjs`: they
-> contain a Canadian city name that the fleet pre-commit gate reads as an identity
-> string, so the gate refuses any commit which stages them.
+> `package.json`, the Python and Rust manifests, the tracked first-party source
+> headers, and every per-package `LICENSE` copy now state `AGPL-3.0-only`.
+> Versions of the MCP server already published under Apache-2.0 keep that
+> licence. See [`NOTICE`](../NOTICE).
 > The statement, scope, and third-party carve-outs are in [`LICENSE.md`](../LICENSE.md)
 > and [`NOTICE`](../NOTICE); `scripts/test-license-coherence.mjs` enforces them in CI.
 > The observations below record the tree as it was on 2026-09-30 and are kept as the

@@ -6,6 +6,10 @@ directory and in the repository root [`LICENSE`](../../LICENSE). The repository
 statement is [`LICENSE.md`](../../LICENSE.md). The repository-wide third-party and
 public-data notices are [`NOTICE`](../../NOTICE).
 
+Versions already published under Apache-2.0 keep that licence.
+`@reverb256/mcp-server` 0.2.0 is the published release. Releases from version
+0.4.0 on are `AGPL-3.0-only`.
+
 This file is **not** a complete third-party NOTICE or SBOM. It records the notices
 that this package must reproduce.
 
