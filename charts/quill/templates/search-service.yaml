@@ -23,12 +23,12 @@ spec:
   selector:
     app: quill-search
 ---
-# Legacy index claim. Leave this object in the chart so Argo CD does not
-# delete it on the sync that creates quill-search-data. It was created with
-# no storageClassName, so the cluster default (local-path on this cluster)
-# bound it to one node's disk. Do not add storageClassName here: that field
-# is immutable, and a patch fails the sync. Delete the claim by hand after
-# search.migrateLegacyIndex is false and the new volume serves /health.
+# Legacy index claim (local-path, bound to nexus). Rendered only while
+# search.migrateLegacyIndex is true, i.e. while the init container still
+# copies it onto quill-search-data. The copy finished in October 2026 and
+# the flag is false in prod, so Argo CD prunes the claim. Do not add
+# storageClassName here: that field is immutable, and a patch fails the sync.
+{{- if .Values.search.migrateLegacyIndex }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -42,6 +42,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.search.indexStorage }}
+{{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

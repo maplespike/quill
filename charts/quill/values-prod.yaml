@@ -198,9 +198,9 @@ search:
   metricsPort: 9466
   logLevel: info
   indexStorage: 5Gi
-  # Durable class. The new claim is quill-search-data. The old
-  # quill-search-index claim stays until migrateLegacyIndex is turned off
-  # and the operator deletes it. See docs/ops/BACKUPS.md.
+  # Durable class. The claim is quill-search-data. The old local-path
+  # quill-search-index claim is rendered only while migrateLegacyIndex is
+  # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
   storageClass: longhorn
   migrateLegacyIndex: false
   resources:
