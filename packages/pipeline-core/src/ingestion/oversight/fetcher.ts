@@ -302,8 +302,12 @@ export async function fetchPBOReports(
     if (apiItems && apiItems.length > 0) {
       return apiItems;
     }
-  } catch {
-    // Fall through to HTML scraping
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/HTML instead of JSON|JSON host moved/.test(message)) {
+      throw err;
+    }
+    // A transport error falls through to the HTML listing.
   }
 
   // Strategy 2: Scrape HTML
@@ -322,11 +326,17 @@ async function fetchPBOFromApi(
 
   for (let page = 1; page <= maxPages; page++) {
     try {
-      const url = `${PBO_API_URL}?page=${page}&pageSize=25&locale=en`;
+      const url = page === 1 ? PBO_API_URL : `${PBO_API_URL}?page=${page}`;
       const result = await fetchUrl(url, {
         accept: 'application/json',
         ...options,
       });
+
+      if (result.body.trimStart().startsWith('<')) {
+        throw new Error(
+          `PBO publications API at ${url} returned HTML instead of JSON — the JSON host moved`,
+        );
+      }
 
       const data = JSON.parse(result.body);
 
@@ -346,7 +356,7 @@ async function fetchPBOFromApi(
 /**
  * Extract PBO items from API response, handling various shapes.
  */
-function extractPBOApiItems(data: any): RawPBOItem[] | null {
+export function extractPBOApiItems(data: any): RawPBOItem[] | null {
   if (!data) return null;
 
   let items: any[] | null = null;
@@ -366,19 +376,31 @@ function extractPBOApiItems(data: any): RawPBOItem[] | null {
 
   if (!items) return null;
 
-  return items.map((item: any) => {
+  return items.flatMap((item: any) => {
     const attrs = item.attributes || item;
-    return {
-      title: attrs.title || attrs.Title || '',
-      date: attrs.date || attrs.Date || attrs.publishedAt || '',
-      url: attrs.url || attrs.Url || attrs.slug
-        ? `https://www.pbo-dpb.ca/en/publications/${attrs.slug}`
-        : '',
+    const permalink = attrs.permalinks?.en?.website;
+    const explicit = attrs.url || attrs.Url || '';
+    const slug = typeof attrs.slug === 'string' && attrs.slug.length > 0
+      ? `https://www.pbo-dpb.ca/en/publications/${attrs.slug}`
+      : '';
+    const title = attrs.title_en || attrs.title || attrs.Title || attrs.title_fr || '';
+    if (!title) return [];
+    const pdf = attrs.artifacts?.main?.en?.public
+      || attrs.pdfUrl
+      || attrs.pdf
+      || attrs.file?.url
+      || null;
+    return [{
+      title,
+      date: attrs.release_date || attrs.date || attrs.Date || attrs.publishedAt || '',
+      url: permalink || explicit || slug,
       type: attrs.type || attrs.Type || attrs.publicationType || 'Report',
-      summary: attrs.summary || attrs.Summary || attrs.description || '',
-      pdfUrl: attrs.pdfUrl || attrs.pdf || attrs.file?.url || null,
-      reportNumber: attrs.reportNumber || attrs.ReportNumber || null,
-    };
+      summary: attrs.metadata?.abstract_en || attrs.summary || attrs.Summary || attrs.description || '',
+      pdfUrl: pdf,
+      reportNumber: attrs.id != null
+        ? String(attrs.id)
+        : (attrs.reportNumber || attrs.ReportNumber || null),
+    }];
   });
 }
 
@@ -1206,16 +1228,8 @@ export async function fetchEthicsInvestigations(
     }
   }
 
-  // Fetch detail pages for investigation body HTML
-  for (const item of allItems) {
-    try {
-      const detail = await fetchUrl(item.url, options);
-      item.bodyHtml = detail.body;
-    } catch {
-      item.bodyHtml = '';
-    }
-  }
-
+  // Store the listing only. The report stays on the Commissioner's site.
+  // Quill keeps the title and the source link, not the full report HTML.
   return allItems;
 }
 
@@ -1224,7 +1238,7 @@ export async function fetchEthicsInvestigations(
  * CIEC listing pages typically contain a table or list with investigation titles,
  * dates, and links to the full report.
  */
-function parseCIECListingHtml(html: string): RawEthicsItem[] {
+export function parseCIECListingHtml(html: string): RawEthicsItem[] {
   const items: RawEthicsItem[] = [];
 
   // Pattern 1: SharePoint-based listing with table rows
@@ -1291,6 +1305,29 @@ function parseCIECListingHtml(html: string): RawEthicsItem[] {
         reportNumber: null,
       });
     }
+  }
+
+  // ethicscanada.ca lists each report as /en/report/<id> with a title.
+  // The SharePoint patterns above match nothing on that page.
+  const reportPattern = /<a[^>]*href="([^"]*\/en\/report\/[A-Za-z0-9_-]+)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
+  let reportMatch: RegExpExecArray | null;
+  const seen = new Set(items.map(item => item.url));
+  while ((reportMatch = reportPattern.exec(html)) !== null) {
+    const url = ciecInvestigationUrl(reportMatch[1].trim());
+    if (seen.has(url)) continue;
+    const title = reportMatch[2].replace(/<[^>]*>/g, '').trim();
+    if (!title) continue;
+    seen.add(url);
+    items.push({
+      title,
+      date: '',
+      url,
+      bodyHtml: '',
+      subject: null,
+      outcome: null,
+      parties: [],
+      reportNumber: null,
+    });
   }
 
   return items;

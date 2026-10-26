@@ -14,7 +14,12 @@ function runPrepared(db: Database.Database, sql: string, params: unknown[]): voi
 // ─── Lobbying Records → lobbying_filings ──────────────────────────
 
 export function transformLobbying(db: Database.Database): number {
-  const rows = db.prepare("SELECT * FROM lobbying_records").all() as any[];
+  let rows: any[];
+  try {
+    rows = db.prepare("SELECT * FROM lobbying_records").all() as any[];
+  } catch {
+    return 0;
+  }
   const insert = db.prepare(`
     INSERT OR REPLACE INTO lobbying_filings
       (id, filing_number, registrant_name, registrant_firm, client_name,
@@ -101,7 +106,10 @@ export function transformPersons(db: Database.Database): number {
   let count = 0;
 
   // From lobbying_records
-  const lobbyRows = db.prepare("SELECT DISTINCT registrant_name as name FROM lobbying_records WHERE registrant_name IS NOT NULL AND registrant_name != ''").all() as any[];
+  let lobbyRows: any[] = [];
+  try {
+    lobbyRows = db.prepare("SELECT DISTINCT registrant_name as name FROM lobbying_records WHERE registrant_name IS NOT NULL AND registrant_name != ''").all() as any[];
+  } catch { /* table may not exist */ }
   for (const r of lobbyRows) {
     if (!seen.has(r.name)) {
       seen.add(r.name);
@@ -154,7 +162,10 @@ export function transformOrganizations(db: Database.Database): number {
   let count = 0;
 
   // From lobbying_records (client organizations)
-  const lobbyRows = db.prepare("SELECT DISTINCT client_name as name FROM lobbying_records WHERE client_name IS NOT NULL AND client_name != ''").all() as any[];
+  let lobbyRows: any[] = [];
+  try {
+    lobbyRows = db.prepare("SELECT DISTINCT client_name as name FROM lobbying_records WHERE client_name IS NOT NULL AND client_name != ''").all() as any[];
+  } catch { /* table may not exist */ }
   for (const r of lobbyRows) {
     if (!seen.has(r.name)) {
       seen.add(r.name);

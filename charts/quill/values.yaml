@@ -116,7 +116,11 @@ ingestion:
       memory: 256Mi
 
 # Engine (Sweep)
+# The schedule is unused unless engine.enabled is true. The CronJob template
+# is charts/quill/templates/engine-cronjob.yaml. It runs the sweep entry on
+# the api image, which already contains packages/engine/dist.
 engine:
+  enabled: false
   replicas: 1
   schedule: "*/15 * * * *"
   resources:

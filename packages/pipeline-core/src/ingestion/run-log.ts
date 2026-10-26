@@ -231,6 +231,29 @@ export function getLatestIngestRun(pipeline: string): IngestRunRecord | null {
   return rows[0] ?? null;
 }
 
+/**
+ * True when this pipeline has stored rows at least once.
+ *
+ * A success row with `records = 0` is not evidence. The change gate writes
+ * exactly that row when it skips, and a skip must not become the proof that
+ * later skips are safe. Only a success that parsed records counts.
+ */
+export function hasProductiveIngestRun(pipeline: string): boolean {
+  if (!pipeline) return false;
+  try {
+    const db = getRawDb();
+    db.exec(INGEST_RUNS_DDL);
+    const row = db.prepare(
+      `SELECT 1 AS ok FROM ingest_runs
+        WHERE pipeline = ? AND status = 'success' AND records > 0
+        LIMIT 1`,
+    ).get(pipeline) as { ok: number } | undefined;
+    return Boolean(row);
+  } catch {
+    return false;
+  }
+}
+
 /** Latest successful run for each pipeline with a successful run, newest first. */
 export function getLatestSuccessfulIngestRuns(): IngestRunRecord[] {
   return readRows(

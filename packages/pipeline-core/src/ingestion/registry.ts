@@ -161,7 +161,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [
       { name: 'OAG reports (oag-bvg.gc.ca)', format: 'RSS/HTML' },
       { name: 'PBO publications (pbo-dpb.ca)', format: 'HTML' },
-      { name: 'Ethics Commissioner (ciec-ccie.parl.gc.ca)', format: 'HTML' },
+      { name: 'Ethics Commissioner (ethicscanada.ca)', format: 'HTML' },
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',

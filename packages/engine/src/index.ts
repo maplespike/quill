@@ -15,4 +15,6 @@ export * from "./schemas/index";
 export * from "./types/index";
 // Orchestrator
 export { EngineOrchestrator, runEnginePipeline } from "./orchestrator";
+export { runSweep } from "./sweep/run";
+export type { SweepResult } from "./sweep/run";
 export type { OrchestratorResult, OrchestratorSummary } from "./orchestrator";

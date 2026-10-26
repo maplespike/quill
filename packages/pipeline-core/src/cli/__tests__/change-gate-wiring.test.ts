@@ -19,6 +19,7 @@ import { join } from 'node:path';
 process.env['QUILL_DB_PATH'] = join(mkdtempSync(join(tmpdir(), 'gate-wire-')), 'test.db');
 
 import { runOne, PIPELINE_CONFIG } from '../run-pipeline.js';
+import { recordIngestRun } from '../../ingestion/run-log.js';
 
 interface StubOptions {
   /** What the injected probe reports. */
@@ -65,9 +66,28 @@ describe('runOne change gate', () => {
     delete process.env['QUILL_INGEST_FORCE'];
   });
 
-  it('skips the module and records the skip when every source is unchanged', async () => {
+  it('runs when nothing has landed yet, even if the probe is unchanged', async () => {
+    const alias = 'gazette-no-history';
     const { calls, runner } = stubRunner({ changed: false });
-    const outcome = await runOne(PROBED_ALIAS, PROBED_MODULE, {} as never, runner);
+    const outcome = await runOne(alias, PROBED_MODULE, {} as never, runner);
+
+    assert.equal(calls.length, 1, 'a zero-record history must not skip the module');
+    assert.equal(outcome.status, 'success');
+    assert.ok((outcome.records ?? 0) > 0);
+  });
+
+  it('skips only after a prior success stored records', async () => {
+    const alias = 'gazette-productive';
+    recordIngestRun({
+      pipeline: alias,
+      startedAt: new Date('2026-10-01T00:00:00.000Z'),
+      finishedAt: new Date('2026-10-01T00:01:00.000Z'),
+      status: 'success',
+      records: 4,
+      error: null,
+    });
+    const { calls, runner } = stubRunner({ changed: false });
+    const outcome = await runOne(alias, PROBED_MODULE, {} as never, runner);
 
     assert.equal(calls.length, 0, 'unchanged source must NOT run the module');
     assert.equal(outcome.status, 'success', 'a proven no-op is a success, not a failure');
@@ -78,6 +98,25 @@ describe('runOne change gate', () => {
       'the skip must be declared, so a quiet run is distinguishable from a silent failure',
     );
     assert.equal(outcome.logged, true, 'the skip must still land in the run log');
+  });
+
+  it('runs when the only success stored zero records (a prior skip)', async () => {
+    const alias = 'committees-skip-lock';
+    recordIngestRun({
+      pipeline: alias,
+      startedAt: new Date('2026-10-20T00:00:00.000Z'),
+      finishedAt: new Date('2026-10-20T00:00:02.000Z'),
+      status: 'success',
+      records: 0,
+      error: null,
+      sources: {
+        sources: [],
+        zeroReason: 'no-change-since-last-run',
+      },
+    });
+    const { calls, runner } = stubRunner({ changed: false });
+    await runOne(alias, PIPELINE_CONFIG.committees, {} as never, runner);
+    assert.equal(calls.length, 1, 'a skip row must not lock the pipeline');
   });
 
   it('runs the module when the source changed', async () => {

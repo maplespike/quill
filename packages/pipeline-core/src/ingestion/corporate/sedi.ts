@@ -53,15 +53,37 @@ async function fetchHtml(
     timeoutMs: options.timeoutMs ?? 30_000,
   });
 
-  if (resp.statusCode >= 400) {
+  const blocked = sediUnreachableReason({ statusCode: resp.statusCode, html: resp.body });
+  if (resp.statusCode >= 400 || resp.statusCode === 0 || blocked) {
     throw new SEDIFetchError(
-      `HTTP ${resp.statusCode} fetching ${url}`,
+      blocked ?? `HTTP ${resp.statusCode} fetching ${url}`,
       resp.statusCode,
       url,
     );
   }
 
   return resp.body;
+}
+
+/**
+ * Why a SEDI response cannot be parsed as insider filings.
+ *
+ * The public search path (`SVTOCPublish`) answers 404. The homepage answers
+ * 200 with a Radware Bot Manager interstitial and no transaction table.
+ * Either case is a dead source, not an empty search.
+ */
+export function sediUnreachableReason(input: {
+  statusCode?: number;
+  html?: string;
+}): string | null {
+  const html = input.html ?? '';
+  const walled = /perfdrive|shieldsquare|radware/i.test(html);
+  const gone = input.statusCode === 404 || input.statusCode === 410;
+  if (!walled && !gone) return null;
+  return (
+    'SEDI public search path is gone and the site is behind a Radware bot wall — ' +
+    'no machine-readable insider feed is reachable'
+  );
 }
 
 
@@ -81,16 +103,21 @@ export async function searchSEDI(
   const searchUrl = `${CORPORATE_SOURCES.SEDI.SEARCH}?query=${encodeURIComponent(query)}`;
   const html = await fetchHtml(searchUrl);
 
-  if (/perfdrive|shieldsquare/i.test(html)) {
+  const wall = sediUnreachableReason({ html });
+  if (wall) {
+    throw new SEDIFetchError(wall, undefined, searchUrl);
+  }
+
+  const rows = parseSEDITable(html, searchUrl);
+  if (rows.length === 0) {
     throw new SEDIFetchError(
-      'SEDI is behind a bot-validation wall (perfdrive/Shieldsquare) — ' +
-        'no machine-readable insider transaction data is reachable',
+      'SEDI public search returned no insider-transaction table — ' +
+        'the public search path is gone and no machine-readable feed replaced it',
       undefined,
       searchUrl,
     );
   }
-
-  return parseSEDITable(html, searchUrl);
+  return rows;
 }
 
 
