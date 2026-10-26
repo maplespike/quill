@@ -159,3 +159,22 @@ test('chart backup contract', () => {
   assert.match(pg, /pg_dump/);
   assert.doesNotMatch(pg, /echo[^\\n]*PGPASSWORD/);
 });
+
+test('migrateLegacyIndex flag is explicit and consulted by the search template', () => {
+  // Incident t_41842b38: chore/search-migration-off flipped the flag to
+  // false (verified migration complete) and the backup contract locked the
+  // new value, but only a hard-coded assertion was updated. A second change
+  // that re-stomped the flag would silently regress. The flag is a two-phase
+  // toggle (docs/ops/BACKUPS.md step 2 -> 3), so no assertion may hard-code
+  // one phase. Lock instead that production sets an explicit boolean and the
+  // template actually consults the flag across more than one concern, so the
+  // value cannot drift into being decorative: a false flag that still pinned
+  // search to nexus and re-ran the legacy copy would silently break the
+  // post-migration state.
+  const values = readFileSync(path.join(root, 'charts/quill/values-prod.yaml'), 'utf8');
+  const searchDeploy = readFileSync(path.join(root, 'charts/quill/templates/search-deployment.yaml'), 'utf8');
+  assert.match(values, /migrateLegacyIndex: (true|false)/);
+  assert.ok(searchDeploy.includes('.Values.search.migrateLegacyIndex'));
+  // The flag gates at least the nexus node pin and the legacy init container.
+  assert.ok(searchDeploy.split('.Values.search.migrateLegacyIndex').length - 1 >= 2);
+});
