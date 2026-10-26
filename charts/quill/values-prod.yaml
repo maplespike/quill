@@ -201,7 +201,11 @@ search:
   # Durable class. The new claim is quill-search-data. The old
   # quill-search-index claim stays until migrateLegacyIndex is turned off
   # and the operator deletes it. See docs/ops/BACKUPS.md.
-  storageClass: longhorn
+  # local-path on nexus for now: every Longhorn disk is under its 25%
+  # minimum-free threshold, so new Longhorn replicas cannot be scheduled.
+  # The daily search backup covers this volume. Move back to longhorn once
+  # Longhorn has room (storageClassName is immutable: delete the claim first).
+  storageClass: local-path
   migrateLegacyIndex: true
   resources:
     requests:
@@ -237,7 +241,10 @@ backups:
   retentionDays: 14
   maxAgeHours: 26
   storage: 30Gi
-  storageClass: longhorn
+  # local-path on nexus for now (Longhorn disks are under their minimum-free
+  # threshold). Backups still guard against corruption and bad writes, not
+  # against losing nexus's disk. Move to longhorn or SMB once there's room.
+  storageClass: local-path
   accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:
