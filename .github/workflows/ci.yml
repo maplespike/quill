@@ -4,8 +4,11 @@
 # ordinary system packages. NEITHER nix NOR podman IS INSTALLED: do not wire a
 # control into `nix run .#*` or podman, and verify on the runner before
 # assuming a tool exists. See docs/GITHUB-ACTIONS-NIX.md for the verified list.
-# DO NOT add actions/setup-node or pnpm/action-setup here — those tools are
-# already on the runner, and a second install breaks cache attribution.
+# DO NOT add actions/setup-node or pnpm/action-setup on the self-hosted
+# runners — those tools are already installed, and a second install breaks
+# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted'`
+# and install Node 22 and pnpm 10.32.1 with no cache. See
+# docs/GITHUB-ACTIONS-NIX.md.
 # Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
 # (see docs/GHCR-CLEANUP.md); the older flat `ghcr.io/reverb256/<svc>` paths
 # are RETIRED and either quarantined or purged on GHCR.
@@ -14,26 +17,66 @@ name: CI
 on:
   push:
     branches: [main, prod]
-  pull_request:
+  pull_request_target:
     branches: [main, prod]
 
 permissions:
   contents: read
-  packages: write  # needed for GHCR push
 
 env:
   NODE_ENV: test
 
 jobs:
   build-and-test:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    # Forks take ubuntu-latest. The expression is in this base file, so a fork
+    # cannot point the job at the self-hosted pool. scripts/gates/check-fork-runner-policy.mjs
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
     # Self-hosted runners otherwise inherit a 5-day job cap. Bound the job so
     # an infrastructure or process hang cannot squat a runner for days.
     timeout-minutes: 60
 
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       # Fail fast on unresolved merge/rebase conflict markers. A rebase that
       # ships `<<<<<<< HEAD` into a chart file breaks ArgoCD manifest
@@ -57,7 +100,17 @@ jobs:
       # every runner (/usr/bin/mise); the config at .github/actionlint.yaml
       # declares the custom `nixos` runner label.
       - name: Lint workflows (actionlint)
-        run: mise exec actionlint@1.7.7 -- actionlint
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" == "self-hosted" ]]; then
+            mise exec actionlint@1.7.7 -- actionlint
+            exit 0
+          fi
+          version=1.7.7
+          curl -sSfL -o /tmp/actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz"
+          tar -xzf /tmp/actionlint.tar.gz -C /tmp actionlint
+          /tmp/actionlint
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -240,6 +293,35 @@ jobs:
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
 
+      - name: Fork runner policy
+        run: node scripts/gates/check-fork-runner-policy.mjs
+
+      - name: Fork runner policy unit tests
+        run: node --test scripts/test-fork-runner-policy.mjs
+
+      - name: Install helm when it is missing
+        run: |
+          set -euo pipefail
+          if command -v helm >/dev/null 2>&1; then
+            helm version --short
+            exit 0
+          fi
+          version=3.16.4
+          curl -sSfL -o /tmp/helm.tgz \
+            "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
+          tar -xzf /tmp/helm.tgz -C /tmp
+          install_dir="${HOME}/.local/bin"
+          mkdir -p "$install_dir"
+          mv /tmp/linux-amd64/helm "$install_dir/helm"
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/helm" version --short
+
+      - name: Chart probe contract
+        run: pnpm test:chart-probes
+
+      - name: Probe endpoint smoke test
+        run: node scripts/smoke-probe-endpoints.mjs
+
       # Keep test stdout off the runner's live log stream while the suite runs,
       # then emit a bounded tail. Earlier jobs wedged during this step, but
       # diagnostics did not establish the process-level cause. The job timeout
@@ -266,13 +348,52 @@ jobs:
 
   coverage:
     needs: build-and-test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
     continue-on-error: true
     timeout-minutes: 60
 
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -295,8 +416,7 @@ jobs:
 
   integration-test:
     needs: build-and-test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
     # No continue-on-error key on this job. An upstream outage skips
     # (upstream-outage.ts), including a 2xx HTML error page. A regression
     # fails. With the key set, every real failure in this suite was invisible
@@ -309,7 +429,47 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -325,15 +485,10 @@ jobs:
 
   secrets:
     needs: build-and-test
-    # Runs anywhere (no cluster dependency): full-history gitleaks scan.
-    # Baseline: docs/SECRETS-AUDIT-2026-09-16.md / issue #854 — the two real
-    # age-key findings are remediated by history rewrite before public flip;
-    # verified placeholder values are allow-listed in .gitleaks.toml, and
-    # historic findings are pinned by fingerprint in .gitleaksignore.
+    # Runs on a GitHub-hosted runner for every PR, including forks. The
+    # licence secret is not available here. secrets-event-range runs the
+    # gitleaks action only for same-repo events.
     runs-on: ubuntu-latest
-    # gitleaks-action lists PR commits via the API on pull_request events —
-    # without pull-requests:read the token 403s ("Resource not accessible by
-    # integration") and the job fails regardless of findings.
     timeout-minutes: 45
     permissions:
       contents: read
@@ -347,7 +502,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0 # full history — gitleaks must see every commit
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       # The baseline is security-critical config: a malformed .gitleaksignore
       # is silently inert (34 warnings, zero exclusions applied — run
@@ -377,6 +538,22 @@ jobs:
           GITLEAKS_BIN="$HOME/.local/bin/gitleaks" \
             bash scripts/check-secrets-history.sh
 
+  secrets-event-range:
+    needs: build-and-test
+    # Same-repo only. The action reads the organisation licence secret.
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v3
         env:
@@ -389,8 +566,7 @@ jobs:
 
   audit:
     needs: build-and-test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos"]') }}
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
@@ -402,7 +578,47 @@ jobs:
     # the step below enforces that. Bump --audit-level back to high when the open
     # Highs are closed.
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -434,10 +650,12 @@ jobs:
   docker:
     needs: build-and-test
     runs-on: [self-hosted, nixos]
-    # Already PR-ineligible: github.ref is refs/pull/<n>/merge on a
-    # pull_request event, so this cannot match for a PR at all. No fork
-    # guard needed (and a second `if:` key here would be a duplicate).
-    if: github.ref == 'refs/heads/prod'
+    # pull_request_target sets github.ref to the base branch. Require a push
+    # so a pull request into prod cannot start an image build on the cluster.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
+    permissions:
+      contents: read
+      packages: write
     # Three multi-stage builds; generous, but not unbounded.
     timeout-minutes: 120
     # GHCR push is RETIRED post-flip (2026-07-10 systemic registry flip).
@@ -448,7 +666,33 @@ jobs:
     # bumped, replace the login + flip `push: true` + retarget tags to ghcr.io.
 
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

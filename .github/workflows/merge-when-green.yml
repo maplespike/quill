@@ -46,7 +46,7 @@ jobs:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.actor == 'dependabot[bot]' || github.actor == 'reverb256')
-    runs-on: [self-hosted, nixos]
+    runs-on: ubuntu-latest
     steps:
       # Never rely on the runner's ambient `gh` credentials: the
       # [self-hosted, nixos] pool is not homogeneous (PR 908). github.token is
@@ -71,13 +71,8 @@ jobs:
           # 60 * 20s = 20 min ceiling. Longer than any CI lane in ci.yml
           # (longest observed ~2m) so this never truncates a healthy run.
           for i in $(seq 1 60); do
-            # --repo on every call: this job deliberately has NO checkout, and
-            # `gh` infers the repo from git remotes. It works today only because
-            # the [self-hosted, nixos] runner happens to sit inside a git working
-            # tree — that is an accident of the runner's cwd, not a property of
-            # the job. A runner path change, or a new runner, breaks the gate
-            # outright. media-k8s hit exactly this on 2026-10-04:
-            # "failed to run git: fatal: not a git repository".
+            # --repo on every call: this job has no checkout. `gh` cannot infer
+            # the repository from a working tree. The job runs on ubuntu-latest.
             META=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,isDraft,mergeable,labels,title,body)
 
             if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then

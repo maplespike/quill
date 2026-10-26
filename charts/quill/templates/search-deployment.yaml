@@ -104,18 +104,29 @@ spec:
           limits:
             cpu: {{ .Values.search.resources.limits.cpu }}
             memory: {{ .Values.search.resources.limits.memory }}
+        # The index is opened before the listener binds. startupProbe absorbs
+        # that wait. /health is a small JSON document, not a search.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 60
         livenessProbe:
           httpGet:
             path: /health
             port: http
-          initialDelaySeconds: 10
           periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health
             port: http
-          initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
         - name: index
           # Mount the volume at /data; the index lives in its `index/` subdir

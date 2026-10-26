@@ -439,6 +439,18 @@ class QuillHandler(SimpleHTTPRequestHandler):
         if len(p) > 1 and p.endswith("/"):
             p = p[:-1]
 
+        # Cheap process check for the chart probes. Do not read the homepage:
+        # liveness must stay fast and must not depend on a built page.
+        if p == "/health":
+            body = b'{"status":"ok"}\n'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
         # ── Extensionless URL rewriting ────────────────────────
         # Astro generates .html files but routes are extensionless (/dashboard/owasp → owasp.html)
         if not os.path.splitext(p)[1] and not p.endswith("/"):

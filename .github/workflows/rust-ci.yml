@@ -4,6 +4,8 @@
 # Jobs require the 'rust' runner label: only runners with the provisioned toolchain
 # carry it (forge does not — a rust job there fails the preflight, #1061).
 #
+# Fork pull requests run on ubuntu-latest and install the stable toolchain there.
+# Same-repo runs stay on the self-hosted rust label and do not rustup.
 # The run steps carry a hashFiles guard: this lane also triggers on its own
 # file, so until the `rust/` tree lands (via #998) a missing crate dir skips
 # cleanly instead of failing on `working-directory: ./rust`.
@@ -16,7 +18,7 @@ on:
       - 'rust/**'
       - '.github/workflows/rust-ci.yml'
       - 'scripts/ci-rust-env.sh'
-  pull_request:
+  pull_request_target:
     branches: [main, prod]
     paths:
       - 'rust/**'
@@ -29,11 +31,44 @@ permissions:
 
 jobs:
   rust-fmt:
-    # Same-repo PRs only. Fork code must not run on the self-hosted pool (#1045).
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos", "rust"]') }}
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Check formatting
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -43,10 +78,44 @@ jobs:
         working-directory: ./rust
 
   rust-clippy:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos", "rust"]') }}
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
@@ -57,10 +126,44 @@ jobs:
         working-directory: ./rust
 
   rust-test:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos, rust]
+    runs-on: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('["self-hosted", "nixos", "rust"]') }}
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
+
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: runner.environment == 'github-hosted'
+        with:
+          components: rustfmt, clippy
 
       - name: Run lib tests
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}

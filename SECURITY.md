@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-24
+last-reviewed: 2026-10-26
 status: active
 ---
 
@@ -73,6 +73,7 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 | Secret exposure | agenix-encrypted .age files, decrypted at deploy time only | Active |
 | Pod escape / privilege escalation | K8s manifests validated by scripts/validate-k8s-manifests.sh in CI | Active |
 | Unverified container images | Nix-built images with reproducible closures | Active |
+| Fork pull request on a self-hosted runner | Workflows use `pull_request_target`. Fork jobs run on `ubuntu-latest` with a read token and no secrets. `scripts/ci/refuse-untrusted-self-hosted.sh` must be installed on each self-hosted runner. Set "Require approval for all outside collaborators". | Workflow gate is in CI. The runner hook is an operator install. |
 
 ### 4. AI Agent Risks
 

@@ -1,7 +1,7 @@
 name: "README Lint"
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main, prod]
     paths:
       - "*.md"
@@ -28,6 +28,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Drop the job token before repository code
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "GITHUB_TOKEN=" >> "$GITHUB_ENV"
 
       - name: "Check dead links (lychee)"
         uses: lycheeverse/lychee-action@v2.9.0

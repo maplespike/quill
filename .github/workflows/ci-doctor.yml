@@ -27,12 +27,35 @@ permissions:
   issues: write
 jobs:
   doctor:
-    if: github.event.workflow_run.conclusion == 'failure'
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: [self-hosted, nixos]
     steps:
+      - name: Refuse untrusted code on self-hosted runners
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" != "self-hosted" ]]; then
+            exit 0
+          fi
+          case "$EVENT_NAME" in
+            pull_request)
+              echo "::error::A pull_request job must not run on a self-hosted runner."
+              exit 1
+              ;;
+            pull_request_target|workflow_run)
+              if [[ -n "$EVENT_HEAD" && "$EVENT_HEAD" != "$THIS_REPO" ]]; then
+                echo "::error::Refusing ${EVENT_NAME} from a fork on a self-hosted runner."
+                exit 1
+              fi
+              ;;
+          esac
       - uses: actions/checkout@v7
         with:
           ref: main
+          persist-credentials: false
       - name: Staleness guard (superseded main runs)
         # A run whose SHA is no longer main HEAD was superseded: the failure is
         # usually already fixed, and filing a card for it makes workers chase
@@ -42,28 +65,39 @@ jobs:
         id: guard
         env:
           GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          HEAD=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha 2>/dev/null || echo "")
+          case "$BRANCH" in
+            *$'\n'*|*$'\r'*) echo "::error::Refusing a branch name that contains a newline."; exit 1 ;;
+          esac
+          case "$SHA" in
+            *$'\n'*|*$'\r'*) echo "::error::Refusing a SHA that contains a newline."; exit 1 ;;
+          esac
+          HEAD=$(gh api "repos/${REPO}/commits/main" --jq .sha 2>/dev/null || echo "")
           if [ "$BRANCH" = "main" ] && [ -n "$HEAD" ] && [ "$SHA" != "$HEAD" ]; then
             echo "skip=1" >> "$GITHUB_OUTPUT"
-            echo "Superseded: run SHA ${SHA:0:7} != main HEAD ${HEAD:0:7} — skipping."
+            echo "Superseded: run SHA ${SHA:0:7} is not main HEAD — skipping."
           else
             echo "skip=0" >> "$GITHUB_OUTPUT"
           fi
       - name: Build failure context
         env:
           GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          NAME: ${{ github.event.workflow_run.name }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          URL: ${{ github.event.workflow_run.html_url }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          RUN_ID=${{ github.event.workflow_run.id }}
-          NAME="${{ github.event.workflow_run.name }}"
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          URL="${{ github.event.workflow_run.html_url }}"
-          FAILED=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs" \
+          case "$NAME$BRANCH$URL$SHA" in
+            *$'\n'*|*$'\r'*) echo "::error::Refusing workflow metadata that contains a newline."; exit 1 ;;
+          esac
+          FAILED=$(gh api "repos/${REPO}/actions/runs/$RUN_ID/jobs" \
             --jq '[.jobs[] | select(.conclusion=="failure") | .name + " [" + ([.steps[] | select(.conclusion=="failure") | .name] | join(", ")) + "]"] | join("\n")' \
             2>/dev/null | head -30 || true)
           {
@@ -83,11 +117,12 @@ jobs:
             echo "4. Max 3 attempts; if blocked, comment the blocker and stop."
           } > /tmp/ci-doctor-body.md
           echo "TITLE=CI failure: $NAME ($BRANCH, run $RUN_ID)" >> "$GITHUB_ENV"
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
       - name: Post to kanban (nexus dispatcher)
         if: steps.guard.outputs.skip != '1'
         run: |
           chmod +x scripts/kanban-post.sh
           scripts/kanban-post.sh --title "$TITLE" --body-file /tmp/ci-doctor-body.md \
             --assignee backend-eng --priority 1 \
-            --workspace worktree --branch "wt/ci-${{ github.event.workflow_run.id }}" \
-            --idem "ci-fail-${{ github.event.workflow_run.id }}"
+            --workspace worktree --branch "wt/ci-${RUN_ID}" \
+            --idem "ci-fail-${RUN_ID}"

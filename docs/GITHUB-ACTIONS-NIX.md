@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-10-26
 status: active
 ---
 
@@ -87,6 +87,30 @@ Or manually:
     echo "pnpm $(pnpm --version)"
     echo "git $(git --version)"
 ```
+
+## Public forks
+
+The repository is prepared to be public. A `pull_request` workflow runs the file from the merge commit. A fork can delete every `if` and set `runs-on: [self-hosted, nixos]`. Those runners share the host home directory and can reach the cluster.
+
+Rules:
+
+- No workflow uses `on: pull_request`. Pull requests use `pull_request_target`, so the base branch supplies the workflow file.
+- A fork pull request runs on `ubuntu-latest`. It gets `contents: read` and no repository secrets. The job clears `GITHUB_TOKEN` after checkout.
+- A same-repo pull request and a push stay on `[self-hosted, nixos]`.
+- `workflow_run` on a self-hosted runner requires `head_repository.full_name == github.repository`. It checks out `main`, not the triggering SHA.
+- `scripts/gates/check-fork-runner-policy.mjs` fails CI when a workflow breaks these rules.
+
+A fork can still add a new workflow file. The base-branch gate cannot see that file. Install the runner hook on every self-hosted runner:
+
+```text
+ACTIONS_RUNNER_HOOK_JOB_STARTED=/absolute/path/scripts/ci/refuse-untrusted-self-hosted.sh
+```
+
+Put that line in the runner directory `.env` and restart the runner. The hook refuses every `pull_request` job and refuses a fork `pull_request_target` or `workflow_run`. This repository does not install the hook.
+
+In the GitHub repository settings, set Actions → General → Fork pull request workflows to "Require approval for all outside collaborators". Approval does not grant the cluster runner. The hook still refuses `pull_request` after an approval.
+
+Fork jobs that need Node install it only when `runner.environment == 'github-hosted'`: Node 22 and pnpm 10.32.1, with no cache. Do not add those setup actions on the self-hosted runners.
 
 ## Why
 
