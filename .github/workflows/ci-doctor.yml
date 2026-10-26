@@ -11,8 +11,12 @@ name: CI Doctor
 # record); this is the Hermes assist path.
 on:
   workflow_run:
-    workflows: ["CI", "Live Data Check", "QA", "Health Monitor", "Docs Validation", "PR validation", "NetworkPolicy validation"]
+    # Health Monitor is left out: it already opens its own issue on failure, and its
+    # 30-minute schedule was the bulk of the skipped doctor runs. Only main and prod
+    # are watched; PR-branch failures already show on the PR itself.
+    workflows: ["CI", "Live Data Check", "QA", "Docs Validation", "PR validation", "NetworkPolicy validation"]
     types: [completed]
+    branches: [main, prod]
 # Collapse duplicate events for the same workflow+SHA. Without this the doctor
 # queues one job per watched-workflow event on a single-runner pool (2026-09-22:
 # four queued doctor jobs for one SHA), starving the CI/QA runs it exists to
