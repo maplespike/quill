@@ -7,7 +7,8 @@
  *
  *   GET  /                 → 301 → /sse  (root redirect)
  *   GET  /health           → 200 {status, tools}
- *   GET  /sse              → 200 stream (anonymous discovery; keyed methods 401)
+ *   GET  /sse              → 401 without a credential; 200 stream with a valid key or JWT
+ *   POST /mcp              → 401 without a credential; JSON-RPC with a valid key or JWT
  *   POST /messages         → 404 (no SSE client without clientId)
  *   GET  /random           → 404 NOT_FOUND
  *
@@ -19,10 +20,23 @@ import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
+import { createHmac } from 'node:crypto';
 import { createServer as createHttpServer, request as httpRequest, type IncomingMessage, type Server } from 'node:http';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_REASON = 'SKIP_NETWORK_TESTS=1';
+const TEST_JWT_SECRET = 'test-jwt-secret-not-a-production-value';
+
+function b64url(input: Buffer | string): string {
+  return Buffer.from(input).toString('base64url');
+}
+
+function signTestJwt(claims: Record<string, unknown>, secret = TEST_JWT_SECRET): string {
+  const header = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = b64url(JSON.stringify(claims));
+  const signature = createHmac('sha256', secret).update(`${header}.${payload}`).digest('base64url');
+  return `${header}.${payload}.${signature}`;
+}
 
 /**
  * Asserts that a fetched JSON body contains every named field, catching
@@ -140,6 +154,7 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
           QUOTA_ENABLED: 'true',
           QUOTA_PERSIST_PATH: '',
           QUILL_API_KEY: 'test-secret-key', // non-dev key so auth is enforced
+          JWT_SECRET: TEST_JWT_SECRET,
           X402_ENABLED: 'false',
 
         },
@@ -195,56 +210,95 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     assert.equal(location, '/sse');
   });
 
-  it('anonymous stream answers discovery and refuses tools/call (directory indexing)', async () => {
+  it('GET /sse without a credential returns 401', async () => {
+    const res = await fetch(`${baseUrl}/sse`);
+    assert.equal(res.status, 401);
+    assert.match(res.headers.get('www-authenticate') || '', /^Bearer realm="quill"/);
+    const body = await res.json() as Record<string, unknown>;
+    assert.equal(body.error, 'Unauthorized');
+  });
+
+  it('GET /sse with a valid API key opens the stream', async () => {
     const controller = new AbortController();
-    const stream = await fetch(`${baseUrl}/sse`, { signal: controller.signal });
-    assert.equal(stream.status, 200);
-    assert.match(stream.headers.get('content-type') || '', /text\/event-stream/);
-    const reader = stream.body!.getReader();
-    const decoder = new TextDecoder();
-    let pending = '';
-    const event = async (): Promise<{ name: string; data: string }> => {
-      while (!pending.includes('\n\n')) {
-        const chunk = await reader.read();
-        assert.equal(chunk.done, false, 'stream ended before its response');
-        pending += decoder.decode(chunk.value, { stream: true });
-      }
-      const end = pending.indexOf('\n\n');
-      const frame = pending.slice(0, end);
-      pending = pending.slice(end + 2);
-      return {
-        name: frame.split('\n').find((line) => line.startsWith('event: '))?.slice(7) ?? '',
-        data: frame.split('\n').filter((line) => line.startsWith('data: ')).map((line) => line.slice(6)).join('\n'),
-      };
-    };
+    const res = await fetch(`${baseUrl}/sse`, {
+      headers: { 'X-API-Key': 'test-secret-key' },
+      signal: controller.signal,
+    });
     try {
-      const endpoint = await event();
-      assert.equal(endpoint.name, 'endpoint');
-      const target = new URL(endpoint.data, baseUrl);
-      const post = (body: unknown) => fetch(target, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const request = (id: number, method: string, params = {}) => ({ jsonrpc: '2.0', id, method, params });
-
-      assert.equal((await post(request(1, 'initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'dir-indexer', version: '1' } }))).status, 202);
-      assert.equal(JSON.parse((await event()).data).id, 1);
-      assert.equal((await post({ jsonrpc: '2.0', method: 'notifications/initialized' })).status, 202);
-      assert.equal((await post(request(2, 'tools/list'))).status, 202);
-      const listed = JSON.parse((await event()).data);
-      assert.equal(listed.id, 2);
-      assert.equal(listed.result.tools.length, 184, 'directories index the full tool surface');
-
-      const call = await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }));
-      assert.equal(call.status, 401);
-      assert.match(call.headers.get('www-authenticate') || '', /^Bearer realm="quill"/);
-      assert.equal((await call.json() as Record<string, unknown>).error, 'Unauthorized');
-      // Anything outside the discovery allowlist is refused on the same stream.
-      assert.equal((await post(request(4, 'resources/list'))).status, 401);
+      assert.equal(res.status, 200);
+      assert.match(res.headers.get('content-type') || '', /text\/event-stream/);
     } finally {
       controller.abort();
-      await reader.cancel().catch(() => {});
+      await res.body?.cancel().catch(() => {});
+    }
+  });
+
+  it('POST /mcp rejects missing and invalid credentials and accepts a key or JWT', async () => {
+    const initialize = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'auth-test', version: '1' } },
+    };
+    const post = (headers: Record<string, string>) => fetch(`${baseUrl}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify(initialize),
+    });
+
+    const missing = await post({});
+    assert.equal(missing.status, 401);
+    assert.match(missing.headers.get('www-authenticate') || '', /^Bearer realm="quill"/);
+    assert.equal((await missing.json() as Record<string, unknown>).error, 'Unauthorized');
+
+    const invalid = await post({ Authorization: 'Bearer not-a-real-key' });
+    assert.equal(invalid.status, 401);
+    assert.equal((await invalid.json() as Record<string, unknown>).error, 'Unauthorized');
+
+    const now = Math.floor(Date.now() / 1000);
+    const badJwt = signTestJwt({ sub: 'user-1', tier: 'pro', iss: 'maplespike', aud: 'quill-api', iat: now, exp: now + 60 }, 'wrong-secret');
+    const badJwtRes = await post({ Authorization: `Bearer ${badJwt}` });
+    assert.equal(badJwtRes.status, 401);
+
+    const keyed = await post({ Authorization: 'Bearer test-secret-key' });
+    assert.equal(keyed.status, 200);
+    const keyedBody = await keyed.json() as { id?: number; result?: { protocolVersion?: string } };
+    assert.equal(keyedBody.id, 1);
+    assert.equal(typeof keyedBody.result?.protocolVersion, 'string');
+
+    const jwt = signTestJwt({ sub: 'user-1', tier: 'pro', iss: 'maplespike', aud: 'quill-api', iat: now, exp: now + 3600 });
+    const jwtRes = await post({ Authorization: `Bearer ${jwt}` });
+    assert.equal(jwtRes.status, 200);
+    const jwtBody = await jwtRes.json() as { result?: { serverInfo?: { name?: string } } };
+    assert.equal(jwtBody.result?.serverInfo?.name, 'maplespike-canada-mcp');
+
+    const expired = signTestJwt({ sub: 'user-1', tier: 'pro', iss: 'maplespike', aud: 'quill-api', iat: now - 120, exp: now - 60 });
+    const expiredRes = await post({ Authorization: `Bearer ${expired}` });
+    assert.equal(expiredRes.status, 401);
+  });
+
+  it('GET /mcp without a credential returns 401 and a valid key is not a stream', async () => {
+    const missing = await fetch(`${baseUrl}/mcp`);
+    assert.equal(missing.status, 401);
+    const authed = await fetch(`${baseUrl}/mcp`, { headers: { Authorization: 'Bearer test-secret-key' } });
+    assert.equal(authed.status, 405);
+    assert.match(authed.headers.get('allow') || '', /POST/);
+  });
+
+  it('GET /sse with a valid API session JWT opens the stream', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const jwt = signTestJwt({ sub: 'user-1', tier: 'pro', iss: 'maplespike', aud: 'quill-api', iat: now, exp: now + 3600 });
+    const controller = new AbortController();
+    const res = await fetch(`${baseUrl}/sse`, {
+      headers: { Authorization: `Bearer ${jwt}` },
+      signal: controller.signal,
+    });
+    try {
+      assert.equal(res.status, 200);
+      assert.match(res.headers.get('content-type') || '', /text\/event-stream/);
+    } finally {
+      controller.abort();
+      await res.body?.cancel().catch(() => {});
     }
   });
 
@@ -256,10 +310,23 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
     assert.equal(body.error, 'Unauthorized');
   });
 
-  it('POST /messages returns 404 without SSE clientId', async () => {
+  it('POST /messages without a credential returns 401', async () => {
     const res = await fetch(`${baseUrl}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
+    });
+    assert.equal(res.status, 401);
+    assert.equal((await res.json() as Record<string, unknown>).error, 'Unauthorized');
+  });
+
+  it('POST /messages with a valid key and no session returns 404', async () => {
+    const res = await fetch(`${baseUrl}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-secret-key',
+      },
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
     });
     assert.equal(res.status, 404);
@@ -375,6 +442,7 @@ function startIndex(port: number, env: Record<string, string>): ChildProcess {
       QUOTA_ENABLED: 'true',
       QUOTA_PERSIST_PATH: '',
       QUILL_API_KEY: 'test-secret-key',
+      JWT_SECRET: TEST_JWT_SECRET,
       X402_ENABLED: 'false',
       ...env,
     },

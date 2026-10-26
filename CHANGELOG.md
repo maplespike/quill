@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] — 2026-10-26
+
+### Changed
+- **MCP HTTP clients must authenticate.** `GET /sse`, `POST /messages`, and `POST /mcp` require an API key or a JWT. `GET /health` stays public. An unauthenticated client no longer connects. `OPTIONS` on those paths stays open for browser preflight.
+- **Fork pull requests stay on `pull_request` and run on `ubuntu-latest`.** Same-repo pull requests and pushes stay on the self-hosted runners. `runs-on` selects the runner. `merge-when-green.yml` is the only `pull_request_target` workflow. It does not check out pull request code, it runs on `ubuntu-latest`, and it runs only for a same-repo Dependabot or maintainer actor so it can squash-merge. `scripts/gates/check-fork-runner-policy.mjs` rejects a `pull_request_target` checkout of the pull request head and rejects a self-hosted `runs-on` a fork can reach. `scripts/ci/refuse-untrusted-self-hosted.sh` refuses a self-hosted job when the head repository is not this repository. Install that hook on each self-hosted runner. This repository does not install it.
+
 ## [Unreleased] — 2026-10-14
 
 ### Fixed

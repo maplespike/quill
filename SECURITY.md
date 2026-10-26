@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-24
+last-reviewed: 2026-10-26
 status: active
 ---
 
@@ -73,6 +73,7 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 | Secret exposure | agenix-encrypted .age files, decrypted at deploy time only | Active |
 | Pod escape / privilege escalation | K8s manifests validated by scripts/validate-k8s-manifests.sh in CI | Active |
 | Unverified container images | Nix-built images with reproducible closures | Active |
+| Fork pull request on a self-hosted runner | `pull_request` jobs select the runner in `runs-on`. A fork resolves to `ubuntu-latest`. GitHub withholds secrets and supplies a read-only token. `merge-when-green.yml` is the only `pull_request_target` workflow, and it does not check out pull request code. Install `scripts/ci/refuse-untrusted-self-hosted.sh` on each self-hosted runner. Set "Require approval for all outside collaborators". | Workflow gate is in CI. The runner hook is an operator install. |
 
 ### 4. AI Agent Risks
 
