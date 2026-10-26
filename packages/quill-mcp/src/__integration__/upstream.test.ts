@@ -100,6 +100,22 @@ describe('CKAN upstreams', { skip: SKIP_LIVE && SKIP_LIVE_REASON }, () => {
   it('opendata.gov.nl.ca returns datasets', async (t) => {
     const r = await fetchUpstream('https://opendata.gov.nl.ca/api/3/action/package_search?q=test&rows=1');
     if (skipIfUpstreamDown(t, r, 'opendata.gov.nl.ca')) return;
+    // Newfoundland and Labrador took the portal offline on 2026-10-21 (announced
+    // incident: https://www.gov.nl.ca/releases/2026/exec/1021n03/, mirrored in
+    // api-server upstream/maintenance-config.ts `nl-open-data`). Since then the
+    // CKAN path answers HTTP 200 with the host's HTML error page. Skip only that
+    // exact shape on this one host; any other malformed body still fails.
+    if (
+      r.status === 200 &&
+      /^\s*<!DOCTYPE html/i.test(r.body ?? '') &&
+      /An error has occurred/i.test(r.body ?? '')
+    ) {
+      t.skip(
+        'upstream outage: opendata.gov.nl.ca portal offline since 2026-10-21 ' +
+          '(HTML error page on HTTP 200); not a Quill regression',
+      );
+      return;
+    }
     assert.equal(r.status, 200, `NL CKAN: ${r.status}`);
     ckanBody(r, 'opendata.gov.nl.ca');
   });
