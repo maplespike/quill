@@ -48,8 +48,8 @@ export const PROBE_URLS: Record<string, string[]> = {
 
   // Oversight bodies: the PBO publications API and the CIEC investigations page.
   oversight: [
-    'https://cms.pbo-dpb.ca/api/publications',
-    'https://ciec-ccie.parl.gc.ca/en/investigations/Pages/default.aspx',
+    'https://rest-393962616e6b.pbo-dpb.ca/publications',
+    'https://www.ethicscanada.ca/en/investigation-reports',
   ],
 
   // real-time-feeds is deliberately NOT gated -- and this is a design decision,

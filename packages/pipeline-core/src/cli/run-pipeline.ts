@@ -20,6 +20,7 @@ import { runEntityResolution } from '../entity/integration.js';
 import {
   recordIngestRun,
   getLatestIngestRun,
+  hasProductiveIngestRun,
   type IngestRunStatus,
   type RunSources,
   type SourceOutcome,
@@ -363,6 +364,11 @@ export async function runOne(
     // zeroReason=no-change-since-last-run (QUILL-AUDIT.md 2026-10-24, P1).
     const previousRun = getLatestIngestRun(alias);
     const previousFailed = previousRun?.status === 'failed';
+    // "Unchanged bytes" is only a reason to skip after a run has actually
+    // stored rows. Production wrote success/records=0 for every gated
+    // pipeline (the skip itself), so the failed-run bypass never fired and
+    // the module never ran again.
+    const productive = hasProductiveIngestRun(alias);
     if (previousFailed && probeUrls.length > 0) {
       console.log(
         `[CLI] ↻  ${moduleName}: previous run failed (${
@@ -370,7 +376,12 @@ export async function runOne(
         }) — running instead of trusting the change gate`,
       );
     }
-    if (probeUrls.length > 0 && !previousFailed && process.env['QUILL_INGEST_FORCE'] !== '1') {
+    if (!productive && !previousFailed && probeUrls.length > 0 && process.env['QUILL_INGEST_FORCE'] !== '1') {
+      console.log(
+        `[CLI] ↻  ${moduleName}: no prior success stored records — running instead of trusting the change gate`,
+      );
+    }
+    if (probeUrls.length > 0 && !previousFailed && productive && process.env['QUILL_INGEST_FORCE'] !== '1') {
       const probe = runner.probeSources ?? probeAll;
       // The gate must never be the reason a pipeline does not run. probeAll
       // already catches per-source errors; this catches a throw from the probe

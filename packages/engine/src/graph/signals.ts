@@ -84,8 +84,7 @@ export function detectProcurementLobbyingOverlap(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   for (const contract of contracts) {
     for (const filing of filings) {
@@ -139,8 +138,7 @@ export function detectRevolvingDoor(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   for (const person of persons) {
     // Find government roles
@@ -209,8 +207,7 @@ export function detectSpousalInterestProximity(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   // Find persons with spousal relationships
   for (const person of persons) {
@@ -280,8 +277,7 @@ export function detectSoleSourceHeavyLobbying(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   for (const contract of contracts) {
     if (!contract.isSoleSource) continue;
@@ -347,8 +343,7 @@ export function detectDonationProximityCorrelation(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   for (const donation of donations) {
     // Check if donor is also a contract vendor
@@ -419,8 +414,7 @@ export function detectMandateDivergence(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   // Group contracts by department
   const deptContracts = new Map<string, Contract[]>();
@@ -498,8 +492,7 @@ export function detectInternationalLayering(
   const resolver =
     _resolver ??
     new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-  resetThreadCounter();
-  const threads: IntelligenceThread[] = [];
+   const threads: IntelligenceThread[] = [];
 
   for (const org of organizations) {
     const orgName = org.names[0];
@@ -576,6 +569,9 @@ export function runAllDetectors(
   promises: MandatePromise[],
   aliasManager: AliasManager,
 ): IntelligenceThread[] {
+  // Each detector used to restart the id counter, so two detectors both
+  // emitted `thread-1` and the brief insert failed the unique constraint.
+  resetThreadCounter();
   const resolver = new EntityResolver(aliasManager);
 
   return [

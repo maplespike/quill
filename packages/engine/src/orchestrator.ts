@@ -397,9 +397,6 @@ export class EngineOrchestrator {
       ? this.briefGenerator.generateDailyBrief(signals, graph)
       : null;
 
-    // Step 6: Persist results to shared DB for dashboard queries
-    this.persistResults(graph, signals, brief);
-
     // Build summary
     const byType: SignalCounts = {
       procurement_lobbying_overlap: 0,
@@ -505,9 +502,9 @@ export class EngineOrchestrator {
     const db = getRawDb();
     const now = isoNow();
 
-    // Clear previous results
-    db.exec("DELETE FROM graph_nodes");
+    // Clear previous results. Edges reference nodes, so they go first.
     db.exec("DELETE FROM graph_edges");
+    db.exec("DELETE FROM graph_nodes");
     db.exec("DELETE FROM intelligence_threads");
     db.exec("DELETE FROM briefs");
 

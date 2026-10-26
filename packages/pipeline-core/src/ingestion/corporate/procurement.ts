@@ -96,6 +96,51 @@ function toText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
+/** Fields read off one CKAN "Contracts over $10,000" row. */
+export interface MappedDisclosureRecord {
+  reference: string;
+  vendorName: string;
+  contractValue: number;
+  awardDate: string;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+  department: string;
+  procurementMethod: string | null;
+  tradeAgreement: string | null;
+  bidsReceived: number | null;
+  isSoleSource: boolean;
+}
+
+/**
+ * Map one datastore row onto the contract fields this module stores.
+ * Exported so a recorded fixture can prove the field names without HTTP.
+ */
+export function mapDisclosureRecord(rec: Record<string, unknown>): MappedDisclosureRecord {
+  const vendorName = toText(rec['vendor_name']) ?? 'Unknown Vendor';
+  const department = toText(rec['owner_org_title']) ?? toText(rec['owner_org']) ?? 'Unknown Department';
+  const description = toText(rec['description_en']);
+  const limitedReason = toText(rec['limited_tendering_reason']);
+  const soleSource = (limitedReason !== null && limitedReason !== '0' && limitedReason !== '00')
+    || isSoleSource(description, toText(rec['solicitation_procedure']));
+  return {
+    reference: toText(rec['reference_number']) ?? '',
+    vendorName,
+    contractValue: toNumber(rec['contract_value']),
+    awardDate: toText(rec['contract_date']) ?? '',
+    startDate: toText(rec['contract_period_start']),
+    endDate: toText(rec['delivery_date']),
+    description,
+    department,
+    procurementMethod: toText(rec['solicitation_procedure']),
+    tradeAgreement: toText(rec['trade_agreement']),
+    bidsReceived: rec['number_of_bids'] === null || rec['number_of_bids'] === undefined
+      ? null
+      : toNumber(rec['number_of_bids']),
+    isSoleSource: soleSource,
+  };
+}
+
 /**
  * Fetch proactive-disclosure contracts over $10,000 from the open.canada.ca
  * CKAN datastore.
@@ -137,30 +182,23 @@ export async function fetchProactiveDisclosureContracts(): Promise<{
   const contracts: DisclosureContract[] = [];
 
   for (const rec of records) {
-    const vendor = toText(rec['vendor_name']) ?? 'Unknown Vendor';
-    const department = toText(rec['owner_org_title']) ?? toText(rec['owner_org']) ?? 'Unknown Department';
-    const reference = toText(rec['reference_number']) ?? '';
-    const description = toText(rec['description_en']);
-    // A populated limited-tendering reason means the award was NOT competed.
-    const limitedReason = toText(rec['limited_tendering_reason']);
-    const soleSource = (limitedReason !== null && limitedReason !== '0' && limitedReason !== '00')
-      || isSoleSource(description, toText(rec['solicitation_procedure']));
-
+    const mapped = mapDisclosureRecord(rec);
     contracts.push({
-      id: await computeHash(`contract|${reference}|${vendor}|${department}`, 'sha256'),
-      vendorName: vendor,
-      contractValue: toNumber(rec['contract_value']),
-      awardDate: toText(rec['contract_date']) ?? now.split('T')[0],
-      startDate: toText(rec['contract_period_start']),
-      endDate: toText(rec['delivery_date']),
-      description,
-      department,
-      procurementMethod: toText(rec['solicitation_procedure']),
-      tradeAgreement: toText(rec['trade_agreement']),
-      bidsReceived: rec['number_of_bids'] === null || rec['number_of_bids'] === undefined
-        ? null
-        : toNumber(rec['number_of_bids']),
-      isSoleSource: soleSource,
+      id: await computeHash(
+        `contract|${mapped.reference}|${mapped.vendorName}|${mapped.department}`,
+        'sha256',
+      ),
+      vendorName: mapped.vendorName,
+      contractValue: mapped.contractValue,
+      awardDate: mapped.awardDate || now.split('T')[0],
+      startDate: mapped.startDate,
+      endDate: mapped.endDate,
+      description: mapped.description,
+      department: mapped.department,
+      procurementMethod: mapped.procurementMethod,
+      tradeAgreement: mapped.tradeAgreement,
+      bidsReceived: mapped.bidsReceived,
+      isSoleSource: mapped.isSoleSource,
       sourceUrl: CONTRACTS_DATA_DICTIONARY_URL,
       ingestedAt: now,
     });

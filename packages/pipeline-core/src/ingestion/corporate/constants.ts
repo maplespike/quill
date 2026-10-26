@@ -67,7 +67,12 @@ export const CORPORATE_SOURCES = {
      * `{corporationId}` is the Corporations Canada corporation number.
      * Verified 200 for e.g. 1007 → Abbotsford Chamber of Commerce.
      */
-    API_TEMPLATE: 'https://www.ic.gc.ca/app/scr/cc/CorporationsCanada/api/corporations/{id}.json?lang=eng',
+    /**
+     * Live host. `www.ic.gc.ca/app/scr/cc/CorporationsCanada/api/...` answers
+     * 301 with an HTML body, and the HTTP client does not follow redirects,
+     * so JSON.parse of that body threw "Unexpected token '<'".
+     */
+    API_TEMPLATE: 'https://ised-isde.canada.ca/cc/lgcy/api/corporations/{id}.json?lang=eng',
     API_DOCS: 'https://ised-isde.canada.ca/site/corporations-canada/en/accessing-federal-corporation-json-datasets',
     /** Open Data — federal corporations dataset (103 MB CSV dumps, not a feed). */
     OPEN_DATA: 'https://open.canada.ca/data/en/dataset/0032ce54-c5dd-4b66-99a0-320a7b5e99f2',

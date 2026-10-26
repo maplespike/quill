@@ -594,17 +594,18 @@ async function fetchOversight(signal = null) {
   // Try PBO publications API
   try {
     log('    PBO (Budget Officer)...');
-    const pboUrl = 'https://cms.pbo-dpb.ca/api/publications?page=1&pageSize=10';
+    const pboUrl = 'https://rest-393962616e6b.pbo-dpb.ca/publications';
     const data = await fetchJson(pboUrl, 10000, signal);
 
     const items = Array.isArray(data) ? data : data.data || [];
     for (const item of items.slice(0, 10)) {
+      const attrs = item.attributes || item;
       allRecords.push({
         body: 'PBO',
-        title: item.title || item.attributes?.title || '',
-        date: item.date || item.attributes?.date || '',
-        url: item.url || item.attributes?.url || '',
-        type: item.type || item.attributes?.type || '',
+        title: attrs.title_en || attrs.title || '',
+        date: attrs.release_date || attrs.date || '',
+        url: attrs.permalinks?.en?.website || attrs.url || '',
+        type: attrs.type || '',
         source: 'pbo-api',
       });
     }
@@ -617,12 +618,11 @@ async function fetchOversight(signal = null) {
   // Try Ethics Commissioner
   try {
     log('    CIEC (Ethics Commissioner)...');
-    const ciecUrl =
-      'https://ciec-ccie.parl.gc.ca/en/investigations/Pages/default.aspx';
+    const ciecUrl = 'https://www.ethicscanada.ca/en/investigation-reports';
     const html = await fetchText(ciecUrl, 10000, signal);
     const investigations = [
       ...html.matchAll(
-        /<a[^>]*href="([^"]+Investigation[^"]*)"[^>]*>([^<]+)<\/a>/gi,
+        /<a[^>]*href="([^"]*\/en\/report\/[A-Za-z0-9_-]+)[^"]*"[^>]*>([^<]+)<\/a>/gi,
       ),
     ];
     for (const [, href, text] of investigations.slice(0, 10)) {
@@ -631,7 +631,7 @@ async function fetchOversight(signal = null) {
         title: text.trim().replace(/\s+/g, ' '),
         url: href.startsWith('http')
           ? href
-          : `https://ciec-ccie.parl.gc.ca${href}`,
+          : `https://www.ethicscanada.ca${href}`,
         source: 'ciec',
       });
     }

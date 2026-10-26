@@ -185,6 +185,12 @@ ingestion:
     limits:
       cpu: 500m
       memory: 2Gi
+# Policy-intelligence sweep. Uses the pinned api image (no images.engine pin).
+# The sweep file is packages/engine/dist/sweep/run.js. Rebuild the api image
+# before this job can succeed; the manifest is not applied by this change.
+engine:
+  enabled: true
+
 search:
   replicas: 1
   port: 8083

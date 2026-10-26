@@ -59,11 +59,14 @@ export const PBO_BASE_URL = 'https://www.pbo-dpb.ca';
 export const PBO_PUBLICATIONS_URL = 'https://www.pbo-dpb.ca/en/publications';
 
 /**
- * PBO publications API endpoint.
- * The Nuxt frontend fetches publication data from this JSON endpoint.
- * Accepts pagination via ?page=N parameter.
+ * PBO publications JSON API.
+ *
+ * `cms.pbo-dpb.ca/api/publications` now 301s to `www.pbo-dpb.ca/api/publications`,
+ * which 404s with HTML. The publications page publishes `data-apiroot` pointing
+ * at this host. Pagination links in the payload use a separate distribution
+ * host; page 1 of this URL is the stable entry.
  */
-export const PBO_API_URL = 'https://cms.pbo-dpb.ca/api/publications';
+export const PBO_API_URL = 'https://rest-393962616e6b.pbo-dpb.ca/publications';
 
 /** Single publication detail page pattern: /en/publications/{slug} */
 export function pboPublicationUrl(slug: string): string {
@@ -71,14 +74,18 @@ export function pboPublicationUrl(slug: string): string {
 }
 
 
-/** Ethics Commissioner (CIEC) base URL */
-export const CIEC_BASE_URL = 'https://ciec-ccie.parl.gc.ca';
+/**
+ * Ethics Commissioner base URL.
+ * The old SharePoint host `ciec-ccie.parl.gc.ca` now redirects to a welcome
+ * stub. Investigation reports are listed on ethicscanada.ca.
+ */
+export const CIEC_BASE_URL = 'https://www.ethicscanada.ca';
 
-/** Ethics Commissioner investigations listing page */
-export const CIEC_INVESTIGATIONS_URL = 'https://ciec-ccie.parl.gc.ca/en/investigations/Pages/default.aspx';
+/** Ethics Commissioner investigation-report listing (titles and links only). */
+export const CIEC_INVESTIGATIONS_URL = 'https://www.ethicscanada.ca/en/investigation-reports';
 
 /** Ethics Commissioner publications (annual reports, etc.) */
-export const CIEC_PUBLICATIONS_URL = 'https://ciec-ccie.parl.gc.ca/en/publications/Pages/default.aspx';
+export const CIEC_PUBLICATIONS_URL = 'https://www.ethicscanada.ca/en/publications';
 
 /**
  * Construct a CIEC investigation detail URL from a relative path.
@@ -141,8 +148,8 @@ export const OVERSIGHT_BODIES: Record<OversightBody, OversightBodyConfig> = {
     body: 'EthicsCommissioner',
     nameEn: 'Office of the Conflict of Interest and Ethics Commissioner',
     nameFr: "Commissariat aux conflits d'intérêts et à l'éthique",
-    baseUrl: 'https://ciec-ccie.parl.gc.ca',
-    reportsUrl: 'https://ciec-ccie.parl.gc.ca/en/publications/Pages/default.aspx',
+    baseUrl: CIEC_BASE_URL,
+    reportsUrl: CIEC_INVESTIGATIONS_URL,
     rssUrl: null,
     apiUrl: null,
   },

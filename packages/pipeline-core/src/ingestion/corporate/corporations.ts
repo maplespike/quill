@@ -95,15 +95,19 @@ export async function fetchFederalCorporation(
     timeoutMs: 20_000,
   });
 
-  if (resp.statusCode >= 400) {
+  const bodyText = resp.body ?? '';
+  const looksLikeHtml = bodyText.trimStart().startsWith('<');
+  if (resp.statusCode >= 300 || looksLikeHtml) {
     throw new CorporationsCanadaFetchError(
-      `HTTP ${resp.statusCode} fetching corporation ${corporationId}`,
+      `Corporations Canada API returned HTTP ${resp.statusCode} ` +
+        `${looksLikeHtml ? 'HTML' : 'non-JSON'} for corporation ${corporationId} at ${url} — ` +
+        'the JSON host moved; refusing to parse the body as JSON',
       resp.statusCode,
       url,
     );
   }
 
-  const body: any = JSON.parse(resp.body);
+  const body: any = JSON.parse(bodyText);
   const record = Array.isArray(body) ? body[0] : body;
   if (!record || record.corporationId === undefined) {
     throw new CorporationsCanadaFetchError(

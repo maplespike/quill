@@ -328,7 +328,9 @@ export async function ingestProcurement(
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       log(`[Procurement] Tender feed unavailable: ${msg}`);
-      result.errors.push(`CanadaBuys tenders: ${msg}`);
+      // CanadaBuys has no RSS. That gap is not a datastore failure. Record
+      // it as a skip so a later contract pull can still count as success.
+      result.skipReason = `CanadaBuys tenders: ${msg}`;
     }
 
     // Apply limit if specified

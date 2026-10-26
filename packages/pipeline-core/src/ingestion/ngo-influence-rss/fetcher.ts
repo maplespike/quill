@@ -1,6 +1,6 @@
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
-import type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig } from './types.js';
+import type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig, NgoSourceOutcome } from './types.js';
 import { NGO_RSS_SOURCES, NGO_RSS_FETCH_TIMEOUT_MS, NGO_RSS_USER_AGENT, MAX_ITEMS_PER_SOURCE } from './constants.js';
 
 /**
@@ -23,7 +23,7 @@ async function fetchXml(url: string): Promise<string | null> {
  * Parse RSS XML text into NgoRssItem[] using regex extraction.
  * Matches both RSS 2.0 <item> blocks and Atom <entry> blocks.
  */
-async function parseFeedItems(xml: string, source: NgoRssConfig): Promise<NgoRssItem[]> {
+export async function parseFeedItems(xml: string, source: NgoRssConfig): Promise<NgoRssItem[]> {
   const items: NgoRssItem[] = [];
 
   // Try RSS 2.0 <item> blocks
@@ -82,15 +82,48 @@ async function parseFeedItems(xml: string, source: NgoRssConfig): Promise<NgoRss
   return items;
 }
 
-/** Fetch a single NGO/influence RSS source */
-export async function fetchNgoSource(source: NgoRssConfig): Promise<NgoRssItem[]> {
+export interface NgoSourceFetch {
+  items: NgoRssItem[];
+  error: string | null;
+}
+
+/** Classify one feed. An error is not an empty success. */
+export function ngoSourceOutcome(
+  source: string,
+  items: NgoRssItem[],
+  error: string | null,
+): NgoSourceOutcome {
+  if (error) return { source, status: 'error', records: 0, error };
+  if (items.length === 0) {
+    return {
+      source,
+      status: 'empty',
+      records: 0,
+      error: null,
+      skipReason: 'feed answered but contained no items',
+    };
+  }
+  return { source, status: 'ok', records: items.length, error: null };
+}
+
+/** Fetch one feed. A null body or a throw is an error, not an empty feed. */
+export async function fetchNgoSourceDetailed(source: NgoRssConfig): Promise<NgoSourceFetch> {
   try {
     const xml = await fetchXml(source.url);
-    if (!xml) return [];
-    return await parseFeedItems(xml, source);
-  } catch {
-    return [];
+    if (xml === null) {
+      return { items: [], error: `feed unreachable: ${source.url}` };
+    }
+    const items = await parseFeedItems(xml, source);
+    return { items, error: null };
+  } catch (err) {
+    return { items: [], error: err instanceof Error ? err.message : String(err) };
   }
+}
+
+/** Fetch a single NGO/influence RSS source */
+export async function fetchNgoSource(source: NgoRssConfig): Promise<NgoRssItem[]> {
+  const result = await fetchNgoSourceDetailed(source);
+  return result.items;
 }
 
 /** Fetch all enabled NGO/influence RSS sources */
@@ -98,22 +131,32 @@ export async function fetchAllNgoSources(): Promise<NgoRssIngestionResult> {
   const startTime = Date.now();
   const allItems: NgoRssItem[] = [];
   const errors: { source: string; error: string }[] = [];
+  const sources: NgoRssIngestionResult['sources'] = [];
   let succeeded = 0;
 
   const enabled = NGO_RSS_SOURCES.filter(s => s.enabled);
   const results = await Promise.allSettled(
     enabled.map(async (source) => {
-      const items = await fetchNgoSource(source);
-      return { source: source.name, items };
+      const fetched = await fetchNgoSourceDetailed(source);
+      return { source: source.name, ...fetched };
     })
   );
 
   for (const result of results) {
     if (result.status === 'fulfilled') {
-      allItems.push(...result.value.items);
-      succeeded++;
+      const { source, items, error } = result.value;
+      allItems.push(...items);
+      const outcome = ngoSourceOutcome(source, items, error);
+      sources.push(outcome);
+      if (outcome.status === 'error' && error) {
+        errors.push({ source, error });
+      } else if (outcome.status !== 'error') {
+        succeeded++;
+      }
     } else {
-      errors.push({ source: 'unknown', error: result.reason?.message ?? 'unknown' });
+      const error = result.reason?.message ?? 'unknown';
+      errors.push({ source: 'unknown', error });
+      sources.push({ source: 'unknown', status: 'error', records: 0, error });
     }
   }
 
@@ -130,6 +173,7 @@ export async function fetchAllNgoSources(): Promise<NgoRssIngestionResult> {
     sourcesAttempted: enabled.length,
     sourcesSucceeded: succeeded,
     errors,
+    sources,
     durationMs: Date.now() - startTime,
   };
 }

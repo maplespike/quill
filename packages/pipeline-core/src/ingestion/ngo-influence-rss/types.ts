@@ -26,11 +26,21 @@ export interface NgoRssItem {
   hash: string;
 }
 
+export interface NgoSourceOutcome {
+  source: string;
+  status: 'ok' | 'empty' | 'error';
+  records: number;
+  error: string | null;
+  skipReason?: string;
+}
+
 export interface NgoRssIngestionResult {
   items: NgoRssItem[];
   sourcesAttempted: number;
   sourcesSucceeded: number;
   errors: { source: string; error: string }[];
+  /** Per-feed verdicts. A dead feed is `error`, not a quiet success. */
+  sources: NgoSourceOutcome[];
   durationMs: number;
 }
 

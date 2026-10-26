@@ -248,4 +248,10 @@ export interface CorporateIngestionResult {
   records?: unknown[];
   /** Flagged contracts detected during ingestion */
   flaggedContracts?: ContractFlag[];
+  /**
+   * Why this source was not fetched, when that is a known gap rather than
+   * a failure. A datastore that returned rows must stay `ok`; the gap is
+   * recorded here so it is not the source's error.
+   */
+  skipReason?: string;
 }
