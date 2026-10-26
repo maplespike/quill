@@ -233,7 +233,6 @@ generate_report() {
   # Build service endpoints map
   declare -A endpoints
   endpoints[quill-api]="/v1/health"
-  endpoints[quill]="/health"
   endpoints[quill-portal]="/"
 
   # Collect health data

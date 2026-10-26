@@ -45,6 +45,30 @@ spec:
           containerPort: {{ .Values.api.port }}
         - name: metrics
           containerPort: {{ .Values.api.metricsPort }}
+        # Probes (QUILL-AUDIT.md 2026-10-24, P1): the live Deployment had
+        # livenessProbe and readinessProbe unset, so a hung API kept its
+        # endpoints and a rolling update had no readiness gate. Probe the real
+        # health path, GET /v1/health — never /health, which answered 404 until
+        # the API gained a 308 to this same path.
+        # timeoutSeconds 5, not the 1s k8s default: the API answers in 213 ms
+        # warm, but a CPU-throttled cold start on this cluster loses a 1s probe
+        # (2026-08-11 incident, k8s/maplespike/quill-api-deployment.yaml:99).
+        readinessProbe:
+          httpGet:
+            path: /v1/health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /v1/health
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
         env:
         - name: QUILL_API_METRICS_PORT
           value: {{ .Values.api.metricsPort | quote }}
