@@ -28,6 +28,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       {{- if .Values.search.migrateLegacyIndex }}
       # quill-search-index is local-path and is bound to the API node (nexus).
       # A nodeSelector that also matches forge cannot mount that claim.
