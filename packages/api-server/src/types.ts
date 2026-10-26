@@ -643,4 +643,7 @@ export interface Env {
   AI_ENDPOINT?: string;
   AI_MODEL?: string;
   JWT_SECRET?: string;
+  /** Declared money mode: 'live' or 'test'. Must agree with STRIPE_SECRET_KEY. */
+  STRIPE_ENV?: string;
+  STRIPE_SECRET_KEY?: string;
 }

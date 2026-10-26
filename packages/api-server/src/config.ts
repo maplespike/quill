@@ -48,6 +48,82 @@ const DEFAULT_JWT_SECRET = 'maplespike-jwt-secret-change-in-production';
  * fails fast rather than serving with weak secrets. In development,
  * only a warning is emitted.
  */
+/**
+ * Money mode of a Stripe secret key, read from its prefix only.
+ *
+ * Stripe signs the mode into the key: `sk_live_` / `rk_live_` (restricted key)
+ * spend real money, `sk_test_` / `rk_test_` do not. Nothing else in the process
+ * could tell the two apart, so a live deployment holding a test key charged
+ * nobody while the UI said the customer was subscribed (QUILL-AUDIT.md
+ * 2026-10-24, P2: "STRIPE_ENV is decorative").
+ *
+ * The value is never returned or logged — only this classification.
+ */
+export type StripeKeyMode = 'live' | 'test' | 'unknown' | 'absent';
+
+export function stripeKeyMode(value: string | undefined | null): StripeKeyMode {
+  const key = (value ?? '').trim();
+  if (key.length === 0) return 'absent';
+  if (/^(sk|rk)_live_/.test(key)) return 'live';
+  if (/^(sk|rk)_test_/.test(key)) return 'test';
+  return 'unknown';
+}
+
+/**
+ * Refuse to run when STRIPE_ENV disagrees with the key it was handed.
+ *
+ * STRIPE_ENV states the money mode this process bills in; the key's prefix
+ * states the mode it can actually charge in. A disagreement is a configuration
+ * error, not a warning: live traffic on a test key silently charges nothing,
+ * and test traffic on a live key moves real money during a drill.
+ *
+ * A key that is absent or carries an unrecognised prefix never matches a
+ * declared mode. Absent is a warning (checkout answers 503 by design);
+ * unrecognised is an error, because the mode cannot be proven.
+ *
+ * The message names prefixes and modes only. No key material, not even a
+ * suffix, reaches the log.
+ */
+export function validateStripeEnv(env: Record<string, string | undefined>): void {
+  const declared = (env.STRIPE_ENV ?? '').trim().toLowerCase();
+  if (!declared) return; // not declared: nothing to disagree with (dev, tests)
+
+  if (declared !== 'live' && declared !== 'test') {
+    throw new Error(
+      `STRIPE_ENV must be "live" or "test" (got "${declared}"). Refusing to guess a money mode.`,
+    );
+  }
+
+  const secretMode = stripeKeyMode(env.STRIPE_SECRET_KEY);
+  if (secretMode === 'absent') {
+    log.warn(
+      `STRIPE_ENV=${declared} but STRIPE_SECRET_KEY is unset — checkout and billing will answer 503.`,
+    );
+  } else if (secretMode === 'unknown') {
+    throw new Error(
+      `STRIPE_ENV=${declared} but STRIPE_SECRET_KEY has no recognisable mode prefix ` +
+        '(expected sk_live_, sk_test_, rk_live_ or rk_test_). Refusing to serve billing ' +
+        'with a key whose mode cannot be proven.',
+    );
+  } else if (secretMode !== declared) {
+    throw new Error(
+      `STRIPE_ENV=${declared} but STRIPE_SECRET_KEY is a ${secretMode}-mode key ` +
+        `(${secretMode === 'live' ? 'sk_live_/rk_live_' : 'sk_test_/rk_test_'} prefix). ` +
+        `Refusing to start: ${declared === 'live' ? 'test keys charge nobody' : 'live keys charge real cards'}.`,
+    );
+  }
+
+  // The test key is an escape hatch for drills and local work. It is only ever
+  // allowed to be a test key, whatever STRIPE_ENV says.
+  const testSecretMode = stripeKeyMode(env.STRIPE_TEST_SECRET_KEY);
+  if (testSecretMode === 'live') {
+    throw new Error(
+      'STRIPE_TEST_SECRET_KEY carries a live-mode key (sk_live_/rk_live_ prefix). ' +
+        'Refusing to start: a drill would charge real cards.',
+    );
+  }
+}
+
 export function validateConfig(env: Record<string, string | undefined>): void {
   const jwtSecret = env.JWT_SECRET as string;
   if (!jwtSecret || jwtSecret === DEFAULT_JWT_SECRET) {
@@ -59,6 +135,10 @@ export function validateConfig(env: Record<string, string | undefined>): void {
     }
     log.warn(`Warning: ${msg}`);
   }
+
+  // Banking configuration is validated in the same breath as the signing
+  // secret: both fail closed, and both are read once at boot.
+  validateStripeEnv(env);
 }
 
 export function loadConfig(env: Env | Record<string, string | undefined>): AppConfig {

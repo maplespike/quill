@@ -928,6 +928,9 @@ export default {
       AI_ENDPOINT: env.AI_ENDPOINT,
       AI_MODEL: env.AI_MODEL,
       JWT_SECRET: env.JWT_SECRET,
+      // Money mode and the key it must agree with (config.ts: validateStripeEnv).
+      STRIPE_ENV: env.STRIPE_ENV,
+      STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY,
     };
     // Validate production config on every request (no startup lifecycle in Workers)
     try {
