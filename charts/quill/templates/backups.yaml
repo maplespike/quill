@@ -7,9 +7,13 @@
     - Postgres, only when database.enabled is true
 
   Each daily CronJob writes under the quill-backups claim. That claim uses the
-  same storage class as the API volume (longhorn in production) and
-  ReadWriteMany, so the SQLite job on nexus and the search job on the search
-  node can write it together. Redis is an emptyDir cache and is not backed up.
+  same storage class as the API volume (longhorn in production). The default
+  access mode is ReadWriteOnce. Longhorn ReadWriteMany needs an NFS client,
+  and this cluster's nodes are NixOS. Set backups.accessMode to ReadWriteMany
+  only after that client is verified. Every backup, freshness, and drill pod
+  is pinned with nodeName to the API node (nexus in production), the same pin
+  as the API pod, so they can all mount the one claim. Redis is an emptyDir
+  cache and is not backed up.
 
   The scripts live in charts/quill/files and are mounted from this ConfigMap.
   The API image already contains node:sqlite. The search archive job reuses
@@ -57,7 +61,7 @@ metadata:
     component: backup
 spec:
   accessModes:
-    - {{ $backups.accessMode | default "ReadWriteMany" }}
+    - {{ $backups.accessMode | default "ReadWriteOnce" }}
   storageClassName: {{ $backups.storageClass | default "longhorn" | quote }}
   resources:
     requests:
@@ -178,15 +182,6 @@ spec:
             store: search
         spec:
           restartPolicy: Never
-          # Same node as the search pod. The index claim is ReadWriteOnce, so
-          # a second pod can mount it only on the node that already has it.
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-              - labelSelector:
-                  matchLabels:
-                    app: quill-search
-                topologyKey: kubernetes.io/hostname
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
@@ -194,16 +189,17 @@ spec:
             fsGroup: 1001
             seccompProfile:
               type: RuntimeDefault
-          {{- if and .Values.search .Values.search.nodeName (not $migrate) }}
+          {{- if .Values.api.storage.nodeName }}
+          nodeName: {{ .Values.api.storage.nodeName }}
+          {{- else if $backups.nodeName }}
+          nodeName: {{ $backups.nodeName }}
+          {{- else if and .Values.search .Values.search.nodeName }}
           nodeName: {{ .Values.search.nodeName }}
-          {{- else if and .Values.search .Values.search.nodeSelector }}
-          nodeSelector:
-            {{- toYaml .Values.search.nodeSelector | nindent 12 }}
           {{- end }}
           containers:
           - name: search-backup
             image: {{ .Values.redis.image | quote }}
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: {{ .Values.redis.pullPolicy | default "IfNotPresent" }}
             command: ["/bin/sh", "/scripts/search-backup.sh"]
             env:
             - name: INDEX_DIR
@@ -278,7 +274,11 @@ spec:
             fsGroup: 1001
             seccompProfile:
               type: RuntimeDefault
-          {{- if .Values.database.nodeName }}
+          {{- if .Values.api.storage.nodeName }}
+          nodeName: {{ .Values.api.storage.nodeName }}
+          {{- else if $backups.nodeName }}
+          nodeName: {{ $backups.nodeName }}
+          {{- else if .Values.database.nodeName }}
           nodeName: {{ .Values.database.nodeName }}
           {{- end }}
           containers:

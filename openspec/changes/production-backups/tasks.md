@@ -13,3 +13,4 @@
 
 - [x] 3.1 Unit tests for backup, retention, freshness, and the local drill
 - [x] 3.2 `helm template` of production values, image-pin check, and network-policy check
+- [x] 3.3 Default the backup claim to ReadWriteOnce, pin backup jobs to the API node, and copy the search index with the cached Redis image

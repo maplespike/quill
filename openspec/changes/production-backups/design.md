@@ -22,15 +22,16 @@ Backups must be chart changes. Argo CD applies `charts/quill` from `main`. Image
 ## Decisions
 
 - SQLite copy is `VACUUM INTO` via `node:sqlite` in the pinned API image. A read-only mount cannot run that statement, so the Job mounts the API claim read-write on `nexus` and only writes the destination.
-- The search archive uses the pinned Redis image because it contains `tar` and a shell. The Job uses required pod affinity so it mounts the ReadWriteOnce index on the search node.
-- The backup claim is `ReadWriteMany` on `longhorn` so those two nodes can write it. If the class cannot provision that mode, production values can switch to `ReadWriteOnce` and pin search to `nexus`.
-- The legacy search claim is unchanged. Adding `storageClassName` would patch an immutable field and fail the sync. A new claim `quill-search-data` is the durable volume. An init container copies the legacy index once while `search.migrateLegacyIndex` is true.
+- The search archive uses `redis.image` (`public.ecr.aws/docker/library/redis:8.2.3-alpine` in production) because that image contains `tar` and a shell and is already cached on `nexus`. Pull policy follows `redis.pullPolicy`, which is `IfNotPresent`.
+- The backup claim defaults to `ReadWriteOnce` on `longhorn`. Longhorn `ReadWriteMany` needs an NFS client, and the NixOS nodes have not verified one. `backups.accessMode` can still be set to `ReadWriteMany`. Backup, freshness, and drill pods use `nodeName` from `api.storage.nodeName` (`nexus`).
+- The legacy search claim is unchanged. Adding `storageClassName` would patch an immutable field and fail the sync. A new claim `quill-search-data` is the durable volume. An init container copies the legacy index once while `search.migrateLegacyIndex` is true. That pod is pinned to `nexus` for the copy, because `quill-search-index` is local-path on `nexus`.
 - Postgres `pg_dump` is rendered only when `database.enabled` is true. It reads Secret `quill-db-secret`. Port 5432 is added to the network policy only in that case. The dump command does not print the password.
 - The drill restores into an emptyDir. A second namespace cannot mount the backup claim.
 
 ## Risks / Trade-offs
 
-- [Longhorn has no ReadWriteMany] → PVC stays Pending. The doc tells the operator to switch the access mode and pin search to `nexus`.
+- [Operator sets ReadWriteMany before NFS works] → the backup claim stays Pending. The default is ReadWriteOnce. The doc says to keep that mode.
+- [Search leaves nexus while the backup claim is ReadWriteOnce] → the search backup cannot mount the index. The doc says to leave `search.nodeName` set to `nexus`.
 - [Legacy volume and the new volume cannot schedule together] → search stays Pending. The doc says to read the pod event before deleting the legacy claim.
 - [Freshness fails before the first backup] → expected. The doc says so.
 - [Search rollout] → strategy is Recreate so two pods do not fight for the ReadWriteOnce claim.

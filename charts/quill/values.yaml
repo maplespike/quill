@@ -200,6 +200,9 @@ cloudflared:
 # The claim uses longhorn, the same durable class as the API SQLite volume.
 # A cluster without that class sets backups.storageClass and search.storageClass
 # to a class that survives the node. local-path does not. See docs/ops/BACKUPS.md.
+# accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
+# that mounts the claim has a working NFS client. Backup pods follow
+# api.storage.nodeName, the same pin as the API pod.
 backups:
   enabled: false
   schedule: "15 1 * * *"
@@ -211,7 +214,7 @@ backups:
   maxAgeHours: 26
   storage: 30Gi
   storageClass: longhorn
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:
     requests:

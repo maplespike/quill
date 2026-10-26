@@ -210,20 +210,24 @@ search:
     limits:
       cpu: 500m
       memory: 512Mi
-  # While migrateLegacyIndex is true the pod also mounts the legacy claim.
-  # That claim has no storage class, so it is pinned to one node (local-path
-  # on this cluster). nodeSelector lets the scheduler pick that node. A
-  # nodeName pin here deadlocks when the legacy volume is on the other node
-  # (2026-10-05). After the copy, set migrateLegacyIndex to false. Then a
-  # nodeName of nexus is safe, because the longhorn claim can attach there.
+  # While migrateLegacyIndex is true the pod also mounts quill-search-index.
+  # That claim is local-path and is bound to nexus, so the template sets
+  # nodeName from this value and ignores nodeSelector for the copy.
+  # After the copy, set migrateLegacyIndex to false and leave nodeName set.
+  # The backup claim is ReadWriteOnce, so search and its backup must stay
+  # on nexus. nodeSelector applies only when nodeName is empty. Clear
+  # nodeName only if you also set backups.accessMode to ReadWriteMany.
+  nodeName: nexus
   nodeSelector:
     quill.io/workload: "true"
 
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
-# API volume, ReadWriteMany so the search job can write it from whichever
-# node holds the index. Redis is not included. Postgres is off in this file
-# (database.enabled: false), so no pg_dump CronJob is rendered.
+# API volume, ReadWriteOnce. Backup, freshness, and drill pods use
+# api.storage.nodeName (nexus), the same pin as the API. ReadWriteMany is
+# optional and needs a verified NFS client on the NixOS node. Redis is not
+# included. Postgres is off in this file (database.enabled: false), so no
+# pg_dump CronJob is rendered.
 backups:
   enabled: true
   schedule: "15 1 * * *"
@@ -234,7 +238,7 @@ backups:
   maxAgeHours: 26
   storage: 30Gi
   storageClass: longhorn
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:
     requests:

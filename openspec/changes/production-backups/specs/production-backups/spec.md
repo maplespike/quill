@@ -36,6 +36,18 @@ The chart MUST render a freshness CronJob. The Job MUST fail when a required bac
 - **WHEN** the newest backup file is older than the configured maximum age
 - **THEN** the freshness check reports that store as stale and exits non-zero
 
+### Requirement: Backup pods share the API node
+
+The backup claim MUST default to `ReadWriteOnce`. `ReadWriteMany` MUST remain a values override. When the API storage pin is set, the SQLite, search, freshness, and drill CronJobs MUST set `nodeName` to that pin. While `search.migrateLegacyIndex` is true, the search pod MUST set `nodeName` to `nexus` and the copy init container MUST use `redis.image` with the Redis pull policy.
+
+#### Scenario: Production pins the jobs and the search copy
+
+- **WHEN** the chart is rendered with `charts/quill/values-prod.yaml`
+- **THEN** PVC `quill-backups` requests `ReadWriteOnce`
+- **AND** CronJobs `quill-backup-sqlite`, `quill-backup-search`, `quill-backup-freshness`, and `quill-backup-drill` set `nodeName: nexus`
+- **AND** the search Deployment sets `nodeName: nexus`
+- **AND** init container `migrate-legacy-index` uses image `public.ecr.aws/docker/library/redis:8.2.3-alpine` and `imagePullPolicy: IfNotPresent`
+
 ### Requirement: Rebuildable cache is not treated as a database
 
 The Redis volume MUST stay an emptyDir. The chart MUST NOT render a Redis backup CronJob.

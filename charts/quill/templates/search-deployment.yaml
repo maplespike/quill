@@ -28,11 +28,15 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
-      {{- if .Values.search.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.search.nodeSelector | nindent 8 }}
+      {{- if .Values.search.migrateLegacyIndex }}
+      # quill-search-index is local-path and is bound to the API node (nexus).
+      # A nodeSelector that also matches forge cannot mount that claim.
+      nodeName: {{ .Values.search.nodeName | default ((.Values.api.storage | default dict).nodeName) | default "nexus" }}
       {{- else if .Values.search.nodeName }}
       nodeName: {{ .Values.search.nodeName }}
+      {{- else if .Values.search.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.search.nodeSelector | nindent 8 }}
       {{- end }}
       securityContext:
         runAsNonRoot: true
@@ -40,8 +44,12 @@ spec:
       {{- if .Values.search.migrateLegacyIndex }}
       initContainers:
       - name: migrate-legacy-index
+        # Same reference as the Redis Deployment (redis.image). Production
+        # sets public.ecr.aws/docker/library/redis:8.2.3-alpine, which is
+        # already in the nexus containerd store. A bare redis tag resolves
+        # to docker.io and is not cached there.
         image: {{ .Values.redis.image | quote }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.redis.pullPolicy | default "IfNotPresent" }}
         command: ["/bin/sh", "/scripts/migrate-search-index.sh"]
         securityContext:
           allowPrivilegeEscalation: false

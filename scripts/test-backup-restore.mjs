@@ -133,7 +133,9 @@ test('chart backup contract', () => {
   const pg = readFileSync(path.join(root, 'charts/quill/files/postgres-backup.sh'), 'utf8');
   assert.match(values, /storageClass: longhorn/);
   assert.match(values, /migrateLegacyIndex: true/);
-  assert.match(values, /accessMode: ReadWriteMany/);
+  assert.match(values, /accessMode: ReadWriteOnce/);
+  assert.doesNotMatch(values, /accessMode: ReadWriteMany/);
+  assert.match(values, /nodeName: nexus/);
   assert.match(values, /retentionDays: 14/);
   assert.match(backups, /kind: CronJob/);
   assert.match(backups, /quill.fullname" \. }}-backup-sqlite/);
@@ -145,6 +147,11 @@ test('chart backup contract', () => {
   assert.doesNotMatch(backups, /sk_live_|postgres-password: [^{\s]/);
   assert.match(searchDeploy, /search-data/);
   assert.match(searchDeploy, /type: Recreate/);
+  assert.match(searchDeploy, /image: \{\{ \.Values\.redis\.image \| quote \}\}/);
+  assert.match(searchDeploy, /imagePullPolicy: \{\{ \.Values\.redis\.pullPolicy \| default "IfNotPresent" \}\}/);
+  assert.doesNotMatch(searchDeploy, /image:\s*["']?redis:8\.2\.3-alpine/);
+  assert.match(backups, /accessMode \| default "ReadWriteOnce"/);
+  assert.match(backups, /image: \{\{ \.Values\.redis\.image \| quote \}\}/);
   assert.match(searchSvc, /storageClassName:/);
   assert.match(redis, /emptyDir: \{\}/);
   assert.match(netpol, /database \| default dict\)\.enabled/);
