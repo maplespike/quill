@@ -243,7 +243,7 @@ describe('integration-test job stays a merge gate', () => {
     const start = text.indexOf('\n  integration-test:\n');
     assert.notEqual(start, -1, 'integration-test job missing');
     const rest = text.slice(start + 1);
-    const next = rest.slice(1).search(/\n  [a-z0-9-]+:\n/);
+    const next = rest.slice(1).search(/\n {2}[a-z0-9-]+:\n/);
     assert.notEqual(next, -1, 'could not find the job after integration-test');
     const block = rest.slice(0, next + 1);
     assert.doesNotMatch(block, /^\s*continue-on-error\s*:/m);
