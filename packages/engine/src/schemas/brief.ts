@@ -16,6 +16,6 @@ export const BriefSchema = z.object({
   sections: z.array(BriefSectionSchema),
   entityIds: z.array(z.string()),
   confidence: z.number().min(0).max(1),
-  generatedAt: z.string().datetime(),
-  expiresAt: z.string().datetime().optional(),
+  generatedAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime().optional(),
 });

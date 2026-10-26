@@ -103,6 +103,13 @@ describe('portal: unsupported methods on non-/api paths', () => {
     expect(res.headers.get('access-control-allow-methods')).toBe('GET, HEAD, OPTIONS');
   });
 
+  test('GET /health is a cheap 200 for the chart probe', async () => {
+    const res = await fetch(`${base}/health`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('application/json');
+    expect(await res.json()).toEqual({ status: 'ok' });
+  });
+
   test('GET still serves the page (the fix did not break normal requests)', async () => {
     const res = await fetch(`${base}/`);
     expect(res.status).toBe(200);

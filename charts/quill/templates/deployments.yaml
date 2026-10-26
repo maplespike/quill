@@ -25,6 +25,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
       {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
@@ -53,11 +56,19 @@ spec:
         # timeoutSeconds 5, not the 1s k8s default: the API answers in 213 ms
         # warm, but a CPU-throttled cold start on this cluster loses a 1s probe
         # (2026-08-11 incident, k8s/maplespike/quill-api-deployment.yaml:99).
+        # startupProbe covers the cold node process. Liveness does not run
+        # until this succeeds, so a slow boot is not killed and restarted.
+        startupProbe:
+          httpGet:
+            path: /v1/health
+            port: http
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
         readinessProbe:
           httpGet:
             path: /v1/health
             port: http
-          initialDelaySeconds: 5
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
@@ -65,7 +76,6 @@ spec:
           httpGet:
             path: /v1/health
             port: http
-          initialDelaySeconds: 20
           periodSeconds: 20
           timeoutSeconds: 5
           failureThreshold: 3
@@ -243,6 +253,9 @@ spec:
       {{- . | nindent 6 }}
       {{- end }}
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
       {{- if .Values.mcp.nodeName }}
@@ -265,6 +278,29 @@ spec:
           containerPort: {{ .Values.mcp.port }}
         - name: metrics
           containerPort: {{ .Values.mcp.metricsPort }}
+        # Tool registration runs before the process listens. A startupProbe
+        # waits that out. /health is the public process check; /sse is authenticated.
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 36
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
         env:
         - name: QUILL_MCP_METRICS_PORT
           value: {{ .Values.mcp.metricsPort | quote }}

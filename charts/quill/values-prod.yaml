@@ -4,17 +4,17 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: "sha256:7c7b39c668fe40c59e483c99008969faa4240fd6044eeae07c72c17600feedd3"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:73d986293e11212cee5026533debcc321bd69de4bdb293d082d5c71a3a61816a"
+    tag: "2026-10-26-04c81f4f3"
   mcp:
-    digest: "sha256:c0d28d5d6404632fbbf6fd4187d38267263e39bc26101211455047e7cfb409c9"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:bae68e128dc42173494bf1c9a35f0b932a71df09cf78ebd9a387d3cb42fe5fbb"
+    tag: "2026-10-26-04c81f4f3"
   portal:
-    digest: "sha256:876c814b75c67338c3aac6d18c54bf4a68a0a101176a4dc48efddf537718f651"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:a38496654f5ff05bc90b6290f966b93f9c8613c68b8b857439793260e40311ac"
+    tag: "2026-10-26-04c81f4f3"
   ingest:
-    digest: "sha256:f5d581a3bc843702801f2a9c0d9d9269fb4d68978c8f33e73f642743a1120859"
-    tag: "2026-10-25-9cb76cb03"
+    digest: "sha256:1485b54c48ca362adf0a1bbf6654c4b03ada6e4e41906e4fffc2a56b795140b4"
+    tag: "2026-10-26-04c81f4f3"
   search:
     digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
     tag: '2026-10-06-serve-fix'
@@ -202,7 +202,7 @@ search:
   # quill-search-index claim stays until migrateLegacyIndex is turned off
   # and the operator deletes it. See docs/ops/BACKUPS.md.
   storageClass: longhorn
-  migrateLegacyIndex: true
+  migrateLegacyIndex: false
   resources:
     requests:
       cpu: 100m

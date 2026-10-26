@@ -57,6 +57,9 @@ describe('getAllTools', () => {
       const schema = mod.definition.inputSchema;
       assert.ok(schema, `${mod.definition.name} missing inputSchema`);
       assert.equal(schema.type, 'object', `${mod.definition.name} inputSchema type must be 'object'`);
+      // Handwritten JSON Schema. z.toJSONSchema() always adds $schema.
+      const raw = schema as { $schema?: string };
+      assert.equal(raw.$schema, undefined, `${mod.definition.name} inputSchema must stay handwritten JSON Schema`);
     }
   });
 

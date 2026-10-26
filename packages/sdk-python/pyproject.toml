@@ -38,7 +38,7 @@ Homepage = "https://maplespike.ca"
 Repository = "https://github.com/reverb256/quill"
 Source = "https://github.com/reverb256/quill/tree/main/packages/sdk-python"
 Tracker = "https://github.com/reverb256/quill/issues"
-Documentation = "https://maplespike.ca/docs"
+Documentation = "https://quill.maplespike.ca/docs"
 
 [project.optional-dependencies]
 dev = [
