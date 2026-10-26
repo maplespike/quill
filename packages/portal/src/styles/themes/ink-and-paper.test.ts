@@ -133,8 +133,8 @@ describe("ink-and-paper roles", () => {
   );
 
   test("radii, shadow and motion tokens are present", () => {
-    expect(token("iap-radius-control")).toBe("0.5rem");
-    expect(token("iap-radius-panel")).toBe("2rem");
+    expect(token("iap-radius-control")).toBe("4px");
+    expect(token("iap-radius-panel")).toBe("7px");
     expect(token("iap-radius-console")).toBe("1.75rem");
     expect(token("iap-shadow-panel")).toBe(
       "0 24px 60px -36px rgb(22 22 20 / 0.4)",
