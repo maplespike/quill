@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-22T02:06:30.178Z",
+  "generatedAt": "2026-10-26T16:45:13.485Z",
   "source": "discover-municipal-ids",
-  "discoveries": 10,
-  "keptFromPrevious": 0,
+  "discoveries": 8,
+  "keptFromPrevious": 2,
   "entries": {
     "https://donnees.montreal.ca|budget": {
       "id": "2b7dcae7-a3e5-4f5d-81de-ccde2c518e55",
       "portalType": "ckan",
-      "discoveredAt": "2026-09-22T02:06:27.208Z",
+      "discoveredAt": "2026-10-26T16:44:55.994Z",
       "name": "Budget de fonctionnement",
       "validated": true
     },
@@ -31,47 +31,47 @@
     "https://data.winnipeg.ca|311-calls": {
       "id": "vrzk-mj7v",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.601Z",
+      "discoveredAt": "2026-10-26T16:44:57.428Z",
       "name": "311 Call Wait Times",
       "rowsProbed": 1,
       "validated": true
     },
     "https://data.edmonton.ca|311-calls": {
-      "id": "6asu-htha",
+      "id": "sj7q-iwb5",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.742Z",
-      "name": "311 Call Centre Satisfaction Survey - 2014",
+      "discoveredAt": "2026-10-26T16:44:58.464Z",
+      "name": "311 Call Centre Satisfaction Survey - 2015",
       "rowsProbed": 1,
       "validated": true
     },
     "https://data.edmonton.ca|budget": {
-      "id": "gds5-6aiq",
+      "id": "da9s-v9j8",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.509Z",
-      "name": "2012 Budget Consultation Survey - Taxes And Balancing Budget",
+      "discoveredAt": "2026-10-26T16:45:06.182Z",
+      "name": "Approved Operating Budget - Expenses",
       "rowsProbed": 1,
       "validated": true
     },
     "https://data.calgary.ca|budget": {
       "id": "fqax-i3nz",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.680Z",
+      "discoveredAt": "2026-10-26T16:45:02.109Z",
       "name": "Calgary Open Budget",
       "rowsProbed": 1,
       "validated": true
     },
     "https://data.calgary.ca|permits": {
-      "id": "c2es-76ed",
+      "id": "6933-unw5",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.902Z",
-      "name": "Building Permits",
+      "discoveredAt": "2026-10-26T16:45:13.485Z",
+      "name": "Development Permits",
       "rowsProbed": 1,
       "validated": true
     },
     "https://data.calgary.ca|transit": {
       "id": "hpnd-riq4",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.913Z",
+      "discoveredAt": "2026-10-26T16:45:04.474Z",
       "name": "Calgary Transit Routes",
       "rowsProbed": 1,
       "validated": true
@@ -79,7 +79,7 @@
     "https://data.winnipeg.ca|budget": {
       "id": "hk5w-mj8b",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:30.178Z",
+      "discoveredAt": "2026-10-26T16:44:58.629Z",
       "name": "Capital Budget - 2014",
       "rowsProbed": 1,
       "validated": true
