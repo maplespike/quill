@@ -11,6 +11,7 @@
  */
 
 import type { RouteHandler } from '../types.js';
+import { getReleaseSnapshot } from '../services/gov-releases-cache.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import {
   fetchStatCanReleases,
@@ -32,6 +33,10 @@ interface ReleaseEnvelope {
     source_count: number;
     fetched_at: string;
     errors: string[];
+    /** True when the rows came from the shared snapshot rather than a fresh fetch. */
+    cached: boolean;
+    /** Age of the rows in seconds; null when no rows were ever fetched. */
+    age_seconds: number | null;
   };
 }
 
@@ -42,26 +47,17 @@ export const listReleasesHandler: RouteHandler = async (request, ctx) => {
   const category = url.searchParams.get('category');
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
 
-  const fetchedAt = new Date().toISOString();
-  const errors: string[] = [];
-  let releases: GovRelease[] = [];
-  let liveSourceCount = 0;
-
-  // Live fetch from StatCan WDS via pipeline-core. If this fails we
-  // surface the error — never fall back to hand-written fake records.
-  try {
-    const statCanReleases = await fetchStatCanReleases({ limit: 20 });
-    if (Array.isArray(statCanReleases) && statCanReleases.length > 0) {
-      releases = statCanReleases;
-      liveSourceCount = 1;
-    } else {
-      errors.push('StatCan WDS returned empty result set');
-    }
-  } catch (err) {
-    errors.push(
-      `StatCan WDS fetch failed: ${err instanceof Error ? err.message : String(err)}`,
-    );
-  }
+  // One shared snapshot of the StatCan releases, refreshed on a timer, so the
+  // request never awaits the upstream's full latency (19 s measured on
+  // 2026-10-24, against a 173 ms p50 for the rest of the API). A failed fetch
+  // surfaces in provenance.errors — never as hand-written fake records.
+  const read = await getReleaseSnapshot({
+    fetcher: () => fetchStatCanReleases({ limit: 20 }),
+  });
+  const errors = [...read.snapshot.errors];
+  let releases: GovRelease[] = read.snapshot.releases;
+  const liveSourceCount = read.snapshot.live && releases.length > 0 ? 1 : 0;
+  const fetchedAt = read.snapshot.fetchedAt;
 
   if (jurisdiction) {
     releases = releases.filter((r) => r.jurisdiction === jurisdiction);
@@ -89,6 +85,9 @@ export const listReleasesHandler: RouteHandler = async (request, ctx) => {
       source_count: liveSourceCount,
       fetched_at: fetchedAt,
       errors,
+      // A cached snapshot is still a real fetch; its age says how real.
+      cached: read.cached,
+      age_seconds: read.ageSeconds,
     },
   };
 

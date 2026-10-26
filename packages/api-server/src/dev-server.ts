@@ -23,6 +23,8 @@ import { MemoryStorage, MemoryCache } from './storage.js';
 import type { QuillStorage, QuillCache } from './types.js';
 import { initEmailConfig } from './email.js';
 import { validateConfig } from './config.js';
+import { startReleaseRefreshTimer } from './services/gov-releases-cache.js';
+import { fetchStatCanReleases } from '@maplespike/pipeline-core';
 import logger from './logger.js';
 
 import { redisClient } from './cache/redis.js';
@@ -374,6 +376,22 @@ metricsServer.listen(METRICS_PORT, '0.0.0.0', () => {
     process.exit(1);
   }
   startUpstreamProber();
+}
+
+// Warm the government-releases snapshot before the first request arrives.
+// GET /v1/gov/releases took 19 s on a cold process because it awaited StatCan
+// on the request path (QUILL-AUDIT.md 2026-10-24, P1). The timer refreshes in
+// the background, so a request reads memory instead of waiting on the WDS.
+if (process.env.QUILL_RELEASES_WARMER !== '0') {
+  const stopWarmer = startReleaseRefreshTimer(
+    () => fetchStatCanReleases({ limit: 20 }),
+    Number(process.env.QUILL_RELEASES_WARM_MS || 10 * 60 * 1000) / 2,
+    (err) => log.warn({ err }, 'gov/releases snapshot refresh failed'),
+  );
+  log.info('gov/releases cache warmer started');
+  const shutdown = (): void => stopWarmer();
+  process.once('SIGTERM', shutdown);
+  process.once('SIGINT', shutdown);
 }
 
 server.listen(PORT, '0.0.0.0', () => {
