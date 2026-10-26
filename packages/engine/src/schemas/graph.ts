@@ -47,7 +47,7 @@ export const NodeSchema = z.object({
   id: z.string(),
   type: NodeTypeSchema,
   label: z.string(),
-  properties: z.record(z.unknown()),
+  properties: z.record(z.string(), z.unknown()),
 });
 
 export const EdgeSchema = z.object({
@@ -56,7 +56,7 @@ export const EdgeSchema = z.object({
   target: z.string(),
   type: EdgeTypeSchema,
   weight: z.number(),
-  properties: z.record(z.unknown()),
+  properties: z.record(z.string(), z.unknown()),
   sourceRef: z.string(),
 });
 
@@ -69,8 +69,8 @@ export const IntelligenceThreadSchema = z.object({
   nodes: z.array(z.string()),
   edges: z.array(z.string()),
   sources: z.array(z.string()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export const GraphDataSchema = z.object({

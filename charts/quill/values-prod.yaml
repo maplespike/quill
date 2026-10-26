@@ -202,7 +202,7 @@ search:
   # quill-search-index claim stays until migrateLegacyIndex is turned off
   # and the operator deletes it. See docs/ops/BACKUPS.md.
   storageClass: longhorn
-  migrateLegacyIndex: true
+  migrateLegacyIndex: false
   resources:
     requests:
       cpu: 100m

@@ -132,7 +132,8 @@ test('chart backup contract', () => {
   const netpol = readFileSync(path.join(root, 'charts/quill/templates/networkpolicy.yaml'), 'utf8');
   const pg = readFileSync(path.join(root, 'charts/quill/files/postgres-backup.sh'), 'utf8');
   assert.match(values, /storageClass: longhorn/);
-  assert.match(values, /migrateLegacyIndex: true/);
+  // One-time copy finished on 2026-10-26; prod keeps the flag off.
+  assert.match(values, /migrateLegacyIndex: false/);
   assert.match(values, /accessMode: ReadWriteOnce/);
   assert.doesNotMatch(values, /accessMode: ReadWriteMany/);
   assert.match(values, /nodeName: nexus/);
@@ -157,4 +158,23 @@ test('chart backup contract', () => {
   assert.match(netpol, /database \| default dict\)\.enabled/);
   assert.match(pg, /pg_dump/);
   assert.doesNotMatch(pg, /echo[^\\n]*PGPASSWORD/);
+});
+
+test('migrateLegacyIndex flag is explicit and consulted by the search template', () => {
+  // Incident t_41842b38: chore/search-migration-off flipped the flag to
+  // false (verified migration complete) and the backup contract locked the
+  // new value, but only a hard-coded assertion was updated. A second change
+  // that re-stomped the flag would silently regress. The flag is a two-phase
+  // toggle (docs/ops/BACKUPS.md step 2 -> 3), so no assertion may hard-code
+  // one phase. Lock instead that production sets an explicit boolean and the
+  // template actually consults the flag across more than one concern, so the
+  // value cannot drift into being decorative: a false flag that still pinned
+  // search to nexus and re-ran the legacy copy would silently break the
+  // post-migration state.
+  const values = readFileSync(path.join(root, 'charts/quill/values-prod.yaml'), 'utf8');
+  const searchDeploy = readFileSync(path.join(root, 'charts/quill/templates/search-deployment.yaml'), 'utf8');
+  assert.match(values, /migrateLegacyIndex: (true|false)/);
+  assert.ok(searchDeploy.includes('.Values.search.migrateLegacyIndex'));
+  // The flag gates at least the nexus node pin and the legacy init container.
+  assert.ok(searchDeploy.split('.Values.search.migrateLegacyIndex').length - 1 >= 2);
 });

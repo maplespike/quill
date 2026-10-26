@@ -44,10 +44,19 @@ permissions:
 
 jobs:
   audit:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        if: runner.environment == 'github-hosted'
+        with:
+          node-version: 22
 
       - name: Install dependencies from the committed lockfile
         run: pnpm install --frozen-lockfile

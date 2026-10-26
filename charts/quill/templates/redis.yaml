@@ -38,6 +38,9 @@ spec:
       labels:
         app: quill-redis
     spec:
+      {{- with ($.Values.priorityClass | default dict).critical }}
+      priorityClassName: {{ . }}
+      {{- end }}
       {{- if .Values.redis.nodeName }}
       nodeName: {{ .Values.redis.nodeName }}
       {{- end }}

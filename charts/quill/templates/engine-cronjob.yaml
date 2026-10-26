@@ -36,6 +36,9 @@ spec:
           {{- . | nindent 10 }}
           {{- end }}
         spec:
+          {{- with ($.Values.priorityClass | default dict).batch }}
+          priorityClassName: {{ . }}
+          {{- end }}
           restartPolicy: Never
           securityContext:
             runAsNonRoot: true

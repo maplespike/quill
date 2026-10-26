@@ -11,7 +11,10 @@
  *   node dist/index.js              # default port 3001
  *   PORT=8080 node dist/index.js    # custom port
  *
- * K8s health: GET /health returns 200
+ * K8s health: GET /health returns 200 with no credentials.
+ * GET /sse, POST /messages, and the streamable HTTP endpoint POST /mcp
+ * require the same credential the API accepts: an API key (Authorization
+ * Bearer or X-API-Key) or an API session JWT.
  */
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
@@ -21,6 +24,7 @@ import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { parsePaymentHeader } from './x402-middleware.js';
 import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
+import { verifyApiJwt } from './auth/api-jwt.js';
 import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
 import { verifyTenantKeyWithApi } from './auth/tenant-key.js';
 import logger from './logger.js';
@@ -47,20 +51,10 @@ const SSE_IDLE_MS = positiveInt(process.env.QUILL_SSE_IDLE_MS, 15 * 60_000);
 const SSE_MAX_BUFFER = positiveInt(process.env.QUILL_SSE_MAX_BUFFER, 1024 * 1024);
 const HEARTBEAT_MS = positiveInt(process.env.QUILL_SSE_HEARTBEAT_MS, 30_000);
 
-// ── Anonymous discovery (directory indexing) ────────────────────────────
-// MCP directories (glama.ai, mcprush) index and grade a remote server from its
-// tool declarations: they open the stream and ask the server what it can do.
-// They hold no key, so the handshake and these read-only discovery methods
-// answer on an unauthenticated stream. Everything else — tools/call above all —
-// stays keyed and answers 401 with WWW-Authenticate.
+// Session and streamable HTTP routes require an API key or an API session JWT.
+// GET /health stays open so probes do not need a credential. There is no
+// anonymous discovery stream: a directory indexer presents a key like any client.
 const WWW_AUTHENTICATE = 'Bearer realm="quill"';
-const ANONYMOUS_DISCOVERY_METHODS = new Set([
-  'initialize',
-  'notifications/initialized',
-  'notifications/cancelled',
-  'ping',
-  'tools/list',
-]);
 
 function positiveInt(raw: string | undefined, fallback: number): number {
   const parsed = Number.parseInt(raw ?? '', 10);
@@ -120,8 +114,31 @@ function bearerToken(req: IncomingMessage): string {
   return (req.headers.authorization ?? '').match(/^Bearer\s+(.+)$/i)?.[1].trim() ?? '';
 }
 
+/**
+ * Credential the API would see: Bearer token, X-API-Key, or the session cookie.
+ * Empty when the caller presented nothing.
+ */
+function presentedCredential(req: IncomingMessage): string {
+  const bearer = bearerToken(req);
+  if (bearer) return bearer;
+  const header = req.headers['x-api-key'];
+  if (typeof header === 'string' && header.trim()) return header.trim();
+  const cookie = req.headers.cookie;
+  if (typeof cookie === 'string') {
+    const match = cookie.match(/(?:^|;\s*)session=([^;]+)/);
+    if (match?.[1]) {
+      try {
+        return decodeURIComponent(match[1]);
+      } catch {
+        return match[1];
+      }
+    }
+  }
+  return '';
+}
+
 function credentialHash(req: IncomingMessage): string {
-  return createHash('sha256').update(bearerToken(req)).digest('hex');
+  return createHash('sha256').update(presentedCredential(req)).digest('hex');
 }
 
 const EMPTY_CREDENTIAL_HASH = createHash('sha256').update('').digest('hex');
@@ -134,14 +151,6 @@ const EMPTY_CREDENTIAL_HASH = createHash('sha256').update('').digest('hex');
 function rateLimitKey(ownerHash: string, req: IncomingMessage): string {
   if (ownerHash !== EMPTY_CREDENTIAL_HASH) return `cred:${ownerHash}`;
   return `ip:${req.socket.remoteAddress || 'unknown'}`;
-}
-
-function clientIp(req: IncomingMessage): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (process.env.TRUST_PROXY === 'true' && typeof forwarded === 'string') {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.socket.remoteAddress || 'unknown';
 }
 
 const clients = new Map<string, SseClient>();
@@ -186,54 +195,80 @@ function sendSse(client: SseClient, event: string, data: unknown): boolean {
   return writeToClient(client, `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
+async function astralAccepts(token: string): Promise<boolean> {
+  const astralKeyUrl = process.env.ASTRAL_KEY_URL;
+  if (!astralKeyUrl) return false;
+  try {
+    const res = await fetch(`${astralKeyUrl}/auth/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    const data = await res.json() as { valid: boolean };
+    return data.valid === true;
+  } catch {
+    return false;
+  }
+}
+
+async function tenantKeyAccepts(token: string): Promise<boolean> {
+  // Tenant keys and API session JWTs both resolve through GET /v1/auth/me.
+  // The API owns the key store and the user record. Fail closed on transport
+  // errors (verifyTenantKeyWithApi).
+  const verified = await verifyTenantKeyWithApi(token, process.env.QUILL_API_URL);
+  if (verified.valid) {
+    logger.info('MCP auth: API accepted the credential');
+    return true;
+  }
+  if (verified.reason !== 'no-api-url' && verified.reason !== 'no-token') {
+    logger.warn({ reason: verified.reason }, 'MCP auth: API rejected the credential');
+  }
+  return false;
+}
+
 async function authenticate(req: IncomingMessage): Promise<boolean> {
   const key = apiKey();
-  if (key === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
+  // Local dev only, and only while the process is still on the default key.
+  // Production and any explicit QUILL_API_KEY always require a credential.
+  if (key === 'dev-key' && process.env.NODE_ENV !== 'production') return true;
 
-  const token = bearerToken(req);
+  const token = presentedCredential(req);
   if (!token) return false;
 
-  // Method 1: Check against configured API key. Read on each call so a
-  // rotated in-process value is not kept alive by an open stream.
+  // Static gateway key. Read on each call so a rotated value is not kept
+  // alive by an open stream. X-API-Key and Bearer both land in `token`.
   if (token === key || token === Buffer.from(key).toString('base64')) {
     return true;
   }
 
-  // Method 2: If ASTRAL_KEY_URL is set, delegate token validation to astral-key
-  const astralKeyUrl = process.env.ASTRAL_KEY_URL;
-  if (astralKeyUrl) {
-    try {
-      const res = await fetch(`${astralKeyUrl}/auth/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      const data = await res.json() as { valid: boolean };
-      if (data.valid === true) return true;
-    } catch {
-      // Fall through to next method
-    }
+  // Three-part tokens are JWTs. Do not fall through to the API-key store
+  // with a failed signature: the API treats that shape as a JWT too.
+  if (token.split('.').length === 3) {
+    if (verifyApiJwt(token, process.env.JWT_SECRET)) return true;
+    if (isCasdoorToken(token) && await authenticateToken(token)) return true;
+    if (await astralAccepts(token)) return true;
+    return tenantKeyAccepts(token);
   }
 
-  // Method 3: Casdoor OIDC token validation via JWKS
-  if (isCasdoorToken(token)) {
-    return authenticateToken(token);
-  }
+  if (await astralAccepts(token)) return true;
+  return tenantKeyAccepts(token);
+}
 
-  // Method 4: tenant API keys minted by the API server. The API owns the key
-  // store, so ask it — QUILL_API_URL is set in server-side deployments.
-  // Without this, MCP accepted only the single static key and 401'd every key a
-  // tenant was issued at signup, which made the surface single-tenant.
-  const verified = await verifyTenantKeyWithApi(token, process.env.QUILL_API_URL);
-  if (verified.valid) {
-    logger.info('MCP auth: tenant key accepted');
-    return true;
-  }
-  if (verified.reason !== 'no-api-url' && verified.reason !== 'no-token') {
-    logger.warn({ reason: verified.reason }, 'MCP auth: tenant key rejected');
-  }
+function unauthorized(res: ServerResponse): void {
+  res.writeHead(401, {
+    'Content-Type': 'application/json',
+    'WWW-Authenticate': WWW_AUTHENTICATE,
+    'Access-Control-Allow-Origin': '*',
+  });
+  res.end(JSON.stringify({ error: 'Unauthorized' }));
+}
 
-  return false;
+async function requireCredential(req: IncomingMessage, res: ServerResponse): Promise<string | undefined> {
+  if (!await authenticate(req)) {
+    unauthorized(res);
+    return undefined;
+  }
+  return presentedCredential(req);
 }
 
 const metricsServer = createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -268,26 +303,25 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
   }
 
   if (path === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     res.end(JSON.stringify({ status: 'ok', tools: tools.length }));
     return;
   }
 
+  if ((path === '/sse' || path === '/messages' || path === '/mcp') && req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, X-API-Key, Mcp-Session-Id, Last-Event-ID',
+      'Access-Control-Max-Age': '86400',
+    });
+    res.end();
+    return;
+  }
+
   if (path === '/sse' && req.method === 'GET') {
-    // No bearer = an anonymous discovery stream. It may only ask the allowlisted
-    // discovery methods below; the connect is rate-limited per peer so the open
-    // surface cannot be used to exhaust MAX_SSE_CLIENTS.
-    const anonymous = !bearerToken(req);
-    if (anonymous && !checkRateLimit(`sse-anon:${clientIp(req)}`)) {
-      res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
-      res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
-      return;
-    }
-    if (!anonymous && !await authenticate(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
-    }
+    const token = await requireCredential(req, res);
+    if (token === undefined) return;
 
     if (clients.size >= MAX_SSE_CLIENTS) {
       res.writeHead(503, { 'Content-Type': 'application/json', 'Retry-After': '30' });
@@ -296,10 +330,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     }
 
     const clientId = randomUUID();
-    const token = bearerToken(req);
-    const identity = token
-      ? buildIdentity('api-key', token)
-      : buildIdentity('anonymous-ip', clientIp(req));
+    const identity = buildIdentity('api-key', token);
     const acceptLang = req.headers['accept-language'] || '';
     const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
 
@@ -341,6 +372,14 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
   }
 
   if (path === '/messages' && req.method === 'POST') {
+    // A missing credential is 401 before the session lookup. A presented
+    // credential with no session is 404, including a key revoked after the
+    // stream was dropped.
+    if (!presentedCredential(req)) {
+      unauthorized(res);
+      return;
+    }
+
     const clientId = (url.searchParams.get('clientId') as string) ?? 'unknown';
     const client = clients.get(clientId);
 
@@ -350,23 +389,16 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
-    // A session ID is not authentication. The hash must match the stream owner.
+    // A session ID is not authentication. A different credential gets 401 and
+    // the stream stays up. The owner's own credential, once rejected, drops
+    // the stream so a revoked key cannot keep posting.
     if (credentialHash(req) !== client.credentialHash) {
-      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      unauthorized(res);
       return;
     }
-
-    // Anonymous discovery streams (opened without a bearer) skip the credential
-    // re-check — there is no credential to re-check — and are held to the
-    // ANONYMOUS_DISCOVERY_METHODS allowlist after the body is parsed. Keyed
-    // streams keep the re-check: a key revoked or expired after GET /sse must
-    // not keep posting on the open stream.
-    const anonymousSession = client.credentialHash === EMPTY_CREDENTIAL_HASH;
-    if (!anonymousSession && !await authenticate(req)) {
+    if (!await authenticate(req)) {
       dropClient(client.id);
-      res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      unauthorized(res);
       return;
     }
 
@@ -414,24 +446,6 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         return;
       }
 
-      // Anonymous streams answer discovery only. tools/call, resources/*,
-      // prompts/*, logging/* and anything unlisted get 401 with the challenge
-      // header, which is the signal directories expect for "key required".
-      if (anonymousSession) {
-        const messages = Array.isArray(parsed) ? parsed : [parsed];
-        const discoveryOnly = messages.length > 0 && messages.every((msg) => {
-          const method = msg !== null && typeof msg === 'object'
-            ? (msg as { method?: unknown }).method
-            : undefined;
-          return typeof method === 'string' && ANONYMOUS_DISCOVERY_METHODS.has(method);
-        });
-        if (!discoveryOnly) {
-          res.writeHead(401, { 'Content-Type': 'application/json', 'WWW-Authenticate': WWW_AUTHENTICATE });
-          res.end(JSON.stringify({ error: 'Unauthorized' }));
-          return;
-        }
-      }
-
       const paymentProof = X402_ENABLED
         ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
         : undefined;
@@ -454,6 +468,100 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     return;
   }
 
+  // Streamable HTTP (MCP 2025-03-26), stateless request/response on POST /mcp.
+  // The same credential gate as GET /sse. GET is authenticated and then refused:
+  // this server does not hold a server-initiated event stream on /mcp.
+  if (path === '/mcp') {
+    const token = await requireCredential(req, res);
+    if (token === undefined) return;
+
+    if (req.method !== 'POST') {
+      res.writeHead(405, { 'Content-Type': 'application/json', Allow: 'POST, OPTIONS' });
+      res.end(JSON.stringify({ error: 'Method not allowed' }));
+      return;
+    }
+
+    if (!checkRateLimit(rateLimitKey(credentialHash(req), req))) {
+      res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+      res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
+      return;
+    }
+
+    const declared = Number(req.headers['content-length'] ?? '');
+    if (Number.isFinite(declared) && declared > MAX_BODY_SIZE) {
+      res.writeHead(413, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }));
+      req.resume();
+      return;
+    }
+
+    let bodySize = 0;
+    let body = '';
+    let rejected = false;
+    req.on('data', (chunk: Buffer | string) => {
+      if (rejected) return;
+      bodySize += Buffer.byteLength(chunk);
+      if (bodySize > MAX_BODY_SIZE) {
+        rejected = true;
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }));
+        req.destroy();
+      } else {
+        body += chunk.toString();
+      }
+    });
+    req.on('end', () => {
+      if (rejected || res.headersSent) return;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }));
+        return;
+      }
+
+      const messages = Array.isArray(parsed) ? parsed : [parsed];
+      const responses: unknown[] = [];
+      const acceptLang = req.headers['accept-language'] || '';
+      const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
+      const identity = buildIdentity('api-key', token);
+      const paymentProof = X402_ENABLED
+        ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
+        : undefined;
+      const quotaStatus = getQuotaTracker().getStatus(identity);
+
+      const run = async () => {
+        for (const message of messages) {
+          await server.handleMessage(message, locale, (response) => {
+            if (response.result && typeof response.result === 'object') {
+              (response.result as Record<string, unknown>)._quota = quotaStatus;
+            }
+            responses.push(response);
+          }, paymentProof, identity);
+        }
+      };
+
+      run().then(() => {
+        if (res.headersSent) return;
+        if (responses.length === 0) {
+          res.writeHead(202, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end('');
+          return;
+        }
+        const payload = Array.isArray(parsed) ? responses : responses[0];
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(payload));
+      }).catch((err: unknown) => {
+        logger.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Error handling streamable HTTP message');
+        if (res.headersSent) return;
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal error' }));
+      });
+    });
+    return;
+  }
+
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found', path }));
 });
@@ -465,6 +573,7 @@ metricsServer.listen(METRICS_PORT, '0.0.0.0', () => {
 httpServer.listen(PORT, () => {
   logger.info('Hosted SSE server running on http://0.0.0.0:%d', PORT);
   logger.info('SSE endpoint: http://0.0.0.0:%d/sse', PORT);
+  logger.info('Streamable HTTP endpoint: http://0.0.0.0:%d/mcp', PORT);
   logger.info('Health check: http://0.0.0.0:%d/health', PORT);
   logger.info('Tools loaded: %d', tools.length);
 });
