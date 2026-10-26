@@ -132,7 +132,8 @@ test('chart backup contract', () => {
   const netpol = readFileSync(path.join(root, 'charts/quill/templates/networkpolicy.yaml'), 'utf8');
   const pg = readFileSync(path.join(root, 'charts/quill/files/postgres-backup.sh'), 'utf8');
   assert.match(values, /storageClass: longhorn/);
-  assert.match(values, /migrateLegacyIndex: true/);
+  // One-time copy finished on 2026-10-26; prod keeps the flag off.
+  assert.match(values, /migrateLegacyIndex: false/);
   assert.match(values, /accessMode: ReadWriteOnce/);
   assert.doesNotMatch(values, /accessMode: ReadWriteMany/);
   assert.match(values, /nodeName: nexus/);
