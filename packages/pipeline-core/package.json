@@ -248,7 +248,7 @@
     "@types/pg": "^8.20.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
-    "@types/node": "^22.20.4"
+    "@types/node": "^22.20.5"
   },
   "sideEffects": false,
   "license": "AGPL-3.0-only"
