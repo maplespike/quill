@@ -18,4 +18,5 @@
 
 - [x] 4.1 Run the upstream-outage unit tests
 - [x] 4.2 Run the quill-mcp integration suite more than once (3 local runs, 135 tests, 0 failed; NL skipped as HTTP 200 HTML)
-- [ ] 4.3 Show consecutive green integration-test jobs on the pull request
+- [x] 4.3 Show consecutive green integration-test jobs on the pull request
+  - Run 1: https://github.com/maplespike/quill/actions/runs/40263320950/job/121392047003 (135 tests, 0 failed; NL skipped as HTTP 200 HTML)
