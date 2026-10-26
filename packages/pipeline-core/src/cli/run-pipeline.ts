@@ -19,6 +19,7 @@ import { getModule, runModule } from '../ingestion/registry.js';
 import { runEntityResolution } from '../entity/integration.js';
 import {
   recordIngestRun,
+  getLatestIngestRun,
   type IngestRunStatus,
   type RunSources,
   type SourceOutcome,
@@ -128,26 +129,82 @@ export interface RunOutcome {
 }
 
 /**
- * Read per-source outcomes from a module result. Recognises the
- * `sources: [{source, status, records, error}]` envelope (real-time-feeds)
- * and degrades to `[]` for modules that do not report sources.
+ * Read per-source outcomes from a module result.
+ *
+ * Two shapes exist in the registry:
+ *
+ *   1. `sources: [{source, status, records, error}]` — real-time-feeds states
+ *      its own verdicts.
+ *   2. a dictionary of per-source results — corporate, committees and influence
+ *      return `{ <source>: { recordsFound, recordsIngested, errors } }`. Those
+ *      modules do report per source, they just never had an envelope, so the
+ *      ledger recorded nothing and "all five sources errored" read as "quiet
+ *      day" (QUILL-AUDIT.md 2026-10-24, P1).
+ *
+ * Anything else degrades to `[]`.
  */
 export function extractSourceOutcomes(result: unknown): SourceOutcome[] {
   if (!result || typeof result !== 'object') return [];
   const raw = (result as { sources?: unknown }).sources;
-  if (!Array.isArray(raw)) return [];
+  if (Array.isArray(raw)) {
+    const out: SourceOutcome[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== 'object') continue;
+      const r = item as Record<string, unknown>;
+      if (typeof r.source !== 'string' || r.source.length === 0) continue;
+      const status = r.status === 'ok' || r.status === 'empty' || r.status === 'error' ? r.status : null;
+      if (!status) continue;
+      out.push({
+        source: r.source,
+        status,
+        records: typeof r.records === 'number' ? Math.max(0, Math.trunc(r.records)) : 0,
+        error: typeof r.error === 'string' && r.error.length > 0 ? r.error : null,
+        ...(typeof r.skipReason === 'string' && r.skipReason.length > 0
+          ? { skipReason: r.skipReason }
+          : {}),
+      });
+    }
+    return out;
+  }
+  return extractPerSourceDictionary(result);
+}
+
+/**
+ * Read the dictionary-of-per-source-results shape:
+ * `{ lobbying: { recordsFound: 0, recordsIngested: 0, errors: [...] }, ... }`.
+ *
+ * A child qualifies only when it carries a numeric `recordsFound` AND an
+ * `errors` array — the CorporateIngestionResult shape. That keeps arbitrary
+ * result objects (and their nested `records` arrays) from being mistaken for
+ * sources.
+ */
+function extractPerSourceDictionary(result: unknown): SourceOutcome[] {
   const out: SourceOutcome[] = [];
-  for (const item of raw) {
-    if (!item || typeof item !== 'object') continue;
-    const r = item as Record<string, unknown>;
-    if (typeof r.source !== 'string' || r.source.length === 0) continue;
-    const status = r.status === 'ok' || r.status === 'empty' || r.status === 'error' ? r.status : null;
-    if (!status) continue;
+  for (const [name, value] of Object.entries(result as Record<string, unknown>)) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+    const child = value as Record<string, unknown>;
+    if (typeof child.recordsFound !== 'number' || !Array.isArray(child.errors)) continue;
+
+    const found = Math.max(0, Math.trunc(child.recordsFound));
+    const errors = child.errors.filter((e): e is string => typeof e === 'string' && e.length > 0);
+    const declaredSkip =
+      typeof child.skipReason === 'string' && child.skipReason.length > 0 ? child.skipReason : null;
+
+    const status = errors.length > 0 ? 'error' : found > 0 ? 'ok' : 'empty';
     out.push({
-      source: r.source,
+      source: name,
       status,
-      records: typeof r.records === 'number' ? Math.max(0, Math.trunc(r.records)) : 0,
-      error: typeof r.error === 'string' && r.error.length > 0 ? r.error : null,
+      records: found,
+      // The first error is the reason; the rest stay in the module's own log.
+      error: errors[0] ?? null,
+      ...(declaredSkip
+        ? { skipReason: declaredSkip }
+        : status === 'empty'
+          ? {
+              skipReason:
+                'source answered but returned no records — check whether the publisher moved the feed',
+            }
+          : {}),
     });
   }
   return out;
@@ -268,6 +325,9 @@ export async function runOne(
   console.log(`[CLI] Running ${moduleName}: ${mod?.description ?? '(unknown module)'}`);
 
   let outcome: RunOutcome = { status: 'success', records: 0, claims: 0, error: null, logged: false, sources: null };
+  // Per-source detail survives a thrown classification: "all 5 sources failed"
+  // is only actionable if the ledger also says WHICH five and why.
+  let classifiedSources: RunSources | null = null;
   // Claim bundles are content-addressed inside the registry hook; the store
   // delta is the only place that count is visible to the caller.
   const claimsBefore = citationStore.size;
@@ -294,7 +354,23 @@ export async function runOne(
     // source still runs and stays visible — this gate can only skip a run it
     // PROVED was a no-op. Opt out per run with QUILL_INGEST_FORCE=1.
     const probeUrls = probeUrlsFor(moduleName);
-    if (probeUrls.length > 0 && process.env['QUILL_INGEST_FORCE'] !== '1') {
+    // A failed previous run must not be laundered into a green skip. probeAll
+    // compares upstream state (ETag/Last-Modified), not what landed in the
+    // store, so "no change" after a failure proves only that the publisher did
+    // not move — never that the rows arrived. Corporate did exactly this on
+    // 2026-10-23: the 02:00 run failed on three dead sources, the retry's gate
+    // said no-change, and the ledger read status=success records=0
+    // zeroReason=no-change-since-last-run (QUILL-AUDIT.md 2026-10-24, P1).
+    const previousRun = getLatestIngestRun(alias);
+    const previousFailed = previousRun?.status === 'failed';
+    if (previousFailed && probeUrls.length > 0) {
+      console.log(
+        `[CLI] ↻  ${moduleName}: previous run failed (${
+          previousRun?.started_at ?? 'unknown time'
+        }) — running instead of trusting the change gate`,
+      );
+    }
+    if (probeUrls.length > 0 && !previousFailed && process.env['QUILL_INGEST_FORCE'] !== '1') {
       const probe = runner.probeSources ?? probeAll;
       // The gate must never be the reason a pipeline does not run. probeAll
       // already catches per-source errors; this catches a throw from the probe
@@ -326,6 +402,8 @@ export async function runOne(
             status: 'ok' as const,
             records: 0,
             error: null,
+            // Record WHY each source was not read, not only that it was not.
+            skipReason: `change gate: ${r.reason} (${r.statusCode})`,
           })),
           zeroReason: 'no-change-since-last-run',
         };
@@ -389,6 +467,8 @@ export async function runOne(
       const answered = sources.filter(s => s.status !== 'error');
       if (sources.length > 0 && errored.length === sources.length) {
         // Every source failed — this is a collector failure, not a quiet day.
+        // Record the per-source verdicts before failing the run.
+        classifiedSources = { sources, zeroReason: 'all-sources-failed' };
         throw new Error(
           `all ${sources.length} source(s) failed: ` +
             errored.map(s => `${s.source} (${s.error ?? 'error'})`).join('; '),
@@ -434,7 +514,7 @@ export async function runOne(
       claims: 0,
       error: err instanceof Error ? err.message : String(err),
       logged: false,
-      sources: null,
+      sources: classifiedSources,
     };
     console.error(`[CLI] ❌ ${moduleName} failed:`, err);
   }

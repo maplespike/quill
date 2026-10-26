@@ -47,6 +47,13 @@ export interface SourceOutcome {
   status: SourceOutcomeStatus;
   records: number;
   error: string | null;
+  /**
+   * Why a source produced nothing without erroring — a policy gap, a missing
+   * feed, a blocked publisher. `error` says "this broke"; `skipReason` says
+   * "this was deliberately not fetched, and here is why". Both must reach the
+   * ledger, or "0 records" stays indistinguishable from "never asked".
+   */
+  skipReason?: string | null;
 }
 
 /**
@@ -212,6 +219,16 @@ export function getLatestIngestRuns(): IngestRunRecord[] {
          ON r.pipeline = latest.pipeline AND r.started_at = latest.started_at
      ORDER BY r.started_at DESC`,
   );
+}
+
+/** Latest run for one pipeline, or null when it has never run. */
+export function getLatestIngestRun(pipeline: string): IngestRunRecord | null {
+  if (!pipeline) return null;
+  const rows = readRows(
+    'SELECT * FROM ingest_runs WHERE pipeline = ? ORDER BY started_at DESC LIMIT 1',
+    pipeline,
+  );
+  return rows[0] ?? null;
 }
 
 /** Latest successful run for each pipeline with a successful run, newest first. */
