@@ -513,8 +513,8 @@ operator decides.
 
 - Commit as `Reverb <129622142+reverb256@users.noreply.github.com>`.
 - Never commit with a real-name or ISP-provided address.
-- Never put the operator's real name, city, ISP mailbox, or the `10.1.1.x`
-  LAN plan into a tracked file.
+- Never put the operator's real name, city, ISP mailbox, or the private LAN plan
+  into a tracked file. It belongs in the operator's local notes, not here.
 
 ### Before you push
 

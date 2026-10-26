@@ -46,7 +46,7 @@
     "test:stall-watchdog": "pnpm exec tsx --test scripts/test-stall-watchdog.mts",
     "test:count-ts": "pnpm exec tsx --test scripts/test-count-ts.mts",
     "test:secrets-history": "pnpm exec tsx --test scripts/test-secrets-history.mts",
-    "test:gitignore": "pnpm exec tsx --test scripts/test-gitignore-leak-shapes.mts",
+    "test:gitignore": "pnpm exec tsx --test scripts/test-gitignore-leak-shapes.mts scripts/test-internal-addresses.mts",
     "test:workflow-yaml": "node scripts/gates/check-workflow-yaml.mjs",
     "audit:provenance": "python3 scripts/compare-provenance.py",
     "test:workflow-gh": "pnpm exec tsx --test scripts/test-workflow-gh-auth.mts",

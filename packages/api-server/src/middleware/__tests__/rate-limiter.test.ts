@@ -32,13 +32,13 @@ describe('RateLimiter', () => {
 
   describe('extractIP', () => {
     it('returns x-forwarded-for when present', () => {
-      const req = { headers: { 'x-forwarded-for': '203.0.113.5, 10.0.0.1' } };
+      const req = { headers: { 'x-forwarded-for': '203.0.113.5, 198.51.100.9' } };
       assert.equal(limiter.extractIP(req), '203.0.113.5');
     });
 
     it('falls back to req.ip', () => {
-      const req = { headers: {}, ip: '192.168.1.1' };
-      assert.equal(limiter.extractIP(req), '192.168.1.1');
+      const req = { headers: {}, ip: '192.0.2.10' };
+      assert.equal(limiter.extractIP(req), '192.0.2.10');
     });
 
     it('returns unknown when no IP info available', () => {

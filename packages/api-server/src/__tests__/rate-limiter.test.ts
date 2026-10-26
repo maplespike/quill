@@ -45,7 +45,7 @@ describe('Rate Limiter', () => {
   describe('RateLimiter.extractIP', () => {
     it('returns the first x-forwarded-for address', () => {
       const rl = new RateLimiter();
-      const ip = rl.extractIP(fakeReq({ forwardedFor: '1.2.3.4, 10.0.0.1' }));
+      const ip = rl.extractIP(fakeReq({ forwardedFor: '1.2.3.4, 198.51.100.9' }));
       assert.equal(ip, '1.2.3.4');
     });
 

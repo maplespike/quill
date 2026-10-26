@@ -33,7 +33,7 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 > (ns `media-reverse-proxy`, hostNetwork on nexus, :80/:443) which serves every
 > `.lan` vhost from one `nginx.conf` (source of truth:
 > `media-k8s/configmap-nginx.yaml`; DNS: unbound `local-dns.conf` on nexus,
-> records → `10.1.1.120`). The cert is the homelab wildcard `CN=*.lan`
+> records → `<ingress-LAN-IP>`). The cert is the homelab wildcard `CN=*.lan`
 > (Homelab Root CA, `O=Reverb256`). `subPath` mounts mean ConfigMap edits need
 > a pod restart; validate with `nginx -t` in-pod before reloading.
 

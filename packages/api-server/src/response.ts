@@ -297,58 +297,65 @@ export function applyCorsHeaders(
   headers.set('Access-Control-Expose-Headers', CORS_EXPOSE_HEADERS);
 }
 
-const ALLOWED_ORIGINS = [
-  // Dev
-  'http://localhost:4321',
-  'http://localhost:8082',
-  'http://localhost:3001',
-  'http://localhost:3000',
-  'http://127.0.0.1:4321',
-  'http://127.0.0.1:8082',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:3000',
-  'http://10.1.1.120:4321',
-  'http://10.1.1.100:4321',
-  // Production (maplespike.ca via Cloudflare)
-  'https://maplespike.ca',
-  'https://www.maplespike.ca',
-  'https://data.maplespike.ca',
-  'https://api.maplespike.ca',
-  'https://api.data.maplespike.ca',
-  'https://mcp.maplespike.ca',
-  'https://quill.maplespike.ca',
-  'https://www.quill.maplespike.ca',
-  // Production (LAN)
-  'https://quill.maplespike.ca',
-  'https://www.quill.maplespike.ca',
-  'https://api.maplespike.ca',
-  'https://quill.maplespike.ca',
-  'https://mcp.maplespike.ca',
-  'https://portal.maplespike.ca',
-  // In-cluster LAN aliases (.lan)
-  'https://quill-api.lan',
-  'https://quill-portal.lan',
-  'https://quill-mcp.lan',
-  'https://quill.lan',
-  // Dev subdomains
-  'https://dev.maplespike.ca',
-  'https://dev-api.maplespike.ca',
-  'https://dev-mcp.maplespike.ca',
-  // LAN aliases
-  'https://quill.maplespike.ca',
-  'https://quill.maplespike.ca',
-  // Auto-derived from MAPLESPIKE_DOMAIN env var
-  ...(() => {
-    const d = process.env.MAPLESPIKE_DOMAIN;
-    if (!d) return [] as string[];
-    return [
-      `https://${d}`,
-      `https://api.${d}`,
-      `https://mcp.${d}`,
-      `https://portal.${d}`,
-      `https://dev.${d}`,
-      `https://dev-api.${d}`,
-      `https://dev-mcp.${d}`,
+/**
+ * Origins allowed to read API responses.
+ *
+ * No private-network address belongs in this list. An operator who develops
+ * against a LAN host sets `ALLOWED_ORIGINS_OVERRIDE` (see the tail of this
+ * list) instead — a tracked file must not publish the network plan
+ * (AGENTS.md; QUILL-AUDIT.md 2026-10-24, P2 "Internal addresses in 24 files").
+ */
+function buildAllowedOrigins(): string[] {
+  return [
+    // Dev
+    'http://localhost:4321',
+    'http://localhost:8082',
+    'http://localhost:3001',
+    'http://localhost:3000',
+    'http://127.0.0.1:4321',
+    'http://127.0.0.1:8082',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:3000',
+    // Production (maplespike.ca via Cloudflare)
+    'https://maplespike.ca',
+    'https://www.maplespike.ca',
+    'https://data.maplespike.ca',
+    'https://api.maplespike.ca',
+    'https://api.data.maplespike.ca',
+    'https://mcp.maplespike.ca',
+    'https://quill.maplespike.ca',
+    'https://www.quill.maplespike.ca',
+    // Production (LAN)
+    'https://quill.maplespike.ca',
+    'https://www.quill.maplespike.ca',
+    'https://api.maplespike.ca',
+    'https://quill.maplespike.ca',
+    'https://mcp.maplespike.ca',
+    'https://portal.maplespike.ca',
+    // In-cluster LAN aliases (.lan)
+    'https://quill-api.lan',
+    'https://quill-portal.lan',
+    'https://quill-mcp.lan',
+    'https://quill.lan',
+    // Dev subdomains
+    'https://dev.maplespike.ca',
+    'https://dev-api.maplespike.ca',
+    'https://dev-mcp.maplespike.ca',
+    // LAN aliases
+    'https://quill.maplespike.ca',
+    'https://quill.maplespike.ca',
+    // Auto-derived from MAPLESPIKE_DOMAIN env var
+    ...(() => {
+      const d = process.env.MAPLESPIKE_DOMAIN;
+      if (!d) return [] as string[];
+      return [
+        `https://${d}`,
+        `https://api.${d}`,
+        `https://mcp.${d}`,
+        `https://portal.${d}`,
+        `https://dev.${d}`,
+        `https://dev-api.${d}`,
+        `https://dev-mcp.${d}`,
     ];
   })(),
   // Operator-supplied extra origins — comma-separated env var.
@@ -361,12 +368,23 @@ const ALLOWED_ORIGINS = [
         .map((s) => s.trim().replace(/\/$/, ''))
         .filter(Boolean)
     : []),
-];
+  ];
+}
+
+// Rebuilt when the two env vars that shape the list change, so a test (or a
+// long-lived process) never serves a list computed for a different config.
+let cachedOrigins: { key: string; list: string[] } | null = null;
+
+function allowedOrigins(): string[] {
+  const key = `${process.env.MAPLESPIKE_DOMAIN ?? ''}|${process.env.ALLOWED_ORIGINS_OVERRIDE ?? ''}`;
+  if (cachedOrigins?.key !== key) cachedOrigins = { key, list: buildAllowedOrigins() };
+  return cachedOrigins.list;
+}
 
 export function getAllowedOrigin(requestOrigin: string | null | undefined): string {
   if (!requestOrigin) return 'null';
   const normalized = requestOrigin.replace(/\/$/, '');
-  if (ALLOWED_ORIGINS.includes(normalized)) return normalized;
+  if (allowedOrigins().includes(normalized)) return normalized;
   return 'null';
 }
 
