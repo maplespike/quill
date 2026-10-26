@@ -60,6 +60,6 @@
   "sideEffects": false,
   "dependencies": {
     "@maplespike/i18n": "workspace:*",
-    "zod": "^3.25.76"
+    "zod": "^4.6.6"
   }
 }
