@@ -25,6 +25,9 @@ jobs:
   live-data:
     name: Live Data Integration Tests
     runs-on: [self-hosted, nixos]
+    # Normally ~3 min. Runs on 2026-10-25 and 2026-10-26 hung until the 6 h
+    # default and held a host runner the whole time.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - run: pnpm install --frozen-lockfile
