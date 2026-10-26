@@ -1,0 +1,44 @@
+---
+// Standalone page. Scalar owns the viewport. The site header and footer link here.
+// The spec is same-origin, so the page does not send it through a third-party proxy.
+---
+
+<!DOCTYPE html>
+<html lang="en-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Reference | Quill</title>
+    <meta
+      name="description"
+      content="Human-readable Quill API reference rendered from the OpenAPI 3.1 specification."
+    />
+    <link rel="canonical" href="https://quill.maplespike.ca/api-reference" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="api-reference"></div>
+    <noscript>
+      <p>
+        This page renders <a href="/v1/openapi.json">the OpenAPI specification</a>.
+        Enable JavaScript, or read the JSON directly.
+      </p>
+    </noscript>
+    <script>
+      import "@scalar/api-reference/style.css";
+      import { createApiReference } from "@scalar/api-reference";
+
+      const root = document.getElementById("api-reference");
+      if (root) {
+        createApiReference(root, {
+          url: "/v1/openapi.json",
+          // Keep try-it requests on the API host from the spec. Do not proxy them.
+          proxyUrl: "",
+          // Scalar telemetry and its hosted fonts call third parties. Leave both off.
+          telemetry: false,
+          withDefaultFonts: false,
+        });
+      }
+    </script>
+  </body>
+</html>

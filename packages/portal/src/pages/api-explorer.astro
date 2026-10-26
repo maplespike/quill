@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createI18n } from "@maplespike/i18n";
 import { pick } from "@/utils/bilingual";
+import { localeUrl } from "@/utils/localeUrl";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -25,6 +26,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
           API&nbsp;<span class="text-gradient">Explorer</span>
         </h1>
+        <p class="mx-auto mt-3 text-sm">
+          <a href={localeUrl('/api-reference', lang)} class="text-primary hover:underline">{t("Read the HTML API reference", "Lire la référence API HTML")}</a>
+        </p>
         <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
           {t(
             "Test endpoints, inspect responses, and explore the MapleSpike API. All requests go directly against the live API.",
