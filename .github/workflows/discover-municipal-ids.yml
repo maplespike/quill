@@ -137,7 +137,10 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$BRANCH"
-          git add packages/pipeline-core/data/municipal-discovered-ids.json
+          # -f: .gitignore ignores every data/ dir, and a negation cannot re-include a
+          # file under an ignored dir, so a plain add is refused (run 40357477284).
+          # The file is tracked; -f on this single explicit path adds nothing else.
+          git add -f packages/pipeline-core/data/municipal-discovered-ids.json
           git commit -m "$TITLE"
           git push origin "$BRANCH"
           cat > "$RUNNER_TEMP/body.md" <<EOF
