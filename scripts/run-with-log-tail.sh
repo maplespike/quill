@@ -159,4 +159,10 @@ status=$?
 
 echo "--- captured output (last 120 lines of $log_file) ---"
 tail -n 120 "$log_file"
+if [ "$status" -ne 0 ]; then
+  # The tail rarely contains the failing test in a long run. Name every
+  # failed or cancelled test from the full log so the cause is visible.
+  echo "--- failed or cancelled tests (full log) ---"
+  grep -n -A14 -E '^[[:space:]]*not ok ' "$log_file" | head -n 400 || true
+fi
 exit "$status"
