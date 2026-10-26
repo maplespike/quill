@@ -75,9 +75,18 @@ jobs:
       - name: Install workspace deps (pipeline-core needs build for httpGet ductwork)
         run: pnpm install --frozen-lockfile --filter @maplespike/pipeline-core... --filter @maplespike/api-server...
 
-      - name: Install jq (stock ARC runner image lacks it)
+      - name: Install jq and gh (stock ARC runner image lacks both)
+        # gh opens the draft PR (or the fallback issue). Without it run
+        # 40361848428 pushed the branch and then died with "gh: command not found".
         run: |
-          command -v jq >/dev/null || { sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends jq; }
+          need=""
+          command -v jq >/dev/null || need="$need jq"
+          command -v gh >/dev/null || need="$need gh"
+          if [ -n "$need" ]; then
+            sudo apt-get update -qq
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $need
+          fi
+          jq --version && gh --version | head -1
 
       - name: Run discover script
         id: discover
