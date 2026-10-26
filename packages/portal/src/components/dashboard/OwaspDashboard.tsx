@@ -340,7 +340,7 @@ function DependencySecurityPanel() {
               Live Dependency <span className="text-gradient">Security</span>
             </h2>
             <span
-              className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${sourceBadge.class}`}
+              className={`rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${sourceBadge.class}`}
               title={
                 audit._meta?.fallbackReason ??
                 audit.note ??
@@ -396,7 +396,7 @@ function DependencySecurityPanel() {
                 className="flex flex-col items-start rounded-lg border bg-background/60 p-3"
               >
                 <span
-                  className={`mb-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                  className={`mb-1 rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${
                     cveSeverityMeta[key].color
                   }`}
                 >
@@ -422,7 +422,7 @@ function DependencySecurityPanel() {
                       className="flex flex-wrap items-center gap-3 rounded-lg border border-border/60 bg-background/50 px-3.5 py-2.5"
                     >
                       <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${sev.color}`}
+                        className={`rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${sev.color}`}
                       >
                         {sev.label}
                       </span>
