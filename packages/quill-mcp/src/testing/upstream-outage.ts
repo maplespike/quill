@@ -9,11 +9,18 @@
  * wrapped in `continue-on-error: true` — which also swallowed every real
  * regression. The split is now explicit:
  *
- *   - The host is unavailable (network error, 429, 5xx, no response)  -> SKIP.
- *     The outage is upstream, not ours. CI stays green and prints why.
- *   - The host answers with 4xx or a malformed payload               -> FAIL.
+ *   - The host is unavailable                                            -> SKIP.
+ *     Network error, 429, 5xx, no response, or a 2xx whose body is an HTML
+ *     document instead of the API payload. CI stays green and prints why.
+ *   - The host answers with 4xx, or with JSON that is malformed or the
+ *     wrong shape                                                       -> FAIL.
  *     That is our bug: a broken request, a moved endpoint, a parser that
- *     cannot read a 200. A skip here would hide a real regression.
+ *     cannot read a JSON 200. A skip here would hide a real regression.
+ *
+ * A 2xx HTML document is the same outage as a 500. Newfoundland and
+ * Labrador's portal (offline since 2026-10-21) answers 500 on some days
+ * and HTTP 200 with `<!DOCTYPE html>` ("An error has occurred") on others.
+ * A status-only check flipped between skip and fail for one outage.
  *
  * 0 means "no HTTP response at all" (fetch rejected) — treated as an outage,
  * never as a pass, because there is no evidence the endpoint still works.
@@ -123,8 +130,47 @@ export interface UpstreamFetchResult {
   /** HTTP status. 0 means the request never produced a response. */
   status: number;
   body?: string;
+  /** Response Content-Type, when the request produced a response. */
+  contentType?: string;
   /** The thrown value, when the request rejected. */
   error?: unknown;
+}
+
+const HTML_CONTENT_TYPE = /(?:^|[;\s])(?:text\/html|application\/xhtml\+xml)\b/i;
+/** Optional XML declaration, then an HTML doctype or an <html> root. RSS stays out. */
+const HTML_DOCUMENT_START = /^(?:<\?xml\b[^>]*>\s*)?(?:<!doctype\s+html\b|<html\b)/i;
+
+function payloadPrefix(body: string | undefined): string {
+  return (body ?? '').replace(/^\uFEFF/, '').trimStart();
+}
+
+/**
+ * True when the body is an HTML document rather than JSON or an XML feed.
+ *
+ * A JSON body wins over a wrong Content-Type: some portals label JSON as
+ * text/html. An RSS document (`<?xml …><rss`) is not HTML. An empty body
+ * with `Content-Type: text/html` is HTML — the error page carried no payload.
+ */
+export function isHtmlDocument(r: UpstreamFetchResult): boolean {
+  const prefix = payloadPrefix(r.body);
+  if (prefix.startsWith('{') || prefix.startsWith('[')) return false;
+  if (r.contentType && HTML_CONTENT_TYPE.test(r.contentType)) return true;
+  if (!prefix) return false;
+  return HTML_DOCUMENT_START.test(prefix);
+}
+
+/**
+ * True when `JSON.parse` / `resp.json()` rejected an HTML body.
+ *
+ * Node 22 reports `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+ * Older Node reports `Unexpected token < in JSON at position 0`. Both are
+ * the HTML-document outage, seen from a caller that already consumed the body.
+ * A truncated JSON value (`Unexpected token n`) is not this case.
+ */
+export function isHtmlJsonParseError(err: unknown): boolean {
+  const text = errorText(err);
+  if (!text.includes('<')) return false;
+  return /not valid JSON/i.test(text) || /unexpected token\s*['"]?</i.test(text);
 }
 
 function outageReason(r: UpstreamFetchResult): string | null {
@@ -136,6 +182,12 @@ function outageReason(r: UpstreamFetchResult): string | null {
       ? 'no HTTP response'
       : `HTTP ${r.status}`;
   }
+  // 2xx only. A 4xx HTML page is still a failure: the endpoint moved or refused us.
+  if (r.status >= 200 && r.status < 300 && isHtmlDocument(r)) {
+    const rawType = r.contentType?.split(';')[0]?.trim() ?? '';
+    const type = rawType.length > 0 ? ` ${rawType}` : '';
+    return `HTTP ${r.status} HTML document${type}`;
+  }
   return null;
 }
 
@@ -143,9 +195,10 @@ function outageReason(r: UpstreamFetchResult): string | null {
  * Skip the current test when the live call shows an upstream outage.
  * Returns true when it skipped — the caller must `return` immediately after.
  *
- * Does NOT skip on 4xx or on a well-formed response with a bad body: those
- * stay assertion failures, because they mean Quill (or the endpoint contract)
- * regressed.
+ * Does NOT skip on 4xx or on a JSON body that is malformed or the wrong
+ * shape: those stay assertion failures, because they mean Quill (or the
+ * endpoint contract) regressed. A 2xx HTML document does skip — the host
+ * served an error page, not the API.
  */
 export function skipIfUpstreamDown(
   t: TestContext,
@@ -166,6 +219,16 @@ export function skipIfNetworkError(t: TestContext, err: unknown, name: string): 
 }
 
 /**
+ * Skip when a JSON parser rejected an HTML document.
+ * Returns true when it skipped. A truncated JSON value does not skip.
+ */
+export function skipIfHtmlParseError(t: TestContext, err: unknown, name: string): boolean {
+  if (!isHtmlJsonParseError(err)) return false;
+  t.skip(`upstream outage: ${name} returned an HTML document instead of JSON; not a Quill regression`);
+  return true;
+}
+
+/**
  * Probe a host once, for suites that call handlers instead of raw URLs.
  * Returns `null` when the host looks healthy, or the skip reason when it does
  * not. Never throws.
@@ -181,7 +244,13 @@ export async function probeUpstream(
       headers: { 'User-Agent': 'QuillTest/1.0', Accept: 'application/json, text/xml, */*' },
       signal: AbortSignal.timeout(timeoutMs),
     });
-    result = { status: resp.status };
+    // Prefix only. The HTML check reads the start of the body and the type.
+    const raw = await resp.text();
+    result = {
+      status: resp.status,
+      body: raw.slice(0, 512),
+      contentType: resp.headers.get('content-type') ?? undefined,
+    };
   } catch (err) {
     result = { status: 0, error: err };
   }
