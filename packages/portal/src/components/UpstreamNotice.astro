@@ -1,0 +1,143 @@
+---
+/**
+ * Upstream outage notice.
+ *
+ * Reads GET /v1/upstream/status and shows ONE line when a government host that
+ * a feature depends on is not up. All copy, timing and state rules live in
+ * `packages/api-server/src/upstream/` (report §6.1/§6.2) — this component only
+ * renders the `banner` the API picked, so an expected-back time can never be
+ * invented in UI code.
+ *
+ * Deliberate choices:
+ *   - Nothing renders when the endpoint fails. A broken status probe must not
+ *     add noise to every page.
+ *   - No banner for `unknown`, `blocked_permanent`, watch windows or content
+ *     refresh: those are "we have no evidence" or "expected cadence", not an
+ *     outage.
+ *   - The source link is the publisher's own page. Compliance design intact:
+ *     no personal data, no tracking parameters, no analytics on the click.
+ */
+interface Props {
+  lang?: 'en' | 'fr';
+}
+
+const { lang = 'en' } = Astro.props;
+const labels = {
+  en: {
+    dismiss: 'Dismiss',
+    source: 'Source',
+  },
+  fr: {
+    dismiss: 'Fermer',
+    source: 'Source',
+  },
+} as const;
+const t = labels[lang];
+---
+
+<div
+  id="upstream-notice"
+  class="hidden border-b border-border/40 bg-card/40 text-sm text-muted-foreground"
+  role="status"
+  aria-live="polite"
+  data-lang={lang}
+>
+  <div class="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2 sm:px-6 lg:px-8">
+    <p class="flex-1 leading-snug">
+      <span id="upstream-notice-text"></span>
+      <a
+        id="upstream-notice-source"
+        class="ml-1 hidden whitespace-nowrap underline underline-offset-2 hover:text-foreground"
+        target="_blank"
+        rel="noopener noreferrer"
+      >{t.source}</a>
+    </p>
+    <button
+      id="upstream-notice-dismiss"
+      type="button"
+      class="shrink-0 rounded px-1.5 text-xs leading-relaxed text-muted-foreground/70 hover:text-foreground"
+      aria-label={t.dismiss}
+    >×</button>
+  </div>
+</div>
+
+<script is:inline data-astro-rerun>
+  (function () {
+    'use strict';
+
+    var el = document.getElementById('upstream-notice');
+    if (!el || el.dataset.bound === 'true') return;
+    el.dataset.bound = 'true';
+
+    var textEl = document.getElementById('upstream-notice-text');
+    var sourceEl = document.getElementById('upstream-notice-source');
+    var dismissEl = document.getElementById('upstream-notice-dismiss');
+    var FR = el.dataset.lang === 'fr';
+    var cfg = window.MAPLESPIKE || {};
+    var apiBase = cfg.apiBase || 'https://api.maplespike.ca';
+    var STORAGE_KEY = 'quill.upstreamNotice.dismissed';
+
+    function dismissedKey() {
+      try {
+        return window.sessionStorage.getItem(STORAGE_KEY) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function remember(key) {
+      try {
+        window.sessionStorage.setItem(STORAGE_KEY, key);
+      } catch (e) {
+        /* private mode — the banner simply reappears on the next page */
+      }
+    }
+
+    function hide() {
+      el.classList.add('hidden');
+    }
+
+    function show(banner) {
+      var message = banner.message && (FR ? banner.message.fr : banner.message.en);
+      if (!message) return;
+      var key = banner.host + ':' + banner.state;
+      if (dismissedKey() === key) return;
+
+      textEl.textContent = message;
+      if (banner.source) {
+        sourceEl.href = banner.source;
+        sourceEl.classList.remove('hidden');
+      }
+      el.classList.remove('hidden');
+
+      dismissEl.addEventListener('click', function () {
+        remember(key);
+        hide();
+      });
+    }
+
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () {
+      if (controller) controller.abort();
+    }, 6000);
+
+    fetch(apiBase + '/v1/upstream/status', {
+      signal: controller ? controller.signal : undefined,
+      headers: { Accept: 'application/json' },
+    })
+      .then(function (res) {
+        return res.ok ? res.json() : null;
+      })
+      .then(function (body) {
+        var payload = body && body.data;
+        if (!payload || !payload.banner) return;
+        show(payload.banner);
+      })
+      .catch(function () {
+        // A status probe that fails is not a reason to tell the reader anything.
+      })
+      .then(function () {
+        clearTimeout(timer);
+      });
+  })();
+</script>

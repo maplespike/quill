@@ -144,11 +144,15 @@ import {
   extractionResultsHandler,
   extractionCachedHandler,
 } from './routes/extraction.js';
+import { upstreamStatusHandler } from './routes/upstream-status.js';
 
 export const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
   { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(statusHandler, 30) },
+  // Upstream health, read by the site banner. 15 s cache: the prober ticks once
+  // a minute, and a banner may lag a few seconds without misleading anyone.
+  { pattern: /^\/v1\/upstream\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(upstreamStatusHandler, 15) },
   { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: withRouteCache(complianceHandler, 3600) },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: withRouteCache(onboardingHandler, 3600) },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
@@ -632,6 +636,9 @@ export async function handleRequest(
     path.startsWith('/v1/health')
     || path.startsWith('/v1/version')
     || path.startsWith('/v1/status')
+    // Upstream health is public observability: the site banner reads it before
+    // sign-in. The payload carries host names and publisher copy only.
+    || path.startsWith('/v1/upstream/status')
     || path.startsWith('/v1/compliance')
     || path.startsWith('/v1/onboarding')
     // gov/search is a PAID data route (a free tenant gets 402 by design), so it

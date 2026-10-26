@@ -122,6 +122,21 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
     },
     paths: {
+      '/v1/upstream/status': {
+        get: {
+          tags: ['Health'],
+          summary: 'Upstream government source status',
+          description:
+            'Per-host health for the government sources Quill depends on: observed state (up, degraded, down), declared maintenance windows (scheduled, partial), announced incidents, and the copy the site may show. Public: no API key required. Expected-back times are published only for declared windows, never inferred.',
+          security: [],
+          responses: {
+            '200': {
+              description: 'Per-host upstream status plus the single banner the site may show',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } },
+            },
+          },
+        },
+      },
       '/v1/health': {
         get: {
           tags: ['Health'],

@@ -28,6 +28,8 @@ import logger from './logger.js';
 import { redisClient } from './cache/redis.js';
 import { rateLimiter } from './middleware/rate-limiter.js';
 import { credentialCacheScope } from './middleware/cache-middleware.js';
+import { validateConfig as validateUpstreamConfig } from './upstream/maintenance-config.js';
+import { startUpstreamProber } from './upstream/prober.js';
 
 const log = logger;
 
@@ -359,6 +361,20 @@ if (!verifyStorageHealth()) {
 metricsServer.listen(METRICS_PORT, '0.0.0.0', () => {
   log.info({ port: METRICS_PORT }, 'Private API metrics listener started');
 });
+
+// Upstream maintenance probe (UPSTREAM-OUTAGES.md §6). In-process: one GET per
+// host per minute, feeding a five-minute rolling window behind
+// GET /v1/upstream/status. Disable with QUILL_UPSTREAM_PROBE=0.
+{
+  const errors = validateUpstreamConfig();
+  if (errors.length > 0) {
+    // A bad window in the config would silently hide scheduled maintenance, so
+    // it fails the boot instead of degrading the banner.
+    log.error({ errors }, 'invalid upstream-maintenance config');
+    process.exit(1);
+  }
+  startUpstreamProber();
+}
 
 server.listen(PORT, '0.0.0.0', () => {
   const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
