@@ -7,7 +7,9 @@ export const NodeSchema = z.object({
   id: z.string().min(1),
   type: z.enum(['person', 'organization', 'contract', 'lobbying_filing', 'disclosure', 'donation', 'project']),
   label: z.string().min(1),
-  properties: z.record(z.unknown()).default({}),
+  // .default() returns this value when the input is undefined. The value is
+  // already the output type, so .prefault() is not required.
+  properties: z.record(z.string(), z.unknown()).default({}),
 });
 
 export const EdgeSchema = z.object({

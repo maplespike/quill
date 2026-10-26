@@ -46,15 +46,15 @@ export const RelationshipSchema = z.object({
 });
 
 export const PersonSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   names: z.array(z.string()),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   roles: z.array(RoleSchema),
   relationships: z.array(RelationshipSchema),
   province: z.string().optional(),

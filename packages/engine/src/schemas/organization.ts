@@ -23,17 +23,17 @@ export const RegistrationSchema = z.object({
 });
 
 export const OrganizationSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   names: z.array(z.string()),
   type: OrganizationTypeSchema,
   registrations: z.array(RegistrationSchema),
   industry: z.string().optional(),
   province: z.string().optional(),
   city: z.string().optional(),
-  website: z.string().url().optional(),
-  parentOrganizationId: z.string().uuid().optional(),
+  website: z.url().optional(),
+  parentOrganizationId: z.guid().optional(),
 });

@@ -18,11 +18,11 @@ export const TenderStatusSchema = z.enum([
 ]);
 
 export const ContractSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   contractNumber: z.string(),
   title: z.string(),
   description: z.string(),
@@ -40,11 +40,11 @@ export const ContractSchema = z.object({
 });
 
 export const TenderSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   source: GovernmentSourceSchema,
-  rawData: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  rawData: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   solicitationNumber: z.string(),
   title: z.string(),
   description: z.string(),
