@@ -55,6 +55,9 @@ jobs:
   ci:
     name: Build & Test
     runs-on: [self-hosted, nixos]
+    # A hung test must fail the deploy, not hold a host runner for the 6 h
+    # default (2026-10-26: api-server api.test.ts idled 24 min at 0% CPU).
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
