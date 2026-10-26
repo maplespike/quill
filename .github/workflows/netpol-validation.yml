@@ -27,9 +27,13 @@ permissions:
 jobs:
   netpol:
     name: netpol assertions
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
+
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
 
       - uses: azure/setup-helm@v5
 

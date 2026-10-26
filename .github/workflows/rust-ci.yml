@@ -31,12 +31,16 @@ permissions:
 
 jobs:
   rust-fmt:
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: dtolnay/rust-toolchain@stable
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           components: rustfmt, clippy
 
@@ -48,12 +52,16 @@ jobs:
         working-directory: ./rust
 
   rust-clippy:
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: dtolnay/rust-toolchain@stable
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           components: rustfmt, clippy
 
@@ -66,12 +74,16 @@ jobs:
         working-directory: ./rust
 
   rust-test:
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted", "nixos", "rust"]') || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        if: startsWith(runner.name, 'arc-')
+        uses: ./.github/actions/arc-tools
+
       - uses: dtolnay/rust-toolchain@stable
-        if: runner.environment == 'github-hosted'
+        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           components: rustfmt, clippy
 

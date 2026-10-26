@@ -11,7 +11,7 @@
  * request never sits behind StatCan. These tests use an injected fetcher and a
  * fixed clock: no network, no real StatCan.
  */
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -40,7 +40,22 @@ function counter(rows: GovRelease[]) {
 }
 
 describe('gov/releases snapshot cache', () => {
-  beforeEach(() => resetReleaseSnapshotForTests());
+  // The cache's wait timer is unref()'d so it never holds the API server open.
+  // In an isolated test process nothing else is pending while a test awaits
+  // that timer, so on Node 22 the event loop drains first and the runner
+  // cancels the test ("Promise resolution is still pending but the event loop
+  // has already resolved"). Node 26 happens to keep the loop alive; the engine
+  // floor is 22.12, and CI on arc-maplespike and fork runners uses Node 22.
+  // A ref'd interval for the length of each test keeps the loop alive.
+  let keepAlive: ReturnType<typeof setInterval> | undefined;
+  beforeEach(() => {
+    resetReleaseSnapshotForTests();
+    keepAlive = setInterval(() => {}, 1_000);
+  });
+  afterEach(() => {
+    clearInterval(keepAlive);
+    keepAlive = undefined;
+  });
 
   it('a warm snapshot is served without touching the upstream', async () => {
     const { state, fetcher } = counter([release('a'), release('b')]);
