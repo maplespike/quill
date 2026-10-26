@@ -17,6 +17,11 @@ overrides:
   # bigint-buffer 1.1.5 advisory has no upstream fix; the maintained
   # @trufflesuite fork is the ecosystem-standard drop-in substitute.
   bigint-buffer: "npm:@trufflesuite/bigint-buffer@1.1.10"
+  # GHSA-ch52-4w7c-c8xp (high): max-stale handling in http-cache-semantics
+  # <= 4.2.0 can return another user's cached response. 4.3.0 is the first
+  # release outside the vulnerable range. astro@7 declares ^4.2.0, so this
+  # moves the resolution inside the range that package already accepts.
+  http-cache-semantics: "^4.3.0"
   undici: "^8.11.2"
   hono: "^4.13.5"
   fast-uri: "^4.1.3"
