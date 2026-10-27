@@ -416,8 +416,8 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ## Related Repositories
 
-- [reverb256/ai-inference-gateway](https://github.com/reverb256/ai-inference-gateway) — AI gateway, model routing, RAG
-- [reverb256/astral-key](https://github.com/reverb256/astral-key) — Rust Web3/FIDO2/passkey auth microservice
+- reverb256/ai-inference-gateway — AI gateway, model routing, RAG
+- reverb256/astral-key — Rust Web3/FIDO2/passkey auth microservice
 - [reverb256/nixos-config](https://github.com/reverb256/nixos-config) — Cluster NixOS config
 
 ---
