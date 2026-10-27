@@ -17,6 +17,11 @@ permissions:
   id-token: write
   packages: write
 
+concurrency:
+  # Publishing: one tag at a time, never cancelled mid-publish.
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   publish-npm:
     if: startsWith(github.ref, 'refs/tags/v')

@@ -53,6 +53,64 @@ env:
   NODE_ENV: test
 
 jobs:
+  # PR path filter. Runs on a GitHub-hosted runner (it checks out nothing and
+  # only reads the PR's file list over the API), so it never waits behind the
+  # single arc-maplespike runner. Pushes to main/prod skip the filter step and
+  # every job below runs in full, so main always gets the complete signal.
+  # Filters are deny-lists ("everything except ..."): a path nobody thought
+  # about runs the jobs instead of silently skipping them.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.every.outputs.code == 'true' || steps.some.outputs.self == 'true' }}
+      api: ${{ steps.every.outputs.api == 'true' || steps.some.outputs.self == 'true' }}
+      deps: ${{ steps.some.outputs.deps == 'true' }}
+    steps:
+      - id: every
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          predicate-quantifier: every
+          filters: |
+            code: &code
+              - '**'
+              - '!**/*.md'
+              - '!docs/**/*.png'
+              - '!docs/**/*.svg'
+              - '!LICENSE*'
+              - '!.github/**'
+              - '!.changeset/**'
+              - '!rust/**'
+              - '!openspec/**'
+              - '!k8s/**'
+              - '!manifests/**'
+              - '!training/**'
+              - '!ops/**'
+            api:
+              - *code
+              - '!packages/{create-module,docs,edge-worker,ingestion,legal-core,legislation,notification-service,sdk-python,sdk-shell}/**'
+      - id: some
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            self:
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            deps:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'packages/**/package.json'
+              - 'patches/**'
+              - 'scripts/check-no-native-bindings.sh'
+              - '.github/workflows/ci.yml'
+
   build-and-test:
     # Fork pull requests take ubuntu-latest. Same-repo pull requests and pushes
     # stay on the self-hosted pool. A fork can replace this file. The runner
@@ -356,7 +414,10 @@ jobs:
         run: timeout 25m bash scripts/run-with-log-tail.sh pnpm --filter @maplespike/quill-mcp test:integration
 
   coverage:
-    needs: build-and-test
+    needs: [build-and-test, changes]
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.api == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     continue-on-error: true
     timeout-minutes: 60
@@ -396,7 +457,10 @@ jobs:
         run: timeout 25m bash scripts/run-with-log-tail.sh bash scripts/check-coverage-floor.sh @maplespike/quill-mcp test:coverage:unit 73 65
 
   integration-test:
-    needs: build-and-test
+    needs: [build-and-test, changes]
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     # No continue-on-error key on this job. An upstream outage skips
     # (upstream-outage.ts), including a 2xx HTML error page. A regression
@@ -518,7 +582,10 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   audit:
-    needs: build-and-test
+    needs: [build-and-test, changes]
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.deps == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical

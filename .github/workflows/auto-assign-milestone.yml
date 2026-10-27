@@ -6,6 +6,11 @@ on:
   issues:
     types: [opened]
 
+concurrency:
+  # One run per PR or issue; a reopen supersedes an open still queued.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   assign-milestone:
     # No checkout. A fork pull request is skipped. Same-repo work stays here.
