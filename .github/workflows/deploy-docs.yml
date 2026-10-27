@@ -44,8 +44,10 @@ on:
 
 # Ensure only one deployment runs at a time
 concurrency:
+  # Deploy: never cancel a run mid-deploy. A newer push still replaces an older
+  # pending run in this group, so at most one deploy waits.
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:

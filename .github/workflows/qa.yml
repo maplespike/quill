@@ -37,7 +37,76 @@ permissions:
   contents: read
 
 jobs:
+  # PR path filter. Runs on a GitHub-hosted runner (it checks out nothing and
+  # only reads the PR's file list over the API), so it never waits behind the
+  # single arc-maplespike runner. Pushes to main/prod skip the filter step and
+  # every job below runs in full, so main always gets the complete signal.
+  # Filters are deny-lists ("everything except ..."): a path nobody thought
+  # about runs the jobs instead of silently skipping them.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.every.outputs.code == 'true' || steps.some.outputs.self == 'true' }}
+      api: ${{ steps.every.outputs.api == 'true' || steps.some.outputs.self == 'true' }}
+      pipeline: ${{ steps.some.outputs.pipeline == 'true' || steps.some.outputs.self == 'true' }}
+    steps:
+      - id: every
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          predicate-quantifier: every
+          filters: |
+            code: &code
+              - '**'
+              - '!**/*.md'
+              - '!docs/**/*.png'
+              - '!docs/**/*.svg'
+              - '!LICENSE*'
+              - '!.github/**'
+              - '!.changeset/**'
+              - '!rust/**'
+              - '!openspec/**'
+              - '!k8s/**'
+              - '!manifests/**'
+              - '!training/**'
+              - '!ops/**'
+            api:
+              - *code
+              - '!packages/{create-module,docs,edge-worker,ingestion,legal-core,legislation,notification-service,sdk-python,sdk-shell}/**'
+      - id: some
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            self:
+              - '.github/workflows/qa.yml'
+              - '.github/actions/**'
+            # pipeline-core and what it builds against. Its tests also read
+            # charts/quill (change-gate-coverage, pipeline-aliases).
+            pipeline:
+              - 'packages/pipeline-core/**'
+              - 'packages/database/**'
+              - 'charts/**'
+              - 'data-source-licenses.json'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
+              - 'patches/**'
+              - 'tsconfig.json'
+              - 'turbo.json'
+              - 'scripts/build-packages.sh'
+              - 'scripts/check-workspace-resolution.sh'
+
   test-framework:
+    needs: changes
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.pipeline == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     # Self-hosted runners otherwise inherit a 5-day job cap; a wedged step
     # must not squat a runner from the pool (#996).
@@ -82,6 +151,10 @@ jobs:
         working-directory: packages/pipeline-core
 
   qa-module-validation:
+    needs: changes
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.pipeline == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
@@ -131,6 +204,10 @@ jobs:
         working-directory: packages/pipeline-core
 
   attestation-chain:
+    needs: changes
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.code == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
@@ -182,6 +259,10 @@ jobs:
         working-directory: packages/pipeline-core
 
   api-and-mcp-validation:
+    needs: changes
+    # Skipped on PRs whose files cannot affect it (see the changes job). A
+    # failed/missing filter runs it rather than skipping it.
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.api == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     # 2026-10-04 (#996): this job once ran 3h17m with zero output because a
     # wedged unit-test child held the step open and the job had no bound of

@@ -17,6 +17,12 @@ on:
       - 'scripts/generate-metrics.mjs'
   workflow_dispatch:
 
+concurrency:
+  # One run per PR: a new push cancels the superseded run. Pushes to main/prod
+  # group by commit SHA, so they never cancel each other.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 

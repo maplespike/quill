@@ -42,8 +42,10 @@ permissions:
   id-token: write
 
 concurrency:
+  # Deploy: never cancel a run mid-deploy. A newer push still replaces an older
+  # pending run in this group, so at most one deploy waits.
   group: pages-demo
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
