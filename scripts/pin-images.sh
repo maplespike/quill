@@ -274,17 +274,26 @@ for SVC in $SERVICES; do
   # operator must be able to repair a peer with the same script.
   # A peer that cannot be reached fails the pin: shipping a digest that half the
   # pool cannot resolve is how the 2026-10-21 rollout deadlocked.
+  # Export to a file first, then feed each peer from it. Piping a live
+  # `ctr images export -` straight into a remote `ctr images import -` fails
+  # with "ctr: unrecognized image format" (k3s v1.37), even though the bytes
+  # are identical; the same stream read from a file imports cleanly.
   if [[ -n "$SYNC_NODES" ]]; then
+    : "${TMPDIR:=$REPO_ROOT/.tmp}"
+    mkdir -p "$TMPDIR"
+    SYNC_TAR="$TMPDIR/quill-$SVC-sync.tar"
+    ctr images export - "$REPO_REF@$DIGEST" > "$SYNC_TAR" \
+      || { rm -f "$SYNC_TAR"; echo "  ERROR: could not export $REPO_REF@$DIGEST for peer sync" >&2; exit 1; }
     for host in $SYNC_NODES; do
       echo "  sync:    $host"
-      ctr images export - "$REPO_REF@$DIGEST" \
-        | ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
-            "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" \
-        || { echo "  ERROR: import on $host failed — it could not pull $REPO_REF@$DIGEST" >&2; exit 1; }
+      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
+          "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" < "$SYNC_TAR" \
+        || { rm -f "$SYNC_TAR"; echo "  ERROR: import on $host failed — it could not pull $REPO_REF@$DIGEST" >&2; exit 1; }
       ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
         "sudo -n k3s ctr -n $CTR_NS images tag --force '$REPO_REF@$DIGEST' '$REPO_REF:$BUILD_TAG' >/dev/null" \
-        || { echo "  ERROR: tagging on $host failed — $REPO_REF:$BUILD_TAG would not resolve" >&2; exit 1; }
+        || { rm -f "$SYNC_TAR"; echo "  ERROR: tagging on $host failed — $REPO_REF:$BUILD_TAG would not resolve" >&2; exit 1; }
     done
+    rm -f "$SYNC_TAR"
   fi
 
   echo "  digest:  $DIGEST"
