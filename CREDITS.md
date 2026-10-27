@@ -22,8 +22,8 @@ Software-license facts for Quill's own packages are produced by [`scripts/audit-
 |---------|---------------------------|
 | [reverb256/mcp-canada](https://github.com/reverb256/mcp-canada) | Acknowledged predecessor and architectural reference for Canadian government MCP tools. **Whole-repository comparison completed 2026-10-02** at commit `f2deb2285ebeb4868a278d1d9189add038afa27d` (MIT, © 2026 Reyem Tech): 111 files / 35,417 Python tokens against Quill's 1,371 files / 432,457 TypeScript tokens. Longest shared token run across all pairs: **8 tokens**; highest coverage of any predecessor file: **0.44%** — at or below Quill's own intra-repo noise floor. No substantial literal copying established at this revision. Method and limitations in [`docs/open-source-audit.md`](./docs/open-source-audit.md) and [`scripts/compare-provenance.py`](./scripts/compare-provenance.py). |
 | [reverb256/Frostbite-Gazette](https://github.com/reverb256/Frostbite-Gazette) | Related downstream consumer. The repository is private and its license and source contents were not independently audited. Do not copy its code absent permission. |
-| [reverb256/ai-inference-gateway](https://github.com/reverb256/ai-inference-gateway) | Related service integration. No evidence in this pass establishes source-code reuse. |
-| [reverb256/astral-key](https://github.com/reverb256/astral-key) | Related authentication service integration. No evidence in this pass establishes source-code reuse. |
+| reverb256/ai-inference-gateway | Related service integration. No evidence in this pass establishes source-code reuse. |
+| reverb256/astral-key | Related authentication service integration. No evidence in this pass establishes source-code reuse. |
 
 ### Direct provenance observations
 
