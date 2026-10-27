@@ -103,6 +103,7 @@ import {
   oauthLoginHandler,
   oauthCallbackHandler,
   oauthExchangeHandler,
+  legacyGithubLoginHandler,
 } from './routes/auth-oauth.js';
 import {
   passkeyRegisterBeginHandler,
@@ -133,8 +134,6 @@ import { dataQualityHandler } from './routes/data-quality.js';
 import { ingestStatusHandler } from './routes/ingest-status.js';
 import { ingestReportHandler } from './routes/ingest-report.js';
 import {
-  githubLoginHandler,
-  githubCallbackHandler,
   refreshTokenHandler,
   logoutHandler,
   meHandler as authMeHandler,
@@ -257,9 +256,10 @@ export const ROUTES: Route[] = [
   // OAuth login/callback redirects — no cache (user-specific redirects)
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/?$/, method: 'GET', params: ['provider'], handler: oauthLoginHandler },
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/callback\/?$/, method: 'GET', params: ['provider'], handler: oauthCallbackHandler },
-  // Legacy GitHub-specific (kept for backward compat)
-  { pattern: /^\/v1\/auth\/github\/?$/, method: 'GET', params: [], handler: githubLoginHandler },
-  { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: githubCallbackHandler },
+  // Legacy GitHub-specific URLs: both start the generic flow (the old
+  // handler landed users anonymous on /me — see legacyGithubLoginHandler).
+  { pattern: /^\/v1\/auth\/github\/?$/, method: 'GET', params: [], handler: legacyGithubLoginHandler },
+  { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: legacyGithubLoginHandler },
   { pattern: /^\/v1\/auth\/refresh\/?$/, method: 'POST', params: [], handler: refreshTokenHandler },
   { pattern: /^\/v1\/auth\/logout\/?$/, method: 'POST', params: [], handler: logoutHandler },
   { pattern: /^\/v1\/auth\/me\/?$/, method: 'GET', params: [], handler: withRouteCache(authMeHandler, 60) },
