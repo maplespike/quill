@@ -52,3 +52,53 @@ annotations:
   quill.maplespike.ca/image-build-tag: {{ $pin.tag | quote }}
 {{- end -}}
 {{- end }}
+
+{{/*
+  quill.nodeAffinity — required hostname In affinityHosts + preferred preferredHost.
+
+  Input: dict with optional keys:
+    affinityHosts (list of kubernetes.io/hostname values; required for emit)
+    preferredHost (string; optional preferredDuringScheduling weight 100)
+    indent (int; spaces before "affinity:" — default 6 for pod spec)
+
+  Emits nothing when affinityHosts is empty. Callers that already emit an
+  `affinity:` block (portal podAntiAffinity) should use quill.nodeAffinityTerms
+  instead and nest under affinity.nodeAffinity.
+*/}}
+{{- define "quill.nodeAffinity" -}}
+{{- $hosts := .affinityHosts | default list -}}
+{{- if $hosts -}}
+{{- $pref := .preferredHost | default "" -}}
+affinity:
+  nodeAffinity:
+{{- include "quill.nodeAffinityBody" (dict "affinityHosts" $hosts "preferredHost" $pref) | nindent 4 }}
+{{- end -}}
+{{- end }}
+
+{{/*
+  quill.nodeAffinityBody — required + preferred nodeAffinity contents only
+  (no outer affinity:/nodeAffinity: keys). For merging into an existing affinity.
+*/}}
+{{- define "quill.nodeAffinityBody" -}}
+{{- $hosts := .affinityHosts | default list -}}
+{{- $pref := .preferredHost | default "" -}}
+requiredDuringSchedulingIgnoredDuringExecution:
+  nodeSelectorTerms:
+    - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+{{- range $hosts }}
+            - {{ . | quote }}
+{{- end }}
+{{- if $pref }}
+preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 100
+    preference:
+      matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+            - {{ $pref | quote }}
+{{- end }}
+{{- end }}

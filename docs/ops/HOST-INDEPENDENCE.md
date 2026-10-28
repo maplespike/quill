@@ -2,46 +2,52 @@
 
 Standing rule: no Maplespike function may rely on a single machine.
 
-## Chart change
+## CPU order (Reverb 15:06 CT)
 
-Production values clear hard `nodeName: nexus` pins for api, mcp, redis,
-ingestion, and search. Workloads use `nodeSelector: quill.io/workload=true`
-so the scheduler may place them on nexus or forge. PVCs stay **longhorn** RWO
-(already migrated off local-path); the volume attaches on whichever node runs
-the pod.
+1. **nexus** first (preferred weight 100)
+2. **sentry-agent** fallback
+3. **forge** last — **ultra-light only** (`cloudflared`). Heavy workloads must
+   never schedule on forge.
 
-`cloudflared` (disabled in values-prod) also uses the workload label instead of
-`kubernetes.io/hostname: nexus`.
+Heavy workloads (api, mcp, redis, search, portal, ingestion CronJobs, engine
+sweep, backup Jobs) use **required** `nodeAffinity` on
+`kubernetes.io/hostname In [nexus, sentry-agent]` plus preferred nexus.
+Configurable per component via `affinityHosts` / `preferredHost` (defaults in
+`values-prod.yaml` as YAML anchors `*quillHeavyHosts` /
+`*quillPreferredHost`). No kubectl node-label writes — affinity uses the
+built-in hostname label only.
+
+`cloudflared` (disabled in values-prod today) may set
+`affinityHosts: [nexus, sentry-agent, forge]`.
+
+Production PVCs stay **longhorn** RWO. Hard `nodeName: nexus` pins are cleared
+so the scheduler can place pods on either allowed host; the volume attaches on
+the chosen node.
 
 ## Pre-accept checklist (Maple)
 
 Before merging / syncing Argo:
 
-1. Confirm recent backups succeeded within 24h:
-   - `kubectl -n maplespike get cronjob quill-backup-sqlite quill-backup-search quill-backup-freshness`
-   - Inspect the latest Job / pod logs for success.
-2. Optional: create an on-demand backup Job from the CronJob (Maple/Infra only;
-   do not skip verification).
-3. Confirm nodes labelled `quill.io/workload=true` include at least nexus and forge.
-
-Observed during authoring (read-only): sqlite last schedule 2026-10-28T01:15:00Z,
-search 2026-10-28T01:45:00Z, freshness 2026-10-28T18:20:00Z.
+1. Confirm recent backups succeeded within 24h
+   (`quill-backup-sqlite`, `quill-backup-search`, `quill-backup-freshness`).
+2. Confirm longhorn replicas for `quill-api-data` / `quill-search-data` include
+   a healthy replica on `sentry-agent` (so that host is a real fallback).
+3. Confirm portal moves off forge after sync (same affinity as other heavy
+   workloads).
 
 ## Rollback
 
-1. Restore previous pins in `charts/quill/values-prod.yaml`:
-   - `api.storage.nodeName: nexus` (and remove `api.nodeSelector` if desired)
-   - `mcp.nodeName: nexus` (drop mcp.nodeSelector)
-   - `redis.nodeName: nexus` (drop redis.nodeSelector)
-   - `ingestion.nodeName: nexus`
-   - `search.nodeName: nexus`
-   - `cloudflared.nodeSelector.kubernetes.io/hostname: nexus`
+1. Restore previous `values-prod.yaml` pins, e.g. `api.storage.nodeName: nexus`,
+   `mcp`/`redis`/`ingestion`/`search` `nodeName: nexus`, portal
+   `nodeSelector: quill.io/workload=true` (or prior affinityHosts), and
+   cloudflared `kubernetes.io/hostname: nexus` if needed.
 2. Sync Argo / ship via deploy-prod as usual.
-3. Confirm pods Ready on nexus: `kubectl -n maplespike get pods -o wide`.
+3. Confirm pods Ready on the intended node:
+   `kubectl -n maplespike get pods -o wide`.
 
-## Out of scope here
+## Out of scope
 
-`deploy-prod.yml` still has an image-build job on
-`runs-on: [self-hosted, nixos, nexus]` because images land in the local
-containerd store. Shared registry or forge image mirror is Infra follow-up.
-Do not change runner counts from this doc.
+`deploy-prod.yml` image-build job still
+`runs-on: [self-hosted, nixos, nexus]` (local containerd). Shared registry or
+forge image mirror is Infra follow-up. Do not change runner counts from this
+doc.

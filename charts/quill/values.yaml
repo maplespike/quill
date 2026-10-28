@@ -186,8 +186,12 @@ cloudflared:
   pullPolicy: Always
   replicas: 2  # #816: >=2 cloudflared replicas for tunnel HA (was 1 → 521s)
   tunnelId: "cec1b070-796f-4524-b43e-9b05c32af906"
-  nodeSelector:
-    quill.io/workload: "true"
+  # Ultra-light: may include forge. Heavy workloads use affinityHosts instead.
+  affinityHosts:
+    - nexus
+    - sentry-agent
+    - forge
+  preferredHost: nexus
   resources:
     requests:
       cpu: 50m
@@ -238,3 +242,14 @@ secrets:
   apiKey: ""
   jwtSecret: ""
   canliiApiKey: ""
+
+search:
+  replicas: 0
+  migrateLegacyIndex: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

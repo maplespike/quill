@@ -35,12 +35,14 @@ spec:
       # Legacy local-path index (only while migrateLegacyIndex): pin only when
       # search.nodeName / api.storage.nodeName is set. Empty falls through — do
       # not hardcode nexus (host-independence 2026-10-28).
-      nodeName: {{ .Values.search.nodeName | default ((.Values.api.storage | default dict).nodeName) | default "" }}
+      {{- $legacyNode := .Values.search.nodeName | default ((.Values.api.storage | default dict).nodeName) | default "" }}
+      {{- if $legacyNode }}
+      nodeName: {{ $legacyNode }}
+      {{- end }}
       {{- else if .Values.search.nodeName }}
       nodeName: {{ .Values.search.nodeName }}
-      {{- else if .Values.search.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.search.nodeSelector | nindent 8 }}
+      {{- else }}
+      {{- include "quill.nodeAffinity" (dict "affinityHosts" (.Values.search.affinityHosts | default list) "preferredHost" (.Values.search.preferredHost | default "")) | nindent 6 }}
       {{- end }}
       securityContext:
         runAsNonRoot: true
