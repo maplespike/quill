@@ -20,10 +20,10 @@
 # deleted. `actions: read` plus the REST fallback below is the same treatment
 # `merge-when-green.yml` documents (and needed) for the identical refusal.
 #
-# Policy is unchanged from the allowlist that file carried: only the low-risk
-# packages below, plus patch-level framework updates, auto-merge. Majors and
-# anything unknown are left for a human and get a comment saying why. A human
-# merging anything else uses the `ready-to-merge` label and merge-when-green.yml.
+# Policy: the #1215 ecosystem minor+patch groups (npm-/docker-/actions-minor-patch),
+# the low-risk packages below, and patch-level framework updates auto-merge.
+# Majors and anything unknown are left for a human and get a comment saying why.
+# A human merging anything else uses the `ready-to-merge` label and merge-when-green.yml.
 name: Dependabot Auto-Merge
 
 on:
@@ -71,6 +71,17 @@ jobs:
           if echo "$PR_TITLE" | grep -qiE "major|breaking|BREAKING"; then
             echo "safe=false" >> $GITHUB_OUTPUT
             echo "reason=Major version bump — manual review required" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Grouped minor+patch PRs from .github/dependabot.yml (#1215).
+          # Titles look like: "chore(deps): bump the npm-minor-patch group with N updates"
+          # (also docker-minor-patch / actions-minor-patch). Majors never join a
+          # group, so a group title is minor/patch by construction. Still refuse
+          # if the title also says major/breaking (caught above).
+          if echo "$PR_TITLE" | grep -qiE "the (npm|docker|actions)-minor-patch group"; then
+            echo "safe=true" >> $GITHUB_OUTPUT
+            echo "reason=Grouped minor+patch Dependabot update (#1215)" >> $GITHUB_OUTPUT
             exit 0
           fi
 
