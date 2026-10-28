@@ -246,11 +246,12 @@ search:
 
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
-# API volume, ReadWriteOnce. Backup, freshness, and drill pods use
-# api.storage.nodeName (nexus), the same pin as the API. ReadWriteMany is
-# optional and needs a verified NFS client on the NixOS node. Redis is not
-# included. Postgres is off in this file (database.enabled: false), so no
-# pg_dump CronJob is rendered.
+# API volume, ReadWriteOnce. Backup, freshness, and drill pods use the same
+# affinityHosts / preferredHost as the API (nexus|sentry-agent, never forge)
+# so they stay co-located with the API volume's allowed hosts. ReadWriteMany
+# is optional and needs a verified NFS client. Redis is not included.
+# Postgres is off in this file (database.enabled: false), so no pg_dump
+# CronJob is rendered.
 backups:
   enabled: true
   affinityHosts: *quillHeavyHosts
