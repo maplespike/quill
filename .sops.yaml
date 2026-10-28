@@ -12,6 +12,7 @@
 #                   and the plugin identity stub in ~/.config/sops/age/keys.txt
 #   yubikey_nfc   — YubiKey 5 NFC, serial 12251564 slot 2; same plugin requirement
 #   offline_recovery — air-gapped break-glass key, held offline
+#   quill_age_v3  — software key added 2026-10-28 (Infra), nexus+zephyr ~/.config/sops/age, Actions AGE_SECRET_KEY
 #
 # Decrypt from zephyr:
 #   SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt sops -d secrets/runtime.yaml
@@ -26,3 +27,4 @@ creation_rules:
           - age1yubikey1qtrfqkheehc6dlyux9stwq67dq3kcledlwzzrckx0wk639mh0wqh54auh7v
           - age1yubikey1qvh5yeguawe89kr9muzn6xvfwjkcja7rf0j6afxgyula6p9vql4kkjh52h2
           - age1td0zl0eexvgssdz2yljjg3wxnm60m3wytatg4uf3fgmn4z29kevstmgl6j
+          - age1cpw6mnahu0phazkl2f9jxdxv8mka9x8gspl7sydnw3cuchdjed4sese62s
