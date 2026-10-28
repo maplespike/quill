@@ -69,7 +69,7 @@
     "node": ">=22.12"
   },
   "license": "AGPL-3.0-only",
-  "packageManager": "pnpm@10.32.1+sha512.dcffc7b9dc455aa8555b7c0a5f71c9032fa9ff0d31308a81d0d13cb6c642b4893698c9f1fb4d36d2ae7e77a891f048f09574a7c8a215a8b4a3af53818378a75b",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^2.31.0",
