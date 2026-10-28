@@ -119,6 +119,32 @@ jobs:
             exit 1
           fi
 
+      - name: Preflight — nexus docker/containerd store
+        # Fail fast when the host docker build cache is corrupt (missing
+        # overlayfs snapshots / blobs). deploy-prod run 40624285281 (2026-10-27)
+        # spent ~7 min in Build & Test, then died in pin-images.sh on
+        # `lstat .../overlayfs/snapshots/10294: no such file` left by a nexus
+        # OOM. Dependabot updater runs hit the same class of failure on a
+        # missing blob. Probe BEFORE pnpm install / pin-images so a broken
+        # store does not burn a full CI cycle. Do NOT prune from CI — that is
+        # Infra · Platform Ops territory on the host.
+        run: |
+          set -euo pipefail
+          if ! docker buildx du >/dev/null 2>&1; then
+            echo "::error::nexus docker/containerd store is broken (docker buildx du failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            docker buildx du || true
+            exit 1
+          fi
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          printf 'FROM scratch\n' >"$tmp/Dockerfile"
+          if ! docker build --quiet -t quill-deploy-preflight:ok "$tmp" >/dev/null; then
+            echo "::error::nexus docker/containerd store is broken (tiny docker build from scratch failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            exit 1
+          fi
+          docker rmi quill-deploy-preflight:ok >/dev/null 2>&1 || true
+          echo "docker store preflight ok"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
