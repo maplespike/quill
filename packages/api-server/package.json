@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@dexterai/x402": "^5.1.0",
-    "@hono/zod-validator": "^0.2.0",
+    "@hono/zod-validator": "^0.7.6",
     "@maplespike/engine": "workspace:*",
     "@maplespike/pipeline-core": "workspace:*",
     "@opentelemetry/exporter-otlp-grpc": "^0.26.0",
