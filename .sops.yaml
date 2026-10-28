@@ -17,13 +17,14 @@
 # Decrypt from zephyr:
 #   SOPS_AGE_KEY_FILE=~/.config/sops/age/cluster-age-key.txt sops -d secrets/runtime.yaml
 #
+# 2026-10-28: cluster_age and zephyr_age_v2 software keys retired after the
+# quill_age_v3 rotation (PR 1221); their private keys are being deleted by Infra.
+#
 # Rotation: add the new recipient below, then `sops updatekeys secrets/*.yaml`.
 creation_rules:
   - path_regex: secrets/.*\.yaml$
     key_groups:
       - age:
-          - age1567g6raae4adh97lrfhalc9wwhmtsulh89k9pkx24m5ezfh8a4xqndrt6l
-          - age12k7ch5r9sczu42zc6eutxtl6leudn47uv5fvsjrlq5ms0f0hz9nshm3t7q
           - age1yubikey1qtrfqkheehc6dlyux9stwq67dq3kcledlwzzrckx0wk639mh0wqh54auh7v
           - age1yubikey1qvh5yeguawe89kr9muzn6xvfwjkcja7rf0j6afxgyula6p9vql4kkjh52h2
           - age1td0zl0eexvgssdz2yljjg3wxnm60m3wytatg4uf3fgmn4z29kevstmgl6j
