@@ -1,5 +1,10 @@
 # Dependabot — automated dependency updates
-# Run daily, grouped by ecosystem, PR per group
+#
+# Minor and patch updates are grouped into ONE PR per ecosystem per run
+# (weekly for npm and github-actions, monthly for docker), which keeps the
+# single ARC runner from drowning in one-package PRs.
+# Major updates match no group (update-types excludes "major"), so Dependabot
+# opens them individually: Reverb decides majors one at a time.
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -23,22 +28,12 @@ updates:
       - dependency-name: "@types/node"
         versions: [">=23.0.0"]
     groups:
-      typescript:
+      npm-minor-patch:
         patterns:
-          - "typescript"
-          - "@types/*"
-      eslint:
-        patterns:
-          - "eslint*"
-          - "@eslint/*"
-      vitest:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
-      turbo:
-        patterns:
-          - "turbo"
-          - "@turbo/*"
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -51,6 +46,13 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    groups:
+      docker-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -64,6 +66,9 @@ updates:
       - "dependencies"
       - "ci"
     groups:
-      actions:
+      actions-minor-patch:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
