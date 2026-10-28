@@ -37,7 +37,7 @@ permissions:
   # the whole query can be refused ("Resource not accessible by integration",
   # measured on #997, 60/60 attempts, 2026-10-04). The REST fallback in the
   # wait step keeps the gate working even if this scope is still refused.
-  actions: read
+  actions: write
 
 jobs:
   merge:
@@ -156,6 +156,17 @@ jobs:
               gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
                 --body "$PR_BODY"
               echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
+
+              # GITHUB_TOKEN merge does not fire push workflows on main.
+              # workflow_dispatch from GITHUB_TOKEN does (needs actions: write).
+              echo "Dispatching CI on main after merge…"
+              if gh workflow run CI --repo "$GH_REPO" --ref main; then
+                echo "::notice::dispatched CI on main after #$PR_NUMBER merge"
+              else
+                echo "::error::failed to dispatch CI on main"
+                exit 1
+              fi
+
 
               # Deterministic issue closure (#983): close the OPEN issues
               # referenced with closing keywords in the PR body. A failure
