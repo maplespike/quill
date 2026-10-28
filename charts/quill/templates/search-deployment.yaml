@@ -32,9 +32,10 @@ spec:
       priorityClassName: {{ . }}
       {{- end }}
       {{- if .Values.search.migrateLegacyIndex }}
-      # quill-search-index is local-path and is bound to the API node (nexus).
-      # A nodeSelector that also matches forge cannot mount that claim.
-      nodeName: {{ .Values.search.nodeName | default ((.Values.api.storage | default dict).nodeName) | default "nexus" }}
+      # Legacy local-path index (only while migrateLegacyIndex): pin only when
+      # search.nodeName / api.storage.nodeName is set. Empty falls through — do
+      # not hardcode nexus (host-independence 2026-10-28).
+      nodeName: {{ .Values.search.nodeName | default ((.Values.api.storage | default dict).nodeName) | default "" }}
       {{- else if .Values.search.nodeName }}
       nodeName: {{ .Values.search.nodeName }}
       {{- else if .Values.search.nodeSelector }}

@@ -43,6 +43,9 @@ spec:
       {{- end }}
       {{- if .Values.redis.nodeName }}
       nodeName: {{ .Values.redis.nodeName }}
+      {{- else if .Values.redis.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.redis.nodeSelector | nindent 8 }}
       {{- end }}
       securityContext:
         # The upstream redis image runs as root by default; the redis account

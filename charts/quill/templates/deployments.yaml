@@ -31,10 +31,14 @@ spec:
       securityContext:
         runAsNonRoot: true
       {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
-      # SQLite on PVC → the pod must stay on the node holding its volume.
-      # (Single-replica-per-node constraint; replicas>1 needs a shared FS or PG.)
+      # SQLite on PVC: hard pin only when api.storage.nodeName is set. Otherwise
+      # prefer api.nodeSelector (quill.io/workload) so longhorn RWO can attach on
+      # any labelled node (nexus|forge). replicas>1 still needs shared FS or PG.
       {{- if .Values.api.storage.nodeName }}
       nodeName: {{ .Values.api.storage.nodeName }}
+      {{- else if .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.api.nodeSelector | nindent 8 }}
       {{- end }}
       {{- end }}
       containers:

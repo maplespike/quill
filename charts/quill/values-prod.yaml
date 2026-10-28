@@ -51,12 +51,19 @@ api:
     # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
     # the single-nexus failure domain for the API's SQLite volume.
     storageClass: longhorn
-    nodeName: nexus
+    # 2026-10-28 host-independence: longhorn RWO; schedule via api.nodeSelector.
+    nodeName: ""
+  # Soft pool: nexus|forge labelled quill.io/workload=true.
+  nodeSelector:
+    quill.io/workload: "true"
 mcp:
   replicas: 1
   port: 3001
   metricsPort: 9465
-  nodeName: nexus
+  # 2026-10-28: prefer quill.io/workload pool over hard nexus pin.
+  nodeName: ""
+  nodeSelector:
+    quill.io/workload: "true"
   resources:
     requests:
       cpu: 100m
@@ -72,7 +79,9 @@ redis:
   replicas: 1
   image: public.ecr.aws/docker/library/redis:8.2.3-alpine
   pullPolicy: IfNotPresent
-  nodeName: nexus
+  nodeName: ""
+  nodeSelector:
+    quill.io/workload: "true"
   maxmemory: 128mb
   resources:
     requests:
@@ -95,7 +104,7 @@ database:
       cpu: 500m
       memory: 512Mi
   storageClass: longhorn
-  nodeName: nexus
+  nodeName: ""
 portal:
   enabled: true
   # HA: 2 replicas, spread by topology + anti-affinity, guarded by a PDB
@@ -126,7 +135,7 @@ cloudflared:
   replicas: 1
   tunnelId: 66d76492-036b-4177-8fac-8682e0eda37e
   nodeSelector:
-    kubernetes.io/hostname: nexus
+    quill.io/workload: "true"
   resources:
     requests:
       cpu: 50m
@@ -151,7 +160,7 @@ secrets:
   stripePublishableKey: ''
 ingestion:
   enabled: true
-  nodeName: nexus
+  nodeName: ""
   activeDeadlineSeconds: 1800
   schedules:
     committees: 0 */6 * * *
@@ -215,9 +224,9 @@ search:
   # nodeName from this value and ignores nodeSelector for the copy.
   # After the copy, set migrateLegacyIndex to false and leave nodeName set.
   # The backup claim is ReadWriteOnce, so search and its backup must stay
-  # on nexus. nodeSelector applies only when nodeName is empty. Clear
-  # nodeName only if you also set backups.accessMode to ReadWriteMany.
-  nodeName: nexus
+  # 2026-10-28: nodeName cleared; longhorn + nodeSelector allow forge|nexus.
+  # RWO still attaches on one node at a time; scheduler picks a quill.io/workload node.
+  nodeName: ""
   nodeSelector:
     quill.io/workload: "true"
 
