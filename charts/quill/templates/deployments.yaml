@@ -31,10 +31,12 @@ spec:
       securityContext:
         runAsNonRoot: true
       {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
-      # SQLite on PVC → the pod must stay on the node holding its volume.
-      # (Single-replica-per-node constraint; replicas>1 needs a shared FS or PG.)
+      # SQLite on PVC: hard pin only when api.storage.nodeName is set. Otherwise
+      # required affinityHosts (nexus|sentry-agent; never forge) + preferredHost.
       {{- if .Values.api.storage.nodeName }}
       nodeName: {{ .Values.api.storage.nodeName }}
+      {{- else }}
+      {{- include "quill.nodeAffinity" (dict "affinityHosts" (.Values.api.affinityHosts | default list) "preferredHost" (.Values.api.preferredHost | default "")) | nindent 6 }}
       {{- end }}
       {{- end }}
       containers:
@@ -262,10 +264,8 @@ spec:
       # Local-import images live per node: keep the pod on the node whose
       # containerd store holds the pinned digest (docs/IMAGE-PINNING.md).
       nodeName: {{ .Values.mcp.nodeName }}
-      {{- else if .Values.mcp.nodeSelector }}
-      # nodeSelector is the registry-based alternative to the local nodeName pin.
-      nodeSelector:
-        {{- toYaml .Values.mcp.nodeSelector | nindent 8 }}
+      {{- else }}
+      {{- include "quill.nodeAffinity" (dict "affinityHosts" (.Values.mcp.affinityHosts | default list) "preferredHost" (.Values.mcp.preferredHost | default "")) | nindent 6 }}
       {{- end }}
       containers:
       - name: mcp

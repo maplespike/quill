@@ -56,14 +56,10 @@ spec:
       {{- with ($.Values.priorityClass | default dict).critical }}
       priorityClassName: {{ . }}
       {{- end }}
-      # Dynamic placement. nodeName would bypass the scheduler entirely and
-      # pin the portal to one node; nodeSelector keeps the scheduler in control
-      # while restricting to nodes that hold the pinned image.
+      # Dynamic placement. nodeName bypasses the scheduler; otherwise use
+      # affinityHosts (nexus|sentry-agent; never forge) + preferredHost.
       {{- if .Values.portal.nodeName }}
       nodeName: {{ .Values.portal.nodeName }}
-      {{- else if (.Values.portal | default dict).nodeSelector }}
-      nodeSelector:
-        {{- toYaml (.Values.portal | default dict).nodeSelector | nindent 8 }}
       {{- end }}
       # Spread replicas across DIFFERENT nodes — hard, not soft. Measured
       # 2026-10-06: with ScheduleAnyway + preferred anti-affinity both replicas
@@ -73,6 +69,8 @@ spec:
       # invariant: if a node is unavailable the extra replica stays Pending,
       # which is correct — a Pending pod is honest, a co-located one is a false
       # sense of redundancy.
+      {{- $portalHosts := (.Values.portal | default dict).affinityHosts | default list }}
+      {{- $portalPref := (.Values.portal | default dict).preferredHost | default "" }}
       {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
       topologySpreadConstraints:
         - maxSkew: 1
@@ -81,19 +79,21 @@ spec:
           labelSelector:
             matchLabels:
               app: quill-portal
-      # REQUIRED anti-affinity, not preferred. Measured 2026-10-06: with soft
-      # constraints (and even with DoNotSchedule spread) both replicas
-      # co-located, because during a rollout the scheduler does not count a pod
-      # that is still terminating — so the second replica sees an empty node.
-      # requiredDuringScheduling makes co-location a scheduling ERROR: the
-      # second replica stays Pending until the first node is free of its peer.
+      {{- end }}
+      {{- if or $portalHosts (gt (int (.Values.portal.replicas | default 1)) 1) }}
       affinity:
+        {{- if $portalHosts }}
+        nodeAffinity:
+{{- include "quill.nodeAffinityBody" (dict "affinityHosts" $portalHosts "preferredHost" $portalPref) | nindent 10 }}
+        {{- end }}
+        {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: kubernetes.io/hostname
               labelSelector:
                 matchLabels:
                   app: quill-portal
+        {{- end }}
       {{- end }}
       containers:
       - name: portal

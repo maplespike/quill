@@ -45,6 +45,8 @@ spec:
             runAsUser: 1001
           {{- if .Values.ingestion.nodeName }}
           nodeName: {{ .Values.ingestion.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ((.Values.engine.affinityHosts | default .Values.ingestion.affinityHosts) | default list) "preferredHost" ((.Values.engine.preferredHost | default .Values.ingestion.preferredHost) | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: sweep

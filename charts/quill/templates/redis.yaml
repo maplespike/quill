@@ -43,6 +43,8 @@ spec:
       {{- end }}
       {{- if .Values.redis.nodeName }}
       nodeName: {{ .Values.redis.nodeName }}
+      {{- else }}
+      {{- include "quill.nodeAffinity" (dict "affinityHosts" (.Values.redis.affinityHosts | default list) "preferredHost" (.Values.redis.preferredHost | default "")) | nindent 6 }}
       {{- end }}
       securityContext:
         # The upstream redis image runs as root by default; the redis account

@@ -113,6 +113,8 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: sqlite-backup
@@ -201,6 +203,8 @@ spec:
           nodeName: {{ $backups.nodeName }}
           {{- else if and .Values.search .Values.search.nodeName }}
           nodeName: {{ .Values.search.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: search-backup
@@ -289,6 +293,8 @@ spec:
           nodeName: {{ $backups.nodeName }}
           {{- else if .Values.database.nodeName }}
           nodeName: {{ .Values.database.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: postgres-backup
@@ -388,6 +394,8 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: freshness
@@ -480,6 +488,8 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: drill

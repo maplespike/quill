@@ -123,7 +123,7 @@ test('search backup script drops an archive older than retention', () => {
   }
 });
 
-test('chart backup contract', () => {
+test('chart backup contract', (t) => {
   const values = readFileSync(path.join(root, 'charts/quill/values-prod.yaml'), 'utf8');
   const backups = readFileSync(path.join(root, 'charts/quill/templates/backups.yaml'), 'utf8');
   const searchDeploy = readFileSync(path.join(root, 'charts/quill/templates/search-deployment.yaml'), 'utf8');
@@ -136,7 +136,23 @@ test('chart backup contract', () => {
   assert.match(values, /migrateLegacyIndex: false/);
   assert.match(values, /accessMode: ReadWriteOnce/);
   assert.doesNotMatch(values, /accessMode: ReadWriteMany/);
-  assert.match(values, /nodeName: nexus/);
+  // CPU order (Reverb 2026-10-28 15:06 CT): backups stay on the same allowed
+  // hosts as the API volume — nexus|sentry-agent, never forge — via
+  // affinityHosts / preferredHost (not a hard nodeName: nexus pin).
+  const heavyHosts = values.match(
+    /affinityHosts: &quillHeavyHosts\n((?:  - .+\n)+)/,
+  );
+  assert.ok(heavyHosts, 'values-prod must define &quillHeavyHosts');
+  const hostList = [...heavyHosts[1].matchAll(/- (\S+)/g)].map((m) => m[1]);
+  assert.ok(hostList.includes('nexus'), `heavy hosts need nexus: ${hostList}`);
+  assert.ok(
+    hostList.includes('sentry-agent'),
+    `heavy hosts need sentry-agent: ${hostList}`,
+  );
+  assert.ok(!hostList.includes('forge'), `heavy hosts must not include forge: ${hostList}`);
+  assert.match(values, /preferredHost: &quillPreferredHost nexus/);
+  assert.match(values, /backups:\n(?:  .*\n)*?  affinityHosts: \*quillHeavyHosts/);
+  assert.match(values, /backups:\n(?:  .*\n)*?  preferredHost: \*quillPreferredHost/);
   assert.match(values, /retentionDays: 14/);
   assert.match(backups, /kind: CronJob/);
   assert.match(backups, /quill.fullname" \. }}-backup-sqlite/);
@@ -158,7 +174,40 @@ test('chart backup contract', () => {
   assert.match(netpol, /database \| default dict\)\.enabled/);
   assert.match(pg, /pg_dump/);
   assert.doesNotMatch(pg, /echo[^\\n]*PGPASSWORD/);
+
+  // Rendered CronJobs must carry the hostname affinity (co-located with API).
+  const rendered = spawnSync(
+    'helm',
+    ['template', 'quill', 'charts/quill', '-f', 'charts/quill/values-prod.yaml', '-s', 'templates/backups.yaml'],
+    { cwd: root, encoding: 'utf8' },
+  );
+  if (rendered.error && rendered.error.code === 'ENOENT') {
+    t.diagnostic('helm is not installed; skipping rendered-affinity assertions');
+  } else {
+    assert.equal(rendered.status, 0, rendered.stderr || rendered.stdout);
+    for (const job of [
+      'quill-backup-sqlite',
+      'quill-backup-search',
+      'quill-backup-freshness',
+      'quill-backup-drill',
+    ]) {
+      assert.match(rendered.stdout, new RegExp(`name: ${job}`));
+    }
+    assert.match(
+      rendered.stdout,
+      /nodeAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?key: kubernetes\.io\/hostname[\s\S]*?operator: In[\s\S]*?- "nexus"[\s\S]*?- "sentry-agent"/,
+    );
+    assert.doesNotMatch(
+      rendered.stdout,
+      /requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?kubernetes\.io\/hostname[\s\S]*?- "forge"/,
+    );
+    assert.match(
+      rendered.stdout,
+      /preferredDuringSchedulingIgnoredDuringExecution:[\s\S]*?weight: 100[\s\S]*?- "nexus"/,
+    );
+  }
 });
+
 
 test('migrateLegacyIndex flag is explicit and consulted by the search template', () => {
   // Incident t_41842b38: chore/search-migration-off flipped the flag to
