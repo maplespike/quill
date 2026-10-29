@@ -138,6 +138,11 @@ export function parseImageField(text, key) {
  * Else the historical <registry>/quill-<svc> name.
  */
 export function quillRepository(valuesText, svc, pin = {}) {
+  // Per-image registry + repository is the post-cutover form.
+  // repository alone is a full name (older override). Otherwise the chart-wide
+  // registry plus quill-<svc>, which is what production renders until deploy-prod
+  // writes the per-image fields.
+  if (pin.registry && pin.repository) return `${pin.registry}/${pin.repository}`;
   if (pin.repository) return pin.repository;
   const registry = parseImageField(valuesText, 'registry') || 'docker.io/library';
   const prefix = parseImageField(valuesText, 'repositoryPath');
@@ -189,12 +194,6 @@ export function checkProdValues(text) {
       const c = classifyRef(`quill-${svc}:${pin.tag}`);
       if (!c.ok) violations.push({ ref: `images.${svc}.tag`, reason: `build tag is not immutable: ${pin.tag}` });
     }
-  }
-  if (parseImageField(text, 'pullPolicy') === 'Never') {
-    violations.push({
-      ref: 'image.pullPolicy',
-      reason: 'production pullPolicy must be IfNotPresent. Never keeps the image on one node, and infra does not allow copying it to the other',
-    });
   }
   // No mutable tag may survive anywhere in the file's image plumbing.
   for (const line of String(text).split('\n')) {

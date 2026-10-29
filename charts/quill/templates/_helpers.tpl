@@ -12,25 +12,25 @@
   Input: dict "svc" <api|mcp|portal> "ctx" $   ($ = the root template context)
 
   Precedence:
-    1. images.<svc>.repository, if set
-    2. image.repositoryPath → <registry>/<repositoryPath>/<svc>
-       (production: registry.registry.svc.cluster.local:5000/quill/<svc>)
-    3. otherwise <registry>/quill-<svc> (dev/self-host)
+    1. images.<svc>.registry + images.<svc>.repository
+       (set together by the deploy-prod pin commit)
+    2. images.<svc>.repository alone, when it is already a full name
+    3. image.repositoryPath → <image.registry>/<repositoryPath>/<svc>
+    4. otherwise <image.registry>/quill-<svc>
 
-  Then:
-    1. images.<svc>.digest → <repo>@sha256:<digest>
-    2. images.<svc>.tag    → <repo>:<immutable build tag>
-    3. image.tag           → <repo>:<tag>
-
-  Production pins the digest and uses imagePullPolicy IfNotPresent. kubelet
-  pulls from the in-cluster registry. Both eligible nodes mirror that host
-  over plain HTTP. See docs/IMAGE-PINNING.md.
+  Until that pin commit, production has no per-image registry field, so the
+  chart still renders docker.io/library/quill-<svc>@<digest> and the global
+  pullPolicy (Never). See docs/IMAGE-PINNING.md.
 */}}
 {{- define "quill.image" -}}
 {{- $ctx := .ctx -}}
 {{- $pin := index (default (dict) $ctx.Values.images) .svc | default (dict) -}}
-{{- $repo := $pin.repository -}}
-{{- if not $repo -}}
+{{- $repo := "" -}}
+{{- if and $pin.registry $pin.repository -}}
+{{- $repo = printf "%s/%s" $pin.registry $pin.repository -}}
+{{- else if $pin.repository -}}
+{{- $repo = $pin.repository -}}
+{{- else -}}
 {{- $prefix := $ctx.Values.image.repositoryPath | default "" -}}
 {{- if $prefix -}}
 {{- $repo = printf "%s/%s/%s" $ctx.Values.image.registry $prefix .svc -}}
@@ -57,6 +57,16 @@
   The digest in the image reference is the pin; the build tag is the provenance
   (store tag → digest → git commit), so a live pod traces back to a build.
 */}}
+{{/*
+  quill.pullPolicy — per-image pullPolicy, else the chart-wide image.pullPolicy.
+  The deploy-prod pin commit sets IfNotPresent on each migrated service.
+  Services without that field keep the global policy (Never, until then).
+*/}}
+{{- define "quill.pullPolicy" -}}
+{{- $pin := index (default (dict) .ctx.Values.images) .svc | default (dict) -}}
+{{- $pin.pullPolicy | default .ctx.Values.image.pullPolicy -}}
+{{- end }}
+
 {{- define "quill.imageAnnotations" -}}
 {{- $pin := index (default (dict) .ctx.Values.images) .svc | default (dict) -}}
 {{- if $pin.tag -}}

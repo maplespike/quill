@@ -97,7 +97,7 @@ spec:
         # Digest-pinned import from the node containerd store — see
         # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
         image: {{ include "quill.image" (dict "svc" "portal" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "portal" "ctx" $) }}
         env:
         - name: API_UPSTREAM
           value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"

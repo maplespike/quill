@@ -1,13 +1,11 @@
 image:
-  # In-cluster registry. nexus and sentry-agent both mirror this host in
-  # /etc/rancher/k3s/registries.yaml (plain HTTP, endpoint pinned to the
-  # ClusterIP). imagePullPolicy is IfNotPresent: kubelet pulls. Never is
-  # retired, because a node-local image cannot follow a pod without
-  # cross-node ssh, which infra does not allow.
-  registry: registry.registry.svc.cluster.local:5000
-  repositoryPath: quill
+  # Still the live pin. deploy-prod rewrites each images.<svc> entry to
+  # registry + repository + pullPolicy IfNotPresent in one commit, and only
+  # after the registry HEAD check passes for every service. Until that
+  # commit, a render must keep these refs and Never.
+  registry: docker.io/library
   tag: ''
-  pullPolicy: IfNotPresent
+  pullPolicy: Never
 images:
   api:
     digest: "sha256:401dfe6c5cd1bd89cc8e24fa24154d864908411054e248590343dee96a514566"

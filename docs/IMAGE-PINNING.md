@@ -15,15 +15,18 @@ Gate: **A3-IMAGEPIN** (issue #755).
 
 1. `charts/quill/values-prod.yaml` pins each image in `images.<svc>` —
    `api`, `mcp`, `portal`, `ingest`, and `search`: `digest` plus `tag`.
-2. The registry host is `registry.registry.svc.cluster.local:5000`.
-   `image.repositoryPath` is `quill`. The chart renders
+2. Until the deploy-prod pin commit, `images.<svc>` has only `digest` and
+   `tag`. The chart renders `docker.io/library/quill-<svc>@sha256:<digest>`
+   with `image.pullPolicy: Never`. That is the live pin. Merging this
+   change does not alter it.
+3. The pin commit sets, on every service in the same file write,
+   `registry: registry.registry.svc.cluster.local:5000`,
+   `repository: quill/<svc>`, `pullPolicy: IfNotPresent`, and the registry
+   digest. The chart then renders
    `registry.registry.svc.cluster.local:5000/quill/<svc>@sha256:<digest>`.
-3. `image.pullPolicy` is `IfNotPresent`. nexus and sentry-agent both mirror
-   that host in `/etc/rancher/k3s/registries.yaml` (plain HTTP, endpoint
-   pinned to the ClusterIP). A pod can start on either node.
-4. `imagePullPolicy: Never` is not used. Never made the image local to one
-   machine. Infra does not allow a shell from one node to another, so a
-   local image cannot follow the pod.
+   nexus and sentry-agent mirror that host over plain HTTP.
+4. If any service's manifest HEAD fails, the pin file is not written.
+   A partial switch is rejected.
 5. Third-party images (postgres, cloudflared, redis) stay version-pinned.
    Redis is `IfNotPresent` and is not part of this registry.
 

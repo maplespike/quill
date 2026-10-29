@@ -44,7 +44,7 @@ spec:
         # Digest-pinned import from the node containerd store — see
         # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
         image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
         ports:
         - name: http
           containerPort: {{ .Values.api.port }}
@@ -272,7 +272,7 @@ spec:
         # Digest-pinned import from the node containerd store — see
         # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
         image: {{ include "quill.image" (dict "svc" "mcp" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "mcp" "ctx" $) }}
         ports:
         - name: http
           containerPort: {{ .Values.mcp.port }}

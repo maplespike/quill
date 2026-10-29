@@ -23,14 +23,14 @@
 #      script re-tags the digest already in nexus containerd and pushes that.
 #      The push is plain HTTP to the ClusterIP mirrored in
 #      /etc/rancher/k3s/registries.yaml. Nodes do not copy images to each other.
-#   2. write the registry digests into values-prod.yaml
-#      (scripts/apply-image-pins.mjs — a line-based edit, so the comments in
-#      that file survive)
-#   3. HEAD each pinned digest on the registry v2 API and fail if it is
-#      missing or Docker-Content-Digest does not match. Then delete every
-#      other manifest, keeping the pinned digest and the 5 newest tags.
-#      Manifest DELETE does not free blobs; garbage-collect is server-side.
-#   4. commit and push, which is what ArgoCD actually watches
+#   2. HEAD every pushed digest. One miss stops the job. values-prod.yaml
+#      is not edited, so main keeps the live docker.io / Never refs.
+#   3. only then write registry, repository, IfNotPresent, and the registry
+#      digest for every service in one edit (apply-image-pins.mjs --migrate).
+#      The script HEADs again and writes nothing if any digest is missing.
+#   4. delete older manifests, keeping the pinned digest and the 5 newest
+#      tags. Manifest DELETE does not free blobs; garbage-collect is
+#      server-side. Then commit and push, which is what ArgoCD watches.
 #
 # `kubectl set image` is deliberately absent: ArgoCD owns those objects, so a
 # direct write is drift it will revert, not a deploy.
@@ -200,20 +200,20 @@ jobs:
             exit 1
           fi
 
-      - name: Write pins into values-prod.yaml
-        run: |
-          # The log holds the block pin-images.sh prints for a human to paste.
-          sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log \
-            | tee pin-block.txt
-          node scripts/apply-image-pins.mjs --values charts/quill/values-prod.yaml < pin-block.txt
+      - name: Verify every pushed digest is in the registry
+        # HEAD each digest in the pin block. This does not edit values-prod.
+        # One miss refuses the cutover: the next step never runs, so the
+        # live docker.io / Never refs stay on main.
+        run: node scripts/gates/check-node-images.mjs --pin-block pin-block.txt --check
+
+      - name: Write the registry pin into values-prod.yaml
+        # Same commit as the digest switch. --migrate HEADs again and writes
+        # registry, repository, IfNotPresent, digest, and tag for every
+        # service, or writes nothing.
+        run: node scripts/apply-image-pins.mjs --migrate --values charts/quill/values-prod.yaml < pin-block.txt
 
       - name: Verify the pins
         run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
-
-      - name: Verify pinned digests are in the registry
-        # imagePullPolicy is IfNotPresent. Fail before the pin commit when
-        # the registry v2 API does not serve the digest the chart will pull.
-        run: node scripts/gates/check-node-images.mjs --values charts/quill/values-prod.yaml --check
 
       - name: Prune old registry tags
         # Keep the pinned digest and the 5 newest tags per service. DELETE

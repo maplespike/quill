@@ -119,7 +119,7 @@ spec:
           containers:
           - name: sqlite-backup
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/sqlite-backup.mjs"]
             env:
             - name: QUILL_DB_PATH
@@ -400,7 +400,7 @@ spec:
           containers:
           - name: freshness
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/verify-freshness.mjs"]
             env:
             - name: BACKUP_ROOT
@@ -494,7 +494,7 @@ spec:
           containers:
           - name: drill
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/restore-check.mjs"]
             env:
             - name: BACKUP_ROOT

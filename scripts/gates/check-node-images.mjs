@@ -90,43 +90,98 @@ export function resolveEndpoint(env = process.env, file = REGISTRIES_FILE) {
   return `http://${REGISTRY_HOST}`;
 }
 
+export const QUILL_IMAGE_SERVICES = ['api', 'mcp', 'portal', 'ingest', 'search'];
+
+function pinMigrated(pin) {
+  return Boolean(pin && (pin.registry || pin.repository || pin.pullPolicy));
+}
+
 export function plan(text) {
   const violations = [];
   const registry = parseImageField(text, 'registry');
-  const prefix = parseImageField(text, 'repositoryPath');
   const pullPolicy = parseImageField(text, 'pullPolicy');
-  if (registry !== REGISTRY_HOST) {
-    violations.push(`image.registry must be ${REGISTRY_HOST} (got ${registry || '<empty>'})`);
-  }
-  if (prefix !== 'quill') {
-    violations.push(`image.repositoryPath must be quill (got ${prefix || '<empty>'})`);
-  }
-  if (pullPolicy !== 'IfNotPresent') {
-    violations.push(`image.pullPolicy must be IfNotPresent (got ${pullPolicy || '<empty>'})`);
-  }
-  if (pullPolicy === 'Never') {
-    violations.push('imagePullPolicy Never is not allowed');
+  const images = parseImagesBlock(text);
+  const pins = QUILL_IMAGE_SERVICES.map((svc) => ({ svc, pin: images[svc] || {} }));
+  const migrated = pins.filter((item) => pinMigrated(item.pin));
+  const mode = migrated.length === 0 ? 'legacy' : 'registry';
+  if (migrated.length > 0 && migrated.length !== pins.length) {
+    violations.push(
+      `partial registry migration (${migrated.map((item) => item.svc).join(', ')}). Every service must switch in the same commit, or none do`,
+    );
   }
   const refs = [];
-  const images = parseImagesBlock(text);
-  for (const [svc, pin] of Object.entries(images)) {
-    if (!pin.digest) {
-      violations.push(`images.${svc} has no digest`);
+  for (const { svc, pin } of pins) {
+    if (!pin.digest || !/^sha256:[0-9a-f]{64}$/.test(pin.digest)) {
+      violations.push(`images.${svc}.digest is missing or not sha256`);
       continue;
     }
-    if (!/^sha256:[0-9a-f]{64}$/.test(pin.digest)) {
-      violations.push(`images.${svc}.digest is not a sha256 digest`);
+    if (mode === 'legacy') {
+      if (pinMigrated(pin)) continue;
+      const ref = `docker.io/library/quill-${svc}@${pin.digest}`;
+      if (quillRepository(text, svc, pin) !== `docker.io/library/quill-${svc}`) {
+        violations.push(`${svc} legacy ref must stay docker.io/library/quill-${svc}`);
+      }
+      refs.push({ svc, repo: `quill/${svc}`, digest: pin.digest, ref, legacy: true });
       continue;
     }
-    const ref = `${quillRepository(text, svc, pin)}@${pin.digest}`;
-    const expected = `${REGISTRY_HOST}/quill/${svc}@${pin.digest}`;
-    if (ref !== expected) {
-      violations.push(`${svc} renders ${ref}, want ${expected}`);
+    if (pin.registry !== REGISTRY_HOST) {
+      violations.push(`images.${svc}.registry must be ${REGISTRY_HOST}`);
     }
-    refs.push({ svc, repo: `quill/${svc}`, digest: pin.digest, ref });
+    if (pin.repository !== `quill/${svc}`) {
+      violations.push(`images.${svc}.repository must be quill/${svc}`);
+    }
+    if (pin.pullPolicy !== 'IfNotPresent') {
+      violations.push(`images.${svc}.pullPolicy must be IfNotPresent`);
+    }
+    const ref = `${REGISTRY_HOST}/quill/${svc}@${pin.digest}`;
+    refs.push({ svc, repo: `quill/${svc}`, digest: pin.digest, ref, legacy: false });
+  }
+  if (mode === 'legacy') {
+    if (registry !== 'docker.io/library') {
+      violations.push(`legacy image.registry must stay docker.io/library (got ${registry || '<empty>'})`);
+    }
+    if (pullPolicy !== 'Never') {
+      violations.push('legacy image.pullPolicy must stay Never until every service is migrated');
+    }
   }
   if (refs.length === 0) violations.push('no pinned digests');
-  return { registry, prefix, pullPolicy, refs, violations };
+  return { mode, registry, pullPolicy, refs, violations };
+}
+
+/**
+ * All-or-nothing gate for the pin commit.
+ * heads[svc] is {status, digest} from the registry manifest API.
+ * A missing service, a non-200, or a digest mismatch refuses the commit.
+ */
+export function pinCommitDecision(pins, heads) {
+  const missing = [];
+  for (const svc of QUILL_IMAGE_SERVICES) {
+    const pin = pins?.[svc];
+    const head = heads?.[svc];
+    if (!pin?.digest || !/^sha256:[0-9a-f]{64}$/.test(pin.digest)) {
+      missing.push(`${svc}: no sha256 digest in the pin block`);
+      continue;
+    }
+    if (!head || head.status !== 200) {
+      missing.push(`${svc}: registry returned HTTP ${head?.status ?? 'none'}`);
+      continue;
+    }
+    if (head.digest !== pin.digest) {
+      missing.push(`${svc}: registry digest ${head.digest || '<empty>'} does not match pin ${pin.digest}`);
+    }
+  }
+  return { ok: missing.length === 0, missing };
+}
+
+/** Pin block printed by pin-images.sh. */
+export function parsePinBlock(text) {
+  const pins = {};
+  const re = /^\s{2}([a-z][a-z0-9-]*):\s*$\n\s{4}digest:\s*"([^"]+)"\s*$\n\s{4}tag:\s*"([^"]*)"\s*$/gm;
+  let match;
+  while ((match = re.exec(String(text))) !== null) {
+    pins[match[1]] = { digest: match[2], tag: match[3] };
+  }
+  return pins;
 }
 
 /**
@@ -206,6 +261,12 @@ function tagTime(tag) {
 
 export async function checkRegistry(text, endpoint) {
   const planned = plan(text);
+  if (planned.mode === 'legacy') {
+    return [{
+      ref: 'values',
+      reason: 'values-prod is still the legacy docker.io pin. Refusing to look up those containerd digests in the registry',
+    }];
+  }
   if (planned.violations.length) {
     return planned.violations.map((reason) => ({ ref: 'plan', reason }));
   }
@@ -241,6 +302,12 @@ export async function checkRegistry(text, endpoint) {
 
 export async function pruneRegistry(text, endpoint, keepCount) {
   const planned = plan(text);
+  if (planned.mode === 'legacy') {
+    return {
+      deleted: [],
+      errors: ['values-prod is still the legacy pin. Refusing to prune before the registry cutover commit'],
+    };
+  }
   if (planned.violations.length) {
     return { deleted: [], errors: planned.violations };
   }
@@ -306,6 +373,40 @@ async function main(argv) {
     return 0;
   }
 
+  if (argv.includes('--pin-block')) {
+    const blockPath = argValue(argv, '--pin-block');
+    if (!blockPath) {
+      console.error('registry: --pin-block needs a path');
+      return 2;
+    }
+    const pins = parsePinBlock(readFileSync(blockPath, 'utf8'));
+    const heads = {};
+    for (const svc of QUILL_IMAGE_SERVICES) {
+      const digest = pins[svc]?.digest;
+      if (!digest) {
+        heads[svc] = { status: 0, digest: '' };
+        continue;
+      }
+      try {
+        heads[svc] = await readManifestDigest(endpoint, `quill/${svc}`, digest);
+      } catch (err) {
+        heads[svc] = { status: 0, digest: '' };
+        console.error(`registry: ${svc}: ${err.message}`);
+      }
+    }
+    const decision = pinCommitDecision(pins, heads);
+    if (!decision.ok) {
+      for (const reason of decision.missing) {
+        console.error(`registry: FAIL ${reason}`);
+        if (process.env.GITHUB_ACTIONS) console.error(`::error::${reason}`);
+      }
+      console.error('registry: pin commit refused. values-prod.yaml was not modified');
+      return 1;
+    }
+    console.log(`registry: pin block OK (${QUILL_IMAGE_SERVICES.length} digests at ${endpoint})`);
+    return 0;
+  }
+
   const text = readFileSync(valuesPath, 'utf8');
 
   if (argv.includes('--check')) {
@@ -340,8 +441,8 @@ async function main(argv) {
   }
 
   const planned = plan(text);
+  console.log(`mode: ${planned.mode}`);
   console.log(`registry: ${planned.registry || '<empty>'}`);
-  console.log(`repositoryPath: ${planned.prefix || '<empty>'}`);
   console.log(`pullPolicy: ${planned.pullPolicy || '<empty>'}`);
   for (const item of planned.refs) console.log(`${item.svc} ${item.ref}`);
   if (planned.violations.length) {

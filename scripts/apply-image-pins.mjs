@@ -14,38 +14,88 @@
 // Rewriting them away would be a silent loss on every deploy.
 //
 // Usage:
+//   node scripts/apply-image-pins.mjs --migrate --values charts/quill/values-prod.yaml < pin-block.txt
 //   node scripts/apply-image-pins.mjs --values charts/quill/values-prod.yaml < pin-block.txt
 //   node scripts/apply-image-pins.mjs --values ... --json pins.json
+//
+// --migrate is the cutover. It HEADs every service digest and, only when all
+// of them match, writes registry, repository, pullPolicy IfNotPresent, digest,
+// and tag for every service in one file write. A miss throws and does not
+// touch the file. Without --migrate the script only replaces digest and tag
+// and leaves the legacy docker.io / Never pin in place.
 //
 // Input is either the human-readable block pin-images.sh prints, or JSON of the
 // form {"api":{"digest":"sha256:...","tag":"..."}, ...}.
 
 import { readFileSync, writeFileSync } from 'node:fs'
-import { argv, exit, stdin } from 'node:process'
+import { argv, exit } from 'node:process'
+import {
+  QUILL_IMAGE_SERVICES,
+  REGISTRY_HOST,
+  parsePinBlock,
+  pinCommitDecision,
+  readManifestDigest,
+  resolveEndpoint,
+} from './gates/check-node-images.mjs'
 
 function fail(msg) {
   console.error(`apply-image-pins: ${msg}`)
   exit(1)
 }
 
-const args = argv.slice(2)
-const valuesIdx = args.indexOf('--values')
-const jsonIdx = args.indexOf('--json')
-const valuesPath = valuesIdx === -1 ? 'charts/quill/values-prod.yaml' : args[valuesIdx + 1]
-if (valuesIdx !== -1 && !valuesPath) fail('--values needs a path')
-
-// ---- read input -------------------------------------------------------------
-let raw = ''
-if (jsonIdx !== -1) {
-  const p = args[jsonIdx + 1]
-  if (!p) fail('--json needs a path')
-  raw = readFileSync(p, 'utf8')
-} else {
-  raw = readFileSync(0, 'utf8') // piped pin block
+/**
+ * Rewrite values text to the registry pin. Throws, and does not touch the
+ * input string's source file, when any service is missing or its registry
+ * HEAD did not return that digest.
+ */
+export function applyMigrationText(valuesText, pins, heads) {
+  const decision = pinCommitDecision(pins, heads)
+  if (!decision.ok) {
+    throw new Error(`refusing pin commit: ${decision.missing.join('; ')}`)
+  }
+  const lines = String(valuesText).split('\n')
+  const start = lines.findIndex((line) => /^images:\s*$/.test(line))
+  if (start === -1) throw new Error('refusing pin commit: no top-level images: block')
+  let end = lines.length
+  for (let i = start + 1; i < lines.length; i++) {
+    // A top-level key or a column-0 comment ends the images map. The CPU-order
+    // comment sits between search and affinityHosts and must survive the rewrite.
+    if (/^[A-Za-z#]/.test(lines[i])) {
+      end = i
+      break
+    }
+  }
+  const ranges = []
+  for (let i = start + 1; i < end; i++) {
+    const svc = lines[i].match(/^ {2}([a-z][a-z0-9-]*):\s*$/)
+    if (!svc) continue
+    let j = i + 1
+    while (j < end && !/^ {2}[a-z]/.test(lines[j])) j++
+    ranges.push({ svc: svc[1], from: i, to: j })
+  }
+  for (let r = ranges.length - 1; r >= 0; r--) {
+    const { svc, from, to } = ranges[r]
+    const pin = pins[svc]
+    if (!pin) continue
+    lines.splice(from, to - from, ...[
+      `  ${svc}:`,
+      `    registry: "${REGISTRY_HOST}"`,
+      `    repository: "quill/${svc}"`,
+      '    pullPolicy: IfNotPresent',
+      `    digest: "${pin.digest}"`,
+      `    tag: "${pin.tag}"`,
+    ])
+  }
+  return lines.join('\n')
 }
 
-// Accept both shapes so the same script serves a human and a workflow.
-let pins = {}
+async function run(args, raw) {
+  const valuesIdx = args.indexOf('--values')
+  const jsonIdx = args.indexOf('--json')
+  const valuesPath = valuesIdx === -1 ? 'charts/quill/values-prod.yaml' : args[valuesIdx + 1]
+  if (valuesIdx !== -1 && !valuesPath) fail('--values needs a path')
+
+  let pins = {}
 if (jsonIdx !== -1) {
   let parsed
   try {
@@ -58,15 +108,7 @@ if (jsonIdx !== -1) {
     pins[svc] = { digest: v.digest, tag: v.tag ?? '' }
   }
 } else {
-  // pin-images.sh emits, under a `images:` heading:
-  //   api:
-  //     digest: "sha256:..."
-  //     tag: "2026-09-25-..."
-  const re = /^\s{2}([a-z][a-z0-9-]*):\s*$\n\s{4}digest:\s*"([^"]+)"\s*$\n\s{4}tag:\s*"([^"]*)"\s*$/gm
-  let m
-  while ((m = re.exec(raw)) !== null) {
-    pins[m[1]] = { digest: m[2], tag: m[3] }
-  }
+  pins = parsePinBlock(raw)
 }
 
 const services = Object.keys(pins)
@@ -80,8 +122,41 @@ for (const [svc, v] of Object.entries(pins)) {
   }
 }
 
-// ---- rewrite ----------------------------------------------------------------
+const migrate = args.includes('--migrate')
 let text = readFileSync(valuesPath, 'utf8')
+
+if (migrate) {
+  const endpoint = resolveEndpoint()
+  const heads = {}
+  for (const svc of QUILL_IMAGE_SERVICES) {
+    const digest = pins[svc]?.digest
+    if (!digest) {
+      heads[svc] = { status: 0, digest: '' }
+      continue
+    }
+    try {
+      heads[svc] = await readManifestDigest(endpoint, `quill/${svc}`, digest)
+    } catch (err) {
+      heads[svc] = { status: 0, digest: '' }
+      console.error(`apply-image-pins: ${svc}: ${err.message}`)
+    }
+  }
+  let next
+  try {
+    next = applyMigrationText(text, pins, heads)
+  } catch (err) {
+    fail(`${err.message}. values-prod.yaml was not modified`)
+  }
+  if (next === text) {
+    console.log('apply-image-pins: no change (pins already current)')
+  } else {
+    writeFileSync(valuesPath, next, 'utf8')
+    console.log(`apply-image-pins: migrated ${QUILL_IMAGE_SERVICES.join(', ')} to ${REGISTRY_HOST}`)
+  }
+  return
+}
+
+// ---- rewrite (digest and tag only; does not switch registry or pull policy) --
 const lines = text.split('\n')
 
 // Locate the top-level `images:` key. Anchoring at column 0 is what keeps this
@@ -136,4 +211,20 @@ if (out === text) {
 } else {
   writeFileSync(valuesPath, out, 'utf8')
   console.log(`apply-image-pins: updated ${applied.length} fields for ${[...new Set(services)].join(', ')} in ${valuesPath}`)
+}
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const cli = argv.slice(2)
+  const valuesIdx = cli.indexOf('--values')
+  const jsonIdx = cli.indexOf('--json')
+  let raw = ''
+  if (jsonIdx !== -1) {
+    const p = cli[jsonIdx + 1]
+    if (!p) fail('--json needs a path')
+    raw = readFileSync(p, 'utf8')
+  } else {
+    raw = readFileSync(0, 'utf8')
+  }
+  run(cli, raw).catch((err) => fail(err.message))
 }

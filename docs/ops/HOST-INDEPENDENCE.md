@@ -47,7 +47,12 @@ Before merging / syncing Argo:
 
 ## Images
 
-`imagePullPolicy` is `IfNotPresent`. The build still runs on nexus
+The merge leaves the live `docker.io/library/quill-<svc>@sha256` refs and
+`imagePullPolicy: Never` in place. `deploy-prod` switches every service to
+the registry digest and `IfNotPresent` in one commit, after each manifest
+HEAD succeeds. A miss writes nothing.
+
+After that commit, `imagePullPolicy` is `IfNotPresent`. The build still runs on nexus
 (`runs-on: [self-hosted, nixos, nexus]`). `scripts/pin-images.sh` pushes
 `registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>`. nexus and
 sentry-agent both mirror that host over plain HTTP, so either node can pull

@@ -84,7 +84,7 @@ spec:
             # (docs/IMAGE-PINNING.md). Never render a bare registry/tag here:
             # an unset tag makes the reference invalid (InvalidImageName).
             image: {{ include "quill.image" (dict "svc" "ingest" "ctx" $) | quote }}
-            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "ingest" "ctx" $) }}
             env:
             - name: NODE_ENV
               value: production

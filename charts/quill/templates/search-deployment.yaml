@@ -84,7 +84,7 @@ spec:
       containers:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
         # Numeric UID: the image user is the named account "quill" (uid 1001),
         # and kubelet cannot verify a named user is non-root under runAsNonRoot.
         securityContext:
