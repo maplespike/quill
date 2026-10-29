@@ -557,7 +557,12 @@ jobs:
   secrets-event-range:
     needs: build-and-test
     # Same-repo only. The action reads the organisation licence secret.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Skip workflow_dispatch: that event has no before/after SHA, so
+    # gitleaks-action scans the entire history (run 40763442857: 1696
+    # commits) and fails on historic false positives already covered by
+    # the sibling secrets job's baseline-enforced full-history gate.
+    # Push and pull_request scanning are unchanged.
+    if: github.event_name != 'workflow_dispatch' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
