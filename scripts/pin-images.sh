@@ -22,7 +22,7 @@
 # Run it ON the node that holds the containerd store (default: nexus), where
 # docker is the builder. Usage:
 #
-#   scripts/pin-images.sh                     # build all three from HEAD, import, print pin block
+#   scripts/pin-images.sh                     # build each service from HEAD, import, copy to peers
 #   scripts/pin-images.sh --svc mcp           # one service
 #   scripts/pin-images.sh --existing          # skip the build: pin what the store already has
 #   scripts/pin-images.sh --existing --ref 2026-09-21-sha.0b0eb61bc5b0
@@ -43,15 +43,17 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
 NODE="nexus"
 
-# Nodes whose containerd store must ALSO carry the pinned digest. Quill images
-# are consumed with imagePullPolicy: Never, and the portal is the one workload
-# scheduled dynamically across the quill.io/workload=true pool (nexus + forge).
-# An image that exists only in the build node's store leaves the second replica
-# ErrImageNeverPull and the rollout stuck at "old replicas pending termination"
-# (measured 2026-10-21: portal pod on forge, image only on nexus).
-# Set QUILL_IMAGE_SYNC_NODES="" to keep the old single-store behaviour.
-SYNC_NODES="${QUILL_IMAGE_SYNC_NODES-forge}"
+# Peer containerd stores. imagePullPolicy is Never, so every node the
+# scheduler can pick must already have the digest name. Eligible nodes are
+# the heavy affinity hosts (nexus + sentry-agent). forge is not eligible.
+# QUILL_IMAGE_SYNC_NODES overrides the peer list. An empty value keeps the
+# image on this node only. deploy-prod leaves the variable unset and then
+# fails if any pinned digest is missing on an eligible node.
+# Measured 2026-10-29: portal on sentry-agent, image only on nexus,
+# ErrImageNeverPull. The previous default copied to forge, which no longer
+# runs these workloads.
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VALUES_FILE="$REPO_ROOT/charts/quill/values-prod.yaml"
 REGISTRY="docker.io/library"
 EXISTING=false
 VERIFY_ONLY=false
@@ -90,6 +92,10 @@ dockerfile_for() {
     mcp)    echo "Dockerfile.mcp --target quill-mcp" ;;
     portal) echo "Dockerfile.portal --target portal" ;;
     ingest) echo "Dockerfile.ingest --target ingest" ;;
+    search)
+      echo "quill-search has no Dockerfile in this repo. The pinned digest is copied from this node's store to each eligible peer; it is not rebuilt here." >&2
+      exit 2
+      ;;
     *) echo "unknown service: $1" >&2; exit 2 ;;
   esac
 }
@@ -142,6 +148,80 @@ store_has() {
   ctr images ls -q | grep -Fx -- "$1" >/dev/null
 }
 
+# Exact name on a peer. grep without -q so ctr/ssh is not SIGPIPEd.
+peer_has() {
+  local host="$1" ref="$2"
+  ssh -o BatchMode=yes -o ConnectTimeout=20 "$host" \
+    "sudo -n k3s ctr -n $CTR_NS images ls -q" | grep -Fx -- "$ref" >/dev/null
+}
+
+# Copy one repo@digest into every peer store and read the name back.
+# A peer that has the layers under a different name is tagged. A peer that
+# still lacks the digest name fails the run: that is ErrImageNeverPull.
+distribute_ref() {
+  local ref="$1"
+  local build_tag="${2:-}"
+  local digest="${ref##*@}"
+  local repo="${ref%@*}"
+  local tar host src
+  if ! store_has "$ref"; then
+    echo "  ERROR: $ref is not in the containerd store on $HOST" >&2
+    echo "         imagePullPolicy: Never cannot start a pod without that name." >&2
+    return 1
+  fi
+  if [[ -z "${SYNC_NODES:-}" ]]; then
+    echo "  peers:   none (QUILL_IMAGE_SYNC_NODES is empty; this node only)"
+    return 0
+  fi
+  : "${TMPDIR:=$REPO_ROOT/.tmp}"
+  mkdir -p "$TMPDIR"
+  tar="$TMPDIR/quill-dist-${digest#sha256:}.tar"
+  echo "  export:  $ref"
+  ctr images export - "$ref" > "$tar" \
+    || { rm -f "$tar"; echo "  ERROR: could not export $ref" >&2; return 1; }
+  if [[ ! -s "$tar" ]]; then
+    rm -f "$tar"
+    echo "  ERROR: export of $ref was empty" >&2
+    return 1
+  fi
+  for host in $SYNC_NODES; do
+    if [[ "$host" == "$HOST" ]]; then
+      echo "  sync:    $host (local)"
+      continue
+    fi
+    echo "  sync:    $host"
+    if ! ssh -o BatchMode=yes -o ConnectTimeout=20 -o ServerAliveInterval=30 "$host" \
+        "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" < "$tar"; then
+      rm -f "$tar"
+      echo "  ERROR: import on $host failed for $ref" >&2
+      return 1
+    fi
+    if ! peer_has "$host" "$ref"; then
+      src="$(ssh -o BatchMode=yes -o ConnectTimeout=20 "$host" \
+        "sudo -n k3s ctr -n $CTR_NS images ls" \
+        | awk -v d="$digest" '$3 == d { print $1; exit }' || true)"
+      if [[ -n "$src" && "$src" != "$ref" ]]; then
+        ssh -o BatchMode=yes -o ConnectTimeout=20 "$host" \
+          "sudo -n k3s ctr -n $CTR_NS images tag --force '$src' '$ref' >/dev/null" \
+          || { rm -f "$tar"; echo "  ERROR: could not name $ref on $host" >&2; return 1; }
+      fi
+    fi
+    if ! peer_has "$host" "$ref"; then
+      rm -f "$tar"
+      echo "  ERROR: $host does not have $ref after import." >&2
+      echo "         A pod scheduled there stays ErrImageNeverPull." >&2
+      return 1
+    fi
+    if [[ -n "$build_tag" ]]; then
+      ssh -o BatchMode=yes -o ConnectTimeout=20 "$host" \
+        "sudo -n k3s ctr -n $CTR_NS images tag --force '$ref' '$repo:$build_tag' >/dev/null" \
+        || { rm -f "$tar"; echo "  ERROR: tagging $repo:$build_tag on $host failed" >&2; return 1; }
+    fi
+    echo "  ✓ $host has $ref"
+  done
+  rm -f "$tar"
+}
+
 # ── Verify-only mode: does the live cluster match values-prod.yaml? ──────────
 if [[ "$VERIFY_ONLY" == true ]]; then
   node scripts/gates/check-image-pins.mjs \
@@ -159,12 +239,19 @@ fi
 command -v docker >/dev/null || { echo "ERROR: docker (builder) not found on $HOST" >&2; exit 2; }
 command -v k3s    >/dev/null || { echo "ERROR: k3s (containerd) not found on $HOST" >&2; exit 2; }
 
+# Default peers: every heavy host except this node. Computed after --node.
+if [[ -z "${QUILL_IMAGE_SYNC_NODES+x}" ]]; then
+  SYNC_NODES="$(node "$REPO/scripts/gates/check-node-images.mjs" --values "$VALUES_FILE" --peers-of "$NODE")"
+else
+  SYNC_NODES="$QUILL_IMAGE_SYNC_NODES"
+fi
+
 GIT_SHA="$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 if [[ -n "$(git -C "$REPO" status --porcelain 2>/dev/null)" ]]; then
   GIT_SHA="${GIT_SHA}-dirty"
 fi
 
-echo "pin-images: node=$HOST registry=$REGISTRY date=$DATE git=$GIT_SHA mode=$([[ $EXISTING == true ]] && echo existing || echo build)"
+echo "pin-images: node=$HOST registry=$REGISTRY date=$DATE git=$GIT_SHA mode=$([[ $EXISTING == true ]] && echo existing || echo build) peers=${SYNC_NODES:-<none>}"
 echo
 
 # Check EVERY requested service's prerequisites before building ANY of them.
@@ -174,6 +261,21 @@ echo
 for SVC in $SERVICES; do
   preflight "$SVC"
 done
+
+# Digests this run does not rebuild (search, and anything omitted by --svc)
+# must already be on every peer. Fail before the image build so a missing
+# search pin does not wait on a long docker build.
+if [[ -n "${SYNC_NODES:-}" ]]; then
+  EXISTING_REFS="$(mktemp)"
+  node "$REPO/scripts/gates/check-node-images.mjs" --values "$VALUES_FILE" --refs --except "$SERVICES" > "$EXISTING_REFS"
+  while IFS= read -r ref; do
+    [[ -z "$ref" ]] && continue
+    echo "── existing pin ${ref} ──"
+    distribute_ref "$ref"
+    echo
+  done < "$EXISTING_REFS"
+  rm -f "$EXISTING_REFS"
+fi
 
 pins=()
 for SVC in $SERVICES; do
@@ -266,35 +368,11 @@ for SVC in $SERVICES; do
     exit 1
   fi
 
-  # ── Mirror the pin into every node the scheduler may use ────────────────
-  # Names matter as much as bytes: kubelet resolves the digest ref with
-  # imagePullPolicy: Never, so each peer needs both the imported content and
-  # the `repo@sha256:…` name. Stream the pinned digest straight out of the local
-  # store, so this works in --existing mode too (no build tar required) — an
-  # operator must be able to repair a peer with the same script.
-  # A peer that cannot be reached fails the pin: shipping a digest that half the
-  # pool cannot resolve is how the 2026-10-21 rollout deadlocked.
-  # Export to a file first, then feed each peer from it. Piping a live
-  # `ctr images export -` straight into a remote `ctr images import -` fails
-  # with "ctr: unrecognized image format" (k3s v1.37), even though the bytes
-  # are identical; the same stream read from a file imports cleanly.
-  if [[ -n "$SYNC_NODES" ]]; then
-    : "${TMPDIR:=$REPO_ROOT/.tmp}"
-    mkdir -p "$TMPDIR"
-    SYNC_TAR="$TMPDIR/quill-$SVC-sync.tar"
-    ctr images export - "$REPO_REF@$DIGEST" > "$SYNC_TAR" \
-      || { rm -f "$SYNC_TAR"; echo "  ERROR: could not export $REPO_REF@$DIGEST for peer sync" >&2; exit 1; }
-    for host in $SYNC_NODES; do
-      echo "  sync:    $host"
-      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
-          "sudo -n k3s ctr -n $CTR_NS images import - >/dev/null" < "$SYNC_TAR" \
-        || { rm -f "$SYNC_TAR"; echo "  ERROR: import on $host failed — it could not pull $REPO_REF@$DIGEST" >&2; exit 1; }
-      ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
-        "sudo -n k3s ctr -n $CTR_NS images tag --force '$REPO_REF@$DIGEST' '$REPO_REF:$BUILD_TAG' >/dev/null" \
-        || { rm -f "$SYNC_TAR"; echo "  ERROR: tagging on $host failed — $REPO_REF:$BUILD_TAG would not resolve" >&2; exit 1; }
-    done
-    rm -f "$SYNC_TAR"
-  fi
+  # Names matter as much as bytes. Export to a file, then import on each
+  # peer: a live `ctr images export -` piped into a remote import fails with
+  # "unrecognized image format" on k3s v1.37. distribute_ref reads the digest
+  # name back on every peer and fails the pin if it is missing.
+  distribute_ref "$REPO_REF@$DIGEST" "$BUILD_TAG"
 
   echo "  digest:  $DIGEST"
   echo "  tag:     $BUILD_TAG"
@@ -315,8 +393,11 @@ cat <<'EOF'
 Next:
   1. paste the block, then: node scripts/gates/check-image-pins.mjs \
        --values charts/quill/values-prod.yaml
-  2. commit it (ArgoCD renders charts/quill + values-prod.yaml from main —
+  2. confirm every pinned digest is on every eligible node:
+       node scripts/gates/check-node-images.mjs \
+         --values charts/quill/values-prod.yaml --check
+  3. commit it (ArgoCD renders charts/quill + values-prod.yaml from main —
      bare `kubectl set image` is drift, not a deploy)
-  3. after the sync, confirm the rollout:
+  4. after the sync, confirm the rollout:
        bash scripts/gates-run.sh A3
 EOF

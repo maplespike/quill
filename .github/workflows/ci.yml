@@ -277,6 +277,14 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # Never-pulled digests must be planned for every heavy host
+      # (nexus, sentry-agent) and deploy-prod must check the stores.
+      # The live store read runs in deploy-prod (--check). This step
+      # fails CI if the peer list drifts back to forge or the check
+      # step disappears. No cluster access.
+      - name: Eligible-node image plan
+        run: pnpm exec tsx --test scripts/test-node-images.mts
+
       # Backup CronJobs, the Longhorn search claim, and the scratch restore
       # drill. node:sqlite only — no cluster and no helm.
       - name: Backup and restore drill tests

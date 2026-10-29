@@ -17,6 +17,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { checkNodePins } from './gates/check-image-pins.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 process.chdir(ROOT);
@@ -114,7 +116,7 @@ test('chart: service probes hit cheap health paths', (t) => {
 test('chart: probe timings are bounded', (t) => {
   if (skipOrFail(t)) return;
   const rendered = render();
-  for (const app of Object.keys(SERVICES)) {
+  for (const app of [...Object.keys(SERVICES), 'quill-redis']) {
     const doc = deployment(rendered, app);
     for (const probe of ['startupProbe', 'livenessProbe', 'readinessProbe']) {
       const block = probeBlock(doc, probe);
@@ -125,4 +127,32 @@ test('chart: probe timings are bounded', (t) => {
       assert.ok(Number.isFinite(timeout) && timeout > 0 && timeout < period, `${app} ${probe} timeoutSeconds must be below periodSeconds`);
     }
   }
+});
+
+test('chart: quill-redis probes survive a slow ping and a slow start', (t) => {
+  if (skipOrFail(t)) return;
+  const doc = deployment(render(), 'quill-redis');
+  const startup = probeBlock(doc, 'startupProbe');
+  const liveness = probeBlock(doc, 'livenessProbe');
+  const readiness = probeBlock(doc, 'readinessProbe');
+  for (const [name, block] of [['startupProbe', startup], ['livenessProbe', liveness], ['readinessProbe', readiness]] as const) {
+    assert.ok(block, `quill-redis has no ${name}`);
+    assert.match(block, /redis-cli/, `${name} must ping with redis-cli`);
+    assert.equal(block.match(/timeoutSeconds:\s*(\d+)/)?.[1], '5', `${name} timeoutSeconds must be 5`);
+  }
+  assert.equal(liveness.match(/failureThreshold:\s*(\d+)/)?.[1], '5');
+  assert.equal(startup.match(/failureThreshold:\s*(\d+)/)?.[1], '30');
+  // Cache budget stays. A slow disk is not a reason to raise it.
+  assert.match(doc, /cpu:\s*50m/);
+  assert.match(doc, /memory:\s*64Mi/);
+  assert.match(doc, /cpu:\s*200m/);
+  assert.match(doc, /memory:\s*192Mi/);
+  assert.match(doc, /"128mb"/);
+});
+
+test('chart: Never-pulled workloads stay on nexus and sentry-agent', (t) => {
+  if (skipOrFail(t)) return;
+  const rendered = render();
+  assert.deepEqual(checkNodePins(rendered), []);
+  assert.doesNotMatch(rendered, /nodeName:\s*forge/);
 });

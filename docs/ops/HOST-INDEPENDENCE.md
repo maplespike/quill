@@ -45,9 +45,17 @@ Before merging / syncing Argo:
 3. Confirm pods Ready on the intended node:
    `kubectl -n maplespike get pods -o wide`.
 
-## Out of scope
+## Images
 
-`deploy-prod.yml` image-build job still
-`runs-on: [self-hosted, nixos, nexus]` (local containerd). Shared registry or
-forge image mirror is Infra follow-up. Do not change runner counts from this
-doc.
+`imagePullPolicy` is `Never`. The build still runs on nexus
+(`runs-on: [self-hosted, nixos, nexus]`). `scripts/pin-images.sh` imports
+each digest into the nexus containerd store and copies the tarball to every
+other heavy host (`sentry-agent`). `quill-search` is copied from the pin
+already in `values-prod.yaml`. It is not rebuilt in that job.
+
+`deploy-prod` then runs `scripts/gates/check-node-images.mjs --check` and
+fails if any pinned digest is missing on `nexus` or `sentry-agent`. The
+check runs before the pin commit. `forge` is not a target. There is no
+registry and no pull secret.
+
+Do not change runner counts from this doc.

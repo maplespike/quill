@@ -15,15 +15,20 @@
 # ArgoCD is the deploy path. It renders `charts/quill` with
 # `charts/quill/values-prod.yaml` from `main`, Synced and Healthy, with selfHeal
 # and prune enabled. So this workflow does not apply manifests. It does the
-# three things that have to happen for ArgoCD to pick up a new build:
+# four things that have to happen for ArgoCD to pick up a new build:
 #
-#   1. build each service and import it into the node's containerd store
-#      (scripts/pin-images.sh — this also writes a per-image SPDX SBOM, and
-#      refuses to continue if a scan comes back empty)
+#   1. build each service and import it into the nexus containerd store,
+#      then copy that digest tarball into every other eligible node's store
+#      (scripts/pin-images.sh — sentry-agent, never forge). The script also
+#      writes a per-image SPDX SBOM and refuses to continue if a scan comes
+#      back empty. Images this run does not rebuild (search) are copied too.
 #   2. write the resulting digests into values-prod.yaml
 #      (scripts/apply-image-pins.mjs — a line-based edit, so the comments in
 #      that file survive)
-#   3. commit and push, which is what ArgoCD actually watches
+#   3. fail if any pinned digest is missing on nexus or sentry-agent
+#      (scripts/gates/check-node-images.mjs --check). imagePullPolicy is
+#      Never, so a missing name is ErrImageNeverPull, not a pull.
+#   4. commit and push, which is what ArgoCD actually watches
 #
 # `kubectl set image` is deliberately absent: ArgoCD owns those objects, so a
 # direct write is drift it will revert, not a deploy.
@@ -205,6 +210,15 @@ jobs:
 
       - name: Verify the pins
         run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
+
+      - name: Verify pinned digests on every eligible node
+        # imagePullPolicy is Never. pin-images.sh imported each new digest
+        # into nexus and copied the tarball to sentry-agent, and copied every
+        # digest this build did not replace (search). This step reads the
+        # pins just written and fails if either node's containerd store lacks
+        # the repo@sha256 name. forge is not eligible. No registry, no pull
+        # secret: GHCR is retired and this path does not add one.
+        run: node scripts/gates/check-node-images.mjs --values charts/quill/values-prod.yaml --check
 
       - name: Commit and push the pins
         id: commit

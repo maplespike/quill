@@ -1,14 +1,11 @@
 {{/*
   Quill — Portal Deployment + Service
 
-  PLACEMENT: dynamic. The portal is stateless (no volumes, no hostPath), so it
-  is the one quill workload that can be fully scheduler-managed — no nodeName
-  pin. It floats across the labelled nodes (quill.io/workload=true), spread by
-  topology + anti-affinity so a single node loss cannot take both replicas.
-
-  The api pod and the search pod each mount a ReadWriteOnce volume, so each
-  one runs on the node that holds that volume. mcp is pinned because its
-  image is a local import (imagePullPolicy: Never). See values-prod.yaml.
+  PLACEMENT: required hostname affinity on nexus and sentry-agent (never
+  forge). The portal is stateless. Two replicas use anti-affinity, so each
+  eligible node must already hold the image. imagePullPolicy is Never.
+  deploy-prod imports the digest into both containerd stores. A copy that
+  exists only on nexus leaves the sentry-agent replica at ErrImageNeverPull.
 */}}
 {{- if (.Values.portal | default dict).enabled }}
 apiVersion: apps/v1

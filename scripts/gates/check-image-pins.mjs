@@ -3,15 +3,17 @@
 //
 // Policy enforced here (see docs/IMAGE-PINNING.md):
 //   1. No mutable tags anywhere: :local, :latest, :stable, :main, :prod, …
-//   2. Quill workloads (quill-api / quill-mcp / quill-portal) MUST be pinned to
+//   2. Quill workloads (api, mcp, portal, ingest, search) MUST be pinned to
 //      a content digest — they are imported into the node containerd store and
 //      a digest cannot be re-pointed at new layers.
 //   3. Third-party images must be digest- or version-pinned (postgres:17-alpine,
 //      cloudflared:2026.8.2) — never a rolling tag.
 //   4. A workload whose container uses `imagePullPolicy: Never` (local import)
-//      must declare an explicit node pin (`nodeName` / `nodeSelector`), because
-//      the store lives on one node; otherwise the pod dies with
-//      ErrImageNeverPull on the next reschedule.
+//      must be constrained to the eligible nodes (nexus, sentry-agent). The
+//      store is per node. deploy-prod imports every pinned digest into each
+//      of those nodes. forge is ultra-light only and must not run these
+//      images. An unconstrained pod, or one that can land on forge, dies
+//      with ErrImageNeverPull.
 //
 // Usage:
 //   node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
@@ -34,7 +36,12 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const QUILL_SERVICES = ['api', 'mcp', 'portal', 'ingest'];
+export const QUILL_SERVICES = ['api', 'mcp', 'portal', 'ingest', 'search'];
+
+// Nodes that may run an imagePullPolicy: Never workload. pin-images.sh
+// imports every pinned digest into each of these containerd stores.
+// forge is intentionally absent (ultra-light only).
+export const ELIGIBLE_NEVER_HOSTS = ['nexus', 'sentry-agent'];
 
 // Rolling tags that must never reach a manifest.
 export const MUTABLE_TAGS = new Set([
@@ -59,7 +66,7 @@ export const DIGEST_REF_RE = /@sha256:[0-9a-f]{64}$/;
 export const IMMUTABLE_TAG_RE =
   /^(?:\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?(?!\d{4}-\d{1,2}(?:-\d{1,2})?(?:-|$))\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
 
-export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal|ingest)(?:$|[:@])/;
+export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal|ingest|search)(?:$|[:@])/;
 
 const strip = (s) => String(s ?? '').trim().replace(/^["']/, '').replace(/["']$/, '');
 
@@ -178,21 +185,71 @@ export function checkProdValues(text) {
   return violations;
 }
 
+function unquote(value) {
+  return String(value).trim().replace(/^["']|["']$/g, '');
+}
+
 /**
- * Policy 4: a container with `imagePullPolicy: Never` needs a node pin.
- * Splits a rendered manifest into documents and inspects each workload.
+ * Hosts a Never-pulled pod is actually limited to.
+ * nodeName, a kubernetes.io/hostname nodeSelector, or required nodeAffinity
+ * (hostname In) count. A label selector that is not that hostname does not:
+ * the pod can still land on a node whose containerd store lacks the digest.
+ * @returns {string[]} empty when the pod is not constrained to hostnames
  */
-export function checkNodePins(renderedText) {
+export function neverPullHosts(doc) {
+  const hosts = new Set();
+  const nodeName = /^\s*nodeName:\s*(\S+)\s*$/m.exec(doc);
+  if (nodeName) {
+    const name = unquote(nodeName[1]);
+    if (name && name !== '~' && name !== 'null') hosts.add(name);
+  }
+  const selector = /^\s*nodeSelector:\s*\n((?:[ \t]+.+\n)*)/m.exec(doc);
+  if (selector) {
+    const host = /^[ \t]+kubernetes\.io\/hostname:\s*(\S+)\s*$/m.exec(selector[1]);
+    if (host) hosts.add(unquote(host[1]));
+  }
+  // First requiredDuringScheduling block. In this chart that is nodeAffinity;
+  // preferredDuringScheduling follows it, before podAntiAffinity's own required
+  // block, so the capture stops there and does not pick up anti-affinity.
+  const required = /requiredDuringSchedulingIgnoredDuringExecution:([\s\S]*?)(?=\n[ \t]*preferredDuringSchedulingIgnoredDuringExecution:|\n[ \t]*podAntiAffinity:|\n[ \t]*podAffinity:|\n[ \t]*containers:|\n[ \t]*initContainers:|\n[ \t]*volumes:|$)/.exec(doc);
+  if (required && /kubernetes\.io\/hostname/.test(required[1]) && /operator:\s*In/.test(required[1])) {
+    const values = /values:\s*\n((?:[ \t]*-[ \t]*\S+[ \t]*\n)+)/.exec(required[1]);
+    if (values) {
+      for (const line of values[1].split('\n')) {
+        const item = /^[ \t]*-[ \t]*(\S+)/.exec(line);
+        if (item) hosts.add(unquote(item[1]));
+      }
+    }
+  }
+  return [...hosts];
+}
+
+/**
+ * Policy 4: imagePullPolicy Never is legal only on the eligible nodes.
+ * Those nodes are the ones deploy-prod imports the digest into.
+ */
+export function checkNodePins(renderedText, allowedHosts = ELIGIBLE_NEVER_HOSTS) {
+  const allowed = new Set(allowedHosts);
   const violations = [];
   for (const doc of String(renderedText).split(/^---\s*$/m)) {
     if (!/^kind:\s*(Deployment|StatefulSet|DaemonSet|ReplicaSet|Job|CronJob)\s*$/m.test(doc)) continue;
     if (!/imagePullPolicy:\s*Never/.test(doc)) continue;
-    if (!/^\s*nodeName:\s*\S+/m.test(doc) && !/^\s*nodeSelector:/m.test(doc)) {
-      const name = (/^\s*name:\s*(\S+)/m.exec(doc) || [])[1] || '<unnamed>';
+    const name = (/^\s*name:\s*(\S+)/m.exec(doc) || [])[1] || '<unnamed>';
+    const hosts = neverPullHosts(doc);
+    if (hosts.length === 0) {
       violations.push({
         ref: name,
-        reason: 'pulls an image with imagePullPolicy: Never but declares no nodeName/nodeSelector — the containerd store is per node (ErrImageNeverPull on reschedule)',
+        reason: `pulls an image with imagePullPolicy: Never but is not limited to an eligible node (${[...allowed].join(', ')}). Needs nodeName, a kubernetes.io/hostname nodeSelector, or required nodeAffinity — otherwise it dies ErrImageNeverPull on a node that has no copy of the digest`,
       });
+      continue;
+    }
+    for (const host of hosts) {
+      if (!allowed.has(host)) {
+        violations.push({
+          ref: name,
+          reason: `may schedule on ${host}, which does not receive Never-pulled images (eligible: ${[...allowed].join(', ')})`,
+        });
+      }
     }
   }
   return violations;
