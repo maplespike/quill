@@ -6,7 +6,7 @@
 # assuming a tool exists. See docs/GITHUB-ACTIONS-NIX.md for the verified list.
 # DO NOT add actions/setup-node or pnpm/action-setup on the self-hosted
 # runners — those tools are already installed, and a second install breaks
-# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')`
+# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')`
 # and install Node 22 and pnpm 10.32.1 with no cache. See
 # docs/GITHUB-ACTIONS-NIX.md.
 # Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
@@ -40,11 +40,9 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  # One run per PR. A new push to a PR cancels the
-  # superseded run so the single arc-maplespike runner is not spent on stale
-  # commits. Pushes to main/prod group by commit SHA, so they never queue or
-  # cancel each other. deploy-prod.yml has its own non-cancelling group.
-  group: ci-${{ github.event.pull_request.number || github.sha }}
+  # One run per PR; a new push cancels the superseded run. Main/prod
+  # group by ref so a deploy/check on the branch is queue-latest.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -130,10 +128,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -431,10 +429,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -482,10 +480,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -611,10 +609,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 

@@ -7,7 +7,7 @@ on:
 
 concurrency:
   # One run per PR: a new push or description edit cancels the superseded run.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:

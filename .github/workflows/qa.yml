@@ -26,11 +26,9 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  # One run per PR. A new push to a PR cancels the
-  # superseded run so the single arc-maplespike runner is not spent on stale
-  # commits. Pushes to main/prod group by commit SHA, so they never queue or
-  # cancel each other. deploy-prod.yml has its own non-cancelling group.
-  group: qa-${{ github.event.pull_request.number || github.sha }}
+  # One run per PR; a new push cancels the superseded run. Main/prod
+  # group by ref so a deploy/check on the branch is queue-latest.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -119,10 +117,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -165,10 +163,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -218,10 +216,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -277,10 +275,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 

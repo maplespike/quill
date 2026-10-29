@@ -60,9 +60,9 @@ permissions:
 
 # Never let two drift runs fight over the same checkout.
 concurrency:
-  # PRs: a new push cancels the superseded run. main/prod pushes group by SHA
-  # so a later push never cancels an earlier commit's check.
-  group: portal-artifact-drift-${{ github.event.pull_request.number || github.sha }}
+  # One run per PR; a new push cancels the superseded run. Main/prod
+  # group by ref so a deploy/check on the branch is queue-latest.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

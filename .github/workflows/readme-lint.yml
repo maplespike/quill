@@ -20,9 +20,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # One run per PR: a new push cancels the superseded run. Pushes to main/prod
-  # group by commit SHA, so they never cancel each other.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  # One run per PR; a new push cancels the superseded run. Main/prod
+  # group by ref so a deploy/check on the branch is queue-latest.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
