@@ -524,11 +524,6 @@
         python3 podman kubectl age
       ];
       shellHook = ''
-        # Decrypt GitHub PAT via agenix if an SSH key is present
-        if [ -f "$HOME/.ssh/id_ed25519" ]; then
-          export GITHUB_TOKEN=$(age --decrypt -i "$HOME/.ssh/id_ed25519" "./secrets/github-pat.age" 2>/dev/null || echo "")
-          if [ -n "$GITHUB_TOKEN" ]; then echo "✓ GITHUB_TOKEN loaded from agenix secret"; fi
-        fi
         echo "MapleSpike dev shell — pnpm build | nix build | nix run .#selfhost up"
       '';
     };
