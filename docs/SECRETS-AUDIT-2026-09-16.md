@@ -17,6 +17,8 @@
 >    is **entirely `FIXME` placeholders** — so the checklist item "confirm no
 >    still-valid credential was vaulted" is **confirmed clean**. No leaked key
 >    opens `secrets/github-pat.age` at HEAD. See the #854 thread.
+>    **Update 2026-10-28:** `secrets/github-pat.age` has been retired and
+>    deleted from the tree.
 > 4. **The enforcement moved out of this document.**
 >    `scripts/check-secrets-history.sh` + `docs/secrets-history-baseline.txt`
 >    now fail CI on any full-history finding that is not enumerated, in either
@@ -64,5 +66,5 @@ Also observed during path triage (non-secret hygiene, folded into #854): a dev s
 ## 4. Method notes
 
 - gitleaks only scans diffs/contents it can parse; `vault.age` flagged via its armor header. Treat any binary ever committed under `secrets/` as exposed if its key class leaked.
-- Sensitive paths ever present in history: `.secrets/**`, `secrets/billing.yaml` (sops-encrypted — safe *iff* recipients uncompromised; the 2026-08-15 rotation holds), `secrets/github-pat.age`, `packages/pipeline-core/maplespike.sqlite`.
+- Sensitive paths ever present in history: `.secrets/**`, `secrets/billing.yaml` (sops-encrypted — safe *iff* recipients uncompromised; the 2026-08-15 rotation holds), `secrets/github-pat.age` (retired and deleted 2026-10-28), `packages/pipeline-core/maplespike.sqlite`.
 - Raw report retained at `/tmp/quill-gitleaks.json` (machine-readable); not committed to the repo.
