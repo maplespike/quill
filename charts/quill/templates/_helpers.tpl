@@ -12,20 +12,32 @@
   Input: dict "svc" <api|mcp|portal> "ctx" $   ($ = the root template context)
 
   Precedence:
-    1. images.<svc>.digest → <registry>/quill-<svc>@sha256:<digest>  (content pin)
-    2. images.<svc>.tag    → <registry>/quill-<svc>:<immutable build tag>
-    3. image.tag           → <registry>/quill-<svc>:<tag>  (dev/self-host fallback)
+    1. images.<svc>.repository, if set
+    2. image.repositoryPath → <registry>/<repositoryPath>/<svc>
+       (production: registry.registry.svc.cluster.local:5000/quill/<svc>)
+    3. otherwise <registry>/quill-<svc> (dev/self-host)
 
-  Production pins the digest form (charts/quill/values-prod.yaml, gate
-  A3-IMAGEPIN / #755): kubelet resolves that exact content from the node
-  containerd store, so re-tagging a build tag cannot change what a rollout
-  serves. The image must already exist in the store (pullPolicy: Never) —
-  create it with scripts/pin-images.sh. See docs/IMAGE-PINNING.md.
+  Then:
+    1. images.<svc>.digest → <repo>@sha256:<digest>
+    2. images.<svc>.tag    → <repo>:<immutable build tag>
+    3. image.tag           → <repo>:<tag>
+
+  Production pins the digest and uses imagePullPolicy IfNotPresent. kubelet
+  pulls from the in-cluster registry. Both eligible nodes mirror that host
+  over plain HTTP. See docs/IMAGE-PINNING.md.
 */}}
 {{- define "quill.image" -}}
 {{- $ctx := .ctx -}}
 {{- $pin := index (default (dict) $ctx.Values.images) .svc | default (dict) -}}
-{{- $repo := default (printf "%s/quill-%s" $ctx.Values.image.registry .svc) $pin.repository -}}
+{{- $repo := $pin.repository -}}
+{{- if not $repo -}}
+{{- $prefix := $ctx.Values.image.repositoryPath | default "" -}}
+{{- if $prefix -}}
+{{- $repo = printf "%s/%s/%s" $ctx.Values.image.registry $prefix .svc -}}
+{{- else -}}
+{{- $repo = printf "%s/quill-%s" $ctx.Values.image.registry .svc -}}
+{{- end -}}
+{{- end -}}
 {{- if $pin.digest -}}
 {{- printf "%s@%s" $repo $pin.digest -}}
 {{- else -}}

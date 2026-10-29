@@ -1,11 +1,14 @@
 # Review
 
-The tarball copy is the path `pin-images.sh` already implements. The bug
-is the peer: forge, after workloads moved to sentry-agent. A registry
-would need a credential. GHCR is retired. No new secret is added.
+Cross-node ssh is not allowed, so the tarball copy cannot run. The registry
+at `registry.registry.svc.cluster.local:5000` is already mirrored on nexus
+and sentry-agent over plain HTTP. Pushing there, and pulling with
+IfNotPresent, is the path that does not add a secret and does not depend
+on one machine's containerd.
 
-The store check runs in the nexus deploy job, before the pin commit.
-CI checks the plan and the workflow wiring. CI does not SSH.
+The pin is the registry's `Docker-Content-Digest`, checked before the commit.
+Prune deletes manifest links only. Garbage-collect stays in the registry pod
+because the API cannot free the 50Gi volume by itself.
 
-Redis memory stays at the 128mb cache budget. The probe change is what
-stops exit 137 on a slow `PING`.
+quill-search is pushed from the nexus store. There is no Dockerfile for it
+in this repo. If the bytes are missing, the push fails and says so.

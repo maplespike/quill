@@ -2,10 +2,10 @@
   Quill — Portal Deployment + Service
 
   PLACEMENT: required hostname affinity on nexus and sentry-agent (never
-  forge). The portal is stateless. Two replicas use anti-affinity, so each
-  eligible node must already hold the image. imagePullPolicy is Never.
-  deploy-prod imports the digest into both containerd stores. A copy that
-  exists only on nexus leaves the sentry-agent replica at ErrImageNeverPull.
+  forge). The portal is stateless. Two replicas use anti-affinity. The
+  image is pulled from the in-cluster registry (imagePullPolicy
+  IfNotPresent). Both nodes mirror that registry, so a replica can start
+  on either host.
 */}}
 {{- if (.Values.portal | default dict).enabled }}
 apiVersion: apps/v1

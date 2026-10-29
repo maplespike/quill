@@ -15,19 +15,21 @@
 # ArgoCD is the deploy path. It renders `charts/quill` with
 # `charts/quill/values-prod.yaml` from `main`, Synced and Healthy, with selfHeal
 # and prune enabled. So this workflow does not apply manifests. It does the
-# four things that have to happen for ArgoCD to pick up a new build:
+# work ArgoCD needs before it can roll a new build:
 #
-#   1. build each service and import it into the nexus containerd store,
-#      then copy that digest tarball into every other eligible node's store
-#      (scripts/pin-images.sh — sentry-agent, never forge). The script also
-#      writes a per-image SPDX SBOM and refuses to continue if a scan comes
-#      back empty. Images this run does not rebuild (search) are copied too.
-#   2. write the resulting digests into values-prod.yaml
+#   1. build api, mcp, portal, and ingest, scan each image, and push
+#      registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>
+#      (scripts/pin-images.sh). quill-search has no Dockerfile here; the
+#      script re-tags the digest already in nexus containerd and pushes that.
+#      The push is plain HTTP to the ClusterIP mirrored in
+#      /etc/rancher/k3s/registries.yaml. Nodes do not copy images to each other.
+#   2. write the registry digests into values-prod.yaml
 #      (scripts/apply-image-pins.mjs — a line-based edit, so the comments in
 #      that file survive)
-#   3. fail if any pinned digest is missing on nexus or sentry-agent
-#      (scripts/gates/check-node-images.mjs --check). imagePullPolicy is
-#      Never, so a missing name is ErrImageNeverPull, not a pull.
+#   3. HEAD each pinned digest on the registry v2 API and fail if it is
+#      missing or Docker-Content-Digest does not match. Then delete every
+#      other manifest, keeping the pinned digest and the 5 newest tags.
+#      Manifest DELETE does not free blobs; garbage-collect is server-side.
 #   4. commit and push, which is what ArgoCD actually watches
 #
 # `kubectl set image` is deliberately absent: ArgoCD owns those objects, so a
@@ -96,11 +98,11 @@ jobs:
   build-and-pin:
     name: Build images, scan, and record pins
     needs: ci
-    # The images land in the LOCAL containerd store of nexus, and
-    # scripts/pin-images.sh refuses to run anywhere else (it compares
-    # `hostname -s` against NODE=nexus). Unpinned, this job lands on whichever
-    # runner is free and dies — 2026-10-21 run 39630307172 claimed sentry and
-    # produced an empty pin block.
+    # The push runs on nexus: docker, k3s, the registries.yaml mirror, and
+    # the quill-search image (no Dockerfile in this repo) are there.
+    # scripts/pin-images.sh refuses any other hostname. Unpinned, this job
+    # lands on whichever runner is free and dies — 2026-10-21 run
+    # 39630307172 claimed sentry and produced an empty pin block.
     runs-on: [self-hosted, nixos, nexus]
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
@@ -109,14 +111,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          # A full history is needed: pin-images.sh stamps the import tag with
-          # the commit SHA, and a shallow clone makes that ambiguous.
+          # Full history: the registry tag is the git sha, and prune orders
+          # older tags by commit time. A shallow clone makes both ambiguous.
           fetch-depth: 0
 
       - name: Confirm the working tree is clean
-        # pin-images.sh appends "-dirty" to the tag when it is not. A deploy
-        # whose images are known-dirty should be a deliberate act, not the
-        # default result of a workflow that happened to run in a dirty tree.
+        # pin-images.sh refuses a dirty tree. The registry tag is the git sha,
+        # so a dirty checkout must not be tagged as that commit.
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "::error::working tree is dirty; refusing to stamp a -dirty tag onto a production image"
@@ -167,13 +168,11 @@ jobs:
         run: pnpm build
 
       - name: Restore generated sources so the image tag stays commit-only
-        # `pnpm build` rewrites 18 tracked portal artifacts (agents.json,
-        # pipeline-data.json, og-images, plans/tools/stats). pin-images.sh
-        # appends "-dirty" to the tag whenever `git status` is not clean, so the
-        # 2026-10-21 deploy shipped 2026-10-21-3b73a98f-dirty. That weakens
-        # provenance and broke the operator-gate fixture, which expects a stable
-        # tag shape. The built dist/ is what the image copies; these are
-        # regenerated sources, so restore them and assert a clean tree.
+        # `pnpm build` rewrites tracked portal artifacts. pin-images.sh refuses
+        # a dirty tree, because the registry tag is the git sha. The built
+        # dist/ is what the image copies; these are regenerated sources, so
+        # restore them and assert a clean tree. The 2026-10-21 deploy shipped
+        # a -dirty tag when this restore was missing.
         run: |
           git status --porcelain
           git checkout -- .
@@ -211,14 +210,16 @@ jobs:
       - name: Verify the pins
         run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
 
-      - name: Verify pinned digests on every eligible node
-        # imagePullPolicy is Never. pin-images.sh imported each new digest
-        # into nexus and copied the tarball to sentry-agent, and copied every
-        # digest this build did not replace (search). This step reads the
-        # pins just written and fails if either node's containerd store lacks
-        # the repo@sha256 name. forge is not eligible. No registry, no pull
-        # secret: GHCR is retired and this path does not add one.
+      - name: Verify pinned digests are in the registry
+        # imagePullPolicy is IfNotPresent. Fail before the pin commit when
+        # the registry v2 API does not serve the digest the chart will pull.
         run: node scripts/gates/check-node-images.mjs --values charts/quill/values-prod.yaml --check
+
+      - name: Prune old registry tags
+        # Keep the pinned digest and the 5 newest tags per service. DELETE
+        # unlinks the manifest only. A server-side registry garbage-collect
+        # has to run in the registry pod before the 50Gi volume shrinks.
+        run: node scripts/gates/check-node-images.mjs --values charts/quill/values-prod.yaml --prune --keep 5
 
       - name: Commit and push the pins
         id: commit

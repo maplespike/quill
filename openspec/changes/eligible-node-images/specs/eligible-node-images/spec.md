@@ -1,23 +1,34 @@
 ## ADDED Requirements
 
-### Requirement: Never-pulled digests exist on every eligible node
-Each digest under `images` in `charts/quill/values-prod.yaml` MUST be
-present, under its `repo@sha256` name, in the containerd store of every
-heavy affinity host. Those hosts are `nexus` and `sentry-agent`. `forge`
-MUST NOT be a required host. `deploy-prod` MUST fail before the pin
-commit when any digest is missing on any eligible node.
+### Requirement: Quill images are registry digests
+Each Quill workload MUST run
+`registry.registry.svc.cluster.local:5000/quill/<svc>@sha256:<digest>`
+with `imagePullPolicy: IfNotPresent`. `<svc>` is api, mcp, portal, ingest,
+or search. `imagePullPolicy: Never` MUST NOT appear in the rendered
+production chart. The deploy MUST NOT copy images over ssh.
 
-#### Scenario: Portal schedules on sentry-agent
-- **Given** `imagePullPolicy` is `Never`
-- **And** the portal may schedule on `sentry-agent`
-- **When** deploy-prod finishes the image import
-- **Then** sentry-agent containerd lists `docker.io/library/quill-portal@<digest>`
-- **And** the same is true for api, mcp, ingest, and search
+#### Scenario: Helm render
+- **Given** `helm template` renders `charts/quill` with `values-prod.yaml`
+- **When** the image lines are read
+- **Then** each Quill service reference is a digest on that registry host
+- **And** no container sets `imagePullPolicy: Never`
 
-#### Scenario: Plan rejects forge
-- **Given** the heavy host list includes `forge`
-- **When** the node-image plan runs
-- **Then** it exits non-zero
+#### Scenario: Registry check
+- **Given** the pin commit has not been pushed
+- **When** deploy-prod queries `GET /v2/quill/<svc>/manifests/<digest>`
+- **Then** a missing manifest or a different `Docker-Content-Digest` fails the job
+
+### Requirement: Old registry tags are pruned
+deploy-prod MUST delete registry manifests other than the pinned digest and
+the five newest tags of each service. The job MUST say that blob space is
+freed only by a server-side registry garbage-collect.
+
+#### Scenario: Six old tags
+- **Given** a service has more than five tags and one older tag still points
+  at the pinned digest
+- **When** prune runs with `--keep 5`
+- **Then** the pinned digest is kept
+- **And** tags outside the five newest, and not the pinned digest, are deleted
 
 ### Requirement: Redis probes tolerate a slow ping
 The rendered `quill-redis` Deployment MUST set `timeoutSeconds: 5` on

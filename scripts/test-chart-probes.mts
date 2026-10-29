@@ -150,9 +150,16 @@ test('chart: quill-redis probes survive a slow ping and a slow start', (t) => {
   assert.match(doc, /"128mb"/);
 });
 
-test('chart: Never-pulled workloads stay on nexus and sentry-agent', (t) => {
+test('chart: quill images pull from the in-cluster registry', (t) => {
   if (skipOrFail(t)) return;
   const rendered = render();
-  assert.deepEqual(checkNodePins(rendered), []);
-  assert.doesNotMatch(rendered, /nodeName:\s*forge/);
+  assert.equal(checkNodePins(rendered).length, 0);
+  assert.doesNotMatch(rendered, /imagePullPolicy:\s*Never/);
+  for (const svc of ['api', 'mcp', 'portal', 'ingest', 'search']) {
+    assert.match(
+      rendered,
+      new RegExp(`registry\\.registry\\.svc\\.cluster\\.local:5000/quill/${svc}@sha256:[0-9a-f]{64}`),
+      `${svc} must be a registry digest`,
+    );
+  }
 });

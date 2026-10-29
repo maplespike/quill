@@ -10,7 +10,7 @@
 //
 // The edit is line-based rather than a YAML round-trip on purpose. A parse and
 // re-emit would discard every comment in the file, and those comments are the
-// only record of why `pullPolicy: Never` and the empty `image.tag` are correct.
+// only record of why `pullPolicy: IfNotPresent` and the registry host are correct.
 // Rewriting them away would be a silent loss on every deploy.
 //
 // Usage:

@@ -1,29 +1,25 @@
-# Proposal: Import every Quill image onto every eligible node
+# Proposal: Publish Quill images to the in-cluster registry
 
 ## Problem
 
 After the nexus|sentry-agent affinity change, a quill-portal pod on
-sentry-agent stays `ErrImageNeverPull`. Its image is
-`docker.io/library/quill-portal@sha256:…` with `imagePullPolicy: Never`.
-That digest exists only in nexus containerd. `scripts/pin-images.sh`
-copied tarballs to forge, which no longer runs these workloads.
+sentry-agent stays `ErrImageNeverPull`. The image is `imagePullPolicy: Never`
+and exists only in nexus containerd. Infra does not allow ssh between nodes,
+so a tarball copy cannot fix it.
 
 `quill-redis` is liveness-killed (exit 137) when `redis-cli ping` exceeds
-the 3s probe timeout under IO pressure. Module load and AOF/RDB replay
-have the same window: liveness starts before the process can answer.
+the 3s probe timeout under IO pressure.
 
 ## Proposed fix
 
-Keep the registry-free path the repo already uses. On deploy, import each
-pinned digest into nexus and into sentry-agent, then fail if either store
-lacks the `repo@sha256` name. Do not add a registry or a pull secret.
-
-Give the Redis probes headroom. Leave the cache requests and limits as
-they are.
+Push images to `registry.registry.svc.cluster.local:5000`. Both nodes already
+mirror that host over plain HTTP. Charts pull the digest with
+`imagePullPolicy: IfNotPresent`. deploy-prod fails unless the registry v2
+API serves each pinned digest. Prune old tags. Keep the Redis probe change.
 
 ## Affected packages
 
-- `charts/quill` (Redis probes, portal placement comment)
+- `charts/quill` (image reference, pull policy, Redis probes)
 - `.github/workflows/deploy-prod.yml`
 - `scripts/pin-images.sh` and the image-pin gate
 

@@ -8,12 +8,10 @@
 //      a digest cannot be re-pointed at new layers.
 //   3. Third-party images must be digest- or version-pinned (postgres:17-alpine,
 //      cloudflared:2026.8.2) — never a rolling tag.
-//   4. A workload whose container uses `imagePullPolicy: Never` (local import)
-//      must be constrained to the eligible nodes (nexus, sentry-agent). The
-//      store is per node. deploy-prod imports every pinned digest into each
-//      of those nodes. forge is ultra-light only and must not run these
-//      images. An unconstrained pod, or one that can land on forge, dies
-//      with ErrImageNeverPull.
+//   4. Production pullPolicy is IfNotPresent. Images are pulled from the
+//      in-cluster registry, which both eligible nodes mirror. imagePullPolicy
+//      Never is rejected in values-prod. If a rendered workload still uses
+//      Never, it must be constrained to nexus or sentry-agent (never forge).
 //
 // Usage:
 //   node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
@@ -64,9 +62,9 @@ export const DIGEST_REF_RE = /@sha256:[0-9a-f]{64}$/;
 // instead: `YYYY-MM-DD-<suffix>`, the same shape CI enforces. True version
 // pins never start with a 4-digit year followed by dash-digits.
 export const IMMUTABLE_TAG_RE =
-  /^(?:\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?(?!\d{4}-\d{1,2}(?:-\d{1,2})?(?:-|$))\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
+  /^(?:[0-9a-f]{7,40}|\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*|v?(?!\d{4}-\d{1,2}(?:-\d{1,2})?(?:-|$))\d+(?:\.\d+)*(?:-[0-9a-z][0-9a-z.-]*)?)$/;
 
-export const QUILL_IMAGE_RE = /(?:^|\/)quill-(api|mcp|portal|ingest|search)(?:$|[:@])/;
+export const QUILL_IMAGE_RE = /(?:^|\/)quill(?:-|\/)(api|mcp|portal|ingest|search)(?:$|[:@])/;
 
 const strip = (s) => String(s ?? '').trim().replace(/^["']/, '').replace(/["']$/, '');
 
@@ -127,6 +125,26 @@ export function extractImageRefs(text) {
   return refs;
 }
 
+/** One scalar under the top-level `image:` map. Empty when absent. */
+export function parseImageField(text, key) {
+  const re = new RegExp(`^image:\\n(?:[ \\t].*\\n)*?^  ${key}:\\s*["']?([^"'\\s#]+)`, 'm');
+  const match = re.exec(String(text));
+  return match ? strip(match[1]) : '';
+}
+
+/**
+ * Repository for one Quill service.
+ * images.<svc>.repository wins. Else <registry>/<repositoryPath>/<svc>.
+ * Else the historical <registry>/quill-<svc> name.
+ */
+export function quillRepository(valuesText, svc, pin = {}) {
+  if (pin.repository) return pin.repository;
+  const registry = parseImageField(valuesText, 'registry') || 'docker.io/library';
+  const prefix = parseImageField(valuesText, 'repositoryPath');
+  if (prefix) return `${registry}/${prefix}/${svc}`;
+  return `${registry}/quill-${svc}`;
+}
+
 /** Parse the `images:` pin block of a values file. No YAML dependency. */
 export function parseImagesBlock(text) {
   const lines = String(text).split('\n');
@@ -171,6 +189,12 @@ export function checkProdValues(text) {
       const c = classifyRef(`quill-${svc}:${pin.tag}`);
       if (!c.ok) violations.push({ ref: `images.${svc}.tag`, reason: `build tag is not immutable: ${pin.tag}` });
     }
+  }
+  if (parseImageField(text, 'pullPolicy') === 'Never') {
+    violations.push({
+      ref: 'image.pullPolicy',
+      reason: 'production pullPolicy must be IfNotPresent. Never keeps the image on one node, and infra does not allow copying it to the other',
+    });
   }
   // No mutable tag may survive anywhere in the file's image plumbing.
   for (const line of String(text).split('\n')) {
@@ -355,7 +379,7 @@ export function checkStore(valuesText, storeRefs) {
   for (const [svc, pin] of Object.entries(images)) {
     const digest = pin.digest;
     if (!digest) continue;
-    const want = `${pin.repository || `docker.io/library/quill-${svc}`}@${digest}`;
+    const want = `${quillRepository(valuesText, svc, pin)}@${digest}`;
     if (!storeRefs.has(want)) {
       violations.push({
         ref: svc,

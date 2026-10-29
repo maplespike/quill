@@ -47,15 +47,19 @@ Before merging / syncing Argo:
 
 ## Images
 
-`imagePullPolicy` is `Never`. The build still runs on nexus
-(`runs-on: [self-hosted, nixos, nexus]`). `scripts/pin-images.sh` imports
-each digest into the nexus containerd store and copies the tarball to every
-other heavy host (`sentry-agent`). `quill-search` is copied from the pin
-already in `values-prod.yaml`. It is not rebuilt in that job.
+`imagePullPolicy` is `IfNotPresent`. The build still runs on nexus
+(`runs-on: [self-hosted, nixos, nexus]`). `scripts/pin-images.sh` pushes
+`registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>`. nexus and
+sentry-agent both mirror that host over plain HTTP, so either node can pull
+the digest. Nodes do not copy images to each other.
 
-`deploy-prod` then runs `scripts/gates/check-node-images.mjs --check` and
-fails if any pinned digest is missing on `nexus` or `sentry-agent`. The
-check runs before the pin commit. `forge` is not a target. There is no
-registry and no pull secret.
+`quill-search` has no Dockerfile in this repo. The script pushes the digest
+already in the nexus containerd store. If that image is missing, the push
+stops.
+
+`deploy-prod` then HEADs every pinned digest on the registry v2 API and
+fails the pin commit if any digest is missing or does not match. It also
+deletes older manifests, keeping the pinned digest and the 5 newest tags.
+Blob space comes back only after a server-side registry garbage-collect.
 
 Do not change runner counts from this doc.
