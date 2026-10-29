@@ -12,198 +12,164 @@
 # two-step dance (watch CI, come back, click merge). It does NOT approve the
 # PR and it does NOT decide that a PR is safe; both stay with the human.
 #
-# Triggers on `labeled` (the gate opening) plus `synchronize`/`reopened`/
-# `ready_for_review` so pushing more commits to an already-labelled PR re-arms
-# the gate rather than leaving it merged against stale checks.
+# The gate runs on the tiny `arc-maplespike-gate` scale set and never polls.
+# It is triggered by completed CI workflows, completed check suites, or by
+# label/ready_for_review/synchronize activity on the PR itself. Each run
+# resolves the PR and head SHA, validates the gate conditions, queries the
+# Checks API exactly once, and either merges or exits 0.
 #
 # "Not my turn" exits 0, never 1: a red check on a PR that is merely waiting
 # for its author to label it is a misleading signal.
 name: "Merge when green"
+
 on:
-  pull_request_target:
-    types: [labeled, synchronize, reopened, ready_for_review]
+  workflow_run:
+    workflows: ["CI", "PR validation", "QA", "Rust CI"]
+    types: [completed]
+  check_suite:
+    types: [completed]
+  pull_request:
+    types: [labeled, synchronize, ready_for_review]
 
 permissions:
   contents: write
   pull-requests: write
   checks: read
-  # The deterministic close-loop (#983) reads and closes issues. With the
-  # block declared, an unlisted scope is NONE: on the first live run (#999,
-  # 2026-10-05) `gh issue view` 403'd, `|| true` turned that into an empty
-  # state, and the loop skipped #986 silently. issues:write covers both the
-  # state read and the close.
-  issues: write
-  # gh pr checks' GraphQL reads checkSuite.workflowRun; without actions:read
-  # the whole query can be refused ("Resource not accessible by integration",
-  # measured on #997, 60/60 attempts, 2026-10-04). The REST fallback in the
-  # wait step keeps the gate working even if this scope is still refused.
-  actions: write
+  actions: read
+
+concurrency:
+  group: gate-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number || github.event.check_suite.pull_requests[0].number || github.event.workflow_run.head_sha || github.event.check_suite.head_sha || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   merge:
-    # Author gate. Dependabot, or the maintainer. The head repository must be
-    # this repository. This job does not check out pull request code.
-    # pull_request_target is required so the squash-merge token can write.
-    # A fork pull request does not run.
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.actor == 'dependabot[bot]' || github.actor == 'reverb256')
-    runs-on: ubuntu-latest
+    runs-on: arc-maplespike-gate
+    timeout-minutes: 5
     steps:
-      # Never rely on the runner's ambient `gh` credentials: the
-      # [self-hosted, nixos] pool is not homogeneous (PR 908). github.token is
-      # minted per run and exists everywhere.
-      - name: "Wait for every check to settle, then squash-merge"
+      - name: Resolve PR and head SHA
+        id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_LABEL: ${{ github.event.label.name }}
-          ACTION: ${{ github.event.action }}
         run: |
           set -euo pipefail
 
-          if [[ "$PR_LABEL" != "ready-to-merge" ]]; then
-            echo "::notice::event=$ACTION label='$PR_LABEL' — not the merge gate. Nothing to do."
+          PR_NUMBER=""
+          HEAD_SHA=""
+
+          case "${{ github.event_name }}" in
+            pull_request)
+              PR_NUMBER="${{ github.event.pull_request.number }}"
+              HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+              ;;
+            workflow_run)
+              HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+              PR_NUMBER=$(gh api "repos/$GH_REPO/pulls" --paginate \
+                --jq '[.[] | select(.state == "open" and .head.sha == $sha) | .number] | first // empty' \
+                --arg sha "$HEAD_SHA" 2>/dev/null || true)
+              ;;
+            check_suite)
+              HEAD_SHA="${{ github.event.check_suite.head_sha }}"
+              PR_NUMBER=$(gh api "repos/$GH_REPO/pulls" --paginate \
+                --jq '[.[] | select(.state == "open" and .head.sha == $sha) | .number] | first // empty' \
+                --arg sha "$HEAD_SHA" 2>/dev/null || true)
+              ;;
+          esac
+
+          if [[ -z "${PR_NUMBER:-}" || -z "${HEAD_SHA:-}" ]]; then
+            echo "::notice::No open PR resolved for this event — nothing to do."
             exit 0
           fi
 
-          echo "Gate open on #$PR_NUMBER — waiting for every check to settle."
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "::notice::Resolved PR #$PR_NUMBER at head SHA $HEAD_SHA."
 
-          # 60 * 20s = 20 min ceiling. Longer than any CI lane in ci.yml
-          # (longest observed ~2m) so this never truncates a healthy run.
-          for i in $(seq 1 60); do
-            # --repo on every call: this job has no checkout. `gh` cannot infer
-            # the repository from a working tree. The job runs on ubuntu-latest.
-            META=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,isDraft,mergeable,labels,title,body)
+      - name: Validate gate conditions
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.resolve.outputs.pr_number }}
+        run: |
+          set -euo pipefail
 
-            if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
-              echo "::notice::PR #$PR_NUMBER closed/merged by someone else — stopping."
-              exit 0
-            fi
-            if [[ "$(jq -r '.isDraft' <<<"$META")" == "true" ]]; then
-              echo "::notice::PR #$PR_NUMBER is a draft — stopping."
-              exit 0
-            fi
-            if [[ "$(jq -r 'any(.labels[]; .name == "ready-to-merge")' <<<"$META")" != "true" ]]; then
-              echo "::notice::'ready-to-merge' removed from #$PR_NUMBER — stopping."
-              exit 0
-            fi
+          if [[ -z "${PR_NUMBER:-}" ]]; then
+            echo "::notice::No PR resolved — nothing to do."
+            exit 0
+          fi
 
-            # Fail closed (#983 follow-up): a transient gh/API failure must
-            # not read as "no pending, no failures". On an unreadable list,
-            # wait and retry; the 20-min loop is the backstop. Observed once:
-            # all-green reported while a check was still in_progress.
-            #
-            # Fallback (#997): gh pr checks' GraphQL can be refused wholesale
-            # on this runner ("Resource not accessible by integration" on
-            # checkSuite.workflowRun — measured 60/60 attempts on #997,
-            # 2026-10-04). Read the same data over REST check-runs for the
-            # head SHA; both paths failing keeps the fail-closed retry.
-            PENDING=""
-            FAILURES=""
-            CHECKS=""
-            RAW=""
-            if CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null); then
-              PENDING=$(jq '[.[] | select(.bucket == "pending" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
-              FAILURES=$(jq '[.[] | select(.bucket == "fail" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
-            else
-              HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefOid -q .headRefOid 2>/dev/null || true)
-              if [ -n "$HEAD_SHA" ] && RAW=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA/check-runs?per_page=100" 2>/dev/null); then
-                if [ "$(jq '.check_runs | length' <<<"$RAW" 2>/dev/null || echo 0)" -gt 0 ]; then
-                  PENDING=$(jq '[.check_runs[] | select(.status != "completed" and .name != "merge" and .name != "Merge when green")] | length' <<<"$RAW")
-                  FAILURES=$(jq '[.check_runs[] | select(.name != "merge" and .name != "Merge when green" and (.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure"))] | length' <<<"$RAW")
-                fi
-              fi
-            fi
-            if [ -z "$PENDING" ] || [ -z "$FAILURES" ]; then
-              echo "($i/60) check list unreadable — retrying."
-              sleep 20
-              continue
-            fi
+          META=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,isDraft,headRepository,labels 2>/dev/null || true)
+          if [[ -z "$META" ]]; then
+            echo "::notice::Could not read PR #$PR_NUMBER — nothing to do."
+            exit 0
+          fi
 
-            if [[ "$FAILURES" -gt 0 ]]; then
-              if [ -n "$CHECKS" ]; then
-                NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
-              else
-                NAMES=$(jq -r '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure") | .name] | join(", ")' <<<"$RAW" 2>/dev/null || true)
-              fi
-              echo "::error::Failing checks on #$PR_NUMBER: $NAMES — refusing to merge."
-              echo "Fix or revert them, then re-apply the label."
-              exit 1
-            fi
+          if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
+            echo "::notice::PR #$PR_NUMBER is not open — nothing to do."
+            exit 0
+          fi
 
-            if [[ "$PENDING" -eq 0 ]]; then
-              if [[ "$(jq -r '.mergeable' <<<"$META")" != "MERGEABLE" ]]; then
-                echo "::error::All checks green but the merge is $(jq -r '.mergeable' <<<"$META")."
-                echo "Resolve conflicts, then re-apply the label."
-                exit 1
-              fi
+          if [[ "$(jq -r '.isDraft' <<<"$META")" == "true" ]]; then
+            echo "::notice::PR #$PR_NUMBER is a draft — nothing to do."
+            exit 0
+          fi
 
-              # No --subject on purpose (#985), and pass the PR body as the
-              # squash body (#983/#993): this repo's squash settings are
-              # COMMIT_OR_PR_TITLE + COMMIT_MESSAGES, so without --body the
-              # composed squash body is the branch's commit messages — never
-              # the PR description.
-              #
-              # Measured 2026-10-04 (#983): even with `Closes #N` present in
-              # the squash message on main (f9e1a492/#990, 17416ec0/#983),
-              # GitHub's keyword auto-closure did not fire — no `closed` and
-              # no `referenced` events. Closure is therefore done
-              # deterministically below, not left to the keyword.
-              PR_BODY=$(jq -r '.body // ""' <<<"$META")
-              echo "All checks green — squash-merging #$PR_NUMBER."
-              gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
-                --body "$PR_BODY"
-              echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
+          if [[ "$(jq -r 'any(.labels[]; .name == "ready-to-merge")' <<<"$META")" != "true" ]]; then
+            echo "::notice::PR #$PR_NUMBER does not have the ready-to-merge label — nothing to do."
+            exit 0
+          fi
 
-              # GITHUB_TOKEN merge does not fire push workflows on main.
-              # workflow_dispatch from GITHUB_TOKEN does (needs actions: write).
-              echo "Dispatching CI on main after merge…"
-              if gh workflow run CI --repo "$GH_REPO" --ref main; then
-                echo "::notice::dispatched CI on main after #$PR_NUMBER merge"
-              else
-                # Soft-fail: never abort after a successful merge — issue-closure must still run.
-                echo "::warning::failed to dispatch CI on main — check workflow_dispatch + actions:write"
-              fi
+          HEAD_REPO=$(jq -r '.headRepository.nameWithOwner' <<<"$META")
+          if [[ "$HEAD_REPO" != "$GH_REPO" ]]; then
+            echo "::notice::PR #$PR_NUMBER head repo $HEAD_REPO != $GH_REPO — nothing to do."
+            exit 0
+          fi
 
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+          echo "::notice::Gate conditions satisfied for PR #$PR_NUMBER."
 
-              # Deterministic issue closure (#983): close the OPEN issues
-              # referenced with closing keywords in the PR body. A failure
-              # here must never fail the merge — but it must be VISIBLE:
-              # the first live run (#999, 2026-10-05) skipped silently when
-              # `gh issue view` 403'd (missing issues scope) into an empty
-              # state. Log the parsed refs and every outcome.
-              CLOSE_REFS=$(printf '%s\n' "$PR_BODY" \
-                | grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]*(GH)?#[0-9]+' \
-                | grep -oE '#[0-9]+' | tr -d '#' | sort -u || true)
-              echo "Close-loop: closing refs parsed from the PR body: ${CLOSE_REFS:-<none>}"
-              for n in $CLOSE_REFS; do
-                state=$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1 || true)
-                case "$state" in
-                  OPEN)
-                    if gh issue close "$n" --repo "$GH_REPO" --reason completed \
-                      --comment "Closed by the ready-to-merge gate when #$PR_NUMBER merged (deterministic closure — #983)."; then
-                      echo "::notice::Close-loop closed #$n (referenced by #$PR_NUMBER)."
-                    else
-                      echo "::warning::could not close issue #$n"
-                    fi
-                    ;;
-                  CLOSED)
-                    echo "Close-loop: #$n already closed."
-                    ;;
-                  *)
-                    echo "::warning::close-loop could not read the state of #$n: $state"
-                    ;;
-                esac
-              done
-              exit 0
-            fi
+      - name: Check runs once
+        id: checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ steps.resolve.outputs.head_sha }}
+        run: |
+          set -euo pipefail
 
-            echo "($i/60) $PENDING checks pending…"
-            sleep 20
-          done
+          if [[ -z "${HEAD_SHA:-}" ]]; then
+            exit 0
+          fi
 
-          echo "::error::Timed out after 20 min waiting for checks on #$PR_NUMBER — refusing to merge."
-          echo "Re-apply the label once CI has settled."
-          exit 1
+          RAW=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA/check-runs" --paginate 2>/dev/null || true)
+          if [[ -z "$RAW" ]]; then
+            echo "::notice::Could not read check runs for $HEAD_SHA — nothing to do."
+            exit 0
+          fi
+
+          OWN_NAME="Merge when green"
+          PENDING=$(jq --arg name "$OWN_NAME" '[.check_runs[] | select(.name != $name and .status != "completed")] | length' <<<"$RAW")
+          NOT_GREEN=$(jq --arg name "$OWN_NAME" '[.check_runs[] | select(.name != $name and .status == "completed" and .conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length' <<<"$RAW")
+
+          if [[ "$PENDING" -gt 0 || "$NOT_GREEN" -gt 0 ]]; then
+            echo "::notice::Checks are pending or not green for $HEAD_SHA — nothing to do."
+            exit 0
+          fi
+
+          echo "all_green=true" >> "$GITHUB_OUTPUT"
+          echo "::notice::All checks green for $HEAD_SHA."
+
+      - name: Squash merge
+        if: steps.gate.outputs.ok == 'true' && steps.checks.outputs.all_green == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.resolve.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.resolve.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+
+          echo "::notice::Squash-merging PR #$PR_NUMBER at head commit $HEAD_SHA."
+          gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --match-head-commit "$HEAD_SHA"
+          echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
