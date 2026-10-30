@@ -18,13 +18,13 @@ images:
   search:
     digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
     tag: '2026-10-06-serve-fix'
-# CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry-agent;
+# CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
 # forge last and only for ultra-light work (cloudflared). Heavy workloads
 # use required hostname In affinityHosts + preferredHost weight 100.
 # No kubectl node-label writes — affinity uses kubernetes.io/hostname only.
 affinityHosts: &quillHeavyHosts
   - nexus
-  - sentry-agent
+  - sentry
 preferredHost: &quillPreferredHost nexus
 
 api:
@@ -68,7 +68,7 @@ mcp:
   replicas: 1
   port: 3001
   metricsPort: 9465
-  # 2026-10-28: nexus|sentry-agent only (never forge).
+  # 2026-10-28: nexus|sentry only (never forge).
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -120,7 +120,7 @@ portal:
   # api/mcp/search it needs no node pin.
   replicas: 2
   port: 8080
-  # CPU order: nexus preferred, sentry-agent fallback; never forge (Reverb 15:06 CT).
+  # CPU order: nexus preferred, sentry fallback; never forge (Reverb 15:06 CT).
   # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -144,7 +144,7 @@ cloudflared:
   # Ultra-light only: may land on forge (Reverb 15:06 CT).
   affinityHosts:
     - nexus
-    - sentry-agent
+    - sentry
     - forge
   preferredHost: nexus
   resources:
@@ -239,7 +239,7 @@ search:
   # nodeName from this value and ignores nodeSelector for the copy.
   # After the copy, set migrateLegacyIndex to false and leave nodeName set.
   # The backup claim is ReadWriteOnce, so search and its backup must stay
-  # 2026-10-28: nexus|sentry-agent only; longhorn RWO attaches on chosen node.
+  # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -247,7 +247,7 @@ search:
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
 # API volume, ReadWriteOnce. Backup, freshness, and drill pods use the same
-# affinityHosts / preferredHost as the API (nexus|sentry-agent, never forge)
+# affinityHosts / preferredHost as the API (nexus|sentry, never forge)
 # so they stay co-located with the API volume's allowed hosts. ReadWriteMany
 # is optional and needs a verified NFS client. Redis is not included.
 # Postgres is off in this file (database.enabled: false), so no pg_dump
