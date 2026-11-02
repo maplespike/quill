@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-22T02:06:30.178Z",
+  "generatedAt": "2026-11-02T14:11:52.765Z",
   "source": "discover-municipal-ids",
   "discoveries": 10,
   "keptFromPrevious": 0,
@@ -8,14 +8,14 @@
     "https://donnees.montreal.ca|budget": {
       "id": "2b7dcae7-a3e5-4f5d-81de-ccde2c518e55",
       "portalType": "ckan",
-      "discoveredAt": "2026-09-22T02:06:27.208Z",
+      "discoveredAt": "2026-11-02T14:11:46.299Z",
       "name": "Budget de fonctionnement",
       "validated": true
     },
     "https://data.edmonton.ca|building-permits": {
       "id": "24uj-dj8v",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.507Z",
+      "discoveredAt": "2026-11-02T14:11:47.405Z",
       "name": "General Building Permits",
       "rowsProbed": 1,
       "validated": true
@@ -23,7 +23,7 @@
     "https://data.winnipeg.ca|permits": {
       "id": "it4w-cpf4",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.591Z",
+      "discoveredAt": "2026-11-02T14:11:45.034Z",
       "name": "Detailed Building Permit Data",
       "rowsProbed": 1,
       "validated": true
@@ -31,7 +31,7 @@
     "https://data.winnipeg.ca|311-calls": {
       "id": "vrzk-mj7v",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.601Z",
+      "discoveredAt": "2026-11-02T14:11:44.924Z",
       "name": "311 Call Wait Times",
       "rowsProbed": 1,
       "validated": true
@@ -39,7 +39,7 @@
     "https://data.edmonton.ca|311-calls": {
       "id": "6asu-htha",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:26.742Z",
+      "discoveredAt": "2026-11-02T14:11:50.900Z",
       "name": "311 Call Centre Satisfaction Survey - 2014",
       "rowsProbed": 1,
       "validated": true
@@ -47,7 +47,7 @@
     "https://data.edmonton.ca|budget": {
       "id": "gds5-6aiq",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.509Z",
+      "discoveredAt": "2026-11-02T14:11:47.510Z",
       "name": "2012 Budget Consultation Survey - Taxes And Balancing Budget",
       "rowsProbed": 1,
       "validated": true
@@ -55,7 +55,7 @@
     "https://data.calgary.ca|budget": {
       "id": "fqax-i3nz",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.680Z",
+      "discoveredAt": "2026-11-02T14:11:46.865Z",
       "name": "Calgary Open Budget",
       "rowsProbed": 1,
       "validated": true
@@ -63,7 +63,7 @@
     "https://data.calgary.ca|permits": {
       "id": "c2es-76ed",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.902Z",
+      "discoveredAt": "2026-11-02T14:11:49.760Z",
       "name": "Building Permits",
       "rowsProbed": 1,
       "validated": true
@@ -71,7 +71,7 @@
     "https://data.calgary.ca|transit": {
       "id": "hpnd-riq4",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:27.913Z",
+      "discoveredAt": "2026-11-02T14:11:52.765Z",
       "name": "Calgary Transit Routes",
       "rowsProbed": 1,
       "validated": true
@@ -79,7 +79,7 @@
     "https://data.winnipeg.ca|budget": {
       "id": "hk5w-mj8b",
       "portalType": "socrata",
-      "discoveredAt": "2026-09-22T02:06:30.178Z",
+      "discoveredAt": "2026-11-02T14:11:45.043Z",
       "name": "Capital Budget - 2014",
       "rowsProbed": 1,
       "validated": true
