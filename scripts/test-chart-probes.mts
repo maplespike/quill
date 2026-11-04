@@ -159,6 +159,7 @@ function imagePolicyLines(yaml: string): string[] {
 test('chart: unmigrated values-prod matches the live image refs and pull policy', (t) => {
   if (skipOrFail(t)) return;
   const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
+  execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
   execFileSync('git', ['worktree', 'add', '--detach', mainDir, 'origin/main'], {
     cwd: ROOT,
     stdio: 'pipe',
