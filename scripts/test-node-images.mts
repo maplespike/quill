@@ -61,13 +61,13 @@ test('registries.yaml endpoint is the plain-HTTP ClusterIP, else the host', () =
     'mirrors:',
     '  "registry.registry.svc.cluster.local:5000":',
     '    endpoint:',
-    '      - "http://10.43.12.34:5000"',
+    '      - "http://192.0.2.34:5000"',
     'configs:',
     '  "registry.registry.svc.cluster.local:5000":',
     '    tls:',
     '      insecure_skip_verify: true',
   ].join('\n');
-  assert.equal(parseRegistryEndpoint(yaml), 'http://10.43.12.34:5000');
+  assert.equal(parseRegistryEndpoint(yaml), 'http://192.0.2.34:5000');
   assert.equal(parseRegistryEndpoint(''), `http://${REGISTRY_HOST}`);
 });
 
