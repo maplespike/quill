@@ -32,7 +32,7 @@ permissions:
 jobs:
   doctor:
     if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.head_repository.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - name: Refuse untrusted code on self-hosted runners
         env:

@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   check:
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
       - run: chmod +x scripts/quill-health-check.sh && bash scripts/quill-health-check.sh --create-issue

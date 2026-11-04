@@ -12,7 +12,7 @@ permissions:
 jobs:
   sync-checks:
     name: "Cross-repo consistency"
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     strategy:
       matrix:
         repo:

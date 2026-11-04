@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   ingest:
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
 
