@@ -26,9 +26,9 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  # One run per PR; a new push cancels the superseded run. Main/prod
-  # group by ref so a deploy/check on the branch is queue-latest.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # One run per PR; a new push cancels the superseded run. Main/prod and
+  # workflow_dispatch group per sha, so a newer push never evicts a queued run.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('{0}-{1}', github.ref, github.sha) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:

@@ -42,7 +42,7 @@ runs:
       run: |
         set -euo pipefail
         need=()
-        command -v gcc >/dev/null 2>&1 || need+=(build-essential)
+        { command -v gcc && command -v g++ && command -v make; } >/dev/null 2>&1 || need+=(build-essential)
         command -v pkg-config >/dev/null 2>&1 || need+=(pkg-config)
         if ! pkg-config --exists openssl 2>/dev/null; then need+=(libssl-dev); fi
         command -v python3 >/dev/null 2>&1 || need+=(python3)
@@ -71,9 +71,11 @@ runs:
         need=1
         if command -v node >/dev/null 2>&1 && command -v pnpm >/dev/null 2>&1; then
           major=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0)
-          if [ "$major" -ge 22 ]; then
+          want=$(node -p "(require('./package.json').packageManager||'').split('@')[1]||''" 2>/dev/null || echo "")
+          have=$(pnpm -v 2>/dev/null || echo "")
+          if [ "$major" -ge 22 ] && [ -n "$want" ] && [ "$have" = "${want%%+*}" ]; then
             need=0
-            echo "Node $(node -v) + pnpm $(pnpm -v) present — setup-node/pnpm actions can skip"
+            echo "Node $(node -v) + pnpm $have (== packageManager $want) present — setup-node/pnpm actions can skip"
           fi
         fi
         echo "ARC_NEED_NODE=$need" >> "$GITHUB_ENV"
