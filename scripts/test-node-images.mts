@@ -101,7 +101,7 @@ test('pin-images and the registry check do not ssh', () => {
 test('deploy-prod checks the pin block before it writes values, then prunes, then commits', () => {
   const src = fs.readFileSync(DEPLOY, 'utf8');
   const check = src.indexOf('check-node-images.mjs --pin-block pin-block.txt --check');
-  const migrate = src.indexOf('apply-image-pins.mjs --migrate');
+  const migrate = src.indexOf('run: node scripts/apply-image-pins.mjs --migrate');
   const prune = src.indexOf('check-node-images.mjs --values charts/quill/values-prod.yaml --prune --keep 5');
   const commit = src.indexOf('name: Commit and push the pins');
   assert.ok(check > 0, 'deploy-prod must HEAD the pin block');
