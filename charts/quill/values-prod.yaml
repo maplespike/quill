@@ -1,4 +1,8 @@
 image:
+  # Still the live pin. deploy-prod rewrites each images.<svc> entry to
+  # registry + repository + pullPolicy IfNotPresent in one commit, and only
+  # after the registry HEAD check passes for every service. Until that
+  # commit, a render must keep these refs and Never.
   registry: docker.io/library
   tag: ''
   pullPolicy: Never

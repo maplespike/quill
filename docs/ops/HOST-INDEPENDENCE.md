@@ -45,9 +45,26 @@ Before merging / syncing Argo:
 3. Confirm pods Ready on the intended node:
    `kubectl -n maplespike get pods -o wide`.
 
-## Out of scope
+## Images
 
-`deploy-prod.yml` image-build job still
-`runs-on: [self-hosted, nixos, nexus]` (local containerd). Shared registry or
-forge image mirror is Infra follow-up. Do not change runner counts from this
-doc.
+The merge leaves the live `docker.io/library/quill-<svc>@sha256` refs and
+`imagePullPolicy: Never` in place. `deploy-prod` switches every service to
+the registry digest and `IfNotPresent` in one commit, after each manifest
+HEAD succeeds. A miss writes nothing.
+
+After that commit, `imagePullPolicy` is `IfNotPresent`. The build still runs on nexus
+(`runs-on: [self-hosted, nixos, nexus]`). `scripts/pin-images.sh` pushes
+`registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>`. nexus and
+sentry-agent both mirror that host over plain HTTP, so either node can pull
+the digest. Nodes do not copy images to each other.
+
+`quill-search` has no Dockerfile in this repo. The script pushes the digest
+already in the nexus containerd store. If that image is missing, the push
+stops.
+
+`deploy-prod` then HEADs every pinned digest on the registry v2 API and
+fails the pin commit if any digest is missing or does not match. It also
+deletes older manifests, keeping the pinned digest and the 5 newest tags.
+Blob space comes back only after a server-side registry garbage-collect.
+
+Do not change runner counts from this doc.

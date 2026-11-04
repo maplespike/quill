@@ -277,6 +277,11 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # Registry plan: host, digest form, IfNotPresent, no ssh, and
+      # deploy-prod checks the registry before the pin commit. No cluster.
+      - name: Registry image plan
+        run: pnpm exec tsx --test scripts/test-node-images.mts
+
       # Backup CronJobs, the Longhorn search claim, and the scratch restore
       # drill. node:sqlite only — no cluster and no helm.
       - name: Backup and restore drill tests
