@@ -214,7 +214,7 @@ pub fn search(
     let top = idx
         .reader
         .searcher()
-        .search(&query, &TopDocs::with_limit(fetch))
+        .search(&query, &TopDocs::with_limit(fetch).order_by_score())
         .context("search execution failed")?;
 
     let mut hits = Vec::new();
