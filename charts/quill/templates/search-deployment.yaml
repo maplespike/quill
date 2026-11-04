@@ -85,6 +85,21 @@ spec:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
         imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
+        # The image carries no ENTRYPOINT/CMD, so the subcommand has to be declared
+        # here. Without it the binary prints its clap help and exits 0, and kubelet
+        # restarts it forever: 72 restarts in maplespike by 2026-10-30 04:40 CT,
+        # with `quill-search` reported Degraded. Args mirror the documented CLI
+        # (rust/crates/quill-search/src/main.rs: `serve --index --port --metrics-port`)
+        # and the containerPorts below.
+        command: ["quill-search"]
+        args:
+          - serve
+          - --index
+          - /data/index
+          - --port
+          - "8083"
+          - --metrics-port
+          - "9466"
         # Numeric UID: the image user is the named account "quill" (uid 1001),
         # and kubelet cannot verify a named user is non-root under runAsNonRoot.
         securityContext:
