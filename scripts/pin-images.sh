@@ -178,14 +178,30 @@ echo
 # Stage a docker image into containerd and push it plain HTTP.
 # The local import is only so `ctr push` can see the build. It is not copied
 # to any other node. kubelet pulls the registry digest.
+#
+# Single platform on purpose. BuildKit (docker 26+) attaches provenance/SBOM
+# attestations to the image as extra "unknown/unknown" manifests in the OCI
+# index. `docker save` of that image writes the index, but not the attestation
+# blobs, so `ctr images push` walks the index and dies with
+#
+#   ctr: content digest sha256:44136fa3...: not found
+#
+# (44136fa3 is the sha256 of "{}", the attestation manifest's config).
+# `docker save --platform linux/amd64` writes one image manifest instead of the
+# index, so every blob the pushed manifest references is in the tar.
+#
+# Do NOT "fix" this with `ctr images push --platform`: containerd still pushes
+# the original index blob, and the registry rejects it with 400 "manifest
+# list/index references to blobs and/or manifests are missing". Verified
+# 2026-11-04 against registry:2 on nexus.
 push_docker_image() {
   local src="$1" svc="$2" tag="$3"
   local dest="${PUSH_HOST}/quill/${svc}:${tag}"
   : "${TMPDIR:=$REPO_ROOT/.tmp}"
   mkdir -p "$TMPDIR"
   local tar="$TMPDIR/quill-${svc}-push.tar"
-  echo "  save:    $tar"
-  docker save "$src" -o "$tar"
+  echo "  save:    $tar (linux/amd64 only, no attestation index)"
+  docker save --platform linux/amd64 "$src" -o "$tar"
   echo "  stage:   k3s ctr import (local, for the push only)"
   ctr images import "$tar" >/dev/null
   rm -f "$tar"
@@ -273,9 +289,12 @@ for SVC in $SERVICES; do
   else
     # shellcheck disable=SC2086
     TARGET_ARGS=$(dockerfile_for "$SVC") || exit 2
-    echo "  build:   docker build -f $TARGET_ARGS -t $SRC ."
+    # No BuildKit attestations: the additional "unknown/unknown" manifests in
+    # the index are what break `ctr images push` (see push_docker_image). The
+    # SBOM gate is generate-sbom.sh below, not a BuildKit attestation.
+    echo "  build:   docker build --provenance=false --sbom=false -f $TARGET_ARGS -t $SRC ."
     # shellcheck disable=SC2086
-    docker build -f ${TARGET_ARGS%% *} ${TARGET_ARGS#* } -t "$SRC" "$REPO"
+    docker build --provenance=false --sbom=false -f ${TARGET_ARGS%% *} ${TARGET_ARGS#* } -t "$SRC" "$REPO"
   fi
 
   if [[ "$SBOM" == true ]]; then

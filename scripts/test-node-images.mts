@@ -98,6 +98,30 @@ test('pin-images and the registry check do not ssh', () => {
   assert.doesNotMatch(pin, /QUILL_IMAGE_SYNC_NODES/);
 });
 
+test('pin-images pushes a single-platform image with no attestation manifests', () => {
+  const pin = fs.readFileSync(PIN, 'utf8');
+  // BuildKit 26+ attaches provenance/SBOM attestations to the index as
+  // "unknown/unknown" manifests. `docker save` writes the index but not their
+  // blobs, so `ctr images push` died in deploy-prod with
+  // "ctr: content digest sha256:44136fa3...: not found".
+  const builds = pin.split('\n').filter((line: string) => /^\s*docker build\b/.test(line));
+  assert.ok(builds.length > 0, 'pin-images must build images');
+  for (const line of builds) {
+    assert.match(line, /--provenance=false/, line);
+    assert.match(line, /--sbom=false/, line);
+  }
+  const saves = pin.split('\n').filter((line: string) => /^\s*docker save\b/.test(line));
+  assert.ok(saves.length > 0, 'pin-images must save images for the push');
+  for (const line of saves) assert.match(line, /--platform linux\/amd64/, line);
+  // --platform on push is not the fix: containerd uploads the original index
+  // and the registry rejects it (400, manifest list references missing).
+  const pushes = pin
+    .split('\n')
+    .filter((line: string) => /ctr images push/.test(line) && !/^\s*#/.test(line));
+  assert.ok(pushes.length > 0, 'pin-images must push images');
+  for (const line of pushes) assert.doesNotMatch(line, /--platform/, line);
+});
+
 test('deploy-prod checks the pin block before it writes values, then prunes, then commits', () => {
   const src = fs.readFileSync(DEPLOY, 'utf8');
   const check = src.indexOf('check-node-images.mjs --pin-block pin-block.txt --check');

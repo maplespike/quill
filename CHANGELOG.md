@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — 2026-11-04
+
+### Fixed
+- **`pin-images.sh` could not push a docker-built image to the in-cluster registry (deploy-prod 'Build, scan, and import images'):** `ctr images push --plain-http 10.43.28.1:5000/quill/portal:<sha>` failed with `ctr: content digest sha256:44136fa3…: not found` after the import. That digest is `{}` — the config of the BuildKit provenance/SBOM attestation manifest, which docker attaches to the image as an extra `unknown/unknown` entry in the OCI index. `docker save` writes the index into the tar but not the attestation blobs, so the push walked a manifest whose config was never imported. The script now builds with `--provenance=false --sbom=false` and stages with `docker save --platform linux/amd64`, which writes a single image manifest instead of the index; every blob the pushed manifest references is then in the tar. Both push sites go through that staging path, the pin-block output and the syft SBOM step are unchanged, and `ctr images push --platform` is documented as *not* a fix — containerd still uploads the original index and registry:2 rejects it with `400 … manifest list/index references … missing` (verified against registry:2 on nexus). Regression test in `scripts/test-node-images.mts` pins the build/save flags and forbids `--platform` on the push.
+
 ## [Unreleased] — 2026-10-26
 
 ### Changed
