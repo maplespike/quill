@@ -48,3 +48,6 @@ overrides:
   "@opentelemetry/core": "^2.8.0"
   uuid: "^11.1.1"
   yaml: "^2.8.3"
+  # Dependabot alert #260: minimatch < 11.0.1. The lockfile resolved 10.2.6,
+  # which is outside every 11.x range anyway; pin to the patched major.
+  minimatch: ">=11.0.1"
