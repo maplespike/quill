@@ -129,6 +129,9 @@ jobs:
     runs-on: [self-hosted, nixos, nexus]
     outputs:
       ok: ${{ steps.gate.outputs.ok }}
+      # Target build runner: nexus when it has headroom, else sentry (which
+      # must still pass gate-sentry). build-and-pin routes on this.
+      target: ${{ steps.gate.outputs.target }}
     steps:
       - name: Check nexus load and memory
         id: gate
@@ -148,16 +151,18 @@ jobs:
             if (avail+0 < minm+0) { printf "MemAvailable=%.1fGi < %sGi", avail, minm; exit 1 }
           }'); then
             echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "target=nexus" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::nexus is overloaded ($why); trying the sentry fallback"
             echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "target=sentry" >> "$GITHUB_OUTPUT"
           fi
 
   gate-sentry:
     name: Headroom gate (sentry, fallback only)
     needs: [ci, gate-nexus]
     # Only when nexus failed its gate. Sentry is a fallback, never primary.
-    if: ${{ always() && needs.ci.result == 'success' && needs.gate-nexus.outputs.ok != 'true' }}
+    if: ${{ always() && needs.ci.result == 'success' && needs.gate-nexus.outputs.target == 'sentry' }}
     runs-on: [self-hosted, nixos, sentry]
     outputs:
       ok: ${{ steps.gate.outputs.ok }}
@@ -197,7 +202,7 @@ jobs:
   build-and-pin:
     name: Build images, scan, and record pins
     needs: [ci, gate-nexus, gate-sentry]
-    if: ${{ always() && needs.ci.result == 'success' && (needs.gate-nexus.outputs.ok == 'true' || needs.gate-sentry.outputs.ok == 'true') }}
+    if: ${{ always() && needs.ci.result == 'success' && (needs.gate-nexus.outputs.target == 'nexus' || (needs.gate-nexus.outputs.target == 'sentry' && needs.gate-sentry.outputs.ok == 'true')) }}
     # Nexus is primary: docker, k3s, the registries.yaml mirror, and the
     # quill-search image (no Dockerfile in this repo) are there. Sentry is a
     # fallback ONLY when nexus fails its headroom gate and sentry passes its
@@ -205,13 +210,13 @@ jobs:
     # scripts/pin-images.sh refuses any host outside its nexus|sentry
     # allowlist or other than PIN_NODE. Never unpinned — 2026-10-21 run
     # 39630307172 claimed a random runner and produced an empty pin block.
-    runs-on: ${{ needs.gate-nexus.outputs.ok == 'true' && fromJSON('["self-hosted","nixos","nexus"]') || fromJSON('["self-hosted","nixos","sentry"]') }}
+    runs-on: ${{ fromJSON(format('["self-hosted","nixos","{0}"]', needs.gate-nexus.outputs.target)) }}
     # One build at a time per build host (sentry especially).
     concurrency:
-      group: quill-build-${{ needs.gate-nexus.outputs.ok == 'true' && 'nexus' || 'sentry' }}
+      group: quill-build-${{ needs.gate-nexus.outputs.target }}
       cancel-in-progress: false
     env:
-      PIN_NODE: ${{ needs.gate-nexus.outputs.ok == 'true' && 'nexus' || 'sentry' }}
+      PIN_NODE: ${{ needs.gate-nexus.outputs.target }}
       QUILL_SEARCH_SOURCE_TAG: ${{ github.event.inputs.search_source_tag }}
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
