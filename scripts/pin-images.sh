@@ -13,7 +13,9 @@
 #      via the mirrored endpoint (k3s ctr --plain-http),
 #   3. read the digest from the registry v2 manifest API (that is the pin),
 #   4. push quill-search the same way from the image already in this node's
-#      containerd store (this repo has no Dockerfile.search),
+#      containerd store (this repo has no Dockerfile.search). That stored
+#      image is a multi-platform OCI index whose amd64 child — not the index —
+#      is published, so the registry serves a single-platform manifest.
 #   5. print the images: block for charts/quill/values-prod.yaml.
 #
 # Run it on nexus, where docker and k3s are installed. Usage:
@@ -35,6 +37,16 @@
 # from main. Never `kubectl set image` by hand.
 
 set -euo pipefail
+
+# Staging paths are registered here and removed on exit, including on error.
+CLEANUP=()
+cleanup() {
+  local path
+  for path in "${CLEANUP[@]}"; do
+    rm -rf -- "$path"
+  done
+}
+trap cleanup EXIT
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
@@ -132,12 +144,6 @@ store_has() {
   ctr images ls -q | grep -Fx -- "$1" >/dev/null
 }
 
-# Content digest → some name in the local store. Empty when absent.
-store_ref_for_digest() {
-  # No `exit` in awk: it SIGPIPEs ctr and pipefail turns a hit into a failure.
-  ctr images ls | awk -v d="$1" '$3 == d { found = $1 } END { print found }'
-}
-
 # ── Verify-only mode: does the live cluster match values-prod.yaml? ──────────
 if [[ "$VERIFY_ONLY" == true ]]; then
   node "$REPO/scripts/gates/check-image-pins.mjs" \
@@ -210,10 +216,34 @@ push_docker_image() {
   ctr images push --plain-http "$dest"
 }
 
-# quill-search has no Dockerfile here. Re-tag the pinned content from this
-# node's containerd store and push that. Fail clearly when the bytes are absent.
+# Content digest → present in this node's containerd content store?
+content_has() {
+  ctr content ls -q | grep -Fx -- "$1" >/dev/null
+}
+
+# quill-search has no Dockerfile here. The pinned content in nexus's containerd
+# store is an OCI image index from an older docker build. Its linux/amd64 child
+# (manifest, config, layers) is complete, but the BuildKit attestation manifest
+# in the same index references a config blob (sha256:44136fa3…, literally
+# "{}") that was never imported. Pushing the index therefore dies with
+#
+#   ctr: content digest sha256:e7d884da…: not found
+#
+# and `ctr images push --platform linux/amd64` does not help: containerd still
+# uploads the original index and registry:2 rejects it with
+# `400 … manifest list/index references to blobs and/or manifests are missing`
+# (verified 2026-11-04 against registry:2 on nexus).
+#
+# So publish only the linux/amd64 image manifest: select it out of the stored
+# content, stage a one-entry OCI archive that contains that manifest, import it
+# (the image target is then the manifest, not the index) and push that. Config
+# and layers are already in the content store, so containerd uploads exactly
+# the blobs the manifest references and the registry digest is the
+# single-platform manifest. The staged image name is stable per manifest (and
+# kept, so the content stays referenced in the store) and the next deploy works
+# the same way when values-prod already pins that manifest digest.
 push_search_from_store() {
-  local digest src dest
+  local digest manifest image dest stage archive
   digest="$(awk '
     /^images:[[:space:]]*$/ { inimg=1; next }
     inimg && /^[^[:space:]#]/ { inimg=0 }
@@ -226,17 +256,38 @@ push_search_from_store() {
     echo "quill-search cannot be built in this repo. Pin the digest first." >&2
     exit 1
   fi
-  src="$(store_ref_for_digest "$digest" || true)"
-  if [[ -z "$src" ]]; then
+  if ! content_has "$digest"; then
     echo "ERROR: quill-search ${digest} is not in this node's containerd store." >&2
     echo "This repo has no Dockerfile.search, so the image cannot be rebuilt here." >&2
     echo "Load that exact digest into the nexus containerd store, then re-run." >&2
     exit 1
   fi
-  dest="${PUSH_HOST}/quill/search:${GIT_SHA}"
+  : "${TMPDIR:=$REPO_ROOT/.tmp}"
+  mkdir -p "$TMPDIR"
+  stage="$(mktemp -d "$TMPDIR/quill-search-stage.XXXXXX")"
+  archive="$TMPDIR/quill-search-push.tar"
+  CLEANUP+=("$stage" "$archive")
   echo "── quill-search (from local store) ─────────────────────────"
-  echo "  source:  $src"
-  ctr images tag --force "$src" "$dest" >/dev/null
+  echo "  source:  $digest"
+  manifest="$(ctr content get "$digest" | node "$REPO/scripts/gates/oci-image-manifest.mjs" \
+    --platform linux/amd64 \
+    --ref-prefix docker.io/library/quill-search-amd64 \
+    --digest "$digest" \
+    --index-out "$stage/index.json")"
+  if [[ ! "$manifest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+    echo "ERROR: could not select the linux/amd64 manifest from ${digest}" >&2
+    exit 1
+  fi
+  mkdir -p "$stage/blobs/sha256"
+  ctr content get "$manifest" > "$stage/blobs/sha256/${manifest#sha256:}"
+  printf '{"imageLayoutVersion":"1.0.0"}' > "$stage/oci-layout"
+  tar -C "$stage" -cf "$archive" .
+  echo "  stage:   linux/amd64 manifest ${manifest} (index and attestations dropped)"
+  ctr images import --no-unpack "$archive" >/dev/null
+  rm -rf -- "$stage" "$archive"
+  image="docker.io/library/quill-search-amd64:${manifest#sha256:}"
+  dest="${PUSH_HOST}/quill/search:${GIT_SHA}"
+  ctr images tag --force "$image" "$dest" >/dev/null
   echo "  push:    $dest"
   ctr images push --plain-http "$dest"
   record_pin search
