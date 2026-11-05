@@ -87,6 +87,9 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 2
+      {{- with $backups.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
       template:
         metadata:
@@ -109,7 +112,9 @@ spec:
             fsGroup: 1001
             seccompProfile:
               type: RuntimeDefault
-          {{- if .Values.api.storage.nodeName }}
+          {{- if and $.Values.api.storage (eq ($.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
+          {{- else if .Values.api.storage.nodeName }}
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
@@ -178,6 +183,9 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 2
+      {{- with $backups.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
       template:
         metadata:
@@ -268,6 +276,9 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 2
+      {{- with $backups.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: {{ $backups.activeDeadlineSeconds | default 3600 }}
       template:
         metadata:
@@ -368,6 +379,9 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 1
+      {{- with $backups.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: 300
       template:
         metadata:
@@ -462,6 +476,9 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 1
+      {{- with $backups.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: 1800
       template:
         metadata:

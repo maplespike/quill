@@ -175,10 +175,14 @@ secrets:
   stripePublishableKey: ''
 ingestion:
   enabled: true
+  # Prefer rwoApiCoLocate (template) over nodeName; leave empty.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
   activeDeadlineSeconds: 1800
+  # Age out finished Job pods (Error pods from Oct lingered 4d with history=3 alone).
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
   schedules:
     committees: 0 */6 * * *
     gazette: 0 */12 * * *
@@ -219,6 +223,8 @@ engine:
   enabled: true
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
 
 search:
   replicas: 1
@@ -260,6 +266,8 @@ backups:
   enabled: true
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
   schedule: "15 1 * * *"
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"

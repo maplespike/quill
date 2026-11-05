@@ -124,3 +124,20 @@ preferredDuringSchedulingIgnoredDuringExecution:
             - {{ $pref | quote }}
 {{- end }}
 {{- end }}
+
+{{/*
+  quill.rwoApiCoLocate — required podAffinity so CronJobs that mount the
+  ReadWriteOnce quill-api-data PVC land on the same node as the live api pod.
+  Soft hostname affinity (nexus|sentry) alone schedules onto the empty node
+  and FailedAttachVolume for 30+ minutes (2026-11-04: sweep/ngo-rss on sentry
+  while api held the volume on nexus).
+*/}}
+{{- define "quill.rwoApiCoLocate" -}}
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: quill-api
+        topologyKey: kubernetes.io/hostname
+{{- end }}
