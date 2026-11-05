@@ -13,6 +13,8 @@ self-hosted-runner:
     # containerd store and refuses every other host.
     - nexus
     - sentry
+    # Dedicated deploy runner on sentry (sentry-quill), used by deploy-prod fallback.
+    - quill-deploy
     - forge
     - quill
     # ARC runner scale set on sentry (media-k8s helm/apps/arc-runner-maplespike.yaml).
