@@ -5,8 +5,6 @@ let
     "age100fwr7ddswy52gfagnumwm0lpc0ma95jwxugstxh66y5jzml63tsdu2e2k"
   ];
 in {
-  "github-pat.age".publicKeys = users;
-
   # #806/#808: Quill owns its billing secret delivery — these are NOT sourced
   # from nixos-config's k8s-secret-sync / sops-secrets-registry. They land in
   # the k8s Secret `quill-runtime-secrets` (see k8s/maplespike/README.md).

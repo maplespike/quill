@@ -75,6 +75,8 @@ spec:
           {{- if $.Values.ingestion.nodeName }}
           # Pin to the node holding the api's SQLite volume (RWO PVC).
           nodeName: {{ $.Values.ingestion.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($.Values.ingestion.affinityHosts | default list) "preferredHost" ($.Values.ingestion.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: ingest
@@ -82,7 +84,7 @@ spec:
             # (docs/IMAGE-PINNING.md). Never render a bare registry/tag here:
             # an unset tag makes the reference invalid (InvalidImageName).
             image: {{ include "quill.image" (dict "svc" "ingest" "ctx" $) | quote }}
-            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "ingest" "ctx" $) }}
             env:
             - name: NODE_ENV
               value: production

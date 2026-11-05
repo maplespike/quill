@@ -113,11 +113,13 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: sqlite-backup
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/sqlite-backup.mjs"]
             env:
             - name: QUILL_DB_PATH
@@ -201,6 +203,8 @@ spec:
           nodeName: {{ $backups.nodeName }}
           {{- else if and .Values.search .Values.search.nodeName }}
           nodeName: {{ .Values.search.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: search-backup
@@ -289,6 +293,8 @@ spec:
           nodeName: {{ $backups.nodeName }}
           {{- else if .Values.database.nodeName }}
           nodeName: {{ .Values.database.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: postgres-backup
@@ -388,11 +394,13 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: freshness
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/verify-freshness.mjs"]
             env:
             - name: BACKUP_ROOT
@@ -480,11 +488,13 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: drill
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             command: ["node", "/scripts/restore-check.mjs"]
             env:
             - name: BACKUP_ROOT

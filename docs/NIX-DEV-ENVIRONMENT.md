@@ -108,16 +108,9 @@ NODE_ENV=development     # Must not be "production"
 
 ### GitHub Token
 
-Automatically loaded from agenix secret if available:
-
-```bash
-GITHUB_TOKEN=$(age --decrypt -i ~/.ssh/id_ed25519 secrets/github-pat.age)
-```
-
-Useful for:
-- Private package installation
-- GitHub API calls
-- CI/CD local testing
+> Retired 2026-10-28: `secrets/github-pat.age` and the dev-shell agenix
+> decryption hook were removed. Set `GITHUB_TOKEN` manually in your
+> environment when you need private package access or GitHub API calls.
 
 ## Common Tasks
 

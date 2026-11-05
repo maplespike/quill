@@ -8,7 +8,7 @@
   ],
   "overrides": {
     "undici": ">=8.10.2",
-    "nodemailer": ">=10.0.9",
+    "nodemailer": ">=10.1.4",
     "ws": ">=8.21.0",
     "uuid": ">=11.1.1",
     "esbuild": ">=0.28.1",
@@ -36,12 +36,13 @@
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
     "build:engine": "pnpm --filter @maplespike/engine build",
     "build:sdk": "pnpm --filter @maplespike/sdk build",
-    "test": "turbo test && pnpm run test:docs && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:chart-ingest-deadlines && pnpm run test:chart-probes && pnpm run test:lockstep && pnpm run test:secrets-history && pnpm run test:gitignore && pnpm run test:workflow-gh && pnpm run test:fork-runner && pnpm run test:release-workflow && pnpm run test:pages-gating && pnpm run test:readme-lint-flags && pnpm run test:hang-bounds && pnpm run test:stall-watchdog && pnpm run test:isolation-timeout && pnpm run test:search-corpus-policy && pnpm run test:source-compliance && pnpm run test:source-compliance-unit && pnpm run test:count-ts && pnpm run test:license",
+    "test": "turbo test && pnpm run test:docs && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:node-images && pnpm run test:chart-ingest-deadlines && pnpm run test:chart-probes && pnpm run test:lockstep && pnpm run test:secrets-history && pnpm run test:gitignore && pnpm run test:workflow-gh && pnpm run test:fork-runner && pnpm run test:release-workflow && pnpm run test:pages-gating && pnpm run test:readme-lint-flags && pnpm run test:hang-bounds && pnpm run test:stall-watchdog && pnpm run test:isolation-timeout && pnpm run test:search-corpus-policy && pnpm run test:source-compliance && pnpm run test:source-compliance-unit && pnpm run test:count-ts && pnpm run test:license",
     "test:packages": "turbo test",
     "test:docs": "pnpm exec tsx --test scripts/test-doc-links.mts scripts/test-flip-readiness.mts",
     "test:external": "pnpm exec tsx --test scripts/test-external-hosts.mts",
     "test:ca": "pnpm exec tsx --test scripts/test-ca-bundle.mts",
     "test:pins": "pnpm exec tsx --test scripts/test-image-pins.mts",
+    "test:node-images": "pnpm exec tsx --test scripts/test-node-images.mts",
     "test:chart-probes": "pnpm exec tsx --test scripts/test-chart-probes.mts",
     "test:chart-ingest-deadlines": "pnpm exec tsx --test scripts/test-chart-ingest-deadlines.mts",
     "test:chart-priority-classes": "pnpm exec tsx --test scripts/test-chart-priority-classes.mts",
@@ -69,7 +70,7 @@
     "node": ">=22.12"
   },
   "license": "AGPL-3.0-only",
-  "packageManager": "pnpm@10.32.1+sha512.dcffc7b9dc455aa8555b7c0a5f71c9032fa9ff0d31308a81d0d13cb6c642b4893698c9f1fb4d36d2ae7e77a891f048f09574a7c8a215a8b4a3af53818378a75b",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^2.31.0",

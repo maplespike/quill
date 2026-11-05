@@ -83,6 +83,8 @@ test('classifyRef rejects a date-only tag — the bfe587bb false green (run 3740
   assert.equal(classifyRef('docker.io/some/app:v1.2.3-rc1').ok, true);
   // The date-stamped build-tag shape CI enforces stays accepted (suffix mandatory).
   assert.equal(classifyRef('docker.io/library/quill-ingest:2026-10-06-f34547a9-dirty').ok, true);
+  assert.equal(classifyRef('registry.registry.svc.cluster.local:5000/quill/api:' + 'a'.repeat(40)).ok, true);
+  assert.equal(classifyRef('registry.registry.svc.cluster.local:5000/quill/api:' + 'a'.repeat(40)).kind, 'tag');
 });
 
 // Regression: 2026-09-22. `image.tag: ""` in values-prod made the ingestion
@@ -127,6 +129,9 @@ test('checkRefs rejects a quill workload pinned by an immutable tag instead of a
   const violations = checkRefs(['docker.io/library/quill-api:2026-09-21-sha.aa7a2c64b55d']);
   assert.equal(violations.length, 1);
   assert.match(violations[0].reason, /digest-pinned/);
+  const registryTag = checkRefs([`registry.registry.svc.cluster.local:5000/quill/api:${'ab'.repeat(20)}`]);
+  assert.equal(registryTag.length, 1);
+  assert.deepEqual(checkRefs([`registry.registry.svc.cluster.local:5000/quill/portal@${DIGEST}`]), []);
 });
 
 test('a Never-pulled workload without a node pin is a violation (ErrImageNeverPull)', () => {
@@ -146,7 +151,7 @@ test('a Never-pulled workload without a node pin is a violation (ErrImageNeverPu
   const violations = checkNodePins(rendered);
   assert.equal(violations.length, 1);
   assert.equal(violations[0].ref, 'quill-mcp');
-  assert.match(violations[0].reason, /nodeName\/nodeSelector/);
+  assert.match(violations[0].reason, /eligible node/);
 });
 
 test('a Never-pulled workload with nodeName or nodeSelector passes', () => {
@@ -167,6 +172,53 @@ test('a Never-pulled workload with nodeName or nodeSelector passes', () => {
 
   const withSelector = withNodeName.replace('      nodeName: nexus', '      nodeSelector:\n        kubernetes.io/hostname: nexus');
   assert.deepEqual(checkNodePins(withSelector), []);
+});
+
+test('required nodeAffinity on nexus and sentry-agent is a valid Never placement', () => {
+  const rendered = [
+    'kind: Deployment',
+    'metadata:',
+    '  name: quill-portal',
+    'spec:',
+    '  template:',
+    '    spec:',
+    '      affinity:',
+    '        nodeAffinity:',
+    '          requiredDuringSchedulingIgnoredDuringExecution:',
+    '            nodeSelectorTerms:',
+    '            - matchExpressions:',
+    '              - key: kubernetes.io/hostname',
+    '                operator: In',
+    '                values:',
+    '                  - "nexus"',
+    '                  - "sentry-agent"',
+    '          preferredDuringSchedulingIgnoredDuringExecution:',
+    '          - weight: 100',
+    '      containers:',
+    '      - name: portal',
+    `        image: "docker.io/library/quill-portal@${DIGEST}"`,
+    '        imagePullPolicy: Never',
+  ].join('\n');
+  assert.deepEqual(checkNodePins(rendered), []);
+});
+
+test('a Never-pulled workload that can land on forge is a violation', () => {
+  const rendered = [
+    'kind: Deployment',
+    'metadata:',
+    '  name: quill-portal',
+    'spec:',
+    '  template:',
+    '    spec:',
+    '      nodeName: forge',
+    '      containers:',
+    '      - name: portal',
+    `        image: "docker.io/library/quill-portal@${DIGEST}"`,
+    '        imagePullPolicy: Never',
+  ].join('\n');
+  const violations = checkNodePins(rendered);
+  assert.equal(violations.length, 1);
+  assert.match(violations[0].reason, /forge/);
 });
 
 test('an IfNotPresent workload needs no node pin', () => {

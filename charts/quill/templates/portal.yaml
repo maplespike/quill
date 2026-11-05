@@ -1,14 +1,11 @@
 {{/*
   Quill — Portal Deployment + Service
 
-  PLACEMENT: dynamic. The portal is stateless (no volumes, no hostPath), so it
-  is the one quill workload that can be fully scheduler-managed — no nodeName
-  pin. It floats across the labelled nodes (quill.io/workload=true), spread by
-  topology + anti-affinity so a single node loss cannot take both replicas.
-
-  The api pod and the search pod each mount a ReadWriteOnce volume, so each
-  one runs on the node that holds that volume. mcp is pinned because its
-  image is a local import (imagePullPolicy: Never). See values-prod.yaml.
+  PLACEMENT: required hostname affinity on nexus and sentry-agent (never
+  forge). The portal is stateless. Two replicas use anti-affinity. The
+  image is pulled from the in-cluster registry (imagePullPolicy
+  IfNotPresent). Both nodes mirror that registry, so a replica can start
+  on either host.
 */}}
 {{- if (.Values.portal | default dict).enabled }}
 apiVersion: apps/v1
@@ -56,14 +53,10 @@ spec:
       {{- with ($.Values.priorityClass | default dict).critical }}
       priorityClassName: {{ . }}
       {{- end }}
-      # Dynamic placement. nodeName would bypass the scheduler entirely and
-      # pin the portal to one node; nodeSelector keeps the scheduler in control
-      # while restricting to nodes that hold the pinned image.
+      # Dynamic placement. nodeName bypasses the scheduler; otherwise use
+      # affinityHosts (nexus|sentry-agent; never forge) + preferredHost.
       {{- if .Values.portal.nodeName }}
       nodeName: {{ .Values.portal.nodeName }}
-      {{- else if (.Values.portal | default dict).nodeSelector }}
-      nodeSelector:
-        {{- toYaml (.Values.portal | default dict).nodeSelector | nindent 8 }}
       {{- end }}
       # Spread replicas across DIFFERENT nodes — hard, not soft. Measured
       # 2026-10-06: with ScheduleAnyway + preferred anti-affinity both replicas
@@ -73,6 +66,8 @@ spec:
       # invariant: if a node is unavailable the extra replica stays Pending,
       # which is correct — a Pending pod is honest, a co-located one is a false
       # sense of redundancy.
+      {{- $portalHosts := (.Values.portal | default dict).affinityHosts | default list }}
+      {{- $portalPref := (.Values.portal | default dict).preferredHost | default "" }}
       {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
       topologySpreadConstraints:
         - maxSkew: 1
@@ -81,26 +76,28 @@ spec:
           labelSelector:
             matchLabels:
               app: quill-portal
-      # REQUIRED anti-affinity, not preferred. Measured 2026-10-06: with soft
-      # constraints (and even with DoNotSchedule spread) both replicas
-      # co-located, because during a rollout the scheduler does not count a pod
-      # that is still terminating — so the second replica sees an empty node.
-      # requiredDuringScheduling makes co-location a scheduling ERROR: the
-      # second replica stays Pending until the first node is free of its peer.
+      {{- end }}
+      {{- if or $portalHosts (gt (int (.Values.portal.replicas | default 1)) 1) }}
       affinity:
+        {{- if $portalHosts }}
+        nodeAffinity:
+{{- include "quill.nodeAffinityBody" (dict "affinityHosts" $portalHosts "preferredHost" $portalPref) | nindent 10 }}
+        {{- end }}
+        {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: kubernetes.io/hostname
               labelSelector:
                 matchLabels:
                   app: quill-portal
+        {{- end }}
       {{- end }}
       containers:
       - name: portal
         # Digest-pinned import from the node containerd store — see
         # charts/quill/values-prod.yaml and docs/IMAGE-PINNING.md.
         image: {{ include "quill.image" (dict "svc" "portal" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "portal" "ctx" $) }}
         env:
         - name: API_UPSTREAM
           value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
