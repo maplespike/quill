@@ -47,6 +47,15 @@ on:
     branches:
       - prod
   workflow_dispatch:
+    inputs:
+      max_load1:
+        description: "Refuse to build when the runner's 1-minute load average is at or above this"
+        required: false
+        default: "12"
+      min_mem_available_gib:
+        description: "Refuse to build when the runner's MemAvailable (GiB) is below this"
+        required: false
+        default: "12"
 
 concurrency:
   group: deploy-prod
@@ -181,6 +190,23 @@ jobs:
             git status --porcelain
             exit 1
           fi
+
+      - name: Refuse when the build host is already overloaded
+        # Guards against k3s/etcd starvation when the deploy runs alongside other
+        # heavy jobs on the same host. Thresholds are overridable on dispatch;
+        # push-triggered runs use the defaults (12 / 12 GiB).
+        env:
+          MAX_LOAD1: ${{ github.event.inputs.max_load1 || '12' }}
+          MIN_MEM_GIB: ${{ github.event.inputs.min_mem_available_gib || '12' }}
+        run: |
+          set -euo pipefail
+          load=$(cut -d' ' -f1 /proc/loadavg)
+          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+          echo "host=$(hostname -s) load1=$load MemAvailable=${avail_gi}Gi (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi)"
+          awk -v l1="$load" -v avail="$avail_gi" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" 'BEGIN {
+            if (l1+0 >= maxl+0) { printf "::error::load1=%.2f >= %s; re-dispatch deploy-prod when the host is cooler (or raise max_load1)\n", l1, maxl; exit 1 }
+            if (avail+0 < minm+0) { printf "::error::MemAvailable=%.1fGi < %sGi; re-dispatch when headroom returns (or lower min_mem_available_gib)\n", avail, minm; exit 1 }
+          }'
 
       - name: Build, scan, and import images
         # Writes a per-image SBOM next to the images and refuses an empty one.
