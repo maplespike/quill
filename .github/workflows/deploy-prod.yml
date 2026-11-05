@@ -132,6 +132,9 @@ jobs:
       # Target build runner: nexus when it has headroom, else sentry (which
       # must still pass gate-sentry). build-and-pin routes on this.
       target: ${{ steps.gate.outputs.target }}
+      # runs-on labels (JSON) for build-and-pin. Sentry's fallback runner is
+      # [self-hosted, sentry, quill-deploy] (Infra; no nixos label).
+      runner: ${{ steps.gate.outputs.runner }}
     steps:
       - name: Check nexus load and memory
         id: gate
@@ -152,10 +155,12 @@ jobs:
           }'); then
             echo "ok=true" >> "$GITHUB_OUTPUT"
             echo "target=nexus" >> "$GITHUB_OUTPUT"
+            echo 'runner=["self-hosted","nixos","nexus"]' >> "$GITHUB_OUTPUT"
           else
             echo "::warning::nexus is overloaded ($why); trying the sentry fallback"
             echo "ok=false" >> "$GITHUB_OUTPUT"
             echo "target=sentry" >> "$GITHUB_OUTPUT"
+            echo 'runner=["self-hosted","sentry","quill-deploy"]' >> "$GITHUB_OUTPUT"
           fi
 
   gate-sentry:
@@ -163,7 +168,7 @@ jobs:
     needs: [ci, gate-nexus]
     # Only when nexus failed its gate. Sentry is a fallback, never primary.
     if: ${{ always() && needs.ci.result == 'success' && needs.gate-nexus.outputs.target == 'sentry' }}
-    runs-on: [self-hosted, nixos, sentry]
+    runs-on: [self-hosted, sentry, quill-deploy]
     outputs:
       ok: ${{ steps.gate.outputs.ok }}
     steps:
@@ -180,8 +185,9 @@ jobs:
         run: |
           set -euo pipefail
           for v in GATE_LOAD1_MAX GATE_MEM_MIN_GI GATE_IO_UTIL_MAX; do [[ -n "${!v}" ]] || unset "$v"; done
-          if command -v quill-deploy-headroom-gate >/dev/null; then
-            if quill-deploy-headroom-gate; then ok=true; else ok=false; fi
+          gate=/usr/local/bin/quill-deploy-headroom-gate
+          if [[ -x "$gate" ]]; then
+            if "$gate"; then ok=true; else ok=false; fi
           else
             echo "::warning::quill-deploy-headroom-gate not installed on $(hostname -s); using the inline provisional gate"
             l1=$(cut -d' ' -f1 /proc/loadavg)
@@ -210,7 +216,7 @@ jobs:
     # scripts/pin-images.sh refuses any host outside its nexus|sentry
     # allowlist or other than PIN_NODE. Never unpinned — 2026-10-21 run
     # 39630307172 claimed a random runner and produced an empty pin block.
-    runs-on: ${{ fromJSON(format('["self-hosted","nixos","{0}"]', needs.gate-nexus.outputs.target)) }}
+    runs-on: ${{ fromJSON(needs.gate-nexus.outputs.runner) }}
     # One build at a time per build host (sentry especially).
     concurrency:
       group: quill-build-${{ needs.gate-nexus.outputs.target }}
@@ -218,6 +224,9 @@ jobs:
     env:
       PIN_NODE: ${{ needs.gate-nexus.outputs.target }}
       QUILL_SEARCH_SOURCE_TAG: ${{ github.event.inputs.search_source_tag }}
+      # Registry for pushes and the quill-search pull. Repo variable, never
+      # hard-coded; blank falls back to the node's registries.yaml mirror.
+      QUILL_REGISTRY_ENDPOINT: ${{ vars.QUILL_REGISTRY_ENDPOINT }}
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
       pin_sha: ${{ steps.commit.outputs.pin_sha }}
