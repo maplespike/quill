@@ -56,20 +56,25 @@ on:
         description: "Refuse to build when the runner's MemAvailable (GiB) is below this"
         required: false
         default: "12"
-      # Sentry fallback headroom gate. PROVISIONAL defaults; Infra will publish
-      # final numbers. Sentry is used only when nexus fails its gate.
+      # Sentry fallback headroom gate. PROVISIONAL: blank means the host's
+      # quill-deploy-headroom-gate defaults (Infra, homelab-ops #111); Infra
+      # will publish final numbers. Sentry is used only when nexus fails its gate.
       sentry_max_load1:
         description: "PROVISIONAL: sentry fallback refuses when its load1 is at or above this"
         required: false
-        default: "6"
+        default: ""
       sentry_min_mem_available_gib:
         description: "PROVISIONAL: sentry fallback refuses when its MemAvailable (GiB) is below this"
         required: false
-        default: "6"
+        default: ""
       sentry_max_io_util_pct:
         description: "PROVISIONAL: sentry fallback refuses when its busiest disk io_util (%) is above this"
         required: false
-        default: "60"
+        default: ""
+      search_source_tag:
+        description: "Optional quill/search registry tag (an earlier deploy's git sha) for the search pull fallback on a host with no local search image"
+        required: false
+        default: ""
 
 concurrency:
   group: deploy-prod
@@ -157,28 +162,36 @@ jobs:
     outputs:
       ok: ${{ steps.gate.outputs.ok }}
     steps:
-      - name: Check sentry load, memory, and disk IO (provisional thresholds)
+      - name: Check sentry headroom (provisional thresholds)
         id: gate
-        # Fails the job (and so the run) when sentry has no headroom either:
-        # re-dispatch deploy-prod when a host is cooler.
+        # Uses Infra's installed quill-deploy-headroom-gate (exit 0 = OK to
+        # build here). Blank inputs fall through to the binary's own defaults.
+        # If the binary is missing, an inline check with the same provisional
+        # numbers runs instead. Fails the run when sentry has no headroom either.
         env:
-          MAX_LOAD1: ${{ github.event.inputs.sentry_max_load1 || '6' }}
-          MIN_MEM_GIB: ${{ github.event.inputs.sentry_min_mem_available_gib || '6' }}
-          MAX_IO_PCT: ${{ github.event.inputs.sentry_max_io_util_pct || '60' }}
+          GATE_LOAD1_MAX: ${{ github.event.inputs.sentry_max_load1 }}
+          GATE_MEM_MIN_GI: ${{ github.event.inputs.sentry_min_mem_available_gib }}
+          GATE_IO_UTIL_MAX: ${{ github.event.inputs.sentry_max_io_util_pct }}
         run: |
           set -euo pipefail
-          l1=$(cut -d' ' -f1 /proc/loadavg)
-          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
-          # io_util = busiest whole disk's io_ticks delta (diskstats field 13) over 5 s.
-          snap() { awk '$3 ~ /^(sd[a-z]+|nvme[0-9]+n[0-9]+|vd[a-z]+|xvd[a-z]+)$/ {print $3, $13}' /proc/diskstats; }
-          a=$(snap); sleep 5; b=$(snap)
-          io_pct=$(join <(echo "$a" | sort) <(echo "$b" | sort) | awk '{u=($3-$2)/50; if (u>m) m=u} END {printf "%.0f", m+0}')
-          echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi io_util=${io_pct}% (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi max_io=${MAX_IO_PCT}%)"
-          awk -v l1="$l1" -v avail="$avail_gi" -v io="$io_pct" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" -v maxio="$MAX_IO_PCT" 'BEGIN {
-            if (l1+0 >= maxl+0)  { printf "::error::nexus failed its gate and sentry load1=%.2f >= %s; re-dispatch deploy-prod when a host is cooler\n", l1, maxl; exit 1 }
-            if (avail+0 < minm+0) { printf "::error::nexus failed its gate and sentry MemAvailable=%.1fGi < %sGi; re-dispatch later\n", avail, minm; exit 1 }
-            if (io+0 > maxio+0)   { printf "::error::nexus failed its gate and sentry io_util=%d%% > %s%%; re-dispatch later\n", io, maxio; exit 1 }
-          }'
+          for v in GATE_LOAD1_MAX GATE_MEM_MIN_GI GATE_IO_UTIL_MAX; do [[ -n "${!v}" ]] || unset "$v"; done
+          if command -v quill-deploy-headroom-gate >/dev/null; then
+            if quill-deploy-headroom-gate; then ok=true; else ok=false; fi
+          else
+            echo "::warning::quill-deploy-headroom-gate not installed on $(hostname -s); using the inline provisional gate"
+            l1=$(cut -d' ' -f1 /proc/loadavg)
+            avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+            snap() { awk '$3 ~ /^(sd[a-z]+|nvme[0-9]+n[0-9]+|vd[a-z]+|xvd[a-z]+)$/ {print $3, $13}' /proc/diskstats; }
+            a=$(snap); sleep 5; b=$(snap)
+            io_pct=$(join <(echo "$a" | sort) <(echo "$b" | sort) | awk '{u=($3-$2)/50; if (u>m) m=u} END {printf "%.0f", m+0}')
+            echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi io_util=${io_pct}%"
+            if awk -v l1="$l1" -v avail="$avail_gi" -v io="$io_pct" -v maxl="${GATE_LOAD1_MAX:-6}" -v minm="${GATE_MEM_MIN_GI:-6}" -v maxio="${GATE_IO_UTIL_MAX:-60}" \
+                 'BEGIN { exit !((l1+0 < maxl+0) && (avail+0 >= minm+0) && (io+0 <= maxio+0)) }'; then ok=true; else ok=false; fi
+          fi
+          if [[ "$ok" != true ]]; then
+            echo "::error::nexus failed its headroom gate and sentry has no headroom either; re-dispatch deploy-prod later"
+            exit 1
+          fi
           echo "ok=true" >> "$GITHUB_OUTPUT"
 
   build-and-pin:
@@ -199,6 +212,7 @@ jobs:
       cancel-in-progress: false
     env:
       PIN_NODE: ${{ needs.gate-nexus.outputs.ok == 'true' && 'nexus' || 'sentry' }}
+      QUILL_SEARCH_SOURCE_TAG: ${{ github.event.inputs.search_source_tag }}
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
       pin_sha: ${{ steps.commit.outputs.pin_sha }}
