@@ -72,8 +72,12 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
-          {{- if $.Values.ingestion.nodeName }}
-          # Pin to the node holding the api's SQLite volume (RWO PVC).
+          {{- if $sqlite }}
+          # RWO quill-api-data: must share the live api pod's node.
+          # Soft nexus|sentry affinity alone scheduled onto sentry while api
+          # held the volume on nexus → FailedAttachVolume (2026-11-04).
+          {{- include "quill.rwoApiCoLocate" . | nindent 10 }}
+          {{- else if $.Values.ingestion.nodeName }}
           nodeName: {{ $.Values.ingestion.nodeName }}
           {{- else }}
           {{- include "quill.nodeAffinity" (dict "affinityHosts" ($.Values.ingestion.affinityHosts | default list) "preferredHost" ($.Values.ingestion.preferredHost | default "")) | nindent 10 }}

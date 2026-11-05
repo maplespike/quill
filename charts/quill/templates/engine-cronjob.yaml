@@ -22,10 +22,13 @@ spec:
   schedule: "{{ .Values.engine.schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  failedJobsHistoryLimit: {{ .Values.engine.failedJobsHistoryLimit | default 3 }}
   jobTemplate:
     spec:
       backoffLimit: 1
+      {{- with .Values.engine.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
       activeDeadlineSeconds: 1800
       template:
         metadata:
@@ -43,7 +46,9 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
-          {{- if .Values.ingestion.nodeName }}
+          {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+          {{- include "quill.rwoApiCoLocate" . | nindent 10 }}
+          {{- else if .Values.ingestion.nodeName }}
           nodeName: {{ .Values.ingestion.nodeName }}
           {{- else }}
           {{- include "quill.nodeAffinity" (dict "affinityHosts" ((.Values.engine.affinityHosts | default .Values.ingestion.affinityHosts) | default list) "preferredHost" ((.Values.engine.preferredHost | default .Values.ingestion.preferredHost) | default "")) | nindent 10 }}
