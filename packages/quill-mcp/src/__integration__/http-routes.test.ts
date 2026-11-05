@@ -69,7 +69,10 @@ async function getFreePort(): Promise<number> {
 // Cold start registers the full tool set. On a loaded CI runner that has
 // taken about 16s (stdio handshake in the same job). A 10s cap fails the
 // first SSE spawn with "fetch failed" before /health is listening.
-async function waitForReady(url: string, timeoutMs = 30_000): Promise<void> {
+// The SSE session-limit tests below start up to four servers at once, so
+// allow for CPU contention: on 2026-11-01 (run 41292001889) a single cold
+// start took ~20s, and a serialised file blew its 180s --test-timeout.
+async function waitForReady(url: string, timeoutMs = 60_000): Promise<void> {
   const start = Date.now();
   let lastErr: unknown = null;
   while (Date.now() - start < timeoutMs) {
@@ -451,7 +454,14 @@ function startIndex(port: number, env: Record<string, string>): ChildProcess {
   });
 }
 
-describe('SSE session limits', { skip: SKIP && SKIP_REASON }, () => {
+// Cold start of src/index.ts (tsx + 184 tool modules) measured ~20 s per
+// server on a loaded CI runner. Every test below spawns its own server, so
+// run them concurrently: the spawns overlap instead of serialising nine
+// cold starts, which is what pushed this file past the 180 s per-file
+// --test-timeout on 2026-11-01 (run 41292001889, job 124806492935) and
+// starved the 15-minute job budget. Each test owns its own port and child
+// process group (stopServer), so there is no shared state between them.
+describe('SSE session limits', { skip: SKIP && SKIP_REASON, concurrency: 4 }, () => {
   it('keeps each session message on that session stream', async () => {
     const port = await getFreePort();
     const proc = startIndex(port, {});
