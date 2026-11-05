@@ -221,8 +221,18 @@ jobs:
             exit 0
           fi
 
-          META="$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" \
-            --json state,isDraft,mergeable,mergeStateStatus,headRepository,headRefOid,labels,author,body)"
+          # A freshly opened PR can read headRepository empty / mergeable UNKNOWN
+          # for a minute while GitHub computes it. Retry with backoff (5 tries,
+          # ~2 min) instead of exiting on a transient value.
+          for try in 1 2 3 4 5; do
+            META="$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" \
+              --json state,isDraft,mergeable,mergeStateStatus,headRepository,headRefOid,labels,author,body)"
+            if [[ -n "$(jq -r '.headRepository.nameWithOwner // empty' <<<"$META")" \
+                  && "$(jq -r '.mergeable // "UNKNOWN"' <<<"$META")" != "UNKNOWN" ]]; then
+              break
+            fi
+            [[ "$try" -lt 5 ]] && { echo "::notice::PR #${PR_NUMBER} head repo/mergeable not computed yet (try ${try}/5) — retrying."; sleep $((try * 10)); }
+          done
 
           if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
             echo "::notice::PR #${PR_NUMBER} is not open — nothing to do."
