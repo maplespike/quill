@@ -50,7 +50,13 @@ trap cleanup EXIT
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
-NODE="nexus"
+# Build hosts: nexus is primary; sentry is fallback only (chosen by deploy-prod
+# gates). PIN_NODE (or --node) sets the expected node; it must be in the
+# allowlist. Registry: QUILL_REGISTRY_ENDPOINT, else the node's registries.yaml
+# mirror. QUILL_SEARCH_SOURCE_TAG: optional quill/search tag for the search
+# registry-pull fallback (see push_search_from_store).
+ALLOWED_NODES="nexus sentry"
+NODE="${PIN_NODE:-nexus}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VALUES_FILE="$REPO_ROOT/charts/quill/values-prod.yaml"
 EXISTING=false
@@ -152,8 +158,12 @@ if [[ "$VERIFY_ONLY" == true ]]; then
 fi
 
 HOST="$(hostname -s)"
+if [[ " $ALLOWED_NODES " != *" $NODE "* ]]; then
+  echo "ERROR: PIN_NODE/--node '$NODE' is not an allowed build host ($ALLOWED_NODES)." >&2
+  exit 2
+fi
 if [[ "$HOST" != "$NODE" ]]; then
-  echo "ERROR: run this on '$NODE' (now: '$HOST'). docker and the search image are there." >&2
+  echo "ERROR: run this on '$NODE' (now: '$HOST'). Allowed build hosts: $ALLOWED_NODES." >&2
   exit 2
 fi
 command -v docker >/dev/null || { echo "ERROR: docker (builder) not found on $HOST" >&2; exit 2; }
@@ -257,9 +267,22 @@ push_search_from_store() {
     exit 1
   fi
   if ! content_has "$digest"; then
-    echo "ERROR: quill-search ${digest} is not in this node's containerd store." >&2
+    # Registry-pull fallback (e.g. on sentry, which starts with no quill
+    # images). The registry host is the same PUSH_HOST used for pushes: from
+    # QUILL_REGISTRY_ENDPOINT if set, else this node's registries.yaml mirror
+    # (see scripts/gates/check-node-images.mjs). Never hard-code it here.
+    # Tries the pinned digest, then QUILL_SEARCH_SOURCE_TAG (a quill/search
+    # tag, normally an earlier deploy's git sha). Either way the pinned digest
+    # must end up in the store, so a tag that resolves elsewhere is refused.
+    echo "  search:  ${digest} not in this node's store; pulling from ${PUSH_HOST}/quill/search" >&2
+    ctr images pull --plain-http --platform linux/amd64 "${PUSH_HOST}/quill/search@${digest}" >/dev/null 2>&1 || \
+      { [[ -n "${QUILL_SEARCH_SOURCE_TAG:-}" ]] && \
+        ctr images pull --plain-http --platform linux/amd64 "${PUSH_HOST}/quill/search:${QUILL_SEARCH_SOURCE_TAG}" >/dev/null; } || true
+  fi
+  if ! content_has "$digest"; then
+    echo "ERROR: quill-search ${digest} is not in this node's containerd store, and the registry pull failed." >&2
     echo "This repo has no Dockerfile.search, so the image cannot be rebuilt here." >&2
-    echo "Load that exact digest into the nexus containerd store, then re-run." >&2
+    echo "Load that exact digest into this node's containerd store (or push it to the registry), then re-run." >&2
     exit 1
   fi
   : "${TMPDIR:=$REPO_ROOT/.tmp}"
