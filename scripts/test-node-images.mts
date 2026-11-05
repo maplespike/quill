@@ -11,6 +11,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -23,6 +24,13 @@ import {
   pinCommitDecision,
   plan,
 } from './gates/check-node-images.mjs';
+import {
+  OCI_INDEX_MEDIA_TYPE,
+  isAttestationManifest,
+  selectPlatformManifest,
+  singleManifestIndex,
+  stagedImageName,
+} from './gates/oci-image-manifest.mjs';
 import { applyMigrationText } from './apply-image-pins.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -171,4 +179,144 @@ test('--plan exits 0 on unmigrated values-prod', () => {
   assert.match(result.stdout, /registry plan: OK/);
   assert.match(result.stdout, /docker\.io\/library\/quill-api@sha256:/);
   assert.doesNotMatch(result.stdout, new RegExp(REGISTRY_HOST.replace(/\./g, '\\.')));
+});
+
+// The pinned quill-search content on nexus is an OCI image index from an
+// older docker build (charts/quill/values-prod.yaml, search digest
+// sha256:993d9045…). Its linux/amd64 child is complete, but the BuildKit
+// attestation manifest in the same index points at a config blob
+// (sha256:e7d884da…, literally "{}") that was never imported. That missing
+// blob is why `ctr images push` died with
+// "ctr: content digest sha256:e7d884da…: not found", and why the push now
+// publishes the amd64 child manifest instead of the index.
+const SEARCH_INDEX_DIGEST = 'sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd';
+const SEARCH_AMD64_MANIFEST = 'sha256:df605779b534c9ee524ec469a3c957e0a46e38d4755d8281f6a704c464e0a086';
+const SEARCH_ATTESTATION_MANIFEST = 'sha256:9f64ae152945a99627263ff28b602c4393c1d8726236f09d03e67a34f3bb4105';
+const SEARCH_MISSING_ATTESTATION_CONFIG = 'sha256:e7d884dac7ec5f6cd6f34f04972aa109cf6e704f81b9fc949f81eb49d4585924';
+const SEARCH_INDEX = {
+  schemaVersion: 2,
+  mediaType: OCI_INDEX_MEDIA_TYPE,
+  manifests: [
+    {
+      mediaType: 'application/vnd.oci.image.manifest.v1+json',
+      digest: SEARCH_AMD64_MANIFEST,
+      size: 1430,
+      platform: { architecture: 'amd64', os: 'linux' },
+    },
+    {
+      mediaType: 'application/vnd.oci.image.manifest.v1+json',
+      digest: SEARCH_ATTESTATION_MANIFEST,
+      size: 837,
+      annotations: {
+        'vnd.docker.reference.digest': SEARCH_AMD64_MANIFEST,
+        'vnd.docker.reference.type': 'attestation-manifest',
+      },
+      platform: { architecture: 'unknown', os: 'unknown' },
+    },
+  ],
+};
+
+test('quill-search publishes the linux/amd64 child manifest, never the attestation index', () => {
+  const selected = selectPlatformManifest(SEARCH_INDEX, 'linux/amd64');
+  assert.equal(selected.kind, 'index-child');
+  assert.equal(selected.digest, SEARCH_AMD64_MANIFEST);
+  assert.equal(selected.size, 1430);
+  assert.equal(selected.mediaType, 'application/vnd.oci.image.manifest.v1+json');
+  assert.ok(isAttestationManifest(SEARCH_INDEX.manifests[1]));
+  assert.deepEqual(selectPlatformManifest(SEARCH_INDEX).digest, SEARCH_AMD64_MANIFEST);
+
+  const refName = stagedImageName('docker.io/library/quill-search-amd64', selected.digest);
+  const index = singleManifestIndex(selected, refName, 'linux/amd64');
+  assert.equal(index.mediaType, OCI_INDEX_MEDIA_TYPE);
+  assert.equal(index.manifests.length, 1);
+  assert.deepEqual(index.manifests[0].platform, { architecture: 'amd64', os: 'linux' });
+  assert.equal(index.manifests[0].digest, SEARCH_AMD64_MANIFEST);
+  assert.equal(index.manifests[0].annotations['org.opencontainers.image.ref.name'], refName);
+  const serialized = JSON.stringify(index);
+  assert.doesNotMatch(serialized, new RegExp(SEARCH_INDEX_DIGEST.slice(7)));
+  assert.doesNotMatch(serialized, /attestation-manifest/);
+  assert.doesNotMatch(serialized, new RegExp(SEARCH_MISSING_ATTESTATION_CONFIG.slice(7)));
+});
+
+test('a single-platform manifest pin is pushed as itself without re-wrapping an index', () => {
+  // After the pin commit values-prod carries the digest the registry served —
+  // the amd64 manifest, not the old index. The next deploy must push it again.
+  const manifest = {
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.manifest.v1+json',
+    config: { mediaType: 'application/vnd.oci.image.config.v1+json', digest: 'sha256:' + '5'.repeat(64), size: 2735 },
+    layers: [],
+  };
+  const selected = selectPlatformManifest(manifest, 'linux/amd64');
+  assert.equal(selected.kind, 'manifest');
+  assert.equal(selected.digest, null, 'the caller supplies the pinned digest for a bare manifest');
+});
+
+test('an index without a linux/amd64 child is refused instead of pushed', () => {
+  const armOnly = {
+    schemaVersion: 2,
+    mediaType: OCI_INDEX_MEDIA_TYPE,
+    manifests: [
+      { mediaType: 'application/vnd.oci.image.manifest.v1+json', digest: 'sha256:' + 'a'.repeat(64), size: 10, platform: { architecture: 'arm64', os: 'linux' } },
+    ],
+  };
+  assert.throws(() => selectPlatformManifest(armOnly), /no linux\/amd64 manifest/);
+  const ambiguous = {
+    schemaVersion: 2,
+    mediaType: OCI_INDEX_MEDIA_TYPE,
+    manifests: [
+      { ...armOnly.manifests[0], platform: { architecture: 'amd64', os: 'linux' } },
+      { ...armOnly.manifests[0], digest: 'sha256:' + 'b'.repeat(64), platform: { architecture: 'amd64', os: 'linux' } },
+    ],
+  };
+  assert.throws(() => selectPlatformManifest(ambiguous), /refusing to guess/);
+  assert.throws(() => selectPlatformManifest({ mediaType: 'text/plain' }), /not an image index or image manifest/);
+});
+
+test('oci-image-manifest writes a one-entry archive index for the stored search content', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-oci-manifest-'));
+  const indexOut = path.join(dir, 'index.json');
+  try {
+    const result = spawnSync(
+      'node',
+      [
+        path.join(REPO, 'scripts/gates/oci-image-manifest.mjs'),
+        '--platform',
+        'linux/amd64',
+        '--ref-prefix',
+        'docker.io/library/quill-search-amd64',
+        '--digest',
+        SEARCH_INDEX_DIGEST,
+        '--index-out',
+        indexOut,
+      ],
+      { encoding: 'utf8', input: JSON.stringify(SEARCH_INDEX) },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), SEARCH_AMD64_MANIFEST);
+    const index = JSON.parse(fs.readFileSync(indexOut, 'utf8'));
+    assert.equal(index.manifests.length, 1);
+    assert.equal(index.manifests[0].digest, SEARCH_AMD64_MANIFEST);
+    assert.equal(index.manifests[0].platform.architecture, 'amd64');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('push_search_from_store stages the amd64 manifest and pushes it, not the stored index', () => {
+  const pin = fs.readFileSync(PIN, 'utf8');
+  const start = pin.indexOf('push_search_from_store() {');
+  assert.ok(start > 0, 'pin-images must define push_search_from_store');
+  const end = pin.indexOf('\n}\n', start);
+  const body = pin.slice(start, end);
+  // The stored content is resolved through the helper (index → amd64 child),
+  // staged as a one-entry OCI archive and imported so the push target is a
+  // manifest. The old code re-tagged the source index and pushed it.
+  assert.match(body, /oci-image-manifest\.mjs/);
+  assert.match(body, /--platform linux\/amd64/);
+  assert.match(body, /ctr images import --no-unpack/);
+  assert.match(body, /ctr images push --plain-http "\$dest"/);
+  assert.doesNotMatch(body, /store_ref_for_digest/);
+  assert.doesNotMatch(body, /ctr images tag --force "\$src" "\$dest"/);
+  assert.match(body, /record_pin search/);
 });
