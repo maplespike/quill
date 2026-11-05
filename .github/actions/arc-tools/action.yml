@@ -1,16 +1,83 @@
 name: ARC runner tools
 description: >-
-  Install the OS packages that the stock ghcr.io/actions/actions-runner image
-  lacks (C toolchain for Rust build scripts, PyYAML for the workflow gates, gh,
-  jq, gawk: mawk has no \s, which scripts/check-secret-lockstep.sh uses). Call it only on arc-* runners; host runners and GitHub-hosted runners
-  already have these.
+  Ensure the OS packages the stock ghcr.io/actions/actions-runner image
+  lacks are present (C toolchain for Rust build scripts, PyYAML for the
+  workflow gates, gh, jq, gawk: mawk has no \s, which
+  scripts/check-secret-lockstep.sh uses). Call it only on arc-* runners;
+  host runners and GitHub-hosted runners already have these. Skips
+  apt-get entirely when every required binary is already on PATH (pre-baked
+  runner image / host cache), so jobs do not pay 30–90s of apt on every run.
+  Also points pnpm / npm / Playwright at stable on-disk cache paths so
+  successive jobs on the same runner reuse downloads.
 runs:
   using: composite
   steps:
-    - name: Install OS packages
+    - name: Cache paths (pnpm, npm, Playwright)
       shell: bash
       run: |
         set -euo pipefail
+        # Prefer the pre-baked Playwright tree when the runner image has it;
+        # otherwise keep a stable path under the runner's _work/_tool area so
+        # jobs on the same host reuse browsers across ephemeral pods when the
+        # volume is shared, and across sequential jobs on a sticky workspace.
+        ROOT="${RUNNER_TOOL_CACHE:-${RUNNER_TEMP:-/tmp}/tool-cache}"
+        mkdir -p "$ROOT/pnpm-store" "$ROOT/npm-cache"
+        if [ -d /ms-playwright ]; then
+          echo "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright" >> "$GITHUB_ENV"
+          echo "Playwright browsers: /ms-playwright (pre-baked)"
+        else
+          mkdir -p "$ROOT/ms-playwright"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$ROOT/ms-playwright" >> "$GITHUB_ENV"
+          echo "Playwright browsers: $ROOT/ms-playwright"
+        fi
+        echo "PNPM_STORE_PATH=$ROOT/pnpm-store" >> "$GITHUB_ENV"
+        echo "npm_config_cache=$ROOT/npm-cache" >> "$GITHUB_ENV"
+        echo "STORE_DIR=$ROOT/pnpm-store" >> "$GITHUB_ENV"
+        # pnpm reads store-dir from env via PNPM_HOME-less STORE_DIR in v10:
+        echo "npm_config_store_dir=$ROOT/pnpm-store" >> "$GITHUB_ENV"
+        echo "Cache roots under $ROOT"
+
+    - name: Ensure ARC runner packages
+      shell: bash
+      run: |
+        set -euo pipefail
+        need=()
+        { command -v gcc && command -v g++ && command -v make; } >/dev/null 2>&1 || need+=(build-essential)
+        command -v pkg-config >/dev/null 2>&1 || need+=(pkg-config)
+        if ! pkg-config --exists openssl 2>/dev/null; then need+=(libssl-dev); fi
+        command -v python3 >/dev/null 2>&1 || need+=(python3)
+        python3 -c 'import yaml' 2>/dev/null || need+=(python3-yaml)
+        command -v jq >/dev/null 2>&1 || need+=(jq)
+        command -v gh >/dev/null 2>&1 || need+=(gh)
+        command -v unzip >/dev/null 2>&1 || need+=(unzip)
+        command -v xz >/dev/null 2>&1 || need+=(xz-utils)
+        if ! command -v gawk >/dev/null 2>&1; then need+=(gawk); fi
+        if [ "${#need[@]}" -eq 0 ]; then
+          echo "ARC tools already present — skipping apt-get"
+          gcc --version | head -1 || true
+          python3 -c 'import yaml; print("PyYAML ok")' || true
+          gh --version | head -1 || true
+          jq --version || true
+          exit 0
+        fi
+        echo "Installing missing packages: ${need[*]}"
         sudo apt-get update -qq
-        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
-          build-essential pkg-config libssl-dev python3 python3-yaml jq gh unzip xz-utils gawk
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends "${need[@]}"
+
+    - name: Detect Node/pnpm (skip setup actions when present)
+      shell: bash
+      run: |
+        set -euo pipefail
+        need=1
+        if command -v node >/dev/null 2>&1 && command -v pnpm >/dev/null 2>&1; then
+          major=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0)
+          want=$(node -p "(require('./package.json').packageManager||'').split('@')[1]||''" 2>/dev/null || echo "")
+          have=$(pnpm -v 2>/dev/null || echo "")
+          if [ "$major" -ge 22 ] && [ -n "$want" ] && [ "$have" = "${want%%+*}" ]; then
+            need=0
+            echo "Node $(node -v) + pnpm $have (== packageManager $want) present — setup-node/pnpm actions can skip"
+          fi
+        fi
+        echo "ARC_NEED_NODE=$need" >> "$GITHUB_ENV"
+        echo "need_node=$need" >> "$GITHUB_OUTPUT"
+
