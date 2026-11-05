@@ -12,7 +12,7 @@ permissions:
 jobs:
   check-docs-review:
     name: "Check docs needing review"
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
         with:
@@ -103,7 +103,7 @@ jobs:
 
   check-metrics-drift:
     name: "Check for metrics drift"
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
       - run: pnpm install --frozen-lockfile 2>/dev/null || true

@@ -74,7 +74,7 @@ env:
 
 jobs:
   prepare-release:
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
         with:

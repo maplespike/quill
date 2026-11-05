@@ -15,7 +15,7 @@ jobs:
   assign-milestone:
     # No checkout. A fork pull request is skipped. Same-repo work stays here.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     permissions:
       issues: write
       pull-requests: write
