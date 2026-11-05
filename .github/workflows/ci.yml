@@ -130,7 +130,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -436,7 +436,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -487,7 +487,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -616,7 +616,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
