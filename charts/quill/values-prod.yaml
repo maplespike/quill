@@ -1,4 +1,8 @@
 image:
+  # Still the live pin. deploy-prod rewrites each images.<svc> entry to
+  # registry + repository + pullPolicy IfNotPresent in one commit, and only
+  # after the registry HEAD check passes for every service. Until that
+  # commit, a render must keep these refs and Never.
   registry: docker.io/library
   tag: ''
   pullPolicy: Never
@@ -18,6 +22,15 @@ images:
   search:
     digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
     tag: '2026-10-06-serve-fix'
+# CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
+# forge last and only for ultra-light work (cloudflared). Heavy workloads
+# use required hostname In affinityHosts + preferredHost weight 100.
+# No kubectl node-label writes — affinity uses kubernetes.io/hostname only.
+affinityHosts: &quillHeavyHosts
+  - nexus
+  - sentry
+preferredHost: &quillPreferredHost nexus
+
 api:
   replicas: 1
   port: 8082
@@ -51,12 +64,18 @@ api:
     # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
     # the single-nexus failure domain for the API's SQLite volume.
     storageClass: longhorn
-    nodeName: nexus
+    # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
+    nodeName: ""
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
 mcp:
   replicas: 1
   port: 3001
   metricsPort: 9465
-  nodeName: nexus
+  # 2026-10-28: nexus|sentry only (never forge).
+  nodeName: ""
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
   resources:
     requests:
       cpu: 100m
@@ -72,7 +91,9 @@ redis:
   replicas: 1
   image: public.ecr.aws/docker/library/redis:8.2.3-alpine
   pullPolicy: IfNotPresent
-  nodeName: nexus
+  nodeName: ""
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
   maxmemory: 128mb
   resources:
     requests:
@@ -95,7 +116,7 @@ database:
       cpu: 500m
       memory: 512Mi
   storageClass: longhorn
-  nodeName: nexus
+  nodeName: ""
 portal:
   enabled: true
   # HA: 2 replicas, spread by topology + anti-affinity, guarded by a PDB
@@ -103,11 +124,10 @@ portal:
   # api/mcp/search it needs no node pin.
   replicas: 2
   port: 8080
-  # nodeSelector (not nodeName): keeps the scheduler in control so the two
-  # replicas can spread across the quill.io/workload pool (nexus + forge),
-  # while still restricting to nodes whose containerd store holds the digest.
-  nodeSelector:
-    quill.io/workload: "true"
+  # CPU order: nexus preferred, sentry fallback; never forge (Reverb 15:06 CT).
+  # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
   resources:
     requests:
       cpu: 50m
@@ -125,8 +145,12 @@ cloudflared:
   pullPolicy: IfNotPresent
   replicas: 1
   tunnelId: 66d76492-036b-4177-8fac-8682e0eda37e
-  nodeSelector:
-    kubernetes.io/hostname: nexus
+  # Ultra-light only: may land on forge (Reverb 15:06 CT).
+  affinityHosts:
+    - nexus
+    - sentry
+    - forge
+  preferredHost: nexus
   resources:
     requests:
       cpu: 50m
@@ -151,7 +175,9 @@ secrets:
   stripePublishableKey: ''
 ingestion:
   enabled: true
-  nodeName: nexus
+  nodeName: ""
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
   activeDeadlineSeconds: 1800
   schedules:
     committees: 0 */6 * * *
@@ -202,6 +228,8 @@ engine:
     limits:
       cpu: 500m
       memory: 256Mi
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
 
 search:
   replicas: 1
@@ -226,21 +254,23 @@ search:
   # nodeName from this value and ignores nodeSelector for the copy.
   # After the copy, set migrateLegacyIndex to false and leave nodeName set.
   # The backup claim is ReadWriteOnce, so search and its backup must stay
-  # on nexus. nodeSelector applies only when nodeName is empty. Clear
-  # nodeName only if you also set backups.accessMode to ReadWriteMany.
-  nodeName: nexus
-  nodeSelector:
-    quill.io/workload: "true"
+  # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
+  nodeName: ""
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
 
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
-# API volume, ReadWriteOnce. Backup, freshness, and drill pods use
-# api.storage.nodeName (nexus), the same pin as the API. ReadWriteMany is
-# optional and needs a verified NFS client on the NixOS node. Redis is not
-# included. Postgres is off in this file (database.enabled: false), so no
-# pg_dump CronJob is rendered.
+# API volume, ReadWriteOnce. Backup, freshness, and drill pods use the same
+# affinityHosts / preferredHost as the API (nexus|sentry, never forge)
+# so they stay co-located with the API volume's allowed hosts. ReadWriteMany
+# is optional and needs a verified NFS client. Redis is not included.
+# Postgres is off in this file (database.enabled: false), so no pg_dump
+# CronJob is rendered.
 backups:
   enabled: true
+  affinityHosts: *quillHeavyHosts
+  preferredHost: *quillPreferredHost
   schedule: "15 1 * * *"
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"

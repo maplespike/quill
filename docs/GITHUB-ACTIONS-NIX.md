@@ -96,7 +96,7 @@ Rules:
 
 - Keep `on: pull_request` for code jobs.
 - Each job sets `runs-on`. A fork pull request resolves to `ubuntu-latest`. A same-repo pull request and a push resolve to the self-hosted labels.
-- `merge-when-green.yml` is the only `pull_request_target` workflow. It needs a write token to squash-merge. It does not check out pull request code. It runs on `ubuntu-latest`. The head repository must be this repository, and the actor must be Dependabot or the maintainer.
+- `merge-when-green.yml` is the only `pull_request_target` workflow. It needs a write token to squash-merge. It does not check out pull request code. A same-repo run uses `arc-maplespike-gate`. A fork resolves to `ubuntu-latest` and the job does not run. The pull request author must be Dependabot or the maintainer. On `pull_request_target` and `workflow_dispatch`, the actor must be one of those two as well.
 - `workflow_run` on a self-hosted runner requires `head_repository.full_name == github.repository`. It checks out `main`.
 - `scripts/gates/check-fork-runner-policy.mjs` fails CI when a `pull_request_target` job checks out the pull request head, or when a fork can reach a self-hosted runner.
 

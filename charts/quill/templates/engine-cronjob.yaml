@@ -45,11 +45,13 @@ spec:
             runAsUser: 1001
           {{- if .Values.ingestion.nodeName }}
           nodeName: {{ .Values.ingestion.nodeName }}
+          {{- else }}
+          {{- include "quill.nodeAffinity" (dict "affinityHosts" ((.Values.engine.affinityHosts | default .Values.ingestion.affinityHosts) | default list) "preferredHost" ((.Values.engine.preferredHost | default .Values.ingestion.preferredHost) | default "")) | nindent 10 }}
           {{- end }}
           containers:
           - name: sweep
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
             # entrypoint.sh is `exec node "$@"`. The register hook lets Node
             # load the engine's extensionless relative imports.
             args:

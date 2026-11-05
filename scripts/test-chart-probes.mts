@@ -14,6 +14,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -114,7 +115,7 @@ test('chart: service probes hit cheap health paths', (t) => {
 test('chart: probe timings are bounded', (t) => {
   if (skipOrFail(t)) return;
   const rendered = render();
-  for (const app of Object.keys(SERVICES)) {
+  for (const app of [...Object.keys(SERVICES), 'quill-redis']) {
     const doc = deployment(rendered, app);
     for (const probe of ['startupProbe', 'livenessProbe', 'readinessProbe']) {
       const block = probeBlock(doc, probe);
@@ -124,5 +125,56 @@ test('chart: probe timings are bounded', (t) => {
       assert.ok(Number.isFinite(period) && period > 0 && period <= 30, `${app} ${probe} periodSeconds out of range`);
       assert.ok(Number.isFinite(timeout) && timeout > 0 && timeout < period, `${app} ${probe} timeoutSeconds must be below periodSeconds`);
     }
+  }
+});
+
+test('chart: quill-redis probes survive a slow ping and a slow start', (t) => {
+  if (skipOrFail(t)) return;
+  const doc = deployment(render(), 'quill-redis');
+  const startup = probeBlock(doc, 'startupProbe');
+  const liveness = probeBlock(doc, 'livenessProbe');
+  const readiness = probeBlock(doc, 'readinessProbe');
+  for (const [name, block] of [['startupProbe', startup], ['livenessProbe', liveness], ['readinessProbe', readiness]] as const) {
+    assert.ok(block, `quill-redis has no ${name}`);
+    assert.match(block, /redis-cli/, `${name} must ping with redis-cli`);
+    assert.equal(block.match(/timeoutSeconds:\s*(\d+)/)?.[1], '5', `${name} timeoutSeconds must be 5`);
+  }
+  assert.equal(liveness.match(/failureThreshold:\s*(\d+)/)?.[1], '5');
+  assert.equal(startup.match(/failureThreshold:\s*(\d+)/)?.[1], '30');
+  // Cache budget stays. A slow disk is not a reason to raise it.
+  assert.match(doc, /cpu:\s*50m/);
+  assert.match(doc, /memory:\s*64Mi/);
+  assert.match(doc, /cpu:\s*200m/);
+  assert.match(doc, /memory:\s*192Mi/);
+  assert.match(doc, /"128mb"/);
+});
+
+function imagePolicyLines(yaml: string): string[] {
+  return yaml
+    .split('\n')
+    .filter((line) => /^\s*(image|imagePullPolicy):/.test(line))
+    .map((line) => line.trim());
+}
+
+test('chart: unmigrated values-prod matches the live image refs and pull policy', (t) => {
+  if (skipOrFail(t)) return;
+  const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
+  execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
+  execFileSync('git', ['worktree', 'add', '--detach', mainDir, 'origin/main'], {
+    cwd: ROOT,
+    stdio: 'pipe',
+  });
+  try {
+    const live = execFileSync('helm', ['template', 'quill', path.join(mainDir, 'charts/quill'), '-f', path.join(mainDir, 'charts/quill/values-prod.yaml')], {
+      encoding: 'utf8',
+      maxBuffer: 32 * 1024 * 1024,
+    });
+    const branch = render();
+    assert.deepEqual(imagePolicyLines(branch), imagePolicyLines(live));
+    assert.doesNotMatch(branch, /registry\.registry\.svc\.cluster\.local:5000/);
+    assert.match(branch, /image: "docker\.io\/library\/quill-portal@sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"/);
+    assert.match(branch, /imagePullPolicy: Never/);
+  } finally {
+    execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }
 });

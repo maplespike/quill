@@ -10,7 +10,7 @@
   Authentication: credentials.json (mounted from cloudflared-creds secret,
   synced by scripts/sops-sync-k8s.sh from SOPS-encrypted secrets/cloudflared.yaml).
 
-  The pod is pinned to the nexus node via nodeSelector to avoid cross-node
+  Placement via affinityHosts (may include forge — ultra-light only).
   flannel overlay issues in the K3s cluster.
 */}}
 {{- if .Values.cloudflared.enabled }}
@@ -61,10 +61,7 @@ spec:
       {{- with ($.Values.priorityClass | default dict).critical }}
       priorityClassName: {{ . }}
       {{- end }}
-      {{- with .Values.cloudflared.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      {{- include "quill.nodeAffinity" (dict "affinityHosts" (.Values.cloudflared.affinityHosts | default list) "preferredHost" (.Values.cloudflared.preferredHost | default "")) | nindent 6 }}
       volumes:
       - name: creds
         secret:
