@@ -56,6 +56,20 @@ on:
         description: "Refuse to build when the runner's MemAvailable (GiB) is below this"
         required: false
         default: "12"
+      # Sentry fallback headroom gate. PROVISIONAL defaults; Infra will publish
+      # final numbers. Sentry is used only when nexus fails its gate.
+      sentry_max_load1:
+        description: "PROVISIONAL: sentry fallback refuses when its load1 is at or above this"
+        required: false
+        default: "6"
+      sentry_min_mem_available_gib:
+        description: "PROVISIONAL: sentry fallback refuses when its MemAvailable (GiB) is below this"
+        required: false
+        default: "6"
+      sentry_max_io_util_pct:
+        description: "PROVISIONAL: sentry fallback refuses when its busiest disk io_util (%) is above this"
+        required: false
+        default: "60"
 
 concurrency:
   group: deploy-prod
@@ -104,15 +118,87 @@ jobs:
           SKIP_NETWORK_TESTS: '1'
         run: pnpm test
 
+  gate-nexus:
+    name: Headroom gate (nexus, primary)
+    needs: ci
+    runs-on: [self-hosted, nixos, nexus]
+    outputs:
+      ok: ${{ steps.gate.outputs.ok }}
+    steps:
+      - name: Check nexus load and memory
+        id: gate
+        # Never fails the job: a failed gate hands over to the sentry fallback.
+        # Guards against k3s/etcd starvation (nexus outage, 2026-11-04).
+        env:
+          MAX_LOAD1: ${{ github.event.inputs.max_load1 || '12' }}
+          MIN_MEM_GIB: ${{ github.event.inputs.min_mem_available_gib || '12' }}
+        run: |
+          set -euo pipefail
+          l1=$(cut -d' ' -f1 /proc/loadavg)
+          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+          echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi)"
+          # NB: `load` is a gawk builtin; use other awk variable names.
+          if why=$(awk -v l1="$l1" -v avail="$avail_gi" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" 'BEGIN {
+            if (l1+0 >= maxl+0) { printf "load1=%.2f >= %s", l1, maxl; exit 1 }
+            if (avail+0 < minm+0) { printf "MemAvailable=%.1fGi < %sGi", avail, minm; exit 1 }
+          }'); then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::nexus is overloaded ($why); trying the sentry fallback"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  gate-sentry:
+    name: Headroom gate (sentry, fallback only)
+    needs: [ci, gate-nexus]
+    # Only when nexus failed its gate. Sentry is a fallback, never primary.
+    if: ${{ always() && needs.ci.result == 'success' && needs.gate-nexus.outputs.ok != 'true' }}
+    runs-on: [self-hosted, nixos, sentry]
+    outputs:
+      ok: ${{ steps.gate.outputs.ok }}
+    steps:
+      - name: Check sentry load, memory, and disk IO (provisional thresholds)
+        id: gate
+        # Fails the job (and so the run) when sentry has no headroom either:
+        # re-dispatch deploy-prod when a host is cooler.
+        env:
+          MAX_LOAD1: ${{ github.event.inputs.sentry_max_load1 || '6' }}
+          MIN_MEM_GIB: ${{ github.event.inputs.sentry_min_mem_available_gib || '6' }}
+          MAX_IO_PCT: ${{ github.event.inputs.sentry_max_io_util_pct || '60' }}
+        run: |
+          set -euo pipefail
+          l1=$(cut -d' ' -f1 /proc/loadavg)
+          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+          # io_util = busiest whole disk's io_ticks delta (diskstats field 13) over 5 s.
+          snap() { awk '$3 ~ /^(sd[a-z]+|nvme[0-9]+n[0-9]+|vd[a-z]+|xvd[a-z]+)$/ {print $3, $13}' /proc/diskstats; }
+          a=$(snap); sleep 5; b=$(snap)
+          io_pct=$(join <(echo "$a" | sort) <(echo "$b" | sort) | awk '{u=($3-$2)/50; if (u>m) m=u} END {printf "%.0f", m+0}')
+          echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi io_util=${io_pct}% (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi max_io=${MAX_IO_PCT}%)"
+          awk -v l1="$l1" -v avail="$avail_gi" -v io="$io_pct" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" -v maxio="$MAX_IO_PCT" 'BEGIN {
+            if (l1+0 >= maxl+0)  { printf "::error::nexus failed its gate and sentry load1=%.2f >= %s; re-dispatch deploy-prod when a host is cooler\n", l1, maxl; exit 1 }
+            if (avail+0 < minm+0) { printf "::error::nexus failed its gate and sentry MemAvailable=%.1fGi < %sGi; re-dispatch later\n", avail, minm; exit 1 }
+            if (io+0 > maxio+0)   { printf "::error::nexus failed its gate and sentry io_util=%d%% > %s%%; re-dispatch later\n", io, maxio; exit 1 }
+          }'
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
   build-and-pin:
     name: Build images, scan, and record pins
-    needs: ci
-    # The push runs on nexus: docker, k3s, the registries.yaml mirror, and
-    # the quill-search image (no Dockerfile in this repo) are there.
-    # scripts/pin-images.sh refuses any other hostname. Unpinned, this job
-    # lands on whichever runner is free and dies — 2026-10-21 run
-    # 39630307172 claimed sentry and produced an empty pin block.
-    runs-on: [self-hosted, nixos, nexus]
+    needs: [ci, gate-nexus, gate-sentry]
+    if: ${{ always() && needs.ci.result == 'success' && (needs.gate-nexus.outputs.ok == 'true' || needs.gate-sentry.outputs.ok == 'true') }}
+    # Nexus is primary: docker, k3s, the registries.yaml mirror, and the
+    # quill-search image (no Dockerfile in this repo) are there. Sentry is a
+    # fallback ONLY when nexus fails its headroom gate and sentry passes its
+    # own; quill-search is then pulled from the in-cluster registry.
+    # scripts/pin-images.sh refuses any host outside its nexus|sentry
+    # allowlist or other than PIN_NODE. Never unpinned — 2026-10-21 run
+    # 39630307172 claimed a random runner and produced an empty pin block.
+    runs-on: ${{ needs.gate-nexus.outputs.ok == 'true' && fromJSON('["self-hosted","nixos","nexus"]') || fromJSON('["self-hosted","nixos","sentry"]') }}
+    # One build at a time per build host (sentry especially).
+    concurrency:
+      group: quill-build-${{ needs.gate-nexus.outputs.ok == 'true' && 'nexus' || 'sentry' }}
+      cancel-in-progress: false
+    env:
+      PIN_NODE: ${{ needs.gate-nexus.outputs.ok == 'true' && 'nexus' || 'sentry' }}
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
       pin_sha: ${{ steps.commit.outputs.pin_sha }}
@@ -134,7 +220,7 @@ jobs:
             exit 1
           fi
 
-      - name: Preflight — nexus docker/containerd store
+      - name: Preflight — build host docker/containerd store
         # Fail fast when the host docker build cache is corrupt (missing
         # overlayfs snapshots / blobs). deploy-prod run 40624285281 (2026-10-27)
         # spent ~7 min in Build & Test, then died in pin-images.sh on
@@ -146,7 +232,7 @@ jobs:
         run: |
           set -euo pipefail
           if ! docker buildx du >/dev/null 2>&1; then
-            echo "::error::nexus docker/containerd store is broken (docker buildx du failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            echo "::error::$PIN_NODE docker/containerd store is broken (docker buildx du failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
             docker buildx du || true
             exit 1
           fi
@@ -154,7 +240,7 @@ jobs:
           trap 'rm -rf "$tmp"' EXIT
           printf 'FROM scratch\n' >"$tmp/Dockerfile"
           if ! docker build --quiet -t quill-deploy-preflight:ok "$tmp" >/dev/null; then
-            echo "::error::nexus docker/containerd store is broken (tiny docker build from scratch failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            echo "::error::$PIN_NODE docker/containerd store is broken (tiny docker build from scratch failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
             exit 1
           fi
           docker rmi quill-deploy-preflight:ok >/dev/null 2>&1 || true
@@ -191,23 +277,6 @@ jobs:
             exit 1
           fi
 
-      - name: Refuse when the build host is already overloaded
-        # Guards against k3s/etcd starvation when the deploy runs alongside other
-        # heavy jobs on the same host. Thresholds are overridable on dispatch;
-        # push-triggered runs use the defaults (12 / 12 GiB).
-        env:
-          MAX_LOAD1: ${{ github.event.inputs.max_load1 || '12' }}
-          MIN_MEM_GIB: ${{ github.event.inputs.min_mem_available_gib || '12' }}
-        run: |
-          set -euo pipefail
-          load=$(cut -d' ' -f1 /proc/loadavg)
-          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
-          echo "host=$(hostname -s) load1=$load MemAvailable=${avail_gi}Gi (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi)"
-          awk -v l1="$load" -v avail="$avail_gi" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" 'BEGIN {
-            if (l1+0 >= maxl+0) { printf "::error::load1=%.2f >= %s; re-dispatch deploy-prod when the host is cooler (or raise max_load1)\n", l1, maxl; exit 1 }
-            if (avail+0 < minm+0) { printf "::error::MemAvailable=%.1fGi < %sGi; re-dispatch when headroom returns (or lower min_mem_available_gib)\n", avail, minm; exit 1 }
-          }'
-
       - name: Build, scan, and import images
         # Writes a per-image SBOM next to the images and refuses an empty one.
         # Needs k3s (containerd) and syft on the host; both are required, and a
@@ -219,7 +288,21 @@ jobs:
           # surfaces two steps later as "no pins found in input" — which reads
           # like a parser bug instead of a refused build (run 39630307172).
           set -o pipefail
-          bash scripts/pin-images.sh 2>&1 | tee pin-images.log
+          if [[ "$PIN_NODE" == sentry ]]; then
+            # Fallback host: low priority, capped CPU and memory. The scope
+            # covers this script, syft, node and the docker/ctr clients;
+            # BuildKit work inside dockerd is capped by the host's daemon
+            # config (Infra), not by these flags.
+            if systemd-run --user --scope --quiet true 2>/dev/null; then
+              run=(systemd-run --user --scope --quiet -p "CPUQuota=${SENTRY_CPU_QUOTA:-200%}" -p "MemoryMax=${SENTRY_MEM_MAX:-6G}" nice -n 10 ionice -c2 -n7)
+            else
+              echo "::warning::systemd-run --user --scope unavailable on sentry; using nice/ionice only"
+              run=(nice -n 10 ionice -c2 -n7)
+            fi
+          else
+            run=()
+          fi
+          "${run[@]}" bash scripts/pin-images.sh 2>&1 | tee pin-images.log
           sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log > pin-block.txt
           if [[ ! -s pin-block.txt ]]; then
             echo "::error::pin-images.sh produced no pin block — refusing to continue (see pin-images.log)"
@@ -291,6 +374,9 @@ jobs:
   deploy:
     name: Wait for ArgoCD rollout and smoke test
     needs: [ci, build-and-pin]
+    # always(): a skipped gate-sentry (nexus passed) would otherwise skip this
+    # job transitively even though build-and-pin succeeded.
+    if: ${{ always() && needs.ci.result == 'success' && needs.build-and-pin.result == 'success' }}
     runs-on: [self-hosted, nixos]
     steps:
       # Check out the pin commit. Without a checkout this job read
