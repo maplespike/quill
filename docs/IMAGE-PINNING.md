@@ -44,20 +44,25 @@ not the tag.
 
 ## Apply a pin
 
-Run the script on nexus (docker and the search image are there):
+Run the script on nexus (docker and k3s are there):
 
 ```bash
 scripts/pin-images.sh
 scripts/pin-images.sh --svc mcp
 ```
 
-It builds api, mcp, portal, and ingest, pushes
-`registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>`, and reads
-the digest back from the registry v2 API. That digest is the pin.
+It builds api, mcp, portal, ingest and search — each from its tracked
+Dockerfile (`Dockerfile.api`, `.mcp`, `.portal`, `.ingest`, `.search`) —
+pushes `registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>`, and
+reads the digest back from the registry v2 API. That digest is the pin.
 
-`quill-search` has no Dockerfile in this repo. The script re-tags the
-digest already in nexus containerd and pushes that. If that digest is not
-in the local store, the script stops and says so. It cannot invent the bytes.
+`Dockerfile.search` compiles the `rust/` workspace with `cargo build
+--release` in a builder stage and copies the binary into a `debian:bookworm`
+runtime with `ca-certificates` only, uid 1001 `quill`, and `/data/index` owned
+by that user. The ports (8083 http, 9466 metrics), PVC mount (`/data`) and
+subcommand are the ones `charts/quill/templates/search-deployment.yaml`
+declares; keep the two in step. Its previous image existed only in the nexus
+containerd store and was lost with it, which is why it is now built here.
 
 Then commit the printed `images:` block. Argo CD renders `charts/quill` +
 `values-prod.yaml` from `main`.

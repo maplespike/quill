@@ -58,9 +58,10 @@ After that commit, `imagePullPolicy` is `IfNotPresent`. The build still runs on 
 sentry-agent both mirror that host over plain HTTP, so either node can pull
 the digest. Nodes do not copy images to each other.
 
-`quill-search` has no Dockerfile in this repo. The script pushes the digest
-already in the nexus containerd store. If that image is missing, the push
-stops.
+`quill-search` builds from `Dockerfile.search` like every other service
+(two-stage `cargo build --release`, `debian:bookworm` runtime), so the build
+host needs no pre-seeded image — which matters on sentry, where the fallback
+starts with an empty store.
 
 `deploy-prod` then HEADs every pinned digest on the registry v2 API and
 fails the pin commit if any digest is missing or does not match. It also
