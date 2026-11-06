@@ -8,20 +8,35 @@ image:
   pullPolicy: Never
 images:
   api:
-    digest: "sha256:401dfe6c5cd1bd89cc8e24fa24154d864908411054e248590343dee96a514566"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/api"
+    pullPolicy: IfNotPresent
+    digest: "sha256:c1959ffcc83d7ba32f65c0745cf38295a095662bab87e290687bc1e57e0f1694"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   mcp:
-    digest: "sha256:4c23916e7f71ec81a43a4a262f38cd70e86bc888dfb3e983d92fd61796a6f10e"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/mcp"
+    pullPolicy: IfNotPresent
+    digest: "sha256:e91fd9fa4c3aeaf6280422fd3c3c055f6bd6c91f24b90e7a181c7f0ed3ea18d2"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   portal:
-    digest: "sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/portal"
+    pullPolicy: IfNotPresent
+    digest: "sha256:c9f4b33449df3d64a4c2a3fc7f3d1be7cc7d3d111c7714260cdec40750ef7a56"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   ingest:
-    digest: "sha256:3505a9ec818bb307423f503db7238564b53b938789085ab49d8b4981d88b9061"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/ingest"
+    pullPolicy: IfNotPresent
+    digest: "sha256:0aa685325265768abf5a5594928cbafd8d978d6c0a24c7657115a9e469bd0a09"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   search:
-    digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
-    tag: '2026-10-06-serve-fix'
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/search"
+    pullPolicy: IfNotPresent
+    digest: "sha256:30e4b496af869b4576d90500cf11c74262b0d09bcc8b1fe1709ab7767ceef16d"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
 # CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
 # forge last and only for ultra-light work (cloudflared). Heavy workloads
 # use required hostname In affinityHosts + preferredHost weight 100.
