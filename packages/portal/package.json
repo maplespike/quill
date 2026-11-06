@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^7.1.2",
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^7.0.1",
     "@maplespike/i18n": "workspace:^",
     "pino": "^10.4.0",
     "pino-pretty": "^13.2.0",
