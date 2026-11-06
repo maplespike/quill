@@ -13,8 +13,8 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "node dist/dev-server.js",
     "dev:watch": "tsc --watch & node --watch dist/dev-server.js",
-    "test": "pnpm build && NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test --test-timeout=180000 --test-force-exit --test-concurrency=1 \"src/**/*.test.ts\"",
-    "test:unit": "NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test --test-timeout=180000 --test-force-exit --test-concurrency=1 \"src/**/*.test.ts\"",
+    "test": "pnpm build && NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 node --import tsx --test --test-timeout=180000 --test-force-exit --test-concurrency=1 \"src/**/*.test.ts\"",
+    "test:unit": "NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 node --import tsx --test --test-timeout=180000 --test-force-exit --test-concurrency=1 \"src/**/*.test.ts\"",
     "test:integration": "NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --test \"src/__integration__/**/*.test.ts\"",
     "test:coverage": "NODE_ENV=test QUILL_PII_HASH_SECRET=0000000000000000000000000000000000000000000000000000000000000000 tsx --experimental-test-coverage --test --test-timeout=180000 --test-force-exit --test-concurrency=1 \"src/**/*.test.ts\""
   },
