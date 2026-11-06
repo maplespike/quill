@@ -114,14 +114,14 @@ while read -r svc pinned; do
   # No long-running pod: check CronJob specs that use this image (ingest).
   cj="$(kubectl get cronjobs -n "$NAMESPACE" \
     -o jsonpath='{range .items[*]}{.metadata.name}{" "}{range .spec.jobTemplate.spec.template.spec.containers[*]}{.image}{" "}{end}{"\n"}{end}' 2>/dev/null \
-    | awk -v img="/quill-${svc}[@:]" '$0 ~ img')"
+    | awk -v img="/quill[-/]${svc}[@:]" '$0 ~ img')"
   if [[ -z "$cj" ]]; then
     fail "quill-$svc: no Running pod (app=quill-$svc) and no CronJob uses its image"
     continue
   fi
   while read -r name images; do
     for img in $images; do
-      [[ "$img" =~ /quill-${svc}[@:] ]] || continue
+      [[ "$img" =~ /quill[-/]${svc}[@:] ]] || continue
       if [[ "$img" == *"@$pinned" ]]; then
         ok "cronjob $name uses quill-$svc ${pinned:0:19}…"
       else
