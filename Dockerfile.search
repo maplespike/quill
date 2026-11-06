@@ -37,7 +37,7 @@ COPY rust/fixtures /build/fixtures
 RUN cargo build --release --locked -p quill-search
 
 # ─── Runtime stage ───────────────────────────────────────────────────────────
-FROM docker.io/library/debian:bookworm
+FROM docker.io/library/debian:bookworm AS quill-search
 
 WORKDIR /app
 
