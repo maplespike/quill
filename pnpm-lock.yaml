@@ -144,8 +144,8 @@ importers:
         specifier: ^5.5.0
         version: 5.11.1
       jose:
-        specifier: ^5.9.0
-        version: 5.10.0
+        specifier: ^6.2.15
+        version: 6.2.15
       mailparser:
         specifier: ^3.14.1
         version: 3.14.1
@@ -544,8 +544,8 @@ importers:
         specifier: workspace:*
         version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)
       jose:
-        specifier: ^5.10.0
-        version: 5.10.0
+        specifier: ^6.2.15
+        version: 6.2.15
       pino:
         specifier: ^10.4.0
         version: 10.4.0
@@ -5338,6 +5338,9 @@ packages:
   jose@5.10.0:
     resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
+  jose@6.2.15:
+    resolution: {integrity: sha512-qdF6ewcZARtef63fJ9AKKZPgxw+t7USH6HLXYcD4CrdmSvDp79rpJSPFEKc90QBeGS63u1KQtN2MZQHC0yDIzA==}
+
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -6488,6 +6491,11 @@ packages:
 
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.8.6:
+    resolution: {integrity: sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8948,7 +8956,7 @@ snapshots:
     dependencies:
       '@maplespike/database': file:packages/database(@opentelemetry/api@1.10.0)
       '@maplespike/pipeline-core': file:packages/pipeline-core(@opentelemetry/api@1.10.0)(typescript@6.0.3)
-      jose: 5.10.0
+      jose: 6.2.15
       pino: 10.4.0
       pino-pretty: 13.2.0
     transitivePeerDependencies:
@@ -12741,7 +12749,7 @@ snapshots:
       '@petamoriken/float16': 3.9.3
       debug: 4.4.3
       env-paths: 3.0.0
-      semver: 7.8.5
+      semver: 7.8.6
       shell-quote: 1.12.0
       which: 4.0.0
     transitivePeerDependencies:
@@ -13111,6 +13119,8 @@ snapshots:
   jiti@2.7.0: {}
 
   jose@5.10.0: {}
+
+  jose@6.2.15: {}
 
   joycon@3.1.1: {}
 
@@ -14509,6 +14519,9 @@ snapshots:
   semver@5.7.2: {}
 
   semver@7.8.5: {}
+
+  semver@7.8.6:
+    optional: true
 
   set-cookie-parser@3.1.3: {}
 
