@@ -111,8 +111,21 @@ jobs:
     timeout-minutes: 5
     steps:
       # No actions/checkout. No git. The script talks to the GitHub API only.
+      # Short-lived fleet-merge-gate App token so the gate can merge PRs that
+      # edit .github/workflows (GITHUB_TOKEN never can). Falls back to
+      # GITHUB_TOKEN when the var is unset or minting fails.
+      - name: Mint merge-gate app token
+        id: gate
+        if: ${{ vars.MERGE_GATE_APP_ID != '' }}
+        continue-on-error: true
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MERGE_GATE_APP_ID }}
+          private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
+
       - name: Evaluate the gate once
         env:
+          GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token (merge + update-branch); empty = GITHUB_TOKEN
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
@@ -364,7 +377,7 @@ jobs:
           jq -r '.body // ""' <<<"$META" > "$BODY_FILE"
 
           echo "::notice::Squash-merging PR #${PR_NUMBER} at ${HEAD_SHA}."
-          gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
+          GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
             --match-head-commit "$HEAD_SHA" \
             --body-file "$BODY_FILE"
           echo "::notice::Merged #${PR_NUMBER} via the ready-to-merge gate."
