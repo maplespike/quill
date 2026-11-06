@@ -93,8 +93,8 @@ importers:
   packages/api-server:
     dependencies:
       '@dexterai/x402':
-        specifier: ^5.1.0
-        version: 5.1.0(@dexterai/vault@0.28.0(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.3.1)(typescript@6.0.3)(utf-8-validate@6.0.6)(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+        specifier: ^6.1.0
+        version: 6.1.0(@dexterai/vault@0.28.0(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.3.1)(typescript@6.0.3)(utf-8-validate@6.0.6)(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       '@hono/zod-validator':
         specifier: ^0.9.1
         version: 0.9.1(hono@4.13.16)(zod@4.6.7)
@@ -767,10 +767,6 @@ packages:
     resolution: {integrity: sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/runtime@7.29.2':
-    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
-    engines: {node: '>=6.9.0'}
-
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
@@ -1052,15 +1048,15 @@ packages:
   '@dexterai/x402-ads-types@0.2.0':
     resolution: {integrity: sha512-jrvh8/gfD9mMePElI0q1HqsU0JF7s6eUb1iLhNKkMpCHh/Y2rPm6zaBE3izZYvt/5PjeAxQW7+oXb0hwsUsNFA==}
 
-  '@dexterai/x402-core@1.4.4':
-    resolution: {integrity: sha512-WPBOBMfqmpW44ensmrKeYjP/jap8mDGSUTxnWPFfV+Bz/5XW3RjukuoGaovXv/Py4cnLXv5UAKSN0J4ktA7IVQ==}
+  '@dexterai/x402-core@1.5.2':
+    resolution: {integrity: sha512-Uot4vIkL4vFJEAEELQeoByk5MADWnf/cdFcKZceVPjgBb17Te7fIxyu2Dfm6KA6ctYdQ6iWZNNuY2ttP/uKrqw==}
     engines: {node: '>=18'}
 
-  '@dexterai/x402@5.1.0':
-    resolution: {integrity: sha512-lzZ1Jys1estfg8U2ioOKRz/rzjlqekP5+AVhFaD6KgI5seBNJTbEPPhg3dMhB8Oy4edvTRUilqN4jSRR616xdw==}
-    engines: {node: '>=18'}
+  '@dexterai/x402@6.1.0':
+    resolution: {integrity: sha512-8jLgJzsjm39bjVrpRpduKcV4hmWP1m2vNrNO3NSXS9sRvz9gxacxRL5nL5mABlrW9LQJ3urNjvZTzRUTyO0qzA==}
+    engines: {node: '>=22'}
     peerDependencies:
-      '@dexterai/vault': '>=0.20.0'
+      '@dexterai/vault': ^0.44.0
       '@solana/wallet-adapter-base': ^0.9.0
       react: ^18.0.0 || ^19.0.0
       stripe: ^20.0.0
@@ -3153,11 +3149,11 @@ packages:
   '@shikijs/vscode-textmate@10.1.0':
     resolution: {integrity: sha512-cVBuhDQjBZaNMTwBquYfPydrUP+E3hE6oYGasx8h6ZrODIM7/r+gxLDXdd66oszbrggZHEntdE6j+5gYIVyMWQ==}
 
-  '@signinwithethereum/siwe-parser@4.2.0':
-    resolution: {integrity: sha512-e3edh8XpZrEjbzVYc0BZ4ySFOa8RKTZOQTafSf1E6ejCB5XcBH93jEpYmjzry1EEocgMNq4KlB3YunsFNCXakQ==}
+  '@signinwithethereum/siwe-parser@4.2.1':
+    resolution: {integrity: sha512-GAdwNiBaRpUMTiFfPrbQ3e/RBhPbEhRRN1sZmDMLgLEZuKqKwO7V0ksVzCerE9l8HFKTNw5R/q3kPDCWJRz4zA==}
 
-  '@signinwithethereum/siwe@4.2.0':
-    resolution: {integrity: sha512-6W+oyKgMFUZRJI4o9P9mTMzrokkXfu3tq1/CfOJj9QrMqyPqujJqv1xnxUAqDQwWVyCA8TMg0Fxk/+gXrDg2Nw==}
+  '@signinwithethereum/siwe@4.2.1':
+    resolution: {integrity: sha512-CQEQhCIgN9blil1YpaGR+wvGPdsBVK6zed5DBu03s1IdbSO3kA/n7Zp+SAkZGiHy3HY6OJm1Su0/Bd33vKK6nQ==}
     peerDependencies:
       ethers: ^5.7.0 || ^6.13.0
       viem: ^2.7.0
@@ -3200,10 +3196,6 @@ packages:
     engines: {node: '>=20.18.0'}
     peerDependencies:
       typescript: '>=5.3.3'
-
-  '@solana/buffer-layout-utils@0.2.0':
-    resolution: {integrity: sha512-szG4sxgJGktbuZYDg2FfNmkMi0DYQoVjN2h7ta1W1hPrwzarcFLBq9UpX1UjNXsNpT9dn+chgprtWGioUAr4/g==}
-    engines: {node: '>= 10'}
 
   '@solana/buffer-layout-utils@0.3.0':
     resolution: {integrity: sha512-MuQOCC1j0np1xH9yAv0ZWWfwvr7Bt7Sz4LId11Wi4wDdAmJ+lobE+vHg/mZmGcihF0BIkqVBNxGmlv8QE5DrtA==}
@@ -3461,12 +3453,6 @@ packages:
     peerDependencies:
       '@solana/web3.js': ^1.95.3
 
-  '@solana/spl-token@0.4.14':
-    resolution: {integrity: sha512-u09zr96UBpX4U685MnvQsNzlvw9TiY005hk1vJmJr7gMJldoPG1eYU5/wNEyOA5lkMLiR/gOi9SFD4MefOYEsA==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      '@solana/web3.js': ^1.95.5
-
   '@solana/spl-token@0.4.15':
     resolution: {integrity: sha512-3Lof3mNov8NVQ3PalIWb1Jgr/TZ6lYM+/sexv2TLqdhNFVth2OfWmH3d7QucgMjSbokkjNiNlRr6I8Fd269uaw==}
     engines: {node: '>=16'}
@@ -3502,9 +3488,6 @@ packages:
     engines: {node: '>=20.18.0'}
     peerDependencies:
       typescript: '>=5.3.3'
-
-  '@solana/web3.js@1.98.4':
-    resolution: {integrity: sha512-vv9lfnvjUsRiq//+j5pBdXig0IQdtzA0BRZ3bXEP4KaIyF1CcaydWqgyzQgfZMNIsWNWmG+AUHwPy4AHOD6gpw==}
 
   '@solana/web3.js@1.99.0':
     resolution: {integrity: sha512-QZYQ2T1z6xWisoyALPq25i/QZTsRlM02BABtAsfaQ1p8wX4SdTfxrKTRue/ZZqrhNVh5oL7T/DUFiTS9DRgxow==}
@@ -3828,8 +3811,8 @@ packages:
   '@types/ws@7.4.7':
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
 
-  '@types/ws@8.18.1':
-    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
 
   '@typescript-eslint/eslint-plugin@8.72.1':
     resolution: {integrity: sha512-5CokTWXpmbylfFabsbvHC0CAw3XLaGnoa+nFJX5FR592h/LoZsENUE6p/rg5xvkKrFEXz6pYmgI29AgXc2N3BQ==}
@@ -4108,14 +4091,14 @@ packages:
   '@workflow/serde@4.1.0':
     resolution: {integrity: sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ==}
 
-  '@x402/core@2.12.0':
-    resolution: {integrity: sha512-dLae9AbZRN/W7GsKe9ngqGsflnP+esE72s0GjmqDZbPihM/tlHCA6UnDdgM0qfOiDOf9iL+mmCs1OyLWpwnGLQ==}
+  '@x402/core@2.26.0':
+    resolution: {integrity: sha512-8dlXip9u0JjyELzzFz48vntuMajvUjA8IYpitfaW423m53bR49amZDIn3n4gXRYoNEKzGB9Rtn8at35WHz61cA==}
 
-  '@x402/evm@2.12.0':
-    resolution: {integrity: sha512-kZUoHPVdBS8wlTg5K1eoh/1V0+5n9ABGRPC5DOQwRlkAwIrAFOEi2pQE+jgvOx0iM5ib2xj9gJjpldRbasX12w==}
+  '@x402/evm@2.26.0':
+    resolution: {integrity: sha512-dcDxdWsEqyqmr0BsTXbvDNbL2KCjSvqcQV6VtSu7eTeDmi6RfI/T4IPSst5iI8M2Ys34Wc48AikJepuE7Bojgw==}
 
-  '@x402/extensions@2.12.0':
-    resolution: {integrity: sha512-1B6a/ubCiAoNrVbrZ4btUcWXjM5e71fB2rxSrtW+mINGVonW4w7QDjAKdOlKzi6xqRSoGRVQm5ajL9hIGvkE2A==}
+  '@x402/extensions@2.26.0':
+    resolution: {integrity: sha512-ItD85ryWsUa86TV8AjtY31SYqZhnnhoVKuVihtmv6r1cuLTgIxE21ugZmGswbLkS+rTvP0gy3M/6xp00i5S5lQ==}
 
   '@zone-eu/mailsplit@5.4.29':
     resolution: {integrity: sha512-CCUNycmUjrV5M0wNf23waWAt9eOHczhjLbUQS7k0FNJvR0py9VSqHFt+tSl/D0+XI73VLG0U+PwYtq9R0zsm9Q==}
@@ -4301,9 +4284,6 @@ packages:
 
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
-
-  bn.js@5.2.3:
-    resolution: {integrity: sha512-EAcmnPkxpntVL+DS7bO1zhcZNvCkxqtkd0ZY53h06GNQ3DEkkGZ/gKgmDv6DdZQGj9BgfSPKtJJ7Dp1GPP8f7w==}
 
   bn.js@5.2.5:
     resolution: {integrity: sha512-Vq886eXykuP5E6HcKSSStP3bJgrE6In5WKxVUvJ8XGpWWYs2xZHWqUwzCtGgEtBcxyd57KBFDPFoUfNzdaHCNg==}
@@ -6491,6 +6471,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.8.6:
+    resolution: {integrity: sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   set-cookie-parser@3.1.3:
     resolution: {integrity: sha512-xletSdAI5efyVJjsatBbzDkXl3M/Zmad3xfnQe7ZXuBB0yNwW7C2WFsNGjdRNfZunmNHQuX79xs/ACMTLCdcew==}
 
@@ -6580,12 +6565,11 @@ packages:
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
 
-  stream-chain@4.2.5:
-    resolution: {integrity: sha512-Wtyq3bNE3ggLR0v2vftqvuhltym3WbZAkZpfIrkr5F/6vpeUmWmwTgXa16zD87gpahwJ/Qulq3zVfUlgIc0J2A==}
-    engines: {node: '>=22'}
+  stream-chain@4.4.1:
+    resolution: {integrity: sha512-4MWXw+Si0RW3HAYQN3MdxpgTJA6Te9StiLtdkZO248DLPsRipqBbuiQSkyYLpCDEuvqGfqb2B5dEGxiEfHYkNQ==}
 
-  stream-json@3.7.0:
-    resolution: {integrity: sha512-rCSBdcBP/bPk6T8QFcxAj1MSzAuc5i49cYW6IE7sYObNEPccBJIUiL6fU9c9BWt40aJK0siVynLX7lWaW8alXw==}
+  stream-json@3.8.0:
+    resolution: {integrity: sha512-xD0bPEoPgaaEpEu2HSq1spYAs5LSJrLAlo44SHycE+aI8W0IrU2cklY7fiQKhRTVbuvxNUij06vIiz1NBT+AZA==}
 
   string-byte-length@3.0.1:
     resolution: {integrity: sha512-yJ8vP0HMwZ54CcA8S8mKoXbkezpZHANFtmafFo8lGxZThCQcAwRHjdFabuSLgOzxj9OFJcmssmiAvmcOK4O2Hw==}
@@ -7710,8 +7694,6 @@ snapshots:
 
   '@babel/runtime@7.29.10': {}
 
-  '@babel/runtime@7.29.2': {}
-
   '@babel/runtime@7.29.7': {}
 
   '@babel/types@7.29.11':
@@ -8110,20 +8092,22 @@ snapshots:
 
   '@dexterai/x402-ads-types@0.2.0': {}
 
-  '@dexterai/x402-core@1.4.4': {}
+  '@dexterai/x402-core@1.5.2': {}
 
-  '@dexterai/x402@5.1.0(@dexterai/vault@0.28.0(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.3.1)(typescript@6.0.3)(utf-8-validate@6.0.6)(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))':
+  '@dexterai/x402@6.1.0(@dexterai/vault@0.28.0(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.3.1)(typescript@6.0.3)(utf-8-validate@6.0.6)(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))':
     dependencies:
       '@dexterai/vault': 0.28.0(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       '@dexterai/x402-ads-types': 0.2.0
-      '@dexterai/x402-core': 1.4.4
+      '@dexterai/x402-core': 1.5.2
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
-      '@solana/spl-token': 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      '@x402/core': 2.12.0
-      '@x402/evm': 2.12.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      '@x402/extensions': 2.12.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      '@solana/spl-token': 0.4.15(@solana/web3.js@1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      '@solana/web3.js': 1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      '@x402/core': 2.26.0
+      '@x402/evm': 2.26.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      '@x402/extensions': 2.26.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      bs58: 6.0.0
+      tldts: 7.4.19
       tweetnacl: 1.0.3
     optionalDependencies:
       react: 19.3.1
@@ -10561,14 +10545,14 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.1.0': {}
 
-  '@signinwithethereum/siwe-parser@4.2.0':
+  '@signinwithethereum/siwe-parser@4.2.1':
     dependencies:
       '@noble/hashes': 1.8.0
       apg-js: 4.4.0
 
-  '@signinwithethereum/siwe@4.2.0(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))':
+  '@signinwithethereum/siwe@4.2.1(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))':
     dependencies:
-      '@signinwithethereum/siwe-parser': 4.2.0
+      '@signinwithethereum/siwe-parser': 4.2.1
     optionalDependencies:
       viem: 2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7)
 
@@ -10618,18 +10602,6 @@ snapshots:
     dependencies:
       '@solana/errors': 2.3.0(typescript@6.0.3)
       typescript: 6.0.3
-
-  '@solana/buffer-layout-utils@0.2.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
-    dependencies:
-      '@solana/buffer-layout': 4.0.1
-      '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      bigint-buffer: '@trufflesuite/bigint-buffer@1.1.10'
-      bignumber.js: 9.3.1
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - typescript
-      - utf-8-validate
 
   '@solana/buffer-layout-utils@0.3.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
@@ -10980,26 +10952,10 @@ snapshots:
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
 
-  '@solana/spl-token-group@0.0.7(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)':
-    dependencies:
-      '@solana/codecs': 2.0.0-rc.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)
-      '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-    transitivePeerDependencies:
-      - fastestsmallesttextencoderdecoder
-      - typescript
-
   '@solana/spl-token-group@0.0.7(@solana/web3.js@1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)':
     dependencies:
       '@solana/codecs': 2.0.0-rc.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)
       '@solana/web3.js': 1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-    transitivePeerDependencies:
-      - fastestsmallesttextencoderdecoder
-      - typescript
-
-  '@solana/spl-token-metadata@0.1.6(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)':
-    dependencies:
-      '@solana/codecs': 2.0.0-rc.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)
-      '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
       - typescript
@@ -11011,21 +10967,6 @@ snapshots:
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
       - typescript
-
-  '@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)':
-    dependencies:
-      '@solana/buffer-layout': 4.0.1
-      '@solana/buffer-layout-utils': 0.2.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      '@solana/spl-token-group': 0.0.7(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)
-      '@solana/spl-token-metadata': 0.1.6(@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)
-      '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
-      buffer: 6.0.3
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - fastestsmallesttextencoderdecoder
-      - typescript
-      - utf-8-validate
 
   '@solana/spl-token@0.4.15(@solana/web3.js@1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
@@ -11106,29 +11047,6 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
-
-  '@solana/web3.js@1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@solana/buffer-layout': 4.0.1
-      '@solana/codecs-numbers': 2.3.0(typescript@6.0.3)
-      agentkeepalive: 4.6.0
-      bn.js: 5.2.3
-      borsh: 0.7.0
-      bs58: 4.0.1
-      buffer: 6.0.3
-      fast-stable-stringify: 1.0.0
-      jayson: 4.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      node-fetch: 2.7.0(encoding@0.1.13)
-      rpc-websockets: 9.3.9
-      superstruct: 2.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - typescript
-      - utf-8-validate
 
   '@solana/web3.js@1.99.0(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
@@ -11469,7 +11387,7 @@ snapshots:
     dependencies:
       '@types/node': 22.20.5
 
-  '@types/ws@8.18.1':
+  '@types/ws@8.18.2':
     dependencies:
       '@types/node': 22.20.5
 
@@ -11791,13 +11709,13 @@ snapshots:
 
   '@workflow/serde@4.1.0': {}
 
-  '@x402/core@2.12.0':
+  '@x402/core@2.26.0':
     dependencies:
       zod: 3.25.76
 
-  '@x402/evm@2.12.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
+  '@x402/evm@2.26.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@x402/core': 2.12.0
+      '@x402/core': 2.26.0
       viem: 2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
@@ -11805,12 +11723,12 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@x402/extensions@2.12.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
+  '@x402/extensions@2.26.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@noble/curves': 1.9.7
       '@scure/base': 1.2.6
-      '@signinwithethereum/siwe': 4.2.0(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))
-      '@x402/core': 2.12.0
+      '@signinwithethereum/siwe': 4.2.1(viem@2.57.14(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      '@x402/core': 2.26.0
       ajv: 8.20.0
       jose: 5.10.0
       tweetnacl: 1.0.3
@@ -12066,15 +11984,13 @@ snapshots:
 
   blake3-wasm@2.1.5: {}
 
-  bn.js@5.2.3: {}
-
   bn.js@5.2.5: {}
 
   boolbase@1.0.0: {}
 
   borsh@0.7.0:
     dependencies:
-      bn.js: 5.2.3
+      bn.js: 5.2.5
       bs58: 4.0.1
       text-encoding-utf-8: 1.0.2
 
@@ -12741,7 +12657,7 @@ snapshots:
       '@petamoriken/float16': 3.9.3
       debug: 4.4.3
       env-paths: 3.0.0
-      semver: 7.8.5
+      semver: 7.8.6
       shell-quote: 1.12.0
       which: 4.0.0
     transitivePeerDependencies:
@@ -13101,7 +13017,7 @@ snapshots:
       eyes: 0.1.8
       isomorphic-ws: 4.0.1(ws@8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       json-stringify-safe: 5.0.1
-      stream-json: 3.7.0
+      stream-json: 3.8.0
       uuid: 11.1.1
       ws: 8.22.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
@@ -14456,7 +14372,7 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.23
       '@types/uuid': 10.0.0
-      '@types/ws': 8.18.1
+      '@types/ws': 8.18.2
       buffer: 6.0.3
       eventemitter3: 5.0.4
       uuid: 11.1.1
@@ -14509,6 +14425,9 @@ snapshots:
   semver@5.7.2: {}
 
   semver@7.8.5: {}
+
+  semver@7.8.6:
+    optional: true
 
   set-cookie-parser@3.1.3: {}
 
@@ -14615,11 +14534,11 @@ snapshots:
 
   std-env@4.3.0: {}
 
-  stream-chain@4.2.5: {}
+  stream-chain@4.4.1: {}
 
-  stream-json@3.7.0:
+  stream-json@3.8.0:
     dependencies:
-      stream-chain: 4.2.5
+      stream-chain: 4.4.1
 
   string-byte-length@3.0.1: {}
 
