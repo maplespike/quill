@@ -74,7 +74,7 @@ jobs:
         # package.json "packageManager" is the version source of truth.
         # An explicit version here makes pnpm/action-setup fail with
         # "Multiple versions of pnpm specified".
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
