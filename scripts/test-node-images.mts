@@ -102,7 +102,7 @@ test('pin-images and the registry check do not ssh', () => {
   assert.doesNotMatch(pin, /\bssh\b/);
   assert.doesNotMatch(gate, /\bssh\b/);
   assert.match(pin, /ctr images push --plain-http/);
-  assert.match(pin, /quill-search/);
+  assert.match(pin, /Dockerfile\.search/);
   assert.doesNotMatch(pin, /QUILL_IMAGE_SYNC_NODES/);
 });
 
@@ -303,20 +303,20 @@ test('oci-image-manifest writes a one-entry archive index for the stored search 
   }
 });
 
-test('push_search_from_store stages the amd64 manifest and pushes it, not the stored index', () => {
+test('quill-search builds from Dockerfile.search like every other service', () => {
   const pin = fs.readFileSync(PIN, 'utf8');
-  const start = pin.indexOf('push_search_from_store() {');
-  assert.ok(start > 0, 'pin-images must define push_search_from_store');
-  const end = pin.indexOf('\n}\n', start);
-  const body = pin.slice(start, end);
-  // The stored content is resolved through the helper (index → amd64 child),
-  // staged as a one-entry OCI archive and imported so the push target is a
-  // manifest. The old code re-tagged the source index and pushed it.
-  assert.match(body, /oci-image-manifest\.mjs/);
-  assert.match(body, /--platform linux\/amd64/);
-  assert.match(body, /ctr images import --no-unpack/);
-  assert.match(body, /ctr images push --plain-http "\$dest"/);
-  assert.doesNotMatch(body, /store_ref_for_digest/);
-  assert.doesNotMatch(body, /ctr images tag --force "\$src" "\$dest"/);
-  assert.match(body, /record_pin search/);
+  // The repo used to have no Dockerfile for quill-search: the script re-tagged
+  // an image out of the nexus containerd store and staged its amd64 manifest
+  // by hand. That store was lost, so the image is now built from the tree.
+  assert.doesNotMatch(pin, /push_search_from_store/);
+  assert.doesNotMatch(pin, /ctr content get/);
+  assert.doesNotMatch(pin, /QUILL_SEARCH_SOURCE_TAG/);
+  assert.match(pin, /^SERVICES="api mcp portal ingest search"$/m);
+  assert.match(pin, /^    search\) echo "Dockerfile\.search --target quill-search" ;;$/m);
+  assert.ok(
+    fs.existsSync(path.join(REPO, 'Dockerfile.search')),
+    'Dockerfile.search must be tracked in the repo root',
+  );
+  // Without this the search image would be built but never recorded as a pin.
+  assert.match(pin, /record_pin "\$SVC"/);
 });

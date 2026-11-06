@@ -8,20 +8,21 @@
 # endpoint pinned to the ClusterIP). Charts pull with imagePullPolicy
 # IfNotPresent. Nodes do not copy images to each other.
 #
-#   1. build api, mcp, portal, and ingest (docker) and scan each with syft,
+#   1. build api, mcp, portal, ingest, and search (docker) and scan each with syft,
 #   2. push registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>
 #      via the mirrored endpoint (k3s ctr --plain-http),
 #   3. read the digest from the registry v2 manifest API (that is the pin),
-#   4. push quill-search the same way from the image already in this node's
-#      containerd store (this repo has no Dockerfile.search). That stored
-#      image is a multi-platform OCI index whose amd64 child — not the index —
-#      is published, so the registry serves a single-platform manifest.
-#   5. print the images: block for charts/quill/values-prod.yaml.
+#   4. print the images: block for charts/quill/values-prod.yaml.
+#
+# All five services build from a tracked Dockerfile: search has Dockerfile.search
+# (two-stage cargo build, debian:bookworm runtime), so it no longer depends on an
+# image that happened to be in this node's containerd store.
 #
 # Run it on nexus, where docker and k3s are installed. Usage:
 #
 #   scripts/pin-images.sh                  # build, push, print the pin block
-#   scripts/pin-images.sh --svc mcp        # one built service, plus search
+#   scripts/pin-images.sh --svc mcp,search # only the listed services
+#   scripts/pin-images.sh --no-search      # every service except search
 #   scripts/pin-images.sh --existing       # push the image the store already has
 #   scripts/pin-images.sh --verify         # live cluster refs vs values-prod
 #
@@ -38,23 +39,12 @@
 
 set -euo pipefail
 
-# Staging paths are registered here and removed on exit, including on error.
-CLEANUP=()
-cleanup() {
-  local path
-  for path in "${CLEANUP[@]}"; do
-    rm -rf -- "$path"
-  done
-}
-trap cleanup EXIT
-
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CTR_NS="k8s.io"
 # Build hosts: nexus is primary; sentry is fallback only (chosen by deploy-prod
 # gates). PIN_NODE (or --node) sets the expected node; it must be in the
 # allowlist. Registry: QUILL_REGISTRY_ENDPOINT, else the node's registries.yaml
-# mirror. QUILL_SEARCH_SOURCE_TAG: optional quill/search tag for the search
-# registry-pull fallback (see push_search_from_store).
+# mirror. Every service, search included, builds from its tracked Dockerfile.
 ALLOWED_NODES="nexus sentry"
 NODE="${PIN_NODE:-nexus}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -62,15 +52,14 @@ VALUES_FILE="$REPO_ROOT/charts/quill/values-prod.yaml"
 EXISTING=false
 VERIFY_ONLY=false
 SRC_REF="local"
-SERVICES="api mcp portal ingest"
+SERVICES="api mcp portal ingest search"
 # Per-image SBOM before the push. generate-sbom.sh reads the image, not the
 # lockfile. A missing syft fails the run. SBOM=false is only valid with
 # --verify, which pushes nothing.
 SBOM="${SBOM:-true}"
 SBOM_DIR="${SBOM_DIR:-$REPO_ROOT/sbom}"
-PUSH_SEARCH=true
 
-usage() { grep '^#' "${BASH_SOURCE[0]}" | sed -n '2,36p' | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { grep '^#' "${BASH_SOURCE[0]}" | sed -n '2,38p' | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -81,7 +70,7 @@ while [[ $# -gt 0 ]]; do
     --date)      shift 2 ;; # registry tags are the git sha, not a date
     --existing)  EXISTING=true; shift ;;
     --verify)    VERIFY_ONLY=true; shift ;;
-    --no-search) PUSH_SEARCH=false; shift ;;
+    --no-search) SERVICES="${SERVICES//search/}"; shift ;;
     -h|--help)   usage 0 ;;
     *) echo "unknown argument: $1" >&2; usage 2 ;;
   esac
@@ -93,10 +82,7 @@ dockerfile_for() {
     mcp)    echo "Dockerfile.mcp --target quill-mcp" ;;
     portal) echo "Dockerfile.portal --target portal" ;;
     ingest) echo "Dockerfile.ingest --target ingest" ;;
-    search)
-      echo "quill-search has no Dockerfile in this repo. It is pushed from the local containerd store." >&2
-      return 2
-      ;;
+    search) echo "Dockerfile.search --target quill-search" ;;
     *) echo "unknown service: $1" >&2; return 2 ;;
   esac
 }
@@ -113,8 +99,9 @@ dockerfile_for() {
 # which reads like a corrupt checkout rather than "you forgot to build the
 # frontend". Caught 2026-10-04 on nexus.
 #
-# Everything except portal compiles TypeScript inside its own Dockerfile, so
-# they have no such prerequisite.
+# Everything except portal compiles its sources inside its own Dockerfile (the
+# TypeScript services with pnpm, quill-search with cargo), so they have no such
+# prerequisite.
 preflight() {
   case "$1" in
     portal)
@@ -226,95 +213,13 @@ push_docker_image() {
   ctr images push --plain-http "$dest"
 }
 
-# Content digest → present in this node's containerd content store?
-content_has() {
-  ctr content ls -q | grep -Fx -- "$1" >/dev/null
-}
-
-# quill-search has no Dockerfile here. The pinned content in nexus's containerd
-# store is an OCI image index from an older docker build. Its linux/amd64 child
-# (manifest, config, layers) is complete, but the BuildKit attestation manifest
-# in the same index references a config blob (sha256:44136fa3…, literally
-# "{}") that was never imported. Pushing the index therefore dies with
-#
-#   ctr: content digest sha256:e7d884da…: not found
-#
-# and `ctr images push --platform linux/amd64` does not help: containerd still
-# uploads the original index and registry:2 rejects it with
-# `400 … manifest list/index references to blobs and/or manifests are missing`
-# (verified 2026-11-04 against registry:2 on nexus).
-#
-# So publish only the linux/amd64 image manifest: select it out of the stored
-# content, stage a one-entry OCI archive that contains that manifest, import it
-# (the image target is then the manifest, not the index) and push that. Config
-# and layers are already in the content store, so containerd uploads exactly
-# the blobs the manifest references and the registry digest is the
-# single-platform manifest. The staged image name is stable per manifest (and
-# kept, so the content stays referenced in the store) and the next deploy works
-# the same way when values-prod already pins that manifest digest.
-push_search_from_store() {
-  local digest manifest image dest stage archive
-  digest="$(awk '
-    /^images:[[:space:]]*$/ { inimg=1; next }
-    inimg && /^[^[:space:]#]/ { inimg=0 }
-    inimg && /^  search:[[:space:]]*$/ { svc=1; next }
-    inimg && svc && /^  [A-Za-z0-9_-]+:[[:space:]]*$/ { svc=0 }
-    inimg && svc && /^    digest:/ { d=$2; gsub(/["'\'']/, "", d); print d; exit }
-  ' "$VALUES_FILE")"
-  if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-    echo "ERROR: images.search.digest is missing in $VALUES_FILE" >&2
-    echo "quill-search cannot be built in this repo. Pin the digest first." >&2
-    exit 1
-  fi
-  if ! content_has "$digest"; then
-    # Registry-pull fallback (e.g. on sentry, which starts with no quill
-    # images). The registry host is the same PUSH_HOST used for pushes: from
-    # QUILL_REGISTRY_ENDPOINT if set, else this node's registries.yaml mirror
-    # (see scripts/gates/check-node-images.mjs). Never hard-code it here.
-    # Tries the pinned digest, then QUILL_SEARCH_SOURCE_TAG (a quill/search
-    # tag, normally an earlier deploy's git sha). Either way the pinned digest
-    # must end up in the store, so a tag that resolves elsewhere is refused.
-    echo "  search:  ${digest} not in this node's store; pulling from ${PUSH_HOST}/quill/search" >&2
-    ctr images pull --plain-http --platform linux/amd64 "${PUSH_HOST}/quill/search@${digest}" >/dev/null 2>&1 || \
-      { [[ -n "${QUILL_SEARCH_SOURCE_TAG:-}" ]] && \
-        ctr images pull --plain-http --platform linux/amd64 "${PUSH_HOST}/quill/search:${QUILL_SEARCH_SOURCE_TAG}" >/dev/null; } || true
-  fi
-  if ! content_has "$digest"; then
-    echo "ERROR: quill-search ${digest} is not in this node's containerd store, and the registry pull failed." >&2
-    echo "This repo has no Dockerfile.search, so the image cannot be rebuilt here." >&2
-    echo "Load that exact digest into this node's containerd store (or push it to the registry), then re-run." >&2
-    exit 1
-  fi
-  : "${TMPDIR:=$REPO_ROOT/.tmp}"
-  mkdir -p "$TMPDIR"
-  stage="$(mktemp -d "$TMPDIR/quill-search-stage.XXXXXX")"
-  archive="$TMPDIR/quill-search-push.tar"
-  CLEANUP+=("$stage" "$archive")
-  echo "── quill-search (from local store) ─────────────────────────"
-  echo "  source:  $digest"
-  manifest="$(ctr content get "$digest" | node "$REPO/scripts/gates/oci-image-manifest.mjs" \
-    --platform linux/amd64 \
-    --ref-prefix docker.io/library/quill-search-amd64 \
-    --digest "$digest" \
-    --index-out "$stage/index.json")"
-  if [[ ! "$manifest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-    echo "ERROR: could not select the linux/amd64 manifest from ${digest}" >&2
-    exit 1
-  fi
-  mkdir -p "$stage/blobs/sha256"
-  ctr content get "$manifest" > "$stage/blobs/sha256/${manifest#sha256:}"
-  printf '{"imageLayoutVersion":"1.0.0"}' > "$stage/oci-layout"
-  tar -C "$stage" -cf "$archive" .
-  echo "  stage:   linux/amd64 manifest ${manifest} (index and attestations dropped)"
-  ctr images import --no-unpack "$archive" >/dev/null
-  rm -rf -- "$stage" "$archive"
-  image="docker.io/library/quill-search-amd64:${manifest#sha256:}"
-  dest="${PUSH_HOST}/quill/search:${GIT_SHA}"
-  ctr images tag --force "$image" "$dest" >/dev/null
-  echo "  push:    $dest"
-  ctr images push --plain-http "$dest"
-  record_pin search
-}
+# quill-search used to be pushed from whatever an older docker build had left in
+# this node's containerd store: an OCI index whose BuildKit attestation manifest
+# referenced a config blob ({}, sha256:44136fa3…) that was never imported, so the
+# index was unpushable. Dockerfile.search replaces that path; search is now built
+# and pushed exactly like api, mcp and portal. scripts/gates/oci-image-manifest.mjs
+# stays: it is how the already-pinned 2026-10-06-serve-fix digest was published,
+# and it is still the tested index → amd64-manifest selector.
 
 record_pin() {
   local svc="$1"
@@ -336,10 +241,6 @@ done
 
 pins=()
 for SVC in $SERVICES; do
-  if [[ "$SVC" == "search" ]]; then
-    push_search_from_store
-    continue
-  fi
   echo "── quill-$SVC ───────────────────────────────────────────────"
   SRC="docker.io/library/quill-${SVC}:${GIT_SHA}"
   if [[ "$EXISTING" == true ]]; then
@@ -393,10 +294,6 @@ for SVC in $SERVICES; do
   fi
   record_pin "$SVC"
 done
-
-if [[ "$PUSH_SEARCH" == true && " $SERVICES " != *" search "* ]]; then
-  push_search_from_store
-fi
 
 cat <<EOF
 Pin block for charts/quill/values-prod.yaml (paste under \`images:\`):
