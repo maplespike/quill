@@ -24,6 +24,11 @@ process.chdir(ROOT);
 
 const CHART = 'charts/quill';
 const VALUES = 'charts/quill/values-prod.yaml';
+// Live values-prod is registry-migrated (16927140). The unmigrated case renders
+// a frozen pre-migration copy so it keeps testing the legacy docker.io path.
+const LEGACY_VALUES = 'scripts/fixtures/values-prod-legacy.yaml';
+const REGISTRY = 'registry.registry.svc.cluster.local:5000';
+const QUILL_APPS = ['api', 'mcp', 'portal', 'search', 'ingest'];
 
 /** Probe path and whether a slow process needs a startupProbe. */
 const SERVICES: Record<string, { path: string; startup: boolean }> = {
@@ -42,8 +47,8 @@ function haveHelm(): boolean {
   }
 }
 
-function render(): string {
-  return execFileSync('helm', ['template', 'quill', CHART, '-f', VALUES], {
+function render(values: string = VALUES): string {
+  return execFileSync('helm', ['template', 'quill', CHART, '-f', values], {
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -156,7 +161,37 @@ function imagePolicyLines(yaml: string): string[] {
     .map((line) => line.trim());
 }
 
-test('chart: unmigrated values-prod matches the live image refs and pull policy', (t) => {
+test('chart: unmigrated (legacy fixture) values-prod renders the legacy docker.io Never pins', (t) => {
+  if (skipOrFail(t)) return;
+  const legacy = render(LEGACY_VALUES);
+  assert.doesNotMatch(legacy, /registry\.registry\.svc\.cluster\.local:5000/);
+  assert.match(legacy, /image: "docker\.io\/library\/quill-portal@sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"/);
+  assert.match(legacy, /imagePullPolicy: Never/);
+});
+
+test('chart: live values-prod renders every quill image from the in-cluster registry', (t) => {
+  if (skipOrFail(t)) return;
+  const live = render();
+  const lines = imagePolicyLines(live);
+  const quillImages = lines.filter((l) => /^image:.*quill[-/]/.test(l));
+  assert.ok(quillImages.length > 0, 'the chart must render quill images');
+  for (const line of quillImages) {
+    assert.match(
+      line,
+      new RegExp(`^image: "${REGISTRY.replace(/\./g, '\\.')}/quill/(?:${QUILL_APPS.join('|')})(?:@sha256:[0-9a-f]{64}|:[0-9a-f]{40})"$`),
+      `quill image is not registry-pinned: ${line}`,
+    );
+  }
+  assert.doesNotMatch(live, /docker\.io\/library\/quill-/, 'no quill image may still come from docker.io/library');
+  // Registry images are pulled, so nothing quill-built may stay on Never.
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (/^image:.*quill\//.test(lines[i]) && /^imagePullPolicy:/.test(lines[i + 1])) {
+      assert.equal(lines[i + 1], 'imagePullPolicy: IfNotPresent', `${lines[i]} must pull IfNotPresent`);
+    }
+  }
+});
+
+test("chart: live values-prod matches main's image refs and pull policy", (t) => {
   if (skipOrFail(t)) return;
   const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
   execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
@@ -165,15 +200,11 @@ test('chart: unmigrated values-prod matches the live image refs and pull policy'
     stdio: 'pipe',
   });
   try {
-    const live = execFileSync('helm', ['template', 'quill', path.join(mainDir, 'charts/quill'), '-f', path.join(mainDir, 'charts/quill/values-prod.yaml')], {
+    const main = execFileSync('helm', ['template', 'quill', path.join(mainDir, 'charts/quill'), '-f', path.join(mainDir, 'charts/quill/values-prod.yaml')], {
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
-    const branch = render();
-    assert.deepEqual(imagePolicyLines(branch), imagePolicyLines(live));
-    assert.doesNotMatch(branch, /registry\.registry\.svc\.cluster\.local:5000/);
-    assert.match(branch, /image: "docker\.io\/library\/quill-portal@sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"/);
-    assert.match(branch, /imagePullPolicy: Never/);
+    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }
