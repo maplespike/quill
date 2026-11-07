@@ -356,9 +356,21 @@ jobs:
 
           MERGE_STATE="$(jq -r '.mergeStateStatus // empty' <<<"$META")"
           MERGEABLE="$(jq -r '.mergeable // empty' <<<"$META")"
+          # Update-branch is a PUSH into the PR head. GITHUB_TOKEN can never push
+          # to a branch that changes .github/workflows ("refusing to allow a
+          # GitHub App to create or update workflow", 403) and this call used to
+          # inherit GH_TOKEN=github.token, so a workflow-editing Dependabot PR
+          # (e.g. #1252, pnpm/action-setup across four workflow files) could be
+          # labelled ready-to-merge and then never advance past BEHIND: the
+          # update failed, the step only warned, and the gate exited 0.
+          # The fleet-merge-gate App token carries Workflows:write, so it is the
+          # only token that can move such a branch.
           if [[ "$MERGE_STATE" == "BEHIND" ]]; then
             echo "::notice::PR #${PR_NUMBER} is behind base — updating the branch once."
-            if ! gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
+            if [[ -z "${GATE_TOKEN:-}" ]]; then
+              echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token; a workflow-editing PR cannot be updated with GITHUB_TOKEN."
+            fi
+            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
               echo "::warning::could not update the branch of PR #${PR_NUMBER}."
             fi
             exit 0

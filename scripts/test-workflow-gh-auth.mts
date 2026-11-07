@@ -32,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   authGhInvocations,
+  findTokenOnlyWriteSteps,
   findUnguardedGhSteps,
   scanWorkflows,
 } from './gates/check-workflow-gh-auth.mjs';
@@ -165,4 +166,77 @@ test('pr-validation keeps GH_TOKEN on the commit-message check', () => {
   const step = text.slice(marker, text.indexOf('\n\n', marker));
   assert.match(step, /GH_TOKEN:\s*\$\{\{\s*github\.token\s*\}\}/, '#908 regression: the step must mint a token, never rely on the runner');
   assert.deepEqual(findUnguardedGhSteps(text, 'pr-validation.yml').violations, []);
+});
+
+// ── branch writes must use the App token, not GITHUB_TOKEN (#1252) ────────────
+//
+// `gh pr merge` and `gh pr update-branch` are pushes. On a PR that edits
+// .github/workflows they are refused for GITHUB_TOKEN with "refusing to allow a
+// GitHub App to create or update workflow" (403) — measured on #1252, where the
+// gate's update-branch failed silently and the PR could never leave BEHIND.
+// The fleet-merge-gate App installation token (Workflows:write) is the only
+// token that works.
+
+const APP_TOKEN_WRITE = [
+  'jobs:',
+  '  merge:',
+  '    steps:',
+  '      - name: Mint merge-gate app token',
+  '        id: gate',
+  '        uses: actions/create-github-app-token@v1',
+  '        with:',
+  '          app-id: ${{ vars.MERGE_GATE_APP_ID }}',
+  '      - name: Evaluate',
+  '        env:',
+  '          GH_TOKEN: ${{ steps.gate.outputs.token || github.token }}',
+  '        run: gh pr merge 1 --squash',
+].join('\n');
+
+const GITHUB_TOKEN_WRITE = APP_TOKEN_WRITE.replace(
+  'GH_TOKEN: ${{ steps.gate.outputs.token || github.token }}',
+  'GH_TOKEN: ${{ github.token }}',
+);
+
+test('accepts a branch write whose step token is the minted App token', () => {
+  assert.deepEqual(findTokenOnlyWriteSteps(APP_TOKEN_WRITE, 'ok.yml').violations, []);
+});
+
+test('accepts a per-call `GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}"` override', () => {
+  const text = APP_TOKEN_WRITE.replace(
+    '        run: gh pr merge 1 --squash',
+    '        run: GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge 1 --squash',
+  ).replace(
+    '          GH_TOKEN: ${{ steps.gate.outputs.token || github.token }}',
+    '          GH_TOKEN: ${{ github.token }}',
+  );
+  assert.deepEqual(findTokenOnlyWriteSteps(text, 'inline.yml').violations, []);
+});
+
+test('flags `gh pr update-branch` on GITHUB_TOKEN (the #1252 failure)', () => {
+  const text = GITHUB_TOKEN_WRITE.replace('gh pr merge 1 --squash', 'gh pr update-branch 1');
+  const { violations, writeSteps } = findTokenOnlyWriteSteps(text, 'gate.yml');
+  assert.equal(writeSteps, 1);
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0].invocation, 'gh pr update-branch');
+  assert.match(violations[0].reason, /GITHUB_TOKEN/);
+});
+
+test('flags a merge in a workflow that never mints the App token', () => {
+  const text = GITHUB_TOKEN_WRITE
+    .replace('          app-id: ${{ vars.MERGE_GATE_APP_ID }}\n', '')
+    .replace('      - name: Mint merge-gate app token\n        id: gate\n        uses: actions/create-github-app-token@v1\n        with:\n', '');
+  const { violations } = findTokenOnlyWriteSteps(text, 'nomint.yml');
+  assert.equal(violations.length, 1);
+  assert.match(violations[0].reason, /never mints the App token/);
+});
+
+test('reads (`gh pr view`) are not branch writes', () => {
+  const text = APP_TOKEN_WRITE.replace('gh pr merge 1 --squash', 'gh pr view 1 --json state');
+  assert.deepEqual(findTokenOnlyWriteSteps(text, 'read.yml'), { violations: [], writeSteps: 0 });
+});
+
+test("this repo's merge workflows put every branch write on the App token", () => {
+  const { writeViolations, writeSteps } = scanWorkflows(WORKFLOWS);
+  assert.deepEqual(writeViolations, []);
+  assert.ok(writeSteps >= 2, `expected the gate and Dependabot merge paths, saw ${writeSteps}`);
 });
