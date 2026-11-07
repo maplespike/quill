@@ -240,3 +240,17 @@ test("this repo's merge workflows put every branch write on the App token", () =
   assert.deepEqual(writeViolations, []);
   assert.ok(writeSteps >= 2, `expected the gate and Dependabot merge paths, saw ${writeSteps}`);
 });
+
+test('the merge gate allowlists both Dependabot login spellings', () => {
+  // `gh pr view --json author` is GraphQL -> "app/dependabot"; REST and the
+  // pull_request payload -> "dependabot[bot]". The gate compares the GraphQL
+  // value, so an allowlist holding only the REST spelling rejects every
+  // Dependabot PR it is supposed to merge (measured on #1252, run 42364690702:
+  // "author app/dependabot is not on the merge allowlist").
+  const text = fs.readFileSync(path.join(WORKFLOWS, 'merge-when-green.yml'), 'utf8');
+  const arms = text.match(/"dependabot\[bot\]"\|"app\/dependabot"/g) ?? [];
+  assert.ok(
+    arms.length >= 2,
+    `the actor check and the author check must both accept "app/dependabot" (found ${arms.length} arm(s))`,
+  );
+});
