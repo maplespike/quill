@@ -40,9 +40,24 @@ const GATE_SRC = path.join(REPO, 'scripts/gates/check-node-images.mjs');
 const DEPLOY = path.join(REPO, '.github/workflows/deploy-prod.yml');
 const GATE = path.join(REPO, 'scripts/gates/check-node-images.mjs');
 
-const text = fs.readFileSync(VALUES, 'utf8');
+// Live values-prod is registry-migrated (16927140). The legacy-path cases run
+// against a frozen pre-migration copy so they keep testing the legacy rules.
+const LEGACY_VALUES = path.join(REPO, 'scripts/fixtures/values-prod-legacy.yaml');
+const text = fs.readFileSync(LEGACY_VALUES, 'utf8');
+const live = fs.readFileSync(VALUES, 'utf8');
 
-test('unmigrated values-prod stays on the legacy docker.io Never pin', () => {
+test('live values-prod is fully registry-migrated with digests', () => {
+  const planned = plan(live);
+  assert.equal(planned.mode, 'registry');
+  assert.deepEqual(planned.violations, []);
+  for (const item of planned.refs) {
+    assert.equal(item.ref, `${REGISTRY_HOST}/quill/${item.svc}@${item.digest}`);
+    assert.match(item.digest, /^sha256:[0-9a-f]{64}$/);
+  }
+  assert.deepEqual(planned.refs.map((item) => item.svc), [...QUILL_IMAGE_SERVICES]);
+});
+
+test('unmigrated (legacy fixture) values-prod stays on the legacy docker.io Never pin', () => {
   const planned = plan(text);
   assert.equal(planned.mode, 'legacy');
   assert.deepEqual(planned.violations, []);
@@ -172,8 +187,16 @@ test('a pin commit with a missing registry digest is refused and does not rewrit
   assert.match(migrated, /^image:\n(?:.*\n)*?  pullPolicy: Never$/m);
 });
 
-test('--plan exits 0 on unmigrated values-prod', () => {
+test('--plan exits 0 on live registry-migrated values-prod', () => {
   const result = spawnSync('node', [GATE, '--values', VALUES], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /mode: registry/);
+  assert.match(result.stdout, /registry plan: OK/);
+  assert.match(result.stdout, new RegExp(`${REGISTRY_HOST.replace(/\./g, '\\.')}/quill/api@sha256:`));
+});
+
+test('--plan exits 0 on unmigrated (legacy fixture) values-prod', () => {
+  const result = spawnSync('node', [GATE, '--values', LEGACY_VALUES], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /mode: legacy/);
   assert.match(result.stdout, /registry plan: OK/);
