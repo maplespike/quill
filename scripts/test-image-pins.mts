@@ -267,9 +267,18 @@ test('the production values file pins every quill workload to a digest', () => {
   const images = parseImagesBlock(text);
   for (const svc of QUILL_SERVICES) {
     assert.match(images[svc]?.digest ?? '', /^sha256:[0-9a-f]{64}$/, `images.${svc}.digest must be a full digest`);
-    assert.match(images[svc]?.tag ?? '', /^\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*$/, `images.${svc}.tag must be an immutable build tag`);
+    // docs/IMAGE-PINNING.md: the tag is the git sha pin-images.sh pushed (40 hex);
+    // the older dated build tag stays accepted.
+    assert.match(images[svc]?.tag ?? '', /^(?:[0-9a-f]{40}|\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*)$/, `images.${svc}.tag must be an immutable build tag`);
   }
   assert.equal(/^\s*tag:\s*["']?local["']?\s*$/m.test(text), false, 'values-prod.yaml must not carry a :local tag');
+});
+
+test('the immutable tag check accepts the git sha pin-images.sh writes and rejects mutable tags', () => {
+  const re = /^(?:[0-9a-f]{40}|\d{4}-\d{2}-\d{2}-[0-9a-z][0-9a-z.-]*)$/;
+  assert.match('e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41', re);
+  assert.match('2026-09-21-sha.deadbeef1234', re);
+  for (const bad of ['local', 'latest', 'main', 'e8d1e8d2', 'E8D1E8D25C96F0B4C8841BF87ABDDC1C64BA2E41', '']) assert.doesNotMatch(bad, re);
 });
 
 test('the chart templates hardcode no mutable image tag', () => {

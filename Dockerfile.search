@@ -1,0 +1,61 @@
+# MapleSpike Quill Search Service (Rust / tantivy)
+#
+# This reproduces the image that used to exist only in nexus containerd
+# (quill/search, tag 2026-10-06-serve-fix) and was lost with that store, so the
+# search Deployment can be rebuilt from the repo like every other service.
+#
+# Two stages, matching the old image's layer history:
+#   builder — `cargo build --release` in the rust/ workspace, producing
+#             /build/target/release/quill-search
+#   runtime — debian:bookworm, ca-certificates only, uid 1001 `quill`,
+#             /data/index owned by quill, EXPOSE 8083 9466.
+#
+# charts/quill/templates/search-deployment.yaml restates the same subcommand in
+# `command`/`args`; keep the two in step. The ports here match the Service
+# (8083 http, 9466 metrics) and the PVC mount (/data, index in /data/index).
+#
+# No ARG GIT_SHA/ENV QUILL_BUILD_REV: the old image's config carried PATH only,
+# and nothing in the search path reads a build revision. Adding one would make
+# this image differ from the one it replaces for no functional gain.
+
+FROM docker.io/library/rust:1-bookworm AS builder
+WORKDIR /build
+
+# Only the workspace manifest, the lockfile and the crates. rust-toolchain.toml
+# is NOT copied on purpose: the builder image already ships a pinned toolchain,
+# and the file would make the rustup shim try to download the "stable" channel
+# again at build time. Cargo.lock is copied and the build is --locked, so the
+# dependency graph is the one committed in git.
+COPY rust/Cargo.toml rust/Cargo.lock /build/
+COPY rust/crates /build/crates
+# Only the lib's fixture corpus helpers reference it; not needed to link the
+# binary, but it keeps `cargo build` in the image equivalent to a local one.
+COPY rust/fixtures /build/fixtures
+
+# -p quill-search builds the service crate and the dependencies it needs; the
+# bench-only crate is a separate workspace member and is not compiled.
+RUN cargo build --release --locked -p quill-search
+
+# ─── Runtime stage ───────────────────────────────────────────────────────────
+FROM docker.io/library/debian:bookworm AS quill-search
+
+WORKDIR /app
+
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/target/release/quill-search /usr/local/bin/quill-search
+
+# Named account with numeric uid 1001: the chart sets runAsUser 1001 /
+# runAsGroup 1001, and the PVC is mounted at /data with the index in
+# /data/index. Debian's USERGROUPS_ENAB creates the matching `quill` group, so
+# `chown quill:quill` works without a separate groupadd.
+RUN useradd --system --no-create-home --uid 1001 quill
+RUN mkdir -p /data/index && chown quill:quill /data/index
+
+USER quill
+EXPOSE 8083 9466
+
+ENTRYPOINT ["quill-search"]
+CMD ["serve", "--index", "/data/index", "--port", "8083", "--metrics-port", "9466"]

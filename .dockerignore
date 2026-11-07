@@ -5,6 +5,10 @@
 !packages/portal/dist/
 **/.next/
 **/*.tsbuildinfo
+# Rust build output. Dockerfile.search compiles rust/ inside the image, so a
+# host target/ directory (several GB, and platform-specific) is dead weight in
+# every build context.
+**/target/
 
 # Host dependencies — installed inside container via pnpm
 **/node_modules/

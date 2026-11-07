@@ -5,7 +5,7 @@
 # Each stage re-declares ARG GIT_SHA before consuming it -- a global ARG is not
 # in scope inside a stage, so ENV ${GIT_SHA} there would expand to empty.
 ARG GIT_SHA=unknown
-FROM docker.io/library/alpine:3.20 AS portal
+FROM docker.io/library/alpine:3.24 AS portal
 ARG GIT_SHA
 ENV QUILL_BUILD_REV=${GIT_SHA}
 RUN apk add --no-cache python3 bash coreutils

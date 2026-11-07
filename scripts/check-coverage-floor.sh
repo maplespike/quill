@@ -8,6 +8,18 @@
 #
 # Usage: check-coverage-floor.sh <package-filter> <coverage-script> <min-lines> <min-branch>
 # Example: check-coverage-floor.sh @maplespike/api-server test:coverage 71 65
+#
+# The two coverage scripts are invoked as `node --import tsx ...`, not through
+# the `tsx` CLI. Since tsx 4.23.9 the CLI unshifts `--enable-source-maps` onto
+# every `--test` child it spawns (privatenumber/tsx@2f55884, "map Node test
+# locations"). Under `--experimental-test-coverage` that startup flag makes
+# Node attribute V8 coverage ranges against the transpiled source instead of
+# the .ts file, so almost every module reports its import header and any
+# line-shifted body as uncovered: api-server fell from 76.8% to 59.1% lines
+# and quill-mcp from 75.6% to 58.2% on the npm-minor-patch bump with all
+# 894/606 tests still green (2026-11-05). `node --import tsx` gets the same
+# transform hooks without tsx's `--test` interception, so coverage mapping is
+# unchanged. Keep the flags below in the scripts — test-hang-bounds.mts pins them.
 set -uo pipefail
 
 FILTER="${1:?package filter required (e.g. @maplespike/api-server)}"

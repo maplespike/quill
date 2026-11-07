@@ -68,6 +68,7 @@ jobs:
       code: ${{ steps.every.outputs.code == 'true' || steps.some.outputs.self == 'true' }}
       api: ${{ steps.every.outputs.api == 'true' || steps.some.outputs.self == 'true' }}
       deps: ${{ steps.some.outputs.deps == 'true' }}
+      search: ${{ steps.some.outputs.search == 'true' }}
     steps:
       - id: every
         if: github.event_name == 'pull_request'
@@ -108,6 +109,10 @@ jobs:
               - 'packages/**/package.json'
               - 'patches/**'
               - 'scripts/check-no-native-bindings.sh'
+              - '.github/workflows/ci.yml'
+            search:
+              - 'rust/**'
+              - 'Dockerfile.search'
               - '.github/workflows/ci.yml'
 
   build-and-test:
@@ -504,6 +509,25 @@ jobs:
           QUILL_HTTP_MAX_RETRIES: '1'
           QUILL_HTTP_TIMEOUT_MS: '15000'
 
+  # Cheap guard for Dockerfile.search: `docker buildx build --check` parses the
+  # Dockerfile and resolves the build target without compiling anything, so a
+  # missing `quill-search` stage (what pin-images.sh and deploy-prod build) fails
+  # here instead of at deploy time. PRs run it only when rust/** or the
+  # Dockerfile change; pushes always run it.
+  search-dockerfile:
+    needs: changes
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.search == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check Dockerfile.search (target quill-search)
+        run: docker buildx build --check -f Dockerfile.search --target quill-search .
+
   secrets:
     needs: build-and-test
     # Runs on a GitHub-hosted runner for every PR, including forks. The
@@ -589,6 +613,16 @@ jobs:
           # secret was already set but never handed to the action, so this job
           # failed on every PR regardless of its contents.
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          # The action's only storage write is results.sarif as a workflow
+          # artifact; that upload fails the job once the account's artifact
+          # quota is full ('Failed to CreateArtifact: Artifact storage quota has
+          # been hit'), after the scan has already reported. Turning it off
+          # removes the storage dependency without weakening the check: the
+          # scan, the pinned engine and the non-zero exit on a finding are
+          # unchanged, and findings stay in the step log. Same fix as
+          # reverb256/blog#255. The baseline-enforced full-history gate in the
+          # sibling `secrets` job is untouched.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
 
   audit:
     needs: [build-and-test, changes]
