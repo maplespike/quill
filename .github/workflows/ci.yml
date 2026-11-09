@@ -395,6 +395,12 @@ jobs:
       - name: Chart probe contract
         run: pnpm test:chart-probes
 
+      # A finished pod held quill-search's single-node Longhorn ReadWriteOnce
+      # volume, and the replacement sat at 0/1 for about 11 hours. The same
+      # shape applies to any Deployment that mounts a chart-defined RWO claim.
+      - name: Chart RWO recreate strategy
+        run: pnpm test:chart-rwo-strategy
+
       - name: Probe endpoint smoke test
         run: node scripts/smoke-probe-endpoints.mjs
 

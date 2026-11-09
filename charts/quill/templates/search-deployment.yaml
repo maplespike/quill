@@ -14,9 +14,10 @@ spec:
   # The index claim is ReadWriteOnce. A rolling update with maxSurge 1 asks
   # for a second pod, and that pod cannot mount the volume. Recreate frees
   # the claim first. Search has no public route, so the gap stays inside the
-  # cluster.
+  # cluster. search.strategy.type defaults to Recreate in values.yaml.
+  {{- $searchStrategy := .Values.search.strategy | default dict }}
   strategy:
-    type: Recreate
+    type: {{ $searchStrategy.type | default "Recreate" }}
   selector:
     matchLabels:
       app: quill-search

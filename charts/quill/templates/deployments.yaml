@@ -8,12 +8,21 @@ metadata:
     component: api
 spec:
   replicas: {{ .Values.api.replicas }}
+  {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+  # SQLite is one file on a ReadWriteOnce claim. RollingUpdate with
+  # maxUnavailable 0 keeps the old pod until the new one is Ready. The new
+  # pod cannot attach the volume, so it stays 0/1. Recreate releases the
+  # claim first.
+  strategy:
+    type: Recreate
+  {{- else }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
       # #816: zero-downtime rollouts keep the tunnel origin healthy.
       maxSurge: 1
       maxUnavailable: 0
+  {{- end }}
   selector:
     matchLabels:
       app: quill-api
