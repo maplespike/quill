@@ -10,7 +10,7 @@
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { resolveEntity } from '@maplespike/pipeline-core';
+import { resolveEntity, resolveBilingualEntity } from '@maplespike/pipeline-core';
 import { withClaims } from './claims-helper.js';
 
 export const definition: ToolDefinition = {
@@ -39,6 +39,11 @@ export const definition: ToolDefinition = {
         maximum: 1.0,
         description: 'Fuzzy matching threshold (default: 0.7, higher = stricter)',
       },
+      lang: {
+        type: 'string',
+        enum: ['en', 'fr'],
+        description: 'Preferred display language for the canonical name (default: en). The name may be supplied in either official language.',
+      },
     },
     required: ['name'],
   },
@@ -59,6 +64,12 @@ export const handler: ToolHandler = async (args) => {
 
   const type = (args.type as string) ?? 'auto';
   const threshold = (args.threshold as number) ?? 0.7;
+  const lang = args.lang === 'fr' ? 'fr' : 'en';
+
+  // Public institutions carry official EN/FR names. Resolve the pair first so
+  // a French query ("Ministère des Finances Canada") reports the bilingual
+  // canonical names instead of only the English string it was matched against.
+  const bilingualMatch = resolveBilingualEntity(name, lang);
 
   try {
     const result = resolveEntity(name, type, threshold);
@@ -67,7 +78,17 @@ export const handler: ToolHandler = async (args) => {
         tool: 'resolve_entity',
         query: name,
         type: result.type,
+        lang,
         canonicalName: result.canonicalName,
+        canonicalNameLocalized: bilingualMatch ? bilingualMatch.preferredName : result.canonicalName,
+        bilingual: bilingualMatch
+          ? {
+              en: bilingualMatch.en,
+              fr: bilingualMatch.fr,
+              matched_lang: bilingualMatch.matchedLang,
+              preferred_name: bilingualMatch.preferredName,
+            }
+          : null,
         confidence: result.confidence,
         aliases: result.aliases,
         appearances: result.appearances,
