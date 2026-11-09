@@ -45,6 +45,8 @@ import {
   saveMunicipalRecordCache,
   loadMunicipalRecordCache,
   loadMunicipalRecordCoverage,
+  searchMunicipalRecordKeys,
+  type CachedMunicipalFetch,
 } from '../cache/municipal.js';
 
 /**
@@ -1138,6 +1140,85 @@ function humanizeDatasetName(slug: string): string {
     .join(' ');
 }
 
+// ---------------------------------------------------------------------------
+// Keyset cursor for /v1/municipal/search (gh issue #794)
+//
+// Ordering is a total order over (city_id, dataset, record_index) — the same
+// order the FTS5 index returns, so a query-backed page and an unfiltered page
+// paginate identically. The cursor is an opaque base64url JSON token:
+//
+//   { "v": 2, "f": "<filter fingerprint>", "k": [cityId, dataset, index] }
+//
+// `k` is the sort key of the LAST record on the page, so the next page starts
+// strictly after it. That is what makes deep pages stable: records inserted
+// earlier in the order can't shift or duplicate what comes next, unlike the
+// offset cursor this replaced. `f` pins the cursor to the filter/query set it
+// was issued under; replaying it against a different set is a 400 rather than
+// a silent skip.
+// ---------------------------------------------------------------------------
+
+interface MunicipalSearchKey {
+  cityId: string;
+  dataset: string;
+  recordIndex: number;
+}
+
+const SEARCH_CURSOR_VERSION = 2;
+
+function compareSearchKeys(a: MunicipalSearchKey, b: MunicipalSearchKey): number {
+  if (a.cityId !== b.cityId) return a.cityId < b.cityId ? -1 : 1;
+  if (a.dataset !== b.dataset) return a.dataset < b.dataset ? -1 : 1;
+  return a.recordIndex - b.recordIndex;
+}
+
+function searchKeyId(key: MunicipalSearchKey): string {
+  return `${key.cityId}\u0000${key.dataset}\u0000${key.recordIndex}`;
+}
+
+function encodeSearchCursor(key: MunicipalSearchKey, fingerprint: string): string {
+  return Buffer.from(
+    JSON.stringify({ v: SEARCH_CURSOR_VERSION, f: fingerprint, k: [key.cityId, key.dataset, key.recordIndex] }),
+    'utf8',
+  ).toString('base64url');
+}
+
+/** Returns null for anything that isn't a well-formed v2 keyset token. */
+function decodeSearchCursor(raw: string): { key: MunicipalSearchKey; fingerprint: string } | null {
+  try {
+    const parsed = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as {
+      v?: unknown; f?: unknown; k?: unknown;
+    };
+    if (parsed?.v !== SEARCH_CURSOR_VERSION || typeof parsed.f !== 'string' || !Array.isArray(parsed.k) || parsed.k.length !== 3) {
+      return null;
+    }
+    const [cityId, dataset, recordIndex] = parsed.k as unknown[];
+    if (typeof cityId !== 'string' || typeof dataset !== 'string' || typeof recordIndex !== 'number' || !Number.isInteger(recordIndex) || recordIndex < 0) {
+      return null;
+    }
+    return { key: { cityId, dataset, recordIndex }, fingerprint: parsed.f };
+  } catch {
+    return null;
+  }
+}
+
+/** 400 when a valid cursor is replayed against a different filter/query set. */
+function cursorFilterMismatchError(received: string): Response {
+  const base = buildBilingualError('VALIDATION_ERROR', {
+    en: 'Cursor was issued for a different filter/query set. Request the first page again without `cursor`.',
+    fr: 'Le curseur a été émis pour un autre jeu de filtres. Relancez la première page sans `cursor`.',
+  });
+  return new Response(
+    JSON.stringify({
+      error: base.code,
+      code: base.code,
+      en: base.en,
+      fr: base.fr,
+      received,
+    }),
+    { status: 400, headers: { 'content-type': 'application/json' } },
+  );
+}
+
 /**
  * GET /v1/municipal/search
  *
@@ -1147,8 +1228,14 @@ function humanizeDatasetName(slug: string): string {
  * language filters let consumers pin to a freshness SLA without ever
  * hitting rate limits on upstream portals.
  *
+ * Full-text (`?q=`) runs against the FTS5 index over cached record JSON
+ * (cache/municipal.ts). Results are TOKEN matches (all tokens must be
+ * present), not substring matches. Ordering is the canonical keyset order
+ * (city_id, dataset, record_index); `?cursor=` resumes strictly after the
+ * last record of the previous page.
+ *
  * Query params:
- *   ?q=                — full-text on cached record JSON blob (case-insensitive substring)
+ *   ?q=                — full-text on cached record JSON (FTS5 token match)
  *   ?cities=           — comma list (e.g. toronto,montreal)
  *   ?provinces=        — comma list (ON,QC,BC,...)
  *   ?datasets=         — comma list (budget,permits,...)
@@ -1158,6 +1245,7 @@ function humanizeDatasetName(slug: string): string {
  *   ?language=         — comma list (en,fr,bilingual) — informational; metadata only
  *   ?fresh_within=24h  — ISO-8601-ish: 30s, 5m, 1h, 24h, 7d. Caps age in seconds.
  *   ?limit=50          — cap results (also honours _limit from QueryOptions)
+ *   ?cursor=           — opaque keyset token from pagination.next_cursor
  *
  * Response shape:
  *   { records, applied_filters, pagination, source_breakdown }
@@ -1185,113 +1273,177 @@ export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
   }
   const lang: Locale = langResolved;
 
-  // Decode base64url offset cursor to continue pagination. If parsing fails,
-  // treat as start-of-results (don't throw) — defensive against stale tokens.
-  const cursorOffset = (() => {
-    if (!cursor) return 0;
-    try {
-      const decoded = Buffer.from(cursor, 'base64url').toString('utf8');
-      const n = parseInt(decoded, 10);
-      return Number.isFinite(n) && n >= 0 ? n : 0;
-    } catch {
-      return 0;
+  // Fingerprint of everything that changes the result SET (not the page size).
+  // A cursor is only valid against the same fingerprint.
+  const filterFingerprint = createHash('sha256')
+    .update(JSON.stringify({
+      q,
+      cities: [...citiesFilter].sort(),
+      provinces: [...provincesFilter].sort(),
+      datasets: [...datasetsFilter].sort(),
+      portal_types: [...portalTypesFilter].sort(),
+      sector: sectorFilter,
+      jurisdiction: jurisdictionFilter || 'municipal',
+      language: [...languageFilter].sort(),
+      fresh_within: freshWithinSec,
+      lang,
+    }))
+    .digest('hex')
+    .slice(0, 32);
+
+  let startAfter: MunicipalSearchKey | null = null;
+  if (cursor) {
+    const decoded = decodeSearchCursor(cursor);
+    if (decoded) {
+      if (decoded.fingerprint !== filterFingerprint) return cursorFilterMismatchError(cursor);
+      startAfter = decoded.key;
     }
-  })();
-
-  const records: UnifiedMunicipalRecord[] = [];
-  const sourceBreakdown = new Map<string, { value: string; count: number; record_count: number }>();
-  let globalIndex = 0;
-  const startIndex = cursorOffset;
-
-  for (const [cityId, portal] of Object.entries(MUNICIPAL_PORTALS)) {
-    if (citiesFilter.length && !citiesFilter.includes(cityId.toLowerCase())) continue;
-    if (provincesFilter.length && !provincesFilter.includes(portal.province.toLowerCase())) continue;
-    if (portalTypesFilter.length && !portalTypesFilter.includes(portal.portalType.toLowerCase())) continue;
-    if (jurisdictionFilter === 'municipal' && !cityId) continue; // all current data is municipal — no-op filter
-
-    for (const ds of portal.datasets) {
-      if (datasetsFilter.length && !datasetsFilter.includes(ds)) continue;
-      if (sectorFilter && DATASET_SECTORS[ds] !== sectorFilter) continue;
-
-      const cached = loadMunicipalRecordCache(cityId, ds);
-      if (!cached) continue;
-
-      const ageSec = Math.round((Date.now() - new Date(cached.succeededAt).getTime()) / 1000);
-      if (freshWithinSec !== null && ageSec > freshWithinSec) continue;
-
-      // Full-text filter on the cached records JSON blob (excluding the
-      // provenance block we strip at write time). Cheap substring match;
-      // future work: FTS5 virtual table over records_json.
-      if (q) {
-        const blob = JSON.stringify(cached.records).toLowerCase();
-        if (!blob.includes(q)) continue;
-      }
-
-      // Source anatomy counter
-      const srcKey = `${cityId}/${ds}`;
-      const src = sourceBreakdown.get(srcKey) ?? { value: srcKey, count: 0, record_count: 0 };
-      src.count++;
-      src.record_count = cached.recordCount;
-      sourceBreakdown.set(srcKey, src);
-
-      // Per-portal bilingual context for record-level provenance
-      const municipalityEn = portal.name;
-      const municipalityFr = CITY_NAMES_FR[cityIdLower(portal, cityId)] ?? portal.name;
-      const provCode = portal.province;
-      const provLbl = PROVINCE_LABELS[provCode];
-      const jur = provLbl?.jurisdiction ?? 'municipal';
-      const jurLbl = JURISDICTION_LABELS[jur] ?? { en: jur, fr: jur };
-
-      for (const rec of cached.records) {
-        // Skip records before the cursor offset (pagination)
-        if (globalIndex < startIndex) { globalIndex++; continue; }
-        const recAny = rec as Record<string, unknown>;
-        const citationPayload = JSON.stringify({ source: portal.baseUrl, ...rec });
-        const citationHash = createHash('sha256').update(citationPayload).digest('hex');
-        records.push({
-          id: `${cityId}:${ds}:${String(recAny.id ?? globalIndex)}`,
-          municipality: municipalityEn,
-          municipalityId: cityId,
-          province: portal.province,
-          dataset: ds,
-          title: String(recAny.title ?? ds),
-          url: String(recAny.url ?? portal.baseUrl),
-          format: portal.portalType,
-          lastModified: (recAny.lastModified as string | null | undefined) ?? null,
-          created: (recAny.created as string | null | undefined) ?? null,
-          portalType: portal.portalType,
-          provenance: {
-            source_url: String(recAny.url ?? portal.baseUrl),
-            source_organization_en: municipalityEn,
-            source_organization_fr: municipalityFr,
-            jurisdiction_en: jurLbl.en,
-            jurisdiction_fr: jurLbl.fr,
-            jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
-            license: (recAny.license as string | undefined) ?? NO_SOURCE_LICENSE_DECLARATION,
-            ...(typeof recAny.licenseUrl === 'string' ? { license_url: recAny.licenseUrl } : {}),
-            license_basis: recAny.licenseBasis === 'publisher-metadata' || recAny.licenseBasis === 'source-configuration'
-              ? recAny.licenseBasis
-              : 'no-publisher-declaration',
-            ...(typeof recAny.attributionText === 'string' ? { attribution_text: recAny.attributionText } : {}),
-            fetched_at: cached.succeededAt,
-            citation_hash: `sha256:${citationHash}`,
-            from_cache: true,
-            cache_age_seconds: ageSec,
-          },
-        });
-        globalIndex++;
-        if (records.length >= limit) break;
-      }
-      if (records.length >= limit) break;
-    }
-    if (records.length >= limit) break;
+    // Unparseable tokens (including pre-keyset base64url offsets) fall back to
+    // start-of-results — defensive, and it keeps stale client bookmarks alive.
   }
 
-  const consumedTo = cursorOffset + records.length;
-  // Offset-pagination semantics for next_cursor: if we pushed `limit` records
-  // there is definitely more data; if we pushed fewer, we exhausted the scan.
-  // (Cursor-past-end is also covered: pushes 0 records → has_more=false.)
-  const hasMore = records.length >= limit;
+  const portalRegistry = MUNICIPAL_PORTALS as Record<
+    string,
+    (typeof MUNICIPAL_PORTALS)[keyof typeof MUNICIPAL_PORTALS]
+  >;
+
+  // Load a cache row at most once per request, applying the freshness gate.
+  const rowCache = new Map<string, CachedMunicipalFetch | null>();
+  const loadRow = (cityId: string, dataset: string): CachedMunicipalFetch | null => {
+    const memoKey = `${cityId}/${dataset}`;
+    if (rowCache.has(memoKey)) return rowCache.get(memoKey) ?? null;
+    const cached = loadMunicipalRecordCache(cityId, dataset);
+    let kept: CachedMunicipalFetch | null = null;
+    if (cached) {
+      const ageSec = Math.round((Date.now() - new Date(cached.succeededAt).getTime()) / 1000);
+      if (freshWithinSec === null || ageSec <= freshWithinSec) kept = cached;
+    }
+    rowCache.set(memoKey, kept);
+    return kept;
+  };
+
+  const portalPassesFilters = (
+    cityId: string,
+    portal: (typeof MUNICIPAL_PORTALS)[keyof typeof MUNICIPAL_PORTALS],
+  ): boolean => {
+    if (citiesFilter.length && !citiesFilter.includes(cityId.toLowerCase())) return false;
+    if (provincesFilter.length && !provincesFilter.includes(portal.province.toLowerCase())) return false;
+    if (portalTypesFilter.length && !portalTypesFilter.includes(portal.portalType.toLowerCase())) return false;
+    if (jurisdictionFilter === 'municipal' && !cityId) return false; // all current data is municipal — no-op filter
+    return true;
+  };
+
+  // Collect the full candidate set in canonical order, then keyset-page over
+  // it. Candidate collection only touches cache metadata; the page slice is
+  // what gets materialised into response records.
+  const candidates: MunicipalSearchKey[] = [];
+  const positionOf = new Map<string, number>();
+  const contributingRows = new Map<string, CachedMunicipalFetch>();
+
+  if (q) {
+    // FTS5 path — candidate keys come from the inverted index, already ordered
+    // by (city_id, dataset, record_index).
+    for (const hit of searchMunicipalRecordKeys(q) ?? []) {
+      const portal = portalRegistry[hit.cityId];
+      if (!portal || !portalPassesFilters(hit.cityId, portal)) continue;
+      if (!portal.datasets.includes(hit.dataset)) continue;
+      if (datasetsFilter.length && !datasetsFilter.includes(hit.dataset)) continue;
+      if (sectorFilter && DATASET_SECTORS[hit.dataset] !== sectorFilter) continue;
+      const cached = loadRow(hit.cityId, hit.dataset);
+      if (!cached || hit.recordIndex >= cached.records.length) continue;
+      const key: MunicipalSearchKey = { cityId: hit.cityId, dataset: hit.dataset, recordIndex: hit.recordIndex };
+      positionOf.set(searchKeyId(key), candidates.length);
+      candidates.push(key);
+      contributingRows.set(`${hit.cityId}/${hit.dataset}`, cached);
+    }
+  } else {
+    for (const cityId of Object.keys(portalRegistry).sort()) {
+      const portal = portalRegistry[cityId];
+      if (!portal || !portalPassesFilters(cityId, portal)) continue;
+      for (const ds of [...portal.datasets].sort()) {
+        if (datasetsFilter.length && !datasetsFilter.includes(ds)) continue;
+        if (sectorFilter && DATASET_SECTORS[ds] !== sectorFilter) continue;
+        const cached = loadRow(cityId, ds);
+        if (!cached) continue;
+        contributingRows.set(`${cityId}/${ds}`, cached);
+        for (let i = 0; i < cached.records.length; i++) {
+          const key: MunicipalSearchKey = { cityId, dataset: ds, recordIndex: i };
+          positionOf.set(searchKeyId(key), candidates.length);
+          candidates.push(key);
+        }
+      }
+    }
+  }
+
+  // Keyset: resume strictly after the last record the client already has.
+  const remaining = startAfter
+    ? candidates.filter((key) => compareSearchKeys(key, startAfter) > 0)
+    : candidates;
+  const pageKeys = remaining.slice(0, limit);
+  const hasMore = remaining.length > pageKeys.length;
+
+  const sourceBreakdown = new Map<string, { value: string; count: number; record_count: number }>();
+  for (const [srcKey, cached] of contributingRows) {
+    sourceBreakdown.set(srcKey, { value: srcKey, count: 1, record_count: cached.recordCount });
+  }
+
+  const records: UnifiedMunicipalRecord[] = [];
+  for (const key of pageKeys) {
+    const cached = contributingRows.get(`${key.cityId}/${key.dataset}`);
+    const portal = portalRegistry[key.cityId];
+    if (!cached || !portal) continue;
+    const rec = cached.records[key.recordIndex];
+    if (!rec) continue;
+    const ageSec = Math.round((Date.now() - new Date(cached.succeededAt).getTime()) / 1000);
+
+    // Per-portal bilingual context for record-level provenance
+    const municipalityEn = portal.name;
+    const municipalityFr = CITY_NAMES_FR[cityIdLower(portal, key.cityId)] ?? portal.name;
+    const provCode = portal.province;
+    const provLbl = PROVINCE_LABELS[provCode];
+    const jur = provLbl?.jurisdiction ?? 'municipal';
+    const jurLbl = JURISDICTION_LABELS[jur] ?? { en: jur, fr: jur };
+
+    const recAny = rec as Record<string, unknown>;
+    const citationPayload = JSON.stringify({ source: portal.baseUrl, ...rec });
+    const citationHash = createHash('sha256').update(citationPayload).digest('hex');
+    records.push({
+      id: `${key.cityId}:${key.dataset}:${String(recAny.id ?? key.recordIndex)}`,
+      municipality: municipalityEn,
+      municipalityId: key.cityId,
+      province: portal.province,
+      dataset: key.dataset,
+      title: String(recAny.title ?? key.dataset),
+      url: String(recAny.url ?? portal.baseUrl),
+      format: portal.portalType,
+      lastModified: (recAny.lastModified as string | null | undefined) ?? null,
+      created: (recAny.created as string | null | undefined) ?? null,
+      portalType: portal.portalType,
+      provenance: {
+        source_url: String(recAny.url ?? portal.baseUrl),
+        source_organization_en: municipalityEn,
+        source_organization_fr: municipalityFr,
+        jurisdiction_en: jurLbl.en,
+        jurisdiction_fr: jurLbl.fr,
+        jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
+        license: (recAny.license as string | undefined) ?? NO_SOURCE_LICENSE_DECLARATION,
+        ...(typeof recAny.licenseUrl === 'string' ? { license_url: recAny.licenseUrl } : {}),
+        license_basis: recAny.licenseBasis === 'publisher-metadata' || recAny.licenseBasis === 'source-configuration'
+          ? recAny.licenseBasis
+          : 'no-publisher-declaration',
+        ...(typeof recAny.attributionText === 'string' ? { attribution_text: recAny.attributionText } : {}),
+        fetched_at: cached.succeededAt,
+        citation_hash: `sha256:${citationHash}`,
+        from_cache: true,
+        cache_age_seconds: ageSec,
+      },
+    });
+  }
+
+  const lastKey = pageKeys.length ? pageKeys[pageKeys.length - 1] : null;
+  // Position of the last returned record in the canonical order (1-based);
+  // kept for clients that used the old `consumed_to` field as a progress hint.
+  const consumedTo = lastKey ? (positionOf.get(searchKeyId(lastKey)) ?? 0) + 1 : 0;
 
   return jsonResponse(
     buildSuccess(
@@ -1315,18 +1467,16 @@ export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
         license_basis: 'no-publisher-declaration',
         records,
         pagination: {
-          total: globalIndex,
+          total: candidates.length,
           returned: records.length,
           limit,
           consumed_to: consumedTo,
-          // Cursor pagination: encode the END of this page as a base64url
-          // opaque token so subsequent ?cursor=<token> calls continue from
-          // where this one stopped. v2 will migrate to a true keyset cursor
-          // backed by the FTS5 virtual table (tracked in gh issue).
-          next_cursor: hasMore
-            ? Buffer.from(String(consumedTo)).toString('base64url')
-            : null,
+          // Opaque keyset token: the sort key of the last record above plus a
+          // fingerprint of the filters it was issued under. Null when the
+          // canonical order is exhausted.
+          next_cursor: lastKey && hasMore ? encodeSearchCursor(lastKey, filterFingerprint) : null,
           has_more: hasMore,
+          cursor_kind: 'keyset',
         },
         source_breakdown: Array.from(sourceBreakdown.values()).sort((a, b) =>
           b.record_count - a.record_count || a.value.localeCompare(b.value),
