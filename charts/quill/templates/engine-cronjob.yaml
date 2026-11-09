@@ -7,7 +7,8 @@
 # reads canonical rows and writes briefs there.
 #
 # Do not point this at a separate "engine" image. values-prod pins api, mcp,
-# portal, and ingest only. quill.image fails closed when a service has no pin.
+# ingest, and search. The portal is Cloudflare Pages, not a chart image.
+# quill.image fails closed when a service has no pin.
 {{- if .Values.engine.enabled }}
 {{- $sqlite := and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
 apiVersion: batch/v1

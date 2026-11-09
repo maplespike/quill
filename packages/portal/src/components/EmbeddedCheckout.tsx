@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout as StripeEmbeddedCheckout } from "@stripe/react-stripe-js";
 import { createEmbeddedSession, keyLookUsable, publishableKey } from "../lib/embedded-checkout";
-import { deriveApiBase } from "../lib/api-base";
+import { getApiBase } from "../lib/api-base";
 
 const env: Record<string, unknown> =
   (typeof import.meta !== "undefined" && (import.meta as { env?: Record<string, unknown> }).env) || {};
@@ -33,7 +33,7 @@ export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: st
       if (!cancelled) setError(`Payment form could not load: ${cause.message}`);
       return null;
     });
-    createEmbeddedSession({ apiBase: deriveApiBase(window.location), apiKey, planId })
+    createEmbeddedSession({ apiBase: getApiBase(), apiKey, planId })
       .then((r) => {
         if (cancelled) return;
         if (r.ok) setClientSecret(r.clientSecret);

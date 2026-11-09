@@ -8,13 +8,14 @@
 # endpoint pinned to the ClusterIP). Charts pull with imagePullPolicy
 # IfNotPresent. Nodes do not copy images to each other.
 #
-#   1. build api, mcp, portal, ingest, and search (docker) and scan each with syft,
+#   1. build api, mcp, ingest, and search (docker) and scan each with syft,
+#      The portal is Cloudflare Pages (deploy-portal-pages.yml), not an image.
 #   2. push registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>
 #      via the mirrored endpoint (k3s ctr --plain-http),
 #   3. read the digest from the registry v2 manifest API (that is the pin),
 #   4. print the images: block for charts/quill/values-prod.yaml.
 #
-# All five services build from a tracked Dockerfile: search has Dockerfile.search
+# api, mcp, ingest, and search build from a tracked Dockerfile: search has Dockerfile.search
 # (two-stage cargo build, debian:bookworm runtime), so it no longer depends on an
 # image that happened to be in this node's containerd store.
 #
@@ -52,7 +53,7 @@ VALUES_FILE="$REPO_ROOT/charts/quill/values-prod.yaml"
 EXISTING=false
 VERIFY_ONLY=false
 SRC_REF="local"
-SERVICES="api mcp portal ingest search"
+SERVICES="api mcp ingest search"
 # Per-image SBOM before the push. generate-sbom.sh reads the image, not the
 # lockfile. A missing syft fails the run. SBOM=false is only valid with
 # --verify, which pushes nothing.

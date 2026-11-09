@@ -1,14 +1,14 @@
 {{/*
   Quill — network isolation (breach containment for the public surface).
 
-  Threat model: quill-api / quill-mcp / quill-portal are internet-facing via
-  the Cloudflare tunnel. A breach of ANY quill pod must not be able to reach
+  Threat model: quill-api / quill-mcp are internet-facing via
+  the Cloudflare tunnel. The portal is Cloudflare Pages, not a pod. A breach of ANY quill pod must not be able to reach
   the cluster nodes, the LAN, the tailnet, the kubelets, or unrelated cluster
   services — i.e. the pod must have no usable lateral path to the hosts.
 
   Baseline: default-deny ingress+egress. Explicit allows only for real flows:
     - DNS (CoreDNS)
-    - intra-namespace traffic (portal <-> api <-> mcp <-> redis)
+    - intra-namespace traffic (api <-> mcp <-> redis)
     - scrape ingress from the monitoring namespace to API/MCP metrics only
     - the two edges that serve quill: the cloudflared tunnel (ns cloudflared)
       and the LAN reverse proxy (ns media-reverse-proxy)
@@ -69,7 +69,7 @@ spec:
     - Egress
   ingress:
     # Same-namespace ClusterIP flows match pre-DNAT: add the node subnet and
-    # scope the ports to the service signature (redis, portal, api, mcp).
+    # scope the ports to the service signature (redis, api, mcp).
     - from:
         - podSelector: {}
         - ipBlock:
@@ -77,8 +77,6 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
-        - protocol: TCP
-          port: 8080
         - protocol: TCP
           port: 8082
         - protocol: TCP
@@ -121,8 +119,6 @@ spec:
         - ipBlock:
             cidr: 10.1.1.0/24
       ports:
-        - protocol: TCP
-          port: 8080
         - protocol: TCP
           port: 8082
         - protocol: TCP
@@ -196,16 +192,15 @@ spec:
   egress:
     # ClusterIP service traffic is matched PRE-DNAT by Calico: podSelector
     # rules never match it, so the service CIDR is allowed explicitly -
-    # scoped to the ports quill actually uses (redis, portal, api, mcp,
-    # astral-key). Host/LAN/tailnet ranges stay excluded everywhere else.
+    # scoped to the ports quill actually uses (redis, api, mcp).
+    # Astral-key is a separate egress rule. Host/LAN/tailnet ranges stay
+    # excluded everywhere else.
     - to:
         - ipBlock:
             cidr: 10.43.0.0/16
       ports:
         - protocol: TCP
           port: 6379
-        - protocol: TCP
-          port: 8080
         - protocol: TCP
           port: 8082
         - protocol: TCP

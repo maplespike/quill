@@ -140,8 +140,9 @@ engine:
       cpu: 500m
       memory: 512Mi
 
-# Portal (deployed via .github/workflows/deploy-portal.yml — not via Helm)
-# Current: K3s cluster (nginx). Future: GitHub Pages if made public.
+# Portal is Cloudflare Pages project maplespike-quill
+# (.github/workflows/deploy-portal-pages.yml). This chart does not render
+# a portal Deployment, Service, or tunnel hostname.
 
 # Monitoring
 monitoring:

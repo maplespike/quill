@@ -16,7 +16,7 @@
 #      (ingest) — the image digest in the CronJob specs that use it.
 #   3. Public health endpoints return 200:
 #        https://api.maplespike.ca/v1/health   (packages/api-server/src/index.ts)
-#        https://quill.maplespike.ca/health    (portal)
+#        https://maplespike-quill.pages.dev/health  (portal on Cloudflare Pages)
 #        https://mcp.maplespike.ca/health      (quill-mcp)
 #   4. Unauthenticated /mcp and /sse on mcp.maplespike.ca return 401.
 #
@@ -27,7 +27,7 @@
 # Env overrides:
 #   NAMESPACE (maplespike)  ARGO_NAMESPACE (argocd)  ARGO_APP (chart name)
 #   VALUES (charts/quill/values-prod.yaml)  ARGO_WAIT_SECONDS (120)
-#   API_HOST (api.maplespike.ca)  PORTAL_HOST (quill.maplespike.ca)
+#   API_HOST (api.maplespike.ca)  PORTAL_HOST (maplespike-quill.pages.dev)
 #   MCP_HOST (mcp.maplespike.ca)  SKIP_HTTP=1 (cluster checks only)
 # ─────────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -39,7 +39,7 @@ CHART="${CHART:-$ROOT/charts/quill/Chart.yaml}"
 VALUES="${VALUES:-$ROOT/charts/quill/values-prod.yaml}"
 ARGO_WAIT_SECONDS="${ARGO_WAIT_SECONDS:-120}"
 API_HOST="${API_HOST:-api.maplespike.ca}"
-PORTAL_HOST="${PORTAL_HOST:-quill.maplespike.ca}"
+PORTAL_HOST="${PORTAL_HOST:-maplespike-quill.pages.dev}"
 MCP_HOST="${MCP_HOST:-mcp.maplespike.ca}"
 SKIP_HTTP="${SKIP_HTTP:-0}"
 

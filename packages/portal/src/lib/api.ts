@@ -1,11 +1,14 @@
-// Derive API base from runtime config — defaults to same-origin /api proxy
+import { deriveApiBase } from './api-base';
+
+// One public API origin. PUBLIC_API_BASE (build time) or window.MAPLESPIKE.apiBase
+// overrides it. Callers of this module use the /v1 prefix.
 function getApiBase(): string {
-  if (import.meta.env.PUBLIC_API_BASE) return import.meta.env.PUBLIC_API_BASE;
-  if (typeof window !== 'undefined') {
-    if (window.MAPLESPIKE?.apiBase) return window.MAPLESPIKE.apiBase + '/v1';
-    return '/api/v1';
+  const fromEnv = import.meta.env.PUBLIC_API_BASE as string | undefined;
+  if (fromEnv) return `${deriveApiBase({ apiBase: fromEnv })}/v1`;
+  if (typeof window !== 'undefined' && window.MAPLESPIKE?.apiBase) {
+    return `${deriveApiBase({ apiBase: window.MAPLESPIKE.apiBase })}/v1`;
   }
-  return '/api/v1';
+  return `${deriveApiBase({})}/v1`;
 }
 const API_BASE = getApiBase();
 

@@ -3,9 +3,10 @@
 //
 // Policy enforced here (see docs/IMAGE-PINNING.md):
 //   1. No mutable tags anywhere: :local, :latest, :stable, :main, :prod, …
-//   2. Quill workloads (api, mcp, portal, ingest, search) MUST be pinned to
+//   2. Quill workloads (api, mcp, ingest, search) MUST be pinned to
 //      a content digest — they are imported into the node containerd store and
-//      a digest cannot be re-pointed at new layers.
+//      a digest cannot be re-pointed at new layers. The portal is Cloudflare
+//      Pages, not a chart image.
 //   3. Third-party images must be digest- or version-pinned (postgres:17-alpine,
 //      cloudflared:2026.8.2) — never a rolling tag.
 //   4. Production pullPolicy is IfNotPresent. Images are pulled from the
@@ -34,7 +35,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const QUILL_SERVICES = ['api', 'mcp', 'portal', 'ingest', 'search'];
+export const QUILL_SERVICES = ['api', 'mcp', 'ingest', 'search'];
 
 // Nodes that may run an imagePullPolicy: Never workload. pin-images.sh
 // imports every pinned digest into each of these containerd stores.

@@ -71,7 +71,7 @@ check "10.1.1.0/24 appears exactly twice" 2 "cidr: 10.1.1.0/24"
 echo "== service traffic allowances (counts across the 4 port-scoped rules) =="
 check "service CIDR allowed exactly once" 1 "cidr: 10.43.0.0/16"
 check "redis port (svc egress + intra ingress)" 2 "port: 6379"
-check "portal port (svc egress + edge + intra + astral)" 4 "port: 8080"
+check "astral-key port only (portal left the cluster)" 1 "port: 8080"
 check "api port (svc egress + edge + intra)" 3 "port: 8082"
 check "mcp port (svc egress + edge + intra)" 3 "port: 3001"
 

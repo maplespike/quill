@@ -9,9 +9,13 @@
 # so that the apex Zone stays the single source of truth (matches
 # maplespike-brand/wrangler.toml convention; see comment block there).
 #
-# Attach with:
+# Attach with (Infra, not this repo):
 #   wrangler pages domain add maplespike-quill quill.maplespike.ca
 #   wrangler pages domain add maplespike-quill www.quill.maplespike.ca
+#
+# No D1, KV, or R2 bindings. The site is static files.
+# Deploy from the repo root workflow, with this directory as cwd, so Wrangler
+# does not load the repo-root wrangler.toml.
 # ─────────────────────────────────────────────────────────────────
 name = "maplespike-quill"
 pages_build_output_dir = "dist"

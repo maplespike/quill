@@ -30,6 +30,15 @@ describe("deriveApiBase", () => {
     expect(deriveApiBase({ apiBase: "https://api.example.com", hostname: "ignored.example" })).toBe("https://api.example.com");
   });
 
+  test("an explicit apiBase drops a trailing /v1 so callers can add it once", () => {
+    expect(deriveApiBase({ apiBase: "https://api.maplespike.ca/v1" })).toBe("https://api.maplespike.ca");
+  });
+
+  test("Cloudflare Pages hostnames call the public API", () => {
+    expect(deriveApiBase({ protocol: "https:", hostname: "maplespike-quill.pages.dev" })).toBe("https://api.maplespike.ca");
+    expect(deriveApiBase({ protocol: "https:", hostname: "preview.maplespike-quill.pages.dev" })).toBe("https://api.maplespike.ca");
+  });
+
   test("falls back to the public API with no window", () => {
     expect(deriveApiBase({})).toBe("https://api.maplespike.ca");
   });

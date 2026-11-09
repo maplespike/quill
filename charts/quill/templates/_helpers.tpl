@@ -9,7 +9,7 @@
 {{/*
   quill.image — the full image reference for one Quill service.
 
-  Input: dict "svc" <api|mcp|portal> "ctx" $   ($ = the root template context)
+  Input: dict "svc" <api|mcp|ingest|search> "ctx" $   ($ = the root template context)
 
   Precedence:
     1. images.<svc>.registry + images.<svc>.repository
@@ -52,7 +52,7 @@
 {{/*
   quill.imageAnnotations — pod-template annotations recording the pinned build.
 
-  Input: dict "svc" <api|mcp|portal> "ctx" $
+  Input: dict "svc" <api|mcp|ingest|search> "ctx" $
   Emits the whole `annotations:` block, or nothing when no build tag is recorded.
   The digest in the image reference is the pin; the build tag is the provenance
   (store tag → digest → git commit), so a live pod traces back to a build.
@@ -84,7 +84,7 @@ annotations:
     indent (int; spaces before "affinity:" — default 6 for pod spec)
 
   Emits nothing when affinityHosts is empty. Callers that already emit an
-  `affinity:` block (portal podAntiAffinity) should use quill.nodeAffinityTerms
+  An existing `affinity:` block should use quill.nodeAffinityTerms
   instead and nest under affinity.nodeAffinity.
 */}}
 {{- define "quill.nodeAffinity" -}}

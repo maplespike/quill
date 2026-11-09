@@ -19,12 +19,6 @@ images:
     pullPolicy: IfNotPresent
     digest: "sha256:e91fd9fa4c3aeaf6280422fd3c3c055f6bd6c91f24b90e7a181c7f0ed3ea18d2"
     tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
-  portal:
-    registry: "registry.registry.svc.cluster.local:5000"
-    repository: "quill/portal"
-    pullPolicy: IfNotPresent
-    digest: "sha256:c9f4b33449df3d64a4c2a3fc7f3d1be7cc7d3d111c7714260cdec40750ef7a56"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   ingest:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/ingest"
@@ -132,27 +126,8 @@ database:
       memory: 512Mi
   storageClass: longhorn
   nodeName: ""
-portal:
-  enabled: true
-  # HA: 2 replicas, spread by topology + anti-affinity, guarded by a PDB
-  # (charts/quill/templates/portal.yaml). The portal is stateless, so unlike
-  # api/mcp/search it needs no node pin.
-  replicas: 2
-  port: 8080
-  # CPU order: nexus preferred, sentry fallback; never forge (Reverb 15:06 CT).
-  # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
-  affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
-  resources:
-    requests:
-      cpu: 50m
-      memory: 32Mi
-    limits:
-      cpu: 100m
-      memory: 64Mi
-  ingress:
-    host: maplespike.ca
-    tls: true
+# The portal is not a chart workload. Cloudflare Pages project
+# maplespike-quill serves it (.github/workflows/deploy-portal-pages.yml).
 cloudflared:
   enabled: false
   image: docker.io/cloudflare/cloudflared

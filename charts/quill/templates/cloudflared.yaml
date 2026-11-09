@@ -1,8 +1,9 @@
 {{/*
   Quill — Cloudflare Tunnel (cloudflared) Deployment
 
-  Routes external traffic from Cloudflare edge → in-cluster services:
-    quill.maplespike.ca   → quill-portal:8080
+  Routes external traffic from Cloudflare edge → in-cluster services.
+  The portal hostname is not in this list: Cloudflare Pages project
+  maplespike-quill serves it. Infra attaches that custom domain.
     api.maplespike.ca     → quill-api:{{ .Values.api.port }}
     mcp.maplespike.ca     → quill-mcp:{{ .Values.mcp.port }}
     kanban.maplespike.ca  → quill-kanban-exec:8080
