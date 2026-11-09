@@ -71,7 +71,7 @@ jobs:
         id: gate
         if: ${{ vars.MERGE_GATE_APP_ID != '' }}
         continue-on-error: true
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
