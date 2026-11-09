@@ -17,10 +17,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && pnpm run typecheck:examples",
+    "typecheck:examples": "tsc -p tsconfig.examples.json",
     "dev": "tsup --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "test": "pnpm build && tsx --test src/*.test.ts",
+    "test": "pnpm build && tsx --test src/*.test.ts tests/examples.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
     "prepublishOnly": "pnpm build"
   },
