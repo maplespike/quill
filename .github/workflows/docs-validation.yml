@@ -9,6 +9,12 @@ on:
       - "packages/*/README.md"
       - "docs/**/*.md"
       - "docs/metrics.json"
+      - ".agents/skills/animation-vocabulary/SKILL.md"
+      - ".agents/skills/apple-design/SKILL.md"
+      - ".agents/skills/emil-design-eng/SKILL.md"
+      - ".agents/skills/quill-influence-mapping/**"
+      - "scripts/gates/check-skill-review-freshness.mjs"
+      - "scripts/test-skill-review-freshness.mjs"
   push:
     branches: [main, prod]
     paths:
@@ -17,6 +23,12 @@ on:
       - "packages/*/README.md"
       - "docs/**/*.md"
       - "docs/metrics.json"
+      - ".agents/skills/animation-vocabulary/SKILL.md"
+      - ".agents/skills/apple-design/SKILL.md"
+      - ".agents/skills/emil-design-eng/SKILL.md"
+      - ".agents/skills/quill-influence-mapping/**"
+      - "scripts/gates/check-skill-review-freshness.mjs"
+      - "scripts/test-skill-review-freshness.mjs"
   workflow_dispatch:
 
 concurrency:
@@ -81,6 +93,11 @@ jobs:
           echo "missing_count=$((TOTAL - PASS))" >> $GITHUB_OUTPUT
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
           echo "passed=$PASS" >> $GITHUB_OUTPUT
+
+      # Hard fail for the skill docs the Monday walker files as issues.
+      # The metadata check above only warns, and it does not scan .agents/.
+      - name: "Check skill review freshness"
+        run: node --test scripts/test-skill-review-freshness.mjs
 
       # ── Check 2: TODO/FIXME density (warn if > 5%) ────────────
       - name: "Check TODO density"
