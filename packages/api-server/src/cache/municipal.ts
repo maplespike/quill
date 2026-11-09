@@ -16,8 +16,8 @@
  *
  * Cache strategy:
  *   - One row per (city_id, dataset). Upsert on every successful fetch.
- *   - Schema migrates lazily on first DB access (`CREATE TABLE IF NOT EXISTS`),
- *     re-checked on every fresh open (cheap with IF NOT EXISTS).
+ *   - Schema migrates lazily on the first write (`CREATE TABLE IF NOT EXISTS`).
+ *     Readers do not create the table: DDL takes the write lock.
  *   - Reads are cheap; no TTL — staleness is reported honestly via
  *     `age_seconds` in the response envelope.
  *
@@ -32,18 +32,67 @@
  *     behaviour already proven in the route layer.
  *
  * Connection strategy:
- *   Every public helper opens a FRESH `DatabaseSync` and closes it in
- *   `finally`. Single-node writes (the production path) and cross-process
- *   writers (cron sweeps, manual SQL poke) both observe committed state at
- *   the next read; the singleton pattern has shown reader-snapshot quirks
- *   against node:sqlite's WAL mode under contention, so all access goes
- *   through this single `withCacheDb(cb)` helper.
+ *   Writers and readers never share a connection. A shared connection that
+ *   is already inside a transaction keeps the pre-transaction snapshot, so
+ *   a later SELECT misses rows another connection has committed, and an
+ *   upgrade from that read to a write throws SQLITE_BUSY immediately.
+ *   Each call opens its own `DatabaseSync` and closes it in `finally`.
+ *   Readers open read-only, set `busy_timeout`, and only SELECT. They do
+ *   not run DDL and they do not checkpoint: both take a write lock and
+ *   turn a concurrent writer into `database is locked`, which the old
+ *   code swallowed as an empty cache miss (the Toronto cache-fallback flake).
+ *   Writers enable WAL, use `synchronous=NORMAL`, and take the write lock
+ *   with `BEGIN IMMEDIATE` so they never promote a deferred read into a
+ *   snapshot conflict. Lock conflicts retry until `BUSY_TIMEOUT_MS`.
  */
 
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync } from 'node:fs';
 
 const SCHEMA_VERSION = 1 as const;
+
+/** How long a writer retries, and how long a reader waits, when the file is locked. */
+const BUSY_TIMEOUT_MS = 5_000;
+
+/**
+ * One-slot pause between writer retries. `Atomics.wait` yields the thread
+ * so the connection that holds the lock can commit. A C-level
+ * `busy_timeout` on the writer would sleep inside `BEGIN IMMEDIATE` and
+ * the retry could not roll the transaction back first.
+ */
+const writerYield = new Int32Array(new SharedArrayBuffer(4));
+
+/**
+ * Test barrier. Invoked once when a cache write observes `SQLITE_BUSY`.
+ * Production leaves this unset. The regression test uses it to release
+ * the other writer without sleeping.
+ */
+let onWriteLockBusy: (() => void) | undefined;
+
+export function setMunicipalCacheWriteLockHook(hook: (() => void) | undefined): void {
+  onWriteLockBusy = hook;
+}
+
+function isLockedError(err: unknown): boolean {
+  const code = typeof err === 'object' && err !== null && 'code' in err
+    ? String((err as { code?: unknown }).code)
+    : '';
+  const msg = err instanceof Error ? err.message : String(err);
+  return code === 'SQLITE_BUSY' || /database is locked|database is busy|SQLITE_BUSY/i.test(msg);
+}
+
+function isMissingTable(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /no such table/i.test(msg);
+}
+
+function rollbackQuiet(db: DatabaseSync): void {
+  try { db.exec('ROLLBACK'); } catch { /* autocommit — nothing to roll back */ }
+}
+
+function closeQuiet(db: DatabaseSync | undefined): void {
+  try { db?.close(); } catch { /* ignore */ }
+}
 
 /** Schema bootstrap + WAL pragma. Idempotent — re-runs cheaply. */
 function bootstrapCacheSchema(db: DatabaseSync): void {
@@ -64,35 +113,102 @@ function bootstrapCacheSchema(db: DatabaseSync): void {
   `);
 }
 
-/**
- * Open a fresh connection + run `cb(db)` with it, close in `finally`.
- * Returns whatever `cb` returns (or null on a DB-open miss). Cheap enough
- * for per-request use (~1ms): municipal routes do at most ~5 lookups.
- */
-function withCacheDb<T>(cb: (db: DatabaseSync) => T): T | null {
+function dbPathIfPresent(): string | null {
   const dbPath = process.env.QUILL_DB_PATH;
   if (!dbPath || !existsSync(dbPath)) return null;
-  let db: DatabaseSync;
+  return dbPath;
+}
+
+/** Read-only handle. No DDL and no checkpoint, so a writer can commit beside it. */
+function openReader(dbPath: string): DatabaseSync {
   try {
-    db = new DatabaseSync(dbPath);
-    bootstrapCacheSchema(db);
+    const db = new DatabaseSync(dbPath, { readOnly: true, timeout: BUSY_TIMEOUT_MS });
+    db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
+    return db;
   } catch {
-    return null;
+    // Read-only open fails before the file is a database, or when this
+    // build of node:sqlite cannot attach a WAL shm read-only. Fall back
+    // to a read-write connection that still refuses writes (`query_only`)
+    // after WAL is on.
+    const db = new DatabaseSync(dbPath, { timeout: BUSY_TIMEOUT_MS });
+    db.exec(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
+    const mode = db.prepare('PRAGMA journal_mode').get() as { journal_mode?: string } | undefined;
+    if (mode?.journal_mode !== 'wal') {
+      db.exec('PRAGMA journal_mode = WAL');
+      db.exec('PRAGMA synchronous = NORMAL');
+    }
+    db.exec('PRAGMA query_only = ON');
+    return db;
   }
+}
+
+function withCacheReader<T>(cb: (db: DatabaseSync) => T): T | null {
+  const dbPath = dbPathIfPresent();
+  if (!dbPath) return null;
+  let db: DatabaseSync | undefined;
   try {
-    // Force a FULL checkpoint so any in-flight writer's WAL frames get
-    // promoted to the main DB before our read. `PASSIVE` is too polite
-    // — it bails out if another connection is mid-write, leaving newly
-    // committed rows stranded in `<db>-wal` that this fresh connection
-    // can't see (the -shm file's frame index lags the live -wal until
-    // the original writer's connection closes cleanly). `FULL` blocks
-    // until writers finish and merges their frames. Cost: ~5ms per
-    // call; negligible against the 1s+ upstream fetch.
-    try { db.exec(`PRAGMA wal_checkpoint(FULL)`); } catch { /* ignore */ }
+    db = openReader(dbPath);
     return cb(db);
+  } catch (err) {
+    if (isMissingTable(err) || isLockedError(err)) return null;
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[MunicipalCache] read failed: ${msg}`);
+    return null;
   } finally {
-    try { db.close(); } catch { /* ignore */ }
+    closeQuiet(db);
   }
+}
+
+function applyWriterPragmas(db: DatabaseSync): void {
+  // 0 here on purpose. The retry loop below owns the wait. A non-zero
+  // busy_timeout would block inside BEGIN and skip the rollback between tries.
+  db.exec('PRAGMA busy_timeout = 0');
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA synchronous = NORMAL');
+  bootstrapCacheSchema(db);
+}
+
+/**
+ * Run `fn` inside `BEGIN IMMEDIATE` on a fresh writer connection.
+ * Retries when another connection holds the write lock. Returns without
+ * throwing when the database file is not configured. Throws when the
+ * statement fails for a reason other than the lock, or when the lock
+ * outlasts `BUSY_TIMEOUT_MS`.
+ */
+function withCacheWrite(fn: (db: DatabaseSync) => void): void {
+  const dbPath = dbPathIfPresent();
+  if (!dbPath) return;
+  const deadline = Date.now() + BUSY_TIMEOUT_MS;
+  let notified = false;
+  let lastLock: unknown;
+  while (Date.now() <= deadline) {
+    const db = new DatabaseSync(dbPath, { timeout: 0 });
+    try {
+      applyWriterPragmas(db);
+      rollbackQuiet(db);
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        fn(db);
+        db.exec('COMMIT');
+        return;
+      } catch (err) {
+        rollbackQuiet(db);
+        throw err;
+      }
+    } catch (err) {
+      if (!isLockedError(err)) throw err;
+      lastLock = err;
+      if (!notified) {
+        notified = true;
+        try { onWriteLockBusy?.(); } catch { /* the hook must not mask the write */ }
+      }
+      Atomics.wait(writerYield, 0, 0, 1);
+    } finally {
+      closeQuiet(db);
+    }
+  }
+  const msg = lastLock instanceof Error ? lastLock.message : 'database is locked';
+  throw new Error(`municipal cache write timed out waiting for the SQLite lock: ${msg}`);
 }
 
 export interface CachedMunicipalFetch {
@@ -119,14 +235,15 @@ export function saveMunicipalRecordCache(
   source: string,
   records: Array<Record<string, unknown>>,
 ): void {
-  withCacheDb((db) => {
-    // Strip the per-call provenance block before serialising — citation_hash
-    // includes fetched_at which isn't a cache-stable property.
-    const stripped = records.map((r) => {
-      const { provenance: _ignored, ...rest } = r as { provenance?: unknown };
-      return rest;
-    });
-    try {
+  // Strip the per-call provenance block before serialising — citation_hash
+  // includes fetched_at which isn't a cache-stable property.
+  const stripped = records.map((r) => {
+    const { provenance, ...rest } = r as { provenance?: unknown };
+    void provenance;
+    return rest;
+  });
+  try {
+    withCacheWrite((db) => {
       db.prepare(`
         INSERT INTO municipal_records_cache (schema_version, city_id, dataset, source, record_count, records_json)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -143,11 +260,14 @@ export function saveMunicipalRecordCache(
         records.length,
         JSON.stringify(stripped),
       );
-    } catch {
-      // best-effort — never break the request path over a cache write
-    }
-    return null;
-  });
+    });
+  } catch (err) {
+    // best-effort — never break the request path over a cache write.
+    // Lock contention is retried inside withCacheWrite; this catch is the
+    // corrupt-database and timeout path.
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[MunicipalCache] saveMunicipalRecordCache failed for ${cityId}/${dataset}: ${msg}`);
+  }
 }
 
 /**
@@ -159,20 +279,15 @@ export function saveMunicipalRecordCache(
  * through to `unavailable`. Configurable so cron-driven cache re-validation
  * can tighten or loosen this without code change.
  *
- * TODO(gap-7-followup): the smoke-test's Toronto cache-fallback scenario
- * (Python's sqlite3 inserts rows AFTER the Node process is running) sees
- * this function return null even when a fresh Node REPL probe against the
- * same DB file returns HIT. Coverage endpoint reads the same rows fine;
- * `saveMunicipalRecordCache` from Node writes succeed. Suspected cause:
- * node:sqlite WAL reader snapshot quirk with cross-process writers under
- * certain WAL-state configurations. Production path is Node-only writes
- * + Node reads, which works correctly. Filed separately; do not block on it.
+ * A concurrent writer does not hide a committed row. The reader uses its
+ * own connection in WAL mode, so it sees the latest commit without waiting
+ * for the writer to close and without checkpointing the WAL.
  */
 export function loadMunicipalRecordCache(
   cityId: string,
   dataset: string,
 ): CachedMunicipalFetch | null {
-  const result = withCacheDb<CachedMunicipalFetch | null>((db) => {
+  const result = withCacheReader<CachedMunicipalFetch | null>((db) => {
     try {
       const rows = db.prepare(`
         SELECT city_id, dataset, source, record_count, records_json, succeeded_at
@@ -207,12 +322,13 @@ export function loadMunicipalRecordCache(
         succeededAt: row.succeeded_at,
       };
     } catch (err) {
+      if (isMissingTable(err) || isLockedError(err)) return null;
       // If a row's records_json got corrupted (manual SQL poke, schema
       // migration mishap, disk fault) we land here. Log loudly so operators
       // know WHY the route returned unavailable — silent null would just look
       // like "no cache present yet" forever.
       const msg = err instanceof Error ? err.message : String(err);
-      console.warn(`[MunicipalCache] loadMunicipalRecordCache JSON parse failed for ${cityId}/${dataset}: ${msg}`);
+      console.warn(`[MunicipalCache] loadMunicipalRecordCache failed for ${cityId}/${dataset}: ${msg}`);
       return null;
     }
   });
@@ -234,7 +350,7 @@ export interface CoverageRow {
  * see at a glance which cities have fresh data and which are stale.
  */
 export function loadMunicipalRecordCoverage(): CoverageRow[] {
-  const result = withCacheDb<CoverageRow[]>((db) => {
+  const result = withCacheReader<CoverageRow[]>((db) => {
     try {
       const rows = db.prepare(`
         SELECT city_id, dataset, source, record_count, succeeded_at
