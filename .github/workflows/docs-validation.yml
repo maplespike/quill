@@ -9,6 +9,12 @@ on:
       - "packages/*/README.md"
       - "docs/**/*.md"
       - "docs/metrics.json"
+      - ".agents/skills/quill-provenance-briefing/SKILL.md"
+      - ".agents/skills/review-animations/SKILL.md"
+      - ".agents/skills/review-animations/STANDARDS.md"
+      - ".opencode/commands/opsx-apply.md"
+      - "scripts/test-last-reviewed.mjs"
+      - ".github/workflows/docs-validation.yml"
   push:
     branches: [main, prod]
     paths:
@@ -17,6 +23,12 @@ on:
       - "packages/*/README.md"
       - "docs/**/*.md"
       - "docs/metrics.json"
+      - ".agents/skills/quill-provenance-briefing/SKILL.md"
+      - ".agents/skills/review-animations/SKILL.md"
+      - ".agents/skills/review-animations/STANDARDS.md"
+      - ".opencode/commands/opsx-apply.md"
+      - "scripts/test-last-reviewed.mjs"
+      - ".github/workflows/docs-validation.yml"
   workflow_dispatch:
 
 concurrency:
@@ -40,6 +52,11 @@ jobs:
       - name: ARC runner tools
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
+
+      # The metadata scan below only warns, and it does not walk .agents or
+      # .opencode. These four files are the #955 #956 #957 #959 set.
+      - name: "Assert last-reviewed on tracked docs"
+        run: node --test scripts/test-last-reviewed.mjs
 
       # ── Check 1: Metadata coverage ──────────────────────────────
       - name: "Check last-reviewed metadata"
