@@ -1,0 +1,46 @@
+---
+# Weekly report of Dependabot security updates that cannot be applied.
+#
+# Dependabot opens a PR for a security update only when a patched release
+# exists inside the range the parent package accepts. When the fix lives in
+# the next major, no PR ever appears and the alert stays open with nobody
+# watching it (the 2026-11 rustls / lru / nodemailer batch, #1047). This
+# workflow keeps one issue in sync with that queue and states the triage rule.
+#
+# The script is plain Node with no dependencies, so it needs no install step.
+# It exits 0 with a ::notice:: when the alerts API returns 403/404 (Dependabot
+# alerts disabled, or the token lacks security-events: read). That is not a
+# failure: a red weekly cron for an unreadable API is noise.
+name: Dependabot Unfixable Report
+
+on:
+  schedule:
+    # Mondays 14:00 UTC.
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  security-events: read
+
+concurrency:
+  group: dependabot-unfixable-report
+  cancel-in-progress: true
+
+jobs:
+  report:
+    # GitHub-hosted on purpose: the job only talks to the API, and the
+    # self-hosted pool is scarce enough that a weekly cron should not hold an
+    # arc-maplespike slot.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@v4
+
+      - name: Report Dependabot security updates that are not possible
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/gates/dependabot-unfixable-report.mjs
