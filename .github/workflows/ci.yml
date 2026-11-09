@@ -629,7 +629,8 @@ jobs:
     # Skipped on PRs whose files cannot affect it (see the changes job). A
     # failed/missing filter runs it rather than skipping it.
     if: ${{ !cancelled() && needs.build-and-test.result == 'success' && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.deps == 'true') }}
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
+    # The audit needs no cluster access; do not occupy a scarce ARC runner.
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     # Dependency advisory gate. pnpm audit fails (exit 1) on any high/critical
     # advisory by default; we tolerate the known High findings (tracked in
