@@ -6,6 +6,20 @@
  * and writes docs/metrics.json with fresh numbers.
  *
  * Usage: node scripts/generate-metrics.mjs
+ *
+ * The written file is a function of the source tree. Two things used to make
+ * a fresh run differ from the committed file even when the counts did not:
+ *
+ * - `//_generated`, `version`, and `lastUpdated` were the wall-clock day, so
+ *   the file drifted every UTC midnight.
+ * - The module sentence (and, when the counts disagreed, the module count)
+ *   changed when `packages/pipeline-core/dist/` happened to exist.
+ *
+ * Date fields are copied from the committed file when the rest of the
+ * document is unchanged, and replaced with today only when a count changes.
+ * The module count is the quoted `modulePath` entries in registry.ts. A
+ * built `getAllModules()` that disagrees is reported on stderr and is not
+ * written, so `git diff --exit-code docs/metrics.json` stays stable.
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
@@ -25,6 +39,64 @@ const ROOT = resolve(__dirname, '..');
  * A line is a newline-terminated row, plus a final row when the file does not
  * end in a newline. An empty file counts as one file and zero lines.
  */
+/**
+ * Quoted `modulePath` entries. Skips the unquoted `modulePath: string;`
+ * field and full-line comments. A commented-out entry must not change the
+ * published count.
+ */
+export function countQuotedModulePaths(registryContent) {
+  let n = 0;
+  for (const line of registryContent.split('\n')) {
+    const t = line.trim();
+    if (!t || t.startsWith('//') || t.startsWith('/*') || t.startsWith('*')) continue;
+    if (/modulePath:\s*['"]/.test(line)) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Count written into docs/metrics.json. Always the source literal count.
+ * `runtimeCount` is accepted so a built dist can be checked, and ignored
+ * when it disagrees — otherwise the committed file depends on who built.
+ */
+export function registryCountForMetrics(sourceCount, runtimeCount) {
+  if (Number.isInteger(runtimeCount) && runtimeCount > 0 && runtimeCount !== sourceCount) {
+    console.error(
+      `generate-metrics: getAllModules()=${runtimeCount} but registry.ts has ${sourceCount} quoted modulePath entries. Writing ${sourceCount} so docs/metrics.json does not depend on dist/.`,
+    );
+  }
+  return sourceCount;
+}
+
+const METRICS_DATE_FIELDS = ['//_generated', 'version', 'lastUpdated'];
+
+function metricsPayload(doc) {
+  const clone = { ...doc };
+  for (const key of METRICS_DATE_FIELDS) delete clone[key];
+  return JSON.stringify(clone);
+}
+
+/**
+ * Keep the committed date stamp when the counts did not change.
+ * `today` is `YYYY-MM-DD` and is used only when the payload differs.
+ */
+export function withStableDates(next, existing, today) {
+  const reuse = !!existing
+    && typeof existing === 'object'
+    && metricsPayload(existing) === metricsPayload(next);
+  const pick = (key) => (
+    reuse && typeof existing[key] === 'string' && existing[key].length > 0
+      ? existing[key]
+      : today
+  );
+  return {
+    ...next,
+    '//_generated': pick('//_generated'),
+    version: pick('version'),
+    lastUpdated: pick('lastUpdated'),
+  };
+}
+
 export function countTsFiles(dir) {
   let files = 0;
   let lines = 0;
@@ -54,28 +126,25 @@ export function countTsFiles(dir) {
 
 async function generate() {
 // ── 1. Registry count ────────────────────────────────────────
-// Prefer the runtime registry when pipeline-core is built: getAllModules()
-// is what module consumers actually receive. Fall back to counting quoted
-// modulePath literals in registry.ts. The file also declares an unquoted
-// `modulePath: string;` interface field — counting it inflated the total
-// by one (208 vs the true 207) until 2026-09-17.
+// Quoted modulePath literals in registry.ts. The file also declares an
+// unquoted `modulePath: string;` interface field — counting it inflated
+// the total by one (208 vs the true 207) until 2026-09-17.
+// getAllModules() is consulted only to warn when a built dist disagrees.
+// The written count does not change based on whether dist exists.
 const registryPath = join(ROOT, 'packages/pipeline-core/src/ingestion/registry.ts');
 const registryContent = readFileSync(registryPath, 'utf-8');
-let registryCount = 0;
-let registrySource = 'runtime';
+const sourceCount = countQuotedModulePaths(registryContent);
+let runtimeCount = null;
 try {
   const core = await import(join(ROOT, 'packages/pipeline-core/dist/index.js'));
   if (typeof core.getAllModules === 'function') {
     const mods = core.getAllModules();
-    if (Array.isArray(mods) && mods.length > 0) registryCount = mods.length;
+    if (Array.isArray(mods) && mods.length > 0) runtimeCount = mods.length;
   }
 } catch {
-  // dist not built — fall through to the source parse
+  // dist not built — source count stands alone
 }
-if (registryCount === 0) {
-  registrySource = 'source-literals';
-  registryCount = (registryContent.match(/modulePath:\s*['"]/g) || []).length;
-}
+const registryCount = registryCountForMetrics(sourceCount, runtimeCount);
 
 // ── 2. Ingestion subdirectories ──────────────────────────────
 const ingestionDir = join(ROOT, 'packages/pipeline-core/src/ingestion');
@@ -163,16 +232,27 @@ const overallTsFiles = overall.files;
 const overallTsLines = overall.lines;
 
 // ── 6. Build output ──────────────────────────────────────────
-const today = new Date().toISOString().slice(0, 10);
+const metricsPath = join(ROOT, 'docs/metrics.json');
+const envDate = process.env.METRICS_DATE || '';
+const today = /^\d{4}-\d{2}-\d{2}$/.test(envDate)
+  ? envDate
+  : new Date().toISOString().slice(0, 10);
 
-const metrics = {
+let existing = null;
+try {
+  existing = JSON.parse(readFileSync(metricsPath, 'utf8'));
+} catch {
+  existing = null;
+}
+
+const metrics = withStableDates({
   '//': 'AUTO-GENERATED by scripts/generate-metrics.mjs - Run `node scripts/generate-metrics.mjs` to update.',
   '//_generated': today,
   version: today,
   modules: {
     registryCount,
     ingestionDirs,
-    description: `${registryCount} modules registered at runtime (getAllModules()${registrySource === 'runtime' ? '' : '; counted from quoted registry.ts literals because dist was not built'}). Includes attestation, gc-standards, cross-reference utilities. ${ingestionDirs} ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines.`,
+    description: `${registryCount} modules registered (quoted modulePath entries in registry.ts). Includes attestation, gc-standards, cross-reference utilities. ${ingestionDirs} ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines.`,
   },
   mcpTools: {
     count: mcpToolCount,
@@ -194,10 +274,9 @@ const metrics = {
     description: 'Estimated unique external data endpoints consumed across all modules',
   },
   lastUpdated: today,
-};
+}, existing, today);
 
 // ── 7. Write metrics.json ────────────────────────────────────
-const metricsPath = join(ROOT, 'docs/metrics.json');
 writeFileSync(metricsPath, JSON.stringify(metrics, null, 2) + '\n');
 
 console.log(`Modules: ${registryCount}, MCP Tools: ${mcpToolCount}, TS Files: ${overallTsFiles}, TS Lines: ${overallTsLines}`);
