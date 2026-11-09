@@ -47,6 +47,24 @@ def _pick_static_dir(override: str, here: str) -> str:
             return sibling_dist
     return here
 
+# Public status host. GET / on these names serves the status page.
+# DNS publication is an operator step: docs/ops/STATUS-PAGE.md.
+STATUS_HOSTS = frozenset({
+    "status.maplespike.ca",
+    "status.quill.lan",
+})
+
+
+def _status_host(host_header: str) -> bool:
+    """True when the request host is the public status name."""
+    host = (host_header or "").split(",")[0].strip().lower()
+    if host.startswith("[") and "]" in host:
+        host = host[1:host.index("]")]
+    else:
+        host = host.split(":")[0]
+    return host in STATUS_HOSTS
+
+
 DIRECTORY = _pick_static_dir(
     os.environ.get("PORTAL_STATIC_DIR") or "",
     os.path.dirname(os.path.abspath(__file__)),
@@ -360,8 +378,15 @@ class QuillHandler(SimpleHTTPRequestHandler):
     def do_HEAD(self):
         if self.path.startswith("/api/"):
             self._proxy_api()
-        else:
-            super().do_HEAD()
+            return
+        parsed = urlparse(self.path)
+        p = parsed.path
+        if len(p) > 1 and p.endswith("/"):
+            p = p[:-1]
+        if _status_host(self.headers.get("Host", "")) and p in ("", "/"):
+            # Header probe for the status host. The file is status.html.
+            self.path = "/status.html"
+        super().do_HEAD()
 
     def end_headers(self):
         # Inject security headers on every response. Only send HSTS when the
@@ -438,6 +463,10 @@ class QuillHandler(SimpleHTTPRequestHandler):
         # stripped form.)
         if len(p) > 1 and p.endswith("/"):
             p = p[:-1]
+
+        # status.maplespike.ca/ is the status page. Other hosts keep /.
+        if _status_host(self.headers.get("Host", "")) and p in ("", "/"):
+            p = "/status"
 
         # Cheap process check for the chart probes. Do not read the homepage:
         # liveness must stay fast and must not depend on a built page.

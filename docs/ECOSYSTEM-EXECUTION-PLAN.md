@@ -79,8 +79,9 @@ advertising ecosystem surfaces.
       *(Files: `charts/quill/*`, `k8s/base/*`, `secrets/*`)* *(operator track — ongoing)*
 - [x] **Informal free-tier SLA + status surface** — `/v1/status` endpoint live
       (`packages/api-server/src/routes/status.ts`: 99% best-effort uptime, freshness windows,
-      public-endpoint map, claim-store count), auth-exempt. Portal status page + `status.maplespike.ca`
-      still to wire behind operator infra.
+      public-endpoint map, claim-store count), auth-exempt. The portal `/status` page
+      renders that payload plus municipal health and coverage. `status.maplespike.ca`
+      is prepared in chart values. DNS remains an operator step ([ops/STATUS-PAGE.md](ops/STATUS-PAGE.md)).
 - [x] Empty-file fix: `docs/products/quill.md` filled (product overview, verification-first,
       composition hub, skills, modes, pricing, getting started).
 

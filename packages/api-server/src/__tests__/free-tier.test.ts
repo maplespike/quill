@@ -41,6 +41,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/engine/status',
     '/v1/data/quality',
     '/v1/ingest/status',
+    '/v1/municipal/health',
+    '/v1/municipal/coverage',
     '/v1/llms.txt',
     '/v1/llms-full.txt',
   ];
@@ -51,7 +53,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/energy',
     '/v1/real-estate',
     '/v1/financial-regulation/crossref',
-    '/v1/municipal/coverage',
+    '/v1/municipal/search',
+    '/v1/municipal/toronto',
     '/v1/audit/query',
     '/v1/watcher/events',
     '/v1/extraction/results',

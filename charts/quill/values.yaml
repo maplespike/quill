@@ -200,7 +200,9 @@ cloudflared:
       cpu: 200m
       memory: 128Mi
   # quill.maplespike.ca is now served by Cloudflare Pages (free tier)
-  # — no tunnel ingress needed for the portal
+  # — no tunnel ingress needed for the portal homepage.
+  # status.maplespike.ca serves the portal /status page. DNS stays an
+  # operator step (docs/ops/STATUS-PAGE.md). Do not add a paid product.
   ingress:
     - hostname: api.maplespike.ca
       service: http://quill-api.maplespike.svc.cluster.local:8084
@@ -208,6 +210,8 @@ cloudflared:
       service: http://quill-mcp.maplespike.svc.cluster.local:3001
     - hostname: kanban.maplespike.ca
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
+    - hostname: status.maplespike.ca
+      service: http://quill-portal.maplespike.svc.cluster.local:8080
 
 # Backups. Off unless an environment opts in (values-prod.yaml does).
 # The claim uses longhorn, the same durable class as the API SQLite volume.

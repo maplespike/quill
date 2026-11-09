@@ -153,6 +153,7 @@ portal:
   ingress:
     host: maplespike.ca
     tls: true
+    # status.maplespike.ca is a cloudflared hostname below, not this field.
 cloudflared:
   enabled: false
   image: docker.io/cloudflare/cloudflared
@@ -180,6 +181,11 @@ cloudflared:
     service: http://quill-mcp.maplespike.svc.cluster.local:3001
   - hostname: kanban.maplespike.ca
     service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
+  # Portal status page. cloudflared.enabled is false here, so this rule
+  # is not published until an operator enables the chart tunnel.
+  # DNS steps: docs/ops/STATUS-PAGE.md. No new paid Cloudflare product.
+  - hostname: status.maplespike.ca
+    service: http://quill-portal.maplespike.svc.cluster.local:8080
 secrets:
   apiKey: ''
   jwtSecret: ''
