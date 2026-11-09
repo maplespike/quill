@@ -65,4 +65,17 @@ describe('alternate portal CSP copies', () => {
     assertAnalyticsHosts(nginxCsp);
     assertAnalyticsHosts(headersCsp);
   });
+
+  test('nginx.conf and _headers omit Google Fonts origins', () => {
+    const nginx = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
+    const headers = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
+    const nginxCsp = nginx.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? '';
+    const headersCsp = headers.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? '';
+    for (const csp of [nginxCsp, headersCsp]) {
+      expect(csp).not.toContain('fonts.googleapis.com');
+      expect(csp).not.toContain('fonts.gstatic.com');
+      expect(directive(csp, 'style-src')).not.toContain('fonts.googleapis.com');
+      expect(directive(csp, 'font-src')).toBe("font-src 'self'");
+    }
+  });
 });

@@ -22,6 +22,7 @@ const testConfig: NotificationConfig = {
   smtpPass: "",
   fromEmail: "test@maplespike.ca",
   fromName: "Test Alerts",
+  postalAddress: "Fixture Mailbox, Ottawa ON",
   pollIntervalMs: 999999,
   dbPath: ":memory:",
   apiBaseUrl: "http://localhost:8082",

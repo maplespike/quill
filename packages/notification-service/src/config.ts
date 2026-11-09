@@ -17,6 +17,12 @@ export interface NotificationConfig {
   fromEmail: string;
   /** Sender display name */
   fromName: string;
+  /**
+   * Mailing address for commercial alert email (CASL).
+   * Read from NOTIFICATION_POSTAL_ADDRESS. Do not hardcode a street address.
+   * Empty means the mailer refuses to send a commercial alert.
+   */
+  postalAddress: string;
   /** Polling interval in ms (default 60000 = 1min) */
   pollIntervalMs: number;
   /** Path to SQLite database */
@@ -38,6 +44,7 @@ export function loadConfig(overrides?: Partial<NotificationConfig>): Notificatio
     smtpPass: overrides?.smtpPass ?? process.env.SMTP_PASS ?? "",
     fromEmail: overrides?.fromEmail ?? process.env.NOTIFICATION_FROM_EMAIL ?? "noreply@maplespike.ca",
     fromName: overrides?.fromName ?? process.env.NOTIFICATION_FROM_NAME ?? "MapleSpike Alerts",
+    postalAddress: overrides?.postalAddress ?? process.env.NOTIFICATION_POSTAL_ADDRESS ?? "",
     pollIntervalMs: overrides?.pollIntervalMs ?? parseInt(process.env.POLL_INTERVAL_MS ?? "60000", 10),
     dbPath: overrides?.dbPath ?? process.env.QUILL_DB_PATH ?? "./quill.db",
     apiBaseUrl: overrides?.apiBaseUrl ?? process.env.QUILL_API_BASE ?? "http://localhost:8082",

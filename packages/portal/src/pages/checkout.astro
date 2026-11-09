@@ -1,13 +1,15 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import EmbeddedCheckoutIsland from "@/components/EmbeddedCheckout";
+import RenewalDisclosure from "@/components/RenewalDisclosure.astro";
 import { pick } from "@/utils/bilingual";
+import type { PaidPlanId } from "@/lib/renewal-disclosure";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const t = (en: string, fr: string) => pick(lang, en, fr);
 const planParam = Astro.url.searchParams.get("plan") || "pro";
-const ALLOWED = new Set(["pro", "business"]);
-const planId = ALLOWED.has(planParam) ? planParam : "pro";
+const ALLOWED = new Set<PaidPlanId>(["pro", "business"]);
+const planId: PaidPlanId = ALLOWED.has(planParam as PaidPlanId) ? (planParam as PaidPlanId) : "pro";
 ---
 
 <BaseLayout
@@ -28,8 +30,26 @@ const planId = ALLOWED.has(planParam) ? planParam : "pro";
         "Le paiement est traité par Stripe. MapleSpike ne voit jamais votre numéro de carte."
       )}
     </p>
-    <div class="mt-8">
-      <EmbeddedCheckoutIsland client:load planId={planId} />
+    <div class="mt-8 space-y-3">
+      <div data-renewal-slot>
+        <div data-plan="pro">
+          <RenewalDisclosure lang={lang} planId="pro" />
+        </div>
+        <div data-plan="business" hidden>
+          <RenewalDisclosure lang={lang} planId="business" />
+        </div>
+      </div>
+      <script is:inline>
+        (function () {
+          var plan = new URLSearchParams(location.search).get("plan");
+          if (plan !== "business") plan = "pro";
+          var nodes = document.querySelectorAll("[data-renewal-slot] [data-plan]");
+          for (var i = 0; i < nodes.length; i++) {
+            nodes[i].hidden = nodes[i].getAttribute("data-plan") !== plan;
+          }
+        })();
+      </script>
+      <EmbeddedCheckoutIsland client:load planId={planId} lang={lang} />
     </div>
     <p class="mt-6 text-xs opacity-60">
       {t(

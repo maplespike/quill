@@ -31,6 +31,22 @@ describe("keyLookUsable", () => {
 describe("createEmbeddedSession", () => {
   const okJson = { success: true, data: { client_secret: "cs_live_secret_123" } };
 
+  test("forwards a French locale when the page is French", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(okJson), { status: 200 }));
+    await createEmbeddedSession({
+      apiBase: "https://api.maplespike.ca",
+      apiKey: "qk_tenant",
+      planId: "pro",
+      locale: "fr",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+    expect(JSON.parse(fetchImpl.mock.calls[0][1]!.body as string)).toEqual({
+      plan_id: "pro",
+      embedded: true,
+      locale: "fr",
+    });
+  });
+
   test("posts embedded:true with the tenant bearer key and returns the secret", async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(okJson), { status: 200 }));
     const r = await createEmbeddedSession({

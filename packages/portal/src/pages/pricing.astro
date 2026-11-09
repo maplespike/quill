@@ -15,6 +15,7 @@ import { localeUrl } from "@/utils/localeUrl";
 import { createI18n } from "@maplespike/i18n";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
 import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
+import RenewalDisclosure from "@/components/RenewalDisclosure.astro";
 import plansData from "@/data/plans.json";
 import statsData from "@/data/stats.json";
 
@@ -242,6 +243,7 @@ const featureValues: Record<string, Bi[]> = {
             <CardFooter>
               {tier.kind === "stripe-pro" && (
                 <div class="w-full space-y-2">
+                  <RenewalDisclosure lang={lang} planId="pro" />
                   <StripeCheckoutButton
                     planId="pro"
                     lang={lang}
@@ -258,6 +260,7 @@ const featureValues: Record<string, Bi[]> = {
               )}
               {tier.kind === "stripe-business" && (
                 <div class="w-full space-y-2">
+                  <RenewalDisclosure lang={lang} planId="business" />
                   <StripeCheckoutButton
                     planId="business"
                     lang={lang}

@@ -14,7 +14,21 @@ import { deriveApiBase } from "../lib/api-base";
 const env: Record<string, unknown> =
   (typeof import.meta !== "undefined" && (import.meta as { env?: Record<string, unknown> }).env) || {};
 
-export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: string }) {
+/** Static HTML cannot see ?plan=. Read it in the browser before the session starts. */
+function planFromLocation(fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  const query = new URLSearchParams(window.location.search || "").get("plan");
+  return query === "pro" || query === "business" ? query : fallback;
+}
+
+export default function EmbeddedCheckoutIsland({
+  planId = "pro",
+  lang = "en",
+}: {
+  planId?: string;
+  lang?: "en" | "fr";
+}) {
+  const activePlan = planFromLocation(planId);
   const key = publishableKey(env);
   const usability = keyLookUsable(key);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -33,7 +47,7 @@ export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: st
       if (!cancelled) setError(`Payment form could not load: ${cause.message}`);
       return null;
     });
-    createEmbeddedSession({ apiBase: deriveApiBase(window.location), apiKey, planId })
+    createEmbeddedSession({ apiBase: deriveApiBase(window.location), apiKey, planId: activePlan, locale: lang })
       .then((r) => {
         if (cancelled) return;
         if (r.ok) setClientSecret(r.clientSecret);
@@ -43,7 +57,7 @@ export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: st
     return () => {
       cancelled = true;
     };
-  }, [planId, key, usability.ok]);
+  }, [activePlan, key, usability.ok, lang]);
 
   if (!usability.ok) {
     return (

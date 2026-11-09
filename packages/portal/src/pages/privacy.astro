@@ -7,6 +7,7 @@ import { pick } from "@/utils/bilingual";
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
 const t = (en: string, fr: string) => pick(lang, en, fr);
+const updated = lang === "fr" ? "9 novembre 2026" : "November 9, 2026";
 ---
 
 <BaseLayout title={i18n.t('privacy.title')} description={t(
@@ -18,7 +19,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {i18n.t('privacy.title')}
       </h1>
-      <p class="mt-2 text-muted-foreground">{i18n.t('privacy.last_updated', { date: 'October 14, 2026' })}</p>
+      <p class="mt-2 text-muted-foreground">{i18n.t('privacy.last_updated', { date: updated })}</p>
     </div>
   </section>
 
@@ -54,16 +55,28 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "Nombre de requêtes, point de terminaison accédé, horodatage et statut de la réponse. Utilisées pour la limitation de débit, la facturation et la prévention des abus. Les journaux d'audit sont conservés 30 jours, puis agrégés en résumés quotidiens.",
           )}</p>
           <p><strong>{t("AI query data:", "Données de requêtes IA :")}</strong> {t(
-            "Questions submitted to the /v1/ai/ask endpoint are processed in real-time and not stored permanently. PII (emails, phone numbers, SINs) is redacted before any audit logging.",
-            "Les questions soumises au point de terminaison /v1/ai/ask sont traitées en temps réel et ne sont pas stockées en permanence. Les RPSN (courriels, numéros de téléphone, NAS) sont masquées avant toute journalisation d'audit.",
+            "The edge AI worker writes an audit row for each /v1/ai/ask call. The row contains the tenant ID, the client IP address, the user agent, a SHA-256 hash of the API key, and a request hash.",
+            "Le travailleur d'IA en périphérie écrit une ligne d'audit pour chaque appel à /v1/ai/ask. La ligne contient l'identifiant du locataire, l'adresse IP du client, l'agent utilisateur, un hachage SHA-256 de la clé API et un hachage de la requête.",
+          )}</p>
+          <p>{t(
+            "The request hash is SHA-256 of the tenant ID joined to the question text. The request hash is not anonymous. The same question from the same tenant always yields the same hash, so the hash can be linked to that question. The audit row does not store the question text. Before other text is written to a log, we redact email addresses, phone numbers, and social insurance numbers.",
+            "Le hachage de la requête est le SHA-256 de l'identifiant du locataire joint au texte de la question. Le hachage de la requête n'est pas anonyme. La même question du même locataire produit toujours le même hachage, donc le hachage peut être relié à cette question. La ligne d'audit ne stocke pas le texte de la question. Avant d'écrire d'autre texte dans un journal, nous masquons les adresses courriel, les numéros de téléphone et les numéros d'assurance sociale.",
+          )}</p>
+          <p>{t(
+            "We keep each raw audit row for 30 days. The AUDIT_RETENTION_DAYS setting controls this period. The default is 30 days. A daily job then saves a summary for that tenant and that day. The summary keeps the tenant ID, the day, request counts, and token totals. The job then deletes the raw row. The deleted row includes the client IP address, the user agent, the API-key hash, and the request hash.",
+            "Nous conservons chaque ligne d'audit brute pendant 30 jours. Le réglage AUDIT_RETENTION_DAYS fixe cette période. La valeur par défaut est 30 jours. Une tâche quotidienne enregistre ensuite un résumé pour ce locataire et ce jour. Le résumé conserve l'identifiant du locataire, le jour, le nombre de requêtes et les totaux de jetons. La tâche supprime ensuite la ligne brute. La ligne supprimée comprend l'adresse IP du client, l'agent utilisateur, le hachage de la clé API et le hachage de la requête.",
+          )}</p>
+          <p>{t(
+            "We send the question to a processor to produce the answer. That processor is Cloudflare Workers AI (through Cloudflare AI Gateway), the MapleSpike homelab inference service, or a bring-your-own-key endpoint that the tenant sets. Cloudflare D1 stores the audit row.",
+            "Nous envoyons la question à un sous-traitant pour produire la réponse. Ce sous-traitant est Cloudflare Workers AI (via Cloudflare AI Gateway), le service d'inférence du laboratoire maison MapleSpike, ou un point de terminaison « apportez votre propre clé » que le locataire définit. Cloudflare D1 stocke la ligne d'audit.",
           )}</p>
           <p><strong>{t("Payment data:", "Données de paiement :")}</strong> {t(
             "We do not store credit card numbers. Crypto payments are processed on-chain. Interac e-Transfer details are handled by our payment processor.",
             "Nous ne stockons pas les numéros de carte de crédit. Les paiements cryptographiques sont traités sur la chaîne. Les détails des virements Interac sont gérés par notre processeur de paiement.",
           )}</p>
-          <p><strong>{t("We do NOT collect:", "Nous ne collectons PAS :")}</strong> {t(
-            "Browser fingerprints, tracking cookies for advertising, personal browsing history, or location data beyond IP-based rate limiting.",
-            "Empreintes de navigateur, témoins de suivi publicitaire, historique de navigation personnel ou données de localisation au-delà de la limitation de débit fondée sur l'adresse IP.",
+          <p><strong>{t("We do not collect:", "Nous ne collectons pas :")}</strong> {t(
+            "Browser fingerprints, advertising cookies, or a personal browsing history. We do store the client IP address on AI audit rows for the retention period in this section. We also use the IP address for rate limiting.",
+            "Empreintes de navigateur, témoins publicitaires ou historique de navigation personnel. Nous stockons l'adresse IP du client dans les lignes d'audit IA pendant la période de conservation décrite dans cette section. Nous utilisons aussi l'adresse IP pour la limitation de débit.",
           )}</p>
         </CardContent>
       </Card>
@@ -98,8 +111,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "Les enregistrements de sources du secteur public peuvent être mis en cache avec des métadonnées de provenance (URL source, horodatage de récupération, hachage SHA-256 du contenu et métadonnées de licence déclarées par l'éditeur lorsqu'elles sont fournies). Les conditions de licence varient selon la source et le jeu de données. L'accès public ne confère pas en soi de droits de réutilisation; consultez les conditions de l'éditeur original.",
           )}</p>
           <p>{t(
-            "AI inference requests to the edge worker are processed via Cloudflare Workers AI or our self-hosted homelab cluster. No query content is stored beyond the 30-day audit window.",
-            "Les requêtes d'inférence IA vers le travailleur de périphérie sont traitées via Cloudflare Workers AI ou notre cluster de laboratoire maison auto-hébergé. Aucun contenu de requête n'est conservé au-delà de la fenêtre d'audit de 30 jours.",
+            "The edge AI worker sends each question to Cloudflare Workers AI or to the MapleSpike homelab cluster. Section 2 lists the audit fields, the processors, and the 30-day retention. The request hash is not anonymous.",
+            "Le travailleur d'IA en périphérie envoie chaque question à Cloudflare Workers AI ou au cluster de laboratoire maison MapleSpike. La section 2 énumère les champs d'audit, les sous-traitants et la conservation de 30 jours. Le hachage de la requête n'est pas anonyme.",
           )}</p>
         </CardContent>
       </Card>

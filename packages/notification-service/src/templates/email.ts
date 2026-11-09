@@ -16,12 +16,15 @@ export interface EmailPayload {
 }
 
 /**
- * Build a notification email for a data change event.
+ * Commercial electronic message for a data-change alert.
  *
- * The caller passes the plaintext `to` for the actual SMTP
- * delivery; once the mailer sends, the plaintext is gone from
- * our process. The template references `unsubscribeToken` in
- * place of the email in the unsubscribe link.
+ * CASL identification lives in the footer: the MapleSpike name, the
+ * sender email, and the operator postal address from config. The
+ * unsubscribe link stays on the same message. Verification and welcome
+ * mail are transactional and must not use this template.
+ *
+ * `postalAddress` comes from NOTIFICATION_POSTAL_ADDRESS. This function
+ * refuses to build a message when that value is blank.
  */
 export function buildNotificationEmail(params: {
   to: string;
@@ -31,8 +34,18 @@ export function buildNotificationEmail(params: {
   eventType: string;
   summary: string;
   apiBaseUrl: string;
+  postalAddress: string;
+  senderEmail: string;
 }): EmailPayload {
-  const { to, unsubscribeToken, label, sourceId, eventType, summary, apiBaseUrl } = params;
+  const { to, unsubscribeToken, label, sourceId, eventType, summary, apiBaseUrl, senderEmail } = params;
+  const postalAddress = params.postalAddress.trim();
+  if (!postalAddress) {
+    throw new Error("NOTIFICATION_POSTAL_ADDRESS is required before a commercial alert can be sent");
+  }
+  const contactEmail = senderEmail.trim();
+  if (!contactEmail) {
+    throw new Error("A sender email is required on a commercial alert");
+  }
   const displayName = label ?? to.split("@")[0] ?? "subscriber";
 
   const subject = `[MapleSpike] ${eventType}: ${sourceId}`;
@@ -50,7 +63,9 @@ export function buildNotificationEmail(params: {
     ``,
     `View details at ${apiBaseUrl}`,
     ``,
-    `— MapleSpike Alerts`,
+    `MapleSpike`,
+    postalAddress,
+    contactEmail,
     `Unsubscribe: ${unsubUrl}`,
   ].join("\n");
 
@@ -69,7 +84,10 @@ export function buildNotificationEmail(params: {
     `  <p><a href="${escapeHtml(apiBaseUrl)}">View details →</a></p>`,
     `  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">`,
     `  <p style="font-size: 12px; color: #6b7280;">`,
-    `    MapleSpike Alerts — <a href="${escapeHtml(unsubUrl)}">Unsubscribe</a>`,
+    `    MapleSpike<br>`,
+    `    ${escapeHtml(postalAddress)}<br>`,
+    `    ${escapeHtml(contactEmail)}<br>`,
+    `    <a href="${escapeHtml(unsubUrl)}">Unsubscribe</a>`,
     `  </p>`,
     `</div>`,
   ].join("\n");

@@ -4,6 +4,11 @@
  * Sends transactional emails (verification, welcome, onboarding).
  * Supports SendGrid API (recommended) and console fallback for development.
  *
+ * Classification: verification and welcome mail confirm an account the
+ * person just created. They are transactional. Do not add a marketing
+ * unsubscribe or a commercial-message postal block to these messages.
+ * Commercial alert mail lives in @maplespike/notification-service.
+ *
  * Usage:
  *   import { sendVerificationEmail, getEmailConfig } from './email.js';
  *   await sendVerificationEmail({ to: 'user@example.com', token: 'abc123' });
@@ -69,13 +74,18 @@ export function getEmailConfig(): EmailConfig {
   return _config;
 }
 
-/**
- * Send a verification email with a token link.
- */
-export async function sendVerificationEmail(params: VerificationEmailParams): Promise<{ sent: boolean; provider: string }> {
-  const config = getEmailConfig();
-  const verifyUrl = `${config.appUrl}/v1/verify/${params.token}`;
+export interface RenderedEmail {
+  subject: string;
+  html: string;
+  text: string;
+}
 
+/**
+ * Verification mail. Transactional: it completes an account the person
+ * just requested. No commercial unsubscribe and no postal block.
+ */
+export function renderVerificationEmail(config: EmailConfig, params: VerificationEmailParams): RenderedEmail {
+  const verifyUrl = `${config.appUrl}/v1/verify/${params.token}`;
   const subject = `Verify your email — ${config.appName}`;
   const html = `
     <h2>Welcome to ${config.appName}!</h2>
@@ -90,7 +100,15 @@ export async function sendVerificationEmail(params: VerificationEmailParams): Pr
     <p>— ${config.appName} Team</p>
   `;
   const text = `Welcome to ${config.appName}!\n\nHi ${params.name},\n\nPlease verify your email address to activate your account:\n\n${verifyUrl}\n\nThis link expires in 24 hours.\n\nIf you didn't create an account, ignore this email.\n\n— ${config.appName} Team`;
+  return { subject, html, text };
+}
 
+/**
+ * Send a verification email with a token link.
+ */
+export async function sendVerificationEmail(params: VerificationEmailParams): Promise<{ sent: boolean; provider: string }> {
+  const config = getEmailConfig();
+  const { subject, html, text } = renderVerificationEmail(config, params);
   return sendEmail({ to: params.to, subject, html, text });
 }
 
@@ -99,12 +117,14 @@ export async function sendVerificationEmail(params: VerificationEmailParams): Pr
  * NOTE: API keys are no longer sent via email for security.
  * Users retrieve keys from the dashboard.
  */
-export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ sent: boolean; provider: string }> {
-  const config = getEmailConfig();
+/**
+ * Welcome mail. Transactional: it confirms verification of an account
+ * the person already opened. No commercial unsubscribe and no postal block.
+ */
+export function renderWelcomeEmail(config: EmailConfig, params: WelcomeEmailParams): RenderedEmail {
   const dashboardUrl = `${config.appUrl}/dashboard`;
   const keysUrl = `${config.appUrl}/dashboard/keys`;
   const docsUrl = `${config.appUrl}/docs`;
-
   const subject = `Welcome to ${config.appName}!`;
   const html = `
     <h2>You're all set!</h2>
@@ -125,7 +145,12 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ se
     <p>— ${config.appName} Team</p>
   `;
   const text = `You're all set!\n\nHi ${params.name},\n\nYour email has been verified and your account is now active.\n\nAPI keys are available in your dashboard. For security, we no longer include them in emails.\n\nQuick Start:\n1. Go to ${keysUrl} to create an API key.\n2. Use your API key: Authorization: Bearer YOUR_KEY\n3. Try: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/health\n4. Check usage: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/me\n\nDashboard: ${dashboardUrl}\nDocs: ${docsUrl}\n\n— ${config.appName} Team`;
+  return { subject, html, text };
+}
 
+export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ sent: boolean; provider: string }> {
+  const config = getEmailConfig();
+  const { subject, html, text } = renderWelcomeEmail(config, params);
   return sendEmail({ to: params.to, subject, html, text });
 }
 
