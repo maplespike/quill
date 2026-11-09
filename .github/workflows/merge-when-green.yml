@@ -208,7 +208,7 @@ jobs:
 
           if [[ "$EVENT_NAME" == "pull_request_target" || "$EVENT_NAME" == "workflow_dispatch" ]]; then
             case "$ACTOR" in
-              "dependabot[bot]"|reverb256)
+              "dependabot[bot]"|"app/dependabot"|reverb256)
                 ;;
               *)
                 echo "::notice::actor ${ACTOR} is not on the merge allowlist — nothing to do."
@@ -256,8 +256,14 @@ jobs:
             exit 0
           fi
           AUTHOR="$(jq -r '.author.login // empty' <<<"$META")"
+          # `gh pr view --json author` is GraphQL, and the GitHub App form of
+          # Dependabot reports as `app/dependabot` there while REST reports
+          # `dependabot[bot]`. Both must be allowed: with only the REST spelling
+          # the gate answered "author app/dependabot is not on the merge
+          # allowlist" on #1252/#1249/#1246, so a labelled Dependabot PR could
+          # never merge (measured 2026-11-07, run 42364690702).
           case "$AUTHOR" in
-            "dependabot[bot]"|reverb256)
+            "dependabot[bot]"|"app/dependabot"|reverb256)
               ;;
             *)
               echo "::notice::author ${AUTHOR:-unknown} is not on the merge allowlist — nothing to do."
@@ -356,9 +362,21 @@ jobs:
 
           MERGE_STATE="$(jq -r '.mergeStateStatus // empty' <<<"$META")"
           MERGEABLE="$(jq -r '.mergeable // empty' <<<"$META")"
+          # Update-branch is a PUSH into the PR head. GITHUB_TOKEN can never push
+          # to a branch that changes .github/workflows ("refusing to allow a
+          # GitHub App to create or update workflow", 403) and this call used to
+          # inherit GH_TOKEN=github.token, so a workflow-editing Dependabot PR
+          # (e.g. #1252, pnpm/action-setup across four workflow files) could be
+          # labelled ready-to-merge and then never advance past BEHIND: the
+          # update failed, the step only warned, and the gate exited 0.
+          # The fleet-merge-gate App token carries Workflows:write, so it is the
+          # only token that can move such a branch.
           if [[ "$MERGE_STATE" == "BEHIND" ]]; then
             echo "::notice::PR #${PR_NUMBER} is behind base — updating the branch once."
-            if ! gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
+            if [[ -z "${GATE_TOKEN:-}" ]]; then
+              echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token; a workflow-editing PR cannot be updated with GITHUB_TOKEN."
+            fi
+            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
               echo "::warning::could not update the branch of PR #${PR_NUMBER}."
             fi
             exit 0

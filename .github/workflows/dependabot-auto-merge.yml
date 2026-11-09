@@ -59,6 +59,23 @@ jobs:
     # GitHub-hosted runner costs a fraction of a cent. Do NOT move it back.
     runs-on: ubuntu-latest
     steps:
+      # The fleet-merge-gate App carries Workflows:write; GITHUB_TOKEN cannot
+      # merge a PR that edits .github/workflows (403, "refusing to allow a
+      # GitHub App to create or update workflow"). A Dependabot bump of an
+      # action (e.g. pnpm/action-setup, #1252) edits every workflow that uses
+      # it, so the GITHUB_TOKEN merge path could never succeed for exactly the
+      # allowlisted class this workflow exists to merge. Mint the App token when
+      # the var is configured; the merge below falls back to GITHUB_TOKEN so a
+      # var-less fork/test repo still works for non-workflow bumps.
+      - name: Mint merge-gate app token
+        id: gate
+        if: ${{ vars.MERGE_GATE_APP_ID != '' }}
+        continue-on-error: true
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MERGE_GATE_APP_ID }}
+          private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
+
       - name: Decide whether this bump may auto-merge
         id: check
         # Untrusted input (PR title) arrives via env, never interpolated into
@@ -199,7 +216,10 @@ jobs:
       - name: Squash-merge
         if: steps.check.outputs.safe == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # App token when minted (workflow-editing PRs need it); GITHUB_TOKEN
+          # otherwise, so a repo without MERGE_GATE_APP_ID still merges plain
+          # dependency bumps.
+          GH_TOKEN: ${{ steps.gate.outputs.token || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
