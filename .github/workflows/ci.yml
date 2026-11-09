@@ -302,13 +302,11 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
-      # Incident rule for 2026-11-09: an agent using the owner's gh login
-      # removed ready-to-merge from approved PRs #1242–#1253 and hand-merged
-      # #1254. The merge gate does not check who removed the label.
       # scripts/test-label-guard.mts parses label-guard.yml: unlabeled only,
-      # ready-to-merge on an open PR, hold exemption, the App login (not every
-      # Bot), the App token rather than GITHUB_TOKEN, and no checkout of the
-      # pull request head. A fixture that drops the hold exemption must fail.
+      # ready-to-merge on an open PR, hold exemption, reverb256 exempt, the
+      # gate App exempt, restore only for another Bot, the App token rather
+      # than GITHUB_TOKEN, and no checkout of the pull request head. A fixture
+      # that drops the hold exemption must fail.
       - name: Label guard unit tests
         run: pnpm exec tsx --test scripts/test-label-guard.mts
 

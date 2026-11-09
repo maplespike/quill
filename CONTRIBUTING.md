@@ -17,7 +17,7 @@ Add the `ready-to-merge` label after you read the diff. The merge gate squash-me
 
 Do not remove `ready-to-merge` to pause a pull request. Add the `hold` label. Only Atlas sets `hold`. The merge gate skips a pull request that carries `hold`.
 
-`.github/workflows/label-guard.yml` puts `ready-to-merge` back when any other actor removes it. It opens an issue with the `label-guard` label.
+`.github/workflows/label-guard.yml` puts `ready-to-merge` back when another Bot removes it. The owner account, the merge-gate App, and the merge workflow may remove the label. It opens an issue with the `label-guard` label.
 
 > **Branch Protection**: `main` is protected requiring PRs + CI. `prod` is production-only (changesets publish to `prod` then merge to `main`). Pre-commit hooks warn on commits to `prod`.
 

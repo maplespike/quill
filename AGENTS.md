@@ -439,12 +439,11 @@ even the commit body; see #983.)
 An issue still open after a green gate merge is this convention being missed,
 not a flaky check.
 
-Do not remove the `ready-to-merge` label. On 2026-11-09 an agent using the
-owner's `gh` login removed it from approved pull requests #1242–#1253 and
-hand-merged #1254. To pause an approved pull request, add `hold`. Only Atlas
-sets `hold`. The merge gate skips a pull request that carries `hold`.
-`.github/workflows/label-guard.yml` restores the label and files a
-`label-guard` issue when any other actor removes it.
+The owner account `reverb256`, the merge-gate App, and the merge workflow
+may remove the `ready-to-merge` label. To pause an approved pull request,
+add `hold`. Only Atlas sets `hold`. The merge gate skips a pull request
+that carries `hold`. `.github/workflows/label-guard.yml` restores the label
+and files a `label-guard` issue when another Bot removes it.
 
 ## Document hygiene
 

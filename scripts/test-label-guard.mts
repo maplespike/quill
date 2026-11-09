@@ -1,12 +1,11 @@
 #!/usr/bin/env tsx
 /**
- * Label guard (2026-11-09).
+ * Label guard.
  *
- * An agent using the owner's gh login removed `ready-to-merge` from approved
- * pull requests #1242–#1253 and hand-merged #1254. The merge gate did not
- * check who removed the label. `.github/workflows/label-guard.yml` puts the
- * label back unless the remover is the fleet-merge-gate App, or the
- * merge-when-green workflow removing it while it merges.
+ * `.github/workflows/label-guard.yml` leaves `ready-to-merge` off when the
+ * owner account `reverb256`, the fleet-merge-gate App, or the
+ * merge-when-green workflow removes it. It puts the label back only when
+ * some other Bot removes it.
  *
  * The checks parse the workflow file. They do not call GitHub.
  *
@@ -180,10 +179,16 @@ function assess(text: string): Violation[] {
       message: 'the merge-when-green workflow must be an allowed remover while it merges',
     });
   }
-  if (/sender\.type|SENDER_TYPE|type\s*==\s*['"]Bot['"]/.test(text)) {
+  if (!/\[\[\s*"\$SENDER"\s*==\s*"reverb256"\s*\]\]/.test(text)) {
     violations.push({
       code: 'allowed-sender',
-      message: 'do not exempt every Bot-type sender',
+      message: 'reverb256 must be exempt',
+    });
+  }
+  if (!/\[\[\s*"\$SENDER_TYPE"\s*!=\s*"Bot"\s*\]\]/.test(text)) {
+    violations.push({
+      code: 'allowed-sender',
+      message: 'restore only when sender.type is Bot and the remover is not an allowed sender',
     });
   }
 
@@ -260,13 +265,14 @@ test('fixture: removing the hold exemption makes the check fail', () => {
   assert.deepEqual(others, []);
 });
 
-test('allowed removers are the App login and the merge workflow, not every Bot', () => {
+test('reverb256 and the gate App are exempt; other bots are not', () => {
   assert.equal((source.match(/fleet-merge-gate\[bot\]/g) ?? []).length, 1);
   assert.match(source, /ALLOWED_APP_LOGIN:\s*fleet-merge-gate\[bot\]/);
   assert.match(source, /\[\[\s*"\$SENDER"\s*==\s*"\$ALLOWED_APP_LOGIN"\s*\]\]/);
+  assert.match(source, /\[\[\s*"\$SENDER"\s*==\s*"reverb256"\s*\]\]/);
+  assert.match(source, /\[\[\s*"\$SENDER_TYPE"\s*!=\s*"Bot"\s*\]\]/);
   assert.match(source, /merge-when-green\.yml/);
   assert.match(source, /github-actions\[bot\]/);
-  assert.doesNotMatch(source, /sender\.type|SENDER_TYPE|type\s*==\s*['"]Bot['"]/);
   assert.deepEqual(
     assess(source).filter((v) => v.code === 'allowed-sender'),
     [],

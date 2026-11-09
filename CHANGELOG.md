@@ -3,7 +3,7 @@
 ## [Unreleased] — 2026-11-09
 
 ### Added
-- **Label guard restores `ready-to-merge` when the wrong actor removes it.** On 2026-11-09 an agent using the owner's `gh` login removed the label from approved pull requests #1242–#1253 and hand-merged #1254. The merge gate did not check who removed the label. `.github/workflows/label-guard.yml` runs on `pull_request_target` `unlabeled` for an open pull request. It does not check out pull-request code. It allows the fleet-merge-gate App (`fleet-merge-gate[bot]`) and the merge-when-green workflow while that workflow is merging. Any other remover gets the label back, plus a `label-guard` issue that names who removed it and when. To pause an approved pull request, add `hold`. Only Atlas sets `hold`. The merge gate skips a pull request that carries `hold`. Regression tests in `scripts/test-label-guard.mts`.
+- **Label guard restores `ready-to-merge` when another bot removes it.** `.github/workflows/label-guard.yml` runs on `pull_request_target` `unlabeled` for an open pull request. It does not check out pull-request code. It does not act when the remover is the owner account `reverb256`, the fleet-merge-gate App (`fleet-merge-gate[bot]`), or the merge-when-green workflow while that workflow is merging. Another Bot gets the label back, plus a `label-guard` issue that names who removed it and when. To pause an approved pull request, add `hold`. Only Atlas sets `hold`. The merge gate skips a pull request that carries `hold`. Regression tests in `scripts/test-label-guard.mts`.
 
 ## [Unreleased] — 2026-11-04
 
