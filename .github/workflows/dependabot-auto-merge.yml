@@ -16,14 +16,19 @@
 #     exited 1 — the red `auto-merge` check #1041 measured on 8 open PRs whose
 #     real checks were green.
 #
-# Fix: one path, which verifies and then merges directly. `auto-merge.yml` is
-# deleted. `actions: read` plus the REST fallback below is the same treatment
-# `merge-when-green.yml` documents (and needed) for the identical refusal.
+# Fix: one path, which verifies checks and then adds the `ready-to-merge`
+# label. It does not merge. `merge-when-green.yml` is the only merge, and it
+# uses the fleet-merge-gate App token so the push to the base branch triggers
+# CI. This file must not call `gh pr merge`. `--auto` is not used: auto-merge
+# is disabled, and this repository cannot declare required checks (private
+# free plan, branch-protection API returns 403). Without those checks,
+# `--auto` merges immediately.
 #
 # Policy: the #1215 ecosystem minor+patch groups (npm-/docker-/actions-minor-patch),
-# the low-risk packages below, and patch-level framework updates auto-merge.
-# Majors and anything unknown are left for a human and get a comment saying why.
-# A human merging anything else uses the `ready-to-merge` label and merge-when-green.yml.
+# the low-risk packages below, and patch-level framework updates get the
+# label once checks are green. Majors and anything unknown are left for a
+# human and get a comment saying why. A human merging anything else uses the
+# `ready-to-merge` label and merge-when-green.yml.
 name: Dependabot Auto-Merge
 
 on:
@@ -52,30 +57,13 @@ jobs:
   auto-merge:
     # Dependabot opens same-repo pull requests. The actor check and the head
     # repository check both have to pass. A fork pull request does not run.
-    if: github.actor == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    if: (github.actor == 'dependabot[bot]' || github.actor == 'app/dependabot') && github.event.pull_request.head.repo.full_name == github.repository
     # NOT self-hosted, deliberately (#1041): on the four self-hosted runners a
     # waiting job holds a slot the checks it is waiting on need, which starved
     # main CI for 30min+ (measured 2026-10-09). This job runs only `gh`, so a
     # GitHub-hosted runner costs a fraction of a cent. Do NOT move it back.
     runs-on: ubuntu-latest
     steps:
-      # The fleet-merge-gate App carries Workflows:write; GITHUB_TOKEN cannot
-      # merge a PR that edits .github/workflows (403, "refusing to allow a
-      # GitHub App to create or update workflow"). A Dependabot bump of an
-      # action (e.g. pnpm/action-setup, #1252) edits every workflow that uses
-      # it, so the GITHUB_TOKEN merge path could never succeed for exactly the
-      # allowlisted class this workflow exists to merge. Mint the App token when
-      # the var is configured; the merge below falls back to GITHUB_TOKEN so a
-      # var-less fork/test repo still works for non-workflow bumps.
-      - name: Mint merge-gate app token
-        id: gate
-        if: ${{ vars.MERGE_GATE_APP_ID != '' }}
-        continue-on-error: true
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ vars.MERGE_GATE_APP_ID }}
-          private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
-
       - name: Decide whether this bump may auto-merge
         id: check
         # Untrusted input (PR title) arrives via env, never interpolated into
@@ -213,27 +201,22 @@ jobs:
           echo "::error::Timed out waiting for CI after 20 minutes."
           exit 1
 
-      - name: Squash-merge
+      - name: Label ready-to-merge
         if: steps.check.outputs.safe == 'true'
         env:
-          # App token when minted (workflow-editing PRs need it); GITHUB_TOKEN
-          # otherwise, so a repo without MERGE_GATE_APP_ID still merges plain
-          # dependency bumps.
-          GH_TOKEN: ${{ steps.gate.outputs.token || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # No --auto: auto-merge is disabled on this repository, so the
-          # command would fail rather than queue. No --subject: the repo's
-          # squash settings take COMMIT_OR_PR_TITLE, which is Dependabot's own
-          # "chore(deps): bump X from A to B".
-          if ! gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash \
-            --body "Auto-merged by Dependabot Auto-Merge (#1041): every check green and the package is on the low-risk allowlist."; then
-            echo "::error::Merge failed for #$PR_NUMBER. If this is a token permission problem, note that Dependabot-triggered runs get a read-only GITHUB_TOKEN unless write tokens are enabled for them in repository settings."
+          # Label only. merge-when-green.yml squash-merges with the App token
+          # after the checks are green, which is what triggers CI on the base
+          # branch. Adding the label is idempotent.
+          if ! gh pr edit "$PR_NUMBER" --repo "$GH_REPO" --add-label "ready-to-merge"; then
+            echo "::error::failed to add ready-to-merge on #${PR_NUMBER}."
             exit 1
           fi
-          echo "::notice::Auto-merged #$PR_NUMBER."
+          echo "::notice::Labelled #$PR_NUMBER ready-to-merge."
 
       - name: Comment when skipped
         if: steps.check.outputs.safe != 'true'
@@ -242,5 +225,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          gh pr comment "$PR_NUMBER" --repo "$GH_REPO" \
-            --body "⏸️ Auto-merge skipped: ${{ steps.check.outputs.reason }}"
+          set -euo pipefail
+          if ! gh pr comment "$PR_NUMBER" --repo "$GH_REPO" \
+            --body "⏸️ Auto-merge skipped: ${{ steps.check.outputs.reason }}"; then
+            echo "::error::failed to comment on #${PR_NUMBER}."
+            exit 1
+          fi

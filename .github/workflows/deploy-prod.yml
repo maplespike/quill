@@ -74,7 +74,9 @@ on:
         default: ""
 
 concurrency:
-  group: deploy-prod
+  # Key on the commit. A static group cancels a queued prod run when a newer
+  # push arrives, even with cancel-in-progress false.
+  group: deploy-prod-${{ github.sha }}
   cancel-in-progress: false
 
 permissions:
@@ -214,9 +216,11 @@ jobs:
     # allowlist or other than PIN_NODE. Never unpinned — 2026-10-21 run
     # 39630307172 claimed a random runner and produced an empty pin block.
     runs-on: ${{ fromJSON(needs.gate-nexus.outputs.runner) }}
-    # One build at a time per build host (sentry especially).
+    # Each commit is its own group, so a queued build is not cancelled when a
+    # newer push joins the queue. The headroom gate still refuses an overloaded
+    # host before this job starts.
     concurrency:
-      group: quill-build-${{ needs.gate-nexus.outputs.target }}
+      group: quill-build-${{ needs.gate-nexus.outputs.target }}-${{ github.sha }}
       cancel-in-progress: false
     env:
       PIN_NODE: ${{ needs.gate-nexus.outputs.target }}

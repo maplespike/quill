@@ -1,0 +1,25 @@
+{
+  "checkRuns": {
+    "check_runs": [
+      {
+        "id": 3,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "check_suite": { "id": 20 }
+      }
+    ]
+  },
+  "checkSuites": {
+    "check_suites": [
+      {
+        "id": 20,
+        "status": "completed",
+        "conclusion": "cancelled",
+        "latest_check_runs_count": 1,
+        "app": { "slug": "github-actions" }
+      }
+    ]
+  },
+  "expect": ["suite 20 github-actions: cancelled"]
+}

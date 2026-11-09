@@ -1,0 +1,8 @@
+{
+  "input": {
+    "mergeable": "MERGEABLE",
+    "mergeStateStatus": "CLEAN",
+    "compare": { "status": "ahead", "ahead_by": 1, "behind_by": 0 }
+  },
+  "expect": { "action": "merge", "reason": "clean" }
+}

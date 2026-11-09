@@ -1,0 +1,25 @@
+{
+  "checkRuns": {
+    "check_runs": [
+      {
+        "id": 4,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "stale",
+        "check_suite": { "id": 40 }
+      }
+    ]
+  },
+  "checkSuites": {
+    "check_suites": [
+      {
+        "id": 40,
+        "status": "completed",
+        "conclusion": "stale",
+        "latest_check_runs_count": 1,
+        "app": { "slug": "github-actions" }
+      }
+    ]
+  },
+  "expect": ["suite 40 github-actions: stale"]
+}

@@ -312,6 +312,44 @@ jobs:
       - name: Merge gate metadata token unit tests
         run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts
 
+      # MERGEABLE+UNSTABLE compares base...head. The decision (diverged,
+      # behind, clean, current) is scripts/gates/decide.mjs.
+      - name: Merge gate decision fixtures
+        run: pnpm exec tsx --test scripts/test-merge-gate-decide.mts
+
+      # When a PR is not green, the gate writes the per-suite cause
+      # (failed, cancelled, queued with zero runs, stale) to the job summary.
+      - name: Check triage report
+        run: pnpm exec tsx --test scripts/test-triage-checks.mts
+
+      # A concurrency group keyed only on github.ref cancels a queued prod
+      # deploy when a newer push arrives, even with cancel-in-progress false.
+      - name: Deploy concurrency groups
+        run: node scripts/gates/check-deploy-concurrency.mjs
+
+      - name: Deploy concurrency unit tests
+        run: pnpm exec tsx --test scripts/test-deploy-concurrency.mts
+
+      # Dependabot adds ready-to-merge. It does not merge, and it does not
+      # pass --auto unless required checks are declared.
+      - name: Dependabot label-only auto-merge
+        run: node scripts/gates/check-dependabot-auto-merge.mjs
+
+      - name: Dependabot label-only unit tests
+        run: pnpm exec tsx --test scripts/test-dependabot-auto-merge.mts
+
+      # Closed gate: no merge without a completed check suite, a merge-gate
+      # commit status that is never success, no swallowed write warnings,
+      # both Dependabot author spellings plus the numeric bot id.
+      - name: Merge gate close contract
+        run: node scripts/gates/check-merge-close.mjs
+
+      - name: Merge gate swallowed write check
+        run: node scripts/gates/check-no-swallowed-warnings.mjs
+
+      - name: Merge gate close contract unit tests
+        run: pnpm exec tsx --test scripts/test-merge-gate-close.mts
+
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
       # `head: 'changeset-release/prod'`. GitHub IGNORES a `head` filter that is

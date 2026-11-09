@@ -238,7 +238,13 @@ test('reads (`gh pr view`) are not branch writes', () => {
 test("this repo's merge workflows put every branch write on the App token", () => {
   const { writeViolations, writeSteps } = scanWorkflows(WORKFLOWS);
   assert.deepEqual(writeViolations, []);
-  assert.ok(writeSteps >= 2, `expected the gate and Dependabot merge paths, saw ${writeSteps}`);
+  assert.ok(writeSteps >= 1, `expected the merge gate's branch writes, saw ${writeSteps}`);
+  const dependabot = fs.readFileSync(path.join(WORKFLOWS, 'dependabot-auto-merge.yml'), 'utf8');
+  assert.equal(
+    findTokenOnlyWriteSteps(dependabot, 'dependabot-auto-merge.yml').writeSteps,
+    0,
+    'dependabot-auto-merge applies a label; it does not merge',
+  );
 });
 
 test('the merge gate allowlists both Dependabot login spellings', () => {

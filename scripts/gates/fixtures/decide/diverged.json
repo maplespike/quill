@@ -1,0 +1,8 @@
+{
+  "input": {
+    "mergeable": "MERGEABLE",
+    "mergeStateStatus": "UNSTABLE",
+    "compare": { "status": "diverged", "ahead_by": 2, "behind_by": 3 }
+  },
+  "expect": { "action": "update-branch", "reason": "diverged" }
+}

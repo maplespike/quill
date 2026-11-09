@@ -16,7 +16,11 @@
 # or exits 0. A pending or red check is not this job's failure.
 #
 # "Not my turn" exits 0, never 1. A red check on a PR that is only waiting for
-# its label is a misleading signal.
+# its label is a misleading signal. A CONFLICTING or DIRTY pull request is not
+# silent: the job summary says so, and the pull request gets one comment.
+# An unknown or null state (missing head repository, missing metadata, API
+# error) fails the job. update-branch and the squash-merge use the App token
+# only. A GITHUB_TOKEN push does not trigger CI.
 #
 # pull_request_target runs the workflow file from the default branch, which is
 # what gives the squash-merge token write access. This job does not check out
@@ -61,12 +65,14 @@ permissions:
   contents: write
   pull-requests: write
   checks: read
+  # commit status context merge-gate (failure or pending; never success on close)
+  statuses: write
   # The close-loop (#983) reads and closes issues. An unlisted scope is none.
   # On the first live run (#999, 2026-10-05) `gh issue view` 403'd and the
   # loop skipped the issue. issues:write covers the state read and the close.
   issues: write
-  # GITHUB_TOKEN squash-merge does not fire push workflows on main.
-  # workflow_dispatch does, and it needs actions:write.
+  # The squash-merge uses the App token, so the push to the base branch
+  # triggers CI. A GITHUB_TOKEN push would not.
   actions: write
 
 concurrency:
@@ -130,8 +136,9 @@ jobs:
 
       - name: Evaluate the gate once
         env:
-          GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token (same-repo metadata read, merge, update-branch); empty = GITHUB_TOKEN
+          GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token. Pushes use this only. Empty refuses the push.
           GH_TOKEN: ${{ github.token }}
+          WORKFLOW_SHA: ${{ github.sha }}
           # Empty on check_suite/workflow_dispatch when the payload has no full_name.
           # A non-empty value that is not this repository exits before any App-token read.
           EVENT_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name || github.event.check_suite.pull_requests[0].head.repo.full_name }}
@@ -152,6 +159,114 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          # Unknown, null, and API errors land here. "Not my turn" does not.
+          # CLOSE_STATUS=1 means this run already decided the PR is ready-to-merge,
+          # so a close publishes the merge-gate commit status (never success).
+          CLOSE_STATUS=0
+          fail_gate() {
+            local msg="$1"
+            echo "::error::${msg}"
+            if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+              printf '%s\n' "$msg" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [[ "${CLOSE_STATUS:-}" == "1" ]]; then
+              CLOSE_STATUS=0
+              publish_close_status failure "$msg"
+            fi
+            exit 1
+          }
+
+          note_summary() {
+            local msg="$1"
+            echo "$msg"
+            if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+              printf '%s\n' "$msg" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          }
+
+          # Fetch one script from this workflow's commit. No checkout of the PR head.
+          load_gate_script() {
+            local name="$1"
+            local dest="${RUNNER_TEMP}/gates-${name}"
+            if [[ -s "$dest" ]]; then
+              printf '%s\n' "$dest"
+              return 0
+            fi
+            if ! command -v node >/dev/null 2>&1; then
+              echo "::error::node is not on PATH; cannot run scripts/gates/${name}."
+              exit 1
+            fi
+            if ! GH_TOKEN="$READ_TOKEN" gh api -H "Accept: application/vnd.github.raw" \
+                "repos/${GH_REPO}/contents/scripts/gates/${name}?ref=${WORKFLOW_SHA}" > "$dest"; then
+              echo "::error::API error fetching scripts/gates/${name}."
+              exit 1
+            fi
+            printf '%s\n' "$dest"
+          }
+
+          # failure or pending. commit-status.mjs rejects success.
+          publish_close_status() {
+            local state="$1"
+            local description="$2"
+            local script
+            if [[ -z "${HEAD_SHA:-}" || ! "$HEAD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "::error::cannot publish merge-gate status without a head SHA."
+              exit 1
+            fi
+            script="$(load_gate_script commit-status.mjs)"
+            # Job token: this workflow grants statuses:write. The App token is
+            # for branch pushes, which must trigger CI.
+            if ! node "$script" --repo "$GH_REPO" --sha "$HEAD_SHA" --state "$state" --description "$description"; then
+              echo "::error::merge-gate status publish failed for ${HEAD_SHA}."
+              exit 1
+            fi
+          }
+
+          exit_closed() {
+            local state="$1"
+            local description="$2"
+            local code="$3"
+            if [[ "$state" == "failure" || "$code" != "0" ]]; then
+              echo "::error::${description}"
+            else
+              echo "::notice::${description}"
+            fi
+            note_summary "$description"
+            if [[ "${CLOSE_STATUS:-}" == "1" ]]; then
+              CLOSE_STATUS=0
+              publish_close_status "$state" "$description"
+            fi
+            exit "$code"
+          }
+
+          # One comment per conflicting PR. The marker is the idempotency key.
+          comment_conflict_once() {
+            local marker="<!-- quill-merge-gate:conflict -->"
+            local body_file="${RUNNER_TEMP}/conflict-comment.md"
+            local safe_mergeable safe_state raw count
+            safe_mergeable="$(printf '%s' "$MERGEABLE" | tr -cd 'A-Z_')"
+            safe_state="$(printf '%s' "$MERGE_STATE" | tr -cd 'A-Z_')"
+            {
+              printf '%s\n' "$marker"
+              printf '**Merge gate:** PR #%s has conflicts (%s / %s).\n\n' "$PR_NUMBER" "${safe_mergeable:-unknown}" "${safe_state:-unknown}"
+              printf '%s\n' 'Resolve the conflicts and push. The gate will not merge this pull request while GitHub reports it CONFLICTING or DIRTY.'
+            } > "$body_file"
+            if ! raw="$(GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/issues/${PR_NUMBER}/comments?per_page=100")"; then
+              fail_gate "API error reading comments on PR #${PR_NUMBER}."
+            fi
+            count="$(jq -s -r --arg m "$marker" '[ .[][]? | select((.body // "") | contains($m)) ] | length' <<<"$raw")" || fail_gate "Comment list for PR #${PR_NUMBER} was not readable."
+            if [[ ! "$count" =~ ^[0-9]+$ ]]; then
+              fail_gate "Comment list for PR #${PR_NUMBER} was not readable."
+            fi
+            if [[ "$count" != "0" ]]; then
+              echo "::notice::conflict comment already on #${PR_NUMBER}."
+              return 0
+            fi
+            if ! GH_TOKEN="$READ_TOKEN" gh pr comment "$PR_NUMBER" --repo "$GH_REPO" --body-file "$body_file"; then
+              fail_gate "API error commenting on PR #${PR_NUMBER}."
+            fi
+          }
 
           # gh's --jq flag has no --arg. Pass values with real jq, and let a
           # failed API call fail this step. Do not append `|| true`.
@@ -204,8 +319,7 @@ jobs:
             local label="$1"
             local value="$2"
             if [[ ! "$value" =~ ^[0-9]+$ ]]; then
-              echo "::error::${label} count was not a single number."
-              exit 1
+              fail_gate "${label} count was not a single number."
             fi
           }
 
@@ -296,16 +410,35 @@ jobs:
           # mergeable stays UNKNOWN while GitHub computes it. Retry that.
           # headRepository null is not that delay when the token is
           # GITHUB_TOKEN (run 42579953147). An empty head after these retries
-          # is unknown and must not merge.
+          # is unknown and must not merge. An API error fails the job.
+          META=""
           for try in 1 2 3 4 5; do
-            META="$(GH_TOKEN="$READ_TOKEN" gh pr view "$PR_NUMBER" --repo "$GH_REPO" \
-              --json state,isDraft,mergeable,mergeStateStatus,headRepository,headRefOid,labels,author,body)"
+            if ! META="$(GH_TOKEN="$READ_TOKEN" gh pr view "$PR_NUMBER" --repo "$GH_REPO" \
+              --json state,isDraft,mergeable,mergeStateStatus,headRepository,headRefOid,labels,author,body,baseRefName)"; then
+              if [[ "$try" -eq 5 ]]; then
+                fail_gate "API error reading metadata for PR #${PR_NUMBER}."
+              fi
+              echo "::notice::PR #${PR_NUMBER} metadata read failed (try ${try}/5) — retrying."
+              sleep $((try * 10))
+              continue
+            fi
+            if [[ -z "${META}" || "${META}" == "null" ]]; then
+              if [[ "$try" -eq 5 ]]; then
+                fail_gate "PR #${PR_NUMBER} metadata is missing."
+              fi
+              echo "::notice::PR #${PR_NUMBER} metadata is missing (try ${try}/5) — retrying."
+              sleep $((try * 10))
+              continue
+            fi
             if [[ -n "$(jq -r '.headRepository.nameWithOwner // empty' <<<"$META")" \
                   && "$(jq -r '.mergeable // "UNKNOWN"' <<<"$META")" != "UNKNOWN" ]]; then
               break
             fi
             [[ "$try" -lt 5 ]] && { echo "::notice::PR #${PR_NUMBER} head repo/mergeable not computed yet (try ${try}/5) — retrying."; sleep $((try * 10)); }
           done
+          if [[ -z "${META}" || "${META}" == "null" ]]; then
+            fail_gate "PR #${PR_NUMBER} metadata is missing."
+          fi
 
           if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
             echo "::notice::PR #${PR_NUMBER} is not open — nothing to do."
@@ -326,8 +459,16 @@ jobs:
             "dependabot[bot]"|"app/dependabot"|reverb256)
               ;;
             *)
-              echo "::notice::author ${AUTHOR:-unknown} is not on the merge allowlist — nothing to do."
-              exit 0
+              # #1274 spellings are the case above. The numeric dependabot id
+              # is the same account; scripts/gates/authors.mjs is the check.
+              AUTHOR_ID=""
+              if ! AUTHOR_ID="$(GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" --jq '.user.id')"; then
+                AUTHOR_ID=""
+              fi
+              if ! node "$(load_gate_script authors.mjs)" --login "$AUTHOR" --id "$AUTHOR_ID"; then
+                echo "::notice::author ${AUTHOR:-unknown} is not on the merge allowlist — nothing to do."
+                exit 0
+              fi
               ;;
           esac
           if [[ "$(jq -r 'any(.labels[]; .name == "hold")' <<<"$META")" == "true" ]]; then
@@ -338,9 +479,13 @@ jobs:
             echo "::notice::PR #${PR_NUMBER} does not have the ready-to-merge label — nothing to do."
             exit 0
           fi
+          CLOSE_STATUS=1
           HEAD_REPO="$(jq -r '.headRepository.nameWithOwner // empty' <<<"$META")"
+          if [[ -z "$HEAD_REPO" || "$HEAD_REPO" == "null" ]]; then
+            fail_gate "PR #${PR_NUMBER} head repo is unknown."
+          fi
           if [[ "$HEAD_REPO" != "$GH_REPO" ]]; then
-            echo "::notice::PR #${PR_NUMBER} head repo ${HEAD_REPO:-unknown} is not ${GH_REPO} — nothing to do."
+            echo "::notice::PR #${PR_NUMBER} head repo ${HEAD_REPO} is not ${GH_REPO} — nothing to do."
             exit 0
           fi
 
@@ -349,8 +494,7 @@ jobs:
             HEAD_SHA="$LIVE_SHA"
           fi
           if [[ ! "$HEAD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
-            echo "::notice::head SHA is not a commit id — nothing to do."
-            exit 0
+            fail_gate "PR #${PR_NUMBER} head SHA is missing."
           fi
           if [[ "$LIVE_SHA" != "$HEAD_SHA" ]]; then
             echo "::notice::PR #${PR_NUMBER} head ${LIVE_SHA} does not match event SHA ${HEAD_SHA} — nothing to do."
@@ -365,7 +509,7 @@ jobs:
           # name. Exclude that name for this app, and exclude this run id, so
           # the in-progress gate and earlier failed `merge` runs are neither
           # pending nor red.
-          CHECKS="$(GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" \
+          if ! CHECKS="$(GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" \
             | jq -s \
               --arg job "$GATE_JOB_NAME" \
               --arg workflow "$GATE_WORKFLOW_NAME" \
@@ -386,9 +530,11 @@ jobs:
                     pending_names: [$runs[] | select(.status != "completed") | .name] | unique | join(", "),
                     red_names: [$runs[] | select(.status == "completed" and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")) | .name] | unique | join(", ")
                   }
-              ')"
+              ')"; then
+            fail_gate "API error reading check-runs for ${HEAD_SHA}."
+          fi
 
-          STATUSES="$(GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" \
+          if ! STATUSES="$(GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" \
             | jq -s '
                 [ .[][]? ]
                 | group_by(.context)
@@ -400,7 +546,9 @@ jobs:
                     pending_names: map(select(.state == "pending") | .context) | join(", "),
                     red_names: map(select(.state == "failure" or .state == "error") | .context) | join(", ")
                   }
-              ')"
+              ')"; then
+            fail_gate "API error reading commit statuses for ${HEAD_SHA}."
+          fi
 
           PENDING="$(jq -r '.pending' <<<"$CHECKS")"
           RED="$(jq -r '.red' <<<"$CHECKS")"
@@ -415,39 +563,149 @@ jobs:
           require_count "status red" "$S_RED"
           require_count "status green" "$S_GREEN"
 
-          if [[ "$PENDING" -gt 0 || "$RED" -gt 0 || "$S_PENDING" -gt 0 || "$S_RED" -gt 0 ]]; then
-            echo "::notice::pending or not green for ${HEAD_SHA}: checks pending=${PENDING} ($(jq -r '.pending_names // empty' <<<"$CHECKS")) red=${RED} ($(jq -r '.red_names // empty' <<<"$CHECKS")); statuses pending=${S_PENDING} ($(jq -r '.pending_names // empty' <<<"$STATUSES")) red=${S_RED} ($(jq -r '.red_names // empty' <<<"$STATUSES")) — nothing to do."
-            exit 0
-          fi
-          if [[ "$GREEN" -eq 0 && "$S_GREEN" -eq 0 ]]; then
-            echo "::notice::no completed checks or statuses for ${HEAD_SHA} yet — nothing to do."
-            exit 0
-          fi
+          # scripts/gates/triage-checks.mjs prints one cause per suite
+          # (failed, cancelled, queued with zero runs, stale). The gate
+          # appends that report to the job summary whenever the PR is not green.
+          # TRIAGE_JQ is the same filter, for a runner that has jq and not node.
+          TRIAGE_JQ='def runs: [$runs[]?.check_runs[]?]; def suites: [$suites[]?.check_suites[]?]; suites | sort_by(.id)[] as $s | (runs | map(select((.check_suite.id == $s.id) or (.check_suite_id == $s.id)))) as $sr | (if ($s.conclusion == "failure" or ([$sr[].conclusion | select(. == "failure" or . == "timed_out" or . == "action_required" or . == "startup_failure")] | length) > 0) then "failed" elif ($s.conclusion == "cancelled" or ([$sr[].conclusion | select(. == "cancelled")] | length) > 0) then "cancelled" elif ($s.status == "queued" and (($s.latest_check_runs_count // 0) == 0) and (($sr | length) == 0)) then "stuck" elif ($s.conclusion == "stale" or ([$sr[].conclusion | select(. == "stale")] | length) > 0) then "stale" else empty end) as $why | "suite \($s.id) \($s.app.slug // $s.app.name // "unknown"): \($why)"'
+          report_not_green() {
+            local why="$1"
+            local runs_file="${RUNNER_TEMP}/check-runs-pages.json"
+            local suites_file="${RUNNER_TEMP}/check-suites-pages.json"
+            local script="${RUNNER_TEMP}/triage-checks.mjs"
+            local report=""
+            if ! GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$runs_file"; then
+              fail_gate "API error reading check-runs for ${HEAD_SHA}."
+            fi
+            if ! GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-suites?per_page=100" > "$suites_file"; then
+              fail_gate "API error reading check-suites for ${HEAD_SHA}."
+            fi
+            if command -v node >/dev/null 2>&1; then
+              if ! GH_TOKEN="$READ_TOKEN" gh api -H "Accept: application/vnd.github.raw" \
+                  "repos/${GH_REPO}/contents/scripts/gates/triage-checks.mjs?ref=${WORKFLOW_SHA}" > "$script"; then
+                fail_gate "API error fetching scripts/gates/triage-checks.mjs."
+              fi
+              if ! report="$(node "$script" --check-runs "$runs_file" --check-suites "$suites_file")"; then
+                fail_gate "triage-checks.mjs failed for ${HEAD_SHA}."
+              fi
+            else
+              if ! report="$(jq -nr --slurpfile runs "$runs_file" --slurpfile suites "$suites_file" "$TRIAGE_JQ")"; then
+                fail_gate "Could not triage checks for ${HEAD_SHA}."
+              fi
+            fi
+            note_summary "### PR #${PR_NUMBER} is not green (${HEAD_SHA})"
+            note_summary "$why"
+            if [[ -n "$report" ]]; then
+              note_summary "$report"
+            else
+              note_summary "No failed, cancelled, queued-with-zero-runs, or stale check suite."
+            fi
+            echo "::notice::${why}"
+          }
 
           MERGE_STATE="$(jq -r '.mergeStateStatus // empty' <<<"$META")"
           MERGEABLE="$(jq -r '.mergeable // empty' <<<"$META")"
-          # Update-branch is a PUSH into the PR head. GITHUB_TOKEN can never push
-          # to a branch that changes .github/workflows ("refusing to allow a
-          # GitHub App to create or update workflow", 403) and this call used to
-          # inherit GH_TOKEN=github.token, so a workflow-editing Dependabot PR
-          # (e.g. #1252, pnpm/action-setup across four workflow files) could be
-          # labelled ready-to-merge and then never advance past BEHIND: the
-          # update failed, the step only warned, and the gate exited 0.
-          # The fleet-merge-gate App token carries Workflows:write, so it is the
-          # only token that can move such a branch.
-          if [[ "$MERGE_STATE" == "BEHIND" ]]; then
-            echo "::notice::PR #${PR_NUMBER} is behind base — updating the branch once."
-            if [[ -z "${GATE_TOKEN:-}" ]]; then
-              echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token; a workflow-editing PR cannot be updated with GITHUB_TOKEN."
-            fi
-            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
-              echo "::warning::could not update the branch of PR #${PR_NUMBER}."
-            fi
-            exit 0
+          not_green=0
+          if [[ "$PENDING" -gt 0 || "$RED" -gt 0 || "$S_PENDING" -gt 0 || "$S_RED" -gt 0 || ( "$GREEN" -eq 0 && "$S_GREEN" -eq 0 ) ]]; then
+            not_green=1
           fi
-          if [[ "$MERGEABLE" != "MERGEABLE" ]]; then
-            echo "::notice::PR #${PR_NUMBER} is not mergeable (${MERGEABLE:-unknown}, ${MERGE_STATE:-unknown}) — nothing to do."
-            exit 0
+          if [[ "$MERGEABLE" == "CONFLICTING" || "$MERGE_STATE" == "DIRTY" ]]; then
+            note_summary "PR #${PR_NUMBER} is CONFLICTING/DIRTY (mergeable=${MERGEABLE}, mergeStateStatus=${MERGE_STATE}). Resolve the conflicts. The gate will not merge it."
+            comment_conflict_once
+            if [[ "$not_green" == "1" ]]; then
+              report_not_green "PR #${PR_NUMBER} is also not green at ${HEAD_SHA} (checks pending=${PENDING} red=${RED}; statuses pending=${S_PENDING} red=${S_RED})."
+            fi
+            exit_closed failure "PR #${PR_NUMBER} is CONFLICTING/DIRTY (mergeable=${MERGEABLE}, mergeStateStatus=${MERGE_STATE}). Resolve the conflicts. The gate will not merge it." 0
+          fi
+          if [[ "$MERGEABLE" == "UNKNOWN" || -z "$MERGEABLE" || "$MERGEABLE" == "null" || "$MERGE_STATE" == "UNKNOWN" || -z "$MERGE_STATE" || "$MERGE_STATE" == "null" ]]; then
+            fail_gate "PR #${PR_NUMBER} merge state is unknown (mergeable=${MERGEABLE:-null}, mergeStateStatus=${MERGE_STATE:-null})."
+          fi
+
+          # Keep this branch in sync with scripts/gates/decide.mjs.
+          # MERGEABLE + UNSTABLE: compare base...head with the App token.
+          # Update the branch when behind_by > 0 (behind or diverged), even
+          # when checks are still red: the update is the push that re-runs CI.
+          # behind_by == 0 is current: do not update.
+          ACTION="merge"
+          REASON="clean"
+          if [[ "$MERGE_STATE" == "BEHIND" ]]; then
+            ACTION="update-branch"
+            REASON="behind"
+          elif [[ "$MERGEABLE" == "MERGEABLE" && "$MERGE_STATE" == "UNSTABLE" ]]; then
+            BASE_REF="$(jq -r '.baseRefName // empty' <<<"$META")"
+            if [[ -z "$BASE_REF" || "$BASE_REF" == "null" || ! "$BASE_REF" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+              fail_gate "PR #${PR_NUMBER} is missing base ref metadata."
+            fi
+            if [[ -z "${GATE_TOKEN:-}" ]]; then
+              fail_gate "No App token for compare of PR #${PR_NUMBER}. Refusing to use GITHUB_TOKEN."
+            fi
+            if ! COMPARE="$(GH_TOKEN="$GATE_TOKEN" gh api "repos/${GH_REPO}/compare/${BASE_REF}...${HEAD_SHA}")"; then
+              fail_gate "Compare API failed for ${BASE_REF}...${HEAD_SHA} on PR #${PR_NUMBER}."
+            fi
+            BEHIND_BY="$(jq -r '.behind_by // empty' <<<"$COMPARE")"
+            AHEAD_BY="$(jq -r '.ahead_by // empty' <<<"$COMPARE")"
+            COMPARE_STATUS="$(jq -r '.status // empty' <<<"$COMPARE")"
+            if [[ ! "$BEHIND_BY" =~ ^[0-9]+$ || ! "$AHEAD_BY" =~ ^[0-9]+$ || -z "$COMPARE_STATUS" || "$COMPARE_STATUS" == "null" ]]; then
+              fail_gate "Compare API returned an unknown behind/ahead for ${BASE_REF}...${HEAD_SHA} on PR #${PR_NUMBER}."
+            fi
+            if [[ "$BEHIND_BY" -gt 0 ]]; then
+              ACTION="update-branch"
+              if [[ "$COMPARE_STATUS" == "diverged" || "$AHEAD_BY" -gt 0 ]]; then
+                REASON="diverged"
+              else
+                REASON="behind"
+              fi
+            else
+              ACTION="merge"
+              REASON="current"
+            fi
+          elif [[ "$MERGEABLE" == "MERGEABLE" && ( "$MERGE_STATE" == "CLEAN" || "$MERGE_STATE" == "HAS_HOOKS" ) ]]; then
+            ACTION="merge"
+            REASON="clean"
+          elif [[ "$MERGE_STATE" == "BLOCKED" ]]; then
+            exit_closed failure "PR #${PR_NUMBER} is BLOCKED. The gate will not merge it." 0
+          else
+            fail_gate "PR #${PR_NUMBER} is in an unknown merge state (${MERGEABLE:-null}/${MERGE_STATE:-null})."
+          fi
+
+          echo "::notice::PR #${PR_NUMBER} decision ${ACTION} (${REASON})."
+
+          # A push with GITHUB_TOKEN does not trigger CI. There is no fallback.
+          if [[ "$ACTION" == "update-branch" ]]; then
+            if [[ -z "${GATE_TOKEN:-}" ]]; then
+              fail_gate "No App token. Refusing to update-branch PR #${PR_NUMBER} with GITHUB_TOKEN, because that push does not trigger CI."
+            fi
+            echo "::notice::PR #${PR_NUMBER} is ${REASON} — updating the branch with the App token."
+            if ! GH_TOKEN="$GATE_TOKEN" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
+              fail_gate "update-branch failed for PR #${PR_NUMBER}."
+            fi
+            exit_closed pending "PR #${PR_NUMBER} is ${REASON}. Updated the branch with the App token. Waiting for CI." 0
+          fi
+
+          if [[ "$not_green" == "1" ]]; then
+            if [[ "$PENDING" -gt 0 || "$RED" -gt 0 || "$S_PENDING" -gt 0 || "$S_RED" -gt 0 ]]; then
+              report_not_green "pending or not green for ${HEAD_SHA}: checks pending=${PENDING} ($(jq -r '.pending_names // empty' <<<"$CHECKS")) red=${RED} ($(jq -r '.red_names // empty' <<<"$CHECKS")); statuses pending=${S_PENDING} ($(jq -r '.pending_names // empty' <<<"$STATUSES")) red=${S_RED} ($(jq -r '.red_names // empty' <<<"$STATUSES"))."
+              exit_closed pending "pending or not green for ${HEAD_SHA}." 0
+            else
+              report_not_green "no completed checks or statuses for ${HEAD_SHA} yet."
+              exit_closed pending "no completed checks or statuses for ${HEAD_SHA} yet." 0
+            fi
+          fi
+
+          # ready-to-merge still needs a finished check suite. A stuck suite
+          # (queued, zero runs) is not completed. scripts/gates/completed-suite.mjs
+          # exits 1 in that case: no completed check suite, so do not merge.
+          SUITES_FILE="${RUNNER_TEMP}/close-check-suites.json"
+          if ! GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-suites?per_page=100" > "$SUITES_FILE"; then
+            fail_gate "API error reading check-suites for ${HEAD_SHA}."
+          fi
+          if ! node "$(load_gate_script completed-suite.mjs)" --check-suites "$SUITES_FILE"; then
+            report_not_green "ready-to-merge but ${HEAD_SHA} has no completed check suite."
+            exit_closed failure "ready-to-merge but ${HEAD_SHA} has no completed check suite." 1
+          fi
+
+          if [[ -z "${GATE_TOKEN:-}" ]]; then
+            fail_gate "No App token. Refusing to merge PR #${PR_NUMBER} with GITHUB_TOKEN, because that push does not trigger CI."
           fi
 
           # No --subject (#985). The PR body is the squash body (#983/#993):
@@ -459,17 +717,12 @@ jobs:
           jq -r '.body // ""' <<<"$META" > "$BODY_FILE"
 
           echo "::notice::Squash-merging PR #${PR_NUMBER} at ${HEAD_SHA}."
-          GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
+          if ! GH_TOKEN="$GATE_TOKEN" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
             --match-head-commit "$HEAD_SHA" \
-            --body-file "$BODY_FILE"
-          echo "::notice::Merged #${PR_NUMBER} via the ready-to-merge gate."
-
-          echo "Dispatching CI on main after merge."
-          if gh workflow run CI --repo "$GH_REPO" --ref main; then
-            echo "::notice::dispatched CI on main after #${PR_NUMBER} merged."
-          else
-            echo "::warning::failed to dispatch CI on main after #${PR_NUMBER} merged."
+            --body-file "$BODY_FILE"; then
+            fail_gate "merge failed for PR #${PR_NUMBER}."
           fi
+          echo "::notice::Merged #${PR_NUMBER} via the ready-to-merge gate. The App token push triggers CI."
 
           # Deterministic issue closure (#983). Keyword auto-close did not fire
           # on the squash commit (measured 2026-10-04). A failure here must not

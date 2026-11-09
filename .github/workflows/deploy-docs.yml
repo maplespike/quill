@@ -42,11 +42,10 @@ on:
       - ".github/workflows/deploy-docs.yml"
   workflow_dispatch: # Allow manual trigger
 
-# Ensure only one deployment runs at a time
+# Each commit is its own group. A shared group cancels a queued main deploy
+# when a newer push arrives, even with cancel-in-progress false.
 concurrency:
-  # Deploy: never cancel a run mid-deploy. A newer push still replaces an older
-  # pending run in this group, so at most one deploy waits.
-  group: pages
+  group: pages-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:

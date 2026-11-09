@@ -42,9 +42,9 @@ permissions:
   id-token: write
 
 concurrency:
-  # Deploy: never cancel a run mid-deploy. A newer push still replaces an older
-  # pending run in this group, so at most one deploy waits.
-  group: pages-demo
+  # Each commit is its own group. A shared group cancels a queued main deploy
+  # when a newer push arrives, even with cancel-in-progress false.
+  group: pages-demo-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:

@@ -1,0 +1,15 @@
+{
+  "checkRuns": { "check_runs": [] },
+  "checkSuites": {
+    "check_suites": [
+      {
+        "id": 30,
+        "status": "queued",
+        "conclusion": null,
+        "latest_check_runs_count": 0,
+        "app": { "slug": "github-actions" }
+      }
+    ]
+  },
+  "expect": ["suite 30 github-actions: stuck"]
+}

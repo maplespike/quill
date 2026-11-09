@@ -1,0 +1,39 @@
+{
+  "checkRuns": {
+    "check_runs": [
+      {
+        "id": 1,
+        "name": "test",
+        "status": "completed",
+        "conclusion": "failure",
+        "check_suite": { "id": 10 }
+      },
+      {
+        "id": 2,
+        "name": "lint",
+        "status": "completed",
+        "conclusion": "success",
+        "check_suite": { "id": 11 }
+      }
+    ]
+  },
+  "checkSuites": {
+    "check_suites": [
+      {
+        "id": 11,
+        "status": "completed",
+        "conclusion": "success",
+        "latest_check_runs_count": 1,
+        "app": { "slug": "github-actions" }
+      },
+      {
+        "id": 10,
+        "status": "completed",
+        "conclusion": "failure",
+        "latest_check_runs_count": 1,
+        "app": { "slug": "github-actions" }
+      }
+    ]
+  },
+  "expect": ["suite 10 github-actions: failed"]
+}

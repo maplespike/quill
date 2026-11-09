@@ -11,9 +11,14 @@
 //
 // The metadata read (gh pr view, check-runs, commit statuses) must use that
 // App token. A foreign event head must exit before the token is selected.
-// A foreign or empty resolved head must exit before merge. A `hold` label
-// must skip. `ready-to-merge` stays required. The workflow must not check
-// out or run pull-request head code.
+// A foreign resolved head must exit before merge. An empty or null head,
+// missing metadata, or an API error must fail the job (non-zero) and write
+// a job summary. Pushes (update-branch, squash-merge) use the App token
+// with no GITHUB_TOKEN fallback, so the push triggers CI. MERGEABLE +
+// UNSTABLE compares base...head with that token and updates when behind_by
+// is greater than zero. CONFLICTING / DIRTY writes a job summary and one
+// idempotent comment. A `hold` label must skip. `ready-to-merge` stays
+// required. The workflow must not check out or run pull-request head code.
 //
 // Usage:
 //   node scripts/gates/check-merge-gate-token.mjs [workflow-file]
@@ -177,7 +182,58 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
     fail('ready-to-merge', 'ready-to-merge must still be required before merge');
   }
 
+  const unknownHead = /if\s+\[\[\s+-z\s+"\$HEAD_REPO"\s+\|\|\s+"\$HEAD_REPO"\s+==\s+"null"\s+\]\]/;
+  const unknownBody = ifBody(code, unknownHead);
+  if (!unknownBody || !/fail_gate\b/.test(unknownBody)) {
+    fail('unknown-head', 'an unknown or null head repo must fail the job before merge');
+  }
+  if (!/fail_gate\(\)\s*\{[\s\S]*?GITHUB_STEP_SUMMARY[\s\S]*?\bexit\s+1\b/.test(code)) {
+    fail('loud-failure', 'fail_gate must write GITHUB_STEP_SUMMARY and exit 1');
+  }
+  if (!code.includes('API error reading metadata')) {
+    fail('loud-failure', 'a metadata API error must fail the job');
+  }
+  if (!/MERGEABLE"\]\s*==\s*"UNKNOWN"/.test(code) && !code.includes('"$MERGEABLE" == "UNKNOWN"')) {
+    fail('loud-failure', 'UNKNOWN mergeable must not exit 0');
+  }
+
+  if (/GATE_TOKEN:-\$GH_TOKEN/.test(code)) {
+    fail('push-app-token', 'a GITHUB_TOKEN fallback on a gate push does not trigger CI');
+  }
+  if (!/GH_TOKEN="\$GATE_TOKEN" gh pr update-branch /.test(code)) {
+    fail('push-app-token', 'update-branch must use the App token with no GITHUB_TOKEN fallback');
+  }
+  if (!/GH_TOKEN="\$GATE_TOKEN" gh pr merge /.test(code)) {
+    fail('push-app-token', 'merge must use the App token with no GITHUB_TOKEN fallback');
+  }
+
+  if (!/GH_TOKEN="\$GATE_TOKEN" gh api "repos\/\$\{GH_REPO\}\/compare\/\$\{BASE_REF\}\.\.\.\$\{HEAD_SHA\}"/.test(code)) {
+    fail('compare-app-token', 'MERGEABLE+UNSTABLE must GET compare/{base}...{head} with the App token');
+  }
+  if (!code.includes('behind_by')) {
+    fail('compare-app-token', 'update-branch must run when behind_by is greater than zero');
+  }
+
+  if (!code.includes('CONFLICTING') || !code.includes('DIRTY')) {
+    fail('conflict', 'CONFLICTING and DIRTY must be reported');
+  }
+  if (!code.includes('quill-merge-gate:conflict')) {
+    fail('conflict', 'the conflict comment must carry a stable marker so it is posted once');
+  }
+  if (!code.includes('GITHUB_STEP_SUMMARY')) {
+    fail('conflict', 'a conflict must write a job-summary line');
+  }
+
   return violations;
+}
+
+function ifBody(code, regex) {
+  const match = regex.exec(code);
+  if (!match) return null;
+  const after = code.slice(match.index);
+  const fi = after.search(/\n\s*fi\b/);
+  if (fi < 0) return null;
+  return after.slice(0, fi);
 }
 
 function main(argv) {
