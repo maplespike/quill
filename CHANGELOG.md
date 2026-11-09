@@ -3,7 +3,7 @@
 ## [Unreleased] — 2026-11-09
 
 ### Added
-- **Label guard restores `ready-to-merge` when another bot removes it.** `.github/workflows/label-guard.yml` runs on `pull_request_target` `unlabeled` for an open pull request. It does not check out pull-request code. It does not act when the remover is the owner account `reverb256`, the fleet-merge-gate App (`fleet-merge-gate[bot]`), or the merge-when-green workflow while that workflow is merging. Another Bot gets the label back, plus a `label-guard` issue that names who removed it and when. To pause an approved pull request, add `hold`. Only Atlas sets `hold`. The merge gate skips a pull request that carries `hold`. Regression tests in `scripts/test-label-guard.mts`.
+- **Label guard alerts when `ready-to-merge` is removed from an open pull request.** `.github/workflows/label-guard.yml` runs on `pull_request_target` `unlabeled`. It does not check out pull-request code and it does not put the label back. It opens a `label-guard` issue, or comments on the open one for that pull request, with the actor, the time, the pull request, and a link to the run. It skips a closed or merged pull request, and it skips a removal by the merge gate while that gate is merging. The token is `GITHUB_TOKEN` with `issues: write` and `pull-requests: read`. `hold` is optional. Only Atlas sets it. The guard does not require it. Regression tests in `scripts/test-label-guard.mts`.
 
 ## [Unreleased] — 2026-11-04
 
