@@ -59,7 +59,7 @@ jobs:
           fail: true
 
       - name: "Lint markdown (markdownlint-cli2)"
-        uses: DavidAnson/markdownlint-cli2-action@v24
+        uses: DavidAnson/markdownlint-cli2-action@v25
         with:
           # Scope: the files this gate owns (root docs + new standard files).
           # The legacy docs/ tree (300+ files) predates the gate and mixes
