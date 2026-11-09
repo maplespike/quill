@@ -1,0 +1,192 @@
+---
+# Label guard — put ready-to-merge back when the wrong actor removes it.
+#
+# On 2026-11-09 an agent used the owner's gh login and removed
+# ready-to-merge from 11 approved pull requests (#1242–#1253), then
+# hand-merged #1254. The merge gate does not check who removed the label.
+#
+# pull_request_target runs this file from the default branch. The job
+# does not check out the repository and does not run pull-request code.
+# Event fields enter run scripts only through env. They are never
+# interpolated into the script text.
+#
+# The job runs only when the removed label is ready-to-merge, the pull
+# request is open, and the pull request does not carry hold. Only Atlas
+# sets hold. To pause an approved pull request, add hold. The merge gate
+# skips a pull request that carries hold.
+#
+# Allowed removers:
+#   1. The fleet-merge-gate App. Its login is the single variable
+#      ALLOWED_APP_LOGIN (the App from merge-when-green.yml and #1274).
+#   2. The merge-when-green workflow itself, when it removes the label
+#      while it is merging. That workflow's GITHUB_TOKEN identity is
+#      github-actions[bot]. The check looks for an in-progress run of
+#      merge-when-green.yml on this pull request. It does not allow every
+#      Bot.
+#
+# Any other remover: mint the fleet-merge-gate App token, add the label
+# again, and open or comment on one label-guard issue for this pull request.
+name: Label guard
+
+on:
+  pull_request_target:
+    types: [unlabeled]
+
+permissions:
+  # The decide step lists workflow runs. Writes use the App token, not
+  # this job's GITHUB_TOKEN. This job does not read or check out the repo.
+  actions: read
+  contents: none
+
+concurrency:
+  group: label-guard-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    if: >-
+      github.event.label.name == 'ready-to-merge'
+      && github.event.pull_request.state == 'open'
+      && !contains(github.event.pull_request.labels.*.name, 'hold')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Decide whether this removal is allowed
+        id: decide
+        env:
+          # One variable. Do not copy the login anywhere else.
+          ALLOWED_APP_LOGIN: fleet-merge-gate[bot]
+          SENDER: ${{ github.event.sender.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # Read-only. This token does not add labels or open issues.
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${PR_NUMBER:-}" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR number is not numeric."
+            exit 1
+          fi
+          if [[ -z "${ALLOWED_APP_LOGIN:-}" ]]; then
+            echo "::error::ALLOWED_APP_LOGIN is empty."
+            exit 1
+          fi
+
+          if [[ "$SENDER" == "$ALLOWED_APP_LOGIN" ]]; then
+            echo "::notice::sender is the merge-gate App — nothing to do."
+            echo "restore=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # The merge-when-green workflow removes the label while it merges.
+          # With the workflow token, the sender is github-actions[bot]. Allow
+          # that sender only when merge-when-green.yml is in progress for
+          # this pull request. Any other Bot stays unauthorized.
+          gate_is_merging() {
+            [[ "$SENDER" == "github-actions[bot]" ]] || return 1
+            local payload count
+            payload="$(gh api --paginate "repos/${GH_REPO}/actions/workflows/merge-when-green.yml/runs?per_page=20")" || return 1
+            count="$(jq -s -r --arg pr "$PR_NUMBER" --arg sha "${HEAD_SHA:-}" '
+              [
+                .[].workflow_runs[]?
+                | select(.status == "in_progress" or .status == "queued" or .status == "waiting")
+                | select(
+                    any(.pull_requests[]?; (.number | tostring) == $pr)
+                    or ((.head_sha // "") == $sha and $sha != "")
+                  )
+              ] | length
+            ' <<<"$payload")" || return 1
+            [[ "$count" =~ ^[0-9]+$ ]] || return 1
+            [[ "$count" -gt 0 ]]
+          }
+
+          if gate_is_merging; then
+            echo "::notice::merge-when-green is merging this pull request — nothing to do."
+            echo "restore=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "restore=true" >> "$GITHUB_OUTPUT"
+
+      - name: Mint merge-gate app token
+        id: gate
+        if: steps.decide.outputs.restore == 'true'
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MERGE_GATE_APP_ID }}
+          private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
+
+      - name: Restore the label and alert
+        if: steps.decide.outputs.restore == 'true'
+        env:
+          GH_TOKEN: ${{ steps.gate.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+          REMOVED_AT: ${{ github.event.pull_request.updated_at }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${PR_NUMBER:-}" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR number is not numeric."
+            exit 1
+          fi
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "::error::merge-gate App token is empty."
+            exit 1
+          fi
+          if [[ -z "${SENDER:-}" ]]; then
+            SENDER="unknown"
+          fi
+          if [[ -z "${REMOVED_AT:-}" ]]; then
+            REMOVED_AT="unknown"
+          fi
+
+          # Put the label back before any later call. A failure after this
+          # line must not leave ready-to-merge off.
+          gh api --method POST "repos/${GH_REPO}/issues/${PR_NUMBER}/labels" \
+            -f "labels[]=ready-to-merge" >/dev/null
+          echo "::notice::restored ready-to-merge on #${PR_NUMBER}."
+
+          gh label create hold \
+            --repo "$GH_REPO" \
+            --color FBCA04 \
+            --description "Pause an approved PR. Only Atlas sets this. The merge gate skips it." \
+            --force
+          gh label create label-guard \
+            --repo "$GH_REPO" \
+            --color D93F0B \
+            --description "ready-to-merge was removed outside the merge gate and restored." \
+            --force
+
+          body_file="${RUNNER_TEMP}/label-guard-body"
+          jq -nr \
+            --arg sender "$SENDER" \
+            --arg at "$REMOVED_AT" \
+            --arg pr "$PR_NUMBER" \
+            --arg url "$PR_URL" \
+            '"label-guard-pr:\($pr)\n\nPR #\($pr) lost the ready-to-merge label.\n\nWho: \($sender)\nWhen: \($at)\nPull request: \($url)\n\nThe label is restored.\n\nTo pause an approved pull request, add the hold label. Only Atlas sets that label.\n"' \
+            > "$body_file"
+
+          existing="$(gh issue list --repo "$GH_REPO" --state open --label label-guard --limit 100 --json number,body \
+            | jq -r --arg pr "$PR_NUMBER" '
+                [ .[]
+                  | select((.body // "") | test("(^|\n)label-guard-pr:" + $pr + "(\n|$)"))
+                  | .number
+                ] | min // empty
+              ')"
+          if [[ -n "$existing" ]]; then
+            gh issue comment "$existing" --repo "$GH_REPO" --body-file "$body_file"
+            echo "::notice::commented on label-guard issue #${existing}."
+          else
+            gh issue create --repo "$GH_REPO" \
+              --title "label-guard: ready-to-merge removed from #${PR_NUMBER}" \
+              --body-file "$body_file" \
+              --label label-guard
+            echo "::notice::opened a label-guard issue for #${PR_NUMBER}."
+          fi
