@@ -50,10 +50,13 @@ api:
   replicas: 1
   port: 8082
   metricsPort: 9464
+  # Memory request covers a live working set of about 146Mi (operator
+  # sample), plus headroom. That sample is not a 7-day peak. Ingest, engine,
+  # and backup peaks are separate pods. CPU request unchanged. Limit stays 512Mi.
   resources:
     requests:
       cpu: 100m
-      memory: 128Mi
+      memory: 192Mi
     limits:
       cpu: 500m
       memory: 512Mi
@@ -91,10 +94,12 @@ mcp:
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  # No working-set or CPU sample in-repo. The Grafana dashboard counts
+  # pipeline jobs only. Modest cut. Limit stays 256Mi.
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 96Mi
     limits:
       cpu: 500m
       memory: 256Mi
@@ -110,9 +115,12 @@ redis:
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
   maxmemory: 128mb
+  # No working-set sample. maxmemory 128mb is the data ceiling, already
+  # above this 64Mi request and under the 192Mi limit, so the memory request
+  # stays. CPU request halved. No CPU sample.
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 64Mi
     limits:
       cpu: 200m
@@ -143,9 +151,12 @@ portal:
   # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  # No production working-set sample in-repo. A local idle start of
+  # packages/portal/server.py was about 20Mi, so 32Mi already has headroom.
+  # CPU request halved. No CPU sample. Limit stays 64Mi.
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 32Mi
     limits:
       cpu: 100m
@@ -263,10 +274,14 @@ search:
   # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
   storageClass: longhorn
   migrateLegacyIndex: false
+  # Serve process idles near 2Mi (operator sample). This pod runs
+  # `quill-search serve` only. Index build (32MiB tantivy writer) and the
+  # search backup tar are other containers. 32Mi is headroom over that idle
+  # sample. No CPU sample; CPU request halved. Limit stays 512Mi.
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 50m
+      memory: 32Mi
     limits:
       cpu: 500m
       memory: 512Mi
