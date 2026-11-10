@@ -15,7 +15,20 @@ test('sqlite migration drops donor names and redacts insider filings', () => {
       raw_data TEXT NOT NULL
     );
     INSERT INTO persons (id, names, first_name, last_name, email, raw_data)
-    VALUES ('person-1', '["Example Donor"]', 'Example', 'Donor', 'donor@example.test', '{"name":"Example Donor"}');
+    VALUES
+      ('person-1', '["Example Donor"]', 'Example', 'Donor', 'donor@example.test', '{"name":"Example Donor"}'),
+      ('person-mp', '["Example Member"]', 'Example', 'Member', 'member@example.test', '{"name":"Example Member"}');
+
+    CREATE TABLE committee_governance_members (
+      id TEXT PRIMARY KEY,
+      person_id TEXT,
+      person_name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      party TEXT,
+      riding TEXT
+    );
+    INSERT INTO committee_governance_members (id, person_id, person_name, role, party, riding)
+    VALUES ('cgm-1', 'person-mp', 'Example Member', 'member', 'Example Party', 'Example Riding');
 
     CREATE TABLE donations (
       id TEXT PRIMARY KEY,
@@ -31,6 +44,7 @@ test('sqlite migration drops donor names and redacts insider filings', () => {
     INSERT INTO donations (id, donor_name, donor_person_id, recipient_name, recipient_type, amount, riding, province, source)
     VALUES
       ('d1', 'Example Donor', 'person-1', 'Example Party', 'party', 250, 'Example Riding', 'ON', 'elections'),
+      ('d-mp', 'Example Member', 'person-mp', 'Example Party', 'party', 400, 'Example Riding', 'ON', 'elections'),
       ('d2', 'Other Donor', NULL, 'Example Party', 'party', 2500, 'Example Riding', 'ON', 'elections');
 
     CREATE TABLE sedar_filings (
@@ -73,6 +87,17 @@ test('sqlite migration drops donor names and redacts insider filings', () => {
   assert.equal(person.names, '[]');
   assert.equal(person.first_name, null);
   assert.equal(person.email, null);
+
+  const member = db.prepare('SELECT names, first_name, last_name, email FROM persons WHERE id = ?').get('person-mp') as {
+    names: string;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+  };
+  assert.equal(member.names, '["Example Member"]');
+  assert.equal(member.first_name, 'Example');
+  assert.equal(member.last_name, 'Member');
+  assert.equal(member.email, 'member@example.test');
 
   const insider = db.prepare("SELECT title, description, issuer_name FROM sedar_filings WHERE filing_type = 'insider-report'").get() as {
     title: string;

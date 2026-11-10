@@ -3,7 +3,8 @@
  * On-deploy migration: drop stored names of private individuals.
  *
  * - donations: rebuild as aggregates by party, riding, and amount band.
- *   donor_name and donor_person_id are not copied. Linked person rows are cleared.
+ *   donor_name and donor_person_id are not copied. A person row is cleared
+ *   only when its id was a donor and no non-donor table still points at it.
  * - sedar_filings: insider reports and early-warning reports (10% holders)
  *   lose title and description text that can name a person.
  *
@@ -11,6 +12,44 @@
  */
 
 import { aggregateDonationRows } from './donation-aggregate.js';
+
+/**
+ * Every non-donor column that stores persons.id.
+ * Taken from packages/database/src/schema.ts (the same columns are in
+ * connection.ts and migrate-pg.ts). donations.donor_person_id is the donor
+ * link and is not in this list.
+ *
+ * The schema has no separate politicians, senators, candidates, directors,
+ * officers, or executives table with a persons.id column.
+ * committee_governance_members.person_id is the MP / politician link
+ * (role, party, riding). lobbying_filings.registrant_person_id is the
+ * lobbyist registration. disclosures.person_id is the public-office filing.
+ * charity_board_members.person_id is the remaining persons.id column.
+ */
+export const PERSON_PUBLIC_ROLE_REFS: ReadonlyArray<{ table: string; column: string }> = [
+  { table: 'lobbying_filings', column: 'registrant_person_id' },
+  { table: 'disclosures', column: 'person_id' },
+  { table: 'committee_governance_members', column: 'person_id' },
+  { table: 'charity_board_members', column: 'person_id' },
+];
+
+function sqlIdent(name: string): string {
+  if (!/^[a-z_][a-z0-9_]*$/i.test(name)) {
+    throw new Error(`refusing to interpolate identifier ${name}`);
+  }
+  return name;
+}
+
+/** NOT EXISTS clauses for public-role links that are actually present. */
+export function publicRoleNotExists(
+  present: ReadonlyArray<{ table: string; column: string }>,
+): string {
+  return present
+    .map(({ table, column }) =>
+      `AND NOT EXISTS (SELECT 1 FROM ${sqlIdent(table)} WHERE ${sqlIdent(column)} = persons.id)`,
+    )
+    .join('\n');
+}
 
 export interface SqliteLike {
   prepare(sql: string): {
@@ -78,12 +117,14 @@ export function applyPrivateNamesSqlite(db: SqliteLike): void {
       const sets = ["names = '[]'", 'first_name = NULL', 'last_name = NULL'];
       if (persons.has('email')) sets.push('email = NULL');
       if (persons.has('raw_data')) sets.push("raw_data = '{}'");
+      const present = PERSON_PUBLIC_ROLE_REFS.filter((ref) => sqliteColumns(db, ref.table)?.has(ref.column));
       db.prepare(
         `UPDATE persons SET ${sets.join(', ')}
          WHERE id IN (
            SELECT donor_person_id FROM donations
            WHERE donor_person_id IS NOT NULL AND donor_person_id != ''
-         )`,
+         )
+         ${publicRoleNotExists(present)}`,
       ).run();
     }
     const rows = db.prepare('SELECT * FROM donations').all() as Record<string, unknown>[];
@@ -123,12 +164,22 @@ export async function applyPrivateNamesPostgres(db: PgLike): Promise<void> {
   const names = new Set(donationCols.rows.map((r) => String(r.column_name)));
   if (names.has('donor_name')) {
     if (names.has('donor_person_id')) {
+      const present = [];
+      for (const ref of PERSON_PUBLIC_ROLE_REFS) {
+        const found = await db.query(
+          `SELECT 1 AS ok FROM information_schema.columns
+           WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2`,
+          [ref.table, ref.column],
+        );
+        if (found.rows.length > 0) present.push(ref);
+      }
       await db.query(
         `UPDATE persons SET names = '[]'::jsonb, first_name = NULL, last_name = NULL, email = NULL, raw_data = '{}'
          WHERE id IN (
            SELECT donor_person_id FROM donations
            WHERE donor_person_id IS NOT NULL AND donor_person_id <> ''
-         )`,
+         )
+         ${publicRoleNotExists(present)}`,
       );
     }
     const existing = await db.query('SELECT * FROM donations');
@@ -177,12 +228,22 @@ export async function applyPrivateNamesD1(db: D1Like): Promise<void> {
     const names = new Set((info.results ?? []).map((c) => c.name));
     if (names.has('donor_name')) {
       if (names.has('donor_person_id')) {
+        const present = [];
+        for (const ref of PERSON_PUBLIC_ROLE_REFS) {
+          const found = await db.prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+          ).bind(ref.table).first<{ name: string }>();
+          if (!found) continue;
+          const info = await db.prepare(`PRAGMA table_info(${sqlIdent(ref.table)})`).bind().all<{ name: string }>();
+          if ((info.results ?? []).some((column) => column.name === ref.column)) present.push(ref);
+        }
         await db.prepare(
           `UPDATE persons SET names = '[]', first_name = NULL, last_name = NULL, email = NULL
            WHERE id IN (
              SELECT donor_person_id FROM donations
              WHERE donor_person_id IS NOT NULL AND donor_person_id != ''
-           )`,
+           )
+           ${publicRoleNotExists(present)}`,
         ).bind().run();
       }
       const listed = await db.prepare('SELECT * FROM donations').bind().all<Record<string, unknown>>();
