@@ -198,6 +198,11 @@ ingestion:
   # Age out finished Job pods (Error pods from Oct lingered 4d with history=3 alone).
   ttlSecondsAfterFinished: 7200
   failedJobsHistoryLimit: 1
+  # corporate stays suspended until the change that removes SEDI scraping
+  # merges (SEDI's terms forbid automated access). gazette and influence were
+  # suspended out of band by kubectl on 2026-11-05 and run again from here.
+  suspended:
+    - corporate
   schedules:
     committees: 0 */6 * * *
     gazette: 0 */12 * * *
