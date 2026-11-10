@@ -32,7 +32,7 @@ A reviewer completes these five steps. The success metric is this list.
 
 1. [ ] Visit [https://quill.maplespike.ca/](https://quill.maplespike.ca/) and see an MCP tool example in the hero.
 2. [ ] Follow a 3-line setup and connect Claude Code to the Quill MCP server.
-3. [ ] Ask "Track Bill C-69 through the Senate" and receive a structured report with committee evidence summaries and source links, plus lobbying records.
+3. [ ] Ask "Track Bill C-69 through the Senate" and receive a structured report with committee evidence excerpts (300 characters or less) with source links, plus lobbying records.
 4. [ ] Open the cited source links and confirm that they point at real Government of Canada pages.
 5. [ ] Understand what Quill does without a blog post.
 
@@ -50,13 +50,13 @@ Checked boxes name code or docs that already meet the line. Open boxes are the r
 
 ### Bill-tracking workflow
 
-One chain: search a bill, find the committee, return membership and committee evidence summaries with source links, check lobbying, then surface related Gazette notices and court decisions. The result is one structured Markdown report with provenance links.
+One chain: search a bill, find the committee, return membership and committee evidence excerpts (300 characters or less) with source links, check lobbying, then surface related Gazette notices and court decisions. The result is one structured Markdown report with provenance links.
 
 - [ ] A reviewer runs that chain for one bill and receives one report.
 - [x] Bill search is an MCP tool. `search_bills` is `packages/quill-mcp/src/tools/search-bills.ts`, registered in `packages/quill-mcp/src/tools/index.ts`.
-- [x] A combined bill tool exists for bills, debates, and votes. `track_bill` is `packages/quill-mcp/src/tools/track-bill.ts`. It returns JSON. It does not include committee membership, committee evidence summaries with source links, lobbying, the Gazette, or courts.
+- [x] A combined bill tool exists for bills, debates, and votes. `track_bill` is `packages/quill-mcp/src/tools/track-bill.ts`. It returns JSON. It does not include committee membership, committee evidence excerpts (300 characters or less) with source links, lobbying, the Gazette, or courts.
 - [x] Committee search is an MCP tool. `search_committees` is `packages/quill-mcp/src/tools/search-committees.ts`. `search_committees_op` is `packages/quill-mcp/src/tools/search-committees-op.ts`. `search_committees` queries the open.canada.ca package catalog. `search_committees_op` lists Open Parliament committees.
-- [ ] Committee membership and committee evidence summaries with source links come back for the bill's committee. Evidence ingestion lives in `packages/pipeline-core/src/ingestion/committees/index.ts`. The MCP committee tools above do not return that evidence for a chosen bill. `search_debates` (`packages/quill-mcp/src/tools/search-debates.ts`) searches House debates. `get_member_info` (`packages/quill-mcp/src/tools/get-member-info.ts`) looks up MPs.
+- [ ] Committee membership and committee evidence excerpts (300 characters or less) with source links come back for the bill's committee. Evidence ingestion lives in `packages/pipeline-core/src/ingestion/committees/index.ts`. The MCP committee tools above do not return that evidence for a chosen bill. `search_debates` (`packages/quill-mcp/src/tools/search-debates.ts`) searches House debates. `get_member_info` (`packages/quill-mcp/src/tools/get-member-info.ts`) looks up MPs.
 - [ ] Lobbying activity for the bill is an MCP result. `search_provincial_lobbying` is `packages/quill-mcp/src/tools/search-provincial-lobbying.ts`. Federal search code is `searchFederallobbyingmonthly` in `packages/pipeline-core/src/ingestion/federal-lobbying-monthly/index.ts`. No MCP tool calls that function. `search_influence` (`packages/quill-mcp/src/tools/search-influence.ts`) searches NGOs, think tanks, and funding.
 - [x] Gazette search is an MCP tool. `search_gazette` is `packages/quill-mcp/src/tools/search-gazette.ts`. Part tools are `search_gazette_part1`, `search_gazette_part2`, and `search_gazette_part3`.
 - [x] Court search is an MCP tool. `search_canlii` is `packages/quill-mcp/src/tools/search-canlii.ts`. `search_tribunals` is `packages/quill-mcp/src/tools/search-tribunals.ts`.
@@ -65,7 +65,7 @@ One chain: search a bill, find the committee, return membership and committee ev
 
 Every MCP response carries `source_url`, `retrieved_at`, `license`, and `dataset_version`.
 
-Committee and parliamentary content is returned as summaries with links to the source, never full text.
+Committee content is stored in full internally and served only as excerpts of 300 characters or less with source links; parliamentary tools are free.
 
 - [ ] Every MCP tool response includes those four fields.
 - [x] Some tools attach a claim bundle with `sourceUrl`, `retrievedAt`, and `license`. The helper is `withClaims` in `packages/quill-mcp/src/tools/claims-helper.ts`. `track_bill` calls it. Public claim shape: `packages/quill-mcp/src/tools/claims-helper.ts`. Product note: [`docs/products/quill.md`](products/quill.md) (Verification-first).
