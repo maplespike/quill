@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { GAZETTE_NOT_OFFICIAL_NOTICE, presentGazetteRecord } from '../ingestion/gazette/rias.js';
+
 /**
  * Source licence policy — runtime enforcement of the per-source flags recorded
  * in data-source-licenses.json.
@@ -185,7 +187,7 @@ export const NOT_OFFICIAL_VERSION_NOTICE =
 const NOTICES_BY_SOURCE: Record<string, string[]> = {
   committees: [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
   'parliamentary-voting': [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
-  gazette: [NOT_OFFICIAL_VERSION_NOTICE],
+  gazette: [GAZETTE_NOT_OFFICIAL_NOTICE],
   legislation: [NOT_OFFICIAL_VERSION_NOTICE],
 };
 
@@ -403,7 +405,14 @@ export function applySourcePolicy(sourceId: string, records: unknown[]): Applied
       };
     });
   }
-  if (policy.notOfficialVersion) {
+  if (familyId === 'gazette') {
+    // RIAS text is capped. The notice and the canada.ca source link ride
+    // with every record. Legislation keeps the longer federal-law notice.
+    out = out.map((record) => {
+      if (!record || typeof record !== 'object') return record;
+      return presentGazetteRecord(record as Record<string, unknown>);
+    });
+  } else if (policy.notOfficialVersion) {
     // Reproduction of Federal Law Order: never present reproductions as an
     // official version; the notice rides with every record.
     out = out.map((record) => {

@@ -46,7 +46,7 @@ export interface GazetteRecord {
   /** URL to the Regulatory Impact Analysis Statement (RIAS) */
   riasUrl: string | null;
 
-  /** Full RIAS text extracted from the HTML page */
+  /** RIAS excerpt, 300 characters or less. The full statement is not stored. */
   riasText: string | null;
 
   /** For Part I: deadline for public comment (60 days from publication) */

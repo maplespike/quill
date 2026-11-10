@@ -260,13 +260,26 @@ describe('applySourcePolicy — link-only sources', () => {
 
 describe('applySourcePolicy — not-official-version notices', () => {
   it('attaches the notice to Gazette records and the policy block', () => {
+    const long = `R`.repeat(500);
     const { records, policy } = applySourcePolicy('gazette', [
-      { id: 'g1', title: 'SOR/2026-123' },
+      {
+        id: 'g1',
+        title: 'SOR/2026-123',
+        description: 'Proposed amendment.',
+        riasText: long,
+        htmlUrl: 'https://gazette.gc.ca/rp-pr/p2/2026/2026-05-09/html/sor-dors123-eng.html',
+      },
     ]);
     const record = records[0] as Record<string, unknown>;
-    assert.ok(String(record.notice).includes('Not an official version'));
+    assert.equal(record.title, 'SOR/2026-123');
+    assert.equal(record.description, 'Proposed amendment.');
+    assert.equal(record.notice, 'This is not the official version.');
+    assert.equal(record.source_link, 'https://www.canada.ca/en/gazette.html');
+    assert.equal(typeof record.riasText, 'string');
+    assert.ok((record.riasText as string).length <= 300);
+    assert.equal((record.riasText as string).length, 300);
     assert.equal(policy.not_official_version, true);
-    assert.ok(policy.notices.some((n) => n.includes('official version')));
+    assert.ok(policy.notices.some((n) => n === 'This is not the official version.'));
   });
 
   it('keeps an existing notice field', () => {
