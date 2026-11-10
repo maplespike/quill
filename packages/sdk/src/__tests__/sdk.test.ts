@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import type { QuillResponse, QueryOptions, AuthConfig } from '../types.js';
 
 describe('MapleSpike SDK', () => {
   it('exports MapleSpike class', async () => {
@@ -7,11 +9,39 @@ describe('MapleSpike SDK', () => {
     assert.equal(typeof mod.MapleSpike, 'function');
   });
 
-  it('exports query types', async () => {
-    const mod = await import('../types.js');
-    assert.ok(mod.QuillResponse);
-    assert.ok(mod.QueryOptions);
-    assert.ok(mod.AuthConfig);
+  it('exports query types', () => {
+    const response = {
+      data: { ok: true },
+      meta: {
+        requestId: 'req-1',
+        agent: 'immigration',
+        action: 'status',
+        authMethod: 'none',
+        creditsCharged: 0,
+        cacheStatus: 'miss',
+        durationMs: 1,
+      },
+      quality: {
+        freshness_seconds: 0,
+        source_uptime_7d: 1,
+        confidence: 1,
+        certainty_score: 1,
+      },
+      citation: {
+        source_name: 'IRCC',
+        source_url: 'https://www.canada.ca',
+        license: 'Open Government Licence - Canada',
+        data_hash: 'abc',
+        retrieved_at: null,
+      },
+    } satisfies QuillResponse<{ ok: boolean }>;
+
+    const options = { _limit: 10, _format: 'compact' } satisfies QueryOptions;
+    const auth = { apiKey: 'test-key' } satisfies AuthConfig;
+
+    assert.equal(response.data.ok, true);
+    assert.equal(options._limit, 10);
+    assert.equal(auth.apiKey, 'test-key');
   });
 
   it('MapleSpike client can be instantiated', () => {
