@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const FILINGS_USER_AGENT = 'MapleSpike-CorporateFilings/2.0';
 export const FILINGS_TIMEOUT_MS = 60_000;
 export const MAX_FILINGS = 5000;

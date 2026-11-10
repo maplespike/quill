@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../../utils/http.js';
 const BASE_URL = 'https://data.edmonton.ca';
 import type { MunicipalRecord } from '../types.js';

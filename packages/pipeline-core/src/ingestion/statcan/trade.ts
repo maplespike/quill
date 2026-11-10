@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Trade Fetcher — Statistics Canada International Trade Data
  *

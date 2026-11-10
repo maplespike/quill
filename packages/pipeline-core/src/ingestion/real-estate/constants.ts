@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // CKAN endpoints for CMHC and provincial housing data
 export const CMHC_CKAN = 'https://open.canada.ca/data/api/3/action/package_search';
 

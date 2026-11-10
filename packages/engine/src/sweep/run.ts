@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Policy-intelligence sweep — the process the engine CronJob runs.
  *

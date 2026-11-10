@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { ConsoleAuditLogger } from './audit/logger.js';
 import type { AuditEntry, AuditLogger } from './audit/logger.js';
 

@@ -375,9 +375,9 @@ pnpm test:coverage  # coverage report
 
 ## License
 
-`@maplespike/sdk` is licensed under the GNU Affero General Public License,
-version 3 only (`AGPL-3.0-only`). The text is in [`LICENSE`](./LICENSE). See
-[`LICENSE.md`](../../LICENSE.md).
+`@maplespike/sdk` is licensed under the Apache License, Version 2.0
+(`Apache-2.0`). The text is in [`LICENSE`](./LICENSE). See
+[`LICENSE.md`](../../LICENSE.md). The Quill servers stay `AGPL-3.0-only`.
 
 ---
 

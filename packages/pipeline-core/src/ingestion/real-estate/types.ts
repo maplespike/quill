@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export interface RentalMarketData {
   id: string; municipality: string; province: string;
   vacancyRate: number; averageRent: number; unitType: string;

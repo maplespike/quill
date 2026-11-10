@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /** Government data source identifiers */
 export type GovernmentSource =
   | "open_canada_contracts"

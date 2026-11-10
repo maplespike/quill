@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { CMHC_CKAN, RE_TIMEOUT_MS, RE_UA } from './constants.js';
 

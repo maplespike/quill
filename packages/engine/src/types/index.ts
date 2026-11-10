@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export type { BaseEntity, GovernmentSource } from "./base";
 export type { Brief, BriefSection } from "./brief";
 export type {

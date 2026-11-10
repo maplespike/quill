@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { D1Database } from './db.js';
 import type { Intervention } from './types.js';
 

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- Journalism Mode: Annotations Table
 -- Stores notes, flags, overrides, and context annotations for journalism workflow
 -- Enables persistent storage for MCP tool /api/annotations endpoint

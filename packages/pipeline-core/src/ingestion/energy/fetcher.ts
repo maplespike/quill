@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { CER_CKAN, ENERGY_TIMEOUT_MS, ENERGY_UA } from './constants.js';
 import type { EnergyRecord, EnergyIngestionResult } from './types.js';

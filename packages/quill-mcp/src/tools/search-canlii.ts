@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchCanlii } from './upstream-fetcher.js';
 import { applySourcePolicy } from '@maplespike/pipeline-core';

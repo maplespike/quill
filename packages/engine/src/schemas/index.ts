@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { BaseEntitySchema, GovernmentSourceSchema } from "./base";
 export { BriefSchema, BriefSectionSchema } from "./brief";
 export {

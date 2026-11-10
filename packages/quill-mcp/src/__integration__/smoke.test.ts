@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Smoke test for MapleSpike MCP Server wired tools.
  * Tests that each tool handler returns real data from pipeline-core functions,

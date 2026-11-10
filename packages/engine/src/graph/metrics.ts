@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Graph Metrics — Statistics and measurements for entity graphs.
  */

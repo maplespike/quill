@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { ingestAllRegulators, getRegulatorCoverage } from './fetcher.js';
 import type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './types.js';
 

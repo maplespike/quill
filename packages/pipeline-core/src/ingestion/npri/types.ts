@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * NPRI (National Pollutant Release Inventory) Types — Quill
  *

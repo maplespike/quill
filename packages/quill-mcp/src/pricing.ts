@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill MCP tool pricing configuration for x402 (Solana USDC) micropayments.
  *

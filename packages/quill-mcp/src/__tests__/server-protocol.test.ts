@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MCP protocol journey — the JSON-RPC surface itself (server.ts).
  *

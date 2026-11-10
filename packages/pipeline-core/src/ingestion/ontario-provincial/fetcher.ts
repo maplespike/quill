@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { ONTARIO_CKAN_URL, ONTARIO_TIMEOUT_MS, ONTARIO_UA } from './constants.js';
 

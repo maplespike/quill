@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { TribunalName } from './types.js';
 
 export const TRIBUNAL_SOURCES: Record<TribunalName, { name: string; baseUrl: string; searchUrl: string; hasDecisions: boolean }> = {

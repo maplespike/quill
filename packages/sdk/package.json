@@ -43,7 +43,7 @@
     "transparency",
     "maplespike"
   ],
-  "license": "AGPL-3.0-only",
+  "license": "Apache-2.0",
   "homepage": "https://maplespike.ca",
   "repository": {
     "type": "git",

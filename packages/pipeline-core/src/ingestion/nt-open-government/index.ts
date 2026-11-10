@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from "../../utils/http.js";
 
 // NWT Open Government Product — no CKAN/API available

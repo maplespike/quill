@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — Rate Limiter (Redis-backed, with an in-memory sliding window)
  *

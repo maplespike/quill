@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { SourceOutcome } from '../run-log.js';
 
 export type RealtimeSource =

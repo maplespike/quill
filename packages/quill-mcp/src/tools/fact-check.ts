@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchStatCanReleases, fetchCKANPackages } from '@maplespike/pipeline-core';
 import { withClaims } from './claims-helper.js';

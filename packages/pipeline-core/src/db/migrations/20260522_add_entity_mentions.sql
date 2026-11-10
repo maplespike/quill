@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- Migration: Add entity_mentions table for cross-module entity resolution
 -- Date: 2026-05-22
 -- Issue: #412

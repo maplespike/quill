@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const UNION_USER_AGENT = 'MapleSpike-Unions/1.0';
 export const UNION_TIMEOUT_MS = 15_000;
 export const MAJOR_UNIONS = [

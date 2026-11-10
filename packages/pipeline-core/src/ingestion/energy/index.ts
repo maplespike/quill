@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { ingestOilProduction, ingestGasProduction, ingestElectricity, ingestMining, ingestPipelineData, ingestRenewableEnergy, ingestAllEnergy } from './fetcher.js';
 export type { EnergyRecord, EnergyIngestionResult } from './types.js';
 

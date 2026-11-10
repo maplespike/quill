@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseLobbyingRecord, parseLobbyingRecords } from './parser.js';
 export { CORPORATE_DDL } from './db.js';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { UTILITY_PROVIDERS } from './constants.js';
 
 export function searchUtilities(params: { province?: string; type?: string; query?: string }) {

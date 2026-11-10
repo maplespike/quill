@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { computeHash, canonicalJson, generateVerifyCommand, citationStore, NO_REUSE_LICENSE_NOTICE, buildProvenanceEvidence } from '@maplespike/pipeline-core';
 import type { ClaimBundle } from '@maplespike/pipeline-core';

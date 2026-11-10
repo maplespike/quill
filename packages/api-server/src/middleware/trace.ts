@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { randomUUID } from 'node:crypto';
 
 export function addTraceHeaders(response: Response, incomingTraceId?: string): Response {

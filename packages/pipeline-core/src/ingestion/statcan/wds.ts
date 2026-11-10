@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * StatCan WDS Low-level API Client — Quill
  *

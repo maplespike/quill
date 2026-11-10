@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /** Veterans Affairs Canada dataset constants — Quill */
 
 /** Known VAC CKAN dataset identifiers on open.canada.ca */

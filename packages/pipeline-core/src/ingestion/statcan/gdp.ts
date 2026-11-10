@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * GDP Fetcher — Statistics Canada Gross Domestic Product
  *

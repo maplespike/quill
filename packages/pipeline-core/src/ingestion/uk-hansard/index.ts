@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * UK Hansard API Ingestion Module (1803-2005)
  *

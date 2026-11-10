@@ -287,11 +287,17 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 
 ## Licensing
 
-Quill is licensed under the **GNU Affero General Public License, version 3 only**
-([`AGPL-3.0-only`](./LICENSE)). Every workspace package declares the same licence,
-every first-party source file carries the same `SPDX-License-Identifier`, and each
-published package ships a copy of the licence text. [`LICENSE.md`](./LICENSE.md)
-records the decision and its scope.
+The Quill servers are licensed under the **GNU Affero General Public License, version 3 only**
+([`AGPL-3.0-only`](./LICENSE)). The server packages are `api-server`, `quill-mcp`,
+`pipeline-core`, `database`, and `engine`. Every first-party source file in those
+packages carries `SPDX-License-Identifier: AGPL-3.0-only`.
+
+The client SDKs (`packages/sdk`, `packages/sdk-python`, and `packages/sdk-shell`)
+are licensed under the Apache License, Version 2.0 (`Apache-2.0`). Each SDK ships
+its own licence text. Every first-party source file in an SDK carries
+`SPDX-License-Identifier: Apache-2.0`.
+
+[`LICENSE.md`](./LICENSE.md) records the decision and its scope.
 
 [`NOTICE`](./NOTICE) carries the third-party and public-data notices. It holds the
 Open Government Licence – Canada attribution, the Crown copyright statement, the

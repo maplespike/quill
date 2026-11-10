@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import Database from "better-sqlite3";
 import { runAllTransforms } from "./etl";

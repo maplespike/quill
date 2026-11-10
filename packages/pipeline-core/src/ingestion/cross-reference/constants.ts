@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const CROSS_REF_TIMEOUT_MS = 30_000;
 export const CROSS_REF_UA = 'MapleSpike-CrossReference/1.0';
 export const MAX_MATCHES_PER_SOURCE = 50;

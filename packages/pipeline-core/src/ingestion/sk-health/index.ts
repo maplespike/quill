@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Saskatchewan provincial portal decommissioned — using federal CKAN fallback
 // data.saskatchewan.ca is DEAD (DNS removed); dashboard.saskatchewan.ca has no CKAN API.
 import { fetchCKANPackages } from "../gov-api.js";

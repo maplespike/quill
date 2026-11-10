@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Government releases snapshot — one StatCan fetch, shared by every caller.
  *

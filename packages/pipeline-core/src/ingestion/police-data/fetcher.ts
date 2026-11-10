@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { POLICE_AGENCIES, POLICE_TIMEOUT_MS, POLICE_USER_AGENT } from './constants.js';
 

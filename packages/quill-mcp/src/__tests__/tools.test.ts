@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Must be imported FIRST — before any tool imports — to intercept fetch
 import { mockUpstream } from './helpers/mock-upstream.js';
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Bilingual coverage tests — Official Languages Act parity on /v1/municipal/*
  *

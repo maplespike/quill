@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Northwest Territories — no CKAN API available (opendata.gov.nt.ca is dead).
 // Using Pattern D: scrape the ECE Open Government Product HTML page for data links.
 import { httpGet } from "../../utils/http.js";

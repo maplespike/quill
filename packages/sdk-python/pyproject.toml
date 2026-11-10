@@ -8,7 +8,7 @@ version = "0.4.0"
 description = "Quill (PyPI: quill-sdk) — typed Python client for the MapleSpike public-data API: Parliament, lobbying, immigration, courts, regulations, oversight, and more. Brand-level MapleSpike class names are preserved per ADR 0007."
 readme = "README.md"
 requires-python = ">=3.8"
-license = "AGPL-3.0-only"
+license = "Apache-2.0"
 authors = [
     { name = "Reverb", email = "hello@maplespike.ca" },
 ]
@@ -18,7 +18,7 @@ keywords = [
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",

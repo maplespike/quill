@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const OSFI_BASE = 'https://www.osfi-bsif.gc.ca';
 export const CDIC_BASE = 'https://www.cdic.ca';
 export const FCAC_BASE = 'https://www.canada.ca/en/financial-consumer-agency';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — Watchlist alerts engine (watchlist-alerts-v1)
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // packages/pipeline-core/src/entity/normalize.ts
 // Entity name normalization and canonical ID generation for MapleSpike
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityConfig } from './types.js';

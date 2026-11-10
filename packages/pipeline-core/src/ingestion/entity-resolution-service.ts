@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * EntityResolutionService — Service class for entity resolution with DB integration.
  *

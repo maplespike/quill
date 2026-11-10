@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Automated Entity Resolution — Links people and organizations across data sources during ingestion.
  *

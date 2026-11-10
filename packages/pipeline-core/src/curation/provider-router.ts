@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Self-Healing Provider Router with Graceful Degradation
  *

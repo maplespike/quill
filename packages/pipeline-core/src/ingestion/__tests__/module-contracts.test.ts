@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Module Contract Tests — verifies all registered modules follow the expected interface.
  *

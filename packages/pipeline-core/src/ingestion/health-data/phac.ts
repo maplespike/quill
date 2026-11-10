@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * PHAC Ingestion — Public Health Agency of Canada
  *

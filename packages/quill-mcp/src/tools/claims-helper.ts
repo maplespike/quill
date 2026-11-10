@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Claim Stack helper — attach verifiable claim bundles to tool responses.
  *

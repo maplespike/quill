@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /** National Defence personnel record */
 export interface DndPersonnelRecord {
   year: number;

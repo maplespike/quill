@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { getDb, getRawDb, closeDb, runMigrations, createDb } from "./connection.js";
 export type { DbClient, DbConfig } from "./connection.js";
 

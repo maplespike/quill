@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * LODE (Linkable Open Data Environment) Constants — Quill
  *

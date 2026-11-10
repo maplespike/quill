@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- MapleSpike — D1 Database Schema
 -- Multi-tenant API gateway storage
 -- SQLite / Cloudflare D1 compatible

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * GET /v1/ingest/status — ingestion liveness (gate A1-INGEST, 2026-09-22).
  *

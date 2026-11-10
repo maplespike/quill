@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchAllNgoSources, fetchNgoSource, searchNgoItems } from './fetcher.js';
 import { NGO_RSS_SOURCES } from './constants.js';
 import type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig, NgoCategory, NarrativeFlag } from './types.js';

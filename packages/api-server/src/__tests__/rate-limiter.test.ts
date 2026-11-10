@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Tests for the Redis-backed sliding-window rate limiter (RateLimiter class)
  * and the response-level rate-limit header helper (addRateLimitHeaders).

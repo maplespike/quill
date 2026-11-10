@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { connect, type ChannelModel, type Channel, type ConsumeMessage } from 'amqplib';
 import { computeHash } from '../../verification/hashing.js';
 import {

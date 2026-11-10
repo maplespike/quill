@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const OC_API_BASE = 'https://api.opencorporates.com/v0.4';
 export const OC_TIMEOUT_MS = 15_000;
 export const OC_UA = 'MapleSpike-OpenCorporates/1.0 (+https://maplespike.dev)';

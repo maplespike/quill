@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { computeHash, verifyHash, generateVerifyCommand } from './hashing.js';
 export type { CitationRecord } from './hashing.js';
 export { FifthGenerationWarfareDefense, defaultFiveGWResult } from './fifth-gen-warfare.js';

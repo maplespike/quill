@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseCscPopulation, parseCscPopulations } from './parser.js';
  * Criminal Justice Ingestion Orchestration — Quill

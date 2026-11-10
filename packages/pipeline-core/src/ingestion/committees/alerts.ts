@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { XMLParser } from 'fast-xml-parser';
 import { computeHash } from '../../verification/hashing.js';
 import { SENATE_COMMITTEE_MAP } from './constants.js';

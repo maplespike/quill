@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ParkRecord } from './types.js';
 
 function extractSocrataParks(raw: unknown, city: string, province: string): ParkRecord[] {

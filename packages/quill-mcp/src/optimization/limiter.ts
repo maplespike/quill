@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 const DEFAULT_MAX_RESULTS = 200;
 const ABSOLUTE_MAX = 1000;
 

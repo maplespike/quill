@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Bilingual tool descriptions loader.
  * Injects French (fr-CA) descriptions into all tool definitions using

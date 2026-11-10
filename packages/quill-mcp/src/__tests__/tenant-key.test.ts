@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Tenant-key verification contract (#mcp-tenant-auth).
  *

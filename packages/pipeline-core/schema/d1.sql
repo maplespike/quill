@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- Canonical D1 Schema — Quill
 --
 -- Resolves the 3-schema problem documented in AGENTS.md.

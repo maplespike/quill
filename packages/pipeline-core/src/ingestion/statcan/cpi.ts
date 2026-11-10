@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * CPI Fetcher — Statistics Canada Consumer Price Index
  *

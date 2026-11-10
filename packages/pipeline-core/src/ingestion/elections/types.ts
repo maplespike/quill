@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Elections Canada Third-Party Advertiser Registry — Quill
  *
