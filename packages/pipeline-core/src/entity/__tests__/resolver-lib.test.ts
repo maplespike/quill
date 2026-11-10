@@ -50,7 +50,7 @@ describe('Registry grouping', () => {
     assert.equal(registryForModule('provincial-lobbying'), 'lobbying');
     assert.equal(registryForModule('gic'), 'gic');
     assert.equal(registryForModule('committees'), 'committees');
-    assert.equal(registryForModule('sedi'), 'corporate');
+    assert.equal(registryForModule('sedar-plus'), 'corporate');
     assert.equal(registryForModule('canlii'), 'canlii');
     assert.equal(registryForModule('elections'), 'elections');
     assert.equal(registryForModule('unknown-module'), 'other');

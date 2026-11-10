@@ -62,8 +62,9 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   // stay aggregate and never enter the entity graph.
   statcan: { aggregateOnly: true },
   'nu-statcan': { aggregateOnly: true },
-  // CanLII / SEDAR+ / SEDI: publisher terms restrict automated and bulk
-  // reuse — serve citations, metadata, and links only.
+  // CanLII / SEDAR+: publisher terms restrict automated and bulk reuse.
+  // SEDI is excluded from the product (terms prohibit automated access).
+  // The flag stays so the licence inventory and any leftover record stay link-only.
   canlii: { linkOnly: true },
   'sedar-plus': { linkOnly: true },
   sedi: { linkOnly: true },

@@ -377,10 +377,6 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
     "description": "Search Canadian regional authority data \u2014 regional districts, municipalities,"
   },
   {
-    "toolName": "search_sedi",
-    "description": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data."
-  },
-  {
     "toolName": "search_un",
     "description": "Search UN Data Sources via the UNdata SDMX REST API \u2014 population, trade, national accounts,"
   },

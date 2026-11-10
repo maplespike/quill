@@ -134,7 +134,7 @@ class HealthMonitor {
 
     for (const mod of modules) {
       let healthy = true;
-      if (mod.status !== 'retired' && mod.healthCheckUrl) {
+      if (mod.healthCheckUrl) {
         try {
           healthy = await healthCheckModule(mod);
         } catch {

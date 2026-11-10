@@ -148,7 +148,6 @@
   "search_real_time_feeds": "Rechercher les alertes gouvernementales urgentes : météo, avis sanitaires, alertes AMBER. Ces flux sont interrogés périodiquement; un flux lent ou injoignable ne retourne aucun résultat. Pour toute décision en matière de sécurité, consultez directement l'autorité émettrice.",
   "search_regional_authorities": "Rechercher les autorités régionales de transport et de services. Couvre les organismes régionaux canadiens.",
   "search_science": "Rechercher des données sur la science, l'espace et la recherche au Canada — missions de l'ASC, subventions Mitacs, observations d'Ocean Networks Canada et données du Catalogue de données polaires.",
-  "search_sedi": "Rechercher les rapports d'initiés SEDI par émetteur ou initié. Couvre les opérations d'initiés déclarées à la SEDI.",
   "search_social_programs": "Rechercher les données sur l'assurance-emploi, les paiements de l'Allocation canadienne pour enfants et les taux de pauvreté par province.",
   "search_species_at_risk": "Rechercher les espèces en péril par nom ou statut. Couvre le registre public des espèces en péril du gouvernement du Canada.",
   "search_statcan": "Rechercher les jeux de données de Statistique Canada par mot-clé ou sujet. Accès au catalogue en ligne du Système de diffusion de données.",

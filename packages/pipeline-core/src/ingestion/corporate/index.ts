@@ -611,8 +611,6 @@ export async function ingestAllCorporate(
     }
   }
 
-  // SEDI insider filings are not part of this run. SEDI terms of use prohibit
-  // automated access. Stored insider rows are left in place.
   const [lobbying, procurement, statements, corpRegistry] = await Promise.all([
     ingestLobbying(db, options),
     ingestProcurement(db, options),
@@ -659,8 +657,6 @@ export async function ingestAllCorporate(
 export type { ExecutiveStory } from './pipeline.js';
 export { buildExecutiveStories } from './pipeline.js';
 
-// Re-export SEDI and Corporations Canada functions
-export { ingestInsiderTransactions } from './sedi.js';
 export { ingestCorporationsCanada } from './corporations.js';
 
 // Re-export lobbying flagging

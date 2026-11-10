@@ -1,3 +1,5 @@
+import { dropSediInsiderPostgres } from "./migrations/003_drop_sedi_insider.js";
+
 /**
  * Quill — PostgreSQL Schema Migration
  *
@@ -459,6 +461,7 @@ export async function migrateDomainTables(pool: import("pg").Pool): Promise<void
   const client = await pool.connect();
   try {
     await client.query(PG_DOMAIN_MIGRATION_SQL);
+    await dropSediInsiderPostgres((sql, params) => client.query(sql, params));
     console.log("[migrate-pg] Domain tables migration complete");
   } finally {
     client.release();

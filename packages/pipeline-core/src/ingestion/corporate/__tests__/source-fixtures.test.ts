@@ -2,7 +2,6 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseFederalCorporation } from '../corporations.js';
 import { mapDisclosureRecord } from '../procurement.js';
-import { sediUnreachableReason } from '../sedi.js';
 
 const CORPORATION = {
   corporationId: 1007,
@@ -55,17 +54,4 @@ describe('corporate source fixtures', () => {
     assert.equal(mapped.bidsReceived, 4);
   });
 
-  it('treats a Radware page and a 404 as a dead SEDI source', () => {
-    const wall = sediUnreachableReason({
-      statusCode: 200,
-      html: '<html><title>Radware Bot Manager Block</title></html>',
-    });
-    assert.match(wall ?? '', /Radware/);
-    assert.match(wall ?? '', /no machine-readable insider feed/);
-
-    const missing = sediUnreachableReason({ statusCode: 404, html: '' });
-    assert.match(missing ?? '', /public search path is gone/);
-
-    assert.equal(sediUnreachableReason({ statusCode: 200, html: '<table>insider transaction</table>' }), null);
-  });
 });

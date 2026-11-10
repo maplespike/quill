@@ -21,7 +21,7 @@
  },
  {
   "n": "search_corporate",
-  "d": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks insider transactions, sole-source contracts, company press releases, an"
+  "d": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks sole-source contracts, company press releases, and corporate-government"
  },
  {
   "n": "search_influence",
@@ -354,10 +354,6 @@
  {
   "n": "search_regional_authorities",
   "d": "Search Canadian regional authority data — regional districts, municipalities, and local governance information across Canada including regional services, planning, and transit authorities."
- },
- {
-  "n": "search_sedi",
-  "d": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data. Covers TSX-listed company executive and director stock transactions, including purchases, sales, and option exercises."
  },
  {
   "n": "search_un",

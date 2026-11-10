@@ -103,7 +103,7 @@ const categories = [
   { id: 'economic', desc: 'Selected economic indicators from StatCan and the Bank of Canada' },
   { id: 'international', desc: 'Selected data from international statistical sources' },
   { id: 'environment', desc: 'Selected environmental, climate, fisheries, and parks sources' },
-  { id: 'corporate', desc: 'Selected corporate filings, insider-trading, and registry records' },
+  { id: 'corporate', desc: 'Selected corporate filings and registry records' },
   { id: 'housing', desc: 'Selected CMHC and municipal housing records' },
   { id: 'extraction', desc: 'Some browser-extracted data from portals without APIs' },
 ];

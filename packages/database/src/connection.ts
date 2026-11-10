@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
+import { dropSediInsiderSqlite } from "./migrations/003_drop_sedi_insider.js";
 
 // ─── Types ────────────────────────────────────────────────────────────
 
@@ -499,6 +500,9 @@ export function runMigrations(db?: DbClient): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
     `);
+
+  // SEDI insider rows and their claim bundles. Idempotent.
+  dropSediInsiderSqlite(sqlite);
 }
 
 /**

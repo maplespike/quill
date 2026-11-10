@@ -192,7 +192,7 @@ export function parseUpdateFrequencyToSeconds(freq: string): number {
  * 'untested' if no healthCheckUrl configured.
  */
 async function probeModuleHealth(mod: ModuleInfo): Promise<HealthCheckStatus> {
-  if (mod.status === 'retired' || !mod.healthCheckUrl) return 'untested';
+  if (!mod.healthCheckUrl) return 'untested';
 
   try {
     const controller = new AbortController();
@@ -435,7 +435,7 @@ export async function getDataQualityReport(): Promise<DataQualitySummary> {
 
   // Probe health checks in parallel (up to 20 concurrent HEAD requests)
   // to keep the first report request responsive.
-  const activeModules = modules.filter(mod => mod.status !== 'placeholder' && mod.status !== 'retired');
+  const activeModules = modules.filter(mod => mod.status !== 'placeholder');
   const healthStatuses = await mapWithConcurrency(activeModules, probeModuleHealth, 20);
 
   for (let i = 0; i < activeModules.length; i++) {

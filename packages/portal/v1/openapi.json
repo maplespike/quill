@@ -4234,82 +4234,6 @@
         ]
       }
     },
-    "/v1/sedi/insider-transactions": {
-      "get": {
-        "tags": [
-          "sedi"
-        ],
-        "summary": "Insider trade reports by issuer, insider, and transaction type",
-        "description": "Insider trade reports by issuer, insider, and transaction type",
-        "operationId": "sedi-insider-transactions",
-        "parameters": [
-          {
-            "name": "issuer",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "insider",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "transaction_type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date_from",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response; payload, citations, and provenance vary by endpoint and source.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuillResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "API key missing or invalid"
-          },
-          "402": {
-            "description": "Quota exhausted"
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ]
-      }
-    },
     "/v1/unions/union-reports": {
       "get": {
         "tags": [
@@ -5997,10 +5921,6 @@
     {
       "name": "bank-of-canada",
       "description": "Bank of Canada — interest rate decisions, monetary policy, financial system reviews"
-    },
-    {
-      "name": "sedi",
-      "description": "Insider trading reports — C-Suite executive stock transactions at Canadian public companies"
     },
     {
       "name": "unions",

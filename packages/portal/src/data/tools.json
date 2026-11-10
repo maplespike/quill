@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-10-16T19:56:26.000Z",
+    "generatedAt": "2026-11-10T01:18:06.000Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -52,7 +52,7 @@
       "cat": "Corporate",
       "name": "search_corporate",
       "desc": {
-        "en": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks insider transactions, sole-source contracts, company press releases, and corporate-government interactions. Cross-references with federal lobbying registry and proactive disclosure data.",
+        "en": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks sole-source contracts, company press releases, and corporate-government interactions. Cross-references with federal lobbying registry and proactive disclosure data.",
         "fr": "Rechercher dans les registres de lobbying fédéraux, les données d'approvisionnement et les déclarations de dirigeants d'entreprises. Le suivi des dirigeants couvre 16 personnes dans les secteurs bancaire, télécoms et médias."
       }
     },
@@ -718,14 +718,6 @@
       "desc": {
         "en": "Search Canadian regional authority data — regional districts, municipalities, and local governance information across Canada including regional services, planning, and transit authorities.",
         "fr": "Rechercher les autorités régionales de transport et de services. Couvre les organismes régionaux canadiens."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_sedi",
-      "desc": {
-        "en": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data. Covers TSX-listed company executive and director stock transactions, including purchases, sales, and option exercises.",
-        "fr": "Rechercher les rapports d'initiés SEDI par émetteur ou initié. Couvre les opérations d'initiés déclarées à la SEDI."
       }
     },
     {

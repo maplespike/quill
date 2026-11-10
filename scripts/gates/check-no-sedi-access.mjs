@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * SEDI terms of use prohibit robots, spiders, and other automatic access.
- * Fail when a scheduled ingest path or a health check still names that host,
- * or when the sedi module is schedulable again.
+ * SEDI is excluded. Terms of use prohibit automated access.
  *
- * The licence inventory may cite the publisher terms URL. That is not a fetch.
+ * Fails when SEDI module code, tools, routes, or a fetch of that host reappear.
+ * The licence inventory may cite the publisher terms URL. The drop migration
+ * may name the host so it can delete stored rows. Neither is a fetch.
  *
  *   node scripts/gates/check-no-sedi-access.mjs
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,29 +16,32 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 /** Publisher host. Split so this file does not itself contain the host. */
 export const SEDI_HOST = ['sedi', 'ca'].join('.');
+const TOOL = 'search' + '_sedi';
+const ROUTE = '/v1/' + 'sedi';
+const MODULE_NAME = "name: 'sedi'";
 
 const SKIP_DIRS = new Set([
-  'node_modules',
-  'dist',
-  '.git',
-  '.turbo',
-  'coverage',
-  'target',
-  '.next',
-  '.cache',
-  'build',
+  'node_modules', 'dist', '.git', '.turbo', 'coverage', 'target', '.next', '.cache', 'build',
 ]);
 
-/** Licence citations, not fetch targets. */
+/** Citations and the deletion migration. Not fetch targets. */
 export const HOST_ALLOW = new Set([
   'data-source-licenses.json',
   'DATA-LICENSES.md',
+  'packages/database/src/migrations/003_drop_sedi_insider.ts',
+  'packages/database/test/drop-sedi-insider.test.ts',
 ]);
 
 const TEXT_EXTS = new Set([
   '.ts', '.tsx', '.js', '.mjs', '.cjs', '.yml', '.yaml', '.json',
-  '.md', '.py', '.sh', '.astro', '.nix', '.html', '.toml',
+  '.md', '.py', '.sh', '.astro', '.nix', '.html', '.toml', '.sql',
 ]);
+
+const FORBIDDEN_PATHS = [
+  'packages/pipeline-core/src/ingestion/sedi',
+  'packages/pipeline-core/src/ingestion/corporate/sedi.ts',
+  'packages/quill-mcp/src/tools/search-sedi.ts',
+];
 
 export function hostReferences(root, { allow = HOST_ALLOW } = {}) {
   const hits = [];
@@ -56,8 +59,7 @@ export function hostReferences(root, { allow = HOST_ALLOW } = {}) {
         walk(full);
         continue;
       }
-      if (!ent.isFile()) continue;
-      if (!TEXT_EXTS.has(extname(ent.name))) continue;
+      if (!ent.isFile() || !TEXT_EXTS.has(extname(ent.name))) continue;
       const rel = relative(root, full).split('\\').join('/');
       if (allow.has(rel)) continue;
       let text;
@@ -75,51 +77,6 @@ export function hostReferences(root, { allow = HOST_ALLOW } = {}) {
   return hits;
 }
 
-export function moduleBlock(text, name) {
-  const needle = `name: '${name}',`;
-  const start = text.indexOf(needle);
-  if (start < 0) return null;
-  const objStart = text.lastIndexOf('\n  {', start);
-  const objEnd = text.indexOf('\n  },', start);
-  if (objStart < 0 || objEnd < 0) return null;
-  return text.slice(objStart, objEnd);
-}
-
-export function functionBody(text, signature) {
-  const start = text.indexOf(signature);
-  if (start < 0) return null;
-  const brace = text.indexOf('{', start);
-  if (brace < 0) return null;
-  let depth = 0;
-  for (let i = brace; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '{') depth++;
-    else if (ch === '}') {
-      depth--;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
-  }
-  return null;
-}
-
-export function configObject(text, marker) {
-  const start = text.indexOf(marker);
-  if (start < 0) return null;
-  const brace = text.indexOf('{', start);
-  if (brace < 0) return null;
-  let depth = 0;
-  for (let i = brace; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '{') depth++;
-    else if (ch === '}') {
-      depth--;
-      if (depth === 0) return text.slice(brace, i + 1);
-    }
-  }
-  return null;
-}
-
-/** Keys of a Helm `schedules:` block. Line-based, same shape as the chart test. */
 export function scheduleKeys(text) {
   const keys = [];
   let inSchedules = false;
@@ -145,149 +102,91 @@ function read(root, rel) {
   return readFileSync(resolve(root, rel), 'utf8');
 }
 
-function retiredModuleProblems(label, block) {
-  const problems = [];
-  if (!block) {
-    problems.push(`${label}: sedi module entry is missing — retire it, do not delete it`);
-    return problems;
-  }
-  if (!/status:\s*'retired'/.test(block)) {
-    problems.push(`${label}: sedi status must be 'retired'`);
-  }
-  if (!/testCallPattern:\s*'skip'/.test(block)) {
-    problems.push(`${label}: sedi testCallPattern must be 'skip' so live smoke does not run it`);
-  }
-  if (!/updateFrequency:\s*'retired'/.test(block)) {
-    problems.push(`${label}: sedi updateFrequency must be 'retired'`);
-  }
-  if (/healthCheckUrl/.test(block)) {
-    problems.push(`${label}: sedi must not declare a healthCheckUrl`);
-  }
-  if (block.includes(SEDI_HOST)) {
-    problems.push(`${label}: sedi registry block references ${SEDI_HOST}`);
-  }
-  return problems;
+function walkText(root, relDir, token) {
+  const hits = [];
+  const base = resolve(root, relDir);
+  const walk = (dir) => {
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      if (SKIP_DIRS.has(ent.name)) continue;
+      const full = join(dir, ent.name);
+      if (ent.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!ent.isFile() || !TEXT_EXTS.has(extname(ent.name))) continue;
+      const text = readFileSync(full, 'utf8');
+      if (!text.includes(token)) continue;
+      const line = text.split('\n').findIndex((row) => row.includes(token)) + 1;
+      hits.push(`${relative(root, full).split('\\').join('/')}:${line} contains ${token}`);
+    }
+  };
+  walk(base);
+  return hits;
 }
 
-/**
- * Structural checks. `files` maps a repo-relative path to its text so tests
- * can pass fixtures. Omitted files are read from `root`.
- */
-export function structuralProblems(root, files = {}) {
+export function structuralProblems(root) {
   const problems = [];
-  const textOf = (rel) => (rel in files ? files[rel] : read(root, rel));
+  for (const rel of FORBIDDEN_PATHS) {
+    if (existsSync(resolve(root, rel))) problems.push(`${rel} must not exist`);
+  }
 
-  const registryFiles = [
+  for (const rel of [
     'packages/pipeline-core/src/ingestion/registry.ts',
     'packages/api-server/src/registry-snapshot.ts',
-  ];
-  for (const rel of registryFiles) {
-    problems.push(...retiredModuleProblems(rel, moduleBlock(textOf(rel), 'sedi')));
-  }
-
-  const corporate = functionBody(
-    textOf('packages/pipeline-core/src/ingestion/corporate/index.ts'),
-    'export async function ingestAllCorporate(',
-  );
-  if (!corporate) {
-    problems.push('ingestAllCorporate: function not found');
-  } else if (corporate.includes('ingestInsiderTransactions')) {
-    problems.push('ingestAllCorporate still calls ingestInsiderTransactions');
-  }
-
-  const pipelineFiles = [
-    ['packages/pipeline-core/src/cli/run-pipeline.ts', 'export const PIPELINE_CONFIG'],
-    ['packages/pipeline-core/src/ingestion/run-pipeline.ts', 'const PIPELINE_CONFIG'],
-  ];
-  for (const [rel, marker] of pipelineFiles) {
-    const block = configObject(textOf(rel), marker);
-    if (!block) {
-      problems.push(`${rel}: PIPELINE_CONFIG not found`);
-      continue;
-    }
-    if (/['"]sedi['"]/.test(block)) {
-      problems.push(`${rel}: PIPELINE_CONFIG still routes sedi`);
+  ]) {
+    if (read(root, rel).includes(MODULE_NAME)) {
+      problems.push(`${rel} still registers a sedi module`);
     }
   }
 
-  const valueFiles = [
+  const codeRoots = [
+    'packages/pipeline-core/src',
+    'packages/quill-mcp/src',
+    'packages/api-server/src',
+    'packages/sdk/src',
+    'packages/portal',
+  ];
+  for (const rel of codeRoots) {
+    problems.push(...walkText(root, rel, TOOL));
+    problems.push(...walkText(root, rel, ROUTE));
+    problems.push(...walkText(root, rel, '"name": "sedi"'));
+  }
+
+  const corporate = read(root, 'packages/pipeline-core/src/ingestion/corporate/index.ts');
+  if (corporate.includes("from './sedi.js'") || corporate.includes('ingestInsiderTransactions')) {
+    problems.push('corporate ingest still references the SEDI scraper');
+  }
+
+  const schema = read(root, 'packages/pipeline-core/schema/d1.sql');
+  if (/CREATE TABLE[^;]*insider_transactions/i.test(schema)) {
+    problems.push('schema/d1.sql still creates insider_transactions');
+  }
+
+  for (const rel of [
+    'packages/pipeline-core/src/cli/run-pipeline.ts',
+    'packages/pipeline-core/src/ingestion/run-pipeline.ts',
+  ]) {
+    const text = read(root, rel);
+    const start = text.indexOf('PIPELINE_CONFIG');
+    const end = start < 0 ? -1 : text.indexOf('};', start);
+    const block = start < 0 || end < 0 ? '' : text.slice(start, end);
+    if (/['"]sedi['"]/.test(block)) problems.push(`${rel}: PIPELINE_CONFIG still routes sedi`);
+  }
+
+  for (const rel of [
     'charts/quill/values.yaml',
     'charts/quill/values-prod.yaml',
     'scripts/fixtures/values-prod-legacy.yaml',
-  ];
-  for (const rel of valueFiles) {
-    let text;
-    try {
-      text = textOf(rel);
-    } catch {
-      continue;
-    }
-    if (scheduleKeys(text).includes('sedi')) {
+  ]) {
+    if (scheduleKeys(read(root, rel)).includes('sedi')) {
       problems.push(`${rel}: sedi is still an ingestion schedule key`);
     }
-  }
-
-  const registry = textOf('packages/pipeline-core/src/ingestion/registry.ts');
-  const runModule = functionBody(registry, 'export async function runModule(');
-  if (!runModule) problems.push('runModule: function not found');
-  else {
-    const retiredAt = runModule.indexOf("status === 'retired'");
-    const healthAt = runModule.indexOf('healthCheckUrl');
-    if (retiredAt < 0 || healthAt < 0 || retiredAt > healthAt) {
-      problems.push('runModule must refuse a retired module before any health check');
-    }
-  }
-  const healthCheck = functionBody(registry, 'export async function healthCheckModule(');
-  if (!healthCheck) problems.push('healthCheckModule: function not found');
-  else if (!/status === 'retired'/.test(healthCheck) || healthCheck.indexOf("status === 'retired'") > healthCheck.indexOf('httpGet')) {
-    problems.push('healthCheckModule must return before httpGet for a retired module');
-  }
-
-  const quality = textOf('packages/api-server/src/data-quality.ts');
-  const probe = functionBody(quality, 'async function probeModuleHealth(');
-  if (!probe) problems.push('probeModuleHealth: function not found');
-  else if (!probe.includes("status === 'retired'") || probe.indexOf("status === 'retired'") > probe.indexOf('fetch(')) {
-    problems.push('probeModuleHealth must not fetch a health URL for a retired module');
-  }
-
-  const runner = functionBody(
-    textOf('packages/pipeline-core/src/ingestion/run-pipeline.ts'),
-    'async function main(',
-  );
-  if (!runner) problems.push('ingestion run-pipeline main: function not found');
-  else if (runner.indexOf("status === 'retired'") < 0 || runner.indexOf("status === 'retired'") > runner.indexOf('healthCheckUrl')) {
-    problems.push('ingestion runner must skip a retired module before its health check');
-  }
-
-  const runOne = functionBody(
-    textOf('packages/pipeline-core/src/cli/run-pipeline.ts'),
-    'export async function runOne(',
-  );
-  if (!runOne) problems.push('runOne: function not found');
-  else if (runOne.indexOf("status === 'retired'") < 0 || runOne.indexOf("status === 'retired'") > runOne.indexOf('probeUrlsFor')) {
-    problems.push('runOne must skip a retired module before change-probe URLs');
-  }
-
-  const monitor = textOf('packages/pipeline-core/src/health-monitoring/monitor.ts');
-  if (!monitor.includes("mod.status !== 'retired' && mod.healthCheckUrl")) {
-    problems.push('health monitor must not probe a retired module');
-  }
-
-  const exporter = textOf('packages/api-server/src/routes/export.ts');
-  const exportFn = functionBody(exporter, 'export const exportModuleHandler');
-  if (!exportFn) problems.push('exportModuleHandler: function not found');
-  else if (exportFn.indexOf("status === 'retired'") < 0 || exportFn.indexOf("status === 'retired'") > exportFn.indexOf('runModule(')) {
-    problems.push('export route must not call runModule for a retired module');
-  }
-
-  const generator = textOf('packages/portal/scripts/generate-full-pipeline-data.mjs');
-  if (generator.includes('ingestSedi')) {
-    problems.push('generate-full-pipeline-data.mjs still calls ingestSedi');
-  }
-
-  const attestation = textOf('packages/pipeline-core/src/ingestion/attestation/index.ts');
-  if (!/'sedi':\s*'retired'/.test(attestation)) {
-    problems.push("attestation UPDATE_FREQUENCIES sedi must be 'retired'");
   }
 
   return problems;
@@ -298,7 +197,6 @@ export function findViolations(root) {
 }
 
 function main() {
-  // Touch stat so a missing root fails loudly rather than scanning '/'.
   statSync(ROOT);
   const problems = findViolations(ROOT);
   if (problems.length) {
@@ -306,7 +204,7 @@ function main() {
     for (const problem of problems) console.error(`  - ${problem}`);
     process.exit(1);
   }
-  console.log('✔ sedi access gate: no scheduled ingest or health check targets the retired source');
+  console.log('✔ sedi access gate: no SEDI module, tool, route, or fetch');
 }
 
 const isDirect = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);

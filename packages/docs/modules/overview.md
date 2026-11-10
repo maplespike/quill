@@ -112,7 +112,7 @@ const committees = getModule('committees');
 |--------|-------------|---------|-----------|
 | `corporate` | Federal lobbying registry, procurement contracts, executive statements | LobbyCanada, CanadaBuys | weekly |
 | `corporate-filings` | SEDAR+ public company regulatory filings | SEDAR+ | daily |
-| `sedi` | Retired. SEDI terms of use prohibit automated access. Stored rows stay. | — | retired |
+| `sedi` | Excluded. SEDI terms of use prohibit automated access. No module and no stored copy. | — | excluded |
 | `crown-corporations` | Annual reports, quarterly financials for CBC, Canada Post, CMHC, etc. | Crown corp publications | quarterly |
 | `cra-charity` | CRA Charity T3010 — detailed financials of every registered charity | CRA charity data | annual |
 | `bank-of-canada` | Rate decisions, monetary policy reports, Financial System Review | BoC RSS, VALA speeches | weekly |

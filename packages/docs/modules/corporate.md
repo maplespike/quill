@@ -44,9 +44,9 @@ The corporate module ingests federal lobbying registry data, procurement contrac
 
 Data includes prospectuses, annual reports, management discussion, material change reports.
 
-## Module: sedi (retired)
+## SEDI (excluded)
 
-SEDI terms of use prohibit robots, spiders, and other automatic access. Quill does not fetch SEDI. Stored insider rows stay in the database. This module is not scheduled and has no health check.
+SEDI terms of use prohibit robots, spiders, and other automatic access. Quill does not ship a SEDI module, tool, or stored copy.
 
 ## Module: crown-corporations
 

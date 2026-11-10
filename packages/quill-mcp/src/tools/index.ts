@@ -98,7 +98,6 @@ import * as searchProvincialRegulators from './search-provincial-regulators.js';
 import * as searchQcData from './search-qc-data.js';
 import * as searchRealTimeFeeds from './search-real-time-feeds.js';
 import * as searchRegionalAuthorities from './search-regional-authorities.js';
-import * as searchSedi from './search-sedi.js';
 import * as searchUn from './search-un.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
@@ -367,7 +366,6 @@ export function getAllTools(): ToolModule[] {
     searchQcData,
     searchRealTimeFeeds,
     searchRegionalAuthorities,
-    searchSedi,
     searchUn,
     searchUnions,
     searchUniversities,

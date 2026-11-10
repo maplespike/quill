@@ -373,30 +373,10 @@ CREATE INDEX IF NOT EXISTS idx_entity_name ON corporate_entities(legal_name);
 CREATE INDEX IF NOT EXISTS idx_entity_jurisdiction ON corporate_entities(jurisdiction);
 CREATE INDEX IF NOT EXISTS idx_entity_status ON corporate_entities(status);
 
--- Insider transactions (SEDI)
-CREATE TABLE IF NOT EXISTS insider_transactions (
-  id TEXT PRIMARY KEY,
-  insider_name TEXT NOT NULL,
-  insider_relation TEXT,
-  issuer_name TEXT NOT NULL,
-  issuer_ticker TEXT,
-  transaction_date TEXT NOT NULL,
-  filing_date TEXT NOT NULL,
-  transaction_type TEXT NOT NULL,
-  security_type TEXT,
-  number_of_units REAL NOT NULL,
-  unit_price REAL NOT NULL,
-  total_value REAL NOT NULL,
-  currency TEXT DEFAULT 'CAD',
-  ownership_after REAL,
-  source_url TEXT NOT NULL,
-  ingested_at TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_insider_name ON insider_transactions(insider_name);
-CREATE INDEX IF NOT EXISTS idx_insider_issuer ON insider_transactions(issuer_name);
-CREATE INDEX IF NOT EXISTS idx_insider_date ON insider_transactions(transaction_date DESC);
-CREATE INDEX IF NOT EXISTS idx_insider_type ON insider_transactions(transaction_type);
+-- Insider transactions (SEDI) were removed. Terms of use prohibit automated
+-- access. DROP is idempotent when this schema file is applied to a database
+-- that still has the table. Citations are removed by migration 003.
+DROP TABLE IF EXISTS insider_transactions;
 
 -- Canada Gazette records — proposed (Part I) and enacted (Part II) regulations
 CREATE TABLE IF NOT EXISTS gazette_records (

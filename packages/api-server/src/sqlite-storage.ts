@@ -6,6 +6,7 @@
  */
 
 import Database from 'better-sqlite3';
+import { dropSediInsiderSqlite } from '@maplespike/database';
 import { randomUUID } from 'node:crypto';
 import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
@@ -37,6 +38,7 @@ export class SqliteStorage implements QuillStorage {
   /*  Schema Migration                                                 */
 
   private migrate(): void {
+    dropSediInsiderSqlite(this.db);
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tenants (
         id TEXT PRIMARY KEY,

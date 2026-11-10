@@ -192,11 +192,6 @@ async function main() {
     process.exit(0);
   }
 
-  if (module.status === 'retired') {
-    console.warn(`SKIP: Module '${moduleName}' is retired and is not ingested.`);
-    process.exit(0);
-  }
-
   console.log(`[ingestion] Starting pipeline: ${moduleName}`);
   console.log(`[ingestion] Description: ${module.description}`);
   console.log(`[ingestion] Category: ${module.category}`);

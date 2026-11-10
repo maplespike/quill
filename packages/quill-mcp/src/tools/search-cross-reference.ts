@@ -26,7 +26,6 @@ const MODULE_TO_REGISTRY: Record<string, string> = {
   debates: 'committees',
   corporate: 'corporate',
   'corporate-filings': 'corporate',
-  sedi: 'corporate',
   'sedar-plus': 'corporate',
   'crown-corporations': 'corporate',
   'cra-charity': 'corporate',

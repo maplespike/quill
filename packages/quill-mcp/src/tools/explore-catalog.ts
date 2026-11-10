@@ -20,7 +20,7 @@ const SOURCE_CATEGORIES: Record<string, { description: string; tools: string[] }
   defence: { description: 'National Defence, veterans affairs', tools: ['search_defence', 'search_veterans'] },
   justice: { description: 'Criminal justice, corrections, parole, RCMP crime data', tools: ['search_criminal_justice'] },
   finance: { description: 'Federal budget, Bank of Canada, CMHC, OSFI, FCAC', tools: ['search_federal_budget', 'search_bank_of_canada', 'search_cmhc', 'search_valet_api', 'search_weather'] },
-  corporate: { description: 'Corporations Canada and SEDAR+ filings. SEDI insider filings are not ingested.', tools: ['search_corporate_filings', 'search_sedi'] },
+  corporate: { description: 'Corporations Canada and SEDAR+ filings', tools: ['search_corporate_filings'] },
   influence: { description: 'NGO/think tank publications, narrative tracking, influence actors', tools: ['search_influence', 'search_ngo_rss', 'search_narrative_tracker'] },
   labour: { description: 'LMIA data, unions, social programs', tools: ['search_lmia', 'search_unions', 'search_social_programs'] },
   science: { description: 'Science and research, education, universities', tools: ['search_science', 'search_education_research', 'search_universities'] },

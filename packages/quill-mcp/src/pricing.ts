@@ -131,7 +131,6 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'search-qc-data':       { tier: 'standard', priceUsd: 0.01 },
   'search-real-time-feeds': { tier: 'standard', priceUsd: 0.01 },
   'search-regional-authorities': { tier: 'standard', priceUsd: 0.01 },
-  'search-sedi':          { tier: 'standard', priceUsd: 0.01 },
   'search-un':            { tier: 'standard', priceUsd: 0.01 },
   'search-unions':        { tier: 'standard', priceUsd: 0.01 },
   'search-universities':  { tier: 'standard', priceUsd: 0.01 },

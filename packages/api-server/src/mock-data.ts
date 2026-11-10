@@ -44,7 +44,6 @@ const AGENT_MODULE_MAP: Record<string, string> = {
   'goc-spending': 'goc-spending',
   a2aj: 'a2aj',
   'social-programs': 'federal',
-  sedi: 'opencorporates',
   unions: 'labour',
   universities: 'universities',
   crtc: 'crtc',

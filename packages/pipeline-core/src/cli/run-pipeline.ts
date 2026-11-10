@@ -334,23 +334,6 @@ export async function runOne(
   const claimsBefore = citationStore.size;
 
   try {
-    if (mod?.status === 'retired') {
-      console.log(`[CLI] ⏭  ${moduleName}: retired — not ingested`);
-      outcome.records = 0;
-      outcome.sources = { sources: [], zeroReason: 'module-retired' };
-      outcome.logged = recordIngestRun({
-        pipeline: alias,
-        startedAt,
-        finishedAt: new Date(),
-        status: 'success',
-        records: 0,
-        claims: 0,
-        schedule: SCHEDULE,
-        error: null,
-        sources: outcome.sources,
-      });
-      return outcome;
-    }
     if (!entry) {
       // A module with no `ingestAll*` entry point cannot be ingested (see
       // ingestEntryPoint). Fail with the reason instead of calling a query

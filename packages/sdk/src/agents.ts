@@ -330,11 +330,6 @@ export const AGENTS: Record<string, AgentDefinition> = {
     { id: 'monetary-policy', description: 'Monetary Policy Reports and summaries', requiredParams: [], optionalParams: ['year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/bank-of-canada/monetary-policy?year=2025'" },
   ]},
 
-  // ── New: SEDI / Insider Trading ─────────────────────
-  sedi: { name: 'sedi', description: 'Insider trading reports — C-Suite executive stock transactions at Canadian public companies', actions: [
-    { id: 'insider-transactions', description: 'Insider trade reports by issuer, insider, and transaction type', requiredParams: [], optionalParams: ['issuer', 'insider', 'transaction_type', 'date_from', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/sedi/insider-transactions?issuer=RY&limit=50'" },
-  ]},
-
   // ── New: Unions ─────────────────────────────────────
   unions: { name: 'unions', description: 'Union data — membership, revenue, assets for major Canadian unions (CUPE, Unifor, PSAC, etc.)', actions: [
     { id: 'union-reports', description: 'Union annual report data including membership and financials', requiredParams: [], optionalParams: ['union_name', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/unions/union-reports?union=CUPE&year=2025'" },

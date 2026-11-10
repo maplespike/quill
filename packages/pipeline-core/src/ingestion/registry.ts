@@ -36,9 +36,8 @@ export interface ModuleInfo {
   sources: { name: string; format: string }[];
   /** How often the source data changes */
   updateFrequency: string;
-  /** 'active' (default) = working module, 'placeholder' = skeleton/metadata-only,
-   *  'retired' = kept for stored data, never scheduled, probed, or ingested */
-  status?: 'active' | 'placeholder' | 'retired';
+  /** 'active' (default) = working module, 'placeholder' = skeleton/metadata-only */
+  status?: 'active' | 'placeholder';
   /** How to call this module in a minimal live test. 'runModule' (default) = use runModule(),
    *  'fetchFeed' = RSS-style fetch, 'skip' = no external I/O utilities */
   testCallPattern?: 'runModule' | 'fetchFeed' | 'skip';
@@ -677,20 +676,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
-    // Retired. SEDI terms of use prohibit robots, spiders, and any other
-    // automatic device or process that monitors or copies its pages.
-    // Stored rows stay. Do not schedule, probe, or ingest this module.
-    name: 'sedi',
-    status: 'retired',
-    description: 'Retired — SEDI insider filings are not ingested. SEDI terms of use prohibit automated access. Stored rows stay in place.',
-    category: 'corporate',
-    modulePath: './sedi/index.js',
-    ingestFunctions: ['ingestSedi', 'ingestSediByIssuer', 'searchInsiderTransactions'],
-    sources: [{ name: 'SEDI (automated access retired)', format: 'HTML' }],
-    updateFrequency: 'retired',
-    testCallPattern: 'skip',
-  },
-  {
+    // Not SEDI. Live fetch is https://github.com/maplespike/quill/issues/1328
     name: 'sedar-plus',
     description: 'SEDAR+ corporate filings — Canadian securities documents: annual reports, AIFs, financial statements, prospectuses, material changes for TSX/TSXV issuers',
     category: 'corporate',
@@ -2638,9 +2624,7 @@ function isDbFirstSignature(fn: unknown): boolean {
  * Skips check if no healthCheckUrl is set (assumes healthy).
  */
 export async function healthCheckModule(info: ModuleInfo): Promise<boolean> {
-  // Retired modules are not probed. A health URL on a retired module must
-  // not generate traffic.
-  if (info.status === 'retired' || !info.healthCheckUrl) return true;
+  if (!info.healthCheckUrl) return true;
 
   try {
     const resp = await httpGet(info.healthCheckUrl, {
@@ -2668,15 +2652,6 @@ export async function runModule(
 ): Promise<unknown> {
   const info = moduleMap.get(name);
   if (!info) throw new Error(`Unknown ingestion module: ${name}`);
-
-  // Retired modules stay in the registry so stored rows remain addressable.
-  // They must not be imported or probed from a scheduled or export run.
-  if (info.status === 'retired') {
-    return {
-      skipped: true,
-      reason: `${name} is retired and is not ingested`,
-    };
-  }
 
   // Upstream health check — skip if endpoint is unreachable
   if (info.healthCheckUrl) {
