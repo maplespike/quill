@@ -17,6 +17,7 @@
  */
 
 import logger from '../logger.js';
+import { portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 import {
   UPSTREAM_MAINTENANCE,
   type UpstreamHost,
@@ -109,7 +110,7 @@ export async function runProbe(
   let response: Response;
   try {
     response = await fetchImpl(probe.url, {
-      headers: { 'User-Agent': 'QuillUpstreamProbe/1.0 (+https://quill.maplespike.ca)' },
+      headers: { 'User-Agent': `QuillUpstreamProbe/1.0 (+${portalOrigin()})` },
       signal: AbortSignal.timeout(options.timeoutMs),
       redirect: 'follow',
     });

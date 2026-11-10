@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { computeHash, canonicalJson, generateVerifyCommand, citationStore, NO_REUSE_LICENSE_NOTICE, buildProvenanceEvidence } from '@maplespike/pipeline-core';
+import { apiOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 import type { ClaimBundle } from '@maplespike/pipeline-core';
 
 /**
@@ -120,7 +121,7 @@ export const handler: ToolHandler = async (args) => {
             ? data.slice(0, 500) + '... [truncated — use verify command for full verification]'
             : data,
         },
-        verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
+        verifyCommand: generateVerifyCommand(`${apiOrigin()}/v1/citation/${canonical}`),
         message: verified
           ? 'Canonical record hash matches the stored value. This does not authenticate the source or establish reuse rights.'
           : 'Stored record found but its canonical record hash no longer matches (integrity failure).',
@@ -144,7 +145,7 @@ export const handler: ToolHandler = async (args) => {
         verified: false,
         data: null,
       },
-      verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
+      verifyCommand: generateVerifyCommand(`${apiOrigin()}/v1/citation/${canonical}`),
       message:
         'Citation not found in the current store. It may correspond to data ingested by a previous ' +
         'pipeline run. The command above checks Quill’s claim endpoint; it does not verify the upstream source. ' +

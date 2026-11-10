@@ -10,6 +10,10 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./config/public-base-url": {
+      "import": "./dist/config/public-base-url.js",
+      "types": "./dist/config/public-base-url.d.ts"
+    },
     "./utils/http": {
       "import": "./dist/utils/http.js",
       "types": "./dist/utils/http.d.ts"

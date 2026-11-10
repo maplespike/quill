@@ -8,7 +8,10 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
-const KF_API_URL = process.env.KNOWLEDGE_FABRIC_URL || 'http://knowledge-fabric.ai-inference.svc.cluster.local:3100';
+function knowledgeFabricUrl(): string | undefined {
+  const value = process.env.KNOWLEDGE_FABRIC_URL?.trim();
+  return value || undefined;
+}
 
 export const definition: ToolDefinition = {
   name: 'search_knowledge_fabric',
@@ -31,9 +34,20 @@ export const definition: ToolDefinition = {
 
 export const handler: ToolHandler = async (params) => {
   const { query, file_back = false } = params as Record<string, unknown>;
+  const kfUrl = knowledgeFabricUrl();
+  if (!kfUrl) {
+    return {
+      content: {
+        tool: 'search_knowledge_fabric',
+        query,
+        error: 'Knowledge Fabric is disabled. Set KNOWLEDGE_FABRIC_URL to enable it.',
+      },
+      isError: true,
+    };
+  }
 
   try {
-    const resp = await fetch(`${KF_API_URL}/query`, {
+    const resp = await fetch(`${kfUrl}/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'User-Agent': 'MapleSpike/0.2' },
       body: JSON.stringify({ question: query, fileBack: file_back }),

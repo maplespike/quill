@@ -112,9 +112,17 @@ export function resolveAIConfig(tenantId: string): {
 } {
   const byok = getTenantAISettings(tenantId);
   if (!byok) {
+    const endpoint = process.env.QUILL_AI_ENDPOINT?.trim() || '';
+    if (!endpoint) {
+      return {
+        endpoint: '',
+        apiKey: '',
+        model: process.env.QUILL_AI_MODEL || 'glm-5.2',
+        source: 'disabled',
+      };
+    }
     return {
-      endpoint: process.env.QUILL_AI_ENDPOINT
-        || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1',
+      endpoint,
       apiKey: '',
       model: process.env.QUILL_AI_MODEL || 'glm-5.2',
       source: 'cluster-default',

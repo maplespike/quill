@@ -9,18 +9,34 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, jsonResponse, buildError, type BuildContext } from '../response.js';
+import { portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 
-const ASTRAL_KEY_URL = process.env.ASTRAL_KEY_URL
-  || 'http://astral-key.astral-key.svc.cluster.local:8080';
+function astralKeyUrl(): string | undefined {
+  const value = process.env.ASTRAL_KEY_URL?.trim();
+  return value || undefined;
+}
 
 async function proxyToAstral(path: string, method: string, body?: unknown, authHeader?: string): Promise<{ status: number; data: unknown }> {
+  const base = astralKeyUrl();
+  if (!base) {
+    return {
+      status: 503,
+      data: {
+        error: {
+          code: 'ASTRAL_KEY_DISABLED',
+          message: 'Astral Key is disabled. Set ASTRAL_KEY_URL to enable Web3 and passkey proxy auth.',
+          message_fr: 'Astral Key est désactivé. Définissez ASTRAL_KEY_URL pour activer l’authentification.',
+        },
+      },
+    };
+  }
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     if (authHeader) headers['Authorization'] = authHeader;
 
-    const resp = await fetch(`${ASTRAL_KEY_URL}${path}`, {
+    const resp = await fetch(`${base}${path}`, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
@@ -151,7 +167,7 @@ export const astralSolanaNonceHandler: RouteHandler = async (request, ctx) => {
 
   const nonce = Array.from(crypto.getRandomValues(new Uint8Array(32)))
     .map(b => b.toString(16).padStart(2, '0')).join('');
-  const message = `MapleSpike Quill wants you to sign in with your Solana account:\n${publicKey}\n\nSign in to MapleSpike Quill\n\nURI: https://quill.maplespike.ca\nVersion: 1\nNonce: ${nonce}`;
+  const message = `MapleSpike Quill wants you to sign in with your Solana account:\n${publicKey}\n\nSign in to MapleSpike Quill\n\nURI: ${portalOrigin()}\nVersion: 1\nNonce: ${nonce}`;
 
   const nonceKey = `solana:nonce:${publicKey}`;
   await ctx.cache.put(nonceKey, nonce, 300); // 5 min TTL

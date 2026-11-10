@@ -20,13 +20,14 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildError, jsonResponse } from '../response.js';
+import { statusOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 
 const DEPRECATION_BODY = {
   deprecated: true,
   decision_doc: '/docs/decisions/0002-pii-avoidance.md',
   replacement_paths: {
     github_issues: 'https://github.com/reverb256/quill/issues',
-    status:       'https://status.maplespike.ca',
+    status:       statusOrigin(),
   },
   message:
     'MapleSpike never collects contact-form PII. Decision 0002 retired ' +
