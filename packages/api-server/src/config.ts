@@ -145,7 +145,7 @@ export function loadConfig(env: Env | Record<string, string | undefined>): AppCo
   const jwtSecret = env.JWT_SECRET as string;
   return {
     version: env.QUILL_VERSION as string || '0.1.0',
-    name: env.QUILL_NAME as string || 'Quill',
+    name: env.QUILL_NAME as string || 'Quill by Maplespike',
     environment: (env.ENVIRONMENT as 'development' | 'production') || 'development',
     aiEndpoint: env.AI_ENDPOINT as string || 'http://127.0.0.1:8080/v1',
     aiModel: env.AI_MODEL as string || 'qwen3.5-27b',

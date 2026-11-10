@@ -54,7 +54,7 @@ if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') 
 const env = {
   QUILL_API_KEY: process.env.QUILL_API_KEY || '',
   QUILL_VERSION: process.env.QUILL_VERSION || '0.1.0',
-  QUILL_NAME: process.env.QUILL_NAME || 'Quill',
+  QUILL_NAME: process.env.QUILL_NAME || 'Quill by Maplespike',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
   QUILL_DB_PATH: process.env.QUILL_DB_PATH || './quill.db',
   AI_ENDPOINT,
