@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchPoliticians, fetchParliamentVotes, fetchEntityCrossReference } from './upstream-fetcher.js';
+import { fetchPoliticians, fetchEntityCrossReference } from './upstream-fetcher.js';
+import { presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_politician_influence',
@@ -17,7 +18,12 @@ export const definition: ToolDefinition = {
 
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const name = String(args.name ?? '').trim();
-  if (!name) return { content: { tool: 'get_politician_influence', error: 'No name provided' }, isError: true };
+  if (!name) {
+    return presentParliamentaryToolResult(
+      { content: { tool: 'get_politician_influence', error: 'No name provided' }, isError: true },
+      { chamber: 'commons' },
+    );
+  }
 
   try {
     const [mpSearch, xref] = await Promise.all([
@@ -27,7 +33,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
 
     const mp = mpSearch.results[0] as Record<string, unknown> | undefined;
 
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_politician_influence',
         query: name,
@@ -45,8 +51,11 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         openParliamentUrl: mp?.url ? `https://api.openparliament.ca${mp.url}` : null,
         sources: ['api.openparliament.ca', 'ouvert.canada.ca'],
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return { content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult(
+      { content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true },
+      { chamber: 'commons' },
+    );
   }
 };

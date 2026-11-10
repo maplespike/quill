@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestParliamentaryVotes } from '@maplespike/pipeline-core/parliamentary-voting';
+import { presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const getVotingRecordDefinition: ToolDefinition = {
   name: 'get_voting_record',
@@ -60,22 +61,22 @@ export const getVotingRecordHandler: ToolHandler = async (args) => {
 
   try {
     const result = await ingestParliamentaryVotes();
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_voting_record',
         divisionId,
-        data: result,
+        data: result as Record<string, unknown>,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_voting_record',
         divisionId,
         error: (error as Error).message,
       },
       isError: true,
-    };
+    }, { chamber: 'commons' });
   }
 };
 
@@ -85,16 +86,16 @@ export const getMPVotingPatternHandler: ToolHandler = async (args) => {
 
   try {
     const result = await ingestParliamentaryVotes();
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_mp_voting_pattern',
         mpId,
         years,
-        data: result,
+        data: result as Record<string, unknown>,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_mp_voting_pattern',
         mpId,
@@ -102,7 +103,7 @@ export const getMPVotingPatternHandler: ToolHandler = async (args) => {
         error: (error as Error).message,
       },
       isError: true,
-    };
+    }, { chamber: 'commons' });
   }
 };
 
@@ -111,21 +112,21 @@ export const comparePartyVotingHandler: ToolHandler = async (args) => {
 
   try {
     const result = await ingestParliamentaryVotes();
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'compare_party_voting',
         divisionId,
-        data: result,
+        data: result as Record<string, unknown>,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'compare_party_voting',
         divisionId,
         error: (error as Error).message,
       },
       isError: true,
-    };
+    }, { chamber: 'commons' });
   }
 };

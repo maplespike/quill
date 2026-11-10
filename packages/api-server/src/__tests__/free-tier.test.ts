@@ -43,6 +43,10 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/ingest/status',
     '/v1/llms.txt',
     '/v1/llms-full.txt',
+    '/v1/export/committees',
+    '/v1/export/committees/meeting-1',
+    '/v1/export/parliamentary-voting',
+    '/v1/export/parliamentary-voting/div-1',
   ];
 
   const blocked: string[] = [
@@ -61,6 +65,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/ai/settings',
     '/v1/keys',
     '/v1/export/foo',
+    '/v1/export/sedi',
+    '/v1/export/gazette',
   ];
 
   for (const path of allowed) {

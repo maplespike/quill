@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchParliamentCommittees } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_committees_op',
@@ -26,26 +26,31 @@ export async function runSearchCommitteesOp(
   try {
     const { results, total } = await fetchFn(query, limit);
     const applied = applySourcePolicy('committees', results);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_committees_op',
         query,
         limit,
-        committees: applied.records,
+        committees: applied.records as Record<string, unknown>[],
         totalCount: total,
         policy: applied.policy,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return {
+    return presentParliamentaryToolResult({
       content: { tool: 'search_committees_op', query, limit, status: 'error', error: (error as Error).message },
       isError: true,
-    };
+    }, { chamber: 'commons' });
   }
 }
 
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
-  if (!query.trim()) return { content: { tool: 'search_committees_op', error: 'No query' }, isError: true };
+  if (!query.trim()) {
+    return presentParliamentaryToolResult(
+      { content: { tool: 'search_committees_op', error: 'No query' }, isError: true },
+      { chamber: 'commons' },
+    );
+  }
   return runSearchCommitteesOp({ query, limit: (args.limit as number) ?? 10 });
 };

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-01
+last-reviewed: 2026-11-10
 status: active
 ---
 
@@ -94,8 +94,8 @@ docker compose up
 |---|---|
 | **Price** | Free |
 | **Data modules** | Public data modules (no restricted/provincial gatekeeping) |
-| **MCP tools** | Basic tool set |
-| **API calls** | 1,000/month |
+| **MCP tools** | Basic tool set, plus House of Commons and Senate debates, committees, Hansard, and votes (free; not a paid benefit) |
+| **API calls** | 1,000/month. Parliamentary calls above are not counted toward this quota. |
 | **Rate limit** | 10/min |
 | **AI / RAG** | — |
 | **Auth** | API key |
@@ -107,7 +107,7 @@ docker compose up
 |---|---|
 | **Price** | $50/mo CAD (~$35 USD) |
 | **Data modules** | All 207 |
-| **MCP tools** | All 184 |
+| **MCP tools** | Paid MCP tools. House of Commons and Senate debates, committees, Hansard, and votes stay on the free tier. |
 | **API calls** | 50,000/month |
 | **Rate limit** | 60/min |
 | **AI / RAG** | ✅ (BYOK or MapleSpike credits) |
@@ -125,7 +125,7 @@ docker compose up
 | **SSO** | GitHub, Google OAuth |
 | **Team seats** | 5 included |
 | **Journalism mode** | ✅ (verified press credentials) |
-| **Cross-reference reports** | ✅ (lobbying ↔ committees ↔ procurement) |
+| **Cross-reference reports** | ✅ across paid registries. House of Commons and Senate debates, committees, Hansard, and votes stay free and are not a paid benefit. |
 | **Usage analytics** | ✅ |
 | **Support** | Priority (< 8h) |
 | **SLA** | 7-day data freshness |

@@ -36,6 +36,9 @@ describe('search_committees applies the discovery-only licence policy', () => {
     assert.equal(results[0].speech, undefined);
     assert.equal(results[0].title, 'Committee on Finance');
     assert.ok(String(results[0].notes).length <= 300, 'summary must be cut to a short excerpt');
+    assert.match(String(content.attribution), /Reproduced for non-commercial use/);
+    assert.match(String(content.attribution), /ourcommons\.ca/);
+    assert.match(String(results[0].attribution), /Reproduced for non-commercial use/);
     const policy = content.policy as { discovery_only: boolean; commercial_use: boolean; notices: string[] };
     assert.equal(policy.discovery_only, true);
     assert.equal(policy.commercial_use, false);
@@ -71,5 +74,7 @@ describe('search_committees_op applies the same policy', () => {
     const policy = content.policy as { discovery_only: boolean; notices: string[] };
     assert.equal(policy.discovery_only, true);
     assert.ok(policy.notices.length >= 1);
+    assert.match(String(content.attribution), /Reproduced for non-commercial use/);
+    assert.match(String(committees[0].attribution), /ourcommons\.ca/);
   });
 });

@@ -21,7 +21,7 @@ import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
 import { enforceRateLimit } from './rate-limit.js';
-import { isFreeTierRoute, isOperatorRoute } from './feature-gates.js';
+import { isFreeTierRoute, isOperatorRoute, countsTowardPaidQuota } from './feature-gates.js';
 import {
   buildError,
   buildSuccess,
@@ -807,7 +807,9 @@ export async function handleRequest(
   // Determine auth method from the AuthResult
   const authMethod: string = tenant?.authMethod || 'api-key';
   const tier = ctx.tenant.tier;
-  const creditsCharged = tier === 'free' ? 0 : 1;
+  // Parliamentary routes are free on every plan and do not spend a credit.
+  const meterQuota = countsTowardPaidQuota(path);
+  const creditsCharged = !meterQuota || tier === 'free' ? 0 : 1;
 
   // Rate limit (skip for health, data quality, and spec)
   let rateCheck: { allowed: boolean; remaining: number; resetTime: number; reason?: 'burst' | 'daily' | 'monthly' } | null;
@@ -844,7 +846,7 @@ export async function handleRequest(
     if (url.pathname.startsWith('/v1/health') || url.pathname.startsWith('/v1/astral/health')) {
       // Health endpoints bypass all rate limiting
     } else {
-    const check = await enforceRateLimit(db, ctx.tenant.id, ctx.tenant.tier, isAuthenticated, rateLimitKey);
+    const check = await enforceRateLimit(db, ctx.tenant.id, ctx.tenant.tier, isAuthenticated, rateLimitKey, { meterQuota });
     rateCheck = check;
     if (!check.allowed) {
       await db.logAudit({

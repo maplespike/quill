@@ -114,6 +114,7 @@ export async function enforceRateLimit(
   tier: Tier,
   isAuthenticated: boolean,
   rateLimitKey: string,
+  options?: { meterQuota?: boolean },
 ): Promise<RateLimitResult> {
   const windowMs = 60 * 1000;
   // Anonymous burst: 30 req/min — generous enough for portal browsing
@@ -128,7 +129,9 @@ export async function enforceRateLimit(
   }
 
   // Anonymous traffic only gets burst protection; no daily/monthly quota tracking.
-  if (!isAuthenticated) {
+  // Parliamentary paths pass meterQuota:false so a paid-plan counter neither
+  // blocks them nor records the call. The per-minute burst check still runs.
+  if (!isAuthenticated || options?.meterQuota === false) {
     return { ...burstCheck, reason: undefined };
   }
 

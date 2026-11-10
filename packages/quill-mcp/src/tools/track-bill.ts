@@ -4,6 +4,15 @@ import type { ToolDefinition, ToolHandler } from './types.js';
 import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 import { fetchParliamentBills, fetchParliamentDebates, fetchParliamentVotes } from './upstream-fetcher.js';
 import { withClaims } from './claims-helper.js';
+import { presentParliamentaryToolResult, type ParliamentaryChamber } from '@maplespike/pipeline-core';
+
+function chamberForBillQuery(query: string): ParliamentaryChamber {
+  const senate = /\bS-\d/i.test(query);
+  const commons = /\bC-\d/i.test(query);
+  if (senate && !commons) return 'senate';
+  if (commons && !senate) return 'commons';
+  return 'both';
+}
 
 export const definition: ToolDefinition = {
   name: 'track_bill',
@@ -19,7 +28,12 @@ export const definition: ToolDefinition = {
 
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '').trim();
-  if (!query) return { content: { tool: 'track_bill', error: 'No bill query provided' }, isError: true };
+  if (!query) {
+    return presentParliamentaryToolResult(
+      { content: { tool: 'track_bill', error: 'No bill query provided' }, isError: true },
+      { chamber: 'both' },
+    );
+  }
 
   try {
     const [billResult, debateResult, voteResult] = await Promise.all([
@@ -40,7 +54,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
       result: v.result, yea: v.yea_total, nay: v.nay_total,
     }));
 
-    return {
+    return presentParliamentaryToolResult({
       content: await withClaims({
         tool: 'track_bill',
         query,
@@ -76,8 +90,11 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
           transformations: ['cross-reference'],
         })),
       ]),
-    };
+    }, { chamber: chamberForBillQuery(query) });
   } catch (error) {
-    return { content: { tool: 'track_bill', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult(
+      { content: { tool: 'track_bill', status: 'error', error: (error as Error).message }, isError: true },
+      { chamber: chamberForBillQuery(query) },
+    );
   }
 };
