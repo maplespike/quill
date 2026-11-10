@@ -59,7 +59,7 @@ export async function runDonationsTool(
   const jurisdiction = String(fields.jurisdiction ?? '');
   try {
     const result = await ingest(jurisdiction);
-    const applied = applySourcePolicy('political-donations', result == null ? [] : [result]);
+    const applied = applySourcePolicy('political-donations', result === null || result === undefined ? [] : [result]);
     return {
       content: {
         tool,
