@@ -270,6 +270,14 @@ export function compileRules(manifest) {
   }));
 }
 
+export function compileAllows(manifest) {
+  return (manifest.scan?.allows ?? []).map((entry) => ({
+    file: normalizeRel(entry.file),
+    rule: String(entry.rule),
+    line: String(entry.line),
+  }));
+}
+
 export function scanText(rel, text, rules) {
   const hits = [];
   const lines = String(text).split('\n');
@@ -284,12 +292,26 @@ export function scanText(rel, text, rules) {
           line: index + 1,
           rule: rule.id,
           match: match[0],
+          text: line,
         });
         if (match[0].length === 0) rule.re.lastIndex += 1;
       }
     });
   }
   return hits;
+}
+
+/** A hit is allowlisted only when the file, the rule, and the exact line all match. */
+export function partitionHits(hits, allows) {
+  const blocking = [];
+  const allowlisted = [];
+  for (const hit of hits) {
+    const listed = allows.some((entry) =>
+      entry.file === hit.file && entry.rule === hit.rule && entry.line === hit.text);
+    if (listed) allowlisted.push(hit);
+    else blocking.push(hit);
+  }
+  return { blocking, allowlisted };
 }
 
 export function groupHits(hits) {
@@ -301,15 +323,29 @@ export function groupHits(hits) {
   return grouped;
 }
 
-export function formatHitReport(hits) {
-  if (hits.length === 0) return 'Forbidden-string scan: no hits.\n';
-  const lines = [`Forbidden-string scan: ${hits.length} hit${hits.length === 1 ? '' : 's'}.`];
+function appendHitGroups(lines, hits) {
+  if (hits.length === 0) {
+    lines.push('  none');
+    return;
+  }
   for (const [file, group] of groupHits(hits)) {
     lines.push(file);
     for (const hit of group) {
       lines.push(`  ${hit.line}  [${hit.rule}]  ${hit.match}`);
     }
   }
+}
+
+export function formatHitReport(blocking, allowlisted = []) {
+  const blockingHits = Array.isArray(blocking) ? blocking : [];
+  const allowedHits = Array.isArray(allowlisted) ? allowlisted : [];
+  const lines = [
+    `Forbidden-string scan: ${blockingHits.length} blocking, ${allowedHits.length} allowlisted.`,
+    'Blocking:',
+  ];
+  appendHitGroups(lines, blockingHits);
+  lines.push('Allowlisted:');
+  appendHitGroups(lines, allowedHits);
   return `${lines.join('\n')}\n`;
 }
 

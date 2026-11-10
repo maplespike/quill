@@ -15,10 +15,12 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
+  compileAllows,
   formatHitReport,
   gitleaksArgs,
   materializeExport,
   parseSimpleYaml,
+  partitionHits,
   phaseNames,
   runCommand,
   scanExportTree,
@@ -49,8 +51,9 @@ export async function exportPublicTree(argv = process.argv.slice(2)) {
 
   if (phases.includes('scan')) {
     const hits = await scanExportTree(dest, manifest);
-    process.stdout.write(formatHitReport(hits));
-    if (hits.length > 0) failures.push(`forbidden-string scan (${hits.length})`);
+    const { blocking, allowlisted } = partitionHits(hits, compileAllows(manifest));
+    process.stdout.write(formatHitReport(blocking, allowlisted));
+    if (blocking.length > 0) failures.push(`forbidden-string scan (${blocking.length} blocking)`);
 
     const bin = process.env.GITLEAKS_BIN || 'gitleaks';
     const args = gitleaksArgs(dest, bin);

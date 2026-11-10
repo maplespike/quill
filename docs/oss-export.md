@@ -36,7 +36,7 @@ The private-only tag is on the tests that read `charts/`, `.github/workflows`, o
 
 ## The scan
 
-The scan fails closed. It looks for private network addresses, tailnet names, internal host words, home-directory paths, project-data paths, two identity tokens, and live key prefixes. `sk_live` does not match a longer product prefix such as a client sample key. Gitleaks uses `oss/overlay/.gitleaks.toml`, which ignores unit-test lines that repeat the word FAKE. `192.168` inside the SSRF guards is allowed by path:
+The scan fails closed. It looks for private network addresses, tailnet names, internal host words, home-directory paths, project-data paths, two identity tokens, and live key prefixes. `sk_live` does not match a longer product prefix such as a client sample key. `scan.allows` in `oss/export.yml` lists Stripe lines that are prefix checks or synthetic fixtures. Each entry names one file, one rule, and the exact line. The report prints those hits under `Allowlisted`. They do not fail the scan. Any other line that carries the same prefix still fails. Gitleaks uses `oss/overlay/.gitleaks.toml`, which ignores unit-test lines that repeat the word FAKE. `192.168` inside the SSRF guards is allowed by path:
 
 - `packages/api-server/src/routes/extraction.ts`
 - `packages/api-server/src/routes/webhooks.ts`

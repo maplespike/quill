@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import {
   PUBLIC_PACKAGES,
   REQUIRED_RULE_IDS,
+  compileAllows,
   compileRules,
   formatHitReport,
   gitleaksArgs,
@@ -20,6 +21,7 @@ import {
   isAllowlisted,
   materializeExport,
   parseSimpleYaml,
+  partitionHits,
   phaseNames,
   pnpmCommands,
   publicWorkspaceDocument,
@@ -145,10 +147,45 @@ test('the scan reports private strings and allows the SSRF guards', async () => 
   const productPrefix = 'm' + stripePrefix;
   assert.equal(scanText('a.txt', stripePrefix, rules).some((hit) => hit.rule === 'sk_live'), true);
   assert.equal(scanText('a.txt', productPrefix, rules).some((hit) => hit.rule === 'sk_live'), false);
-  const report = formatHitReport(hits);
+  const report = formatHitReport(hits, []);
+  assert.match(report, /Blocking:/);
+  assert.match(report, /Allowlisted:/);
   assert.match(report, /packages\/api-server\/src\/routes\/ai.ts/);
   assert.match(report, /\[10\.x\]/);
   assert.match(report, /\[nexus\]/);
+});
+
+test('Stripe allowlist entries match one exact line and nothing else', async () => {
+  const manifest = parseSimpleYaml(await read('oss/export.yml'));
+  const allows = compileAllows(manifest);
+  const raw = await read('oss/export.yml');
+  assert.ok(allows.length >= 9);
+  assert.match(raw, /# Stripe allowlist/);
+  assert.match(raw, /A prefix on any other line still fails/);
+
+  const rules = compileRules(manifest);
+  for (const entry of allows) {
+    assert.ok(entry.file.startsWith('packages/api-server/src/'));
+    assert.ok(entry.line.length > entry.rule.length);
+    const source = await read(entry.file);
+    const occurrences = source.split('\n').filter((line) => line === entry.line);
+    assert.equal(occurrences.length, 1, `${entry.file} line for ${entry.rule}`);
+    const hits = scanText(entry.file, source, rules);
+    const { blocking, allowlisted } = partitionHits(hits, [entry]);
+    assert.ok(allowlisted.some((hit) => hit.rule === entry.rule && hit.text === entry.line));
+    assert.equal(allowlisted.every((hit) => hit.text === entry.line && hit.rule === entry.rule), true);
+    assert.equal(blocking.some((hit) => hit.text === entry.line && hit.rule === entry.rule), false);
+  }
+
+  const sample = allows.find((entry) => entry.rule === 'sk_live');
+  const otherFile = scanText('packages/api-server/src/other.ts', sample.line, rules);
+  const moved = partitionHits(otherFile, allows);
+  assert.equal(moved.allowlisted.length, 0);
+  assert.ok(moved.blocking.some((hit) => hit.rule === 'sk_live'));
+
+  const extra = `${sample.line}\nconst LEAK = '${'sk'}_live_not_a_fixture';`;
+  const widened = partitionHits(scanText(sample.file, extra, rules), allows);
+  assert.ok(widened.blocking.some((hit) => hit.match === 'sk_live' && hit.text.startsWith('const LEAK')));
 });
 
 test('transforms trim the workspace and stamp the SDK licence', async () => {

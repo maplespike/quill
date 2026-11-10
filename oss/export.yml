@@ -104,6 +104,45 @@ scan:
       pattern: "AGE-SECRET-KEY"
     - id: pk_live_
       pattern: "pk_live_"
+  # Stripe allowlist. Each entry is one file and one exact line.
+  # A prefix on any other line still fails. Do not allow a prefix by itself.
+  allows:
+    # Comment in the money-mode classifier. It names the prefix. It is not a key.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: " * Stripe signs the mode into the key: `sk_live_` / `rk_live_` (restricted key)"
+    # Error text. It names the expected prefixes and refuses a key that has none.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "        '(expected sk_live_, sk_test_, rk_live_ or rk_test_). Refusing to serve billing ' +"
+    # Error text. It names the live and test prefixes. It does not embed a key.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "        `(${secretMode === 'live' ? 'sk_live_/rk_live_' : 'sk_test_/rk_test_'} prefix). ` +"
+    # Error text. It rejects a live prefix on the test-key variable.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "      'STRIPE_TEST_SECRET_KEY carries a live-mode key (sk_live_/rk_live_ prefix). ' +"
+    # Synthetic fixture. The value is the prefix plus 24 x characters.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: sk_live
+      line: "const LIVE_SK = 'sk_live_' + 'x'.repeat(24);"
+    # Prefix check. The argument is the prefix plus abc, with surrounding spaces.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: sk_live
+      line: "  assert.equal(stripeKeyMode('  sk_live_abc  '), 'live', 'surrounding whitespace must not hide the mode');"
+    # Prefix check. A publishable prefix must not be read as a secret-key mode.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: pk_live_
+      line: "  assert.equal(stripeKeyMode('pk_live_abc'), 'unknown');"
+    # Prefix check. A webhook prefix must not be read as a secret-key mode.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: whsec_
+      line: "  assert.equal(stripeKeyMode('whsec_abc'), 'unknown');"
+    # Synthetic fixture. The value is the webhook prefix plus the repeated word FAKE.
+    - file: packages/api-server/src/__tests__/stripe-billing.test.ts
+      rule: whsec_
+      line: "const TEST_WEBHOOK_SECRET = 'whsec_FAKEFAKEFAKEFAKEFAKE';"
 
 phases:
   - materialize
