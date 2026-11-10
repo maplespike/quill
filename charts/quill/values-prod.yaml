@@ -70,12 +70,10 @@ api:
     MAPLESPIKE_OAUTH_REDIRECT_BASE: https://api.maplespike.ca/v1/auth/oauth
     # Public site origin. Brand hosts stay the code default when this is unset.
     QUILL_PUBLIC_BASE_URL: https://quill.maplespike.ca
-    # AI, vector search, and Astral Key. These used to be code defaults.
-    # Empty in the base chart so a self-hosted install leaves the features off.
-    QUILL_AI_ENDPOINT: http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1
-    QUILL_FUSION_ENDPOINT: http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1
-    # Chart template used to inject this when the value was empty.
-    QUILL_QDRANT_ENDPOINT: http://qdrant:6333
+    # AI gateway and Qdrant stay unset. A cluster check found no Service for
+    # them. A set URL would turn the feature on and answer 503. Set the env
+    # when the Service exists.
+    # Astral Key is deployed.
     ASTRAL_KEY_URL: http://astral-key.astral-key.svc.cluster.local:8080
     # Baked by Dockerfile.api. The image also sets this env.
     QUILL_SECURITY_AUDIT_JSON: /app/data/security/audit.json
@@ -110,11 +108,8 @@ mcp:
       cpu: 500m
       memory: 256Mi
   env:
-    # MCP AI and search. These used to be code defaults. Off when unset.
-    QUILL_GATEWAY_URL: http://nexus:30880/v1
-    QUILL_QDRANT_ENDPOINT: http://nexus:30632
-    KNOWLEDGE_FABRIC_URL: http://knowledge-fabric.ai-inference.svc.cluster.local:3100
-    SEARXNG_URL: http://searxng.search.svc.cluster.local:8080
+    # Gateway, Qdrant, Knowledge Fabric, and SearXNG stay unset. No Service
+    # for them is in the cluster. Set the env when the Service exists.
     QUILL_PUBLIC_BASE_URL: https://quill.maplespike.ca
   ingress:
     host: mcp.maplespike.ca
