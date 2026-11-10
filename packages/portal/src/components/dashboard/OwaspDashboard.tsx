@@ -232,10 +232,10 @@ function resolveAuditEndpoint(): string {
 }
 
 /**
- * Fetches `/v1/security/audit-summary` (re-runs pnpm audit server-side)
- * with a graceful fallback to the build-time `/data/security/audit.json` if
- * the API is unreachable. Staleness is explicitly surfaced in the UI so
- * a build-time snapshot is never confused for live data.
+ * Fetches `/v1/security/audit-summary`, which serves the build-time snapshot
+ * from `scripts/gen-security-audit.mjs`. Falls back to
+ * `/data/security/audit.json` when the API is unreachable. The badge shows
+ * the snapshot age so a build-time file is not presented as a live scan.
  */
 function DependencySecurityPanel() {
   const [audit, setAudit] = React.useState<AuditPayload>(EMPTY_AUDIT);
@@ -344,7 +344,7 @@ function DependencySecurityPanel() {
               title={
                 audit._meta?.fallbackReason ??
                 audit.note ??
-                "Live data from /v1/security/audit-summary"
+                "Build-time snapshot from /v1/security/audit-summary"
               }
             >
               {sourceBadge.label}
@@ -353,8 +353,11 @@ function DependencySecurityPanel() {
           <p className="mt-1 text-sm text-muted-foreground">
             Source: <code className="font-mono text-xs">pnpm audit --json</code>{" "}
             <span className="opacity-70">
-              (re-run server-side by{" "}
-              <code className="font-mono text-xs">/v1/security/audit-summary</code>)
+              (snapshot served by{" "}
+              <code className="font-mono text-xs">/v1/security/audit-summary</code>
+              {". Refresh with "}
+              <code className="font-mono text-xs">node scripts/gen-security-audit.mjs</code>
+              .)
             </span>
           </p>
         </div>

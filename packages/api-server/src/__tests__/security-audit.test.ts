@@ -12,15 +12,16 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { probeCommand } from '../../../../scripts/lib/command-probe.mjs';
 import {
+  AUDIT_SNAPSHOT_REASON,
   MAX_SNAPSHOT_AGE_SECONDS,
   readStaticFallback,
   securityAuditSummaryHandler,
-  setAuditRunnerForTests,
   snapshotRejection,
   type AuditPayload,
 } from '../routes/security-audit.js';
@@ -43,7 +44,6 @@ function tempSnapshot(content: unknown): string {
 }
 
 test.after(() => {
-  setAuditRunnerForTests(null);
   delete process.env.QUILL_SECURITY_AUDIT_JSON;
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
@@ -96,10 +96,16 @@ test('readStaticFallback marks a missing file unusable and names the reason', as
 });
 
 test('readStaticFallback serves a fresh file and refuses an epoch-dated one', async () => {
-  process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot(payload());
+  const freshPayload = payload();
+  process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot(freshPayload);
   const fresh = await readStaticFallback('live audit failed');
   assert.equal(fresh.usable, true);
   assert.equal(fresh.payload.summary.total, 0);
+  // The file's generatedAt is the scan time. Do not stamp a new one, and
+  // do not invent a note the snapshot did not carry.
+  assert.equal(fresh.payload.generatedAt, freshPayload.generatedAt);
+  assert.equal(fresh.payload.note, undefined);
+  assert.equal(fresh.fallbackReason, 'live audit failed');
 
   process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot(
     payload({ generatedAt: '1970-01-01T00:00:00.000Z' }),
@@ -119,12 +125,8 @@ test('readStaticFallback refuses an unparseable file', async () => {
 /* ── route contract ─────────────────────────────────────────────────── */
 
 test('the route answers 503 with the reason when no usable audit exists', async () => {
-  setAuditRunnerForTests(async () => ({
-    source: 'static',
-    usable: false,
-    fallbackReason: 'no static audit.json found (live audit failed: spawn pnpm ENOENT)',
-    payload: payload({ generatedAt: '1970-01-01T00:00:00.000Z', note: 'stub' }),
-  }));
+  const configured = join(tmpdir(), 'quill-audit-does-not-exist.json');
+  process.env.QUILL_SECURITY_AUDIT_JSON = configured;
 
   const res = await securityAuditSummaryHandler(new Request('http://test.local/v1/security/audit-summary'), makeCtx());
   assert.equal(res.status, 503);
@@ -134,35 +136,97 @@ test('the route answers 503 with the reason when no usable audit exists', async 
   };
   assert.equal(body.success, false);
   assert.equal(body.error.code, 'AUDIT_QUERY_FAILED');
-  assert.match(body.error.message, /pnpm ENOENT/);
+  assert.match(body.error.message, /QUILL_SECURITY_AUDIT_JSON/);
   assert.ok(body.error.message_fr && body.error.message_fr !== 'Erreur inconnue');
-  assert.match(String(body.error.details?.[0]?.reason), /pnpm ENOENT/);
+  assert.match(String(body.error.details?.[0]?.reason), /QUILL_SECURITY_AUDIT_JSON/);
+  assert.equal(body.error.details?.[0]?.source, 'static');
 });
 
-test('the route answers 200 when a fresh snapshot exists', async () => {
-  setAuditRunnerForTests(async () => ({
-    source: 'static',
-    usable: true,
-    fallbackReason: 'live audit failed: spawn pnpm ENOENT',
-    payload: payload(),
-  }));
+test('the handler serves the snapshot, does not spawn, and keeps generatedAt', async () => {
+  // Two days old: inside the 7-day window, and clearly not "now".
+  const generatedAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+  process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot({
+    generatedAt,
+    summary: { ...ZERO, total: 4, high: 1, moderate: 3 },
+    top: [{ id: 'GHSA-1', package: 'example', severity: 'high', title: 'Example' }],
+  });
 
-  const res = await securityAuditSummaryHandler(new Request('http://test.local/v1/security/audit-summary'), makeCtx());
-  assert.equal(res.status, 200);
-  const body = (await res.json()) as { data: { _meta: Record<string, unknown> } };
-  assert.equal(body.data._meta.source, 'static');
-  assert.equal(body.data._meta.maxSnapshotAgeSeconds, MAX_SNAPSHOT_AGE_SECONDS);
+  const bin = mkdtempSync(join(tmpdir(), 'quill-audit-bin-'));
+  dirs.push(bin);
+  const marker = join(bin, 'spawned.txt');
+  const script = `#!/bin/sh\necho "$0" >> ${JSON.stringify(marker)}\nexit 0\n`;
+  for (const name of ['pnpm', 'corepack', 'npx', 'npm']) {
+    const file = join(bin, name);
+    writeFileSync(file, script);
+    chmodSync(file, 0o755);
+  }
+
+  const previousPath = process.env.PATH;
+  process.env.PATH = `${bin}:${previousPath ?? ''}`;
+  const started = Date.now();
+  try {
+    const res = await securityAuditSummaryHandler(
+      new Request('http://test.local/v1/security/audit-summary'),
+      makeCtx(),
+    );
+    const elapsed = Date.now() - started;
+    assert.equal(existsSync(marker), false, 'handler started a pnpm, corepack, npx, or npm process');
+    assert.ok(elapsed < 500, `handler took ${elapsed}ms`);
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      success: boolean;
+      data: {
+        generatedAt: string;
+        note?: string;
+        summary: { total: number; high: number; moderate: number };
+        top: Array<{ id: string }>;
+        _meta: {
+          source: string;
+          generatedAgeSeconds: number;
+          maxSnapshotAgeSeconds: number;
+          fallbackReason: string;
+        };
+      };
+    };
+    assert.equal(body.success, true);
+    assert.equal(body.data.generatedAt, generatedAt);
+    assert.ok(body.data._meta.generatedAgeSeconds > 3600, 'generatedAt was stamped as now');
+    assert.equal(body.data.note, undefined);
+    assert.equal(body.data.summary.total, 4);
+    assert.equal(body.data.summary.high, 1);
+    assert.equal(body.data.summary.moderate, 3);
+    assert.equal(body.data.top[0]?.id, 'GHSA-1');
+    assert.equal(body.data._meta.source, 'static');
+    assert.equal(body.data._meta.maxSnapshotAgeSeconds, MAX_SNAPSHOT_AGE_SECONDS);
+    assert.equal(body.data._meta.fallbackReason, AUDIT_SNAPSHOT_REASON);
+  } finally {
+    process.env.PATH = previousPath;
+  }
 });
 
-test('the route answers 200 for a live scan', async () => {
-  setAuditRunnerForTests(async () => ({
-    source: 'live',
-    payload: payload({ summary: { ...ZERO, total: 2, high: 2 } }),
-  }));
+test('the route module does not start a subprocess', () => {
+  const src = readFileSync(new URL('../routes/security-audit.ts', import.meta.url), 'utf8');
+  assert.equal(/\b(child_process|execFile|spawn|execSync|fork)\b/.test(src), false);
+});
 
-  const res = await securityAuditSummaryHandler(new Request('http://test.local/v1/security/audit-summary'), makeCtx());
-  assert.equal(res.status, 200);
-  const body = (await res.json()) as { data: { summary: { total: number }; _meta: { source: string } } };
-  assert.equal(body.data.summary.total, 2);
-  assert.equal(body.data._meta.source, 'live');
+/* ── refresh-script probes ──────────────────────────────────────────── */
+
+test('a hanging probe times out and does not throw', { timeout: 3_000 }, async () => {
+  const started = Date.now();
+  const result = await probeCommand(
+    process.execPath,
+    ['-e', 'process.on("SIGTERM", () => {}); setInterval(() => {}, 1e9);'],
+    { timeoutMs: 400 },
+  );
+  const elapsed = Date.now() - started;
+  assert.equal(result, null);
+  assert.ok(elapsed >= 300, `probe returned in ${elapsed}ms without waiting for the timeout`);
+  assert.ok(elapsed < 2_000, `probe hung for ${elapsed}ms`);
+});
+
+test('a missing probe binary is non-fatal', async () => {
+  const started = Date.now();
+  const result = await probeCommand('quill-probe-missing-bin', ['--version'], { timeoutMs: 500 });
+  assert.equal(result, null);
+  assert.ok(Date.now() - started < 1_000);
 });

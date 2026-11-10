@@ -30,13 +30,14 @@ RUN pnpm install --frozen-lockfile
 
 # Bake a dependency-audit snapshot into the image.
 #
-# /v1/security/audit-summary re-runs `pnpm audit` per request, but the image has
-# no `pnpm` on PATH at runtime (and pnpm audit needs the registry), so the live
-# path always failed and the route fell back to a file that was never in the
-# image: it published an epoch-dated zero report with HTTP 200 (QUILL-AUDIT.md
-# 2026-10-24). Generate the snapshot here, where pnpm and the lockfile exist.
-# The script degrades to a placeholder carrying a `note` when the registry is
-# unreachable; the route refuses placeholders and answers 503 instead of lying.
+# GET /v1/security/audit-summary serves this file. It does not run `pnpm audit`
+# at request time (the runtime image has no pnpm, and a cold probe used to
+# stall the route for many seconds before falling back here). Generate the
+# snapshot in this stage, where pnpm and the lockfile exist. The script
+# degrades to a placeholder carrying a `note` when the registry is unreachable;
+# the route refuses placeholders and answers 503 instead of lying
+# (QUILL-AUDIT.md 2026-10-24). Refresh later with
+# `node scripts/gen-security-audit.mjs`. There is no scheduled job.
 RUN node scripts/gen-security-audit.mjs || true
 RUN mkdir -p packages/portal/public/data/security && \
     test -f packages/portal/public/data/security/audit.json || \
