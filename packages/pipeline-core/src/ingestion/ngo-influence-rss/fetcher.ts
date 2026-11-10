@@ -37,7 +37,6 @@ export async function parseFeedItems(xml: string, source: NgoRssConfig): Promise
   for (const block of blocks) {
     let title: string;
     let link: string;
-    let desc: string;
     let pubDate: string;
 
     if (isAtom) {
@@ -45,10 +44,7 @@ export async function parseFeedItems(xml: string, source: NgoRssConfig): Promise
       // Atom uses <link href="..."/>
       const linkMatch = block.match(/<link[^>]*href\s*=\s*"([^"]*)"[^>]*\/?>/i);
       link = linkMatch?.[1] ?? '';
-      desc = (block.match(/<summary[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/summary>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim();
-      if (!desc) {
-        desc = (block.match(/<content[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim();
-      }
+      // Licence policy: do not read summary or content. Body text is not stored.
       pubDate = (block.match(/<published[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/published>/i)?.[1] ?? '').trim();
       if (!pubDate) {
         pubDate = (block.match(/<updated[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/updated>/i)?.[1] ?? '').trim();
@@ -56,7 +52,7 @@ export async function parseFeedItems(xml: string, source: NgoRssConfig): Promise
     } else {
       title = (block.match(/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/i)?.[1] ?? '').trim();
       link = (block.match(/<link[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/link>/i)?.[1] ?? '').trim();
-      desc = (block.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim();
+      // Licence policy: do not read description. Body text is not stored.
       pubDate = (block.match(/<pubDate[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/pubDate>/i)?.[1] ?? '').trim();
     }
 
@@ -68,7 +64,6 @@ export async function parseFeedItems(xml: string, source: NgoRssConfig): Promise
     items.push({
       title: title || '(no title)',
       url: link,
-      summary: desc.substring(0, 500),
       publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
       source: source.name,
       category: source.category,
@@ -183,7 +178,6 @@ export function searchNgoItems(items: NgoRssItem[], query: string): NgoRssItem[]
   const q = query.toLowerCase();
   return items.filter(item =>
     item.title.toLowerCase().includes(q) ||
-    item.summary.toLowerCase().includes(q) ||
     item.source.toLowerCase().includes(q) ||
     item.narrativeTags.some(t => t.includes(q))
   );

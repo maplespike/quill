@@ -259,6 +259,13 @@ jobs:
       - name: Source compliance gate
         run: node scripts/gates/check-source-compliance.mjs
 
+      # News, media, and NGO RSS: headline, source, date, and link only.
+      - name: Media RSS metadata gate
+        run: node scripts/gates/check-media-rss-metadata.mjs
+
+      - name: Media RSS metadata gate unit tests
+        run: node --test scripts/test-media-rss-metadata.mjs
+
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 

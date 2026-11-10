@@ -18,7 +18,6 @@ export type NgoCategory =
 export interface NgoRssItem {
   title: string;
   url: string;
-  summary: string;
   publishedAt: string;
   source: string;
   category: NgoCategory;

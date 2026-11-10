@@ -2009,3 +2009,8 @@ CREATE INDEX IF NOT EXISTS idx_icbsa_amount ON immigration_cbsa_penalties(penalt
 
 -- end immigration
 CREATE INDEX IF NOT EXISTS idx_gc_ingested ON global_canada_records(ingested_at DESC);
+
+-- News RSS licence migration. Idempotent. summary is NOT NULL, so it is cleared
+-- to an empty string. Body columns are nulled. Headline, source, date, and url stay.
+UPDATE articles SET summary = '' WHERE summary IS NOT NULL AND summary != '';
+UPDATE articles SET content = NULL WHERE content IS NOT NULL;

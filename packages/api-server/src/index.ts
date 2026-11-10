@@ -909,7 +909,9 @@ export default {
       cache = new NodeSqliteCache();
     } else if (env.DB) {
       // Cloudflare Workers D1 mode
-      db = new D1Storage(env.DB);
+      const d1 = new D1Storage(env.DB);
+      await d1.applyLicenceMigrations();
+      db = d1;
       cache = new KVCache(env.CACHE);
     } else {
       // Fallback to in-memory

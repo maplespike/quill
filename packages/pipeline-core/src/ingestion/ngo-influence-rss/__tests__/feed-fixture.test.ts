@@ -29,6 +29,11 @@ describe('NGO RSS fixtures', () => {
     assert.equal(items[0]?.title, 'Board names a new public officer');
     assert.equal(items[0]?.url, 'https://www.postmedia.com/news/board-names-officer');
     assert.equal(items[0]?.source, 'Postmedia Network');
+    assert.equal(items[0]?.publishedAt.startsWith('2026-10-20'), true);
+    const record = items[0] as Record<string, unknown>;
+    assert.equal(record.summary, undefined);
+    assert.equal(record.description, undefined);
+    assert.equal(JSON.stringify(record).includes('short summary'), false);
   });
 
   it('records a dead feed as an error and an empty feed as empty', () => {
