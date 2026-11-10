@@ -45,6 +45,8 @@ interface AuditAdvisory {
 interface AuditMeta {
   source: "live" | "static";
   generatedAgeSeconds: number;
+  ageDays?: number;
+  stale?: boolean;
   fallbackReason?: string;
 }
 
@@ -53,6 +55,8 @@ interface AuditPayload {
   summary: AuditSummary;
   top: AuditAdvisory[];
   note?: string;
+  stale?: boolean;
+  ageDays?: number;
   _meta?: AuditMeta;
 }
 
@@ -322,6 +326,16 @@ function DependencySecurityPanel() {
   const ageSeconds =
     audit._meta?.generatedAgeSeconds ??
     Math.floor((Date.now() - new Date(audit.generatedAt).getTime()) / 1000);
+  const ageDays =
+    audit.ageDays ??
+    audit._meta?.ageDays ??
+    Math.max(0, Math.floor(ageSeconds / 86_400));
+  const stale =
+    typeof audit.stale === "boolean"
+      ? audit.stale
+      : typeof audit._meta?.stale === "boolean"
+        ? audit._meta.stale
+        : ageSeconds > 7 * 24 * 60 * 60;
 
   const sourceBadge =
     fetchSource === "live"
@@ -362,12 +376,17 @@ function DependencySecurityPanel() {
           </p>
         </div>
         {loadState === "ok" && (
-          <p className="text-xs text-muted-foreground">
-            Updated{" "}
-            <time dateTime={audit.generatedAt}>
-              {new Date(audit.generatedAt).toLocaleString("en-CA")}
-            </time>
-          </p>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">
+              Updated{" "}
+              <time dateTime={audit.generatedAt}>
+                {new Date(audit.generatedAt).toLocaleString("en-CA")}
+              </time>
+            </p>
+            {stale && (
+              <p className="mt-1 text-xs text-amber-300">Stale snapshot ({ageDays} days old).</p>
+            )}
+          </div>
         )}
       </div>
 

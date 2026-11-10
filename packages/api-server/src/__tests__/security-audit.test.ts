@@ -7,8 +7,9 @@
  * so the site's "Live Dependency Security" panel published a clean bill of
  * health from a source that had never run. Absence was rendered as zero.
  *
- * The fix: a failed live audit with no usable snapshot is 503 with the reason.
- * "Usable" means parseable, not a placeholder, and younger than 7 days.
+ * A missing, placeholder, or unparseable snapshot is 503. An older file
+ * is HTTP 200 with that file's generatedAt and stale: true. A snapshot
+ * inside 7 days is HTTP 200 with stale: false.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,6 +23,7 @@ import {
   MAX_SNAPSHOT_AGE_SECONDS,
   readStaticFallback,
   securityAuditSummaryHandler,
+  snapshotFreshness,
   snapshotRejection,
   type AuditPayload,
 } from '../routes/security-audit.js';
@@ -50,22 +52,25 @@ test.after(() => {
 
 /* ── snapshot classification ─────────────────────────────────────────── */
 
-test('an epoch-dated zero report is rejected as stale', () => {
+test('an epoch-dated scan is servable and stale', () => {
   const epoch = payload({ generatedAt: '1970-01-01T00:00:00.000Z' });
-  const reason = snapshotRejection(epoch, 'live audit failed');
-  assert.ok(reason, 'epoch-dated snapshot must be rejected');
-  assert.match(String(reason), /stale/);
+  assert.equal(snapshotRejection(epoch, 'live audit failed'), null);
+  assert.equal(snapshotFreshness(epoch.generatedAt).stale, true);
 });
 
-test('a fresh scan result is usable', () => {
-  assert.equal(snapshotRejection(payload(), 'live audit failed'), null);
+test('a fresh scan result is usable and not stale', () => {
+  const fresh = payload();
+  assert.equal(snapshotRejection(fresh, 'live audit failed'), null);
+  assert.equal(snapshotFreshness(fresh.generatedAt).stale, false);
 });
 
-test('a snapshot older than the limit is rejected', () => {
-  const old = payload({
-    generatedAt: new Date(Date.now() - (MAX_SNAPSHOT_AGE_SECONDS + 60) * 1000).toISOString(),
-  });
-  assert.match(String(snapshotRejection(old, 'live audit failed')), /stale/);
+test('a snapshot older than 7 days is servable and stale', () => {
+  const generatedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  const old = payload({ generatedAt });
+  assert.equal(snapshotRejection(old, 'live audit failed'), null);
+  const age = snapshotFreshness(generatedAt);
+  assert.equal(age.stale, true);
+  assert.equal(age.ageDays, 8);
 });
 
 test('a generated placeholder (note set) is not a scan result', () => {
@@ -95,7 +100,7 @@ test('readStaticFallback marks a missing file unusable and names the reason', as
   assert.equal(result.payload.summary.total, 0);
 });
 
-test('readStaticFallback serves a fresh file and refuses an epoch-dated one', async () => {
+test('readStaticFallback serves a fresh file and an old file unchanged', async () => {
   const freshPayload = payload();
   process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot(freshPayload);
   const fresh = await readStaticFallback('live audit failed');
@@ -111,8 +116,8 @@ test('readStaticFallback serves a fresh file and refuses an epoch-dated one', as
     payload({ generatedAt: '1970-01-01T00:00:00.000Z' }),
   );
   const epoch = await readStaticFallback('live audit failed');
-  assert.equal(epoch.usable, false);
-  assert.match(epoch.fallbackReason, /stale/);
+  assert.equal(epoch.usable, true);
+  assert.equal(epoch.payload.generatedAt, '1970-01-01T00:00:00.000Z');
 });
 
 test('readStaticFallback refuses an unparseable file', async () => {
@@ -180,8 +185,12 @@ test('the handler serves the snapshot, does not spawn, and keeps generatedAt', a
         note?: string;
         summary: { total: number; high: number; moderate: number };
         top: Array<{ id: string }>;
+        stale: boolean;
+        ageDays: number;
         _meta: {
           source: string;
+          stale: boolean;
+          ageDays: number;
           generatedAgeSeconds: number;
           maxSnapshotAgeSeconds: number;
           fallbackReason: string;
@@ -190,6 +199,9 @@ test('the handler serves the snapshot, does not spawn, and keeps generatedAt', a
     };
     assert.equal(body.success, true);
     assert.equal(body.data.generatedAt, generatedAt);
+    assert.equal(body.data.stale, false);
+    assert.equal(body.data.ageDays, 2);
+    assert.equal(body.data._meta.stale, false);
     assert.ok(body.data._meta.generatedAgeSeconds > 3600, 'generatedAt was stamped as now');
     assert.equal(body.data.note, undefined);
     assert.equal(body.data.summary.total, 4);
@@ -202,6 +214,28 @@ test('the handler serves the snapshot, does not spawn, and keeps generatedAt', a
   } finally {
     process.env.PATH = previousPath;
   }
+});
+
+test('an 8-day-old snapshot is HTTP 200 with stale true and the file generatedAt', async () => {
+  const generatedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  process.env.QUILL_SECURITY_AUDIT_JSON = tempSnapshot({
+    generatedAt,
+    summary: { ...ZERO, total: 1, moderate: 1 },
+    top: [],
+  });
+
+  const res = await securityAuditSummaryHandler(
+    new Request('http://test.local/v1/security/audit-summary'),
+    makeCtx(),
+  );
+  assert.equal(res.status, 200);
+  const body = (await res.json()) as {
+    data: { generatedAt: string; stale: boolean; ageDays: number; _meta: { stale: boolean } };
+  };
+  assert.equal(body.data.generatedAt, generatedAt);
+  assert.equal(body.data.stale, true);
+  assert.equal(body.data.ageDays, 8);
+  assert.equal(body.data._meta.stale, true);
 });
 
 test('the route module does not start a subprocess', () => {

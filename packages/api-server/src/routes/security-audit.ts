@@ -17,11 +17,14 @@
  * Binary lookups in the refresh script time out after a few seconds
  * (`scripts/lib/command-probe.mjs`) and failure there is non-fatal.
  *
- * A missing, stale, or placeholder snapshot is HTTP 503. Absence is not
- * a clean bill of health (QUILL-AUDIT.md, 2026-10-24).
+ * A missing, placeholder, or unparseable snapshot is HTTP 503. Absence
+ * is not a clean bill of health (QUILL-AUDIT.md, 2026-10-24). A snapshot
+ * older than 7 days is still HTTP 200: the file's generatedAt is kept,
+ * and the body sets stale to true.
  *
  * Response schema matches the static file so OwaspDashboard's types
- * stay valid. `_meta.source` is `static`.
+ * stay valid. `_meta.source` is `static`. There is no OpenAPI path for
+ * this route.
  */
 
 import type { RouteHandler } from '../types.js';
@@ -127,11 +130,34 @@ async function findStaticAuditPath(): Promise<{ path: string | null; missingOver
 }
 
 /**
- * Maximum age of a build-time audit snapshot that may be served as a
- * successful answer. Beyond this the endpoint reports 503: a week-old
- * dependency audit is not evidence about today's lockfile.
+ * Age after which a served snapshot is marked stale. The route still
+ * returns HTTP 200 with the file's generatedAt. It does not 503.
  */
 export const MAX_SNAPSHOT_AGE_SECONDS = 7 * 24 * 60 * 60;
+
+export interface SnapshotFreshness {
+  ageSeconds: number;
+  ageDays: number;
+  stale: boolean;
+}
+
+/**
+ * Age of a snapshot timestamp. `stale` is true only after 7 days.
+ * A date that does not parse yields age 0 and stale false; the caller
+ * refuses that file before this runs.
+ */
+export function snapshotFreshness(generatedAt: string, now: number = Date.now()): SnapshotFreshness {
+  const generatedMs = Date.parse(generatedAt);
+  if (!Number.isFinite(generatedMs)) {
+    return { ageSeconds: 0, ageDays: 0, stale: false };
+  }
+  const ageSeconds = Math.floor((now - generatedMs) / 1000);
+  return {
+    ageSeconds,
+    ageDays: Math.max(0, Math.floor(ageSeconds / 86_400)),
+    stale: ageSeconds > MAX_SNAPSHOT_AGE_SECONDS,
+  };
+}
 
 /**
  * Why a snapshot may not be served, or null when it is usable.
@@ -141,20 +167,17 @@ export const MAX_SNAPSHOT_AGE_SECONDS = 7 * 24 * 60 * 60;
  * The fallback built that payload when `pnpm audit` failed AND no static file
  * existed, so the dashboard's "Live Dependency Security" panel read a clean
  * bill of health from a source that never ran. Absence is not zero.
+ *
+ * Age is not a refusal. An old file is served with stale: true.
  */
 export function snapshotRejection(
   payload: AuditPayload | null,
   reason: string,
-  now: number = Date.now(),
 ): string | null {
   if (!payload) return reason;
   const generatedAt = Date.parse(payload.generatedAt);
   if (!Number.isFinite(generatedAt)) {
     return `snapshot generatedAt is not a date (${String(payload.generatedAt)})`;
-  }
-  const ageSeconds = Math.floor((now - generatedAt) / 1000);
-  if (ageSeconds > MAX_SNAPSHOT_AGE_SECONDS) {
-    return `snapshot is stale: generated ${payload.generatedAt} (${ageSeconds}s old, limit ${MAX_SNAPSHOT_AGE_SECONDS}s)`;
   }
   // scripts/gen-security-audit.mjs writes `note` only when it could not run
   // `pnpm audit` — that file is a placeholder, not a scan result.
@@ -250,16 +273,18 @@ export const securityAuditSummaryHandler: RouteHandler = async (_request, ctx) =
     );
   }
 
-  const ageSeconds = Math.floor(
-    (Date.now() - new Date(result.payload.generatedAt).getTime()) / 1000,
-  );
+  const freshness = snapshotFreshness(result.payload.generatedAt);
   return jsonResponse(
     buildSuccess(
       {
         ...result.payload,
+        stale: freshness.stale,
+        ageDays: freshness.ageDays,
         _meta: {
           source: result.source,
-          generatedAgeSeconds: ageSeconds,
+          generatedAgeSeconds: freshness.ageSeconds,
+          ageDays: freshness.ageDays,
+          stale: freshness.stale,
           maxSnapshotAgeSeconds: MAX_SNAPSHOT_AGE_SECONDS,
           fallbackReason: result.fallbackReason,
         },
