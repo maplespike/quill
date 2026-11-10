@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quill.fullname" . }}-grafana-dashboards
+data:
+{{- range $path, $_ := .Files.Glob "files/grafana-dashboards/*.json" }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
