@@ -1,0 +1,109 @@
+# Quill portal → Cloudflare Pages project maplespike-quill.
+#
+# Static Astro output only. No Pages Functions, and no D1, KV, or R2.
+# GitHub-hosted runners. Production deploys only from a push to main.
+# Pull requests deploy a preview branch, never main.
+#
+# Secrets (repository Actions secrets, never printed):
+#   CLOUDFLARE_API_TOKEN
+#   CLOUDFLARE_ACCOUNT_ID
+# A missing secret fails the job with ::error:: naming that secret.
+#
+# PUBLIC_API_BASE (repository variable) overrides the API origin baked into
+# the bundle. When the variable is unset, the build uses
+# https://api.maplespike.ca.
+
+name: Deploy portal to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/portal/**"
+      - "packages/i18n/**"
+      - ".github/workflows/deploy-portal-pages.yml"
+  pull_request:
+    paths:
+      - "packages/portal/**"
+      - "packages/i18n/**"
+      - ".github/workflows/deploy-portal-pages.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portal-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy portal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Require Cloudflare secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ]; then
+            echo "::error::missing secret CLOUDFLARE_API_TOKEN"
+            missing=1
+          fi
+          if [ -z "${CLOUDFLARE_ACCOUNT_ID}" ]; then
+            echo "::error::missing secret CLOUDFLARE_ACCOUNT_ID"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          PUBLIC_API_BASE: ${{ vars.PUBLIC_API_BASE != '' && vars.PUBLIC_API_BASE || 'https://api.maplespike.ca' }}
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+        run: pnpm build
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          deploy_branch=""
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            deploy_branch="main"
+          else
+            deploy_branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+            deploy_branch="${deploy_branch//\//-}"
+            if [ "$deploy_branch" = "main" ] || [ -z "$deploy_branch" ]; then
+              echo "::error::refusing to deploy this event as the production branch"
+              exit 1
+            fi
+          fi
+          # Run inside packages/portal so Wrangler reads packages/portal/wrangler.toml.
+          # The repo-root wrangler.toml binds D1 and KV for a different Worker.
+          # This deploy must not load that file.
+          cd "${GITHUB_WORKSPACE}/packages/portal"
+          "${GITHUB_WORKSPACE}/node_modules/.bin/wrangler" pages deploy dist \
+            --project-name=maplespike-quill \
+            --branch="$deploy_branch" \
+            --commit-hash="${GITHUB_SHA}" \
+            --commit-dirty

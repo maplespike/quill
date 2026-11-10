@@ -9,14 +9,23 @@
 
 const SERVICE_SUBDOMAINS = ["api", "portal", "www", "mcp", "dev", "data", "quill"];
 
+/** Stable public API origin. Build-time PUBLIC_API_BASE overrides it. */
+export const PUBLIC_API_ORIGIN = "https://api.maplespike.ca";
+
+const PAGES_HOST = "maplespike-quill.pages.dev";
+
+function isPagesHost(host: string): boolean {
+  return host === PAGES_HOST || host.endsWith(`.${PAGES_HOST}`);
+}
+
 export function deriveApiBase(opts: {
   apiBase?: string | undefined;
   protocol?: string | undefined;
   hostname?: string | undefined;
 }): string {
-  if (opts.apiBase) return opts.apiBase.replace(/\/$/, "");
+  if (opts.apiBase) return opts.apiBase.replace(/\/$/, "").replace(/\/v1$/, "");
   const host = opts.hostname ?? (typeof window !== "undefined" ? window.location.hostname : "");
-  if (!host) return "https://api.maplespike.ca";
+  if (!host || isPagesHost(host)) return PUBLIC_API_ORIGIN;
   const protocol = opts.protocol ?? (typeof window !== "undefined" ? window.location.protocol : "https:");
   const parts = host.split(".");
   const baseDomain =

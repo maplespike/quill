@@ -90,7 +90,7 @@ export function resolveEndpoint(env = process.env, file = REGISTRIES_FILE) {
   return `http://${REGISTRY_HOST}`;
 }
 
-export const QUILL_IMAGE_SERVICES = ['api', 'mcp', 'portal', 'ingest', 'search'];
+export const QUILL_IMAGE_SERVICES = ['api', 'mcp', 'ingest', 'search'];
 
 function pinMigrated(pin) {
   return Boolean(pin && (pin.registry || pin.repository || pin.pullPolicy));

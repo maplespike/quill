@@ -17,7 +17,7 @@
 # and prune enabled. So this workflow does not apply manifests. It does the
 # work ArgoCD needs before it can roll a new build:
 #
-#   1. build api, mcp, portal, ingest and search, scan each image, and push
+#   1. build api, mcp, ingest and search, scan each image, and push
 #      registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>
 #      (scripts/pin-images.sh). Every service has a tracked Dockerfile;
 #      quill-search builds from Dockerfile.search, so nothing depends on a
@@ -274,16 +274,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build the workspace
-        # pin-images.sh refuses to build the portal image without
-        # packages/portal/dist: Dockerfile.portal COPYs the built Astro output
-        # rather than building it inside the image. The ci job builds it in its
-        # own workspace, which this job does not inherit (run 39633262674).
-        #
-        # Use the repo's own build: turbo orders it by dependency graph, so
-        # @maplespike/database, quill-mcp's registry and the portal's agents.json
-        # all exist before the portal's gen:all runs. Narrower filters failed:
-        # portal-only (run 39660155111, missing MCP registry) and
-        # mcp-then-portal (run 39663210447, missing @maplespike/database dist).
+        # The portal is Cloudflare Pages, not an image in this pin set.
+        # The workspace build still runs so generated inputs the remaining
+        # Dockerfiles and the dirty-tree check expect are present.
         run: pnpm build
 
       - name: Restore generated sources so the image tag stays commit-only
@@ -562,7 +555,6 @@ jobs:
           # No `|| true` here — a failed rollout must fail the deploy job.
           kubectl rollout status deployment/quill-api -n "$NAMESPACE" --timeout=5m
           kubectl rollout status deployment/quill-mcp -n "$NAMESPACE" --timeout=5m
-          kubectl rollout status deployment/quill-portal -n "$NAMESPACE" --timeout=5m
           kubectl rollout status deployment/cloudflared -n cloudflared --timeout=5m
 
       - name: Confirm the running images are the pinned ones
@@ -578,7 +570,7 @@ jobs:
           esac
           node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
           fail=0
-          for svc in api mcp portal; do
+          for svc in api mcp; do
             pinned=$(node -e "
               const v=require('fs').readFileSync('charts/quill/values-prod.yaml','utf8');
               const m=v.match(new RegExp('^  ${svc}:\\\\n    digest: \"([^\"]+)\"','m'));
@@ -601,9 +593,10 @@ jobs:
           # API health is the hard gate — a broken deploy must fail CI.
           curl -sf --retry 3 --retry-delay 5 --retry-all-errors https://api.maplespike.ca/v1/health
           echo "✓ API healthy"
-          # MCP/portal report as warnings (portal may be in rollout transition).
+          # MCP stays on the tunnel. The portal is the Pages project; the
+          # custom domain is Infra's cutover, so this checks pages.dev.
           curl -sfI https://mcp.maplespike.ca/health && echo "✓ MCP up" || echo "⚠ MCP unavailable"
-          curl -sfI https://quill.maplespike.ca/ && echo "✓ Portal up" || echo "⚠ Portal unavailable"
+          curl -sfI https://maplespike-quill.pages.dev/ && echo "✓ Portal up" || echo "⚠ Portal unavailable"
 
       - name: Check out main (with the pin commit) for the verifier
         # This job has no checkout of its own. Take main, not github.sha, so

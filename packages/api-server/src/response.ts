@@ -381,10 +381,33 @@ function allowedOrigins(): string[] {
   return cachedOrigins.list;
 }
 
+const PAGES_PROJECT_HOST = 'maplespike-quill.pages.dev';
+
+/**
+ * Production and preview hostnames for the portal Pages project.
+ * One label only: `maplespike-quill.pages.dev` and `<alias>.maplespike-quill.pages.dev`.
+ */
+function isPortalPagesOrigin(origin: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'https:') return false;
+  const host = url.hostname;
+  if (host === PAGES_PROJECT_HOST) return true;
+  const suffix = `.${PAGES_PROJECT_HOST}`;
+  if (!host.endsWith(suffix)) return false;
+  const label = host.slice(0, -suffix.length);
+  return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label);
+}
+
 export function getAllowedOrigin(requestOrigin: string | null | undefined): string {
   if (!requestOrigin) return 'null';
   const normalized = requestOrigin.replace(/\/$/, '');
   if (allowedOrigins().includes(normalized)) return normalized;
+  if (isPortalPagesOrigin(normalized)) return normalized;
   return 'null';
 }
 

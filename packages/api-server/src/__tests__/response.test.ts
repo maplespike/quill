@@ -236,6 +236,20 @@ describe('getAllowedOrigin', () => {
     assert.equal(getAllowedOrigin('https://maplespike.ca'), 'https://maplespike.ca');
     assert.equal(getAllowedOrigin('https://api.maplespike.ca'), 'https://api.maplespike.ca');
     assert.equal(getAllowedOrigin('https://mcp.maplespike.ca'), 'https://mcp.maplespike.ca');
+    assert.equal(getAllowedOrigin('https://quill.maplespike.ca'), 'https://quill.maplespike.ca');
+    assert.equal(getAllowedOrigin('https://www.quill.maplespike.ca'), 'https://www.quill.maplespike.ca');
+  });
+
+  it('allows the portal Pages project and a single preview label', () => {
+    assert.equal(getAllowedOrigin('https://maplespike-quill.pages.dev'), 'https://maplespike-quill.pages.dev');
+    assert.equal(
+      getAllowedOrigin('https://preview.maplespike-quill.pages.dev'),
+      'https://preview.maplespike-quill.pages.dev',
+    );
+    assert.equal(getAllowedOrigin('http://maplespike-quill.pages.dev'), 'null');
+    assert.equal(getAllowedOrigin('https://a.b.maplespike-quill.pages.dev'), 'null');
+    assert.equal(getAllowedOrigin('https://maplespike-quill.pages.dev.evil.com'), 'null');
+    assert.equal(getAllowedOrigin('https://evilmaplespike-quill.pages.dev'), 'null');
   });
 
   it('rejects unknown origins with null', () => {

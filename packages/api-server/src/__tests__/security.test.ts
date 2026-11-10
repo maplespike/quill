@@ -117,6 +117,8 @@ describe('CORS Headers', () => {
     assert.equal(getAllowedOrigin('https://mcp.maplespike.ca'), 'https://mcp.maplespike.ca');
     assert.equal(getAllowedOrigin('https://portal.maplespike.ca'), 'https://portal.maplespike.ca');
     assert.equal(getAllowedOrigin('https://quill.maplespike.ca'), 'https://quill.maplespike.ca');
+    assert.equal(getAllowedOrigin('https://maplespike-quill.pages.dev'), 'https://maplespike-quill.pages.dev');
+    assert.equal(getAllowedOrigin('https://maplespike-quill.pages.dev.evil.com'), 'null');
   });
 
   it('allows local dev origins', async () => {

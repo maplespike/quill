@@ -28,14 +28,13 @@ const VALUES = 'charts/quill/values-prod.yaml';
 // a frozen pre-migration copy so it keeps testing the legacy docker.io path.
 const LEGACY_VALUES = 'scripts/fixtures/values-prod-legacy.yaml';
 const REGISTRY = 'registry.registry.svc.cluster.local:5000';
-const QUILL_APPS = ['api', 'mcp', 'portal', 'search', 'ingest'];
+const QUILL_APPS = ['api', 'mcp', 'search', 'ingest'];
 
 /** Probe path and whether a slow process needs a startupProbe. */
 const SERVICES: Record<string, { path: string; startup: boolean }> = {
   'quill-api': { path: '/v1/health', startup: true },
   'quill-mcp': { path: '/health', startup: true },
   'quill-search': { path: '/health', startup: true },
-  'quill-portal': { path: '/health', startup: false },
 };
 
 function haveHelm(): boolean {
@@ -161,11 +160,25 @@ function imagePolicyLines(yaml: string): string[] {
     .map((line) => line.trim());
 }
 
+/** Drop portal image lines. main still renders them; this chart does not. */
+function withoutPortalImages(lines: string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (/^image:.*quill[-/]portal/.test(lines[i] ?? '')) {
+      if (/^imagePullPolicy:/.test(lines[i + 1] ?? '')) i += 1;
+      continue;
+    }
+    out.push(lines[i] ?? '');
+  }
+  return out;
+}
+
 test('chart: unmigrated (legacy fixture) values-prod renders the legacy docker.io Never pins', (t) => {
   if (skipOrFail(t)) return;
   const legacy = render(LEGACY_VALUES);
   assert.doesNotMatch(legacy, /registry\.registry\.svc\.cluster\.local:5000/);
-  assert.match(legacy, /image: "docker\.io\/library\/quill-portal@sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"/);
+  assert.match(legacy, /image: "docker\.io\/library\/quill-api@sha256:401dfe6c5cd1bd89cc8e24fa24154d864908411054e248590343dee96a514566"/);
+  assert.doesNotMatch(legacy, /quill-portal/);
   assert.match(legacy, /imagePullPolicy: Never/);
 });
 
@@ -183,6 +196,7 @@ test('chart: live values-prod renders every quill image from the in-cluster regi
     );
   }
   assert.doesNotMatch(live, /docker\.io\/library\/quill-/, 'no quill image may still come from docker.io/library');
+  assert.doesNotMatch(live, /quill-portal|quill\/portal/, 'the portal is Cloudflare Pages, not a chart image');
   // Registry images are pulled, so nothing quill-built may stay on Never.
   for (let i = 0; i < lines.length - 1; i++) {
     if (/^image:.*quill\//.test(lines[i]) && /^imagePullPolicy:/.test(lines[i + 1])) {
@@ -204,7 +218,7 @@ test("chart: live values-prod matches main's image refs and pull policy", (t) =>
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
-    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
+    assert.deepEqual(withoutPortalImages(imagePolicyLines(render())), withoutPortalImages(imagePolicyLines(main)));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }

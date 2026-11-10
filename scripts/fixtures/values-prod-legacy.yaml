@@ -16,9 +16,6 @@ images:
   mcp:
     digest: "sha256:4c23916e7f71ec81a43a4a262f38cd70e86bc888dfb3e983d92fd61796a6f10e"
     tag: "2026-10-28-a9e3ef0764"
-  portal:
-    digest: "sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"
-    tag: "2026-10-28-a9e3ef0764"
   ingest:
     digest: "sha256:3505a9ec818bb307423f503db7238564b53b938789085ab49d8b4981d88b9061"
     tag: "2026-10-28-a9e3ef0764"
@@ -120,27 +117,6 @@ database:
       memory: 512Mi
   storageClass: longhorn
   nodeName: ""
-portal:
-  enabled: true
-  # HA: 2 replicas, spread by topology + anti-affinity, guarded by a PDB
-  # (charts/quill/templates/portal.yaml). The portal is stateless, so unlike
-  # api/mcp/search it needs no node pin.
-  replicas: 2
-  port: 8080
-  # CPU order: nexus preferred, sentry fallback; never forge (Reverb 15:06 CT).
-  # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
-  affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
-  resources:
-    requests:
-      cpu: 50m
-      memory: 32Mi
-    limits:
-      cpu: 100m
-      memory: 64Mi
-  ingress:
-    host: maplespike.ca
-    tls: true
 cloudflared:
   enabled: false
   image: docker.io/cloudflare/cloudflared

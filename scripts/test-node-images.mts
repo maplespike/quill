@@ -334,7 +334,7 @@ test('quill-search builds from Dockerfile.search like every other service', () =
   assert.doesNotMatch(pin, /push_search_from_store/);
   assert.doesNotMatch(pin, /ctr content get/);
   assert.doesNotMatch(pin, /QUILL_SEARCH_SOURCE_TAG/);
-  assert.match(pin, /^SERVICES="api mcp portal ingest search"$/m);
+  assert.match(pin, /^SERVICES="api mcp ingest search"$/m);
   assert.match(pin, /^    search\) echo "Dockerfile\.search --target quill-search" ;;$/m);
   assert.ok(
     fs.existsSync(path.join(REPO, 'Dockerfile.search')),
