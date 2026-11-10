@@ -30,6 +30,7 @@ const SECTIONS = [
       { slug: 'getting-started', title: 'Getting Started' },
       { slug: 'quickstart', title: 'Quickstart' },
       { slug: 'authentication', title: 'Authentication' },
+      { slug: 'identity-model', title: 'Identity & New Devices' },
       { slug: 'sdk', title: 'SDK Usage' },
       { slug: 'billing', title: 'Billing & Limits' },
       { slug: 'architecture', title: 'Architecture' },
