@@ -1,0 +1,82 @@
+# Public self-host stack: API, MCP, and Redis.
+# Postgres is optional. Enable it with: docker compose -f docker-compose.oss.yml --profile postgres up --build
+
+services:
+  api:
+    image: ghcr.io/maplespike/quill-api:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: quill-api
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      NODE_ENV: production
+      PORT: "8082"
+      QUILL_STORAGE: ${QUILL_STORAGE:-sqlite}
+      QUILL_DB_PATH: /data/quill.db
+      DATABASE_URL: ${DATABASE_URL:-}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      JWT_SECRET: ${JWT_SECRET:-replace-this-dev-secret}
+      QUILL_FIXTURES: ${QUILL_FIXTURES:-0}
+    volumes:
+      - quill-api-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8082/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  mcp:
+    image: ghcr.io/maplespike/quill-mcp:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: quill-mcp
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      QUILL_API_URL: http://api:8082/v1
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: public.ecr.aws/docker/library/redis:8.2.3-alpine
+    container_name: quill-redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:16-alpine
+    container_name: quill-postgres
+    profiles: ["postgres"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${QUILL_DB_USER:-quill}
+      POSTGRES_PASSWORD: ${QUILL_DB_PASSWORD:-quill}
+      POSTGRES_DB: ${QUILL_DB_NAME:-quill}
+    ports:
+      - "5432:5432"
+
+volumes:
+  quill-api-data:

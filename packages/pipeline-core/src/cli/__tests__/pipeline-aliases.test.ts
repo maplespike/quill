@@ -1,3 +1,4 @@
+// oss-export: private-only
 /**
  * Chart ↔ CLI alias contract.
  *

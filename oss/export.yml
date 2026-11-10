@@ -1,0 +1,152 @@
+# Public export manifest for maplespike/quill-api.
+# scripts/oss-export.mjs reads this file. The script does not publish.
+
+allow:
+  packages:
+    - api-server
+    - quill-mcp
+    - pipeline-core
+    - database
+    - engine
+  package_globs:
+    - sdk-*
+  root_files:
+    - package.json
+    - pnpm-workspace.yaml
+    - tsconfig.json
+    - turbo.json
+    - .npmrc
+    - eslint.config.mjs
+    - LICENSE
+    - LICENSE.md
+    - NOTICE
+    - DATA-LICENSES.md
+    - data-source-licenses.json
+    - CODE_OF_CONDUCT.md
+  root_dirs:
+    - patches
+
+exclude:
+  paths:
+    - packages/pipeline-core/src/ingestion/sedi
+    - packages/pipeline-core/src/ingestion/corporate/sedi.ts
+    - packages/quill-mcp/src/tools/search-sedi.ts
+    - secrets
+    - .sops.yaml
+    - charts
+    - k8s
+    - deploy
+    - ops
+    - config
+    - .github
+    - packages/portal
+    - docs
+    - scripts
+  globs:
+    - "**/*.disabled"
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/.env"
+    - "**/.env.*"
+  tag: "oss-export: private-only"
+  tagged_tests:
+    - packages/pipeline-core/src/cli/__tests__/change-gate-coverage.test.ts
+    - packages/pipeline-core/src/cli/__tests__/pipeline-aliases.test.ts
+    - packages/quill-mcp/src/__tests__/upstream-outage.test.ts
+    - packages/quill-mcp/src/__tests__/stdio-built-artifact.test.ts
+
+transforms:
+  package_json: trim
+  workspace: public-subset
+  tsconfig_references: public-subset
+  readme: swap
+  sdk_license: Apache-2.0
+
+overlay: oss/overlay
+
+regenerate:
+  - pnpm-lock.yaml
+
+scan:
+  rules:
+    - id: 10.x
+      pattern: "\\b10\\.(?:\\d{1,3}\\.){2}\\d{1,3}\\b"
+    - id: 192.168
+      pattern: "\\b192\\.168\\.\\d{1,3}\\.\\d{1,3}\\b"
+      allow_paths:
+        - packages/api-server/src/routes/extraction.ts
+        - packages/api-server/src/routes/webhooks.ts
+    - id: 100.64/10
+      pattern: "\\b100\\.(?:6[4-9]|[7-9]\\d|1[01]\\d|12[0-7])(?:\\.\\d{1,3}){2}\\b|\\b100\\.64/10\\b"
+    - id: ts.net
+      pattern: "ts\\.net"
+    - id: nexus
+      pattern: "\\bnexus\\b"
+    - id: zephyr
+      pattern: "\\bzephyr\\b"
+    - id: sentry
+      pattern: "\\bsentry\\b"
+    - id: forge
+      pattern: "\\bforge\\b"
+    - id: home
+      pattern: "/home/"
+    - id: data-projects
+      pattern: "/data/projects"
+    - id: kroeker
+      pattern: "kroeker"
+    - id: j_kro
+      pattern: "j_kro"
+    - id: sk_live
+      pattern: "(?<![A-Za-z0-9])sk_live"
+    - id: whsec_
+      pattern: "whsec_"
+    - id: AGE-SECRET-KEY
+      pattern: "AGE-SECRET-KEY"
+    - id: pk_live_
+      pattern: "pk_live_"
+  # Stripe allowlist. Each entry is one file and one exact line.
+  # A prefix on any other line still fails. Do not allow a prefix by itself.
+  allows:
+    # Comment in the money-mode classifier. It names the prefix. It is not a key.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: " * Stripe signs the mode into the key: `sk_live_` / `rk_live_` (restricted key)"
+    # Error text. It names the expected prefixes and refuses a key that has none.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "        '(expected sk_live_, sk_test_, rk_live_ or rk_test_). Refusing to serve billing ' +"
+    # Error text. It names the live and test prefixes. It does not embed a key.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "        `(${secretMode === 'live' ? 'sk_live_/rk_live_' : 'sk_test_/rk_test_'} prefix). ` +"
+    # Error text. It rejects a live prefix on the test-key variable.
+    - file: packages/api-server/src/config.ts
+      rule: sk_live
+      line: "      'STRIPE_TEST_SECRET_KEY carries a live-mode key (sk_live_/rk_live_ prefix). ' +"
+    # Synthetic fixture. The value is the prefix plus 24 x characters.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: sk_live
+      line: "const LIVE_SK = 'sk_live_' + 'x'.repeat(24);"
+    # Prefix check. The argument is the prefix plus abc, with surrounding spaces.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: sk_live
+      line: "  assert.equal(stripeKeyMode('  sk_live_abc  '), 'live', 'surrounding whitespace must not hide the mode');"
+    # Prefix check. A publishable prefix must not be read as a secret-key mode.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: pk_live_
+      line: "  assert.equal(stripeKeyMode('pk_live_abc'), 'unknown');"
+    # Prefix check. A webhook prefix must not be read as a secret-key mode.
+    - file: packages/api-server/src/__tests__/stripe-env.test.ts
+      rule: whsec_
+      line: "  assert.equal(stripeKeyMode('whsec_abc'), 'unknown');"
+    # Synthetic fixture. The value is the webhook prefix plus the repeated word FAKE.
+    - file: packages/api-server/src/__tests__/stripe-billing.test.ts
+      rule: whsec_
+      line: "const TEST_WEBHOOK_SECRET = 'whsec_FAKEFAKEFAKEFAKEFAKE';"
+
+phases:
+  - materialize
+  - scan
+  - install
+  - build
+  - test

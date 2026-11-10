@@ -1,3 +1,4 @@
+// oss-export: private-only
 /**
  * stdio transport — built artifact.
  *

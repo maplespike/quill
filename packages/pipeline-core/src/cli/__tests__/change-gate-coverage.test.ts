@@ -1,3 +1,4 @@
+// oss-export: private-only
 // SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Change-gate coverage guard.
