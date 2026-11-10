@@ -1,0 +1,9 @@
+title = "Quill public export"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Unit-test Stripe fixtures. The value is the repeated word FAKE."
+regexTarget = "line"
+regexes = ['''FAKEFAKEFAKE''']
