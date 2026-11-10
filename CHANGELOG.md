@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — 2026-11-10
+
+### Fixed
+- **Search serve treated a 30-doc sample index as healthy, and the search backup exited when `quill-meta.json` was missing.** `quill-search serve` now checks the index before it listens. A missing directory, a missing sidecar, or fewer than 31 docs (the sample corpus is 30) exits with `refusing to serve` and does not open the port. Set `QUILL_SEARCH_CORPUS` or `--corpus` to rebuild from a JSONL corpus on that start. Every `quill-search index` build writes `quill-meta.json` after the tantivy commit. `search-backup.sh` prints why it refused and writes no archive when the sidecar is missing, including when the file is still on the claim root. Hand rebuild steps are in `docs/runbooks/search-reindex.md`.
+
 ## [Unreleased] — 2026-11-04
 
 ### Fixed
