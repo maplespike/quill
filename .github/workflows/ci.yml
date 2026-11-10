@@ -259,6 +259,13 @@ jobs:
       - name: Source compliance gate
         run: node scripts/gates/check-source-compliance.mjs
 
+      # Private individuals: no donor name field, and the influence profile strips them.
+      - name: Private individual name gate
+        run: node scripts/gates/check-no-private-individual-names.mjs
+
+      - name: Private individual name gate unit tests
+        run: node --test scripts/test-no-private-individual-names.mjs
+
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 

@@ -208,40 +208,41 @@ export function transformDonations(db: Database.Database): number {
   del.run();
   const insert = db.prepare(`
     INSERT OR REPLACE INTO donations
-      (id, donor_name, recipient_name, recipient_type, amount, currency, date,
-       province, is_corporate, source, raw_data, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, party, riding, amount_band, contribution_count, total_amount, jurisdiction, source, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
+  const grouped = new Map<string, { band: string; total: number; count: number; jurisdiction: string | null }>();
+  const add = (amount: number, jurisdiction: string | null) => {
+    const band = amount < 200 ? '0-199' : amount < 1000 ? '200-999' : amount < 2000 ? '1000-1999' : '2000+';
+    const key = `${band}|${jurisdiction ?? ''}`;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.total += amount;
+      existing.count += 1;
+    } else {
+      grouped.set(key, { band, total: amount, count: 1, jurisdiction });
+    }
+  };
+
+  // Names on third-party rows are not copied. Spend is rolled into a band.
+  try {
+    const adRows = db.prepare("SELECT amount_spent, province FROM third_party_ads").all() as any[];
+    for (const r of adRows) add(Number(r.amount_spent ?? 0), r.province || null);
+  } catch { /* table may not exist */ }
+
+  try {
+    const spendRows = db.prepare("SELECT amount, province FROM third_party_spending").all() as any[];
+    for (const r of spendRows) add(Number(r.amount ?? 0), r.province || null);
+  } catch { /* table may not exist */ }
+
   let count = 0;
-
-  // From third_party_ads
-  try {
-    const adRows = db.prepare("SELECT * FROM third_party_ads").all() as any[];
-    for (const r of adRows) {
-      insert.run(
-        uid("don"), r.advertiser_name || r.sponsor_name || "Unknown",
-        "Elections Canada", "regulatory_body", r.amount_spent ?? 0,
-        "CAD", r.period_start || nowISO().substring(0, 10),
-        r.province || null, 1, "elections_canada", JSON.stringify(r), nowISO(), nowISO(),
-      );
-      count++;
-    }
-  } catch { /* table may not exist */ }
-
-  // From third_party_spending
-  try {
-    const spendRows = db.prepare("SELECT * FROM third_party_spending").all() as any[];
-    for (const r of spendRows) {
-      insert.run(
-        uid("don"), r.sponsor_name || r.organization_name || "Unknown",
-        "Elections Canada", "regulatory_body", r.amount ?? 0,
-        "CAD", r.date || nowISO().substring(0, 10),
-        r.province || null, 1, "elections_canada", JSON.stringify(r), nowISO(), nowISO(),
-      );
-      count++;
-    }
-  } catch { /* table may not exist */ }
-
+  for (const row of grouped.values()) {
+    insert.run(
+      uid("don"), 'unspecified', '', row.band, row.count, row.total,
+      row.jurisdiction, "elections_canada", nowISO(), nowISO(),
+    );
+    count++;
+  }
   return count;
 }
 

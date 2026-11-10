@@ -550,54 +550,13 @@ export class CrossModuleLinker {
   // Organization → Charity Links
 
   private linkOrgCharityFunding(
-    rule: LinkingRule,
-    organizations: Organization[],
-    charities: Charity[],
-    donations: Donation[],
+    _rule: LinkingRule,
+    _organizations: Organization[],
+    _charities: Charity[],
+    _donations: Donation[],
   ): LinkResult[] {
-    const links: LinkResult[] = [];
-
-    // Find corporate donations to charities
-    for (const donation of donations) {
-      if (!donation.isCorporate) continue;
-
-      const candidates = this.findOrgCandidates(organizations, donation.donorName);
-
-      if (candidates.length > 0) {
-        const result = this.disambiguator.disambiguate({
-          entityType: "organization",
-          query: donation.donorName,
-          candidates,
-          auxiliaryData: { donations, charities },
-        });
-
-        if (result.chosen) {
-          // Find if recipient is a charity
-          const recipientCharity = charities.find((c) =>
-            c.names.some((n) =>
-              this.resolver.resolveOrgNames(n, donation.recipientName) >= 0.85,
-            ),
-          );
-
-          if (recipientCharity) {
-            links.push({
-              sourceId: result.chosen.id,
-              targetId: recipientCharity.id,
-              edgeType: rule.edgeType,
-              confidence: result.confidence * rule.weight,
-              reasoning: [
-                `Donated $${donation.amount.toLocaleString()} to charity "${recipientCharity.names[0]}"`,
-                `Date: ${donation.date}`,
-                ...result.reasoning,
-              ],
-              method: `rule:${rule.name}+disambiguation:${result.method}`,
-            });
-          }
-        }
-      }
-    }
-
-    return links;
+    // Donation rows are aggregates and do not name a donor.
+    return [];
   }
 
   private linkOrgCharityAffiliated(

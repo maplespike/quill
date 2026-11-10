@@ -5,7 +5,6 @@ import type { AttributedRecord } from '../../shared/attribution.js';
 import { fetchAllDonations } from './fetcher.js';
 import { parseContributions, summarizeContributions } from './parser.js';
 import { DONATIONS_SOURCES } from './constants.js';
-import type { ContributionRecord, ContributionSummary } from './types.js';
 
 function makeAttribution(name: string, url: string) {
   return buildAttribution(name, {
@@ -44,4 +43,4 @@ export { DONATIONS_SOURCES } from './constants.js';
 export const ingestDonations = ingestAllDonations;
 export const ingestAllJurisdictions = ingestAllDonations;
 
-export type { ContributionRecord, ContributionSummary } from './types.js';
+export type { DonationAggregate, ContributionSummary } from './types.js';

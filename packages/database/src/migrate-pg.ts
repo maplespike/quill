@@ -9,6 +9,8 @@
  *   await migratePg(pool);
  */
 
+import { applyPrivateNamesPostgres } from "./private-names-migration.js";
+
 export const PG_DOMAIN_MIGRATION_SQL = `
 -- ─── Persons ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS persons (
@@ -127,25 +129,18 @@ CREATE INDEX IF NOT EXISTS idx_lobbying_registrant ON lobbying_filings(registran
 -- ─── Donations ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS donations (
   id TEXT PRIMARY KEY,
-  donor_name TEXT NOT NULL,
-  donor_person_id TEXT,
-  donor_organization_id TEXT,
-  recipient_name TEXT NOT NULL,
-  recipient_type TEXT NOT NULL,
-  amount DOUBLE PRECISION NOT NULL,
-  currency TEXT NOT NULL DEFAULT 'CAD',
-  date TEXT NOT NULL,
-  province TEXT,
-  riding TEXT,
-  is_corporate INTEGER NOT NULL DEFAULT 0,
+  party TEXT NOT NULL,
+  riding TEXT NOT NULL DEFAULT '',
+  amount_band TEXT NOT NULL,
+  contribution_count INTEGER NOT NULL,
+  total_amount DOUBLE PRECISION NOT NULL,
+  jurisdiction TEXT,
   source TEXT NOT NULL,
-  raw_data TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_donations_source ON donations(source);
-CREATE INDEX IF NOT EXISTS idx_donations_donor ON donations(donor_name);
+CREATE INDEX IF NOT EXISTS idx_donations_aggregate ON donations(party, riding, amount_band);
 
 -- ─── Disclosures ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS disclosures (
@@ -459,6 +454,7 @@ export async function migrateDomainTables(pool: import("pg").Pool): Promise<void
   const client = await pool.connect();
   try {
     await client.query(PG_DOMAIN_MIGRATION_SQL);
+    await applyPrivateNamesPostgres(client);
     console.log("[migrate-pg] Domain tables migration complete");
   } finally {
     client.release();

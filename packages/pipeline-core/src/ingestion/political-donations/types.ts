@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
-export interface Donation {
+/** Aggregate only. No donor name is stored or returned. */
+export interface DonationAggregate {
   id: string;
   jurisdiction: string;
-  date: Date;
-  donorName: string;
-  donorType: 'individual' | 'corporation';
-  amount: number;
-  recipient: string;
-  recipientType: 'party' | 'candidate' | 'association' | 'third-party';
+  party: string;
+  riding: string;
+  amountBand: string;
+  contributionCount: number;
+  totalAmount: number;
 }
 
 export const JURISDICTIONS = [
@@ -26,16 +26,6 @@ export const JURISDICTIONS = [
   'Northwest Territories',
   'Nunavut',
 ];
-
-export interface ContributionRecord {
-  id: string;
-  jurisdiction: string;
-  donor: string;
-  amount: number;
-  date?: string;
-  party?: string;
-  category?: string;
-}
 
 export interface ContributionSummary {
   totalContributions: number;

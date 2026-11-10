@@ -319,39 +319,15 @@ export class GraphBuilder {
       this.addNode({
         id: donation.id,
         type: "donation",
-        label: `$${donation.amount} to ${donation.recipientName}`,
+        label: `${donation.party} ${donation.riding} ${donation.amountBand}`.trim(),
         properties: {
-          amount: donation.amount,
-          donorName: donation.donorName,
-          recipientName: donation.recipientName,
-          date: donation.date,
-          isCorporate: donation.isCorporate,
+          party: donation.party,
+          riding: donation.riding,
+          amountBand: donation.amountBand,
+          contributionCount: donation.contributionCount,
+          totalAmount: donation.totalAmount,
         },
       });
-
-      // Edge: donor person/org → donation
-      if (donation.donorPersonId) {
-        this.addEdge({
-          id: nextEdgeId(),
-          source: donation.donorPersonId,
-          target: donation.id,
-          type: "donated_by",
-          weight: donation.amount,
-          properties: {},
-          sourceRef: donation.source,
-        });
-      }
-      if (donation.donorOrganizationId) {
-        this.addEdge({
-          id: nextEdgeId(),
-          source: donation.donorOrganizationId,
-          target: donation.id,
-          type: "donated_by",
-          weight: donation.amount,
-          properties: {},
-          sourceRef: donation.source,
-        });
-      }
     }
 
     // Add disclosure nodes + edges
