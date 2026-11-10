@@ -207,7 +207,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `indigenous-land-claims` | _no single terms URL recorded — see the source family note_ | — |
 | `indigenous-relations` | _no single terms URL recorded — see the source family note_ | — |
 | `indigenous-services-directory` | _no single terms URL recorded — see the source family note_ | — |
-| `influence` | _no single terms URL recorded — see the source family note_ | — |
+| `influence` | https://open.canada.ca/en/open-government-licence-canada | pii-minimized |
 | `ircc` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `ircc-family-sponsorship` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `isc` | https://open.canada.ca/en/open-government-licence-canada | — |
@@ -259,6 +259,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `ontario-provincial` | https://www.ontario.ca/page/ontario-open-data-terms-use | — |
 | `ontario-securities-commission` | https://www.osc.ca/en/about-us/terms-use | — |
 | `opencorporates` | https://opencorporates.com/terms | — |
+| `openparliament` | https://www.ourcommons.ca/en/important-notices | non-commercial, discovery-only |
 | `ottawa-oc-transpo` | https://open.ottawa.ca/pages/open-data-licence | — |
 | `oversight` | _no single terms URL recorded — see the source family note_ | — |
 | `parks` | _no single terms URL recorded — see the source family note_ | — |

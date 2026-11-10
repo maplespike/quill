@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchPoliticians, fetchParliamentVotes, fetchEntityCrossReference } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_politician_influence',
@@ -15,29 +16,43 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+/** Core lookup — injectable fetchers for tests. Commons discovery policy applies. */
+export async function runGetPoliticianInfluence(
+  args: { name?: string },
+  fetchers: {
+    politicians?: typeof fetchPoliticians;
+    crossReference?: typeof fetchEntityCrossReference;
+  } = {},
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const name = String(args.name ?? '').trim();
   if (!name) return { content: { tool: 'get_politician_influence', error: 'No name provided' }, isError: true };
 
+  const fetchPoliticiansFn = fetchers.politicians ?? fetchPoliticians;
+  const fetchCrossReferenceFn = fetchers.crossReference ?? fetchEntityCrossReference;
+
   try {
     const [mpSearch, xref] = await Promise.all([
-      fetchPoliticians(name, 5),
-      fetchEntityCrossReference(name),
+      fetchPoliticiansFn(name, 5),
+      fetchCrossReferenceFn(name),
     ]);
 
     const mp = mpSearch.results[0] as Record<string, unknown> | undefined;
+    const mpDetails = mp ? {
+      name: (mp.name as any)?.en || mp.name,
+      party: (mp.current_party as any)?.short_name?.en || 'unknown',
+      riding: (mp.current_riding as any)?.name?.en || 'unknown',
+      photoUrl: mp.image || null,
+      text: mp.text,
+    } : null;
+    const applied = applySourcePolicy('openparliament', mpDetails ? [mpDetails] : []);
 
     return {
       content: {
         tool: 'get_politician_influence',
         query: name,
         mpFound: !!mp,
-        mpDetails: mp ? {
-          name: (mp.name as any)?.en || mp.name,
-          party: (mp.current_party as any)?.short_name?.en || 'unknown',
-          riding: (mp.current_riding as any)?.name?.en || 'unknown',
-          photoUrl: mp.image || null,
-        } : null,
+        mpDetails: applied.records[0] ?? null,
+        policy: applied.policy,
         crossReferences: {
           lobbyingRecords: xref.lobbyingRecords,
           gicAppointments: xref.gicAppointments,
@@ -49,4 +64,8 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   } catch (error) {
     return { content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true };
   }
+}
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  return runGetPoliticianInfluence({ name: args.name as string | undefined });
 };
