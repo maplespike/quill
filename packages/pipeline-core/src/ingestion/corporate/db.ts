@@ -11,6 +11,7 @@
 
 import type { D1Database } from '../committees/db.js';
 import type { LobbyingRecord, ContractAward, ExecutiveStatement } from './types.js';
+import { capStatementText } from './statements.js';
 
 /* ------------------------------------------------------------------ */
 /*  DDL                                                                */
@@ -271,8 +272,8 @@ export async function upsertExecutiveStatement(
     statement.statementType,
     statement.date,
     statement.title,
-    statement.text,
-    statement.excerpt,
+    capStatementText(statement.text),
+    statement.excerpt == null ? null : capStatementText(statement.excerpt),
     statement.sourceUrl,
     Array.isArray(statement.topics) ? statement.topics.join(', ') : statement.topics,
     statement.isCommitteeAppearance ? 1 : 0,
