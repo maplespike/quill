@@ -238,6 +238,44 @@ test('an 8-day-old snapshot is HTTP 200 with stale true and the file generatedAt
   assert.equal(body.data._meta.stale, true);
 });
 
+test('the OpenAPI spec documents the snapshot 200 and the 503', async () => {
+  const { openApiHandler } = await import('../routes/openapi.js');
+  const res = await openApiHandler(new Request('http://test.local/v1/openapi.json'), makeCtx());
+  assert.equal(res.status, 200);
+  const body = (await res.json()) as {
+    data: {
+      paths: Record<string, { get: { security: unknown[]; responses: Record<string, { description: string }> } }>;
+      components: { schemas: Record<string, { properties?: Record<string, { enum?: string[] }> }> };
+    };
+  };
+  const op = body.data.paths['/v1/security/audit-summary'].get;
+  assert.deepEqual(op.security, []);
+  assert.match(op.responses['200'].description, /generatedAt/);
+  assert.match(op.responses['200'].description, /stale/);
+  assert.match(op.responses['200'].description, /ageDays/);
+  assert.match(op.responses['200'].description, /source/);
+  assert.match(op.responses['503'].description, /missing/i);
+  assert.match(op.responses['503'].description, /placeholder/i);
+  assert.match(op.responses['503'].description, /unparseable/i);
+  const dataSchema = body.data.components.schemas.AuditSummaryData;
+  for (const field of ['generatedAt', 'summary', 'top', 'stale', 'ageDays', '_meta']) {
+    assert.ok(dataSchema.properties?.[field], field);
+  }
+  assert.deepEqual(body.data.components.schemas.AuditSummaryMeta.properties?.source.enum, ['static']);
+
+  const portalSpec = JSON.parse(
+    readFileSync(new URL('../../../../packages/portal/v1/openapi.json', import.meta.url), 'utf8'),
+  ) as {
+    paths: Record<string, { get: { responses: Record<string, { description: string }> } }>;
+    components: { schemas: Record<string, { properties?: Record<string, unknown> }> };
+  };
+  const portalOp = portalSpec.paths['/v1/security/audit-summary'].get;
+  assert.match(portalOp.responses['200'].description, /stale/);
+  assert.match(portalOp.responses['503'].description, /placeholder/);
+  assert.ok(portalSpec.components.schemas.AuditSummaryData.properties?.generatedAt);
+  assert.ok(portalSpec.components.schemas.AuditSummaryData.properties?.ageDays);
+});
+
 test('the route module does not start a subprocess', () => {
   const src = readFileSync(new URL('../routes/security-audit.ts', import.meta.url), 'utf8');
   assert.equal(/\b(child_process|execFile|spawn|execSync|fork)\b/.test(src), false);

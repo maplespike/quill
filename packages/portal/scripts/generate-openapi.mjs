@@ -49,6 +49,25 @@ const paths = {
       security: [],
     },
   },
+  '/v1/security/audit-summary': {
+    get: {
+      tags: ['Security'],
+      summary: 'Dependency audit snapshot',
+      operationId: 'security-audit-summary',
+      description: 'Serves the build-time pnpm audit snapshot. A request does not run pnpm audit. generatedAt is the time the snapshot was produced, not the request time. A snapshot older than 7 days is still returned, with stale set to true. Public: no API key. Refresh the file with node scripts/gen-security-audit.mjs.',
+      responses: {
+        '200': {
+          description: 'Snapshot fields, generatedAt, source, stale, and ageDays. stale is false when the snapshot is 7 days old or newer.',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/AuditSummaryResponse' } } },
+        },
+        '503': {
+          description: 'The snapshot is missing, a placeholder, or unparseable. The error code is AUDIT_QUERY_FAILED.',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/QuillResponse' } } },
+        },
+      },
+      security: [],
+    },
+  },
 };
 
 for (const agent of Object.values(agentMap)) {
@@ -124,6 +143,61 @@ const spec = {
           { $ref: '#/components/schemas/QuillResponse' },
           { type: 'object', properties: { data: { $ref: '#/components/schemas/ClaimHashData' } } },
         ],
+      },
+      AuditSummaryResponse: {
+        allOf: [
+          { $ref: '#/components/schemas/QuillResponse' },
+          { type: 'object', properties: { data: { $ref: '#/components/schemas/AuditSummaryData' } } },
+        ],
+      },
+      AuditSummaryData: {
+        type: 'object',
+        description: 'Build-time dependency audit snapshot. generatedAt is when the snapshot was produced.',
+        required: ['generatedAt', 'summary', 'top', 'stale', 'ageDays', '_meta'],
+        properties: {
+          generatedAt: { type: 'string', format: 'date-time', description: 'When the snapshot was produced. Not the request time.' },
+          summary: { $ref: '#/components/schemas/AuditSummaryCounts' },
+          top: { type: 'array', items: { $ref: '#/components/schemas/AuditAdvisory' } },
+          note: { type: 'string' },
+          stale: { type: 'boolean', description: 'True when generatedAt is older than 7 days.' },
+          ageDays: { type: 'integer', minimum: 0, description: 'Whole days since generatedAt.' },
+          _meta: { $ref: '#/components/schemas/AuditSummaryMeta' },
+        },
+      },
+      AuditSummaryCounts: {
+        type: 'object',
+        required: ['total', 'critical', 'high', 'moderate', 'low', 'info'],
+        properties: {
+          total: { type: 'integer' },
+          critical: { type: 'integer' },
+          high: { type: 'integer' },
+          moderate: { type: 'integer' },
+          low: { type: 'integer' },
+          info: { type: 'integer' },
+        },
+      },
+      AuditAdvisory: {
+        type: 'object',
+        required: ['id', 'package', 'severity', 'title'],
+        properties: {
+          id: { type: 'string' },
+          package: { type: 'string' },
+          severity: { type: 'string', enum: ['critical', 'high', 'moderate', 'low', 'info'] },
+          title: { type: 'string' },
+          url: { type: 'string' },
+        },
+      },
+      AuditSummaryMeta: {
+        type: 'object',
+        required: ['source', 'generatedAgeSeconds', 'ageDays', 'stale', 'maxSnapshotAgeSeconds', 'fallbackReason'],
+        properties: {
+          source: { type: 'string', enum: ['static'], description: 'The route serves the build-time snapshot.' },
+          generatedAgeSeconds: { type: 'integer', description: 'Seconds since generatedAt.' },
+          ageDays: { type: 'integer', minimum: 0 },
+          stale: { type: 'boolean' },
+          maxSnapshotAgeSeconds: { type: 'integer', description: 'Age after which stale is true. 7 days.' },
+          fallbackReason: { type: 'string' },
+        },
       },
       ClaimVerificationData: {
         type: 'object', description: 'Stored or indexed record hash match and evidence when available.',
@@ -233,7 +307,10 @@ const spec = {
       },
     },
   },
-  tags: Object.values(agentMap).map(agent => ({ name: agent.name, description: agent.description })),
+  tags: [
+    ...Object.values(agentMap).map(agent => ({ name: agent.name, description: agent.description })),
+    { name: 'Security', description: 'Dependency audit snapshot' },
+  ],
 };
 
 const outDir = resolve(__dirname, '../v1');

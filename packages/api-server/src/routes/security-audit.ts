@@ -23,8 +23,8 @@
  * and the body sets stale to true.
  *
  * Response schema matches the static file so OwaspDashboard's types
- * stay valid. `_meta.source` is `static`. There is no OpenAPI path for
- * this route.
+ * stay valid. `_meta.source` is `static`. The OpenAPI path is
+ * GET /v1/security/audit-summary.
  */
 
 import type { RouteHandler } from '../types.js';
