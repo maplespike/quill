@@ -246,6 +246,11 @@ secrets:
 search:
   replicas: 0
   migrateLegacyIndex: false
+  # The index claim is ReadWriteOnce. RollingUpdate is the Deployment
+  # default. It starts a second pod, and that pod cannot mount the volume.
+  # Recreate stops the old pod first. The template renders this value.
+  strategy:
+    type: Recreate
   resources:
     requests:
       cpu: 50m

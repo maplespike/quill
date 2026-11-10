@@ -254,6 +254,10 @@ engine:
 
 search:
   replicas: 1
+  # Default is values.yaml (Recreate). Repeated here so the prod file shows
+  # the strategy next to the Longhorn ReadWriteOnce claim.
+  strategy:
+    type: Recreate
   port: 8083
   metricsPort: 9466
   logLevel: info

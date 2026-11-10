@@ -1,0 +1,299 @@
+# Negative fixture for scripts/test-chart-rwo-strategy.mts.
+# This is not a chart render. It is a small set of manifests that prove the
+# checker reports a Deployment which mounts a chart-defined ReadWriteOnce
+# claim and uses RollingUpdate, including the Kubernetes default.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fixture-rwo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fixture-rwx
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fixture-db
+spec:
+  replicas: 1
+  serviceName: fixture-db
+  selector:
+    matchLabels:
+      app: fixture-db
+  template:
+    metadata:
+      labels:
+        app: fixture-db
+    spec:
+      containers:
+        - name: db
+          image: example/db:1
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explicit-rolling
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: explicit-rolling
+  template:
+    metadata:
+      labels:
+        app: explicit-rolling
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fixture-rwo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omitted-strategy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: omitted-strategy
+  template:
+    metadata:
+      labels:
+        app: omitted-strategy
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fixture-rwo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omitted-type
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: omitted-type
+  template:
+    metadata:
+      labels:
+        app: omitted-type
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fixture-rwo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mounts-volume-claim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mounts-volume-claim
+  template:
+    metadata:
+      labels:
+        app: mounts-volume-claim
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-fixture-db-0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inline-volume-claim
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: inline-volume-claim
+  template:
+    metadata:
+      labels:
+        app: inline-volume-claim
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recreate-ok
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: recreate-ok
+  template:
+    metadata:
+      labels:
+        app: recreate-ok
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fixture-rwo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recreate-volume-claim
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: recreate-volume-claim
+  template:
+    metadata:
+      labels:
+        app: recreate-volume-claim
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-fixture-db-0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rwx-rolling
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: rwx-rolling
+  template:
+    metadata:
+      labels:
+        app: rwx-rolling
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fixture-rwx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stateless-rolling
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: stateless-rolling
+  template:
+    metadata:
+      labels:
+        app: stateless-rolling
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: scratch
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unknown-claim-rolling
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: unknown-claim-rolling
+  template:
+    metadata:
+      labels:
+        app: unknown-claim-rolling
+    spec:
+      containers:
+        - name: app
+          image: example/app:1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: missing-claim
