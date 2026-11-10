@@ -43,7 +43,6 @@ const MODULES = [
   { key: 'corporate', fn: () => pc.ingestAllCorporate?.() ?? Promise.resolve({ records: [] }) },
   { key: 'influence', fn: () => pc.ingestAllInfluence?.() ?? Promise.resolve({ records: [] }) },
   { key: 'lmia', fn: () => pc.ingestAllLmia?.() ?? Promise.resolve({ records: [] }) },
-  { key: 'sedi', fn: () => pc.ingestSedi?.() ?? Promise.resolve({ records: [] }) },
 
   // Legal & oversight
   { key: 'canlii', fn: () => pc.ingestDecisions?.() ?? Promise.resolve({ records: [] }) },

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-11-10
 status: active
 ---
 
@@ -44,13 +44,9 @@ The corporate module ingests federal lobbying registry data, procurement contrac
 
 Data includes prospectuses, annual reports, management discussion, material change reports.
 
-## Module: sedi (Insider Trading)
+## Module: sedi (retired)
 
-| Source | Format | Description | Frequency |
-|--------|--------|-------------|-----------|
-| **SEDI** | HTML | TSX-listed executive/director stock transactions | daily |
-
-Tracks insider transactions: purchases, sales, option exercises, by issuer/insider.
+SEDI terms of use prohibit robots, spiders, and other automatic access. Quill does not fetch SEDI. Stored insider rows stay in the database. This module is not scheduled and has no health check.
 
 ## Module: crown-corporations
 

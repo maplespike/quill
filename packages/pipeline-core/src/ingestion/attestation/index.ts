@@ -106,7 +106,7 @@ export const UPDATE_FREQUENCIES: Record<string, string> = {
   'corporate': 'monthly',
   'influence': 'monthly',
   'lobbying': 'monthly',
-  'sedi': 'monthly',
+  'sedi': 'retired',
   'indigenous': 'monthly',
   'criminal-justice': 'monthly',
   'defence': 'monthly',

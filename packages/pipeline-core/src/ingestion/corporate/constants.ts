@@ -89,12 +89,6 @@ export const CORPORATE_SOURCES = {
       '?resource_id=fac950c0-00d5-4ec1-a4d3-9cbebf98a305&limit=100',
   },
 
-  /** SEDI (insider trading reports) — bot-walled, see sedi.ts. */
-  SEDI: {
-    BASE: 'https://www.sedi.ca',
-    SEARCH: 'https://www.sedi.ca/sedi/SVTOCPublish?language=en',
-  },
-
   /** OSFI (financial institution data) */
   OSFI: {
     BASE: 'https://www.osfi-bsif.gc.ca',

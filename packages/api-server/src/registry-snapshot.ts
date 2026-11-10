@@ -34,8 +34,9 @@ export interface ModuleInfo {
   sources: { name: string; format: string }[];
   /** How often the source data changes */
   updateFrequency: string;
-  /** 'active' (default) = working module, 'placeholder' = skeleton/metadata-only */
-  status?: 'active' | 'placeholder';
+  /** 'active' (default) = working module, 'placeholder' = skeleton/metadata-only,
+   *  'retired' = kept for stored data, never scheduled, probed, or ingested */
+  status?: 'active' | 'placeholder' | 'retired';
   /** How to call this module in a minimal live test. 'runModule' (default) = use runModule(),
    *  'fetchFeed' = RSS-style fetch, 'skip' = no external I/O utilities */
   testCallPattern?: 'runModule' | 'fetchFeed' | 'skip';
@@ -661,15 +662,18 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
+    // Retired. SEDI terms of use prohibit robots, spiders, and any other
+    // automatic device or process that monitors or copies its pages.
+    // Stored rows stay. Do not schedule, probe, or ingest this module.
     name: 'sedi',
-    description: 'SEDI insider trading — TSX-listed executive/director stock transactions',
+    status: 'retired',
+    description: 'Retired — SEDI insider filings are not ingested. SEDI terms of use prohibit automated access. Stored rows stay in place.',
     category: 'corporate',
     modulePath: './sedi/index.js',
     ingestFunctions: ['ingestSedi', 'ingestSediByIssuer', 'searchInsiderTransactions'],
-    sources: [{ name: 'SEDI (sedi.ca)', format: 'HTML' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.sedi.ca',
+    sources: [{ name: 'SEDI (automated access retired)', format: 'HTML' }],
+    updateFrequency: 'retired',
+    testCallPattern: 'skip',
   },
   {
     name: 'crown-corporations',

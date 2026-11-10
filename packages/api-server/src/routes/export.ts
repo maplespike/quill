@@ -175,6 +175,29 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
     );
   }
 
+  if (moduleInfo.status === 'retired') {
+    return jsonResponse(
+      buildSuccess(
+        {
+          module: moduleName,
+          records: [],
+          total: 0,
+          limit,
+          offset,
+          provenance: {
+            status: 'unavailable',
+            source_count: 0,
+            fetched_at: new Date().toISOString(),
+            errors: ['Module is retired and is not ingested.'],
+            module: moduleName,
+            module_status: 'retired',
+          },
+        },
+        ctx,
+      ),
+    );
+  }
+
   const fetchedAt = new Date().toISOString();
   const errors: string[] = [];
   let rawRecords: unknown[] = [];

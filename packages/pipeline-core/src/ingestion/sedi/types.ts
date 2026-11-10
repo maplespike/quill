@@ -4,9 +4,8 @@
  * Types for insider transaction data from the Canadian SEDI
  * (System for Electronic Disclosure by Insiders) and SEDAR+.
  *
- * Source:
- *   SEDI:   https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+: https://www.sedarplus.ca
+ * Automated access is retired. SEDI terms of use prohibit robots, spiders,
+ * and other automatic devices. These types describe stored rows only.
  *
  * The canonical InsiderTransaction interface is defined in
  * ../corporate/types.ts and reused here. This module adds

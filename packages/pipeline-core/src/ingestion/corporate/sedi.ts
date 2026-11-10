@@ -1,26 +1,19 @@
 /**
- * SEDI Insider Trading Scraper — Quill
+ * SEDI insider-transaction helpers — Quill
  *
- * Fetches insider transaction reports from the Canadian SEDI (System for
- * Electronic Disclosure by Insiders) website at https://www.sedi.ca/.
+ * Automated access is retired. SEDI terms of use prohibit robots, spiders,
+ * and any other automatic device or process that monitors or copies pages.
+ * These functions do not fetch. Stored rows stay in the database.
  *
- * SEDI is the Canadian equivalent of the US SEC's EDGAR for insider
- * trading reports. All public company insiders (directors, officers,
- * 10% holders) must file within 10 days of any trade.
- *
- * Pipeline:
- *   1. Search SEDI for recent insider transactions
- *   2. Parse HTML results tables
- *   3. Normalize to InsiderTransaction schema
- *   4. Persist to database (or return structured data)
+ * HTML parsers remain so existing fixtures can still be read offline.
  */
 
-import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
-import { CORPORATE_SOURCES } from './constants.js';
-import type { HttpResponse } from '../../utils/http.js';
 import type { InsiderTransaction, CorporateIngestionResult } from './types.js';
 import type { D1Database } from '../committees/db.js';
+
+const SEDI_AUTOMATED_ACCESS_RETIRED =
+  'SEDI automated access is retired. SEDI terms of use prohibit robots, spiders, and other automatic devices.';
 
 
 export class SEDIFetchError extends Error {
@@ -34,36 +27,6 @@ export class SEDIFetchError extends Error {
   }
 }
 
-
-const DEFAULT_HEADERS = {
-  'User-Agent': 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-} as const;
-
-
-/**
- * Fetch raw HTML from a URL.
- */
-async function fetchHtml(
-  url: string,
-  options: { timeoutMs?: number } = {},
-): Promise<string> {
-  const resp: HttpResponse = await httpGet(url, {
-    headers: { ...DEFAULT_HEADERS as Record<string, string> },
-    timeoutMs: options.timeoutMs ?? 30_000,
-  });
-
-  const blocked = sediUnreachableReason({ statusCode: resp.statusCode, html: resp.body });
-  if (resp.statusCode >= 400 || resp.statusCode === 0 || blocked) {
-    throw new SEDIFetchError(
-      blocked ?? `HTTP ${resp.statusCode} fetching ${url}`,
-      resp.statusCode,
-      url,
-    );
-  }
-
-  return resp.body;
-}
 
 /**
  * Why a SEDI response cannot be parsed as insider filings.
@@ -98,26 +61,9 @@ export function sediUnreachableReason(input: {
  * simply unreachable.
  */
 export async function searchSEDI(
-  query: string,
+  _query: string,
 ): Promise<Partial<InsiderTransaction>[]> {
-  const searchUrl = `${CORPORATE_SOURCES.SEDI.SEARCH}?query=${encodeURIComponent(query)}`;
-  const html = await fetchHtml(searchUrl);
-
-  const wall = sediUnreachableReason({ html });
-  if (wall) {
-    throw new SEDIFetchError(wall, undefined, searchUrl);
-  }
-
-  const rows = parseSEDITable(html, searchUrl);
-  if (rows.length === 0) {
-    throw new SEDIFetchError(
-      'SEDI public search returned no insider-transaction table — ' +
-        'the public search path is gone and no machine-readable feed replaced it',
-      undefined,
-      searchUrl,
-    );
-  }
-  return rows;
+  throw new SEDIFetchError(SEDI_AUTOMATED_ACCESS_RETIRED);
 }
 
 
@@ -293,74 +239,8 @@ export async function ingestInsiderTransactions(
   };
 
   const log = options.onProgress ?? (() => {});
-
-  try {
-    log('[SEDI] Fetching insider transactions...');
-
-    // Fetch the SEDI homepage/search for recent transactions
-    const searchQuery = options.query ?? 'recent';
-    const searchResults = await searchSEDI(searchQuery);
-    result.recordsFound = searchResults.length;
-    log(`[SEDI] Found ${searchResults.length} raw transaction records`);
-
-    if (searchResults.length === 0) {
-      log('[SEDI] No transactions found.');
-      result.durationMs = Date.now() - startTime;
-      return result;
-    }
-
-    // Normalize records
-    const transactions: InsiderTransaction[] = [];
-    for (const partial of searchResults) {
-      const normalized = await normalizeSEDIRecord(partial, CORPORATE_SOURCES.SEDI.BASE);
-      if (normalized) {
-        transactions.push(normalized);
-      }
-    }
-
-    log(`[SEDI] Normalized ${transactions.length} insider transactions`);
-
-    // Apply limit
-    const limited = options.limit ? transactions.slice(0, options.limit) : transactions;
-    result.recordsFound = limited.length;
-
-    // Persist or return
-    if (db) {
-      let ingested = 0;
-      for (const tx of limited) {
-        try {
-          await db.prepare(`
-            INSERT OR REPLACE INTO insider_transactions
-              (id, insider_name, insider_relation, issuer_name, issuer_ticker,
-               transaction_date, filing_date, transaction_type, security_type,
-               number_of_units, unit_price, total_value, currency,
-               ownership_after, source_url, ingested_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            tx.id, tx.insiderName, tx.insiderRelation, tx.issuerName, tx.issuerTicker,
-            tx.transactionDate, tx.filingDate, tx.transactionType, tx.securityType,
-            tx.numberOfUnits, tx.unitPrice, tx.totalValue, tx.currency,
-            tx.ownershipAfter, tx.sourceUrl, tx.ingestedAt,
-          ).run();
-          ingested++;
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          result.errors.push(`Insert ${tx.id}: ${msg}`);
-        }
-      }
-      result.recordsIngested = ingested;
-      log(`[SEDI] Persisted ${ingested} insider transactions`);
-    } else {
-      result.recordsIngested = limited.length;
-      result.records = limited;
-      log(`[SEDI] Dry-run — ${limited.length} transactions available`);
-    }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    result.errors.push(msg);
-    log(`[SEDI] ERROR: ${msg}`);
-  }
-
+  log(SEDI_AUTOMATED_ACCESS_RETIRED);
+  result.skipReason = SEDI_AUTOMATED_ACCESS_RETIRED;
   result.durationMs = Date.now() - startTime;
   return result;
 }

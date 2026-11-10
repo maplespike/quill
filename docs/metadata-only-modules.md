@@ -61,7 +61,7 @@ status: active
 | Module | Lines | Files | Domain Coverage |
 |--------|-------|-------|-----------------|
 | agriculture | 1,047 | 4 | AAFC, CFIA, Grain Commission, Dairy, Farm Credit |
-| corporate | 2,843 | 11 | Lobbying, Procurement, SEDI, Corporations, Statements |
+| corporate | 2,843 | 11 | Lobbying, Procurement, Corporations, Statements. SEDI ingest is retired. |
 | criminal-justice | 2,312 | 7 | CSC, Parole, RCMP, PPSC |
 | culture | 742 | 3 | |
 | education-research | 2,781 | 7 | CFI, CRC, Student Loans, Tri-Council |

@@ -32,7 +32,7 @@ The site footer and the `/data-sources` page on the portal surface the statement
 | International organisations | UN, OECD, World Bank, IMF, WHO | [UN terms](https://www.un.org/en/about-us/terms-of-use), [OECD terms](https://www.oecd.org/en/about/terms-conditions.html), [World Bank dataset terms](https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets) | Follow the organization's terms for attribution | Independent terms — review per dataset |
 | News media (RSS) | CBC, Postmedia, regional outlets | Publisher site terms, e.g. the [CBC terms of use](https://www.cbc.ca/terms-of-use) | Feeds are used for discovery and headline indexing; no full-text republication without a licence | RSS availability is not a content licence |
 | Think tanks & NGOs (RSS) | 31+ think-tank and NGO feeds | Publisher site terms | RSS availability is not a content licence | Review per publisher |
-| Securities & filings | SEDAR+, SEDI, provincial securities regulators | Regulator terms | Issuer and third-party copyrights possible | Review automated use |
+| Securities & filings | SEDAR+, SEDI, provincial securities regulators | Regulator terms | Issuer and third-party copyrights possible | SEDI automated access is prohibited. Quill does not fetch SEDI. |
 
 ## Required notices (full wording)
 

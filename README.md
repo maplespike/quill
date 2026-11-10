@@ -37,7 +37,7 @@ MapleSpike searches, ingests, verifies, and surfaces **207 data modules** from C
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
 - **Parliament & committees**: House and Senate committees, Hansard, Canada Gazette, LEGISinfo
 - **Regulatory & oversight**: OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC, Privacy Commissioner, Information Commissioner, Official Languages, CHRC, OSFI, FCAC, FINTRAC, CDIC
-- **Corporate & influence**: Lobbying registry, procurement, SEDI insider trades, SEDAR+ filings, corporations Canada, 31 NGO/think tank RSS feeds, WEF narrative tracking
+- **Corporate & influence**: Lobbying registry, procurement, SEDAR+ filings, corporations Canada, 31 NGO/think tank RSS feeds, WEF narrative tracking. SEDI insider filings are not ingested. SEDI terms of use prohibit automated access.
 - **Provincial**: All 13 legislatures, 13 CKAN portals, 273 regulators across 21 categories (securities, law societies, police SIU, engineering, medical, teaching, etc.)
 - **Municipal**: 19 cities with direct open data fetchers, 3,490+ via provincial CKAN federation, regional authorities (Peel, York, Durham, Metro Vancouver, CRD)
 - **Justice & legal**: CanLII case law, A2AJ 116K+ decisions, Justice Canada legislation XML, federal tribunals, Ontario e-Laws, BC Laws

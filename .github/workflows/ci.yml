@@ -262,6 +262,11 @@ jobs:
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 
+      # SEDI terms of use prohibit automated access. Fail if a schedule,
+      # ingest path, or health check names that host again. Pure Node.
+      - name: SEDI automated-access gate
+        run: node scripts/gates/check-no-sedi-access.mjs && node --test scripts/test-no-sedi-access.mjs
+
       # Gate A6-LICENCE (#1044): every manifest, source header, package licence
       # copy, and the Python/Rust manifests must agree on AGPL-3.0-only, and the
       # NOTICE must carry the OGL/Crown/parliamentary statements. This is the

@@ -91,7 +91,7 @@ The `pipeline-core` package contains 203 ingestion directories, each implementin
 - **Federal sources**: IRCC immigration, StatCan WDS (CPI/GDP/labour/population/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI requests, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
 - **Parliamentary sources**: House and Senate committee evidence via XML, Hansard transcripts, Canada Gazette RSS feeds, LEGISinfo bills
 - **Regulatory bodies**: OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC, Privacy Commissioner, Information Commissioner, Official Languages, CHRC, OSFI, FCAC, FINTRAC, CDIC
-- **Corporate tracking**: Lobbying registry (CKAN CSV), procurement notices, SEDI insider trades, SEDAR+ filings, Corporations Canada, 31 NGO/think tank RSS feeds, WEF narrative tracking
+- **Corporate tracking**: Lobbying registry (CKAN CSV), procurement notices, SEDAR+ filings, Corporations Canada, 31 NGO/think tank RSS feeds, WEF narrative tracking. SEDI insider filings are not ingested.
 - **Provincial data**: All 13 provincial legislatures, 13 CKAN portals, 273 regulators across 21 categories (securities commissions, law societies, police SIU, engineering regulators, medical boards, teaching colleges)
 - **Municipal data**: 19 cities with direct open data fetchers, 3,490+ municipalities via provincial CKAN federation, regional authorities (Peel, York, Durham, Metro Vancouver, CRD)
 - **Legal data**: CanLII case law API, A2AJ open corpus (116K+ decisions), Justice Canada legislation XML, federal tribunals, Ontario e-Laws, BC Laws
@@ -312,7 +312,7 @@ MapleSpike consumes data from over 1,240 unique external endpoints across Canadi
 ### Corporate and Influence Tracking
 
 - **Lobbying Registry** (`ocl-calbon.aciss-crdd.gc.ca`): All federal lobbying communications since 1996 via CKAN CSV
-- **SEDI**: System for Electronic Disclosure by Insiders (insider trading)
+- **SEDI**: Retired. Terms of use prohibit automated access. Stored insider rows stay. Quill does not fetch this source.
 - **SEDAR+**: Corporate filings and public company disclosures
 - **Corporations Canada**: Federal corporation registry
 - **NGO/Think Tank Feeds**: 31 RSS feeds tracking publications and statements

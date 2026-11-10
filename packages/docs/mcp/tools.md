@@ -126,7 +126,7 @@ This document catalogs all 135 MCP tools available in the MapleSpike server. Eac
 
 | Tool | Description | Required Parameters | Optional Parameters | Data Source |
 |------|-------------|---------------------|---------------------|-------------|
-| `search_corporate` | Search corporate data (lobbying, procurement, SEDI). | query | dataset, limit | Multiple federal sources |
+| `search_corporate` | Search corporate data (lobbying, procurement, executive statements). | query | dataset, limit | Multiple federal sources |
 | `search_corporate_filings` | Search corporate filings (SEDRAR+). | query | limit | SEDAR+ |
 | `search_sedi` | Search SEDI (System for Electronic Disclosure by Insiders) data. | query | limit | SEDAR+ |
 | `search_influence` | Search influence tracking records including international organizations, NGOs, think tanks, and consultancies operating in Canada. Traces government funding flows, CRA charity status, grants data, and organizational connections. | query | category, limit | CKAN (influence data) |
@@ -360,7 +360,7 @@ This document catalogs all 135 MCP tools available in the MapleSpike server. Eac
 - **Open Canada CKAN** (ouvert.canada.ca) - Federal open data portal
 - **GIC Infobase** (appointment-canada.gc.ca) - Governor-in-Council appointments
 - **CIPO** (ised-isde.canada.ca) - Patents, trademarks
-- **SEDAR+** (sedarplus.ca) - Corporate filings, insider trading (SEDI)
+- **SEDAR+** (sedarplus.ca) - Corporate filings. SEDI insider filings are not ingested.
 - **CanLII** (canlii.org) - Court decisions
 - **Health Canada APIs** - Health data, drug approvals
 

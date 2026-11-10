@@ -42,7 +42,7 @@ Status: active
 | public-accounts | Federal | Low | 1d | 59 lines |
 | media-broadcasting | Federal | Low | 1d | 208 lines; CRTC module covers most |
 | a2aj | Federal | Low | 1d | 134 lines; niche legal access tool |
-| corporate-filings | Corporate | Low | 1d | 55 lines; SEDI covers insiders |
+| corporate-filings | Corporate | Low | 1d | 55 lines; SEDI insider ingest is retired |
 | federal | Federal | Low | 2d | 92 lines; vague scope |
 | municipal-long-tail | Municipal | Low | 2d | 79 lines; 100s of small municipalities |
 | ngo-influence-rss | Civil Society | Low | 1d | 298 lines; RSS stubs |

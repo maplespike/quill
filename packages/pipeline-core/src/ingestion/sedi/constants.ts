@@ -1,60 +1,37 @@
 /**
  * SEDI Constants — Quill
  *
- * URLs for the Canadian System for Electronic Disclosure by Insiders (SEDI)
- * and SEDAR+, plus a curated list of major TSX issuers and tracked
- * executive organizations.
+ * Automated access to SEDI is retired. SEDI terms of use prohibit robots,
+ * spiders, and any other automatic device or process. This file keeps the
+ * issuer list and the table DDL. It does not carry a fetch URL.
  *
- * Sources:
- *   SEDI search: https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+:      https://www.sedarplus.ca
+ * SEDAR+ remains a separate module. Do not use it as a SEDI fetch fallback.
  */
 
 import type { InsiderDataSource } from './types.js';
 
 /* ------------------------------------------------------------------ */
-/*  SEDI / SEDAR+ URLs                                                 */
+/*  Retired access                                                     */
 /* ------------------------------------------------------------------ */
 
-export const SEDI_BASE_URL = 'https://www.sedi.ca' as const;
-export const SEDI_SEARCH_URL = 'https://www.sedi.ca/sedi/SVTOCPublish?language=en' as const;
-
-/** SEDI report detail pages follow this pattern: /sedi/{language}/SVTOCDetail?id={reportId} */
-export const SEDI_REPORT_DETAIL = 'https://www.sedi.ca/sedi/SVTOCDetail' as const;
-
-/** SEDAR+ base URL for insider reports */
-export const SEDARPLUS_BASE_URL = 'https://www.sedarplus.ca' as const;
-
-/** SEDAR+ insider transaction search (if API-based endpoint exists) */
-export const SEDARPLUS_SEARCH_URL = 'https://www.sedarplus.ca/insider-transactions' as const;
+export const SEDI_AUTOMATED_ACCESS_RETIRED =
+  'SEDI automated access is retired. SEDI terms of use prohibit robots, spiders, and other automatic devices.';
 
 /**
- * Data source configurations.
- * SEDI is the primary source (HTML form-based); SEDAR+ is fallback.
+ * Source labels only. SEDI has no fetch URL. Do not add one.
  */
 export const INSIDER_SOURCES: Record<InsiderDataSource, { baseUrl: string; searchUrl: string; label: string }> = {
   sedi: {
-    baseUrl: SEDI_BASE_URL,
-    searchUrl: SEDI_SEARCH_URL,
-    label: 'SEDI — System for Electronic Disclosure by Insiders',
+    baseUrl: '',
+    searchUrl: '',
+    label: 'SEDI — automated access retired',
   },
   sedarplus: {
-    baseUrl: SEDARPLUS_BASE_URL,
-    searchUrl: SEDARPLUS_SEARCH_URL,
-    label: 'SEDAR+ — Insider Reports',
+    baseUrl: '',
+    searchUrl: '',
+    label: 'SEDAR+ — not used as a SEDI fetch fallback',
   },
 };
-
-/* ------------------------------------------------------------------ */
-/*  Default HTTP headers for SEDI requests                             */
-/* ------------------------------------------------------------------ */
-
-export const SEDI_DEFAULT_HEADERS = {
-  'User-Agent': 'Quill/0.1 (civic-tech; mailto:hello@maplespike.ca)',
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en-CA,en;q=0.9',
-  'Content-Type': 'application/x-www-form-urlencoded',
-} as const;
 
 /* ------------------------------------------------------------------ */
 /*  Major Canadian Issuers (TSX)                                       */
