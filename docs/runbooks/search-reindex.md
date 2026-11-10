@@ -109,6 +109,8 @@ kubectl -n maplespike exec deploy/quill-api -- \
   node --input-type=module -e 'const r = await fetch("http://quill-search:8083/health"); console.log(await r.text())'
 ```
 
+That call uses TCP 8083. `quill-allow-intra-namespace` allows ingress on 8083 from pods in the namespace, and the cluster-service egress rule allows the same port on the service CIDR. The public edge policy does not include 8083. A timeout on this check means that allow is missing.
+
 The `docs` value must match `quill-meta.json`.
 
 ### The subdirectory is missing, has no sidecar, or reports 30 docs

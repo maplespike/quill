@@ -9,7 +9,11 @@
 - [x] 2.1 Make `search-backup.sh` explain a missing sidecar and write no archive
 - [x] 2.2 Add `docs/runbooks/search-reindex.md`
 
-## 3. Tests
+## 3. Network policy
 
-- [x] 3.1 Lib tests for the startup check and the sidecar write
-- [x] 3.2 Node test for the backup refusal
+- [x] 3.1 Allow TCP 8083 on intra-namespace ingress and cluster-service egress, not on the public edge
+
+## 4. Tests
+
+- [x] 4.1 Lib tests for the startup check and the sidecar write
+- [x] 4.2 Node test for the backup refusal

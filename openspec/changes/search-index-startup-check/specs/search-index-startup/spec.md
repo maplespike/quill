@@ -26,6 +26,16 @@ When serve is given a corpus and the current index is unusable, the process MUST
 - **THEN** the directory contains `quill-meta.json` with `docs` equal to 3
 - **AND** startup reports a rebuild
 
+### Requirement: Same-namespace pods can reach search on 8083
+
+`quill-allow-intra-namespace` MUST allow TCP ingress on port 8083 from pods in the namespace, in the same port list as the other in-namespace services. The cluster-service egress rule MUST allow TCP 8083 on the service CIDR. The public edge policy MUST NOT allow port 8083.
+
+#### Scenario: Rendered production policies
+
+- **WHEN** the chart is rendered with `charts/quill/values-prod.yaml`
+- **THEN** NetworkPolicy documents contain `port: 8083` exactly twice
+- **AND** `quill-allow-edge-ingress` does not list port 8083
+
 ### Requirement: The backup script explains a missing sidecar
 
 `charts/quill/files/search-backup.sh` MUST exit non-zero when `quill-meta.json` is missing. The message MUST say that no archive was written and MUST name `docs/runbooks/search-reindex.md`. The script MUST NOT create an archive in that case.
