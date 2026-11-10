@@ -1,210 +1,98 @@
 /**
- * Quill — Mock Data (routed to real pipeline-core modules)
+ * Synthetic fixtures for the API.
  *
- * Previously contained 800+ lines of hardcoded synthetic data for every
- * agent/action endpoint. All mock data has been removed. The `getMockResponse`
- * function now routes directly to pipeline-core ingestion modules via
- * `runModule()`, returning live data wrapped in the standard envelope.
+ * Every record is invented. None of it is a parliamentary, committee,
+ * or other public record. Live modules do not run on this path.
  *
- * The `_mock=true` query parameter triggers this code path — useful for
- * testing and development without caching or auth enforcement.
- *
- * @deprecated Use the real API endpoints directly (without ?_mock=true)
- *   for production access to pipeline-backed data.
+ * The fixture routes stay off until QUILL_FIXTURES=1. In production
+ * they stay off unless that variable is set.
  */
 
-import { getModule, runModule } from '@maplespike/pipeline-core';
-import { enrichCitation, buildQualityMeta } from './response.js';
-import type { CitationMeta, QualityMeta } from './response.js';
+export const FIXTURE_MARKER = 'FIXTURE' as const;
 
-/* ------------------------------------------------------------------ */
-/*  Agent → Pipeline Module Name Mapping                               */
-/* ------------------------------------------------------------------ */
+export const FIXTURE_NOTICE =
+  'These routes serve synthetic fixtures. Every record is fake. They are not parliamentary or committee records.';
 
-const AGENT_MODULE_MAP: Record<string, string> = {
-  committees: 'committees',
-  immigration: 'immigration',
-  corporate: 'corporate',
-  influence: 'lobbying',
-  regulations: 'gazette',
-  courts: 'canlii',
-  oversight: 'oversight',
-  'criminal-justice': 'criminal-justice',
-  indigenous: 'indigenous-relations',
-  defence: 'defence',
-  municipal: 'municipal',
-  transport: 'transport-infrastructure',
-  realtime: 'real-time-feeds',
-  media: 'crtc',
-  'bank-of-canada': 'statcan',
-  education: 'education-research',
-  'cra-charity': 'cra-charity',
-  'provincial-regulators': 'regulatory-authorities',
-  legislation: 'legislation',
-  'goc-spending': 'goc-spending',
-  a2aj: 'a2aj',
-  'social-programs': 'federal',
-  sedi: 'opencorporates',
-  unions: 'labour',
-  universities: 'universities',
-  crtc: 'crtc',
-  'real-time-feeds': 'real-time-feeds',
-  'indigenous-relations': 'indigenous-relations',
-  data: 'statcan',
-  energy: 'nrcan',
-  'real-estate': 'real-estate',
-  'financial-regulation': 'financial-regulation',
-  'municipal-long-tail': 'municipal-long-tail',
-  'immigration-refugee': 'immigration',
-};
-
-/**
- * Resolve a pipeline-core module name from an agent slug.
- * Returns `undefined` if no mapping exists.
- */
-function resolveModule(agent: string): string | undefined {
-  return AGENT_MODULE_MAP[agent];
+export interface SyntheticFixture {
+  id: string;
+  synthetic: true;
+  marker: typeof FIXTURE_MARKER;
+  kind: string;
+  title: string;
+  actor: string;
+  body: string;
 }
 
-function countResults(result: unknown): number {
-  if (Array.isArray(result)) return result.length;
-  return result === null || result === undefined ? 0 : 1;
-}
+export const SYNTHETIC_FIXTURES: readonly SyntheticFixture[] = [
+  {
+    id: 'fixture-committee-001',
+    synthetic: true,
+    marker: FIXTURE_MARKER,
+    kind: 'committee-sitting',
+    title: 'Fixture Committee on Sample Widgets',
+    actor: 'Alex Exampleton',
+    body: 'Synthetic sitting of the Fixture Committee. This is not a parliamentary record.',
+  },
+  {
+    id: 'fixture-person-001',
+    synthetic: true,
+    marker: FIXTURE_MARKER,
+    kind: 'person',
+    title: 'Sample person record',
+    actor: 'Blair Fixture',
+    body: 'Invented person used to show the fixture shape. Not a member of any legislature.',
+  },
+  {
+    id: 'fixture-org-001',
+    synthetic: true,
+    marker: FIXTURE_MARKER,
+    kind: 'organization',
+    title: 'Example Borough Widget Collective',
+    actor: 'Casey Sampleton',
+    body: 'Invented organization in Fixture Borough. Not a registered company or lobbyist.',
+  },
+  {
+    id: 'fixture-regulation-001',
+    synthetic: true,
+    marker: FIXTURE_MARKER,
+    kind: 'regulation',
+    title: 'Fixture Rule on Sample Widgets F-000',
+    actor: 'Fixture Borough Council',
+    body: 'Invented rule text. It cites no statute and has no legal effect.',
+  },
+  {
+    id: 'fixture-grant-001',
+    synthetic: true,
+    marker: FIXTURE_MARKER,
+    kind: 'grant',
+    title: 'Fixture Grant for Sample Widgets',
+    actor: 'Exampleton Research Desk',
+    body: 'Invented payment of 0 fixture-credits. Not a public account entry.',
+  },
+];
 
-/* ------------------------------------------------------------------ */
-/*  getMockResponse — calls runModule() on the real pipeline           */
-/* ------------------------------------------------------------------ */
+const ENABLED = new Set(['1', 'true', 'yes']);
 
 /**
- * Generate a full MapleSpike response envelope by running a real
- * pipeline-core ingestion module for the given agent/action pair.
- *
- * The `_mock=true` query parameter triggers this code path. Instead of
- * returning hardcoded fake data, this routes to `runModule()` which
- * dynamically imports the module and executes its main ingest function.
- *
- * @param agent   Agent slug (e.g. "committees", "courts")
- * @param action  Action name (e.g. "list", "search")
- * @param ctx     Optional request context (requestId, startTime)
- * @param args    Additional arguments forwarded to the module's ingest function
- *
- * @deprecated Use the real API endpoints instead of ?_mock=true.
+ * Fixture routes are off unless QUILL_FIXTURES is 1, true, or yes.
+ * NODE_ENV=production does not turn them on by itself.
  */
-export async function getMockResponse(
-  agent: string,
-  action: string,
-  ctx?: { requestId?: string; startTime?: number },
-  ...args: unknown[]
-): Promise<{
-  success: boolean;
-  data: Record<string, unknown> | null;
-  meta: Record<string, unknown>;
-  quality: QualityMeta;
-  citation: CitationMeta;
-}> {
-  const moduleName = resolveModule(agent);
+export function fixturesEnabled(env: Record<string, string | undefined>): boolean {
+  const flag = (env.QUILL_FIXTURES ?? '').trim().toLowerCase();
+  return ENABLED.has(flag);
+}
 
-  const mockCtx = {
-    tenant: {
-      id: 'dev',
-      name: 'Dev User',
-      emailVerified: true,
-      tier: 'pro' as const,
-      isActive: true,
-      journalismMode: false,
-    },
-    requestId: ctx?.requestId || 'mock-' + crypto.randomUUID().slice(0, 12),
-    startTime: ctx?.startTime || Date.now(),
-  };
+export function fixtureById(id: string): SyntheticFixture | undefined {
+  return SYNTHETIC_FIXTURES.find((row) => row.id === id);
+}
 
-  let data: Record<string, unknown>;
-  let citation: CitationMeta;
-
-  if (moduleName) {
-    const mod = getModule(moduleName);
-    try {
-      const result = await runModule(moduleName, ...args);
-      data = {
-        results: Array.isArray(result) ? result : [result],
-        total: countResults(result),
-        module: moduleName,
-        action,
-        _note: 'Live data from pipeline-core module — use real API endpoints for production',
-      };
-
-      citation = enrichCitation({
-        source_name: `Quill — ${mod?.name ?? moduleName}`,
-        source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
-        retrieved_at: null,
-        data_hash: '',
-        license: 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
-        license_basis: 'no-publisher-declaration',
-        update_frequency: mod?.updateFrequency ?? 'daily',
-        original_format: 'JSON',
-      });
-    } catch (err) {
-      data = {
-        results: [],
-        total: 0,
-        module: moduleName,
-        action,
-        error:
-          err instanceof Error
-            ? err.message
-            : String(err),
-        _note:
-          'Module execution failed — upstream may be unreachable or the module may require a database. Use the real API endpoints for production.',
-      };
-
-      citation = enrichCitation({
-        source_name: `Quill — ${moduleName}`,
-        source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
-        retrieved_at: null,
-        data_hash: '',
-        license: 'No publisher license declaration was supplied for this response. Quill grants no reuse rights; consult the original source terms.',
-        license_basis: 'no-publisher-declaration',
-        update_frequency: 'unknown',
-        original_format: 'JSON',
-      });
+export function assertFixturesAreSynthetic(rows: readonly SyntheticFixture[] = SYNTHETIC_FIXTURES): void {
+  for (const row of rows) {
+    if (row.synthetic !== true) {
+      throw new Error(`Fixture ${row.id} is missing synthetic: true`);
     }
-  } else {
-    data = {
-      results: [],
-      total: 0,
-      message: `No pipeline module registered for "${agent}/${action}".`,
-      _note:
-        'Available modules can be discovered via pipeline-core registry. Use the real API endpoints for production.',
-    };
-
-    citation = enrichCitation({
-      source_name: 'Quill Data',
-      source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
-      retrieved_at: new Date().toISOString(),
-      data_hash: '',
-      license: 'https://open.canada.ca/en/open-government-licence-canada',
-      update_frequency: 'daily',
-      original_format: 'JSON',
-    });
+    if (row.marker !== FIXTURE_MARKER) {
+      throw new Error(`Fixture ${row.id} is missing the FIXTURE marker`);
+    }
   }
-
-  const quality: QualityMeta = buildQualityMeta(mockCtx);
-
-  return {
-    success: true,
-    data,
-    meta: {
-      requestId: mockCtx.requestId,
-      timestamp: new Date().toISOString(),
-      version: '0.1.0',
-      usage: { periodCalls: 0, periodLimit: 1000, tier: 'pro' },
-      agent,
-      action,
-      authMethod: 'api-key',
-      creditsCharged: 0,
-      cacheStatus: 'mock',
-      durationMs: 0,
-    },
-    quality,
-    citation,
-  };
 }

@@ -186,6 +186,10 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   // banner reads it before sign-in, so the Free boundary must not 402 it
   // (verified live: without this entry the route answered UPGRADE_REQUIRED).
   '/v1/upstream/status',
+  // Synthetic fixtures. The handler stays dark unless QUILL_FIXTURES=1,
+  // including in production. The records are invented, so the Free
+  // boundary must not hide the off switch behind a 402.
+  '/v1/fixtures',
   '/v1/openapi',
   // AI-discovery docs (llms.txt / llms-full.txt) — same class as openapi.
   '/v1/llms',
