@@ -369,6 +369,11 @@ jobs:
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
 
+      # Changeset entries are transient release notes. The docs-staleness
+      # walker must not file review issues for `.changeset/*.md` (#958, #1118).
+      - name: Docs staleness walker skip list
+        run: node --test scripts/test-docs-staleness.mjs
+
       - name: Fork runner policy
         run: node scripts/gates/check-fork-runner-policy.mjs
 
