@@ -8,9 +8,10 @@
  * could not tell what actually applied. This test fails the build if that drift
  * comes back.
  *
- * It checks manifests, per-package licence copies, source headers, the Python and
- * Rust manifests, the notices that the repository must publish, and that no
- * personal address is committed to a public file.
+ * It checks manifests, per-package licence copies, source headers (`.mts` and
+ * shebang scripts included), the Python and Rust manifests, the notices that
+ * the repository must publish, and that no personal address is committed to a
+ * public file.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -21,7 +22,10 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const LICENCE = 'AGPL-3.0-only';
-const SOURCE_EXT = new Set(['.ts', '.tsx', '.js', '.mjs', '.astro', '.py', '.rs']);
+const SOURCE_EXT = new Set(['.ts', '.tsx', '.js', '.mjs', '.mts', '.astro', '.py', '.rs']);
+// Shebang scripts with no extension, or a shell extension, were outside SOURCE_EXT.
+// The 2026-11 audit found two stale headers there. Scan them when they start with #!.
+const SHEBANG_EXT = new Set(['', '.sh', '.bash']);
 // Vendored third-party trees keep their own licence and are exempt.
 const EXEMPT_PREFIXES = ['.agents/'];
 // Identifiers the tree used before the 2026-10-24 decision. Only BLOCKED_BY_FLEET_GATE
@@ -111,13 +115,17 @@ test('every first-party source header names AGPL-3.0-only', () => {
   const stillExempt = new Set();
   for (const rel of gitTrackedFiles()) {
     if (EXEMPT_PREFIXES.some(prefix => rel.startsWith(prefix))) continue;
-    if (!SOURCE_EXT.has(path.extname(rel))) continue;
+    const ext = path.extname(rel);
+    const sourceFile = SOURCE_EXT.has(ext);
+    const shebangCandidate = SHEBANG_EXT.has(ext);
+    if (!sourceFile && !shebangCandidate) continue;
     let text;
     try {
       text = readFileSync(path.join(ROOT, rel), 'utf8');
     } catch {
       continue; // deleted in the index relative to the working tree
     }
+    if (!sourceFile && !text.startsWith('#!')) continue;
     // Only the leading comment block counts: a header, not a string literal in a
     // test fixture that deliberately embeds an identifier.
     for (const line of text.split(/\r?\n/, 10)) {
