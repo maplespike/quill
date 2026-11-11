@@ -14,7 +14,7 @@ spec:
   - name: http
     port: {{ .Values.api.port }}
     targetPort: http
-    nodePort: 31283
+    nodePort: {{ .Values.api.nodePort | default 31283 }}
   selector:
     app: quill-api
 ---
@@ -48,7 +48,7 @@ spec:
   - name: http
     port: {{ .Values.mcp.port }}
     targetPort: http
-    nodePort: 31745
+    nodePort: {{ .Values.mcp.nodePort | default 31745 }}
   selector:
     app: quill-mcp
 ---
