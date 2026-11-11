@@ -34,7 +34,7 @@ The research packet is evidence only. It is not fixture data and not an enableme
 - Return a reason code for every rejection. Do not return the draft.
 - Ignore `files13fManager` in the admission predicate. Tests cover both values and require the same decision.
 - Keep `liveIngest()` as a throw. The backoff helper accepts an injected transport and is not called by live ingest.
-- Treat secondary storage as an explicit attach list. The constructor attaches nothing.
+- The default constructor attaches no secondary store. A caller who passes stand-ins must also pass `requiredStoreIds`, and those ids must match the stand-ins exactly. That match is an in-process contract. It is not an externally verified production manifest. `productionStoreManifestVerified()` stays false.
 
 ## Risks / Trade-offs
 

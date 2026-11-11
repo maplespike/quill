@@ -229,7 +229,7 @@
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepare": "tsc -b",
-    "test": "tsx --test \"src/**/__tests__/*.test.ts\" \"src/ingestion/provincial-lobbying.test.ts\"",
+    "test": "tsc -p tsconfig.schedule-13dg-tests.json --pretty false && tsx --test \"src/**/__tests__/*.test.ts\" \"src/ingestion/provincial-lobbying.test.ts\"",
     "test:integration": "tsx --test src/ingestion/__integration__/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
     "heartbeat": "node scripts/push-heartbeat.mjs",

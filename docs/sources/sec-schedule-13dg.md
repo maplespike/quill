@@ -46,9 +46,9 @@ Raw XML lives in the parse call. It is not written to the log, the metric map, o
 
 Operational logs store the time, the reason code, and the source id `sec-schedule-13dg`. Rows at or past 7 days are deleted from that list. The deletion test covers this list.
 
-The runtime calls the metadata writer with future enablement cleared set to false. That write is refused. A separate `synthetic-contract` retention mode is explicit, in-process, and does not clear a gate. In that mode a record or tombstone at or past 365 days is deleted. Logs are deleted at or past 7 days on each runtime call.
+The runtime calls the metadata writer with future enablement cleared set to false. That write is refused. A separate `synthetic-contract` retention mode is explicit, in-process, and does not clear a gate. In that mode a record or a complete tombstone at or past 365 days is deleted. An incomplete scrub tombstone stays until a later scrub reads the copies back as gone, and serve stays blocked while it remains. Logs are deleted at or past 7 days. The default clock is `Date.now`.
 
-Secondary stores are a closed list passed at construction. The default list is empty. A late or duplicate enrollment is refused. A missing or unverified store blocks ingest and serve. Scrub deletes every attached store and reads it back. If one delete throws, the others still run, and the tombstone says `incomplete`. This does not cover SQLite, Redis, a search index, an export, or a backup. Those stores do not exist for this source.
+The default constructor attaches no secondary store. A caller who passes stand-ins must also declare `requiredStoreIds`, and the ids must match exactly. That match is not an externally verified production manifest. A late enrollment is refused. Scrub deletes every attached store and reads it back. If one delete throws, the others still run, and the tombstone says `incomplete`. This does not cover SQLite, Redis, a search index, an export, or a backup. Those stores do not exist for this source.
 
 The kill switch starts engaged. It blocks synthetic ingest and serving. `unlockSyntheticEvaluation()` opens only the in-memory contract path. It does not enable `liveIngest()`, and it does not mark a gate passed. `liveIngest()` throws `live-ingest-disabled` and does not call `fetch`. Withdrawal and scrub still run while the kill switch is engaged.
 

@@ -93,7 +93,9 @@ export type LogReason =
   | 'store-incomplete'
   | 'persistence-refused'
   | 'store-unverified'
-  | 'lineage-conflict';
+  | 'lineage-conflict'
+  | 'tombstoned-accession'
+  | 'prior-scrub-incomplete';
 
 export interface OperationalLog {
   at: number;
@@ -110,7 +112,7 @@ export interface RecordLineage {
 export interface Tombstone {
   accession: string;
   hidden: true;
-  reason: 'withdrawn' | 'corrected' | 'stale' | 'conflict' | 'kill-switch';
+  reason: 'withdrawn' | 'corrected' | 'stale' | 'conflict' | 'kill-switch' | 'incomplete';
   payload: null;
   eventDateAsReported: string | null;
   filedDate: string | null;

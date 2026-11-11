@@ -50,8 +50,8 @@ export type IngestResult =
   | { status: 'blocked'; reason: 'kill-switch' | 'store-unverified' }
   | { status: 'not-persisted'; reason: 'persistence-refused' }
   | { status: 'duplicate'; reason: 'duplicate' }
-  | { status: 'conflict'; reason: 'conflict' | 'lineage-conflict' }
-  | { status: 'incomplete'; reason: 'partial-write' | 'store-incomplete'; storesRemaining: readonly string[] }
+  | { status: 'conflict'; reason: 'conflict' | 'lineage-conflict' | 'tombstoned-accession' }
+  | { status: 'incomplete'; reason: 'partial-write' | 'store-incomplete' | 'prior-scrub-incomplete'; storesRemaining: readonly string[] }
   | { status: 'admitted'; record: AdmittedSchedule13dgRecord; persisted: true };
 
 export interface SyntheticUnlock {
@@ -68,6 +68,8 @@ export interface Schedule13dgRuntime {
   liveIngestImplemented(): false;
   gatesCleared(): false;
   futureEnablementCleared(): false;
+  /** Always false. A matching stand-in list is not a production manifest. */
+  productionStoreManifestVerified(): false;
   ingestSynthetic(input: {
     xml: string;
     accession: string;
@@ -76,7 +78,7 @@ export interface Schedule13dgRuntime {
     reviewedClasses: readonly { issuerCik: string; classTitleAsFiled: string }[];
     fetch?: { timestampUtc: string; timestampCtLabel: string | null };
   }): IngestResult;
-  serve(): { blocked: true; records: []; reason?: 'store-unverified' } | { blocked: false; records: AdmittedSchedule13dgRecord[] };
+  serve(): { blocked: true; records: []; reason?: 'store-unverified' | 'scrub-incomplete' } | { blocked: false; records: AdmittedSchedule13dgRecord[] };
   withdraw(accession: string): ScrubResult;
   correct(input: {
     priorAccession: string;
@@ -122,12 +124,18 @@ const METRIC_KEYS: readonly ExclusionReason[] = [
 export function createSchedule13dgRuntime(options: {
   clock?: () => number;
   retention?: 'refused' | 'synthetic-contract';
+  /**
+   * In-process stand-ins only. Passing stores without `requiredStoreIds`
+   * fails closed. This is not a production store manifest.
+   */
   stores?: readonly SecondaryStore[];
+  /** Exact ids the caller declares. Must match `stores` with nothing added or missing. */
+  requiredStoreIds?: readonly string[];
 } = {}): Schedule13dgRuntime {
-  const clock = options.clock ?? (() => 0);
+  const clock = options.clock ?? Date.now;
   const retention = options.retention ?? 'refused';
   const stores = [...(options.stores ?? [])];
-  const verified = manifestVerified(stores);
+  const verified = syntheticStoreContractMatches(stores, options.stores !== undefined, options.requiredStoreIds);
   let killSwitch = KILL_SWITCH_DEFAULT_ENGAGED;
   const records = new Map<string, StoredRecord>();
   const hidden = new Map<string, Tombstone>();
@@ -162,8 +170,16 @@ export function createSchedule13dgRuntime(options: {
     }
     const tombstoneTtl = retention === 'synthetic-contract' ? METADATA_TTL_MS : LOG_TTL_MS;
     for (const [accession, tomb] of [...hidden.entries()]) {
+      if (tomb.scrub === 'incomplete') continue;
       if (at - tomb.storedAt >= tombstoneTtl) hidden.delete(accession);
     }
+  }
+
+  function scrubBlocked(): boolean {
+    for (const tomb of hidden.values()) {
+      if (tomb.scrub === 'incomplete') return true;
+    }
+    return false;
   }
 
   function lineageOf(accession: string): RecordLineage | null {
@@ -235,7 +251,18 @@ export function createSchedule13dgRuntime(options: {
       } catch {
         const storesRemaining = deleteEverywhere(frozen.accession);
         records.delete(frozen.accession);
-        if (storesRemaining.length > 0) note('store-incomplete');
+        if (storesRemaining.length > 0) {
+          hidden.set(frozen.accession, toTombstone(frozen.accession, 'incomplete', {
+            eventDateAsReported: frozen.eventDateAsReported,
+            filedDate: frozen.filedDate,
+          }, {
+            scrub: 'incomplete',
+            storesRemaining,
+            storedAt: at,
+            lineage: recordLineage(frozen),
+          }));
+          note('store-incomplete');
+        }
         return { status: 'incomplete', reason: 'partial-write', storesRemaining };
       }
     }
@@ -260,6 +287,10 @@ export function createSchedule13dgRuntime(options: {
       bump(evaluation.reason);
       note(evaluation.reason);
       return evaluation;
+    }
+    if (hidden.has(evaluation.record.accession)) {
+      note('tombstoned-accession');
+      return { status: 'conflict', reason: 'tombstoned-accession' };
     }
     const canonical = canonicalRecord(evaluation.record);
     const prior = records.get(evaluation.record.accession);
@@ -303,11 +334,15 @@ export function createSchedule13dgRuntime(options: {
     futureEnablementCleared() {
       return FUTURE_ENABLEMENT_CLEARED;
     },
+    productionStoreManifestVerified() {
+      return false;
+    },
     ingestSynthetic(input) {
       return ingestEvaluated(input);
     },
     serve() {
       tick(now());
+      if (scrubBlocked()) return { blocked: true, records: [], reason: 'scrub-incomplete' };
       if (killSwitch) return { blocked: true, records: [] };
       if (!verified) return { blocked: true, records: [], reason: 'store-unverified' };
       return {
@@ -354,10 +389,15 @@ export function createSchedule13dgRuntime(options: {
         note('lineage-conflict');
         return { status: 'conflict', reason: 'lineage-conflict' };
       }
-      const saved = persist(evaluation.record, canonicalRecord(evaluation.record), at);
-      if (saved.status !== 'admitted') return saved;
-      scrubAt(input.priorAccession, 'corrected', at);
-      return saved;
+      const priorScrub = scrubAt(input.priorAccession, 'corrected', at);
+      if (priorScrub.scrub !== 'complete') {
+        return {
+          status: 'incomplete',
+          reason: 'prior-scrub-incomplete',
+          storesRemaining: priorScrub.storesRemaining,
+        };
+      }
+      return persist(evaluation.record, canonicalRecord(evaluation.record), at);
     },
     markStale(activeAccessions) {
       const at = now();
@@ -407,17 +447,34 @@ export function liveIngest(): never {
   throw new Schedule13dgDisabledError();
 }
 
-function manifestVerified(stores: readonly SecondaryStore[]): boolean {
-  const ids = new Set<string>();
+function storeShapeOk(store: SecondaryStore): boolean {
+  if (!store || typeof store.id !== 'string' || !STORE_ID.test(store.id)) return false;
+  return typeof store.write === 'function'
+    && typeof store.deletePayload === 'function'
+    && typeof store.read === 'function';
+}
+
+/**
+ * Empty default: no stores were passed and no ids were declared.
+ * Any passed stand-in list must equal `requiredStoreIds` exactly.
+ * A match is an in-process contract, not a production manifest.
+ */
+function syntheticStoreContractMatches(
+  stores: readonly SecondaryStore[],
+  storesPassed: boolean,
+  requiredStoreIds: readonly string[] | undefined,
+): boolean {
+  if (!storesPassed && (requiredStoreIds === undefined || requiredStoreIds.length === 0)) return true;
+  if (!storesPassed || requiredStoreIds === undefined) return false;
+  if (new Set(requiredStoreIds).size !== requiredStoreIds.length) return false;
+  if (stores.length !== requiredStoreIds.length) return false;
+  const declared = new Set(requiredStoreIds);
+  const seen = new Set<string>();
   for (const store of stores) {
-    if (!store || typeof store.id !== 'string' || !STORE_ID.test(store.id)) return false;
-    if (ids.has(store.id)) return false;
-    ids.add(store.id);
-    if (typeof store.write !== 'function') return false;
-    if (typeof store.deletePayload !== 'function') return false;
-    if (typeof store.read !== 'function') return false;
+    if (!storeShapeOk(store) || !declared.has(store.id) || seen.has(store.id)) return false;
+    seen.add(store.id);
   }
-  return true;
+  return seen.size === declared.size;
 }
 
 function emptyMetrics(): Record<ExclusionReason, number> {

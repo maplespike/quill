@@ -51,7 +51,7 @@ The foundation MUST key a record by issuer CIK plus the class title as filed. It
 
 ### Requirement: Retention and scrubbing
 
-Sanitized operational logs MUST store only the time, a reason code, and the source id, and MUST be deleted at the 7-day boundary. Entity metadata retention for 365 days MUST run only when future enablement is cleared. That clearance MUST default to false, and an uncleared store MUST be emptied. A correction, withdrawal, stale mark, or kill-switch engagement MUST tombstone the record and delete the payload from the in-memory store and from any attached stand-in. The foundation MUST NOT claim deletion coverage for a store it does not have.
+Sanitized operational logs MUST store only the time, a reason code, and the source id, and MUST be deleted at the 7-day boundary. The default clock is `Date.now`, so that boundary can arrive. Future enablement MUST default to false, and the production metadata writer MUST refuse while it is false. `synthetic-contract` retention is an explicit in-process mode, not an enablement clearance. In that mode, records and complete tombstones expire at 365 days. An incomplete scrub tombstone MUST stay until a later scrub reads the copies back as gone. The default constructor MUST attach no secondary store. A passed stand-in list MUST match the caller's declared `requiredStoreIds` exactly or ingest and serve MUST fail closed. That match MUST NOT be described as an externally verified production manifest. A correction, withdrawal, stale mark, or kill-switch engagement MUST tombstone the record and delete the payload from the in-memory store and from any attached stand-in. The foundation MUST NOT claim deletion coverage for a store it does not have.
 
 #### Scenario: Log boundary
 

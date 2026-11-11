@@ -53,8 +53,6 @@ const PERCENT = /^(?:100(?:\.0)?|[1-9]\d?(?:\.\d)?|0(?:\.\d)?)$/;
 const SHARES = /^(?:0|[1-9]\d{0,17})$/;
 const AMENDMENT_NO = /^(?:0|[1-9]\d{0,2})$/;
 const COUNT_TOKEN = /^(?:0|[1-9]\d{0,3})$/;
-const CUSIP_VALUE = /^[0-9]{3}[0-9A-Z]{5}[0-9]$/;
-const ISIN_VALUE = /^[A-Z]{2}[0-9A-Z]{9}[0-9]$/;
 const FETCH_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const FETCH_CT = /^\d{4}-\d{2}-\d{2} CT$/;
 
@@ -164,9 +162,13 @@ export function evaluateFiling(input: {
   const classTitles = uniqueStrings(collectKeyStrings(parsed, CLASS_TITLE_KEYS));
   if (classTitles.length !== 1) return reject('ambiguous-class');
   const classTitle = classTitles[0] ?? '';
-  if (!CLASS_TITLE.test(classTitle) || prohibitedValue(classTitle)) return reject('ambiguous-class');
+  if (!CLASS_TITLE.test(classTitle)) return reject('ambiguous-class');
+  if (prohibitedValue(classTitle)) return reject('unknown');
   const classReviewed = input.reviewedClasses.some((item) =>
-    item.issuerCik === issuerCik && item.classTitleAsFiled === classTitle && CLASS_TITLE.test(item.classTitleAsFiled),
+    item.issuerCik === issuerCik
+    && item.classTitleAsFiled === classTitle
+    && CLASS_TITLE.test(item.classTitleAsFiled)
+    && !prohibitedValue(item.classTitleAsFiled),
   );
   if (!classReviewed) return reject('ambiguous-class');
 
@@ -595,10 +597,52 @@ function isZeroToken(value: string | null): boolean {
 }
 
 function prohibitedValue(value: string): boolean {
-  const text = value.trim().toUpperCase();
-  if (CUSIP_VALUE.test(text) || ISIN_VALUE.test(text)) return true;
   const lower = value.toLowerCase();
-  return lower.includes('cusip') || lower.includes('isin') || lower.includes('<') || lower.includes('sha256');
+  if (lower.includes('cusip') || lower.includes('isin') || lower.includes('<') || lower.includes('sha256')) {
+    return true;
+  }
+  const upper = value.toUpperCase();
+  if (identifierRuns(upper).some((run) => hasCusipCandidate(run) || hasIsinCandidate(run))) return true;
+  if (SYNTHETIC_CIK.test(value) || SYNTHETIC_ACCESSION.test(value) || REVIEW_ID.test(value)) return false;
+  if (!/^[0-9A-Z]+(?:-[0-9A-Z]+)+$/i.test(value.trim())) return false;
+  const hyphenJoined = upper.replace(/-/g, '');
+  return hasCusipCandidate(hyphenJoined) || hasIsinCandidate(hyphenJoined);
+}
+
+/**
+ * A CUSIP candidate is a 9-character window in one alphanumeric run:
+ * 8 letters or digits, then a digit check character, and either all digits
+ * or at least one letter plus at least three digits. "Preferred" is nine
+ * letters and its last character is not a digit, so it is not a candidate.
+ * "Common" and "Shares" are shorter than nine characters.
+ * An ISIN candidate is a 12-character window: two letters, nine letters or
+ * digits, and a final digit, with at least one digit in the window.
+ * Hyphens are removed before a second pass so `037833-100` is still a candidate.
+ * Spaces are not removed, so class words stay separate runs.
+ */
+function identifierRuns(value: string): string[] {
+  return value.match(/[0-9A-Z]+/g) ?? [];
+}
+
+function hasCusipCandidate(run: string): boolean {
+  if (run.length < 9) return false;
+  for (let index = 0; index <= run.length - 9; index += 1) {
+    const window = run.slice(index, index + 9);
+    if (!/^[0-9A-Z]{8}[0-9]$/.test(window)) continue;
+    const digits = window.replace(/[^0-9]/g, '').length;
+    const letters = window.replace(/[^A-Z]/g, '').length;
+    if (digits === 9 || (letters >= 1 && digits >= 3)) return true;
+  }
+  return false;
+}
+
+function hasIsinCandidate(run: string): boolean {
+  if (run.length < 12) return false;
+  for (let index = 0; index <= run.length - 12; index += 1) {
+    const window = run.slice(index, index + 12);
+    if (/^[A-Z]{2}[0-9A-Z]{9}[0-9]$/.test(window) && /[0-9]/.test(window)) return true;
+  }
+  return false;
 }
 
 function retainedLeak(record: AdmittedSchedule13dgRecord): boolean {

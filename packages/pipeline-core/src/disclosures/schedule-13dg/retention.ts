@@ -108,6 +108,8 @@ const LOG_REASONS: ReadonlySet<string> = new Set<LogReason>([
   'persistence-refused',
   'store-unverified',
   'lineage-conflict',
+  'tombstoned-accession',
+  'prior-scrub-incomplete',
 ]);
 
 /** Keep a reason code only. Anything else becomes `unknown` so raw text cannot be logged. */

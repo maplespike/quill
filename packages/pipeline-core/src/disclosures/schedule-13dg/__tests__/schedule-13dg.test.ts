@@ -32,7 +32,7 @@ import {
   runBoundedAccess,
   writeMetadata,
 } from '../index.js';
-import type { AdmittedSchedule13dgRecord, ReviewedEntityEligibility, SecondaryStore } from '../index.js';
+import type { AdmittedSchedule13dgRecord, MetadataRow, ReviewedEntityEligibility, SecondaryStore } from '../index.js';
 
 const PERSON = 'SYNTHETIC NATURAL PERSON';
 const PERSON_CIK = 'SYN-CIK-PERSON-1';
@@ -199,11 +199,17 @@ function evaluate(input: Omit<Parameters<typeof evaluateFiling>[0], 'reviewedCla
   });
 }
 
-function openRuntime(options: { stores?: SecondaryStore[]; clock?: () => number } = {}) {
+function openRuntime(options: {
+  stores?: SecondaryStore[];
+  clock?: () => number;
+  requiredStoreIds?: readonly string[];
+} = {}) {
+  const stores = options.stores;
   const runtime = createSchedule13dgRuntime({
     retention: 'synthetic-contract',
     clock: options.clock ?? (() => T0),
-    stores: options.stores,
+    stores,
+    requiredStoreIds: options.requiredStoreIds ?? stores?.map((store) => store.id),
   });
   const unlock = runtime.unlockSyntheticEvaluation();
   assert.equal(unlock.gatesCleared, false);
@@ -211,11 +217,13 @@ function openRuntime(options: { stores?: SecondaryStore[]; clock?: () => number 
   assert.equal(unlock.futureEnablementCleared, false);
   const ingest = runtime.ingestSynthetic.bind(runtime);
   const correct = runtime.correct.bind(runtime);
+  type IngestInput = Parameters<typeof ingest>[0];
+  type CorrectInput = Parameters<typeof correct>[0];
   return Object.assign(runtime, {
-    ingestSynthetic(input: Parameters<typeof ingest>[0]) {
+    ingestSynthetic(input: Omit<IngestInput, 'reviewedClasses'> & { reviewedClasses?: IngestInput['reviewedClasses'] }) {
       return ingest({ ...input, reviewedClasses: input.reviewedClasses ?? REVIEWED_CLASSES });
     },
-    correct(input: Parameters<typeof correct>[0]) {
+    correct(input: Omit<CorrectInput, 'reviewedClasses'> & { reviewedClasses?: CorrectInput['reviewedClasses'] }) {
       return correct({ ...input, reviewedClasses: input.reviewedClasses ?? REVIEWED_CLASSES });
     },
   });
@@ -241,16 +249,19 @@ describe('schedule 13d/g disabled foundation', () => {
     assert.match(ENGLISH_CAVEAT, /Quill by Maplespike/);
     for (const gate of ENABLEMENT_GATES) {
       assert.equal(gate.blocksEnablement, true);
-      assert.equal(gate.status === 'green' || gate.status === 'approved', false);
+      const status: string = gate.status;
+      assert.equal(status === 'green' || status === 'approved', false);
     }
     const runtime = createSchedule13dgRuntime();
     assert.equal(runtime.killSwitchEngaged(), true);
     assert.equal(runtime.liveIngestImplemented(), false);
+    assert.equal(runtime.productionStoreManifestVerified(), false);
     assert.deepEqual(runtime.ingestSynthetic({
       xml: filingXml(),
       accession: 'SYN-ACC-1',
       filedDate: '2025-11-13',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
+      reviewedClasses: REVIEWED_CLASSES,
     }), { status: 'blocked', reason: 'kill-switch' });
     assert.deepEqual(runtime.serve(), { blocked: true, records: [] });
     assert.equal(runtime.secondaryStores().length, 0);
@@ -284,7 +295,7 @@ describe('schedule 13d/g disabled foundation', () => {
     }) as typeof fetch;
     try {
       assert.throws(() => liveIngest(), (error: unknown) => {
-        assert.ok(error instanceof Schedule13dgDisabledError);
+        if (!(error instanceof Schedule13dgDisabledError)) return false;
         assert.equal(error.message, 'live-ingest-disabled');
         return true;
       });
@@ -787,7 +798,7 @@ describe('schedule 13d/g disabled foundation', () => {
     runtime.purgeLogs(T0 + LOG_TTL_MS);
     assert.deepEqual(runtime.logs(), []);
 
-    const row = {
+    const row: MetadataRow = {
       id: 'row-1',
       storedAt: T0,
       payload: {
@@ -797,19 +808,23 @@ describe('schedule 13d/g disabled foundation', () => {
     };
     const refused = writeMetadata([], row, FUTURE_ENABLEMENT_CLEARED);
     assert.equal(refused.ok, false);
-    const rows = [row];
+    const rows: MetadataRow[] = [row];
     deleteExpiredMetadata(rows, T0 + METADATA_TTL_MS - 1, true);
     assert.equal(rows.length, 1);
     deleteExpiredMetadata(rows, T0 + METADATA_TTL_MS, true);
-    assert.deepEqual(rows, []);
+    assert.equal(rows.length, 0);
     rows.push(row);
     deleteExpiredMetadata(rows, T0, false);
-    assert.deepEqual(rows, []);
+    assert.equal(rows.length, 0);
   });
 
   it('refuses persistence until synthetic-contract retention is explicit', () => {
     const store = memoryStore();
-    const runtime = createSchedule13dgRuntime({ clock: () => T0, stores: [store] });
+    const runtime = createSchedule13dgRuntime({
+      clock: () => T0,
+      stores: [store],
+      requiredStoreIds: ['memory-stand-in'],
+    });
     runtime.unlockSyntheticEvaluation();
     const refused = runtime.ingestSynthetic({
       xml: filingXml(),
@@ -1224,6 +1239,209 @@ describe('schedule 13d/g disabled foundation', () => {
     assert.equal(JSON.stringify(logs.logs()).includes('<'), false);
     now = T0 + LOG_TTL_MS;
     assert.deepEqual(logs.logs(), []);
+  });
+
+  it('ages default Date.now retention and restores the clock', () => {
+    const original = Date.now;
+    let t = 1_700_000_000_000;
+    Date.now = () => t;
+    try {
+      const runtime = createSchedule13dgRuntime({ retention: 'synthetic-contract' });
+      runtime.unlockSyntheticEvaluation();
+      assert.equal(runtime.productionStoreManifestVerified(), false);
+      const admitted = runtime.ingestSynthetic({
+        xml: filingXml(),
+        accession: 'SYN-ACC-CLOCK',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+        reviewedClasses: REVIEWED_CLASSES,
+      });
+      assert.equal(admitted.status, 'admitted');
+      runtime.ingestSynthetic({
+        xml: filingXml({
+          persons: [{ name: PERSON, cik: PERSON_CIK, typeXml: '<typeOfReportingPerson>IN</typeOfReportingPerson>' }],
+        }),
+        accession: 'SYN-ACC-CLOCK-LOG',
+        filedDate: '2025-11-13',
+        eligibility: [],
+        reviewedClasses: REVIEWED_CLASSES,
+      });
+      t += LOG_TTL_MS - 1;
+      assert.equal(runtime.logs().some((entry) => entry.reason === 'individual'), true);
+      const kept = runtime.serve();
+      assert.equal(kept.blocked, false);
+      if (!kept.blocked) assert.equal(kept.records.length, 1);
+      t += 1;
+      assert.equal(runtime.logs().some((entry) => entry.reason === 'individual'), false);
+      t = 1_700_000_000_000 + METADATA_TTL_MS;
+      const expired = runtime.serve();
+      assert.equal(expired.blocked, false);
+      if (!expired.blocked) assert.equal(expired.records.length, 0);
+    } finally {
+      Date.now = original;
+    }
+    assert.equal(Date.now, original);
+  });
+
+  it('refuses to re-admit a tombstoned accession', () => {
+    const runtime = openRuntime();
+    runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-TOMB',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    runtime.withdraw('SYN-ACC-TOMB');
+    const again = runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-TOMB',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(again, { status: 'conflict', reason: 'tombstoned-accession' });
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) assert.equal(served.records.some((record) => record.accession === 'SYN-ACC-TOMB'), false);
+
+    runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-STALE',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    runtime.markStale([]);
+    const stale = runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-STALE',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(stale, { status: 'conflict', reason: 'tombstoned-accession' });
+  });
+
+  it('keeps an incomplete rollback retryable and blocks serve', () => {
+    const second = controlledStore('store-b', { throwWrite: true, throwDelete: false });
+    const paired = openRuntime({
+      stores: [controlledStore('store-a', { throwWrite: false, throwDelete: true }), second],
+      requiredStoreIds: ['store-a', 'store-b'],
+    });
+    const failed = paired.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-RESIDUAL',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(failed.status, 'incomplete');
+    if (failed.status === 'incomplete') {
+      assert.equal(failed.reason, 'partial-write');
+      assert.equal(failed.storesRemaining.includes('store-a'), true);
+    }
+    const blockedServe = paired.serve();
+    assert.equal(blockedServe.blocked, true);
+    if (blockedServe.blocked) assert.equal(blockedServe.reason, 'scrub-incomplete');
+    const tomb = paired.tombstones().find((item) => item.accession === 'SYN-ACC-RESIDUAL');
+    assert.equal(tomb?.scrub, 'incomplete');
+  });
+
+  it('reports an incomplete prior scrub instead of a successful correction', () => {
+    const flags = { throwWrite: false, throwDelete: false };
+    const store = controlledStore('store-a', flags);
+    const runtime = openRuntime({ stores: [store], requiredStoreIds: ['store-a'] });
+    runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-PRIOR',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    flags.throwDelete = true;
+    const corrected = runtime.correct({
+      priorAccession: 'SYN-ACC-PRIOR',
+      accession: 'SYN-ACC-NEXT',
+      xml: filingXml({ eventDate: '2026-01-15', filedInDocument: '2026-01-20' }),
+      filedDate: '2026-01-20',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(corrected.status, 'incomplete');
+    if (corrected.status === 'incomplete') assert.equal(corrected.reason, 'prior-scrub-incomplete');
+    assert.notEqual(corrected.status, 'admitted');
+    assert.equal(runtime.serve().blocked, true);
+    assert.ok(store.read('SYN-ACC-PRIOR'));
+    flags.throwDelete = false;
+    const cleaned = runtime.scrub('SYN-ACC-PRIOR', 'corrected');
+    assert.equal(cleaned.scrub, 'complete');
+    assert.equal(store.read('SYN-ACC-PRIOR'), null);
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) assert.equal(served.records.some((record) => record.accession === 'SYN-ACC-NEXT'), false);
+  });
+
+  it('rejects embedded and letter-first identifier candidates even on a reviewed class', () => {
+    const cases = ['037833100', 'G0176J109', 'Common 037833100 Shares', 'Note CA99999X9999', '037833-100'];
+    for (const classTitle of cases) {
+      const evaluation = evaluate({
+        xml: filingXml({ classTitles: [classTitle] }),
+        accession: 'SYN-ACC-ID',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+        reviewedClasses: [{ issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: classTitle }],
+      });
+      assert.equal(evaluation.status, 'rejected', classTitle);
+      assert.equal(JSON.stringify(evaluation).includes('037833100'), false);
+      assert.equal(JSON.stringify(evaluation).includes('G0176J109'), false);
+      assert.equal(JSON.stringify(evaluation).includes('CA99999X9999'), false);
+    }
+    for (const classTitle of ['Common Shares', 'Preferred Shares Series A', 'Class A Common']) {
+      const evaluation = evaluate({
+        xml: filingXml({ classTitles: [classTitle] }),
+        accession: 'SYN-ACC-WORD',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+        reviewedClasses: [{ issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: classTitle }],
+      });
+      assert.equal(evaluation.status, 'admitted', classTitle);
+    }
+  });
+
+  it('fails closed unless the declared store ids match the stand-ins exactly', () => {
+    const store = memoryStore();
+    const undeclared = createSchedule13dgRuntime({
+      clock: () => T0,
+      retention: 'synthetic-contract',
+      stores: [store],
+    });
+    undeclared.unlockSyntheticEvaluation();
+    assert.equal(undeclared.storesVerified(), false);
+    assert.equal(undeclared.productionStoreManifestVerified(), false);
+    assert.deepEqual(undeclared.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-MANIFEST',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+      reviewedClasses: REVIEWED_CLASSES,
+    }), { status: 'blocked', reason: 'store-unverified' });
+
+    const extra = controlledStore('store-b', { throwWrite: false, throwDelete: false });
+    const mismatch = createSchedule13dgRuntime({
+      clock: () => T0,
+      retention: 'synthetic-contract',
+      stores: [controlledStore('store-a', { throwWrite: false, throwDelete: false }), extra],
+      requiredStoreIds: ['store-a'],
+    });
+    mismatch.unlockSyntheticEvaluation();
+    assert.equal(mismatch.storesVerified(), false);
+    assert.equal(mismatch.productionStoreManifestVerified(), false);
+    assert.equal(mismatch.serve().blocked, true);
+
+    const exact = createSchedule13dgRuntime({
+      clock: () => T0,
+      retention: 'synthetic-contract',
+      stores: [controlledStore('store-a', { throwWrite: false, throwDelete: false })],
+      requiredStoreIds: ['store-a'],
+    });
+    exact.unlockSyntheticEvaluation();
+    assert.equal(exact.storesVerified(), true);
+    assert.equal(exact.productionStoreManifestVerified(), false);
+    assert.equal(exact.secondaryStores().length, 1);
   });
 
   it('does not import a network client, a hash function, or a retired source', () => {
