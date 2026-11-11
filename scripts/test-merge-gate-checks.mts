@@ -771,6 +771,7 @@ test('status Link pagination fetches every next page and fails closed', () => {
           GH_REPO: 'maplespike/quill',
           HEAD_SHA: 'sha1',
           READ_TOKEN: 'test-token',
+          REPO_ID: '123',
           RUNNER_TEMP: work,
           FIXTURE_PAGE1: path.join(work, 'page1'),
           FIXTURE_PAGE2: path.join(work, 'page2'),
@@ -821,6 +822,14 @@ test('status Link pagination fetches every next page and fails closed', () => {
   );
   assert.throws(
     () => run('HTTP/2.0 200 OK\nLink: <https://evil.example/statuses?page=2>; rel="next"\n\n[]\n'),
+    /outside this commit/,
+  );
+  assert.throws(
+    () => run('HTTP/2.0 200 OK\nLink: <https://api.github.com/repositories/123/commits/deadbeefdeadbeefdeadbeefdeadbeefdeadbeef/statuses?per_page=100&page=2>; rel="next"\n\n[]\n'),
+    /outside this commit/,
+  );
+  assert.throws(
+    () => run('HTTP/2.0 200 OK\nLink: <https://api.github.com/repositories/999/commits/sha1/statuses?per_page=100&page=2>; rel="next"\n\n[]\n'),
     /outside this commit/,
   );
   const loop = 'https://api.github.com/repositories/123/commits/sha1/statuses?per_page=100&page=2';

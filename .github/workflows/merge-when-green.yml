@@ -414,6 +414,11 @@ jobs:
           fi
           GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$RUNNER_TEMP/check-pages.json"
           GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}&per_page=100" > "$RUNNER_TEMP/run-pages.json"
+          REPO_ID="$(jq -r '.base.repo.id // empty' <<<"$PULL")"
+          if [[ ! "$REPO_ID" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR #${PR_NUMBER} base repository id is missing from the pulls API. The gate did not merge."
+            exit 1
+          fi
           # BEGIN status-paginate.sh
           # The statuses API returns an array. Completeness is the Link
           # rel=next chain, not a total_count and not "fewer than 100 rows".
@@ -441,7 +446,7 @@ jobs:
                 ;;
               "https://api.github.com/repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?"*)
                 ;;
-              "https://api.github.com/repositories/"[0-9]*"/commits/${HEAD_SHA}/statuses?"*)
+              "https://api.github.com/repositories/${REPO_ID}/commits/${HEAD_SHA}/statuses?"*)
                 ;;
               *)
                 echo "::error::commit status pagination Link is outside this commit. The gate did not merge."
