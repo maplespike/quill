@@ -20,6 +20,8 @@ status: active
 </p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
+>
+> **MVP acceptance:** [docs/MVP.md](./docs/MVP.md) locks the ship scope ([#790](https://github.com/maplespike/quill/issues/790)).
 
 **Status:** Active development · **License:** [`AGPL-3.0-only`](./LICENSE) · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
@@ -68,7 +70,7 @@ quill/
 │   ├── sdk-python/       # Python client library (`quill-sdk` on PyPI)
 │   ├── legal-core/       # Legal data SDK
 │   └── legislation/      # Legislation XML parser
-├── docs/                 # Architecture docs, roadmap, gap analysis
+├── docs/                 # Architecture docs, roadmap, gap analysis, MVP checklist (`docs/MVP.md`)
 ├── CONTRIBUTING.md       # Contributor guide
 ├── .hermes/              # Analysis plans and retrospectives
 ├── .sisyphus/            # Orchestration plans
