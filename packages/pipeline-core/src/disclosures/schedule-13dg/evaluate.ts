@@ -2,13 +2,16 @@
 
 import { XMLParser } from 'fast-xml-parser';
 import {
+  CLASS_TITLE,
   COVERAGE_CLAIMS,
   ENTITY_TYPE_CODE_SET,
   INDIVIDUAL_TYPE_CODE,
   OTHER_TYPE_CODE,
   PARSER_VERSION,
   REAL_EDGAR_ACCESSION,
+  REVIEW_ID,
   SYNTHETIC_ACCESSION,
+  SYNTHETIC_CIK,
 } from './constants.js';
 import type {
   AdmittedFiler,
@@ -18,7 +21,11 @@ import type {
   ReviewedEntityEligibility,
 } from './types.js';
 
-const FORBIDDEN_KEY = /cusip|isin|signature|signatory|address|street|postal|zip|exhibit|narrative|purpose|beneficiary|citizenship|comment/i;
+const KNOWN_TYPE_CODES: ReadonlySet<string> = new Set([
+  ...ENTITY_TYPE_CODE_SET,
+  INDIVIDUAL_TYPE_CODE,
+  OTHER_TYPE_CODE,
+]);
 
 const PERSON_KEYS = new Set([
   'reportingpersoninfo',
@@ -42,13 +49,27 @@ const FORM_TYPES = new Set([
   'SCHEDULE 13G/A',
 ]);
 
+const PERCENT = /^(?:100(?:\.0)?|[1-9]\d?(?:\.\d)?|0(?:\.\d)?)$/;
+const SHARES = /^(?:0|[1-9]\d{0,17})$/;
+const AMENDMENT_NO = /^(?:0|[1-9]\d{0,2})$/;
+const COUNT_TOKEN = /^(?:0|[1-9]\d{0,3})$/;
+const CUSIP_VALUE = /^[0-9]{3}[0-9A-Z]{5}[0-9]$/;
+const ISIN_VALUE = /^[A-Z]{2}[0-9A-Z]{9}[0-9]$/;
+const FETCH_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const FETCH_CT = /^\d{4}-\d{2}-\d{2} CT$/;
+
 type FormType = AdmittedSchedule13dgRecord['formType'];
 
 interface PersonDraft {
-  filerCik: string | null;
+  filerCik: string;
   codes: string[] | 'unparseable';
   reportedPercentAsFiled: string | null;
   reportedSharesAsFiled: string | null;
+}
+
+interface ReviewedClass {
+  issuerCik: string;
+  classTitleAsFiled: string;
 }
 
 const ALWAYS_ARRAY = new Set([
@@ -66,6 +87,7 @@ const ALWAYS_ARRAY = new Set([
   'amendmentno',
   'amendmentnumber',
   'reportingpersoncount',
+  'coverpagereportingpersoncount',
 ]);
 
 const xmlParser = new XMLParser({
@@ -98,17 +120,16 @@ export function evaluateFiling(input: {
   accession: string;
   filedDate: string;
   eligibility: readonly ReviewedEntityEligibility[];
+  reviewedClasses: readonly ReviewedClass[];
   fetch?: { timestampUtc: string; timestampCtLabel: string | null };
 }): Evaluation {
   if (!SYNTHETIC_ACCESSION.test(input.accession) || REAL_EDGAR_ACCESSION.test(input.accession)) {
     return reject('non-synthetic-accession');
   }
-  if (typeof input.xml !== 'string' || looksLikeNetwork(input.xml)) {
+  if (typeof input.xml !== 'string' || isBareUrl(input.xml)) {
     return reject('network-refused');
   }
-  if (!isIsoDate(input.filedDate)) {
-    return reject('unknown');
-  }
+  if (!isRealDate(input.filedDate)) return reject('unknown');
 
   let parsed: unknown;
   try {
@@ -116,73 +137,113 @@ export function evaluateFiling(input: {
   } catch {
     return reject('parse-failed');
   }
-  const tree = stripForbidden(parsed);
-  if (!tree || typeof tree !== 'object') return reject('parse-failed');
+  if (!parsed || typeof parsed !== 'object') return reject('parse-failed');
 
-  const form = readForm(tree);
+  const form = readForm(parsed);
   if (form === 'out-of-scope') return reject('out-of-scope');
   if (form === 'parse-failed') return reject('parse-failed');
 
-  const issuerCiks = uniqueStrings(collectKeyStrings(tree, new Set(['issuercik'])));
-  if (issuerCiks.length !== 1) return reject('ambiguous-issuer');
-
-  const classTitles = uniqueStrings(collectKeyStrings(tree, CLASS_TITLE_KEYS));
-  if (classTitles.length !== 1) return reject('ambiguous-class');
-
-  const eventDates = normalizeUnique(collectKeyStrings(tree, EVENT_DATE_KEYS));
-  if (eventDates === null || eventDates.length !== 1) return reject('unknown');
-
-  const documentFiled = normalizeUnique(collectKeyStrings(tree, FILED_DATE_KEYS));
-  if (documentFiled === null || documentFiled.length > 1) return reject('unknown');
-
-  const persons = collectPersons(tree);
+  const persons = collectPersons(parsed);
   if (persons === null) return reject('unknown');
-
-  const declared = collectKeyStrings(tree, new Set(['reportingpersoncount']));
-  if (declared.length > 0) {
-    const expected = uniqueStrings(declared);
-    if (expected.length !== 1 || expected[0] !== String(persons.length)) return reject('unknown');
+  const declared = readCount(parsed, 'reportingpersoncount');
+  const cover = readCount(parsed, 'coverpagereportingpersoncount');
+  if (declared === null || cover === null || declared !== cover || declared !== persons.length || declared < 1) {
+    return reject('unknown');
   }
 
   const screen = screenPersons(persons);
   if (screen !== 'entity-screen') return reject(screen);
+  if (new Set(persons.map((person) => person.filerCik)).size !== persons.length) return reject('unknown');
+
+  const issuerCiks = uniqueStrings(collectKeyStrings(parsed, new Set(['issuercik'])))
+    .filter((value) => syntheticCik(value) === value);
+  const rawIssuerCount = collectKeyStrings(parsed, new Set(['issuercik'])).length;
+  if (rawIssuerCount !== 1 || issuerCiks.length !== 1) return reject('ambiguous-issuer');
+  const issuerCik = issuerCiks[0] ?? '';
+
+  const classTitles = uniqueStrings(collectKeyStrings(parsed, CLASS_TITLE_KEYS));
+  if (classTitles.length !== 1) return reject('ambiguous-class');
+  const classTitle = classTitles[0] ?? '';
+  if (!CLASS_TITLE.test(classTitle) || prohibitedValue(classTitle)) return reject('ambiguous-class');
+  const classReviewed = input.reviewedClasses.some((item) =>
+    item.issuerCik === issuerCik && item.classTitleAsFiled === classTitle && CLASS_TITLE.test(item.classTitleAsFiled),
+  );
+  if (!classReviewed) return reject('ambiguous-class');
+
+  const eventDates = normalizeUnique(collectKeyStrings(parsed, EVENT_DATE_KEYS));
+  if (eventDates === null || eventDates.length !== 1) return reject('unknown');
+  const eventDate = eventDates[0] ?? '';
+
+  const documentFiled = normalizeUnique(collectKeyStrings(parsed, FILED_DATE_KEYS));
+  if (documentFiled === null || documentFiled.length !== 1 || documentFiled[0] !== input.filedDate) {
+    return reject('unknown');
+  }
+
+  const amendment = readAmendmentNumber(parsed);
+  if (amendment === 'invalid') return reject('unknown');
+  const isAmendment = form.endsWith('/A');
+  if (isAmendment && amendment === null) return reject('unknown');
+  if (!isAmendment && amendment !== null) return reject('unknown');
+
+  const fetchUtc = input.fetch?.timestampUtc ?? null;
+  const fetchCt = input.fetch?.timestampCtLabel ?? null;
+  if (fetchUtc !== null && !FETCH_UTC.test(fetchUtc)) return reject('unknown');
+  if (fetchCt !== null && !FETCH_CT.test(fetchCt)) return reject('unknown');
 
   const filers = admitPersons(persons, input.eligibility);
   if (typeof filers === 'string') return reject(filers);
 
-  const amendmentNumber = readAmendmentNumber(tree);
-  const isAmendment = form.endsWith('/A') || amendmentNumber !== null;
   const record: AdmittedSchedule13dgRecord = {
     source: 'sec-schedule-13dg',
     synthetic: true,
     accession: input.accession,
     formType: form,
-    amendmentNumber,
+    amendmentNumber: amendment,
     isAmendment,
     isSale: false,
     inferredTrade: null,
     positionChange: 'not-inferred',
-    issuerCik: issuerCiks[0] ?? '',
-    classTitleAsFiled: classTitles[0] ?? '',
+    issuerCik,
+    classTitleAsFiled: classTitle,
     filers,
-    eventDateAsReported: eventDates[0] ?? '',
+    eventDateAsReported: eventDate,
     filedDate: input.filedDate,
-    documentFiledDate: documentFiled.length === 1 ? documentFiled[0] ?? null : null,
+    documentFiledDate: input.filedDate,
     fetch: {
-      timestampUtc: input.fetch?.timestampUtc ?? null,
-      timestampCtLabel: input.fetch?.timestampCtLabel ?? null,
+      timestampUtc: fetchUtc,
+      timestampCtLabel: fetchCt,
       parserVersion: PARSER_VERSION,
     },
     chainNote: isAmendment
-      ? `Amendment No. ${amendmentNumber ?? 'unnumbered'} (earlier filings not shown)`
+      ? `Amendment No. ${amendment ?? ''} (earlier filings not shown)`
       : null,
     completeness: COVERAGE_CLAIMS.completeness,
     realtime: COVERAGE_CLAIMS.realtime,
     crossFilerPercentSum: null,
   };
 
-  if (leaks(record)) return reject('unknown');
-  return { status: 'admitted', record };
+  if (retainedLeak(record)) return reject('unknown');
+  return { status: 'admitted', record: freezeRecord(record) };
+}
+
+export function freezeRecord(record: AdmittedSchedule13dgRecord): AdmittedSchedule13dgRecord {
+  const clone = structuredClone(record);
+  for (const filer of clone.filers) Object.freeze(filer);
+  Object.freeze(clone.filers);
+  Object.freeze(clone.fetch);
+  return Object.freeze(clone);
+}
+
+export function recordLineage(record: AdmittedSchedule13dgRecord): {
+  issuerCik: string;
+  classTitleAsFiled: string;
+  filerCiks: string[];
+} {
+  return {
+    issuerCik: record.issuerCik,
+    classTitleAsFiled: record.classTitleAsFiled,
+    filerCiks: record.filers.map((filer) => filer.filerCik).sort(),
+  };
 }
 
 export function canonicalRecord(record: AdmittedSchedule13dgRecord): string {
@@ -208,25 +269,9 @@ function reject(reason: ExclusionReason): Evaluation {
   return { status: 'rejected', reason };
 }
 
-function looksLikeNetwork(xml: string): boolean {
+function isBareUrl(xml: string): boolean {
   const trimmed = xml.trim();
-  if (/^(https?:)?\/\//i.test(trimmed)) return true;
-  return /https?:\/\//i.test(xml);
-}
-
-function isIsoDate(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
-}
-
-function stripForbidden(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stripForbidden);
-  if (!value || typeof value !== 'object') return value;
-  const out: Record<string, unknown> = {};
-  for (const [key, child] of Object.entries(value)) {
-    if (FORBIDDEN_KEY.test(key)) continue;
-    out[key] = stripForbidden(child);
-  }
-  return out;
+  return /^https?:\/\//i.test(trimmed) && !trimmed.includes('<');
 }
 
 function readForm(tree: unknown): FormType | 'out-of-scope' | 'parse-failed' {
@@ -247,32 +292,60 @@ function readForm(tree: unknown): FormType | 'out-of-scope' | 'parse-failed' {
   return normalized as FormType;
 }
 
-function readAmendmentNumber(tree: unknown): string | null {
-  const raw = collectKeyStrings(tree, new Set(['amendmentno', 'amendmentnumber']));
-  const unique = uniqueStrings(raw.map((item) => item.trim()).filter((item) => item.length > 0));
-  if (unique.length !== 1) return null;
-  return unique[0] ?? null;
+function readAmendmentNumber(tree: unknown): string | null | 'invalid' {
+  const raw = collectKeyStrings(tree, new Set(['amendmentno', 'amendmentnumber']))
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  const unique = uniqueStrings(raw);
+  if (unique.length === 0) return null;
+  if (unique.length !== 1) return 'invalid';
+  const value = unique[0] ?? '';
+  if (!AMENDMENT_NO.test(value) || prohibitedValue(value)) return 'invalid';
+  return value;
+}
+
+function readCount(tree: unknown, key: string): number | null {
+  const raw = collectKeyStrings(tree, new Set([key]));
+  if (raw.length !== 1) return null;
+  const value = raw[0] ?? '';
+  if (!COUNT_TOKEN.test(value)) return null;
+  return Number(value);
 }
 
 function collectPersons(tree: unknown): PersonDraft[] | null {
   const blocks: Record<string, unknown>[] = [];
-  collectKeyedObjects(tree, PERSON_KEYS, blocks);
+  collectPersonBlocks(tree, blocks);
   if (blocks.length === 0) return null;
   const persons: PersonDraft[] = [];
   for (const block of blocks) {
     const codes = typeCodesFrom(valueByKey(block, 'typeofreportingperson'));
-    const filerCik = firstString(block, ['reportingpersoncik', 'reportingcik', 'filercik']);
-    const percent = firstString(block, ['percentofclass', 'classpercent']);
-    const shares = firstString(block, ['aggregateamountowned']);
-    if (percent === 'invalid' || shares === 'invalid') return null;
+    const cikField = oneString(block, ['reportingpersoncik', 'reportingcik', 'filercik']);
+    const percent = oneString(block, ['percentofclass', 'classpercent']);
+    const shares = oneString(block, ['aggregateamountowned']);
+    if (!cikField.ok || !percent.ok || !shares.ok) return null;
+    const filerCik = syntheticCik(cikField.value);
+    if (filerCik === 'bad' || filerCik === null) return null;
+    if (percent.value !== null && !PERCENT.test(percent.value)) return null;
+    if (shares.value !== null && !SHARES.test(shares.value)) return null;
+    if (percent.value !== null && prohibitedValue(percent.value)) return null;
+    if (shares.value !== null && prohibitedValue(shares.value)) return null;
+    if (contradictoryZero(percent.value, shares.value)) return null;
     persons.push({
       filerCik,
       codes,
-      reportedPercentAsFiled: percent,
-      reportedSharesAsFiled: shares,
+      reportedPercentAsFiled: percent.value,
+      reportedSharesAsFiled: shares.value,
     });
   }
   return persons;
+}
+
+function contradictoryZero(percent: string | null, shares: string | null): boolean {
+  const percentZero = isZeroToken(percent);
+  const sharesZero = isZeroToken(shares);
+  if (percentZero && shares !== null && !sharesZero) return true;
+  if (sharesZero && percent !== null && !percentZero) return true;
+  return false;
 }
 
 function screenPersons(persons: readonly PersonDraft[]): 'entity-screen' | 'individual' | 'mixed' | 'unknown' {
@@ -289,6 +362,7 @@ function screenPersons(persons: readonly PersonDraft[]): 'entity-screen' | 'indi
   if (individual > 0 && (entity > 0 || other > 0)) return 'mixed';
   if (individual > 0) return 'individual';
   if (other > 0) return 'unknown';
+  if (entity !== persons.length) return 'unknown';
   return 'entity-screen';
 }
 
@@ -312,8 +386,7 @@ function admitPersons(
   const filers: AdmittedFiler[] = [];
   let failure: ExclusionReason | null = null;
   for (const person of persons) {
-    if (!person.filerCik) return 'unknown';
-    const reviewed = eligibility.filter((item) => item.filerCik === person.filerCik);
+    const reviewed = eligibility.filter((item) => item.filerCik === person.filerCik && REVIEW_ID.test(item.reviewId));
     if (reviewed.length !== 1) {
       failure = failure ?? 'eligibility-not-reviewed';
       continue;
@@ -337,6 +410,7 @@ function admitPersons(
       failure = failure ?? 'eligibility-not-reviewed';
       continue;
     }
+    if (!REVIEW_ID.test(record.reviewId) || prohibitedValue(record.reviewId)) return 'unknown';
     filers.push({
       filerCik: person.filerCik,
       eligibilityReviewId: record.reviewId,
@@ -355,6 +429,7 @@ function typeCodesFrom(value: unknown): string[] | 'unparseable' {
   if (typeof value === 'string') {
     const parts = value.split(/[^A-Za-z]+/).filter((part) => part.length > 0).map((part) => part.toUpperCase());
     if (parts.length === 0) return 'unparseable';
+    if (parts.some((part) => !KNOWN_TYPE_CODES.has(part))) return 'unparseable';
     return parts;
   }
   if (Array.isArray(value)) {
@@ -367,35 +442,48 @@ function typeCodesFrom(value: unknown): string[] | 'unparseable' {
     return out.length > 0 ? out : 'unparseable';
   }
   if (value && typeof value === 'object') {
+    const entries = Object.entries(value);
+    if (entries.length === 0) return 'unparseable';
     const out: string[] = [];
-    for (const [key, child] of Object.entries(value)) {
-      if (key.toLowerCase() === 'type' && typeof child === 'string') {
+    for (const [key, child] of entries) {
+      if (key.toLowerCase() === 'type') {
         const codes = typeCodesFrom(child);
         if (codes === 'unparseable') return 'unparseable';
         out.push(...codes);
         continue;
       }
       const code = key.replace(/^is/i, '').toUpperCase();
-      const truthy = child === true || child === 'Y' || child === 'y' || child === '1' || child === 'true';
-      if (truthy && /^[A-Z]{2}$/.test(code)) out.push(code);
+      if (!KNOWN_TYPE_CODES.has(code)) return 'unparseable';
+      if (child === true || child === 'Y' || child === 'y' || child === '1' || child === 'true') {
+        out.push(code);
+        continue;
+      }
+      if (child === false || child === 'N' || child === 'n' || child === '0' || child === 'false') continue;
+      return 'unparseable';
     }
     return out.length > 0 ? out : 'unparseable';
   }
   return 'unparseable';
 }
 
-function firstString(obj: Record<string, unknown>, names: readonly string[]): string | null | 'invalid' {
+function oneString(obj: Record<string, unknown>, names: readonly string[]): { ok: true; value: string | null } | { ok: false } {
   const wanted = new Set(names);
   const found: string[] = [];
   for (const [key, value] of Object.entries(obj)) {
     if (!wanted.has(key.toLowerCase())) continue;
-    if (typeof value !== 'string') return 'invalid';
+    if (typeof value !== 'string') return { ok: false };
     const trimmed = value.trim();
     if (trimmed.length > 0) found.push(trimmed);
   }
   const unique = uniqueStrings(found);
-  if (unique.length > 1) return 'invalid';
-  return unique[0] ?? null;
+  if (unique.length > 1) return { ok: false };
+  return { ok: true, value: unique[0] ?? null };
+}
+
+function syntheticCik(value: string | null): string | null | 'bad' {
+  if (value === null) return null;
+  if (!SYNTHETIC_CIK.test(value) || prohibitedValue(value)) return 'bad';
+  return value;
 }
 
 function valueByKey(obj: Record<string, unknown>, name: string): unknown {
@@ -405,27 +493,24 @@ function valueByKey(obj: Record<string, unknown>, name: string): unknown {
   return undefined;
 }
 
-function collectKeyedObjects(
-  node: unknown,
-  keys: ReadonlySet<string>,
-  out: Record<string, unknown>[],
-): void {
+function collectPersonBlocks(node: unknown, out: Record<string, unknown>[]): void {
   if (Array.isArray(node)) {
-    for (const item of node) collectKeyedObjects(item, keys, out);
+    for (const item of node) collectPersonBlocks(item, out);
     return;
   }
   if (!node || typeof node !== 'object') return;
   for (const [key, value] of Object.entries(node)) {
-    if (keys.has(key.toLowerCase())) {
+    if (PERSON_KEYS.has(key.toLowerCase())) {
       const items = Array.isArray(value) ? value : [value];
       for (const item of items) {
         if (item && typeof item === 'object' && !Array.isArray(item)) {
           out.push(item as Record<string, unknown>);
+          collectPersonBlocks(item, out);
         }
       }
       continue;
     }
-    collectKeyedObjects(value, keys, out);
+    collectPersonBlocks(value, out);
   }
 }
 
@@ -477,11 +562,31 @@ function normalizeUnique(values: readonly string[]): string[] | null {
 }
 
 function normalizeDate(raw: string): string | null {
-  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw.trim());
-  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-  const us = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(raw.trim());
-  if (us) return `${us[3]}-${us[1]}-${us[2]}`;
+  const text = raw.trim();
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (iso) {
+    const value = `${iso[1]}-${iso[2]}-${iso[3]}`;
+    return isRealDate(value) ? value : null;
+  }
+  const us = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
+  if (us) {
+    const value = `${us[3]}-${us[1]}-${us[2]}`;
+    return isRealDate(value) ? value : null;
+  }
   return null;
+}
+
+function isRealDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < 1990 || year > 2100 || month < 1 || month > 12) return false;
+  const days = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const limit = month === 2 && leap ? 29 : days[month] ?? 0;
+  return day >= 1 && day <= limit;
 }
 
 function isZeroToken(value: string | null): boolean {
@@ -489,13 +594,31 @@ function isZeroToken(value: string | null): boolean {
   return /^0+(?:\.0+)?$/.test(value.trim());
 }
 
-function leaks(value: unknown): boolean {
-  const json = JSON.stringify(value).toLowerCase();
-  return json.includes('cusip')
-    || json.includes('isin')
-    || json.includes('<')
-    || json.includes('sha256')
-    || json.includes('signature')
-    || json.includes('http://')
-    || json.includes('https://');
+function prohibitedValue(value: string): boolean {
+  const text = value.trim().toUpperCase();
+  if (CUSIP_VALUE.test(text) || ISIN_VALUE.test(text)) return true;
+  const lower = value.toLowerCase();
+  return lower.includes('cusip') || lower.includes('isin') || lower.includes('<') || lower.includes('sha256');
+}
+
+function retainedLeak(record: AdmittedSchedule13dgRecord): boolean {
+  const fields = [
+    record.accession,
+    record.issuerCik,
+    record.classTitleAsFiled,
+    record.amendmentNumber ?? '',
+    record.eventDateAsReported,
+    record.filedDate,
+    record.documentFiledDate ?? '',
+    record.fetch.timestampUtc ?? '',
+    record.fetch.timestampCtLabel ?? '',
+    record.chainNote ?? '',
+    ...record.filers.flatMap((filer) => [
+      filer.filerCik,
+      filer.eligibilityReviewId,
+      filer.reportedPercentAsFiled ?? '',
+      filer.reportedSharesAsFiled ?? '',
+    ]),
+  ];
+  return fields.some((field) => prohibitedValue(field) || /https?:\/\//i.test(field));
 }

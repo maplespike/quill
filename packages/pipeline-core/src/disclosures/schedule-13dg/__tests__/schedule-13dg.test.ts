@@ -42,8 +42,14 @@ const NARRATIVE = 'SECRET NARRATIVE BODY';
 const SIGNATORY = 'SYNTHETIC SIGNATORY NAME';
 const RAW_TAG = '<edgarSubmission';
 
-const DAY = 24 * 60 * 60 * 1000;
 const T0 = Date.parse('2026-01-01T00:00:00.000Z');
+
+const REVIEWED_CLASSES = [
+  { issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: 'Common Shares' },
+  { issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: 'Preferred Shares Series A' },
+  { issuerCik: 'SYN-CIK-ISSUER-2', classTitleAsFiled: 'Common Shares' },
+  { issuerCik: 'SYN-CIK-ISSUER-9', classTitleAsFiled: 'Common Shares' },
+];
 
 function reviewed(
   filerCik: string,
@@ -74,6 +80,9 @@ function filingXml(options: {
     shares?: string | null;
   }[];
   count?: string | null;
+  coverCount?: string | null;
+  omitCounts?: boolean;
+  namespace?: boolean;
   extra?: string;
 } = {}): string {
   const form = options.form ?? 'SCHEDULE 13G';
@@ -87,9 +96,9 @@ function filingXml(options: {
   const event = options.eventDate === null
     ? ''
     : `<${eventTag}>${options.eventDate ?? '2025-09-30'}</${eventTag}>`;
-  const filed = options.filedInDocument
-    ? `<filingDate>${options.filedInDocument}</filingDate>`
-    : '';
+  const filed = options.filedInDocument === null
+    ? ''
+    : `<filingDate>${options.filedInDocument ?? '2025-11-13'}</filingDate>`;
   const persons = (options.persons ?? [{
     name: 'SYNTHETIC ADVISER ALPHA',
     cik: 'SYN-CIK-FILER-A',
@@ -104,9 +113,16 @@ function filingXml(options: {
     const shares = person.shares ? `<aggregateAmountOwned>${person.shares}</aggregateAmountOwned>` : '';
     return `<reportingPersonInfo>${name}${cik}${type}${percent}${shares}</reportingPersonInfo>`;
   }).join('');
-  const count = options.count ? `<reportingPersonCount>${options.count}</reportingPersonCount>` : '';
+  const declared = options.count ?? String((options.persons ?? [1]).length);
+  const cover = options.coverCount ?? String((options.persons ?? [1]).length);
+  const count = options.omitCounts
+    ? ''
+    : `<reportingPersonCount>${declared}</reportingPersonCount><coverPageReportingPersonCount>${cover}</coverPageReportingPersonCount>`;
+  const root = options.namespace
+    ? '<edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">'
+    : '<edgarSubmission>';
   return [
-    '<edgarSubmission>',
+    root,
     `<headerData><submissionType>${form}</submissionType></headerData>`,
     '<formData>',
     `<coverPageHeader>${classes}${event}${filed}</coverPageHeader>`,
@@ -139,6 +155,24 @@ function assertNoLeak(value: unknown): void {
   }
 }
 
+function controlledStore(id: string, flags: { throwWrite: boolean; throwDelete: boolean }): SecondaryStore {
+  const map = new Map<string, unknown>();
+  return {
+    id,
+    write(accession, payload) {
+      if (flags.throwWrite) throw new Error('write failed');
+      map.set(accession, payload);
+    },
+    deletePayload(accession) {
+      if (flags.throwDelete) throw new Error('delete failed');
+      map.delete(accession);
+    },
+    read(accession) {
+      return map.get(accession) ?? null;
+    },
+  };
+}
+
 function memoryStore(): SecondaryStore & { map: Map<string, unknown> } {
   const map = new Map<string, unknown>();
   return {
@@ -156,10 +190,35 @@ function memoryStore(): SecondaryStore & { map: Map<string, unknown> } {
   };
 }
 
-function openRuntime() {
-  const runtime = createSchedule13dgRuntime();
-  runtime.setKillSwitch(false);
-  return runtime;
+function evaluate(input: Omit<Parameters<typeof evaluateFiling>[0], 'reviewedClasses'> & {
+  reviewedClasses?: Parameters<typeof evaluateFiling>[0]['reviewedClasses'];
+}) {
+  return evaluateFiling({
+    ...input,
+    reviewedClasses: input.reviewedClasses ?? REVIEWED_CLASSES,
+  });
+}
+
+function openRuntime(options: { stores?: SecondaryStore[]; clock?: () => number } = {}) {
+  const runtime = createSchedule13dgRuntime({
+    retention: 'synthetic-contract',
+    clock: options.clock ?? (() => T0),
+    stores: options.stores,
+  });
+  const unlock = runtime.unlockSyntheticEvaluation();
+  assert.equal(unlock.gatesCleared, false);
+  assert.equal(unlock.liveIngest, false);
+  assert.equal(unlock.futureEnablementCleared, false);
+  const ingest = runtime.ingestSynthetic.bind(runtime);
+  const correct = runtime.correct.bind(runtime);
+  return Object.assign(runtime, {
+    ingestSynthetic(input: Parameters<typeof ingest>[0]) {
+      return ingest({ ...input, reviewedClasses: input.reviewedClasses ?? REVIEWED_CLASSES });
+    },
+    correct(input: Parameters<typeof correct>[0]) {
+      return correct({ ...input, reviewedClasses: input.reviewedClasses ?? REVIEWED_CLASSES });
+    },
+  });
 }
 
 describe('schedule 13d/g disabled foundation', () => {
@@ -257,7 +316,7 @@ describe('schedule 13d/g disabled foundation', () => {
           shares: '10',
         }],
       });
-      const unreviewed = evaluateFiling({
+      const unreviewed = evaluate({
         xml,
         accession: 'SYN-ACC-TYPE',
         filedDate: '2025-11-13',
@@ -268,13 +327,13 @@ describe('schedule 13d/g disabled foundation', () => {
         assert.equal(unreviewed.reason, 'eligibility-not-reviewed');
         assertNoLeak(unreviewed);
       }
-      const eligible = evaluateFiling({
+      const eligible = evaluate({
         xml,
         accession: 'SYN-ACC-TYPE',
         filedDate: '2025-11-13',
         eligibility: [reviewed('SYN-CIK-FILER-A', { files13fManager: true })],
       });
-      const ignored = evaluateFiling({
+      const ignored = evaluate({
         xml,
         accession: 'SYN-ACC-TYPE',
         filedDate: '2025-11-13',
@@ -291,7 +350,7 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('rejects an individual, a mixed filing, and an unknown filing as a whole', () => {
-    const individual = evaluateFiling({
+    const individual = evaluate({
       xml: filingXml({
         persons: [{
           name: PERSON,
@@ -307,7 +366,7 @@ describe('schedule 13d/g disabled foundation', () => {
     });
     assert.deepEqual(individual, { status: 'rejected', reason: 'individual' });
 
-    const mixed = evaluateFiling({
+    const mixed = evaluate({
       xml: filingXml({
         persons: [
           {
@@ -332,7 +391,7 @@ describe('schedule 13d/g disabled foundation', () => {
     });
     assert.deepEqual(mixed, { status: 'rejected', reason: 'mixed' });
 
-    const unknown = evaluateFiling({
+    const unknown = evaluate({
       xml: filingXml({
         persons: [{
           name: 'SYNTHETIC OTHER',
@@ -348,7 +407,7 @@ describe('schedule 13d/g disabled foundation', () => {
     });
     assert.deepEqual(unknown, { status: 'rejected', reason: 'unknown' });
 
-    const missing = evaluateFiling({
+    const missing = evaluate({
       xml: filingXml({
         persons: [{
           name: 'SYNTHETIC ADVISER ALPHA',
@@ -370,7 +429,7 @@ describe('schedule 13d/g disabled foundation', () => {
 
   it('fails closed on ambiguous eligibility, personal vehicles, and partial review', () => {
     const xml = filingXml();
-    const ambiguous = evaluateFiling({
+    const ambiguous = evaluate({
       xml,
       accession: 'SYN-ACC-AMB',
       filedDate: '2025-11-13',
@@ -378,7 +437,7 @@ describe('schedule 13d/g disabled foundation', () => {
     });
     assert.deepEqual(ambiguous, { status: 'rejected', reason: 'unknown' });
 
-    const vehicle = evaluateFiling({
+    const vehicle = evaluate({
       xml,
       accession: 'SYN-ACC-VEH',
       filedDate: '2025-11-13',
@@ -386,7 +445,7 @@ describe('schedule 13d/g disabled foundation', () => {
     });
     assert.deepEqual(vehicle, { status: 'rejected', reason: 'eligibility-rejected' });
 
-    const partial = evaluateFiling({
+    const partial = evaluate({
       xml: filingXml({
         persons: [
           {
@@ -415,15 +474,25 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('keeps an ambiguous issuer or class unmerged', () => {
-    const issuer = evaluateFiling({
+    const issuer = evaluate({
       xml: filingXml({ issuerCiks: ['SYN-CIK-ISSUER-1', 'SYN-CIK-ISSUER-2'] }),
       accession: 'SYN-ACC-ISS',
       filedDate: '2025-11-13',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.deepEqual(issuer, { status: 'rejected', reason: 'ambiguous-issuer' });
+    const repeated = evaluate({
+      xml: filingXml({
+        issuerCiks: ['SYN-CIK-ISSUER-1'],
+        extra: '<issuerCIK>SYN-CIK-ISSUER-1</issuerCIK>',
+      }),
+      accession: 'SYN-ACC-REPEAT',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(repeated, { status: 'rejected', reason: 'ambiguous-issuer' });
 
-    const securityClass = evaluateFiling({
+    const securityClass = evaluate({
       xml: filingXml({ classTitles: ['Common Shares', 'Preferred Shares Series A'] }),
       accession: 'SYN-ACC-CLS',
       filedDate: '2025-11-13',
@@ -438,12 +507,12 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('separates the event date, the filed date, and fetch metadata', () => {
-    const evaluation = evaluateFiling({
+    const evaluation = evaluate({
       xml: filingXml({
         form: 'SCHEDULE 13D',
         eventTag: 'dateOfEventRequiringStatement',
         eventDate: '09/30/2025',
-        issuerCiks: ['SYN-CIK-ISSUER-1'],
+        issuerCiks: [],
         extra: '<issuerCIK>SYN-CIK-ISSUER-1</issuerCIK>',
       }),
       accession: 'SYN-ACC-DATES',
@@ -463,7 +532,7 @@ describe('schedule 13d/g disabled foundation', () => {
     assert.equal(evaluation.record.positionChange, 'not-inferred');
     assert.equal('delta' in evaluation.record, false);
 
-    const missingEvent = evaluateFiling({
+    const missingEvent = evaluate({
       xml: filingXml({ eventDate: null }),
       accession: 'SYN-ACC-NOEVENT',
       filedDate: '2025-11-13',
@@ -497,9 +566,8 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('treats a duplicate, an amendment, a correction, and a withdrawal exactly', () => {
-    const runtime = openRuntime();
     const store = memoryStore();
-    runtime.registerSecondaryStore(store);
+    const runtime = openRuntime({ stores: [store] });
     const first = filingXml({ eventDate: '2025-09-30' });
     const admitted = runtime.ingestSynthetic({
       xml: first,
@@ -508,6 +576,13 @@ describe('schedule 13d/g disabled foundation', () => {
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.equal(admitted.status, 'admitted');
+    const servedFrozen = runtime.serve();
+    assert.equal(servedFrozen.blocked, false);
+    if (!servedFrozen.blocked && servedFrozen.records[0]) {
+      assert.throws(() => {
+        (servedFrozen.records[0] as { issuerCik: string }).issuerCik = 'MUTATED';
+      });
+    }
     const duplicate = runtime.ingestSynthetic({
       xml: first,
       accession: 'SYN-ACC-1',
@@ -520,6 +595,7 @@ describe('schedule 13d/g disabled foundation', () => {
       xml: filingXml({
         form: 'SCHEDULE 13G/A',
         eventDate: '2025-12-31',
+        filedInDocument: '2026-02-13',
         extra: '<amendmentNo>25</amendmentNo>',
         persons: [{
           name: 'SYNTHETIC ADVISER ALPHA',
@@ -546,7 +622,7 @@ describe('schedule 13d/g disabled foundation', () => {
     const sameAccession = runtime.correct({
       priorAccession: 'SYN-ACC-1',
       accession: 'SYN-ACC-1',
-      xml: filingXml({ eventDate: '2026-01-15' }),
+      xml: filingXml({ eventDate: '2026-01-15', filedInDocument: '2026-01-20' }),
       filedDate: '2026-01-20',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
@@ -573,10 +649,29 @@ describe('schedule 13d/g disabled foundation', () => {
     const original = served.records.find((record) => record.accession === 'SYN-ACC-1');
     assert.equal(original?.filers[0]?.reportedPercentAsFiled, '6.5');
 
+    const drifted = runtime.correct({
+      priorAccession: 'SYN-ACC-1',
+      accession: 'SYN-ACC-DRIFT',
+      xml: filingXml({
+        classTitles: ['Preferred Shares Series A'],
+        eventDate: '2026-01-15',
+        filedInDocument: '2026-01-20',
+      }),
+      filedDate: '2026-01-20',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(drifted.status, 'conflict');
+    if (drifted.status === 'conflict') assert.equal(drifted.reason, 'lineage-conflict');
+    const kept = runtime.serve();
+    assert.equal(kept.blocked, false);
+    if (!kept.blocked) {
+      assert.equal(kept.records.find((record) => record.accession === 'SYN-ACC-1')?.filers[0]?.reportedPercentAsFiled, '6.5');
+    }
+
     const corrected = runtime.correct({
       priorAccession: 'SYN-ACC-1',
       accession: 'SYN-ACC-3',
-      xml: filingXml({ eventDate: '2026-01-15' }),
+      xml: filingXml({ eventDate: '2026-01-15', filedInDocument: '2026-01-20' }),
       filedDate: '2026-01-20',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
@@ -614,7 +709,7 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('does not sum percentages across filers', () => {
-    const evaluation = evaluateFiling({
+    const evaluation = evaluate({
       xml: filingXml({
         persons: [
           {
@@ -664,7 +759,6 @@ describe('schedule 13d/g disabled foundation', () => {
       accession: 'SYN-ACC-LEAK',
       filedDate: '2025-11-13',
       eligibility: [],
-      now: T0,
     });
     assert.deepEqual(rejected, { status: 'rejected', reason: 'individual' });
     assert.deepEqual(runtime.logs(), [{ at: T0, reason: 'individual', source: 'sec-schedule-13dg' }]);
@@ -687,7 +781,6 @@ describe('schedule 13d/g disabled foundation', () => {
       accession: 'SYN-ACC-LOG',
       filedDate: '2025-11-13',
       eligibility: [],
-      now: T0,
     });
     runtime.purgeLogs(T0 + LOG_TTL_MS - 1);
     assert.equal(runtime.logs().length, 1);
@@ -714,11 +807,30 @@ describe('schedule 13d/g disabled foundation', () => {
     assert.deepEqual(rows, []);
   });
 
-  it('scrubs an injected secondary store and reports that no other store is attached', () => {
-    const runtime = openRuntime();
-    assert.deepEqual(runtime.secondaryStores(), []);
+  it('refuses persistence until synthetic-contract retention is explicit', () => {
     const store = memoryStore();
-    runtime.registerSecondaryStore(store);
+    const runtime = createSchedule13dgRuntime({ clock: () => T0, stores: [store] });
+    runtime.unlockSyntheticEvaluation();
+    const refused = runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-REFUSED',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+      reviewedClasses: REVIEWED_CLASSES,
+    });
+    assert.deepEqual(refused, { status: 'not-persisted', reason: 'persistence-refused' });
+    assert.equal(store.read('SYN-ACC-REFUSED'), null);
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) assert.equal(served.records.length, 0);
+    assert.equal(runtime.futureEnablementCleared(), false);
+    assert.equal(runtime.gatesCleared(), false);
+  });
+
+  it('scrubs every store with readback and keeps cleanup available while killed', () => {
+    const store = memoryStore();
+    const runtime = openRuntime({ stores: [store] });
+    assert.deepEqual(runtime.enrollSecondaryStore(store), { accepted: false, reason: 'enrollment-closed' });
     runtime.ingestSynthetic({
       xml: filingXml(),
       accession: 'SYN-ACC-SCRUB',
@@ -726,13 +838,16 @@ describe('schedule 13d/g disabled foundation', () => {
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.ok(store.read('SYN-ACC-SCRUB'));
-    runtime.scrub('SYN-ACC-SCRUB', 'withdrawn');
+    runtime.engageKillSwitch();
+    const killed = runtime.withdraw('SYN-ACC-SCRUB');
+    assert.equal(killed.scrub, 'complete');
     assert.equal(store.read('SYN-ACC-SCRUB'), null);
     const tombstone = runtime.tombstones().find((item) => item.accession === 'SYN-ACC-SCRUB');
     assert.equal(tombstone?.payload, null);
+    assert.equal(tombstone?.scrub, 'complete');
     assert.equal(JSON.stringify(tombstone).includes(CUSIP), false);
-    runtime.setKillSwitch(true);
     assert.deepEqual(runtime.serve(), { blocked: true, records: [] });
+    assert.equal(runtime.liveIngestImplemented(), false);
   });
 
   it('bounds retries without a socket and refuses a zero budget before any attempt', async () => {
@@ -748,6 +863,10 @@ describe('schedule 13d/g disabled foundation', () => {
       },
     });
     assert.equal(zero.outcome, 'refused-zero-budget');
+    assert.equal(zero.accessGatePassed, false);
+    assert.equal(zero.productionWired, false);
+    assert.equal(zero.sharedAcrossCalls, false);
+    assert.equal(ACCESS_REVIEW.status, 'unapproved');
     assert.equal(calls, 0);
 
     const waits: number[] = [];
@@ -782,28 +901,28 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('rejects 13F and Section 16 forms, real accessions, and count mismatches', () => {
-    const form13f = evaluateFiling({
+    const form13f = evaluate({
       xml: filingXml({ form: '13F-HR' }),
       accession: 'SYN-ACC-13F',
       filedDate: '2025-11-13',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.deepEqual(form13f, { status: 'rejected', reason: 'out-of-scope' });
-    const form4 = evaluateFiling({
+    const form4 = evaluate({
       xml: filingXml({ form: 'FORM 4' }),
       accession: 'SYN-ACC-F4',
       filedDate: '2025-11-13',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.deepEqual(form4, { status: 'rejected', reason: 'out-of-scope' });
-    const real = evaluateFiling({
+    const real = evaluate({
       xml: filingXml(),
       accession: '0000000000-26-000001',
       filedDate: '2025-11-13',
       eligibility: [reviewed('SYN-CIK-FILER-A')],
     });
     assert.deepEqual(real, { status: 'rejected', reason: 'non-synthetic-accession' });
-    const mismatch = evaluateFiling({
+    const mismatch = evaluate({
       xml: filingXml({ count: '2' }),
       accession: 'SYN-ACC-COUNT',
       filedDate: '2025-11-13',
@@ -813,11 +932,12 @@ describe('schedule 13d/g disabled foundation', () => {
   });
 
   it('reads a 13D issuer CIK tag and a flagged type code without keeping identifiers', () => {
-    const evaluation = evaluateFiling({
+    const evaluation = evaluate({
       xml: filingXml({
         form: 'SCHEDULE 13D/A',
         eventTag: 'dateOfEventRequiringStatement',
         eventDate: '01/15/2026',
+        filedInDocument: '2026-01-16',
         extra: '<issuerCIK>SYN-CIK-ISSUER-9</issuerCIK><amendmentNumber>2</amendmentNumber>',
         issuerCiks: [],
         persons: [{
@@ -841,6 +961,269 @@ describe('schedule 13d/g disabled foundation', () => {
     assert.equal(evaluation.record.filedDate, '2026-01-16');
     assert.equal(JSON.stringify(evaluation).includes('SYNTHETIC ADVISER ALPHA'), false);
     assertNoLeak(evaluation);
+  });
+
+  it('rejects adversarial type flags, hidden persons, bad identifiers, and bad dates', () => {
+    const hidden = evaluate({
+      xml: filingXml({
+        extra: [
+          '<signatureBlock><reportingPersonInfo>',
+          `<reportingPersonName>${PERSON}</reportingPersonName>`,
+          `<reportingPersonCik>${PERSON_CIK}</reportingPersonCik>`,
+          '<typeOfReportingPerson>IN</typeOfReportingPerson>',
+          '</reportingPersonInfo></signatureBlock>',
+        ].join(''),
+        count: '2',
+        coverCount: '2',
+      }),
+      accession: 'SYN-ACC-HIDDEN',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A'), reviewed(PERSON_CIK)],
+    });
+    assert.equal(hidden.status, 'rejected');
+    if (hidden.status === 'rejected') assert.equal(hidden.reason, 'mixed');
+    assertNoLeak(hidden);
+
+    const nested = evaluate({
+      xml: filingXml({
+        persons: [{
+          name: 'SYNTHETIC ADVISER ALPHA',
+          cik: 'SYN-CIK-FILER-A',
+          typeXml: `<typeOfReportingPerson>IA</typeOfReportingPerson><reportingPersonInfo><reportingPersonName>${PERSON}</reportingPersonName><reportingPersonCik>${PERSON_CIK}</reportingPersonCik><typeOfReportingPerson>IN</typeOfReportingPerson></reportingPersonInfo>`,
+          percent: '6.5',
+          shares: '65',
+        }],
+        count: '2',
+        coverCount: '2',
+      }),
+      accession: 'SYN-ACC-NEST',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A'), reviewed(PERSON_CIK)],
+    });
+    assert.equal(nested.status, 'rejected');
+    if (nested.status === 'rejected') assert.equal(nested.reason, 'mixed');
+
+    const flagged = evaluate({
+      xml: filingXml({
+        persons: [{
+          cik: 'SYN-CIK-FILER-A',
+          typeXml: '<typeOfReportingPerson><isIA>Y</isIA><isIN>X</isIN></typeOfReportingPerson>',
+          percent: '6.5',
+          shares: '65',
+        }],
+      }),
+      accession: 'SYN-ACC-FLAG',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(flagged, { status: 'rejected', reason: 'unknown' });
+
+    const unknownKey = evaluate({
+      xml: filingXml({
+        persons: [{
+          cik: 'SYN-CIK-FILER-A',
+          typeXml: '<typeOfReportingPerson><isIA>Y</isIA><isZZ>N</isZZ></typeOfReportingPerson>',
+          percent: '6.5',
+          shares: '65',
+        }],
+      }),
+      accession: 'SYN-ACC-ZZ',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(unknownKey, { status: 'rejected', reason: 'unknown' });
+
+    const duplicateCik = evaluate({
+      xml: filingXml({
+        persons: [
+          { cik: 'SYN-CIK-FILER-A', typeXml: '<typeOfReportingPerson>IA</typeOfReportingPerson>', percent: '6.5', shares: '65' },
+          { cik: 'SYN-CIK-FILER-A', typeXml: '<typeOfReportingPerson>HC</typeOfReportingPerson>', percent: '4.0', shares: '40' },
+        ],
+      }),
+      accession: 'SYN-ACC-DUPCIK',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(duplicateCik, { status: 'rejected', reason: 'unknown' });
+
+    const badCik = evaluate({
+      xml: filingXml({
+        persons: [{
+          cik: CUSIP,
+          typeXml: '<typeOfReportingPerson>IA</typeOfReportingPerson>',
+          percent: '6.5',
+          shares: '65',
+        }],
+      }),
+      accession: 'SYN-ACC-BADCIK',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed(CUSIP)],
+    });
+    assert.equal(badCik.status, 'rejected');
+    assertNoLeak(badCik);
+
+    const badClass = evaluate({
+      xml: filingXml({ classTitles: ['Ordinary Units'] }),
+      accession: 'SYN-ACC-CLASS',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(badClass, { status: 'rejected', reason: 'ambiguous-class' });
+    assert.equal(JSON.stringify(badClass).includes('Ordinary Units'), false);
+
+    const badDate = evaluate({
+      xml: filingXml({ eventDate: '2025-02-29' }),
+      accession: 'SYN-ACC-DATE',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(badDate, { status: 'rejected', reason: 'unknown' });
+
+    const mismatch = evaluate({
+      xml: filingXml({ filedInDocument: '2025-11-14' }),
+      accession: 'SYN-ACC-DOC',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(mismatch, { status: 'rejected', reason: 'unknown' });
+
+    const noCount = evaluate({
+      xml: filingXml({ omitCounts: true }),
+      accession: 'SYN-ACC-NOCOUNT',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(noCount, { status: 'rejected', reason: 'unknown' });
+
+    const leap = evaluate({
+      xml: filingXml({ eventDate: '2024-02-29' }),
+      accession: 'SYN-ACC-LEAP',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(leap.status, 'admitted');
+  });
+
+  it('parses an http namespace without calling the network', async () => {
+    const original = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = (async () => {
+      calls += 1;
+      return new Response('');
+    }) as typeof fetch;
+    try {
+      const evaluation = evaluate({
+        xml: filingXml({ namespace: true }),
+        accession: 'SYN-ACC-NS',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+      });
+      assert.equal(evaluation.status, 'admitted');
+      assert.equal(calls, 0);
+      assertNoLeak(evaluation);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
+  it('rolls back a partial write and reports a throwing store after readback', () => {
+    const flags = { throwWrite: false, throwDelete: false };
+    const first = controlledStore('store-a', flags);
+    const secondFlags = { throwWrite: true, throwDelete: false };
+    const second = controlledStore('store-b', secondFlags);
+    const runtime = openRuntime({ stores: [first, second] });
+    const partial = runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-PART',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(partial.status, 'incomplete');
+    if (partial.status === 'incomplete') assert.equal(partial.reason, 'partial-write');
+    assert.equal(first.read('SYN-ACC-PART'), null);
+    assert.equal(second.read('SYN-ACC-PART'), null);
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) assert.equal(served.records.length, 0);
+
+    secondFlags.throwWrite = false;
+    flags.throwDelete = true;
+    const stored = runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-THROW',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(stored.status, 'admitted');
+    runtime.engageKillSwitch();
+    const incomplete = runtime.scrub('SYN-ACC-THROW', 'withdrawn');
+    assert.equal(incomplete.scrub, 'incomplete');
+    assert.equal(incomplete.storesRemaining.includes('store-a'), true);
+    assert.ok(first.read('SYN-ACC-THROW'));
+    assert.equal(second.read('SYN-ACC-THROW'), null);
+    flags.throwDelete = false;
+    const cleaned = runtime.withdraw('SYN-ACC-THROW');
+    assert.equal(cleaned.scrub, 'complete');
+    assert.equal(first.read('SYN-ACC-THROW'), null);
+    assert.deepEqual(runtime.serve(), { blocked: true, records: [] });
+
+    const duplicate = memoryStore();
+    const unverified = createSchedule13dgRuntime({
+      clock: () => T0,
+      stores: [duplicate, memoryStore()],
+    });
+    unverified.unlockSyntheticEvaluation();
+    assert.equal(unverified.storesVerified(), false);
+    const blocked = unverified.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-UNVERIFIED',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+      reviewedClasses: REVIEWED_CLASSES,
+    });
+    assert.deepEqual(blocked, { status: 'blocked', reason: 'store-unverified' });
+    assert.equal(unverified.serve().blocked, true);
+  });
+
+  it('expires synthetic records and tombstones on the injected clock', () => {
+    let now = T0;
+    const store = memoryStore();
+    const runtime = openRuntime({ stores: [store], clock: () => now });
+    runtime.ingestSynthetic({
+      xml: filingXml(),
+      accession: 'SYN-ACC-EXPIRE',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    now = T0 + METADATA_TTL_MS - 1;
+    const kept = runtime.serve();
+    assert.equal(kept.blocked, false);
+    if (!kept.blocked) assert.equal(kept.records.length, 1);
+    now = T0 + METADATA_TTL_MS;
+    const expired = runtime.serve();
+    assert.equal(expired.blocked, false);
+    if (!expired.blocked) assert.equal(expired.records.length, 0);
+    assert.equal(store.read('SYN-ACC-EXPIRE'), null);
+    const tombstone = runtime.tombstones().find((item) => item.accession === 'SYN-ACC-EXPIRE');
+    assert.equal(tombstone?.payload, null);
+    now = T0 + (METADATA_TTL_MS * 2);
+    assert.equal(runtime.tombstones().some((item) => item.accession === 'SYN-ACC-EXPIRE'), false);
+
+    const logs = openRuntime({ clock: () => now });
+    now = T0;
+    logs.ingestSynthetic({
+      xml: filingXml({
+        persons: [{ name: PERSON, cik: PERSON_CIK, typeXml: '<typeOfReportingPerson>IN</typeOfReportingPerson>' }],
+      }),
+      accession: 'SYN-ACC-LOG2',
+      filedDate: '2025-11-13',
+      eligibility: [],
+    });
+    assert.equal(logs.logs().length, 1);
+    assert.equal(logs.logs()[0]?.reason, 'individual');
+    assert.equal(JSON.stringify(logs.logs()).includes('<'), false);
+    now = T0 + LOG_TTL_MS;
+    assert.deepEqual(logs.logs(), []);
   });
 
   it('does not import a network client, a hash function, or a retired source', () => {

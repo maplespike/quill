@@ -84,10 +84,27 @@ export interface IssuerStatusRecord {
   incorporation: IssuerIncorporation;
 }
 
+export type LogReason =
+  | ExclusionReason
+  | 'withdrawn'
+  | 'corrected'
+  | 'stale'
+  | 'kill-switch'
+  | 'store-incomplete'
+  | 'persistence-refused'
+  | 'store-unverified'
+  | 'lineage-conflict';
+
 export interface OperationalLog {
   at: number;
-  reason: string;
+  reason: LogReason;
   source: 'sec-schedule-13dg';
+}
+
+export interface RecordLineage {
+  issuerCik: string;
+  classTitleAsFiled: string;
+  filerCiks: readonly string[];
 }
 
 export interface Tombstone {
@@ -97,6 +114,10 @@ export interface Tombstone {
   payload: null;
   eventDateAsReported: string | null;
   filedDate: string | null;
+  scrub: 'complete' | 'incomplete';
+  storesRemaining: readonly string[];
+  storedAt: number;
+  lineage: RecordLineage | null;
 }
 
 export interface SecondaryStore {

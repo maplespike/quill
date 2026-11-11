@@ -11,6 +11,11 @@ Quill by Maplespike MUST keep Schedule 13D/G live ingestion unimplemented. The k
 - **WHEN** a caller creates a runtime and does not pass an override
 - **THEN** the kill switch is engaged, live ingest throws, and serve returns no records
 
+#### Scenario: Synthetic unlock
+
+- **WHEN** a caller unlocks synthetic evaluation
+- **THEN** live ingest still throws, every enablement gate stays unapproved, and future enablement stays uncleared
+
 #### Scenario: Environment flag
 
 - **WHEN** a process environment variable names this source as enabled
@@ -51,12 +56,17 @@ Sanitized operational logs MUST store only the time, a reason code, and the sour
 #### Scenario: Log boundary
 
 - **WHEN** a log row reaches exactly 7 days of age
-- **THEN** purge deletes that row
+- **THEN** the runtime deletes that row
 
 #### Scenario: No secondary store
 
-- **WHEN** a runtime is created
-- **THEN** its secondary-store list is empty
+- **WHEN** a runtime is created without a store list
+- **THEN** its secondary-store list is empty and a later enrollment is refused
+
+#### Scenario: Uncleared persistence
+
+- **WHEN** synthetic evaluation is unlocked and retention is not the explicit synthetic contract
+- **THEN** an admitted filing is not written to the record map or to a secondary store
 
 ### Requirement: Access budget
 

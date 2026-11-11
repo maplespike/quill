@@ -26,9 +26,11 @@ export {
   applyMetadataRetention,
   deleteExpiredLogs,
   deleteExpiredMetadata,
+  sanitizeLogReason,
   writeMetadata,
 } from './retention.js';
 export { createSchedule13dgRuntime, liveIngest, Schedule13dgDisabledError } from './runtime.js';
+export type { IngestResult, ScrubResult, SyntheticUnlock } from './runtime.js';
 export type {
   AdmittedSchedule13dgRecord,
   Evaluation,

@@ -104,3 +104,13 @@ export const ENGLISH_CAVEAT =
 export const SYNTHETIC_ACCESSION = /^SYN-[A-Z0-9-]{1,64}$/;
 
 export const REAL_EDGAR_ACCESSION = /^\d{10}-\d{2}-\d{6}$/;
+
+/** Synthetic entity CIK. A real numeric CIK is not accepted. */
+export const SYNTHETIC_CIK = /^SYN-CIK-[A-Z0-9-]{1,32}$/;
+
+export const REVIEW_ID = /^REV-[A-Z0-9-]{1,64}$/;
+
+/** Reviewed class titles are bounded plain text. They are not free XML. */
+export const CLASS_TITLE = /^[A-Za-z0-9][A-Za-z0-9 .'()-]{0,79}$/;
+
+export const STORE_ID = /^[a-z0-9-]{1,32}$/;

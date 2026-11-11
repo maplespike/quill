@@ -14,9 +14,9 @@ Every gate blocks a future enablement. None of these statuses is green.
 | --- | --- | --- |
 | Identity and security class | blocked | Issuer CIK and the class title as filed stay a pair. Classes, preferred shares, and other titles do not collapse. Ambiguous identity fails closed. |
 | Privacy and eligibility | blocked | Every reporting entity needs its own reviewed eligibility record. A type code does not prove eligibility. A 13F-manager flag does not prove eligibility. Personal-vehicle risk stays closed unless a review records it absent. |
-| Retention | blocked | Sanitized reason-code logs use a 7-day TTL. The 365-day entity-metadata window runs only when `FUTURE_ENABLEMENT_CLEARED` is true. That flag is false. |
-| Corrections | blocked | A correction, withdrawal, or missing index entry tombstones the record and scrubs the in-memory payload. The event date as reported stays distinct from the filed date. |
-| Access | unapproved | Rate, backoff, and a monitored contact are not approved. The default request budget is zero. The budget contract does not open a socket. |
+| Retention | blocked | The runtime refuses to store entity metadata unless the caller passes explicit synthetic-contract retention. That mode does not clear a gate. Sanitized reason-code logs expire at 7 days. Tombstones expire too. `FUTURE_ENABLEMENT_CLEARED` stays false, so the 365-day production window does not open. |
+| Corrections | blocked | A correction must keep the same issuer, class, and filer CIKs. A withdrawal, a stale mark, or a kill-switch scrub tombstones the record and deletes payloads, including while the kill switch is engaged. The event date as reported stays distinct from the filed date. |
+| Access | unapproved | Rate, backoff, and a monitored contact are not approved. The budget helper is per call, is not a shared limiter, and does not mark the access gate passed. The default request budget is zero. |
 | Language | unapproved | French labels are absent. Machine translation of legal terms is off. Do not mark this review green. |
 | CUSIP / CGS drop rule | blocked | The parser drops CUSIP and ISIN fields. That drop is not a licence decision. |
 | Aggregate claims | blocked | Counts and one filer's reported snapshot are the only shapes. Percentages are not added across filers. Absence is not zero. An amendment is not a sale. A reported zero holding is not a sale. |
@@ -46,11 +46,13 @@ Raw XML lives in the parse call. It is not written to the log, the metric map, o
 
 Operational logs store the time, the reason code, and the source id `sec-schedule-13dg`. Rows at or past 7 days are deleted from that list. The deletion test covers this list.
 
-The 365-day function deletes every metadata row while future enablement is uncleared. When a test clears the flag, a row at or past 365 days is deleted. The runtime does not call that store.
+The runtime calls the metadata writer with future enablement cleared set to false. That write is refused. A separate `synthetic-contract` retention mode is explicit, in-process, and does not clear a gate. In that mode a record or tombstone at or past 365 days is deleted. Logs are deleted at or past 7 days on each runtime call.
 
-Secondary stores are not built. The default store list is empty. A test can attach an in-memory stand-in. Scrub deletes the payload there. This does not cover SQLite, Redis, a search index, an export, or a backup. Those stores do not exist for this source.
+Secondary stores are a closed list passed at construction. The default list is empty. A late or duplicate enrollment is refused. A missing or unverified store blocks ingest and serve. Scrub deletes every attached store and reads it back. If one delete throws, the others still run, and the tombstone says `incomplete`. This does not cover SQLite, Redis, a search index, an export, or a backup. Those stores do not exist for this source.
 
-The kill switch starts engaged. It blocks synthetic ingest and serving. Turning it off in process still does not enable `liveIngest()`. That function throws `live-ingest-disabled` and does not call `fetch`.
+The kill switch starts engaged. It blocks synthetic ingest and serving. `unlockSyntheticEvaluation()` opens only the in-memory contract path. It does not enable `liveIngest()`, and it does not mark a gate passed. `liveIngest()` throws `live-ingest-disabled` and does not call `fetch`. Withdrawal and scrub still run while the kill switch is engaged.
+
+An `http` namespace in the XML is not a network call. A payload that is only a URL is refused. The parser does not fetch it.
 
 ## Dates and issuer status
 
