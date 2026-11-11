@@ -1482,6 +1482,123 @@ describe('schedule 13d/g disabled foundation', () => {
     }
   });
 
+  it('joins separated letter and digit spans before the CUSIP and ISIN windows', () => {
+    const flagged = [
+      '1037833 10 0',
+      'G0176J 10 9',
+      'G0176J-10-9',
+      'Notes G0176J 10 9',
+      'US 037833 10 05',
+      'US.037833.10.05',
+      'Common US 037833 10 05 Shares',
+    ];
+    for (const classTitle of flagged) {
+      const evaluation = evaluate({
+        xml: filingXml({ classTitles: [classTitle] }),
+        accession: 'SYN-ACC-SPAN',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+        reviewedClasses: [{ issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: classTitle }],
+      });
+      assert.equal(evaluation.status, 'rejected', classTitle);
+      const text = JSON.stringify(evaluation);
+      for (const leaked of ['1037833', 'G0176J', '037833', classTitle]) {
+        assert.equal(text.includes(leaked), false, `${classTitle} leaked ${leaked}`);
+      }
+    }
+    const clear = [
+      'Series 100',
+      'Common Shares',
+      'Preferred Shares Series A',
+      'Class A Common',
+      'Series 2025 Notes',
+      'Rule 13d-1 Shares',
+      'Class B 10 Shares',
+    ];
+    for (const classTitle of clear) {
+      const evaluation = evaluate({
+        xml: filingXml({ classTitles: [classTitle] }),
+        accession: 'SYN-ACC-PROSE',
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+        reviewedClasses: [{ issuerCik: 'SYN-CIK-ISSUER-1', classTitleAsFiled: classTitle }],
+        fetch: { timestampUtc: '2026-11-11T15:00:00.000Z', timestampCtLabel: '2026-11-11 CT' },
+      });
+      assert.equal(evaluation.status, 'admitted', classTitle);
+    }
+  });
+
+  it('rejects a same-accession correction before lineage and never scrubs the prior record', () => {
+    const store = memoryStore();
+    const runtime = openRuntime({ stores: [store], requiredStoreIds: ['memory-stand-in'] });
+    const admitted = runtime.ingestSynthetic({
+      xml: filingXml({ eventDate: '2025-09-30' }),
+      accession: 'SYN-ACC-SAME',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(admitted.status, 'admitted');
+    const before = JSON.stringify(store.read('SYN-ACC-SAME'));
+    const conflictsBefore = runtime.metrics().conflict ?? 0;
+    for (const xml of [filingXml({ eventDate: '2026-01-15' }), filingXml({ eventDate: '2025-09-30' })]) {
+      const same = runtime.correct({
+        priorAccession: 'SYN-ACC-SAME',
+        accession: 'SYN-ACC-SAME',
+        xml,
+        filedDate: '2025-11-13',
+        eligibility: [reviewed('SYN-CIK-FILER-A')],
+      });
+      assert.deepEqual(same, { status: 'conflict', reason: 'conflict' });
+    }
+    assert.equal(runtime.metrics().conflict, conflictsBefore + 2);
+    assert.equal(JSON.stringify(store.read('SYN-ACC-SAME')), before);
+    assert.equal(runtime.tombstones().some((item) => item.accession === 'SYN-ACC-SAME'), false);
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) {
+      assert.equal(served.records.find((record) => record.accession === 'SYN-ACC-SAME')?.eventDateAsReported, '2025-09-30');
+    }
+  });
+
+  it('returns duplicate for a correction whose destination is already live and identical', () => {
+    const store = memoryStore();
+    const runtime = openRuntime({ stores: [store], requiredStoreIds: ['memory-stand-in'] });
+    const xmlPrior = filingXml({ eventDate: '2025-09-30' });
+    const xmlNext = filingXml({ eventDate: '2025-10-31' });
+    runtime.ingestSynthetic({
+      xml: xmlPrior,
+      accession: 'SYN-ACC-PRIOR',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    const next = runtime.ingestSynthetic({
+      xml: xmlNext,
+      accession: 'SYN-ACC-NEXT',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(next.status, 'admitted');
+    const storePrior = JSON.stringify(store.read('SYN-ACC-PRIOR'));
+    const storeNext = JSON.stringify(store.read('SYN-ACC-NEXT'));
+    const duplicate = runtime.correct({
+      priorAccession: 'SYN-ACC-PRIOR',
+      accession: 'SYN-ACC-NEXT',
+      xml: xmlNext,
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.deepEqual(duplicate, { status: 'duplicate', reason: 'duplicate' });
+    assert.equal(JSON.stringify(store.read('SYN-ACC-PRIOR')), storePrior);
+    assert.equal(JSON.stringify(store.read('SYN-ACC-NEXT')), storeNext);
+    assert.equal(runtime.tombstones().some((item) => item.accession === 'SYN-ACC-PRIOR'), false);
+    const served = runtime.serve();
+    assert.equal(served.blocked, false);
+    if (!served.blocked) {
+      assert.equal(served.records.find((record) => record.accession === 'SYN-ACC-PRIOR')?.eventDateAsReported, '2025-09-30');
+      assert.equal(served.records.find((record) => record.accession === 'SYN-ACC-NEXT')?.eventDateAsReported, '2025-10-31');
+    }
+  });
+
   it('fails closed unless the declared store ids match the stand-ins exactly', () => {
     const store = memoryStore();
     const undeclared = createSchedule13dgRuntime({

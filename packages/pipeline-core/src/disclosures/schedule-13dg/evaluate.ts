@@ -608,9 +608,9 @@ function prohibitedValue(value: string): boolean {
     const hyphenJoined = upper.replace(/-/g, '');
     if (hasCusipCandidate(hyphenJoined) || hasIsinCandidate(hyphenJoined)) return true;
   }
-  return digitSeparatorSpans(upper).some((span) => {
-    const digits = span.replace(/[^0-9]/g, '');
-    return digits.length === 9 && hasCusipCandidate(digits);
+  return separatedIdentifierSpans(upper).some((span) => {
+    const joined = span.replace(/[ .\-]/g, '');
+    return hasCusipCandidate(joined) || hasIsinCandidate(joined);
   });
 }
 
@@ -623,8 +623,13 @@ function prohibitedValue(value: string): boolean {
  * An ISIN candidate is a 12-character window: two letters, nine letters or
  * digits, and a final digit, with at least one digit in the window.
  * A whole hyphenated alphanumeric token is joined, so `037833-100` is still a candidate.
- * Digit groups separated only by spaces, dots, or hyphens are joined, so
- * `037833 10 0` and `037.833.100` are candidates. This is a shape heuristic.
+ * Groups separated only by spaces, dots, or hyphens are joined and checked
+ * with the same CUSIP/ISIN windows when every group carries a digit, so
+ * `037833 10 0`, `037.833.100`, `1037833 10 0` (more than nine digits) and
+ * `G0176J 10 9` (a letter CUSIP) are candidates. A leading two-letter group
+ * is joined too (an ISIN country prefix), so `US 037833 10 05` is a
+ * candidate. Letter-only words are never joined, so `Series 100` and
+ * ordinary prose stay clear. This is a shape heuristic.
  * It is not proof that a value is a CUSIP, and it is not a privacy clearance.
  * Words stay in their own runs. `Common Shares` and `Preferred Shares Series A`
  * do not contain a 9-digit separator span.
@@ -633,8 +638,20 @@ function identifierRuns(value: string): string[] {
   return value.match(/[0-9A-Z]+/g) ?? [];
 }
 
-function digitSeparatorSpans(value: string): string[] {
-  return value.match(/[0-9]+(?:[ .\-][0-9]+)+/g) ?? [];
+const DIGIT_GROUP = '[0-9A-Z]*[0-9][0-9A-Z]*';
+const SEPARATED_SPAN = new RegExp(`(?:\\b[A-Z]{2}[ .\\-])?${DIGIT_GROUP}(?:[ .\\-]${DIGIT_GROUP})+|\\b[A-Z]{2}[ .\\-]${DIGIT_GROUP}`, 'g');
+
+// ISO-8601 dates and timestamps (event/filed/fetch fields) are not identifiers:
+// `2026-11-11T15:00:00.000Z` would otherwise join to a letter-CUSIP shape.
+const ISO_DATE_TIME = /\b[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-9]{2})?)?(?![0-9A-Z])/g;
+
+/**
+ * Spans of two or more separator-joined groups that each contain a digit,
+ * optionally preceded by a two-letter group (ISIN prefix). ISO dates and
+ * timestamps are blanked first.
+ */
+function separatedIdentifierSpans(value: string): string[] {
+  return value.replace(ISO_DATE_TIME, ' ').match(SEPARATED_SPAN) ?? [];
 }
 
 function hasCusipCandidate(run: string): boolean {
