@@ -95,17 +95,29 @@ interface SelectResult {
   statuses: { pending: number; red: number; green: number; pending_names: string; red_names: string };
 }
 
+function statusPage(body: unknown, next: string | null = null, httpStatus = 200) {
+  return { http_status: httpStatus, next, body };
+}
+
+function statusDocuments(statuses: unknown): unknown[] {
+  if (Array.isArray(statuses) && statuses.length > 0 && statuses.every((item) => item && typeof item === 'object' && 'http_status' in (item as object))) {
+    return statuses;
+  }
+  if (Array.isArray(statuses) && statuses.length > 0 && statuses.every(Array.isArray)) {
+    const pages = statuses as unknown[][];
+    return pages.map((body, index) => statusPage(
+      body,
+      index < pages.length - 1
+        ? `https://api.github.com/repos/maplespike/quill/commits/sha1/statuses?per_page=100&page=${index + 2}`
+        : null,
+    ));
+  }
+  if (Array.isArray(statuses)) return [statusPage(statuses)];
+  return [statusPage([])];
+}
+
 function writePages(file: string, pages: unknown) {
-  if (Array.isArray(pages) && pages.length === 0) {
-    fs.writeFileSync(file, '[]');
-    return;
-  }
   const list = Array.isArray(pages) ? pages : [pages];
-  const first = list[0] as { context?: string } | undefined;
-  if (list.length > 0 && first && typeof first === 'object' && !Array.isArray(first) && 'context' in first) {
-    fs.writeFileSync(file, JSON.stringify(list));
-    return;
-  }
   fs.writeFileSync(file, list.map((item) => JSON.stringify(item)).join('\n'));
 }
 
@@ -123,12 +135,13 @@ function select(
   const statusFile = path.join(dir, 'statuses.json');
   writePages(checksFile, checks);
   writePages(runsFile, runs);
-  writePages(statusFile, statuses);
+  writePages(statusFile, statusDocuments(statuses));
   const out = execFileSync('jq', [
     '-n',
     '--arg', 'head_sha', head,
     '--arg', 'job', 'merge',
     '--arg', 'workflow', 'Merge when green',
+    '--arg', 'workflow_path', '.github/workflows/merge-when-green.yml',
     '--arg', 'run_id', runId,
     '--arg', 'app_slug', 'github-actions',
     '--argjson', 'required', JSON.stringify(required),
@@ -541,6 +554,289 @@ test('the in-progress gate is ignored and a different app named merge is not', (
     [],
   );
   assert.equal(alien.checks.red, 1);
+});
+
+const GATE_PATH = '.github/workflows/merge-when-green.yml';
+
+test('a same-app job named merge in another workflow still counts', () => {
+  const other = select(
+    page([check({ id: 5, name: 'merge', conclusion: 'failure', started: 't', run: 8 })], 'check_runs'),
+    page([runMeta(8, PATH_CI, 't')], 'workflow_runs'),
+    [],
+  );
+  assert.equal(other.ok, true);
+  assert.equal(other.checks.red, 1);
+  assert.equal(other.checks.green, 0);
+
+  const titled = select(
+    page([check({ id: 6, name: 'Merge when green', conclusion: 'failure', started: 't', run: 4 })], 'check_runs'),
+    page([runMeta(4, '.github/workflows/qa.yml', 't')], 'workflow_runs'),
+    [],
+  );
+  assert.equal(titled.ok, true);
+  assert.equal(titled.checks.red, 1);
+
+  const gatePath = select(
+    page([check({ id: 3, name: 'merge', conclusion: 'cancelled', started: 't', run: 9 })], 'check_runs'),
+    page([runMeta(9, GATE_PATH, 't')], 'workflow_runs'),
+    [],
+  );
+  assert.equal(gatePath.ok, true);
+  assert.equal(gatePath.checks.red, 0);
+  assert.equal(gatePath.checks.green, 0);
+});
+
+test('a merge job with missing workflow or app identity is not dropped', () => {
+  const missingPath = select(
+    page([check({ id: 5, name: 'merge', conclusion: 'failure', started: 't', run: 55 })], 'check_runs'),
+    page([], 'workflow_runs'),
+    [],
+  );
+  assert.equal(missingPath.ok, false);
+  assert.match(missingPath.error, /workflow metadata/);
+  assert.equal(missingPath.checks.red, 0);
+  assert.equal(missingPath.checks.green, 0);
+
+  const noApp = check({ id: 5, name: 'merge', conclusion: 'failure', started: 't', run: 8, app: null });
+  const missingApp = select(
+    page([noApp], 'check_runs'),
+    page([runMeta(8, PATH_CI, 't')], 'workflow_runs'),
+    [],
+  );
+  assert.equal(missingApp.ok, false);
+  assert.match(missingApp.error, /app\.id/);
+});
+
+test('commit status pages require a finished Link chain', () => {
+  const bulk = (count: number, state: string, stamp: string) => Array.from({ length: count }, (_, index) => ({
+    id: index + 1,
+    context: 'ci/bulk',
+    state,
+    updated_at: stamp,
+    created_at: stamp,
+    sha: 'sha1',
+  }));
+  const fullPage = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [statusPage(bulk(100, 'success', '2026-11-11T03:00:00Z'), null)],
+  );
+  assert.equal(fullPage.ok, true);
+  assert.equal(fullPage.statuses.green, 1);
+  assert.equal(fullPage.statuses.red, 0);
+
+  const unfinished = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [statusPage(bulk(100, 'success', '2026-11-11T03:00:00Z'), 'https://api.github.com/repositories/1/commits/sha1/statuses?per_page=100&page=2')],
+  );
+  assert.equal(unfinished.ok, false);
+  assert.match(unfinished.error, /next Link remained/);
+  assert.equal(unfinished.statuses.green, 0);
+
+  const shortUnfinished = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [statusPage(bulk(1, 'success', '2026-11-11T03:00:00Z'), 'https://api.github.com/repositories/1/commits/sha1/statuses?page=2')],
+  );
+  assert.equal(shortUnfinished.ok, false);
+  assert.match(shortUnfinished.error, /next Link remained/);
+
+  const linked = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [
+      statusPage(
+        [{ id: 1, context: 'ci/test', state: 'success', updated_at: '2026-11-11T03:00:00Z', sha: 'sha1' }],
+        'https://api.github.com/repositories/1/commits/sha1/statuses?per_page=100&page=2',
+      ),
+      statusPage(
+        [{ id: 2, context: 'ci/test', state: 'failure', updated_at: '2026-11-11T04:00:00Z', sha: 'sha1' }],
+        null,
+      ),
+    ],
+  );
+  assert.equal(linked.ok, true);
+  assert.equal(linked.statuses.red, 1);
+  assert.equal(linked.statuses.green, 0);
+
+  const httpError = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [statusPage({ message: 'Resource not accessible by integration' }, null, 403)],
+  );
+  assert.equal(httpError.ok, false);
+  assert.match(httpError.error, /HTTP 403/);
+  assert.match(httpError.error, /Resource not accessible/);
+  assert.equal(httpError.statuses.green, 0);
+  assert.equal(httpError.statuses.red, 0);
+
+  const messageBody = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [statusPage({ message: 'Not Found' }, null, 200)],
+  );
+  assert.equal(messageBody.ok, false);
+  assert.match(messageBody.error, /Not Found/);
+  assert.equal(messageBody.statuses.green, 0);
+
+  const afterEnd = select(
+    page([], 'check_runs'),
+    page([], 'workflow_runs'),
+    [
+      statusPage([{ id: 1, context: 'ci/test', state: 'success', updated_at: '2026-11-11T03:00:00Z', sha: 'sha1' }], null),
+      statusPage([{ id: 2, context: 'ci/test', state: 'failure', updated_at: '2026-11-11T04:00:00Z', sha: 'sha1' }], null),
+    ],
+  );
+  assert.equal(afterEnd.ok, false);
+  assert.match(afterEnd.error, /no next Link/);
+  assert.equal(afterEnd.statuses.green, 0);
+
+  const empty = select(page([], 'check_runs'), page([], 'workflow_runs'), []);
+  assert.equal(empty.ok, true);
+  assert.equal(empty.statuses.green, 0);
+});
+
+test('a bare status array is not treated as a complete page', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-raw-'));
+  const checksFile = path.join(dir, 'checks.json');
+  const runsFile = path.join(dir, 'runs.json');
+  const statusFile = path.join(dir, 'statuses.json');
+  fs.writeFileSync(checksFile, JSON.stringify({ total_count: 0, check_runs: [] }));
+  fs.writeFileSync(runsFile, JSON.stringify({ total_count: 0, workflow_runs: [] }));
+  fs.writeFileSync(statusFile, JSON.stringify([
+    { id: 1, context: 'ci/test', state: 'success', updated_at: '2026-11-11T03:00:00Z', sha: 'sha1' },
+  ]));
+  const out = execFileSync('jq', [
+    '-n',
+    '--arg', 'head_sha', 'sha1',
+    '--arg', 'job', 'merge',
+    '--arg', 'workflow', 'Merge when green',
+    '--arg', 'workflow_path', GATE_PATH,
+    '--arg', 'run_id', '424242',
+    '--arg', 'app_slug', 'github-actions',
+    '--argjson', 'required', '[]',
+    '--slurpfile', 'check_pages', checksFile,
+    '--slurpfile', 'run_pages', runsFile,
+    '--slurpfile', 'status_pages', statusFile,
+    '-f', SELECT,
+  ], { encoding: 'utf8' });
+  const result = JSON.parse(out) as SelectResult;
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Link pagination proof/);
+  assert.equal(result.statuses.green, 0);
+});
+
+test('status Link pagination fetches every next page and fails closed', () => {
+  const text = workflow();
+  const begin = '# BEGIN status-paginate.sh';
+  const end = '# END status-paginate.sh';
+  const lines = text.split('\n');
+  const start = lines.findIndex((line) => line.includes(begin));
+  const stop = lines.findIndex((line, index) => index >= start && line.includes(end));
+  assert.ok(start >= 0 && stop > start);
+  const block = lines.slice(start + 1, stop);
+  const indent = block.find((line) => line.trim())?.match(/^ */)?.[0].length ?? 0;
+  const script = block.map((line) => line.slice(indent)).join('\n');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-link-'));
+  const bin = path.join(dir, 'bin');
+  fs.mkdirSync(bin);
+  const gh = path.join(bin, 'gh');
+  fs.writeFileSync(gh, [
+    '#!/bin/bash',
+    'url="${@: -1}"',
+    'printf \'%s\\n\' "$url" >> "$FIXTURE_LOG"',
+    'if [[ "$url" == *page=2* ]]; then',
+    '  cat "$FIXTURE_PAGE2"',
+    '  exit "${FIXTURE_EXIT2:-0}"',
+    'fi',
+    'cat "$FIXTURE_PAGE1"',
+    'exit "${FIXTURE_EXIT1:-0}"',
+    '',
+  ].join('\n'));
+  fs.chmodSync(gh, 0o755);
+  const run = (page1: string, page2 = '', exit1 = 0, exit2 = 0) => {
+    const work = fs.mkdtempSync(path.join(dir, 'run-'));
+    fs.writeFileSync(path.join(work, 'page1'), page1);
+    fs.writeFileSync(path.join(work, 'page2'), page2);
+    const log = path.join(work, 'log');
+    fs.writeFileSync(log, '');
+    let stdout = '';
+    try {
+      stdout = execFileSync('bash', ['-c', script], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          PATH: `${bin}:${process.env.PATH ?? ''}`,
+          GH_REPO: 'maplespike/quill',
+          HEAD_SHA: 'sha1',
+          READ_TOKEN: 'test-token',
+          RUNNER_TEMP: work,
+          FIXTURE_PAGE1: path.join(work, 'page1'),
+          FIXTURE_PAGE2: path.join(work, 'page2'),
+          FIXTURE_LOG: log,
+          FIXTURE_EXIT1: String(exit1),
+          FIXTURE_EXIT2: String(exit2),
+        },
+      });
+    } catch (error) {
+      const failed = error as { stdout?: string; stderr?: string; message: string };
+      const pagesPath = path.join(work, 'status-pages.json');
+      throw new Error([
+        failed.stdout ?? '',
+        failed.stderr ?? '',
+        failed.message,
+        fs.existsSync(pagesPath) ? fs.readFileSync(pagesPath, 'utf8') : '',
+      ].join('\n'));
+    }
+    return {
+      stdout,
+      pages: fs.readFileSync(path.join(work, 'status-pages.json'), 'utf8'),
+      log: fs.readFileSync(log, 'utf8'),
+    };
+  };
+  const one = run('HTTP/2.0 200 OK\nContent-Type: application/json\n\n[]\n');
+  const onePage = JSON.parse(one.pages) as { http_status: number; next: string | null; body: unknown[] };
+  assert.equal(onePage.http_status, 200);
+  assert.equal(onePage.next, null);
+  assert.deepEqual(onePage.body, []);
+  assert.equal(one.log.trim().split('\n').length, 1);
+
+  const next = 'https://api.github.com/repositories/123/commits/sha1/statuses?per_page=100&page=2';
+  const two = run(
+    `HTTP/2.0 200 OK\nLink: <${next}>; rel="next", <https://api.github.com/repositories/123/commits/sha1/statuses?per_page=100&page=2>; rel="last"\n\n[{"id":1}]\n`,
+    'HTTP/2.0 200 OK\nLink: <https://api.github.com/repositories/123/commits/sha1/statuses?per_page=100&page=1>; rel="prev"\n\n[{"id":2}]\n',
+  );
+  assert.match(two.log, /page=2/);
+  const docs = two.pages.trim().split('\n').map((line) => JSON.parse(line) as { next: string | null; body: { id: number }[] });
+  assert.equal(docs.length, 2);
+  assert.equal(docs[0].next, next);
+  assert.equal(docs[1].next, null);
+  assert.equal(docs[1].body[0].id, 2);
+
+  assert.throws(() => run('HTTP/2.0 200 OK\n\n[]\n', '', 1), /pagination request failed/);
+  assert.throws(
+    () => run('HTTP/2.0 500 OK\n\n{"message":"boom"}\n'),
+    /HTTP 500/,
+  );
+  assert.throws(
+    () => run('HTTP/2.0 200 OK\nLink: <https://evil.example/statuses?page=2>; rel="next"\n\n[]\n'),
+    /outside this commit/,
+  );
+  const loop = 'https://api.github.com/repositories/123/commits/sha1/statuses?per_page=100&page=2';
+  assert.throws(
+    () => run(
+      `HTTP/2.0 200 OK\nLink: <${loop}>; rel="next"\n\n[]\n`,
+      `HTTP/2.0 200 OK\nLink: <${loop}>; rel="next"\n\n[]\n`,
+    ),
+    /repeated a Link URL/,
+  );
+  const full = `[${Array.from({ length: 100 }, (_, index) => `{"id":${index + 1}}`).join(',')}]`;
+  const hundred = run(`HTTP/2.0 200 OK\n\n${full}\n`);
+  const hundredPage = JSON.parse(hundred.pages) as { next: string | null; body: unknown[] };
+  assert.equal(hundredPage.next, null);
+  assert.equal(hundredPage.body.length, 100);
+  assert.equal(hundred.log.trim().split('\n').length, 1);
 });
 
 test('stale does not hide a real failure and does not count as success', () => {

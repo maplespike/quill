@@ -162,7 +162,7 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   }
 
   const checksAt = code.indexOf('/check-runs');
-  const statusesAt = code.indexOf('/statuses');
+  const statusesAt = code.indexOf('gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"');
   const runsAt = code.indexOf('actions/runs?head_sha=');
   if (checksAt < 0 || !commandUsesAppToken(code, checksAt)) {
     fail('metadata-app-token', 'check-runs read does not use the fleet-merge-gate App token');
@@ -173,7 +173,7 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   if (runsAt < 0 || !commandUsesAppToken(code, runsAt)) {
     fail('metadata-app-token', 'workflow run read does not use the fleet-merge-gate App token');
   }
-  for (const needle of [PULLS_READ, '/check-runs', '/statuses', 'actions/runs?head_sha=']) {
+  for (const needle of [PULLS_READ, '/check-runs', 'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"', 'actions/runs?head_sha=']) {
     const at = code.indexOf(needle);
     const line = code.slice(at, code.indexOf('\n', at) === -1 ? code.length : code.indexOf('\n', at));
     if (at >= 0 && line.includes('|| true')) {

@@ -72,9 +72,10 @@ test('dropping the App token off the check-runs read fails', () => {
 
 test('dropping the App token off the statuses read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses',
-    'gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses',
+    'GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
+    'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
   );
+  assert.notEqual(text, workflow());
   assert.ok(codes(text).includes('metadata-app-token'));
 });
 

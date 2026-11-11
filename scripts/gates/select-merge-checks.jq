@@ -5,6 +5,8 @@
 # A newer failure beats an older success. A cancelled run is dropped only
 # when a later attempt of that same identity exists. Friendly name alone is
 # not an identity. Commit statuses use context, then updated_at, then id.
+# The gate excludes only this run, or an earlier run whose workflow path is
+# the gate file. A missing path or app does not exclude a job.
 def blank($v):
   ($v | type) != "string" or $v == "";
 
@@ -42,21 +44,71 @@ def actions_run_id($c):
     else { id: .[0], error: null }
     end;
 
-def is_gate($c):
-  (
-    ($run_id | type) == "string"
-    and ($run_id | test("^[0-9]+$"))
-    and (
-      (($c.details_url // "") | contains("/actions/runs/" + $run_id + "/"))
-      or (($c.html_url // "") | contains("/actions/runs/" + $run_id + "/"))
-    )
-  )
-  or (
-    ($app_slug | type) == "string"
-    and $app_slug != ""
-    and (($c.app.slug? // null) == $app_slug)
-    and ((($c.name // null) == $job) or (($c.name // null) == $workflow))
+def same_app($c):
+  ($app_slug | type) == "string"
+  and $app_slug != ""
+  and (($c.app.slug? // "") == $app_slug);
+
+def gate_named($c):
+  (($c.name // "") == $job) or (($c.name // "") == $workflow);
+
+def url_is_this_run($c):
+  ($run_id | type) == "string"
+  and ($run_id | test("^[0-9]+$"))
+  and (
+    (($c.details_url // "") | contains("/actions/runs/" + $run_id + "/"))
+    or (($c.html_url // "") | contains("/actions/runs/" + $run_id + "/"))
   );
+
+# Name plus app is not enough. The URL of this run is this execution. An older
+# gate run must resolve to the gate workflow path. Otherwise the check stays
+# in the tally, or a later missing-path read fails closed.
+def is_gate($c; $index):
+  if same_app($c) and gate_named($c) and url_is_this_run($c) then true
+  elif (same_app($c) | not) or (gate_named($c) | not) or $workflow_path == "" then false
+  else
+    actions_run_id($c) as $rid
+    | if $rid.error != null or $rid.id == null or $index.map[$rid.id] == null then false
+      else ($index.map[$rid.id].path == $workflow_path)
+      end
+  end;
+
+# Statuses are a JSON array. GitHub documents completeness with the Link
+# rel=next header, not total_count. A page without that proof is incomplete.
+# A next link on the last page, a page after a finished page, or an error
+# body fails the read. Item count is not a substitute for the link.
+def collect_status_pages($pages):
+  if ($pages | length) == 0 then
+    { items: [], error: "commit status pagination produced no pages" }
+  else
+    reduce $pages[] as $p (
+      { items: [], error: null, index: 0, open: false };
+      if .error != null then .
+      else
+        .index += 1
+        | if ($p | type) != "object" or (($p | has("http_status")) | not) or (($p | has("next")) | not) or (($p | has("body")) | not) then
+            .error = "commit status page is missing Link pagination proof"
+          elif ($p.http_status | type) != "number" or $p.http_status < 200 or $p.http_status >= 300 then
+            .error = ("commit status page returned HTTP " + ($p.http_status | tostring) + (if ($p.body | type) == "object" and ($p.body.message | type) == "string" then ": " + $p.body.message else "" end))
+          elif ($p.body | type) == "object" and ($p.body | has("message")) then
+            .error = ("commit status page failed: " + ($p.body.message | tostring))
+          elif ($p.body | type) != "array" then
+            .error = "commit status page body is not an array"
+          elif (.open | not) and .index > 1 then
+            .error = "commit status pagination has a page after a page with no next Link"
+          elif $p.next != null and (($p.next | type) != "string" or $p.next == "") then
+            .error = "commit status next Link is empty"
+          else
+            .items += $p.body
+            | .open = ($p.next != null)
+          end
+      end
+    )
+    | if .error != null then { items: [], error: .error }
+      elif .open then { items: [], error: "commit status pagination stopped while a next Link remained" }
+      else { items: .items, error: null }
+      end
+  end;
 
 def check_bucket($c):
   if ($c.status // "") != "completed" then "pending"
@@ -98,7 +150,7 @@ def finish($error; $checks; $statuses):
 
 collect_pages($check_pages; "check_runs") as $checks_in
 | collect_pages($run_pages; "workflow_runs") as $runs_in
-| collect_pages($status_pages; "statuses") as $statuses_in
+| collect_status_pages($status_pages) as $statuses_in
 | if $checks_in.error != null then finish($checks_in.error; null; null)
   elif $runs_in.error != null then finish($runs_in.error; null; null)
   elif $statuses_in.error != null then finish($statuses_in.error; null; null)
@@ -132,7 +184,7 @@ collect_pages($check_pages; "check_runs") as $checks_in
           reduce $checks_in.items[] as $c (
             { rows: [], error: null };
             if .error != null then .
-            elif is_gate($c) then .
+            elif is_gate($c; $index) then .
             elif ($c.id | type) != "number" then .error = "check run is missing id"
             elif blank($c.head_sha // "") then .error = ("check run " + ($c.id | tostring) + " is missing head_sha")
             elif $c.head_sha != $head_sha then .

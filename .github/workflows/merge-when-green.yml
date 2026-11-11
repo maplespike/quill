@@ -150,6 +150,7 @@ jobs:
           CHECK_SUITE_PRS: ${{ toJson(github.event.check_suite.pull_requests) }}
           GATE_JOB_NAME: merge
           GATE_WORKFLOW_NAME: Merge when green
+          GATE_WORKFLOW_PATH: .github/workflows/merge-when-green.yml
           GATE_APP_SLUG: github-actions
         shell: bash
         run: |
@@ -403,18 +404,102 @@ jobs:
           # counts unless a later attempt of that same identity exists.
           # required is empty: every authoritative check still blocks. The
           # program rejects a missing or unknown identity instead of counting
-          # it green. This job's own run is excluded by name and app slug.
+          # it green. This run, and an older run of this workflow file, are
+          # the only gate exclusions. Another workflow's job named merge stays
+          # in the tally. Status pages follow Link rel=next and fail closed
+          # when that chain is unfinished or a page errors.
           if [[ -z "${RUNNER_TEMP:-}" ]]; then
             echo "::error::RUNNER_TEMP is not set. The gate did not merge."
             exit 1
           fi
           GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$RUNNER_TEMP/check-pages.json"
           GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}&per_page=100" > "$RUNNER_TEMP/run-pages.json"
-          GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" > "$RUNNER_TEMP/status-pages.json"
+          # BEGIN status-paginate.sh
+          # The statuses API returns an array. Completeness is the Link
+          # rel=next chain, not a total_count and not "fewer than 100 rows".
+          # A next link that is not fetched, a repeated link, a foreign link,
+          # or a non-2xx response exits 1.
+          : > "$RUNNER_TEMP/status-pages.json"
+          : > "$RUNNER_TEMP/status-urls.txt"
+          status_url=""
+          status_guard=0
+          while true; do
+            status_guard=$((status_guard + 1))
+            if [[ "$status_guard" -gt 20 ]]; then
+              echo "::error::commit status pagination exceeded 20 pages. The gate did not merge."
+              exit 1
+            fi
+            if [[ -z "$status_url" ]]; then
+              status_url="repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"
+            fi
+            if grep -Fxq -- "$status_url" "$RUNNER_TEMP/status-urls.txt"; then
+              echo "::error::commit status pagination repeated a Link URL. The gate did not merge."
+              exit 1
+            fi
+            case "$status_url" in
+              "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")
+                ;;
+              "https://api.github.com/repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?"*)
+                ;;
+              "https://api.github.com/repositories/"[0-9]*"/commits/${HEAD_SHA}/statuses?"*)
+                ;;
+              *)
+                echo "::error::commit status pagination Link is outside this commit. The gate did not merge."
+                exit 1
+                ;;
+            esac
+            printf '%s\n' "$status_url" >> "$RUNNER_TEMP/status-urls.txt"
+            if [[ "$status_url" == "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" ]]; then
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")"; then
+                echo "::error::commit status pagination request failed. The gate did not merge."
+                exit 1
+              fi
+            else
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "$status_url")"; then
+                echo "::error::commit status pagination request failed. The gate did not merge."
+                exit 1
+              fi
+            fi
+            status_http="$(printf '%s\n' "$status_raw" | awk 'NR==1 && $1 ~ /^HTTP/ { print $2; exit }')"
+            if [[ ! "$status_http" =~ ^2[0-9][0-9]$ ]]; then
+              echo "::error::commit status pagination returned HTTP ${status_http:-missing}. The gate did not merge."
+              exit 1
+            fi
+            status_next="$(printf '%s\n' "$status_raw" | awk '
+              BEGIN { nexturl = "" }
+              /^$/ { exit }
+              tolower($0) ~ /^link:/ {
+                line = $0
+                sub(/^[Ll]ink:[ \t]*/, "", line)
+                while (match(line, /<[^>]*>/)) {
+                  linkurl = substr(line, RSTART + 1, RLENGTH - 2)
+                  rest = substr(line, RSTART + RLENGTH)
+                  seg = rest
+                  cut = index(rest, "<")
+                  if (cut > 0) seg = substr(rest, 1, cut - 1)
+                  low = tolower(seg)
+                  if (low ~ /rel=[ \t]*"next"/ || low ~ /rel=[ \t]*next([;, \t]|$)/) nexturl = linkurl
+                  line = rest
+                }
+              }
+              END { printf "%s", nexturl }
+            ')"
+            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^$/ { capture = 1; next } capture { print }')"
+            if ! printf '%s\n' "$status_body" | jq -cen --argjson http_status "$status_http" --arg next "$status_next" 'input as $body | if ($body | type) != "array" then error("commit status body is not an array") else {http_status: $http_status, next: (if $next == "" then null else $next end), body: $body} end' >> "$RUNNER_TEMP/status-pages.json"; then
+              echo "::error::commit status pagination returned a body that is not a JSON array. The gate did not merge."
+              exit 1
+            fi
+            if [[ -z "$status_next" ]]; then
+              break
+            fi
+            status_url="$status_next"
+          done
+          # END status-paginate.sh
           CHECK_RESULT="$(jq -n \
             --arg head_sha "$HEAD_SHA" \
             --arg job "$GATE_JOB_NAME" \
             --arg workflow "$GATE_WORKFLOW_NAME" \
+            --arg workflow_path "$GATE_WORKFLOW_PATH" \
             --arg run_id "$RUN_ID" \
             --arg app_slug "$GATE_APP_SLUG" \
             --argjson required '[]' \
@@ -429,6 +514,8 @@ jobs:
             # A newer failure beats an older success. A cancelled run is dropped only
             # when a later attempt of that same identity exists. Friendly name alone is
             # not an identity. Commit statuses use context, then updated_at, then id.
+            # The gate excludes only this run, or an earlier run whose workflow path is
+            # the gate file. A missing path or app does not exclude a job.
             def blank($v):
               ($v | type) != "string" or $v == "";
 
@@ -466,21 +553,71 @@ jobs:
                 else { id: .[0], error: null }
                 end;
 
-            def is_gate($c):
-              (
-                ($run_id | type) == "string"
-                and ($run_id | test("^[0-9]+$"))
-                and (
-                  (($c.details_url // "") | contains("/actions/runs/" + $run_id + "/"))
-                  or (($c.html_url // "") | contains("/actions/runs/" + $run_id + "/"))
-                )
-              )
-              or (
-                ($app_slug | type) == "string"
-                and $app_slug != ""
-                and (($c.app.slug? // null) == $app_slug)
-                and ((($c.name // null) == $job) or (($c.name // null) == $workflow))
+            def same_app($c):
+              ($app_slug | type) == "string"
+              and $app_slug != ""
+              and (($c.app.slug? // "") == $app_slug);
+
+            def gate_named($c):
+              (($c.name // "") == $job) or (($c.name // "") == $workflow);
+
+            def url_is_this_run($c):
+              ($run_id | type) == "string"
+              and ($run_id | test("^[0-9]+$"))
+              and (
+                (($c.details_url // "") | contains("/actions/runs/" + $run_id + "/"))
+                or (($c.html_url // "") | contains("/actions/runs/" + $run_id + "/"))
               );
+
+            # Name plus app is not enough. The URL of this run is this execution. An older
+            # gate run must resolve to the gate workflow path. Otherwise the check stays
+            # in the tally, or a later missing-path read fails closed.
+            def is_gate($c; $index):
+              if same_app($c) and gate_named($c) and url_is_this_run($c) then true
+              elif (same_app($c) | not) or (gate_named($c) | not) or $workflow_path == "" then false
+              else
+                actions_run_id($c) as $rid
+                | if $rid.error != null or $rid.id == null or $index.map[$rid.id] == null then false
+                  else ($index.map[$rid.id].path == $workflow_path)
+                  end
+              end;
+
+            # Statuses are a JSON array. GitHub documents completeness with the Link
+            # rel=next header, not total_count. A page without that proof is incomplete.
+            # A next link on the last page, a page after a finished page, or an error
+            # body fails the read. Item count is not a substitute for the link.
+            def collect_status_pages($pages):
+              if ($pages | length) == 0 then
+                { items: [], error: "commit status pagination produced no pages" }
+              else
+                reduce $pages[] as $p (
+                  { items: [], error: null, index: 0, open: false };
+                  if .error != null then .
+                  else
+                    .index += 1
+                    | if ($p | type) != "object" or (($p | has("http_status")) | not) or (($p | has("next")) | not) or (($p | has("body")) | not) then
+                        .error = "commit status page is missing Link pagination proof"
+                      elif ($p.http_status | type) != "number" or $p.http_status < 200 or $p.http_status >= 300 then
+                        .error = ("commit status page returned HTTP " + ($p.http_status | tostring) + (if ($p.body | type) == "object" and ($p.body.message | type) == "string" then ": " + $p.body.message else "" end))
+                      elif ($p.body | type) == "object" and ($p.body | has("message")) then
+                        .error = ("commit status page failed: " + ($p.body.message | tostring))
+                      elif ($p.body | type) != "array" then
+                        .error = "commit status page body is not an array"
+                      elif (.open | not) and .index > 1 then
+                        .error = "commit status pagination has a page after a page with no next Link"
+                      elif $p.next != null and (($p.next | type) != "string" or $p.next == "") then
+                        .error = "commit status next Link is empty"
+                      else
+                        .items += $p.body
+                        | .open = ($p.next != null)
+                      end
+                  end
+                )
+                | if .error != null then { items: [], error: .error }
+                  elif .open then { items: [], error: "commit status pagination stopped while a next Link remained" }
+                  else { items: .items, error: null }
+                  end
+              end;
 
             def check_bucket($c):
               if ($c.status // "") != "completed" then "pending"
@@ -522,7 +659,7 @@ jobs:
 
             collect_pages($check_pages; "check_runs") as $checks_in
             | collect_pages($run_pages; "workflow_runs") as $runs_in
-            | collect_pages($status_pages; "statuses") as $statuses_in
+            | collect_status_pages($status_pages) as $statuses_in
             | if $checks_in.error != null then finish($checks_in.error; null; null)
               elif $runs_in.error != null then finish($runs_in.error; null; null)
               elif $statuses_in.error != null then finish($statuses_in.error; null; null)
@@ -556,7 +693,7 @@ jobs:
                       reduce $checks_in.items[] as $c (
                         { rows: [], error: null };
                         if .error != null then .
-                        elif is_gate($c) then .
+                        elif is_gate($c; $index) then .
                         elif ($c.id | type) != "number" then .error = "check run is missing id"
                         elif blank($c.head_sha // "") then .error = ("check run " + ($c.id | tostring) + " is missing head_sha")
                         elif $c.head_sha != $head_sha then .
