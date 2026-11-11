@@ -604,9 +604,14 @@ function prohibitedValue(value: string): boolean {
   const upper = value.toUpperCase();
   if (identifierRuns(upper).some((run) => hasCusipCandidate(run) || hasIsinCandidate(run))) return true;
   if (SYNTHETIC_CIK.test(value) || SYNTHETIC_ACCESSION.test(value) || REVIEW_ID.test(value)) return false;
-  if (!/^[0-9A-Z]+(?:-[0-9A-Z]+)+$/i.test(value.trim())) return false;
-  const hyphenJoined = upper.replace(/-/g, '');
-  return hasCusipCandidate(hyphenJoined) || hasIsinCandidate(hyphenJoined);
+  if (/^[0-9A-Z]+(?:-[0-9A-Z]+)+$/i.test(value.trim())) {
+    const hyphenJoined = upper.replace(/-/g, '');
+    if (hasCusipCandidate(hyphenJoined) || hasIsinCandidate(hyphenJoined)) return true;
+  }
+  return digitSeparatorSpans(upper).some((span) => {
+    const digits = span.replace(/[^0-9]/g, '');
+    return digits.length === 9 && hasCusipCandidate(digits);
+  });
 }
 
 /**
@@ -617,11 +622,19 @@ function prohibitedValue(value: string): boolean {
  * "Common" and "Shares" are shorter than nine characters.
  * An ISIN candidate is a 12-character window: two letters, nine letters or
  * digits, and a final digit, with at least one digit in the window.
- * Hyphens are removed before a second pass so `037833-100` is still a candidate.
- * Spaces are not removed, so class words stay separate runs.
+ * A whole hyphenated alphanumeric token is joined, so `037833-100` is still a candidate.
+ * Digit groups separated only by spaces, dots, or hyphens are joined, so
+ * `037833 10 0` and `037.833.100` are candidates. This is a shape heuristic.
+ * It is not proof that a value is a CUSIP, and it is not a privacy clearance.
+ * Words stay in their own runs. `Common Shares` and `Preferred Shares Series A`
+ * do not contain a 9-digit separator span.
  */
 function identifierRuns(value: string): string[] {
   return value.match(/[0-9A-Z]+/g) ?? [];
+}
+
+function digitSeparatorSpans(value: string): string[] {
+  return value.match(/[0-9]+(?:[ .\-][0-9]+)+/g) ?? [];
 }
 
 function hasCusipCandidate(run: string): boolean {

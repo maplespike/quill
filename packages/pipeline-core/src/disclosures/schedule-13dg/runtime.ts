@@ -242,6 +242,8 @@ export function createSchedule13dgRuntime(options: {
       note('persistence-refused');
       return { status: 'not-persisted', reason: 'persistence-refused' };
     }
+    const occupied = occupyDecision(frozen.accession, canonical);
+    if (occupied) return occupied;
     const written: SecondaryStore[] = [];
     for (const store of stores) {
       try {
@@ -288,23 +290,27 @@ export function createSchedule13dgRuntime(options: {
       note(evaluation.reason);
       return evaluation;
     }
-    if (hidden.has(evaluation.record.accession)) {
+    const canonical = canonicalRecord(evaluation.record);
+    const occupied = occupyDecision(evaluation.record.accession, canonical);
+    if (occupied) return occupied;
+    return persist(evaluation.record, canonical, at);
+  }
+
+  function occupyDecision(accession: string, canonical: string): IngestResult | null {
+    if (hidden.has(accession)) {
       note('tombstoned-accession');
       return { status: 'conflict', reason: 'tombstoned-accession' };
     }
-    const canonical = canonicalRecord(evaluation.record);
-    const prior = records.get(evaluation.record.accession);
-    if (prior) {
-      if (prior.canonical === canonical) {
-        bump('duplicate');
-        note('duplicate');
-        return { status: 'duplicate', reason: 'duplicate' };
-      }
-      bump('conflict');
-      note('conflict');
-      return { status: 'conflict', reason: 'conflict' };
+    const live = records.get(accession);
+    if (!live) return null;
+    if (live.canonical === canonical) {
+      bump('duplicate');
+      note('duplicate');
+      return { status: 'duplicate', reason: 'duplicate' };
     }
-    return persist(evaluation.record, canonical, at);
+    bump('conflict');
+    note('conflict');
+    return { status: 'conflict', reason: 'conflict' };
   }
 
   return {
@@ -389,6 +395,9 @@ export function createSchedule13dgRuntime(options: {
         note('lineage-conflict');
         return { status: 'conflict', reason: 'lineage-conflict' };
       }
+      const destinationCanonical = canonicalRecord(evaluation.record);
+      const occupied = occupyDecision(evaluation.record.accession, destinationCanonical);
+      if (occupied) return occupied;
       const priorScrub = scrubAt(input.priorAccession, 'corrected', at);
       if (priorScrub.scrub !== 'complete') {
         return {
@@ -397,7 +406,7 @@ export function createSchedule13dgRuntime(options: {
           storesRemaining: priorScrub.storesRemaining,
         };
       }
-      return persist(evaluation.record, canonicalRecord(evaluation.record), at);
+      return persist(evaluation.record, destinationCanonical, at);
     },
     markStale(activeAccessions) {
       const at = now();

@@ -1375,8 +1375,88 @@ describe('schedule 13d/g disabled foundation', () => {
     if (!served.blocked) assert.equal(served.records.some((record) => record.accession === 'SYN-ACC-NEXT'), false);
   });
 
+  it('refuses a correction whose destination is already live or tombstoned', () => {
+    const store = memoryStore();
+    const runtime = openRuntime({ stores: [store], requiredStoreIds: ['memory-stand-in'] });
+    const xmlA = filingXml({ eventDate: '2025-09-30' });
+    const xmlB = filingXml({ eventDate: '2025-10-31' });
+    const xmlC = filingXml({ eventDate: '2025-12-15' });
+    runtime.ingestSynthetic({
+      xml: xmlA,
+      accession: 'SYN-ACC-A',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    runtime.withdraw('SYN-ACC-A');
+    runtime.ingestSynthetic({
+      xml: xmlB,
+      accession: 'SYN-ACC-B',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    runtime.ingestSynthetic({
+      xml: xmlC,
+      accession: 'SYN-ACC-C',
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    const storeB = JSON.stringify(store.read('SYN-ACC-B'));
+    const storeC = JSON.stringify(store.read('SYN-ACC-C'));
+    assert.equal(store.read('SYN-ACC-A'), null);
+
+    const resurrect = runtime.correct({
+      priorAccession: 'SYN-ACC-B',
+      accession: 'SYN-ACC-A',
+      xml: xmlB,
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(resurrect.status, 'conflict');
+    if (resurrect.status === 'conflict') assert.equal(resurrect.reason, 'tombstoned-accession');
+    assert.equal(JSON.stringify(store.read('SYN-ACC-B')), storeB);
+    assert.equal(JSON.stringify(store.read('SYN-ACC-C')), storeC);
+    assert.equal(store.read('SYN-ACC-A'), null);
+    const afterResurrect = runtime.serve();
+    assert.equal(afterResurrect.blocked, false);
+    if (!afterResurrect.blocked) {
+      assert.equal(afterResurrect.records.some((record) => record.accession === 'SYN-ACC-A'), false);
+      assert.equal(afterResurrect.records.find((record) => record.accession === 'SYN-ACC-B')?.eventDateAsReported, '2025-10-31');
+      assert.equal(afterResurrect.records.find((record) => record.accession === 'SYN-ACC-C')?.eventDateAsReported, '2025-12-15');
+    }
+    assert.equal(runtime.tombstones().find((item) => item.accession === 'SYN-ACC-A')?.reason, 'withdrawn');
+    assert.equal(runtime.tombstones().some((item) => item.accession === 'SYN-ACC-B'), false);
+
+    const overwrite = runtime.correct({
+      priorAccession: 'SYN-ACC-B',
+      accession: 'SYN-ACC-C',
+      xml: xmlB,
+      filedDate: '2025-11-13',
+      eligibility: [reviewed('SYN-CIK-FILER-A')],
+    });
+    assert.equal(overwrite.status, 'conflict');
+    if (overwrite.status === 'conflict') assert.equal(overwrite.reason, 'conflict');
+    assert.equal(JSON.stringify(store.read('SYN-ACC-B')), storeB);
+    assert.equal(JSON.stringify(store.read('SYN-ACC-C')), storeC);
+    const afterOverwrite = runtime.serve();
+    assert.equal(afterOverwrite.blocked, false);
+    if (!afterOverwrite.blocked) {
+      assert.equal(afterOverwrite.records.find((record) => record.accession === 'SYN-ACC-B')?.eventDateAsReported, '2025-10-31');
+      assert.equal(afterOverwrite.records.find((record) => record.accession === 'SYN-ACC-C')?.eventDateAsReported, '2025-12-15');
+    }
+    assert.equal(runtime.tombstones().some((item) => item.accession === 'SYN-ACC-B'), false);
+  });
+
   it('rejects embedded and letter-first identifier candidates even on a reviewed class', () => {
-    const cases = ['037833100', 'G0176J109', 'Common 037833100 Shares', 'Note CA99999X9999', '037833-100'];
+    const cases = [
+      '037833100',
+      'G0176J109',
+      'Common 037833100 Shares',
+      'Note CA99999X9999',
+      '037833-100',
+      '037833 10 0',
+      '037.833.100',
+      'Notes 037833 10 0',
+    ];
     for (const classTitle of cases) {
       const evaluation = evaluate({
         xml: filingXml({ classTitles: [classTitle] }),
@@ -1390,7 +1470,7 @@ describe('schedule 13d/g disabled foundation', () => {
       assert.equal(JSON.stringify(evaluation).includes('G0176J109'), false);
       assert.equal(JSON.stringify(evaluation).includes('CA99999X9999'), false);
     }
-    for (const classTitle of ['Common Shares', 'Preferred Shares Series A', 'Class A Common']) {
+    for (const classTitle of ['Common Shares', 'Preferred Shares Series A', 'Class A Common', 'Series 100']) {
       const evaluation = evaluate({
         xml: filingXml({ classTitles: [classTitle] }),
         accession: 'SYN-ACC-WORD',
