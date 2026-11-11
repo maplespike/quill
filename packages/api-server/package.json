@@ -34,7 +34,7 @@
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.16",
-    "ioredis": "^5.5.0",
+    "ioredis": "^6.0.0",
     "imap": "^0.8.19",
     "jose": "^5.9.0",
     "mailparser": "^3.14.1",
