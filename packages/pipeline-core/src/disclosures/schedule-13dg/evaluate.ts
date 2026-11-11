@@ -596,7 +596,7 @@ function isZeroToken(value: string | null): boolean {
   return /^0+(?:\.0+)?$/.test(value.trim());
 }
 
-function prohibitedValue(value: string): boolean {
+export function prohibitedValue(value: string): boolean {
   const lower = value.toLowerCase();
   if (lower.includes('cusip') || lower.includes('isin') || lower.includes('<') || lower.includes('sha256')) {
     return true;
@@ -638,7 +638,10 @@ function identifierRuns(value: string): string[] {
   return value.match(/[0-9A-Z]+/g) ?? [];
 }
 
-const DIGIT_GROUP = '[0-9A-Z]*[0-9][0-9A-Z]*';
+// Leading letters, then the group's first digit, then the rest. Same
+// language as [0-9A-Z]*[0-9][0-9A-Z]*, but the required digit is unique,
+// so a long alphanumeric run does not partition in polynomial time.
+const DIGIT_GROUP = '[A-Z]*[0-9][0-9A-Z]*';
 const SEPARATED_SPAN = new RegExp(`(?:\\b[A-Z]{2}[ .\\-])?${DIGIT_GROUP}(?:[ .\\-]${DIGIT_GROUP})+|\\b[A-Z]{2}[ .\\-]${DIGIT_GROUP}`, 'g');
 
 // ISO-8601 dates and timestamps (event/filed/fetch fields) are not identifiers:
@@ -651,7 +654,12 @@ const ISO_DATE_TIME = /\b[0-9]{4}-[0-9]{2}-[0-9]{2}(?:T[0-9]{2}:[0-9]{2}(?::[0-9
  * timestamps are blanked first.
  */
 function separatedIdentifierSpans(value: string): string[] {
-  return value.replace(ISO_DATE_TIME, ' ').match(SEPARATED_SPAN) ?? [];
+  const blanked = value.replace(ISO_DATE_TIME, ' ');
+  // Both alternatives in SEPARATED_SPAN require a separator, so a
+  // separator-free field cannot match and must not be searched with
+  // the global span regex (O(n^2) start positions otherwise).
+  if (!/[ .\-]/.test(blanked)) return [];
+  return blanked.match(SEPARATED_SPAN) ?? [];
 }
 
 function hasCusipCandidate(run: string): boolean {

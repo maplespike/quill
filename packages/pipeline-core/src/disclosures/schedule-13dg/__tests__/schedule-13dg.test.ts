@@ -32,6 +32,7 @@ import {
   runBoundedAccess,
   writeMetadata,
 } from '../index.js';
+import { prohibitedValue } from '../evaluate.js';
 import type { AdmittedSchedule13dgRecord, MetadataRow, ReviewedEntityEligibility, SecondaryStore } from '../index.js';
 
 const PERSON = 'SYNTHETIC NATURAL PERSON';
@@ -1526,6 +1527,25 @@ describe('schedule 13d/g disabled foundation', () => {
       });
       assert.equal(evaluation.status, 'admitted', classTitle);
     }
+  });
+
+  it('scans a 50k mixed field with no separator in well under 100 ms and leaves it clear', () => {
+    const field = '11AAAAAAAA'.repeat(5_000);
+    assert.equal(field.length, 50_000);
+    const started = performance.now();
+    const blocked = prohibitedValue(field);
+    const elapsedMs = performance.now() - started;
+    assert.equal(blocked, false);
+    assert.ok(elapsedMs < 100, `separator-free 50k field took ${elapsedMs} ms`);
+  });
+
+  it('scans a long field of single-space-separated groups in well under 100 ms and still flags it', () => {
+    const field = Array.from({ length: 10_000 }, () => 'A1').join(' ');
+    const started = performance.now();
+    const blocked = prohibitedValue(field);
+    const elapsedMs = performance.now() - started;
+    assert.equal(blocked, true);
+    assert.ok(elapsedMs < 100, `space-separated groups field took ${elapsedMs} ms`);
   });
 
   it('rejects a same-accession correction before lineage and never scrubs the prior record', () => {
