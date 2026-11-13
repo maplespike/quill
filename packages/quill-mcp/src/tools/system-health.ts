@@ -22,14 +22,21 @@ export const definition: ToolDefinition = {
 export const handler: ToolHandler = async () => {
   try {
     const health = await api.getHealth();
-    let usage: { periodCalls?: number; periodLimit?: number } = {};
+    let usageTier: string | undefined;
+    let usageDaily: { calls: number; limit: number } | undefined;
+    let usageMonthly: { calls: number; limit: number } | undefined;
+    let usagePeriodCalls: number | undefined;
+    let usagePeriodLimit: number | undefined;
     try {
-      usage = await api.getUsage();
+      const u = await api.getUsage();
+      usageTier = u.tenant?.tier;
+      usageDaily = u.usage?.daily;
+      usageMonthly = u.usage?.monthly;
+      usagePeriodCalls = u.usage?.monthly?.calls;
+      usagePeriodLimit = u.usage?.monthly?.limit;
     } catch {
-      // /usage may be unreachable or rate-limited; fall back to inline health.usage.
-      // Note: health.usage has no periodCalls/periodLimit; leave them undefined
-      // so callers can detect the fallback rather than trusting a fake 1000.
-      usage = { periodCalls: health.usage.monthly, periodLimit: undefined };
+      // /usage may be unreachable or rate-limited; leave undefined so callers
+      // can detect the fallback rather than trusting fabricated numbers.
     }
     const optStats = cacheStats();
 
@@ -50,12 +57,12 @@ export const handler: ToolHandler = async () => {
         service: health.service,
         version: health.version,
         environment: health.environment,
-        tier: health.tenant.tier,
+        tier: usageTier || health.tenant.tier,
         usage: {
-          daily: health.usage.daily,
-          monthly: health.usage.monthly,
-          periodCalls: usage.periodCalls,
-          periodLimit: usage.periodLimit,
+          daily: usageDaily || health.usage.daily,
+          monthly: usageMonthly || health.usage.monthly,
+          periodCalls: usagePeriodCalls,
+          periodLimit: usagePeriodLimit,
         },
         localQuota,
         optimization: {

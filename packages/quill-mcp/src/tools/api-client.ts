@@ -156,11 +156,14 @@ export async function getHealth() {
 
 export async function getUsage() {
   return callApi<{
-    periodCalls: number;
-    periodLimit: number;
-    tier: string;
-    daily: { count: number; limit: number };
-    monthly: { count: number; limit: number };
+    scope: string;
+    tenant: { id: string; name: string; tier: string };
+    period: { date: string; yearMonth: string };
+    usage: {
+      daily: { calls: number; limit: number; remaining: number; percentUsed: number };
+      monthly: { calls: number; limit: number; remaining: number; percentUsed: number };
+    };
+    resetDate: string;
   }>('/usage');
 }
 
