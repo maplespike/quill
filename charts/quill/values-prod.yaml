@@ -17,8 +17,8 @@ images:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/mcp"
     pullPolicy: IfNotPresent
-    digest: "sha256:d7187fde7ab3a8cd792eb8fa710454475776ccc8cd441ff71a1e50f6028e2fa3"
-    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
+    digest: "sha256:c23201ef5533643fe2465979cd15f16ea591a1dd834311e6c4d9f8f99bcd152b"
+    tag: "381debac8fadfeee5d260884e216c40d800d6324"
   portal:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/portal"
