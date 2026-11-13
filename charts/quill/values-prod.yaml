@@ -11,32 +11,32 @@ images:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/api"
     pullPolicy: IfNotPresent
-    digest: "sha256:c1959ffcc83d7ba32f65c0745cf38295a095662bab87e290687bc1e57e0f1694"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
+    digest: "sha256:9cf03a1f6930cefe12b96dc8d04dfb164fc77158efaaa756285d08b0aab65939"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   mcp:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/mcp"
     pullPolicy: IfNotPresent
-    digest: "sha256:e91fd9fa4c3aeaf6280422fd3c3c055f6bd6c91f24b90e7a181c7f0ed3ea18d2"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
+    digest: "sha256:d7187fde7ab3a8cd792eb8fa710454475776ccc8cd441ff71a1e50f6028e2fa3"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   portal:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/portal"
     pullPolicy: IfNotPresent
-    digest: "sha256:c9f4b33449df3d64a4c2a3fc7f3d1be7cc7d3d111c7714260cdec40750ef7a56"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
+    digest: "sha256:2c34315eaadd7f63c6b18fc9f049d43858ebcdc666c0d13b243f926f6137ebd3"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   ingest:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/ingest"
     pullPolicy: IfNotPresent
-    digest: "sha256:0aa685325265768abf5a5594928cbafd8d978d6c0a24c7657115a9e469bd0a09"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
+    digest: "sha256:13c37c96088298478d64d34268558b193b52fa70a2b4d3a498b562ec6bb2ca24"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   search:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/search"
     pullPolicy: IfNotPresent
-    digest: "sha256:30e4b496af869b4576d90500cf11c74262b0d09bcc8b1fe1709ab7767ceef16d"
-    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
+    digest: "sha256:40f98ad3a15c172fdded1a4ca1921a601da0af96b953bdb179fd0d7b6a3c6cc5"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
 # CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
 # forge last and only for ultra-light work (cloudflared). Heavy workloads
 # use required hostname In affinityHosts + preferredHost weight 100.
