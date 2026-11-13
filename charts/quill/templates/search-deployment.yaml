@@ -102,8 +102,11 @@ spec:
               exit 0
             fi
             tmp="$(mktemp -d)"
-            : > "$tmp/empty.jsonl"
-            quill-search index --corpus "$tmp/empty.jsonl" --out /data/index
+            # `index` rejects an EMPTY corpus ("contains no documents"), so
+            # write one placeholder document rather than an empty file. It is
+            # replaced by the first real corpus build.
+            printf '%s\n' '{"id":"quill:search:bootstrap","kind":"system","title":"Search index bootstrap","text":"Placeholder written because the index claim mounted empty. Replaced by the next corpus build.","url":"","source":"quill-search","published":"","updated":"","meta":{}}' > "$tmp/bootstrap.jsonl"
+            quill-search index --corpus "$tmp/bootstrap.jsonl" --out /data/index
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
