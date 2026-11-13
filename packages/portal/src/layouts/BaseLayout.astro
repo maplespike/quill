@@ -4,6 +4,7 @@ import "@/styles/themes/ink-and-paper.css";
 import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
 import SiteHeader from "@/components/SiteHeader.astro";
+import DevBanner from "@/components/DevBanner.astro";
 import UpstreamNotice from "@/components/UpstreamNotice.astro";
 import "@/styles/editorial.css";
 import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
@@ -156,6 +157,7 @@ const isProductSurface = PRODUCT_SURFACES.some(
        React island renders content sections only — no internal TopBar/SiteFooter. -->
   <body class="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-maple/30">
 
+    <DevBanner lang={lang} />
     <SiteHeader lang={lang} cleanPath={cleanPath} pathname={pathname} product={isProductSurface} />
     <!-- Upstream outage notice: one line, only when a government source is not
          up, and only wording the API derives from the declarative config. -->
