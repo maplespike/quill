@@ -22,7 +22,15 @@ export const definition: ToolDefinition = {
 export const handler: ToolHandler = async () => {
   try {
     const health = await api.getHealth();
-    const usage = await api.getUsage();
+    let usage: { periodCalls?: number; periodLimit?: number } = {};
+    try {
+      usage = await api.getUsage();
+    } catch {
+      // /usage may be unreachable or rate-limited; fall back to inline health.usage.
+      // Note: health.usage has no periodCalls/periodLimit; leave them undefined
+      // so callers can detect the fallback rather than trusting a fake 1000.
+      usage = { periodCalls: health.usage.monthly, periodLimit: undefined };
+    }
     const optStats = cacheStats();
 
     // Surface the local freemium quota when an identity is bound. stdio

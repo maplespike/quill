@@ -10,7 +10,13 @@
  *   QUILL_API_KEY  — API key for the server
  */
 
-const API_BASE = process.env.QUILL_API_URL || '';
+// Normalize so callers can pass either `https://host` or `https://host/v1`.
+const _rawApiBase = (process.env.QUILL_API_URL || '').replace(/\/+$/, '');
+const API_BASE = _rawApiBase === ''
+  ? ''
+  : _rawApiBase.endsWith('/v1')
+    ? _rawApiBase
+    : `${_rawApiBase}/v1`;
 const API_KEY = process.env.QUILL_API_KEY || 'maplespike-dev-key';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
