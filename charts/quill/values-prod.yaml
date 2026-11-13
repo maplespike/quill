@@ -24,7 +24,7 @@ images:
     repository: "quill/portal"
     pullPolicy: IfNotPresent
     digest: "sha256:2c34315eaadd7f63c6b18fc9f049d43858ebcdc666c0d13b243f926f6137ebd3"
-    tag: "4ec3ccb3d56bc59c17788b9eb54eddc04fe9d8ea"
+    tag: "e8cfc8f52fb709d12bbe7e0bd0848703d77aee3f"
   ingest:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/ingest"
