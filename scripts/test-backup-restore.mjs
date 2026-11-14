@@ -137,7 +137,7 @@ test('chart backup contract', (t) => {
   assert.match(values, /accessMode: ReadWriteOnce/);
   assert.doesNotMatch(values, /accessMode: ReadWriteMany/);
   // CPU order (Reverb 2026-10-28 15:06 CT): backups stay on the same allowed
-  // hosts as the API volume — nexus|sentry-agent, never forge — via
+  // hosts as the API volume — nexus|sentry, never forge — via
   // affinityHosts / preferredHost (not a hard nodeName: nexus pin).
   const heavyHosts = values.match(
     /affinityHosts: &quillHeavyHosts\n((?:  - .+\n)+)/,
@@ -146,8 +146,8 @@ test('chart backup contract', (t) => {
   const hostList = [...heavyHosts[1].matchAll(/- (\S+)/g)].map((m) => m[1]);
   assert.ok(hostList.includes('nexus'), `heavy hosts need nexus: ${hostList}`);
   assert.ok(
-    hostList.includes('sentry-agent'),
-    `heavy hosts need sentry-agent: ${hostList}`,
+    hostList.includes('sentry'),
+    `heavy hosts need sentry: ${hostList}`,
   );
   assert.ok(!hostList.includes('forge'), `heavy hosts must not include forge: ${hostList}`);
   assert.match(values, /preferredHost: &quillPreferredHost nexus/);
@@ -195,7 +195,7 @@ test('chart backup contract', (t) => {
     }
     assert.match(
       rendered.stdout,
-      /nodeAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?key: kubernetes\.io\/hostname[\s\S]*?operator: In[\s\S]*?- "nexus"[\s\S]*?- "sentry-agent"/,
+      /nodeAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?key: kubernetes\.io\/hostname[\s\S]*?operator: In[\s\S]*?- "nexus"[\s\S]*?- "sentry"/,
     );
     assert.doesNotMatch(
       rendered.stdout,

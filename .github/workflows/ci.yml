@@ -6,7 +6,7 @@
 # assuming a tool exists. See docs/GITHUB-ACTIONS-NIX.md for the verified list.
 # DO NOT add actions/setup-node or pnpm/action-setup on the self-hosted
 # runners — those tools are already installed, and a second install breaks
-# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')`
+# cache attribution. Fork jobs set `if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')`
 # and install Node 22 and pnpm 10.32.1 with no cache. See
 # docs/GITHUB-ACTIONS-NIX.md.
 # Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
@@ -40,11 +40,9 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  # One run per PR. A new push to a PR cancels the
-  # superseded run so the single arc-maplespike runner is not spent on stale
-  # commits. Pushes to main/prod group by commit SHA, so they never queue or
-  # cancel each other. deploy-prod.yml has its own non-cancelling group.
-  group: ci-${{ github.event.pull_request.number || github.sha }}
+  # One run per PR; a new push cancels the superseded run. Main/prod and
+  # workflow_dispatch group per sha, so a newer push never evicts a queued run.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('{0}-{1}', github.ref, github.sha) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -70,6 +68,7 @@ jobs:
       code: ${{ steps.every.outputs.code == 'true' || steps.some.outputs.self == 'true' }}
       api: ${{ steps.every.outputs.api == 'true' || steps.some.outputs.self == 'true' }}
       deps: ${{ steps.some.outputs.deps == 'true' }}
+      search: ${{ steps.some.outputs.search == 'true' }}
     steps:
       - id: every
         if: github.event_name == 'pull_request'
@@ -111,6 +110,10 @@ jobs:
               - 'patches/**'
               - 'scripts/check-no-native-bindings.sh'
               - '.github/workflows/ci.yml'
+            search:
+              - 'rust/**'
+              - 'Dockerfile.search'
+              - '.github/workflows/ci.yml'
 
   build-and-test:
     # Fork pull requests take ubuntu-latest. Same-repo pull requests and pushes
@@ -130,10 +133,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -277,6 +280,11 @@ jobs:
       - name: Image pin unit tests
         run: pnpm exec tsx --test scripts/test-image-pins.mts
 
+      # Registry plan: host, digest form, IfNotPresent, no ssh, and
+      # deploy-prod checks the registry before the pin commit. No cluster.
+      - name: Registry image plan
+        run: pnpm exec tsx --test scripts/test-node-images.mts
+
       # Backup CronJobs, the Longhorn search claim, and the scratch restore
       # drill. node:sqlite only — no cluster and no helm.
       - name: Backup and restore drill tests
@@ -293,6 +301,16 @@ jobs:
 
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
+
+      # #1278 and run 42959473763: an empty head repository must exit 1.
+      # The pulls read uses the fleet-merge-gate App token. A known foreign
+      # head stays excluded. A hold label still skips. Check selection keeps
+      # the latest attempt of one workflow job and still blocks a real failure.
+      - name: Merge gate metadata token
+        run: node scripts/gates/check-merge-gate-token.mjs
+
+      - name: Merge gate metadata token unit tests
+        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
 
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
@@ -360,6 +378,11 @@ jobs:
       # syntax error. Two workflows have been broken this way unnoticed.
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
+
+      # Changeset entries are transient release notes. The docs-staleness
+      # walker must not file review issues for `.changeset/*.md` (#958, #1118).
+      - name: Docs staleness walker skip list
+        run: node --test scripts/test-docs-staleness.mjs
 
       - name: Fork runner policy
         run: node scripts/gates/check-fork-runner-policy.mjs
@@ -431,10 +454,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -482,10 +505,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
@@ -500,6 +523,25 @@ jobs:
         env:
           QUILL_HTTP_MAX_RETRIES: '1'
           QUILL_HTTP_TIMEOUT_MS: '15000'
+
+  # Cheap guard for Dockerfile.search: `docker buildx build --check` parses the
+  # Dockerfile and resolves the build target without compiling anything, so a
+  # missing `quill-search` stage (what pin-images.sh and deploy-prod build) fails
+  # here instead of at deploy time. PRs run it only when rust/** or the
+  # Dockerfile change; pushes always run it.
+  search-dockerfile:
+    needs: changes
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.search == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check Dockerfile.search (target quill-search)
+        run: docker buildx build --check -f Dockerfile.search --target quill-search .
 
   secrets:
     needs: build-and-test
@@ -586,6 +628,16 @@ jobs:
           # secret was already set but never handed to the action, so this job
           # failed on every PR regardless of its contents.
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          # The action's only storage write is results.sarif as a workflow
+          # artifact; that upload fails the job once the account's artifact
+          # quota is full ('Failed to CreateArtifact: Artifact storage quota has
+          # been hit'), after the scan has already reported. Turning it off
+          # removes the storage dependency without weakening the check: the
+          # scan, the pinned engine and the non-zero exit on a finding are
+          # unchanged, and findings stay in the step log. Same fix as
+          # reverb256/blog#255. The baseline-enforced full-history gate in the
+          # sibling `secrets` job is untouched.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
 
   audit:
     needs: [build-and-test, changes]
@@ -611,10 +663,10 @@ jobs:
         uses: ./.github/actions/arc-tools
 
       - uses: pnpm/action-setup@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
       - uses: actions/setup-node@v4
-        if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
+        if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 

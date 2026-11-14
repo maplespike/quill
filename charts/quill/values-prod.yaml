@@ -1,30 +1,49 @@
 image:
+  # Still the live pin. deploy-prod rewrites each images.<svc> entry to
+  # registry + repository + pullPolicy IfNotPresent in one commit, and only
+  # after the registry HEAD check passes for every service. Until that
+  # commit, a render must keep these refs and Never.
   registry: docker.io/library
   tag: ''
   pullPolicy: Never
 images:
   api:
-    digest: "sha256:401dfe6c5cd1bd89cc8e24fa24154d864908411054e248590343dee96a514566"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/api"
+    pullPolicy: IfNotPresent
+    digest: "sha256:9cf03a1f6930cefe12b96dc8d04dfb164fc77158efaaa756285d08b0aab65939"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   mcp:
-    digest: "sha256:4c23916e7f71ec81a43a4a262f38cd70e86bc888dfb3e983d92fd61796a6f10e"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/mcp"
+    pullPolicy: IfNotPresent
+    digest: "sha256:c23201ef5533643fe2465979cd15f16ea591a1dd834311e6c4d9f8f99bcd152b"
+    tag: "381debac8fadfeee5d260884e216c40d800d6324"
   portal:
-    digest: "sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/portal"
+    pullPolicy: IfNotPresent
+    digest: "sha256:2c2da2024e83d37598f994286665342bf94d04adb39327edabc6de86e91fe542"
+    tag: "7c08bada4f0d41729a0bcc813ee0d55a9c7ae18d"
   ingest:
-    digest: "sha256:3505a9ec818bb307423f503db7238564b53b938789085ab49d8b4981d88b9061"
-    tag: "2026-10-28-a9e3ef0764"
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/ingest"
+    pullPolicy: IfNotPresent
+    digest: "sha256:13c37c96088298478d64d34268558b193b52fa70a2b4d3a498b562ec6bb2ca24"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
   search:
-    digest: sha256:993d9045ec835d1265d7b63396f567c66d3ea7a6456a8c6e6377e2789ec690cd
-    tag: '2026-10-06-serve-fix'
-# CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry-agent;
+    registry: "registry.registry.svc.cluster.local:5000"
+    repository: "quill/search"
+    pullPolicy: IfNotPresent
+    digest: "sha256:40f98ad3a15c172fdded1a4ca1921a601da0af96b953bdb179fd0d7b6a3c6cc5"
+    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
+# CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
 # forge last and only for ultra-light work (cloudflared). Heavy workloads
 # use required hostname In affinityHosts + preferredHost weight 100.
 # No kubectl node-label writes — affinity uses kubernetes.io/hostname only.
 affinityHosts: &quillHeavyHosts
   - nexus
-  - sentry-agent
+  - sentry
 preferredHost: &quillPreferredHost nexus
 
 api:
@@ -68,7 +87,7 @@ mcp:
   replicas: 1
   port: 3001
   metricsPort: 9465
-  # 2026-10-28: nexus|sentry-agent only (never forge).
+  # 2026-10-28: nexus|sentry only (never forge).
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -120,7 +139,7 @@ portal:
   # api/mcp/search it needs no node pin.
   replicas: 2
   port: 8080
-  # CPU order: nexus preferred, sentry-agent fallback; never forge (Reverb 15:06 CT).
+  # CPU order: nexus preferred, sentry fallback; never forge (Reverb 15:06 CT).
   # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -144,7 +163,7 @@ cloudflared:
   # Ultra-light only: may land on forge (Reverb 15:06 CT).
   affinityHosts:
     - nexus
-    - sentry-agent
+    - sentry
     - forge
   preferredHost: nexus
   resources:
@@ -171,10 +190,14 @@ secrets:
   stripePublishableKey: ''
 ingestion:
   enabled: true
+  # Prefer rwoApiCoLocate (template) over nodeName; leave empty.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
   activeDeadlineSeconds: 1800
+  # Age out finished Job pods (Error pods from Oct lingered 4d with history=3 alone).
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
   schedules:
     committees: 0 */6 * * *
     gazette: 0 */12 * * *
@@ -197,24 +220,37 @@ ingestion:
     social: null
     unions: null
     universities: null
-  # 512Mi OOMKilled the corporate pipeline on every scheduled run
-  # (quill-ingest-corporate, jobs 29855940 / 29857380 Failed, 2026-10-07).
-  # The limit is shared by every pipeline in charts/quill/templates/cronjobs.yaml,
-  # so it is raised once here rather than per-pipeline.
+  # Limits right-sized from 7-day VictoriaMetrics peaks (Infra 2026-10-28):
+  # ngo-rss ~202Mi, realtime ~225Mi. Shared across every pipeline in
+  # charts/quill/templates/cronjobs.yaml. Requests stay 128Mi (do not raise —
+  # OutOfmemory on nexus was kubelet admission, not cgroup OOM; see #1225).
+  # Note: corporate once peaked ~546Mi under the old 2Gi ceiling; if it
+  # OOMKills at 512Mi, raise that pipeline alone rather than every ingest job.
   resources:
     requests:
       cpu: 50m
       memory: 128Mi
     limits:
       cpu: 500m
-      memory: 2Gi
+      memory: 512Mi
 # Policy-intelligence sweep. Uses the pinned api image (no images.engine pin).
 # The sweep file is packages/engine/dist/sweep/run.js. Rebuild the api image
 # before this job can succeed; the manifest is not applied by this change.
 engine:
   enabled: true
+  # Peak working_set ~122Mi over 7d (Infra). Limit 256Mi (chart default was
+  # 512Mi in values.yaml). Requests unchanged at 128Mi — do not raise.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
 
 search:
   replicas: 1
@@ -239,7 +275,7 @@ search:
   # nodeName from this value and ignores nodeSelector for the copy.
   # After the copy, set migrateLegacyIndex to false and leave nodeName set.
   # The backup claim is ReadWriteOnce, so search and its backup must stay
-  # 2026-10-28: nexus|sentry-agent only; longhorn RWO attaches on chosen node.
+  # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
@@ -247,7 +283,7 @@ search:
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
 # API volume, ReadWriteOnce. Backup, freshness, and drill pods use the same
-# affinityHosts / preferredHost as the API (nexus|sentry-agent, never forge)
+# affinityHosts / preferredHost as the API (nexus|sentry, never forge)
 # so they stay co-located with the API volume's allowed hosts. ReadWriteMany
 # is optional and needs a verified NFS client. Redis is not included.
 # Postgres is off in this file (database.enabled: false), so no pg_dump
@@ -256,6 +292,8 @@ backups:
   enabled: true
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  ttlSecondsAfterFinished: 7200
+  failedJobsHistoryLimit: 1
   schedule: "15 1 * * *"
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"

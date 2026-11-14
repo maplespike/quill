@@ -15,15 +15,23 @@
 # ArgoCD is the deploy path. It renders `charts/quill` with
 # `charts/quill/values-prod.yaml` from `main`, Synced and Healthy, with selfHeal
 # and prune enabled. So this workflow does not apply manifests. It does the
-# three things that have to happen for ArgoCD to pick up a new build:
+# work ArgoCD needs before it can roll a new build:
 #
-#   1. build each service and import it into the node's containerd store
-#      (scripts/pin-images.sh — this also writes a per-image SPDX SBOM, and
-#      refuses to continue if a scan comes back empty)
-#   2. write the resulting digests into values-prod.yaml
-#      (scripts/apply-image-pins.mjs — a line-based edit, so the comments in
-#      that file survive)
-#   3. commit and push, which is what ArgoCD actually watches
+#   1. build api, mcp, portal, ingest and search, scan each image, and push
+#      registry.registry.svc.cluster.local:5000/quill/<svc>:<git sha>
+#      (scripts/pin-images.sh). Every service has a tracked Dockerfile;
+#      quill-search builds from Dockerfile.search, so nothing depends on a
+#      pre-existing containerd store entry. The push is plain HTTP to the
+#      ClusterIP mirrored in /etc/rancher/k3s/registries.yaml. Nodes do not
+#      copy images to each other.
+#   2. HEAD every pushed digest. One miss stops the job. values-prod.yaml
+#      is not edited, so main keeps the live docker.io / Never refs.
+#   3. only then write registry, repository, IfNotPresent, and the registry
+#      digest for every service in one edit (apply-image-pins.mjs --migrate).
+#      The script HEADs again and writes nothing if any digest is missing.
+#   4. delete older manifests, keeping the pinned digest and the 5 newest
+#      tags. Manifest DELETE does not free blobs; garbage-collect is
+#      server-side. Then commit and push, which is what ArgoCD watches.
 #
 # `kubectl set image` is deliberately absent: ArgoCD owns those objects, so a
 # direct write is drift it will revert, not a deploy.
@@ -40,6 +48,30 @@ on:
     branches:
       - prod
   workflow_dispatch:
+    inputs:
+      max_load1:
+        description: "Refuse to build when the runner's 1-minute load average is at or above this"
+        required: false
+        default: "12"
+      min_mem_available_gib:
+        description: "Refuse to build when the runner's MemAvailable (GiB) is below this"
+        required: false
+        default: "12"
+      # Sentry fallback headroom gate. PROVISIONAL: blank means the host's
+      # quill-deploy-headroom-gate defaults (Infra, homelab-ops #111); Infra
+      # will publish final numbers. Sentry is used only when nexus fails its gate.
+      sentry_max_load1:
+        description: "PROVISIONAL: sentry fallback refuses when its load1 is at or above this"
+        required: false
+        default: ""
+      sentry_min_mem_available_gib:
+        description: "PROVISIONAL: sentry fallback refuses when its MemAvailable (GiB) is below this"
+        required: false
+        default: ""
+      sentry_max_io_util_pct:
+        description: "PROVISIONAL: sentry fallback refuses when its busiest disk io_util (%) is above this"
+        required: false
+        default: ""
 
 concurrency:
   group: deploy-prod
@@ -88,15 +120,109 @@ jobs:
           SKIP_NETWORK_TESTS: '1'
         run: pnpm test
 
+  gate-nexus:
+    name: Headroom gate (nexus, primary)
+    needs: ci
+    runs-on: [self-hosted, nixos, nexus]
+    outputs:
+      ok: ${{ steps.gate.outputs.ok }}
+      # Target build runner: nexus when it has headroom, else sentry (which
+      # must still pass gate-sentry). build-and-pin routes on this.
+      target: ${{ steps.gate.outputs.target }}
+      # runs-on labels (JSON) for build-and-pin. Sentry's fallback runner is
+      # [self-hosted, sentry, quill-deploy] (Infra; no nixos label).
+      runner: ${{ steps.gate.outputs.runner }}
+    steps:
+      - name: Check nexus load and memory
+        id: gate
+        # Never fails the job: a failed gate hands over to the sentry fallback.
+        # Guards against k3s/etcd starvation (nexus outage, 2026-11-04).
+        env:
+          MAX_LOAD1: ${{ github.event.inputs.max_load1 || '12' }}
+          MIN_MEM_GIB: ${{ github.event.inputs.min_mem_available_gib || '12' }}
+        run: |
+          set -euo pipefail
+          l1=$(cut -d' ' -f1 /proc/loadavg)
+          avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+          echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi (max_load1=$MAX_LOAD1 min_mem=${MIN_MEM_GIB}Gi)"
+          # NB: `load` is a gawk builtin; use other awk variable names.
+          if why=$(awk -v l1="$l1" -v avail="$avail_gi" -v maxl="$MAX_LOAD1" -v minm="$MIN_MEM_GIB" 'BEGIN {
+            if (l1+0 >= maxl+0) { printf "load1=%.2f >= %s", l1, maxl; exit 1 }
+            if (avail+0 < minm+0) { printf "MemAvailable=%.1fGi < %sGi", avail, minm; exit 1 }
+          }'); then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "target=nexus" >> "$GITHUB_OUTPUT"
+            echo 'runner=["self-hosted","nixos","nexus"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::nexus is overloaded ($why); trying the sentry fallback"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "target=sentry" >> "$GITHUB_OUTPUT"
+            echo 'runner=["self-hosted","sentry","quill-deploy"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  gate-sentry:
+    name: Headroom gate (sentry, fallback only)
+    needs: [ci, gate-nexus]
+    # Only when nexus failed its gate. Sentry is a fallback, never primary.
+    if: ${{ always() && needs.ci.result == 'success' && needs.gate-nexus.outputs.target == 'sentry' }}
+    runs-on: [self-hosted, sentry, quill-deploy]
+    outputs:
+      ok: ${{ steps.gate.outputs.ok }}
+    steps:
+      - name: Check sentry headroom (provisional thresholds)
+        id: gate
+        # Uses Infra's installed quill-deploy-headroom-gate (exit 0 = OK to
+        # build here). Blank inputs fall through to the binary's own defaults.
+        # If the binary is missing, an inline check with the same provisional
+        # numbers runs instead. Fails the run when sentry has no headroom either.
+        env:
+          GATE_LOAD1_MAX: ${{ github.event.inputs.sentry_max_load1 }}
+          GATE_MEM_MIN_GI: ${{ github.event.inputs.sentry_min_mem_available_gib }}
+          GATE_IO_UTIL_MAX: ${{ github.event.inputs.sentry_max_io_util_pct }}
+        run: |
+          set -euo pipefail
+          for v in GATE_LOAD1_MAX GATE_MEM_MIN_GI GATE_IO_UTIL_MAX; do [[ -n "${!v}" ]] || unset "$v"; done
+          gate=/usr/local/bin/quill-deploy-headroom-gate
+          if [[ -x "$gate" ]]; then
+            if "$gate"; then ok=true; else ok=false; fi
+          else
+            echo "::warning::quill-deploy-headroom-gate not installed on $(hostname -s); using the inline provisional gate"
+            l1=$(cut -d' ' -f1 /proc/loadavg)
+            avail_gi=$(awk '/MemAvailable:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo)
+            snap() { awk '$3 ~ /^(sd[a-z]+|nvme[0-9]+n[0-9]+|vd[a-z]+|xvd[a-z]+)$/ {print $3, $13}' /proc/diskstats; }
+            a=$(snap); sleep 5; b=$(snap)
+            io_pct=$(join <(echo "$a" | sort) <(echo "$b" | sort) | awk '{u=($3-$2)/50; if (u>m) m=u} END {printf "%.0f", m+0}')
+            echo "host=$(hostname -s) load1=$l1 MemAvailable=${avail_gi}Gi io_util=${io_pct}%"
+            if awk -v l1="$l1" -v avail="$avail_gi" -v io="$io_pct" -v maxl="${GATE_LOAD1_MAX:-6}" -v minm="${GATE_MEM_MIN_GI:-6}" -v maxio="${GATE_IO_UTIL_MAX:-60}" \
+                 'BEGIN { exit !((l1+0 < maxl+0) && (avail+0 >= minm+0) && (io+0 <= maxio+0)) }'; then ok=true; else ok=false; fi
+          fi
+          if [[ "$ok" != true ]]; then
+            echo "::error::nexus failed its headroom gate and sentry has no headroom either; re-dispatch deploy-prod later"
+            exit 1
+          fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
   build-and-pin:
     name: Build images, scan, and record pins
-    needs: ci
-    # The images land in the LOCAL containerd store of nexus, and
-    # scripts/pin-images.sh refuses to run anywhere else (it compares
-    # `hostname -s` against NODE=nexus). Unpinned, this job lands on whichever
-    # runner is free and dies — 2026-10-21 run 39630307172 claimed sentry and
-    # produced an empty pin block.
-    runs-on: [self-hosted, nixos, nexus]
+    needs: [ci, gate-nexus, gate-sentry]
+    if: ${{ always() && needs.ci.result == 'success' && (needs.gate-nexus.outputs.target == 'nexus' || (needs.gate-nexus.outputs.target == 'sentry' && needs.gate-sentry.outputs.ok == 'true')) }}
+    # Nexus is primary: docker, k3s and the registries.yaml mirror are there.
+    # Sentry is a fallback ONLY when nexus fails its headroom gate and sentry
+    # passes its own. Both build every image from the repo — quill-search
+    # included (Dockerfile.search) — so neither needs a pre-seeded image.
+    # scripts/pin-images.sh refuses any host outside its nexus|sentry
+    # allowlist or other than PIN_NODE. Never unpinned — 2026-10-21 run
+    # 39630307172 claimed a random runner and produced an empty pin block.
+    runs-on: ${{ fromJSON(needs.gate-nexus.outputs.runner) }}
+    # One build at a time per build host (sentry especially).
+    concurrency:
+      group: quill-build-${{ needs.gate-nexus.outputs.target }}
+      cancel-in-progress: false
+    env:
+      PIN_NODE: ${{ needs.gate-nexus.outputs.target }}
+      # Registry for pushes and digest lookups. Repo variable, never
+      # hard-coded; blank falls back to the node's registries.yaml mirror.
+      QUILL_REGISTRY_ENDPOINT: ${{ vars.QUILL_REGISTRY_ENDPOINT }}
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
       pin_sha: ${{ steps.commit.outputs.pin_sha }}
@@ -104,14 +230,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          # A full history is needed: pin-images.sh stamps the import tag with
-          # the commit SHA, and a shallow clone makes that ambiguous.
+          # Full history: the registry tag is the git sha, and prune orders
+          # older tags by commit time. A shallow clone makes both ambiguous.
           fetch-depth: 0
 
       - name: Confirm the working tree is clean
-        # pin-images.sh appends "-dirty" to the tag when it is not. A deploy
-        # whose images are known-dirty should be a deliberate act, not the
-        # default result of a workflow that happened to run in a dirty tree.
+        # pin-images.sh refuses a dirty tree. The registry tag is the git sha,
+        # so a dirty checkout must not be tagged as that commit.
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "::error::working tree is dirty; refusing to stamp a -dirty tag onto a production image"
@@ -119,7 +244,7 @@ jobs:
             exit 1
           fi
 
-      - name: Preflight — nexus docker/containerd store
+      - name: Preflight — build host docker/containerd store
         # Fail fast when the host docker build cache is corrupt (missing
         # overlayfs snapshots / blobs). deploy-prod run 40624285281 (2026-10-27)
         # spent ~7 min in Build & Test, then died in pin-images.sh on
@@ -131,7 +256,7 @@ jobs:
         run: |
           set -euo pipefail
           if ! docker buildx du >/dev/null 2>&1; then
-            echo "::error::nexus docker/containerd store is broken (docker buildx du failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            echo "::error::$PIN_NODE docker/containerd store is broken (docker buildx du failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
             docker buildx du || true
             exit 1
           fi
@@ -139,7 +264,7 @@ jobs:
           trap 'rm -rf "$tmp"' EXIT
           printf 'FROM scratch\n' >"$tmp/Dockerfile"
           if ! docker build --quiet -t quill-deploy-preflight:ok "$tmp" >/dev/null; then
-            echo "::error::nexus docker/containerd store is broken (tiny docker build from scratch failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
+            echo "::error::$PIN_NODE docker/containerd store is broken (tiny docker build from scratch failed). Ask Infra · Platform Ops to repair it. Do not prune from CI."
             exit 1
           fi
           docker rmi quill-deploy-preflight:ok >/dev/null 2>&1 || true
@@ -162,13 +287,11 @@ jobs:
         run: pnpm build
 
       - name: Restore generated sources so the image tag stays commit-only
-        # `pnpm build` rewrites 18 tracked portal artifacts (agents.json,
-        # pipeline-data.json, og-images, plans/tools/stats). pin-images.sh
-        # appends "-dirty" to the tag whenever `git status` is not clean, so the
-        # 2026-10-21 deploy shipped 2026-10-21-3b73a98f-dirty. That weakens
-        # provenance and broke the operator-gate fixture, which expects a stable
-        # tag shape. The built dist/ is what the image copies; these are
-        # regenerated sources, so restore them and assert a clean tree.
+        # `pnpm build` rewrites tracked portal artifacts. pin-images.sh refuses
+        # a dirty tree, because the registry tag is the git sha. The built
+        # dist/ is what the image copies; these are regenerated sources, so
+        # restore them and assert a clean tree. The 2026-10-21 deploy shipped
+        # a -dirty tag when this restore was missing.
         run: |
           git status --porcelain
           git checkout -- .
@@ -189,22 +312,47 @@ jobs:
           # surfaces two steps later as "no pins found in input" — which reads
           # like a parser bug instead of a refused build (run 39630307172).
           set -o pipefail
-          bash scripts/pin-images.sh 2>&1 | tee pin-images.log
+          if [[ "$PIN_NODE" == sentry ]]; then
+            # Fallback host: low priority, capped CPU and memory. The scope
+            # covers this script, syft, node and the docker/ctr clients;
+            # BuildKit work inside dockerd is capped by the host's daemon
+            # config (Infra), not by these flags.
+            if systemd-run --user --scope --quiet true 2>/dev/null; then
+              run=(systemd-run --user --scope --quiet -p "CPUQuota=${SENTRY_CPU_QUOTA:-200%}" -p "MemoryMax=${SENTRY_MEM_MAX:-6G}" nice -n 10 ionice -c2 -n7)
+            else
+              echo "::warning::systemd-run --user --scope unavailable on sentry; using nice/ionice only"
+              run=(nice -n 10 ionice -c2 -n7)
+            fi
+          else
+            run=()
+          fi
+          "${run[@]}" bash scripts/pin-images.sh 2>&1 | tee pin-images.log
           sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log > pin-block.txt
           if [[ ! -s pin-block.txt ]]; then
             echo "::error::pin-images.sh produced no pin block — refusing to continue (see pin-images.log)"
             exit 1
           fi
 
-      - name: Write pins into values-prod.yaml
-        run: |
-          # The log holds the block pin-images.sh prints for a human to paste.
-          sed -n '/^Pin block for charts\/quill\/values-prod.yaml/,/^Next:/p' pin-images.log \
-            | tee pin-block.txt
-          node scripts/apply-image-pins.mjs --values charts/quill/values-prod.yaml < pin-block.txt
+      - name: Verify every pushed digest is in the registry
+        # HEAD each digest in the pin block. This does not edit values-prod.
+        # One miss refuses the cutover: the next step never runs, so the
+        # live docker.io / Never refs stay on main.
+        run: node scripts/gates/check-node-images.mjs --pin-block pin-block.txt --check
+
+      - name: Write the registry pin into values-prod.yaml
+        # Same commit as the digest switch. --migrate HEADs again and writes
+        # registry, repository, IfNotPresent, digest, and tag for every
+        # service, or writes nothing.
+        run: node scripts/apply-image-pins.mjs --migrate --values charts/quill/values-prod.yaml < pin-block.txt
 
       - name: Verify the pins
         run: node scripts/gates/check-image-pins.mjs --values charts/quill/values-prod.yaml
+
+      - name: Prune old registry tags
+        # Keep the pinned digest and the 5 newest tags per service. DELETE
+        # unlinks the manifest only. A server-side registry garbage-collect
+        # has to run in the registry pod before the 50Gi volume shrinks.
+        run: node scripts/gates/check-node-images.mjs --values charts/quill/values-prod.yaml --prune --keep 5
 
       - name: Commit and push the pins
         id: commit
@@ -250,6 +398,9 @@ jobs:
   deploy:
     name: Wait for ArgoCD rollout and smoke test
     needs: [ci, build-and-pin]
+    # always(): a skipped gate-sentry (nexus passed) would otherwise skip this
+    # job transitively even though build-and-pin succeeded.
+    if: ${{ always() && needs.ci.result == 'success' && needs.build-and-pin.result == 'success' }}
     runs-on: [self-hosted, nixos]
     steps:
       # Check out the pin commit. Without a checkout this job read

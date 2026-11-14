@@ -14,6 +14,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +24,11 @@ process.chdir(ROOT);
 
 const CHART = 'charts/quill';
 const VALUES = 'charts/quill/values-prod.yaml';
+// Live values-prod is registry-migrated (16927140). The unmigrated case renders
+// a frozen pre-migration copy so it keeps testing the legacy docker.io path.
+const LEGACY_VALUES = 'scripts/fixtures/values-prod-legacy.yaml';
+const REGISTRY = 'registry.registry.svc.cluster.local:5000';
+const QUILL_APPS = ['api', 'mcp', 'portal', 'search', 'ingest'];
 
 /** Probe path and whether a slow process needs a startupProbe. */
 const SERVICES: Record<string, { path: string; startup: boolean }> = {
@@ -41,8 +47,8 @@ function haveHelm(): boolean {
   }
 }
 
-function render(): string {
-  return execFileSync('helm', ['template', 'quill', CHART, '-f', VALUES], {
+function render(values: string = VALUES): string {
+  return execFileSync('helm', ['template', 'quill', CHART, '-f', values], {
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -114,7 +120,7 @@ test('chart: service probes hit cheap health paths', (t) => {
 test('chart: probe timings are bounded', (t) => {
   if (skipOrFail(t)) return;
   const rendered = render();
-  for (const app of Object.keys(SERVICES)) {
+  for (const app of [...Object.keys(SERVICES), 'quill-redis']) {
     const doc = deployment(rendered, app);
     for (const probe of ['startupProbe', 'livenessProbe', 'readinessProbe']) {
       const block = probeBlock(doc, probe);
@@ -124,5 +130,82 @@ test('chart: probe timings are bounded', (t) => {
       assert.ok(Number.isFinite(period) && period > 0 && period <= 30, `${app} ${probe} periodSeconds out of range`);
       assert.ok(Number.isFinite(timeout) && timeout > 0 && timeout < period, `${app} ${probe} timeoutSeconds must be below periodSeconds`);
     }
+  }
+});
+
+test('chart: quill-redis probes survive a slow ping and a slow start', (t) => {
+  if (skipOrFail(t)) return;
+  const doc = deployment(render(), 'quill-redis');
+  const startup = probeBlock(doc, 'startupProbe');
+  const liveness = probeBlock(doc, 'livenessProbe');
+  const readiness = probeBlock(doc, 'readinessProbe');
+  for (const [name, block] of [['startupProbe', startup], ['livenessProbe', liveness], ['readinessProbe', readiness]] as const) {
+    assert.ok(block, `quill-redis has no ${name}`);
+    assert.match(block, /redis-cli/, `${name} must ping with redis-cli`);
+    assert.equal(block.match(/timeoutSeconds:\s*(\d+)/)?.[1], '5', `${name} timeoutSeconds must be 5`);
+  }
+  assert.equal(liveness.match(/failureThreshold:\s*(\d+)/)?.[1], '5');
+  assert.equal(startup.match(/failureThreshold:\s*(\d+)/)?.[1], '30');
+  // Cache budget stays. A slow disk is not a reason to raise it.
+  assert.match(doc, /cpu:\s*50m/);
+  assert.match(doc, /memory:\s*64Mi/);
+  assert.match(doc, /cpu:\s*200m/);
+  assert.match(doc, /memory:\s*192Mi/);
+  assert.match(doc, /"128mb"/);
+});
+
+function imagePolicyLines(yaml: string): string[] {
+  return yaml
+    .split('\n')
+    .filter((line) => /^\s*(image|imagePullPolicy):/.test(line))
+    .map((line) => line.trim());
+}
+
+test('chart: unmigrated (legacy fixture) values-prod renders the legacy docker.io Never pins', (t) => {
+  if (skipOrFail(t)) return;
+  const legacy = render(LEGACY_VALUES);
+  assert.doesNotMatch(legacy, /registry\.registry\.svc\.cluster\.local:5000/);
+  assert.match(legacy, /image: "docker\.io\/library\/quill-portal@sha256:52f117704191e78865b966da91c263ce3c95cff7b87eb381a97470209cda7e9d"/);
+  assert.match(legacy, /imagePullPolicy: Never/);
+});
+
+test('chart: live values-prod renders every quill image from the in-cluster registry', (t) => {
+  if (skipOrFail(t)) return;
+  const live = render();
+  const lines = imagePolicyLines(live);
+  const quillImages = lines.filter((l) => /^image:.*quill[-/]/.test(l));
+  assert.ok(quillImages.length > 0, 'the chart must render quill images');
+  for (const line of quillImages) {
+    assert.match(
+      line,
+      new RegExp(`^image: "${REGISTRY.replace(/\./g, '\\.')}/quill/(?:${QUILL_APPS.join('|')})(?:@sha256:[0-9a-f]{64}|:[0-9a-f]{40})"$`),
+      `quill image is not registry-pinned: ${line}`,
+    );
+  }
+  assert.doesNotMatch(live, /docker\.io\/library\/quill-/, 'no quill image may still come from docker.io/library');
+  // Registry images are pulled, so nothing quill-built may stay on Never.
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (/^image:.*quill\//.test(lines[i]) && /^imagePullPolicy:/.test(lines[i + 1])) {
+      assert.equal(lines[i + 1], 'imagePullPolicy: IfNotPresent', `${lines[i]} must pull IfNotPresent`);
+    }
+  }
+});
+
+test("chart: live values-prod matches main's image refs and pull policy", (t) => {
+  if (skipOrFail(t)) return;
+  const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
+  execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
+  execFileSync('git', ['worktree', 'add', '--detach', mainDir, 'origin/main'], {
+    cwd: ROOT,
+    stdio: 'pipe',
+  });
+  try {
+    const main = execFileSync('helm', ['template', 'quill', path.join(mainDir, 'charts/quill'), '-f', path.join(mainDir, 'charts/quill/values-prod.yaml')], {
+      encoding: 'utf8',
+      maxBuffer: 32 * 1024 * 1024,
+    });
+    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
+  } finally {
+    execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }
 });

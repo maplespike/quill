@@ -30,7 +30,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VALUES="$REPO_ROOT/charts/quill/values-prod.yaml"
 CTR=(sudo -n k3s ctr -n k8s.io)
-SERVICES="api mcp portal ingest"
+SERVICES="api mcp portal ingest search"
 TAR_DIR=""
 
 die() { echo "error: $*" >&2; exit 1; }

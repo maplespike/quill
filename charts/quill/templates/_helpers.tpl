@@ -12,20 +12,32 @@
   Input: dict "svc" <api|mcp|portal> "ctx" $   ($ = the root template context)
 
   Precedence:
-    1. images.<svc>.digest → <registry>/quill-<svc>@sha256:<digest>  (content pin)
-    2. images.<svc>.tag    → <registry>/quill-<svc>:<immutable build tag>
-    3. image.tag           → <registry>/quill-<svc>:<tag>  (dev/self-host fallback)
+    1. images.<svc>.registry + images.<svc>.repository
+       (set together by the deploy-prod pin commit)
+    2. images.<svc>.repository alone, when it is already a full name
+    3. image.repositoryPath → <image.registry>/<repositoryPath>/<svc>
+    4. otherwise <image.registry>/quill-<svc>
 
-  Production pins the digest form (charts/quill/values-prod.yaml, gate
-  A3-IMAGEPIN / #755): kubelet resolves that exact content from the node
-  containerd store, so re-tagging a build tag cannot change what a rollout
-  serves. The image must already exist in the store (pullPolicy: Never) —
-  create it with scripts/pin-images.sh. See docs/IMAGE-PINNING.md.
+  Until that pin commit, production has no per-image registry field, so the
+  chart still renders docker.io/library/quill-<svc>@<digest> and the global
+  pullPolicy (Never). See docs/IMAGE-PINNING.md.
 */}}
 {{- define "quill.image" -}}
 {{- $ctx := .ctx -}}
 {{- $pin := index (default (dict) $ctx.Values.images) .svc | default (dict) -}}
-{{- $repo := default (printf "%s/quill-%s" $ctx.Values.image.registry .svc) $pin.repository -}}
+{{- $repo := "" -}}
+{{- if and $pin.registry $pin.repository -}}
+{{- $repo = printf "%s/%s" $pin.registry $pin.repository -}}
+{{- else if $pin.repository -}}
+{{- $repo = $pin.repository -}}
+{{- else -}}
+{{- $prefix := $ctx.Values.image.repositoryPath | default "" -}}
+{{- if $prefix -}}
+{{- $repo = printf "%s/%s/%s" $ctx.Values.image.registry $prefix .svc -}}
+{{- else -}}
+{{- $repo = printf "%s/quill-%s" $ctx.Values.image.registry .svc -}}
+{{- end -}}
+{{- end -}}
 {{- if $pin.digest -}}
 {{- printf "%s@%s" $repo $pin.digest -}}
 {{- else -}}
@@ -45,6 +57,16 @@
   The digest in the image reference is the pin; the build tag is the provenance
   (store tag → digest → git commit), so a live pod traces back to a build.
 */}}
+{{/*
+  quill.pullPolicy — per-image pullPolicy, else the chart-wide image.pullPolicy.
+  The deploy-prod pin commit sets IfNotPresent on each migrated service.
+  Services without that field keep the global policy (Never, until then).
+*/}}
+{{- define "quill.pullPolicy" -}}
+{{- $pin := index (default (dict) .ctx.Values.images) .svc | default (dict) -}}
+{{- $pin.pullPolicy | default .ctx.Values.image.pullPolicy -}}
+{{- end }}
+
 {{- define "quill.imageAnnotations" -}}
 {{- $pin := index (default (dict) .ctx.Values.images) .svc | default (dict) -}}
 {{- if $pin.tag -}}
@@ -101,4 +123,21 @@ preferredDuringSchedulingIgnoredDuringExecution:
           values:
             - {{ $pref | quote }}
 {{- end }}
+{{- end }}
+
+{{/*
+  quill.rwoApiCoLocate — required podAffinity so CronJobs that mount the
+  ReadWriteOnce quill-api-data PVC land on the same node as the live api pod.
+  Soft hostname affinity (nexus|sentry) alone schedules onto the empty node
+  and FailedAttachVolume for 30+ minutes (2026-11-04: sweep/ngo-rss on sentry
+  while api held the volume on nexus).
+*/}}
+{{- define "quill.rwoApiCoLocate" -}}
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: quill-api
+        topologyKey: kubernetes.io/hostname
 {{- end }}

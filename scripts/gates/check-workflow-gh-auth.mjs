@@ -45,6 +45,16 @@ const GH_INVOKE_RE = /\bgh\s+(?:--)?[a-z][a-z-]*/g;
 // …and these forms never need credentials.
 const INFORMATIONAL_RE = /^gh\s+(?:--version|--help|version|help|completion)\b/;
 
+// Writes that change a branch or merge it. `gh pr merge` and
+// `gh pr update-branch` are both pushes from the API's point of view, so for a
+// PR that edits .github/workflows they are refused for GITHUB_TOKEN: "refusing
+// to allow a GitHub App to create or update workflow". Only the
+// fleet-merge-gate App installation token (Workflows:write) can do them.
+const BRANCH_WRITE_RE = /\bgh\s+pr\s+(?:merge|update-branch|rebase)\b/g;
+
+// A GH_TOKEN value that resolves to the minted App token.
+const APP_TOKEN_VALUE_RE = /steps\.gate\.outputs\.token|MERGE_GATE_APP/;
+
 const indentOf = (line) => line.length - line.trimStart().length;
 const isBlank = (line) => line.trim() === '';
 const isComment = (line) => /^\s*#/.test(line);
@@ -241,26 +251,127 @@ export function findUnguardedGhSteps(text, file = '<inline>') {
   return { violations, ghSteps };
 }
 
+/**
+ * True when the `env:` mapping at `containerIndent` sets GH_TOKEN to the App
+ * token (the expression that reads the mint step's output).
+ */
+function envAppTokenAtIndent(lines, from, end, containerIndent) {
+  for (let i = from; i < end; i++) {
+    const line = lines[i];
+    if (isBlank(line) || isComment(line)) continue;
+    const parsed = keyOf(line);
+    if (!parsed || parsed.indent !== containerIndent || parsed.key !== 'env') continue;
+    for (let j = i + 1; j < end; j++) {
+      const entry = lines[j];
+      if (isBlank(entry) || isComment(entry)) continue;
+      if (indentOf(entry) <= containerIndent) break;
+      if (/^\s*GH_TOKEN:/.test(entry) && APP_TOKEN_VALUE_RE.test(entry)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * `gh pr merge` / `update-branch` / `rebase` steps whose token is not the
+ * fleet-merge-gate App token. GITHUB_TOKEN cannot perform any of these on a PR
+ * that edits .github/workflows, and the gate's own update-branch used to fail
+ * that way silently (#1252).
+ * @returns {{violations: Array<{file: string, line: number, step: string, invocation: string}>, writeSteps: number}}
+ */
+export function findTokenOnlyWriteSteps(text, file = '<inline>') {
+  const lines = text.split(/\r?\n/);
+  const violations = [];
+  let writeSteps = 0;
+  const fileMintsAppToken = text.includes('vars.MERGE_GATE_APP_ID');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (isBlank(line) || isComment(line)) continue;
+    if (!/^(\s*)-\s+\S/.test(line)) continue;
+
+    const itemIndent = indentOf(line);
+    const end = blockEnd(lines, i, itemIndent);
+    const writes = [];
+    for (const { text: body, line: bodyLine } of runBodies(lines, i, end, itemIndent)) {
+      for (const m of body.match(BRANCH_WRITE_RE) ?? []) {
+        writes.push({ invocation: m.replace(/\s+/g, ' '), line: bodyLine, text: body });
+      }
+    }
+    if (writes.length === 0) continue;
+    writeSteps += 1;
+
+    const stepScoped = envAppTokenAtIndent(lines, i, end, itemIndent + 2);
+    for (const write of writes) {
+      // `GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge …` — a per-call override.
+      const inlineOverride = /GH_TOKEN=.*GATE_TOKEN/.test(write.text);
+      if (inlineOverride || stepScoped) continue;
+      if (!fileMintsAppToken) {
+        violations.push({
+          file,
+          line: write.line + 1,
+          step: stepName(lines, i, end),
+          invocation: write.invocation,
+          reason: 'this workflow never mints the App token (no vars.MERGE_GATE_APP_ID mint step)',
+        });
+        continue;
+      }
+      violations.push({
+        file,
+        line: write.line + 1,
+        step: stepName(lines, i, end),
+        invocation: write.invocation,
+        reason: 'the step token is GITHUB_TOKEN, which cannot push/merge a .github/workflows change',
+      });
+    }
+  }
+
+  return { violations, writeSteps };
+}
+
+/** Display name of the step item starting at `start`. */
+function stepName(lines, start, end) {
+  for (let i = start; i < end; i++) {
+    const m = lines[i].match(/^\s*(?:-\s+)?name:\s*(.+)$/);
+    if (m) return m[1].replace(/^["']|["']$/g, '');
+  }
+  return '<unnamed step>';
+}
+
 /** Scan a directory of workflow files. */
 export function scanWorkflows(dir) {
   const files = readdirSync(dir)
     .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
     .sort();
   const violations = [];
+  const writeViolations = [];
   let ghSteps = 0;
+  let writeSteps = 0;
   for (const file of files) {
-    const result = findUnguardedGhSteps(readFileSync(path.join(dir, file), 'utf8'), file);
+    const text = readFileSync(path.join(dir, file), 'utf8');
+    const result = findUnguardedGhSteps(text, file);
     violations.push(...result.violations);
     ghSteps += result.ghSteps;
+    const writes = findTokenOnlyWriteSteps(text, file);
+    writeViolations.push(...writes.violations);
+    writeSteps += writes.writeSteps;
   }
-  return { violations, ghSteps, files };
+  return { violations, writeViolations, ghSteps, writeSteps, files };
 }
 
 function main(argv) {
   const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
   const dir = argv[0] ? path.resolve(argv[0]) : path.join(repo, '.github/workflows');
-  const { violations, ghSteps, files } = scanWorkflows(dir);
+  const { violations, writeViolations, ghSteps, writeSteps, files } = scanWorkflows(dir);
 
+  for (const v of writeViolations) {
+    console.error(
+      `workflow push-token violation: ${v.file}:${v.line} — step "${v.step}" runs \`${v.invocation}\` with ${v.reason}`,
+    );
+  }
+  if (writeViolations.length) {
+    console.error(`workflow push token: FAILED (${writeViolations.length} branch-write step(s) not on the App token)`);
+    return 1;
+  }
   if (violations.length) {
     for (const v of violations) {
       console.error(

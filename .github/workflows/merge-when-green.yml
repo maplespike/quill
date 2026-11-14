@@ -7,203 +7,931 @@
 # of pr-validation.yml, which exists for the same reason). The merge policy
 # therefore has to live here.
 #
-# The gate is deliberately one deliberate human act — dropping the
-# `ready-to-merge` label after reading the diff. The workflow only removes the
-# two-step dance (watch CI, come back, click merge). It does NOT approve the
-# PR and it does NOT decide that a PR is safe; both stay with the human.
+# The gate is one human act: add the `ready-to-merge` label after reading the
+# diff. The workflow removes the two-step dance (watch CI, come back, click
+# merge). It does not approve the PR. It does not decide that a PR is safe.
 #
-# Triggers on `labeled` (the gate opening) plus `synchronize`/`reopened`/
-# `ready_for_review` so pushing more commits to an already-labelled PR re-arms
-# the gate rather than leaving it merged against stale checks.
+# The job runs on `arc-maplespike-gate` and never polls. Each run reads the
+# pull request and the head SHA, checks the gate once, and either squash-merges
+# or exits 0. A pending or red check is not this job's failure.
 #
-# "Not my turn" exits 0, never 1: a red check on a PR that is merely waiting
-# for its author to label it is a misleading signal.
+# "Not my turn" exits 0, never 1. A red check on a PR that is only waiting for
+# its label is a misleading signal. A known foreign head exits 0 and does not
+# merge. Missing head-repository metadata, an unknown mergeable value, or a
+# check list that cannot be resolved exits 1 after the read retries.
+#
+# pull_request_target runs the workflow file from the default branch, which is
+# what gives the squash-merge token write access. This job does not check out
+# the repository and does not run pull-request head code.
+#
+# check_suite does not wake this workflow for a suite GitHub Actions created
+# (GitHub's recursion guard). workflow_run is what wakes the gate when a listed
+# check workflow completes. check_suite remains for a non-Actions app.
+# The names below are the `name:` values of the workflows that run on
+# pull_request. A workflow omitted here can finish last and leave the gate
+# waiting, because a pending check exits 0 and only a new event re-enters.
 name: "Merge when green"
+
 on:
+  workflow_run:
+    workflows:
+      - "CI"
+      - "PR validation"
+      - "QA"
+      - "Rust CI"
+      - "Docs Validation"
+      - "README Lint"
+      - "NetworkPolicy validation"
+      - "Portal generated-artifact drift"
+      - "Metrics Drift Check"
+      - "Open-source facts audit"
+      - "Auto-assign Sprint-to-Live Milestone"
+      - "Dependabot Auto-Merge"
+    types: [completed]
+  check_suite:
+    types: [completed]
   pull_request_target:
     types: [labeled, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number to evaluate"
+        required: true
+        type: string
 
 permissions:
   contents: write
   pull-requests: write
   checks: read
-  # The deterministic close-loop (#983) reads and closes issues. With the
-  # block declared, an unlisted scope is NONE: on the first live run (#999,
-  # 2026-10-05) `gh issue view` 403'd, `|| true` turned that into an empty
-  # state, and the loop skipped #986 silently. issues:write covers both the
-  # state read and the close.
+  # The close-loop (#983) reads and closes issues. An unlisted scope is none.
+  # On the first live run (#999, 2026-10-05) `gh issue view` 403'd and the
+  # loop skipped the issue. issues:write covers the state read and the close.
   issues: write
-  # gh pr checks' GraphQL reads checkSuite.workflowRun; without actions:read
-  # the whole query can be refused ("Resource not accessible by integration",
-  # measured on #997, 60/60 attempts, 2026-10-04). The REST fallback in the
-  # wait step keeps the gate working even if this scope is still refused.
+  # GITHUB_TOKEN squash-merge does not fire push workflows on main.
+  # workflow_dispatch does, and it needs actions:write.
   actions: write
+
+concurrency:
+  # One in-flight run per PR. A newer event cancels a stale one. The job does
+  # not sleep, so the cancel window is a single API pass.
+  group: >-
+    gate-${{
+      github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number)
+      || (github.event.workflow_run.pull_requests[0].number && format('pr-{0}', github.event.workflow_run.pull_requests[0].number))
+      || (github.event.check_suite.pull_requests[0].number && format('pr-{0}', github.event.check_suite.pull_requests[0].number))
+      || (github.event.inputs.pr && format('pr-{0}', github.event.inputs.pr))
+      || github.event.workflow_run.head_sha
+      || github.event.check_suite.head_sha
+      || format('run-{0}', github.run_id)
+    }}
+  cancel-in-progress: true
 
 jobs:
   merge:
-    # Author gate. Dependabot, or the maintainer. The head repository must be
-    # this repository. This job does not check out pull request code.
-    # pull_request_target is required so the squash-merge token can write.
-    # A fork pull request does not run.
+    # Forks never reach the self-hosted runner. workflow_run from a fork is
+    # skipped. pull_request_target from a fork is skipped. check_suite and
+    # workflow_dispatch are not fork pull_request events; the script still
+    # refuses a fork head repository.
     if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.actor == 'dependabot[bot]' || github.actor == 'reverb256')
-    runs-on: ubuntu-latest
+      (
+        github.event_name != 'pull_request_target'
+        || github.event.pull_request.head.repo.full_name == github.repository
+      ) && (
+        github.event.workflow_run.head_repository.full_name == github.repository
+        || github.event_name != 'workflow_run'
+      )
+    runs-on: >-
+      ${{
+        (
+          github.event_name != 'pull_request_target'
+          || github.event.pull_request.head.repo.full_name == github.repository
+        ) && (
+          github.event.workflow_run.head_repository.full_name == github.repository
+          || github.event_name != 'workflow_run'
+        ) && 'arc-maplespike-gate' || 'ubuntu-latest'
+      }}
+    timeout-minutes: 5
     steps:
-      # Never rely on the runner's ambient `gh` credentials: the
-      # [self-hosted, nixos] pool is not homogeneous (PR 908). github.token is
-      # minted per run and exists everywhere.
-      - name: "Wait for every check to settle, then squash-merge"
+      # No actions/checkout. No git. The script talks to the GitHub API only.
+      # It does not check out or run pull-request head code.
+      # Short-lived fleet-merge-gate App token. GITHUB_TOKEN cannot merge a PR
+      # that edits .github/workflows. The same token reads same-repo pull
+      # metadata from the REST pulls API (head.repo), plus check runs and
+      # commit statuses. GraphQL headRepository is not that read: it stayed
+      # empty for same-repo #1326 after this token was minted (run
+      # 42959473763). Falls back to GITHUB_TOKEN when the var is unset or
+      # minting fails. A foreign head exits before that token is used.
+      - name: Mint merge-gate app token
+        id: gate
+        if: ${{ vars.MERGE_GATE_APP_ID != '' }}
+        continue-on-error: true
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MERGE_GATE_APP_ID }}
+          private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
+
+      - name: Evaluate the gate once
         env:
+          GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token (same-repo metadata read, merge, update-branch); empty = GITHUB_TOKEN
           GH_TOKEN: ${{ github.token }}
+          # Empty on check_suite/workflow_dispatch when the payload has no full_name.
+          # A non-empty value that is not this repository exits before any App-token read.
+          EVENT_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name || github.event.check_suite.pull_requests[0].head.repo.full_name }}
           GH_REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_LABEL: ${{ github.event.label.name }}
-          ACTION: ${{ github.event.action }}
+          EVENT_NAME: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          PR_NUMBER_EVENT: ${{ github.event.pull_request.number }}
+          PR_SHA_EVENT: ${{ github.event.pull_request.head.sha }}
+          DISPATCH_PR: ${{ github.event.inputs.pr }}
+          WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          CHECK_SUITE_SHA: ${{ github.event.check_suite.head_sha }}
+          WORKFLOW_RUN_PRS: ${{ toJson(github.event.workflow_run.pull_requests) }}
+          CHECK_SUITE_PRS: ${{ toJson(github.event.check_suite.pull_requests) }}
+          GATE_JOB_NAME: merge
+          GATE_WORKFLOW_NAME: Merge when green
+          GATE_WORKFLOW_PATH: .github/workflows/merge-when-green.yml
+          GATE_APP_SLUG: github-actions
+        shell: bash
         run: |
           set -euo pipefail
 
-          if [[ "$PR_LABEL" != "ready-to-merge" ]]; then
-            echo "::notice::event=$ACTION label='$PR_LABEL' — not the merge gate. Nothing to do."
+          # gh's --jq flag has no --arg. Pass values with real jq, and let a
+          # failed API call fail this step. Do not append `|| true`.
+          pr_number_from_list() {
+            local json="${1:-null}"
+            local sha="$2"
+            if [[ -z "$json" || "$json" == "null" ]]; then
+              printf ''
+              return 0
+            fi
+            jq -r --arg sha "$sha" '
+              if type != "array" or length == 0 then
+                empty
+              else
+                ([.[] | select((.head.sha // "") == $sha and $sha != "")] | first | .number)
+                // (.[0].number // empty)
+              end
+            ' <<<"$json"
+          }
+
+          lookup_open_pr() {
+            local sha="$1"
+            GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/pulls?state=open&per_page=100" \
+              | jq -s -r --arg sha "$sha" '
+                  [ .[][]? | select(.head.sha == $sha) | .number ] | first // empty
+                '
+          }
+
+          # Head repository from an event payload, with no API call and no token.
+          # check_suite pull_requests often carry repo.url and not full_name.
+          event_head_repo() {
+            local json="${1:-null}"
+            if [[ -z "$json" || "$json" == "null" ]]; then
+              printf ''
+              return 0
+            fi
+            jq -r '
+              if type != "array" or length == 0 then
+                empty
+              else
+                .[0].head.repo.full_name // (
+                  (.[0].head.repo.url // "")
+                  | if test("repos/[^/]+/[^/]+$") then sub("^.*repos/"; "") else empty end
+                )
+              end
+            ' <<<"$json"
+          }
+
+          require_count() {
+            local label="$1"
+            local value="$2"
+            if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+              echo "::error::${label} count was not a single number."
+              exit 1
+            fi
+          }
+
+          PR_NUMBER=""
+          HEAD_SHA=""
+
+          case "$EVENT_NAME" in
+            pull_request_target)
+              PR_NUMBER="${PR_NUMBER_EVENT:-}"
+              HEAD_SHA="${PR_SHA_EVENT:-}"
+              ;;
+            workflow_dispatch)
+              PR_NUMBER="${DISPATCH_PR:-}"
+              ;;
+            workflow_run)
+              HEAD_SHA="${WORKFLOW_RUN_SHA:-}"
+              PR_NUMBER="$(pr_number_from_list "${WORKFLOW_RUN_PRS:-null}" "$HEAD_SHA")"
+              ;;
+            check_suite)
+              HEAD_SHA="${CHECK_SUITE_SHA:-}"
+              PR_NUMBER="$(pr_number_from_list "${CHECK_SUITE_PRS:-null}" "$HEAD_SHA")"
+              ;;
+            *)
+              echo "::notice::event ${EVENT_NAME} is not a merge gate — nothing to do."
+              exit 0
+              ;;
+          esac
+
+          if [[ "$EVENT_NAME" == "pull_request_target" || "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            case "$ACTOR" in
+              "dependabot[bot]"|"app/dependabot"|reverb256)
+                ;;
+              *)
+                echo "::notice::actor ${ACTOR} is not on the merge allowlist — nothing to do."
+                exit 0
+                ;;
+            esac
+          fi
+
+          # Foreign heads never get the App token. pull_request_target and
+          # workflow_run carry the head repository (the job `if` already
+          # skipped them). Fill check_suite from the payload when full_name
+          # was absent. This block does not call `gh`.
+          if [[ -z "${EVENT_HEAD_REPO:-}" ]]; then
+            case "$EVENT_NAME" in
+              check_suite)
+                EVENT_HEAD_REPO="$(event_head_repo "${CHECK_SUITE_PRS:-null}")"
+                ;;
+              workflow_run)
+                EVENT_HEAD_REPO="$(event_head_repo "${WORKFLOW_RUN_PRS:-null}")"
+                ;;
+            esac
+          fi
+          if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$GH_REPO" ]]; then
+            echo "::notice::event head repo ${EVENT_HEAD_REPO} is not ${GH_REPO} — nothing to do."
             exit 0
           fi
 
-          echo "Gate open on #$PR_NUMBER — waiting for every check to settle."
+          # Same-repo metadata. Applied only after the event head, when one
+          # is present, is this repository. The pulls API read below is the
+          # authoritative head repository. An empty head.repo is unknown.
+          READ_TOKEN="$GH_TOKEN"
+          if [[ -n "${GATE_TOKEN:-}" ]]; then
+            READ_TOKEN="$GATE_TOKEN"
+          else
+            echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token. Pull metadata will be read with GITHUB_TOKEN."
+          fi
 
-          # 60 * 20s = 20 min ceiling. Longer than any CI lane in ci.yml
-          # (longest observed ~2m) so this never truncates a healthy run.
-          for i in $(seq 1 60); do
-            # --repo on every call: this job has no checkout. `gh` cannot infer
-            # the repository from a working tree. The job runs on ubuntu-latest.
-            META=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,isDraft,mergeable,labels,title,body)
-
-            if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
-              echo "::notice::PR #$PR_NUMBER closed/merged by someone else — stopping."
+          if [[ -z "${PR_NUMBER:-}" && -n "${HEAD_SHA:-}" ]]; then
+            if [[ ! "$HEAD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "::notice::head SHA is not a commit id — nothing to do."
               exit 0
             fi
-            if [[ "$(jq -r '.isDraft' <<<"$META")" == "true" ]]; then
-              echo "::notice::PR #$PR_NUMBER is a draft — stopping."
-              exit 0
-            fi
-            if [[ "$(jq -r 'any(.labels[]; .name == "ready-to-merge")' <<<"$META")" != "true" ]]; then
-              echo "::notice::'ready-to-merge' removed from #$PR_NUMBER — stopping."
-              exit 0
-            fi
+            PR_NUMBER="$(lookup_open_pr "$HEAD_SHA")"
+          fi
 
-            # Fail closed (#983 follow-up): a transient gh/API failure must
-            # not read as "no pending, no failures". On an unreadable list,
-            # wait and retry; the 20-min loop is the backstop. Observed once:
-            # all-green reported while a check was still in_progress.
-            #
-            # Fallback (#997): gh pr checks' GraphQL can be refused wholesale
-            # on this runner ("Resource not accessible by integration" on
-            # checkSuite.workflowRun — measured 60/60 attempts on #997,
-            # 2026-10-04). Read the same data over REST check-runs for the
-            # head SHA; both paths failing keeps the fail-closed retry.
-            PENDING=""
-            FAILURES=""
-            CHECKS=""
-            RAW=""
-            if CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$GH_REPO" --json bucket,name 2>/dev/null); then
-              PENDING=$(jq '[.[] | select(.bucket == "pending" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
-              FAILURES=$(jq '[.[] | select(.bucket == "fail" and .name != "merge" and .name != "Merge when green")] | length' <<<"$CHECKS" 2>/dev/null || true)
-            else
-              HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefOid -q .headRefOid 2>/dev/null || true)
-              if [ -n "$HEAD_SHA" ] && RAW=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA/check-runs?per_page=100" 2>/dev/null); then
-                if [ "$(jq '.check_runs | length' <<<"$RAW" 2>/dev/null || echo 0)" -gt 0 ]; then
-                  PENDING=$(jq '[.check_runs[] | select(.status != "completed" and .name != "merge" and .name != "Merge when green")] | length' <<<"$RAW")
-                  FAILURES=$(jq '[.check_runs[] | select(.name != "merge" and .name != "Merge when green" and (.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure"))] | length' <<<"$RAW")
-                fi
-              fi
-            fi
-            if [ -z "$PENDING" ] || [ -z "$FAILURES" ]; then
-              echo "($i/60) check list unreadable — retrying."
-              sleep 20
-              continue
-            fi
+          if [[ -z "${PR_NUMBER:-}" ]]; then
+            echo "::notice::No open PR resolved for this event — nothing to do."
+            exit 0
+          fi
+          if [[ ! "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::notice::PR number is not numeric — nothing to do."
+            exit 0
+          fi
 
-            if [[ "$FAILURES" -gt 0 ]]; then
-              if [ -n "$CHECKS" ]; then
-                NAMES=$(jq -r '.[] | select(.bucket == "fail") | .name' <<<"$CHECKS" | paste -sd', ' -)
-              else
-                NAMES=$(jq -r '[.check_runs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out" or .conclusion == "action_required" or .conclusion == "startup_failure") | .name] | join(", ")' <<<"$RAW" 2>/dev/null || true)
-              fi
-              echo "::error::Failing checks on #$PR_NUMBER: $NAMES — refusing to merge."
-              echo "Fix or revert them, then re-apply the label."
+          # mergeable stays null while GitHub computes it. Retry that.
+          # An empty head.repo is not a foreign repository and it is not that
+          # delay (run 42959473763 on #1326: the App token was minted and the
+          # old GraphQL field was still empty). After these retries, missing
+          # head metadata or an unknown mergeable value exits 1.
+          for try in 1 2 3 4 5; do
+            if ! PULL="$(GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")"; then
+              echo "::error::PR #${PR_NUMBER} pulls API read failed on try ${try}/5. The gate did not merge. Unknown metadata is not a foreign repository. Confirm the fleet-merge-gate App can read pull requests, then re-run the gate."
               exit 1
             fi
-
-            if [[ "$PENDING" -eq 0 ]]; then
-              if [[ "$(jq -r '.mergeable' <<<"$META")" != "MERGEABLE" ]]; then
-                echo "::error::All checks green but the merge is $(jq -r '.mergeable' <<<"$META")."
-                echo "Resolve conflicts, then re-apply the label."
-                exit 1
-              fi
-
-              # No --subject on purpose (#985), and pass the PR body as the
-              # squash body (#983/#993): this repo's squash settings are
-              # COMMIT_OR_PR_TITLE + COMMIT_MESSAGES, so without --body the
-              # composed squash body is the branch's commit messages — never
-              # the PR description.
-              #
-              # Measured 2026-10-04 (#983): even with `Closes #N` present in
-              # the squash message on main (f9e1a492/#990, 17416ec0/#983),
-              # GitHub's keyword auto-closure did not fire — no `closed` and
-              # no `referenced` events. Closure is therefore done
-              # deterministically below, not left to the keyword.
-              PR_BODY=$(jq -r '.body // ""' <<<"$META")
-              echo "All checks green — squash-merging #$PR_NUMBER."
-              gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
-                --body "$PR_BODY"
-              echo "::notice::Merged #$PR_NUMBER via the ready-to-merge gate."
-
-              # GITHUB_TOKEN merge does not fire push workflows on main.
-              # workflow_dispatch from GITHUB_TOKEN does (needs actions: write).
-              echo "Dispatching CI on main after merge…"
-              if gh workflow run CI --repo "$GH_REPO" --ref main; then
-                echo "::notice::dispatched CI on main after #$PR_NUMBER merge"
-              else
-                # Soft-fail: never abort after a successful merge — issue-closure must still run.
-                echo "::warning::failed to dispatch CI on main — check workflow_dispatch + actions:write"
-              fi
-
-
-              # Deterministic issue closure (#983): close the OPEN issues
-              # referenced with closing keywords in the PR body. A failure
-              # here must never fail the merge — but it must be VISIBLE:
-              # the first live run (#999, 2026-10-05) skipped silently when
-              # `gh issue view` 403'd (missing issues scope) into an empty
-              # state. Log the parsed refs and every outcome.
-              CLOSE_REFS=$(printf '%s\n' "$PR_BODY" \
-                | grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]*(GH)?#[0-9]+' \
-                | grep -oE '#[0-9]+' | tr -d '#' | sort -u || true)
-              echo "Close-loop: closing refs parsed from the PR body: ${CLOSE_REFS:-<none>}"
-              for n in $CLOSE_REFS; do
-                state=$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1 || true)
-                case "$state" in
-                  OPEN)
-                    if gh issue close "$n" --repo "$GH_REPO" --reason completed \
-                      --comment "Closed by the ready-to-merge gate when #$PR_NUMBER merged (deterministic closure — #983)."; then
-                      echo "::notice::Close-loop closed #$n (referenced by #$PR_NUMBER)."
-                    else
-                      echo "::warning::could not close issue #$n"
-                    fi
-                    ;;
-                  CLOSED)
-                    echo "Close-loop: #$n already closed."
-                    ;;
-                  *)
-                    echo "::warning::close-loop could not read the state of #$n: $state"
-                    ;;
-                esac
-              done
-              exit 0
+            META="$(jq -c '
+              # BEGIN normalize-pull.jq
+              # REST GET /repos/{owner}/{repo}/pulls/{n} under the token that can read
+              # pull requests. GraphQL headRepository is not a field of this object, and a
+              # null head.repo stays an empty headRepo. Callers must not treat that empty
+              # value as a foreign repository.
+              {
+                state: ((.state // "") | ascii_upcase),
+                isDraft: (.draft == true),
+                mergeable: (
+                  if .mergeable == true then "MERGEABLE"
+                  elif .mergeable == false then "CONFLICTING"
+                  else "UNKNOWN"
+                  end
+                ),
+                mergeStateStatus: ((.mergeable_state // "") | ascii_upcase),
+                headRepo: (if (.head.repo // null) == null then "" else (.head.repo.full_name // "") end),
+                headRefOid: (.head.sha // ""),
+                labels: (if (.labels | type) == "array" then .labels else [] end),
+                author: { login: (.user.login // "") },
+                body: (.body // "")
+              }
+              # END normalize-pull.jq
+            ' <<<"$PULL")"
+            HEAD_REPO="$(jq -r '.headRepo // empty' <<<"$META")"
+            MERGEABLE="$(jq -r '.mergeable // "UNKNOWN"' <<<"$META")"
+            if [[ -n "$HEAD_REPO" && ( "$HEAD_REPO" != "$GH_REPO" || "$MERGEABLE" != "UNKNOWN" ) ]]; then
+              break
             fi
-
-            echo "($i/60) $PENDING checks pending…"
-            sleep 20
+            if [[ "$try" -lt 5 ]]; then
+              echo "::notice::PR #${PR_NUMBER} head repo or mergeable is not available yet (try ${try}/5) — retrying."
+              sleep $((try * 10))
+            fi
           done
 
-          echo "::error::Timed out after 20 min waiting for checks on #$PR_NUMBER — refusing to merge."
-          echo "Re-apply the label once CI has settled."
-          exit 1
+          if [[ "$(jq -r '.state' <<<"$META")" != "OPEN" ]]; then
+            echo "::notice::PR #${PR_NUMBER} is not open — nothing to do."
+            exit 0
+          fi
+          if [[ "$(jq -r '.isDraft' <<<"$META")" == "true" ]]; then
+            echo "::notice::PR #${PR_NUMBER} is a draft — nothing to do."
+            exit 0
+          fi
+          AUTHOR="$(jq -r '.author.login // empty' <<<"$META")"
+          # The pulls API reports Dependabot as `dependabot[bot]`. The event
+          # actor for a GitHub App can be `app/dependabot`. Both must be
+          # allowed: with only the REST spelling the gate answered "author
+          # app/dependabot is not on the merge allowlist" on #1252/#1249/#1246
+          # (measured 2026-11-07, run 42364690702).
+          case "$AUTHOR" in
+            "dependabot[bot]"|"app/dependabot"|reverb256)
+              ;;
+            *)
+              echo "::notice::author ${AUTHOR:-unknown} is not on the merge allowlist — nothing to do."
+              exit 0
+              ;;
+          esac
+          if [[ "$(jq -r 'any(.labels[]; .name == "hold")' <<<"$META")" == "true" ]]; then
+            echo "::notice::PR #${PR_NUMBER} has the hold label — nothing to do."
+            exit 0
+          fi
+          if [[ "$(jq -r 'any(.labels[]; .name == "ready-to-merge")' <<<"$META")" != "true" ]]; then
+            echo "::notice::PR #${PR_NUMBER} does not have the ready-to-merge label — nothing to do."
+            exit 0
+          fi
+          HEAD_REPO="$(jq -r '.headRepo // empty' <<<"$META")"
+          if [[ -z "$HEAD_REPO" ]]; then
+            echo "::error::PR #${PR_NUMBER} head repository is missing after 5 reads of GET /repos/${GH_REPO}/pulls/${PR_NUMBER} (head.repo). The gate did not merge. Unknown metadata is not a foreign repository. Re-run the gate after the pulls API returns head.repo.full_name."
+            exit 1
+          fi
+          if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$HEAD_REPO" ]]; then
+            echo "::error::PR #${PR_NUMBER} event head ${EVENT_HEAD_REPO} does not match pulls API head ${HEAD_REPO}. The gate did not merge."
+            exit 1
+          fi
+          if [[ "$HEAD_REPO" != "$GH_REPO" ]]; then
+            echo "::notice::PR #${PR_NUMBER} head repo ${HEAD_REPO} is not ${GH_REPO} — nothing to do."
+            exit 0
+          fi
+
+          LIVE_SHA="$(jq -r '.headRefOid // empty' <<<"$META")"
+          if [[ -z "${HEAD_SHA:-}" ]]; then
+            HEAD_SHA="$LIVE_SHA"
+          fi
+          if [[ ! "$HEAD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "::notice::head SHA is not a commit id — nothing to do."
+            exit 0
+          fi
+          if [[ "$LIVE_SHA" != "$HEAD_SHA" ]]; then
+            echo "::notice::PR #${PR_NUMBER} head ${LIVE_SHA} does not match event SHA ${HEAD_SHA} — nothing to do."
+            exit 0
+          fi
+
+          echo "::notice::Resolved PR #${PR_NUMBER} at ${HEAD_SHA}."
+
+          # One page stream per read. The selector keeps the latest attempt of
+          # each Actions identity (app id + workflow path + job name) and does
+          # not collapse two workflows that share a job name. A cancelled run
+          # counts unless a later attempt of that same identity exists.
+          # required is empty: every authoritative check still blocks. The
+          # program rejects a missing or unknown identity instead of counting
+          # it green. This run, and an older run of this workflow file, are
+          # the only gate exclusions. Another workflow's job named merge stays
+          # in the tally. Status pages follow Link rel=next and fail closed
+          # when that chain is unfinished or a page errors.
+          if [[ -z "${RUNNER_TEMP:-}" ]]; then
+            echo "::error::RUNNER_TEMP is not set. The gate did not merge."
+            exit 1
+          fi
+          GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$RUNNER_TEMP/check-pages.json"
+          GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}&per_page=100" > "$RUNNER_TEMP/run-pages.json"
+          REPO_ID="$(jq -r '.base.repo.id // empty' <<<"$PULL")"
+          if [[ ! "$REPO_ID" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR #${PR_NUMBER} base repository id is missing from the pulls API. The gate did not merge."
+            exit 1
+          fi
+          # BEGIN status-paginate.sh
+          # The statuses API returns an array. Completeness is the Link
+          # rel=next chain, not a total_count and not "fewer than 100 rows".
+          # A next link that is not fetched, a repeated link, a foreign link,
+          # or a non-2xx response exits 1.
+          : > "$RUNNER_TEMP/status-pages.json"
+          : > "$RUNNER_TEMP/status-urls.txt"
+          status_url=""
+          status_guard=0
+          while true; do
+            status_guard=$((status_guard + 1))
+            if [[ "$status_guard" -gt 20 ]]; then
+              echo "::error::commit status pagination exceeded 20 pages. The gate did not merge."
+              exit 1
+            fi
+            if [[ -z "$status_url" ]]; then
+              status_url="repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"
+            fi
+            if grep -Fxq -- "$status_url" "$RUNNER_TEMP/status-urls.txt"; then
+              echo "::error::commit status pagination repeated a Link URL. The gate did not merge."
+              exit 1
+            fi
+            case "$status_url" in
+              "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")
+                ;;
+              "https://api.github.com/repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?"*)
+                ;;
+              "https://api.github.com/repositories/${REPO_ID}/commits/${HEAD_SHA}/statuses?"*)
+                ;;
+              *)
+                echo "::error::commit status pagination Link is outside this commit. The gate did not merge."
+                exit 1
+                ;;
+            esac
+            printf '%s\n' "$status_url" >> "$RUNNER_TEMP/status-urls.txt"
+            if [[ "$status_url" == "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" ]]; then
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")"; then
+                echo "::error::commit status pagination request failed. The gate did not merge."
+                exit 1
+              fi
+            else
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "$status_url")"; then
+                echo "::error::commit status pagination request failed. The gate did not merge."
+                exit 1
+              fi
+            fi
+            status_http="$(printf '%s\n' "$status_raw" | awk 'NR==1 && $1 ~ /^HTTP/ { print $2; exit }')"
+            if [[ ! "$status_http" =~ ^2[0-9][0-9]$ ]]; then
+              echo "::error::commit status pagination returned HTTP ${status_http:-missing}. The gate did not merge."
+              exit 1
+            fi
+            status_next="$(printf '%s\n' "$status_raw" | awk '
+              BEGIN { nexturl = "" }
+              /^$/ { exit }
+              tolower($0) ~ /^link:/ {
+                line = $0
+                sub(/^[Ll]ink:[ \t]*/, "", line)
+                while (match(line, /<[^>]*>/)) {
+                  linkurl = substr(line, RSTART + 1, RLENGTH - 2)
+                  rest = substr(line, RSTART + RLENGTH)
+                  seg = rest
+                  cut = index(rest, "<")
+                  if (cut > 0) seg = substr(rest, 1, cut - 1)
+                  low = tolower(seg)
+                  if (low ~ /rel=[ \t]*"next"/ || low ~ /rel=[ \t]*next([;, \t]|$)/) nexturl = linkurl
+                  line = rest
+                }
+              }
+              END { printf "%s", nexturl }
+            ')"
+            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^$/ { capture = 1; next } capture { print }')"
+            if ! printf '%s\n' "$status_body" | jq -cen --argjson http_status "$status_http" --arg next "$status_next" 'input as $body | if ($body | type) != "array" then error("commit status body is not an array") else {http_status: $http_status, next: (if $next == "" then null else $next end), body: $body} end' >> "$RUNNER_TEMP/status-pages.json"; then
+              echo "::error::commit status pagination returned a body that is not a JSON array. The gate did not merge."
+              exit 1
+            fi
+            if [[ -z "$status_next" ]]; then
+              break
+            fi
+            status_url="$status_next"
+          done
+          # END status-paginate.sh
+          CHECK_RESULT="$(jq -n \
+            --arg head_sha "$HEAD_SHA" \
+            --arg job "$GATE_JOB_NAME" \
+            --arg workflow "$GATE_WORKFLOW_NAME" \
+            --arg workflow_path "$GATE_WORKFLOW_PATH" \
+            --arg run_id "$RUN_ID" \
+            --arg app_slug "$GATE_APP_SLUG" \
+            --argjson required '[]' \
+            --slurpfile check_pages "$RUNNER_TEMP/check-pages.json" \
+            --slurpfile run_pages "$RUNNER_TEMP/run-pages.json" \
+            --slurpfile status_pages "$RUNNER_TEMP/status-pages.json" \
+            '
+            # BEGIN select-merge-checks.jq
+            # Authoritative check selection for one head SHA.
+            # Actions identity is app id + workflow path + job name. Attempt order is
+            # workflow run_started_at, run_attempt, workflow run id, then check run id.
+            # A newer failure beats an older success. A cancelled run is dropped only
+            # when a later attempt of that same identity exists. Friendly name alone is
+            # not an identity. Commit statuses use context, then updated_at, then id.
+            # The gate excludes only this run, or an earlier run whose workflow path is
+            # the gate file. A missing path or app does not exclude a job.
+            def blank($v):
+              ($v | type) != "string" or $v == "";
+
+            def collect_pages($pages; $key):
+              if ($pages | map(select((type == "object") and has("message") and (has($key) | not))) | length) > 0 then
+                {
+                  items: [],
+                  error: (
+                    $key + " read failed: " + (
+                      [ $pages[] | select((type == "object") and has("message")) | (.message | tostring) ] | first // "unknown error"
+                    )
+                  )
+                }
+              else
+                (
+                  [ $pages[] | if type == "array" then .[] else .[$key][]? end ]
+                ) as $items
+                | (
+                    [ $pages[] | if (type == "object") and (.total_count | type) == "number" then .total_count else empty end ] | max // null
+                  ) as $total
+                | if $total != null and ($items | length) < $total then
+                    { items: [], error: ($key + " page is incomplete: have " + ($items | length | tostring) + " of " + ($total | tostring)) }
+                  else
+                    { items: $items, error: null }
+                  end
+              end;
+
+            def actions_run_id($c):
+              [ ($c.details_url // ""), ($c.html_url // "") ]
+              | map(select(type == "string" and test("actions/runs/[0-9]+")))
+              | map(capture("actions/runs/(?<id>[0-9]+)").id)
+              | unique
+              | if length == 0 then { id: null, error: null }
+                elif length > 1 then { id: null, error: "check run has two Actions run ids" }
+                else { id: .[0], error: null }
+                end;
+
+            def same_app($c):
+              ($app_slug | type) == "string"
+              and $app_slug != ""
+              and (($c.app.slug? // "") == $app_slug);
+
+            def gate_named($c):
+              (($c.name // "") == $job) or (($c.name // "") == $workflow);
+
+            def url_is_this_run($c):
+              ($run_id | type) == "string"
+              and ($run_id | test("^[0-9]+$"))
+              and (
+                (($c.details_url // "") | contains("/actions/runs/" + $run_id + "/"))
+                or (($c.html_url // "") | contains("/actions/runs/" + $run_id + "/"))
+              );
+
+            # Name plus app is not enough. The URL of this run is this execution. An older
+            # gate run must resolve to the gate workflow path. Otherwise the check stays
+            # in the tally, or a later missing-path read fails closed.
+            def is_gate($c; $index):
+              if same_app($c) and gate_named($c) and url_is_this_run($c) then true
+              elif (same_app($c) | not) or (gate_named($c) | not) or $workflow_path == "" then false
+              else
+                actions_run_id($c) as $rid
+                | if $rid.error != null or $rid.id == null or $index.map[$rid.id] == null then false
+                  else ($index.map[$rid.id].path == $workflow_path)
+                  end
+              end;
+
+            # Statuses are a JSON array. GitHub documents completeness with the Link
+            # rel=next header, not total_count. A page without that proof is incomplete.
+            # A next link on the last page, a page after a finished page, or an error
+            # body fails the read. Item count is not a substitute for the link.
+            def collect_status_pages($pages):
+              if ($pages | length) == 0 then
+                { items: [], error: "commit status pagination produced no pages" }
+              else
+                reduce $pages[] as $p (
+                  { items: [], error: null, index: 0, open: false };
+                  if .error != null then .
+                  else
+                    .index += 1
+                    | if ($p | type) != "object" or (($p | has("http_status")) | not) or (($p | has("next")) | not) or (($p | has("body")) | not) then
+                        .error = "commit status page is missing Link pagination proof"
+                      elif ($p.http_status | type) != "number" or $p.http_status < 200 or $p.http_status >= 300 then
+                        .error = ("commit status page returned HTTP " + ($p.http_status | tostring) + (if ($p.body | type) == "object" and ($p.body.message | type) == "string" then ": " + $p.body.message else "" end))
+                      elif ($p.body | type) == "object" and ($p.body | has("message")) then
+                        .error = ("commit status page failed: " + ($p.body.message | tostring))
+                      elif ($p.body | type) != "array" then
+                        .error = "commit status page body is not an array"
+                      elif (.open | not) and .index > 1 then
+                        .error = "commit status pagination has a page after a page with no next Link"
+                      elif $p.next != null and (($p.next | type) != "string" or $p.next == "") then
+                        .error = "commit status next Link is empty"
+                      else
+                        .items += $p.body
+                        | .open = ($p.next != null)
+                      end
+                  end
+                )
+                | if .error != null then { items: [], error: .error }
+                  elif .open then { items: [], error: "commit status pagination stopped while a next Link remained" }
+                  else { items: .items, error: null }
+                  end
+              end;
+
+            def check_bucket($c):
+              if ($c.status // "") != "completed" then "pending"
+              elif (($c.conclusion // "") == "success" or ($c.conclusion // "") == "skipped" or ($c.conclusion // "") == "neutral") then "green"
+              elif ($c.conclusion // "") == "stale" then "stale"
+              elif blank($c.conclusion // "") then "unknown"
+              else "red"
+              end;
+
+            def status_bucket($s):
+              if ($s.state // "") == "success" then "green"
+              elif ($s.state // "") == "pending" then "pending"
+              elif (($s.state // "") == "failure" or ($s.state // "") == "error") then "red"
+              else "unknown"
+              end;
+
+            def better($a; $b):
+              if $a == null then $b
+              elif $b == null then $a
+              elif $a.ord > $b.ord then $a
+              else $b
+              end;
+
+            def tally($rows):
+              {
+                pending: ([$rows[] | select(.bucket == "pending")] | length),
+                red: ([$rows[] | select(.bucket == "red")] | length),
+                green: ([$rows[] | select(.bucket == "green")] | length),
+                pending_names: ([$rows[] | select(.bucket == "pending") | .label] | join(", ")),
+                red_names: ([$rows[] | select(.bucket == "red") | .label] | join(", "))
+              };
+
+            def finish($error; $checks; $statuses):
+              if $error != null then
+                { ok: false, error: $error, checks: { pending: 0, red: 0, green: 0, pending_names: "", red_names: "" }, statuses: { pending: 0, red: 0, green: 0, pending_names: "", red_names: "" } }
+              else
+                { ok: true, error: "", checks: $checks, statuses: $statuses }
+              end;
+
+            collect_pages($check_pages; "check_runs") as $checks_in
+            | collect_pages($run_pages; "workflow_runs") as $runs_in
+            | collect_status_pages($status_pages) as $statuses_in
+            | if $checks_in.error != null then finish($checks_in.error; null; null)
+              elif $runs_in.error != null then finish($runs_in.error; null; null)
+              elif $statuses_in.error != null then finish($statuses_in.error; null; null)
+              elif ($required | type) != "array" then finish("required check list is not an array"; null; null)
+              else
+                (
+                  reduce $runs_in.items[] as $w (
+                    { map: {}, error: null };
+                    if .error != null then .
+                    elif ($w.id | type) != "number" then .error = "workflow run is missing id"
+                    elif blank($w.head_sha // "") then .error = ("workflow run " + ($w.id | tostring) + " is missing head_sha")
+                    elif $w.head_sha != $head_sha then .
+                    elif blank($w.path // "") then .error = ("workflow run " + ($w.id | tostring) + " is missing path")
+                    elif ($w.run_attempt | type) != "number" then .error = ("workflow run " + ($w.id | tostring) + " is missing run_attempt")
+                    elif blank($w.run_started_at // "") then .error = ("workflow run " + ($w.id | tostring) + " is missing run_started_at")
+                    elif (.map[$w.id | tostring] != null) and (.map[$w.id | tostring].path != $w.path) then
+                      .error = ("workflow run " + ($w.id | tostring) + " has two paths")
+                    else
+                      .map[$w.id | tostring] = {
+                        path: $w.path,
+                        attempt: $w.run_attempt,
+                        started: $w.run_started_at,
+                        id: $w.id
+                      }
+                    end
+                  )
+                ) as $index
+                | if $index.error != null then finish($index.error; null; null)
+                  else
+                    (
+                      reduce $checks_in.items[] as $c (
+                        { rows: [], error: null };
+                        if .error != null then .
+                        elif is_gate($c; $index) then .
+                        elif ($c.id | type) != "number" then .error = "check run is missing id"
+                        elif blank($c.head_sha // "") then .error = ("check run " + ($c.id | tostring) + " is missing head_sha")
+                        elif $c.head_sha != $head_sha then .
+                        elif blank($c.name // "") then .error = ("check run " + ($c.id | tostring) + " is missing name")
+                        elif ($c.app.id? | type) != "number" then .error = ("check run " + ($c.id | tostring) + " is missing app.id")
+                        elif blank($c.status // "") then .error = ("check run " + ($c.id | tostring) + " is missing status")
+                        elif check_bucket($c) == "stale" then .
+                        elif check_bucket($c) == "unknown" then .error = ("check run " + ($c.id | tostring) + " has an unknown conclusion")
+                        else
+                          actions_run_id($c) as $rid
+                          | if $rid.error != null then .error = ("check run " + ($c.id | tostring) + " " + $rid.error)
+                            elif $rid.id != null then
+                              if $index.map[$rid.id] == null then
+                                .error = ("check run " + ($c.id | tostring) + " (" + $c.name + ") has no same-SHA workflow metadata for Actions run " + $rid.id)
+                              else
+                                ($index.map[$rid.id]) as $w
+                                | .rows += [{
+                                    key: (["actions", $c.app.id, $w.path, $c.name] | tojson),
+                                    ord: [$w.started, $w.attempt, $w.id, $c.id],
+                                    bucket: check_bucket($c),
+                                    name: $c.name,
+                                    path: $w.path,
+                                    app_id: $c.app.id,
+                                    label: ($w.path + " :: " + $c.name)
+                                  }]
+                              end
+                            elif blank($c.started_at // "") and blank($c.completed_at // "") then
+                              .error = ("check run " + ($c.id | tostring) + " is missing started_at")
+                            elif (($c.external_id // "") | type) == "string" and (($c.external_id // "") | length) > 0 then
+                              .rows += [{
+                                key: (["app", $c.app.id, "ext", $c.external_id] | tojson),
+                                ord: [($c.started_at // $c.completed_at), 0, 0, $c.id],
+                                bucket: check_bucket($c),
+                                name: $c.name,
+                                path: null,
+                                app_id: $c.app.id,
+                                label: ("app:" + ($c.app.id | tostring) + " :: " + $c.name)
+                              }]
+                            elif ($c.check_suite.id? | type) == "number" then
+                              .rows += [{
+                                key: (["app", $c.app.id, "suite", $c.check_suite.id, "name", $c.name] | tojson),
+                                ord: [($c.started_at // $c.completed_at), 0, 0, $c.id],
+                                bucket: check_bucket($c),
+                                name: $c.name,
+                                path: null,
+                                app_id: $c.app.id,
+                                label: ("app:" + ($c.app.id | tostring) + " :: " + $c.name)
+                              }]
+                            else
+                              .error = ("check run " + ($c.id | tostring) + " has no workflow, external_id, or check suite")
+                            end
+                        end
+                      )
+                    ) as $prepared
+                    | if $prepared.error != null then finish($prepared.error; null; null)
+                      else
+                        (
+                          reduce $prepared.rows[] as $row (
+                            {};
+                            .[$row.key] = better(.[$row.key]; $row)
+                          )
+                          | [ .[] ]
+                        ) as $chosen
+                        | (
+                            reduce $required[] as $req (
+                              { rows: $chosen, error: null };
+                              if .error != null then .
+                              elif blank($req.path // "") or blank($req.name // "") then .error = "required check is missing path or name"
+                              else
+                                ( [ .rows[] | select(.path == $req.path and .name == $req.name) ] ) as $hits
+                                | if ($hits | length) == 0 then
+                                    .rows += [{
+                                      key: (["required", $req.path, $req.name] | tojson),
+                                      ord: ["", 0, 0, 0],
+                                      bucket: "red",
+                                      name: $req.name,
+                                      path: $req.path,
+                                      app_id: null,
+                                      label: ("missing required :: " + $req.path + " :: " + $req.name)
+                                    }]
+                                  else .
+                                  end
+                              end
+                            )
+                          ) as $with_required
+                        | if $with_required.error != null then finish($with_required.error; null; null)
+                          else
+                            (
+                              reduce $statuses_in.items[] as $s (
+                                { rows: [], error: null };
+                                if .error != null then .
+                                elif ($s.id | type) != "number" then .error = "commit status is missing id"
+                                elif (($s.sha // null) != null) and ($s.sha != $head_sha) then .
+                                elif blank($s.context // "") then .error = ("commit status " + ($s.id | tostring) + " is missing context")
+                                elif blank($s.updated_at // "") and blank($s.created_at // "") then .error = ("commit status " + ($s.id | tostring) + " is missing updated_at")
+                                elif status_bucket($s) == "unknown" then .error = ("commit status " + ($s.id | tostring) + " has an unknown state")
+                                else
+                                  .rows += [{
+                                    key: $s.context,
+                                    ord: [($s.updated_at // $s.created_at), $s.id],
+                                    bucket: status_bucket($s),
+                                    label: $s.context
+                                  }]
+                                end
+                              )
+                            ) as $status_rows
+                            | if $status_rows.error != null then finish($status_rows.error; null; null)
+                              else
+                                (
+                                  reduce $status_rows.rows[] as $row (
+                                    {};
+                                    .[$row.key] = better(.[$row.key]; $row)
+                                  )
+                                  | [ .[] ]
+                                ) as $status_chosen
+                                | finish(null; tally($with_required.rows); tally($status_chosen))
+                              end
+                          end
+                      end
+                  end
+              end
+            # END select-merge-checks.jq
+            ')"
+          if [[ "$(jq -r '.ok' <<<"$CHECK_RESULT")" != "true" ]]; then
+            echo "::error::PR #${PR_NUMBER} check selection failed: $(jq -r '.error' <<<"$CHECK_RESULT"). The gate did not merge. Resolve the check metadata, then re-run the gate."
+            exit 1
+          fi
+          CHECKS="$(jq -c '.checks' <<<"$CHECK_RESULT")"
+          STATUSES="$(jq -c '.statuses' <<<"$CHECK_RESULT")"
+
+          PENDING="$(jq -r '.pending' <<<"$CHECKS")"
+          RED="$(jq -r '.red' <<<"$CHECKS")"
+          GREEN="$(jq -r '.green' <<<"$CHECKS")"
+          S_PENDING="$(jq -r '.pending' <<<"$STATUSES")"
+          S_RED="$(jq -r '.red' <<<"$STATUSES")"
+          S_GREEN="$(jq -r '.green' <<<"$STATUSES")"
+          require_count "check pending" "$PENDING"
+          require_count "check red" "$RED"
+          require_count "check green" "$GREEN"
+          require_count "status pending" "$S_PENDING"
+          require_count "status red" "$S_RED"
+          require_count "status green" "$S_GREEN"
+
+          if [[ "$PENDING" -gt 0 || "$RED" -gt 0 || "$S_PENDING" -gt 0 || "$S_RED" -gt 0 ]]; then
+            echo "::notice::pending or not green for ${HEAD_SHA}: checks pending=${PENDING} ($(jq -r '.pending_names // empty' <<<"$CHECKS")) red=${RED} ($(jq -r '.red_names // empty' <<<"$CHECKS")); statuses pending=${S_PENDING} ($(jq -r '.pending_names // empty' <<<"$STATUSES")) red=${S_RED} ($(jq -r '.red_names // empty' <<<"$STATUSES")) — nothing to do."
+            exit 0
+          fi
+          if [[ "$GREEN" -eq 0 && "$S_GREEN" -eq 0 ]]; then
+            echo "::notice::no completed checks or statuses for ${HEAD_SHA} yet — nothing to do."
+            exit 0
+          fi
+
+          MERGE_STATE="$(jq -r '.mergeStateStatus // empty' <<<"$META")"
+          MERGEABLE="$(jq -r '.mergeable // "UNKNOWN"' <<<"$META")"
+          if [[ "$MERGEABLE" == "UNKNOWN" ]]; then
+            echo "::error::PR #${PR_NUMBER} mergeable is still unknown after 5 reads of GET /repos/${GH_REPO}/pulls/${PR_NUMBER}. The gate did not merge. Re-run the gate after GitHub finishes the mergeable calculation."
+            exit 1
+          fi
+          # Update-branch is a PUSH into the PR head. GITHUB_TOKEN can never push
+          # to a branch that changes .github/workflows ("refusing to allow a
+          # GitHub App to create or update workflow", 403) and this call used to
+          # inherit GH_TOKEN=github.token, so a workflow-editing Dependabot PR
+          # (e.g. #1252, pnpm/action-setup across four workflow files) could be
+          # labelled ready-to-merge and then never advance past BEHIND: the
+          # update failed, the step only warned, and the gate exited 0.
+          # The fleet-merge-gate App token carries Workflows:write, so it is the
+          # only token that can move such a branch.
+          if [[ "$MERGE_STATE" == "BEHIND" ]]; then
+            echo "::notice::PR #${PR_NUMBER} is behind base — updating the branch once."
+            if [[ -z "${GATE_TOKEN:-}" ]]; then
+              echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token; a workflow-editing PR cannot be updated with GITHUB_TOKEN."
+            fi
+            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
+              echo "::warning::could not update the branch of PR #${PR_NUMBER}."
+            fi
+            exit 0
+          fi
+          if [[ "$MERGEABLE" != "MERGEABLE" ]]; then
+            echo "::notice::PR #${PR_NUMBER} is not mergeable (${MERGEABLE:-unknown}, ${MERGE_STATE:-unknown}) — nothing to do."
+            exit 0
+          fi
+
+          # No --subject (#985). The PR body is the squash body (#983/#993):
+          # this repo's squash settings are COMMIT_OR_PR_TITLE + COMMIT_MESSAGES,
+          # so without --body the squash body is the branch commit messages.
+          # --body-file keeps the body as data. pull_request_target must not
+          # expand it in the shell.
+          BODY_FILE="${RUNNER_TEMP}/pr-body"
+          jq -r '.body // ""' <<<"$META" > "$BODY_FILE"
+
+          echo "::notice::Squash-merging PR #${PR_NUMBER} at ${HEAD_SHA}."
+          GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
+            --match-head-commit "$HEAD_SHA" \
+            --body-file "$BODY_FILE"
+          echo "::notice::Merged #${PR_NUMBER} via the ready-to-merge gate."
+
+          echo "Dispatching CI on main after merge."
+          if gh workflow run CI --repo "$GH_REPO" --ref main; then
+            echo "::notice::dispatched CI on main after #${PR_NUMBER} merged."
+          else
+            echo "::warning::failed to dispatch CI on main after #${PR_NUMBER} merged."
+          fi
+
+          # Deterministic issue closure (#983). Keyword auto-close did not fire
+          # on the squash commit (measured 2026-10-04). A failure here must not
+          # fail the already-merged PR, and it must be visible.
+          echo "Close-loop: scanning the PR body for closing keywords."
+          if grep -qiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]*(GH)?#[0-9]+' "$BODY_FILE"; then
+            while IFS= read -r n; do
+              if [[ ! "$n" =~ ^[0-9]+$ ]]; then
+                continue
+              fi
+              if ! state="$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1)"; then
+                echo "::warning::close-loop could not read the state of #${n}: ${state}"
+                continue
+              fi
+              case "$state" in
+                OPEN)
+                  if gh issue close "$n" --repo "$GH_REPO" --reason completed \
+                    --comment "Closed by the ready-to-merge gate when #${PR_NUMBER} merged (deterministic closure — #983)."; then
+                    echo "::notice::Close-loop closed #${n} (referenced by #${PR_NUMBER})."
+                  else
+                    echo "::warning::could not close issue #${n}."
+                  fi
+                  ;;
+                CLOSED)
+                  echo "Close-loop: #${n} already closed."
+                  ;;
+                *)
+                  echo "::warning::close-loop could not read the state of #${n}: ${state}"
+                  ;;
+              esac
+            done < <(grep -oiE '\b(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]*(GH)?#[0-9]+' "$BODY_FILE" | grep -oE '[0-9]+' | sort -u)
+          else
+            echo "Close-loop: no closing refs in the PR body."
+          fi

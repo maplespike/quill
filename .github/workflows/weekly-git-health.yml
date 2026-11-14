@@ -9,7 +9,7 @@ on:
 jobs:
   check-nodes:
     name: "Check all cluster nodes"
-    runs-on: [self-hosted, nixos]
+    runs-on: arc-maplespike
     steps:
       - uses: actions/checkout@v7
         with:
