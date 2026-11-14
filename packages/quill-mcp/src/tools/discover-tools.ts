@@ -783,6 +783,11 @@ export const definition: ToolDefinition = {
         minimum: 1,
         maximum: 30,
       },
+      offset: {
+        type: 'number',
+        description: 'Number of results to skip (for pagination). Default 0.',
+        minimum: 0,
+      },
     },
     required: ['query'],
   },
@@ -818,6 +823,7 @@ async function getEffectiveIndex(): Promise<Array<{ toolName: string; descriptio
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
   const limit = Math.min(Number(args.limit ?? 10), 30);
+  const offset = Math.max(0, Number(args.offset ?? 0));
 
   if (!query.trim()) {
     return {
@@ -827,8 +833,14 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
 
   const effective = await getEffectiveIndex();
-  const results = bm25(query, limit, effective);
+  const allResults = bm25(query, Math.min(limit + offset, 30), effective);
+  const results = allResults.slice(offset);
   const lowered = query.toLowerCase();
+
+  // Suggest a broader query when no results are found
+  const suggestion = results.length === 0
+    ? 'No matching tools found. Try a broader query (e.g., "search", "data", "health") or call getting_started for an overview.'
+    : undefined;
 
   // #838: meta-queries ("what can you do", "overview", "featured") lead with
   // the cross-reference/influence composition surface.
@@ -849,6 +861,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         featured: FEATURED_TOOLS.includes(r.toolName) || undefined,
       })),
       total: results.length,
+      ...(suggestion ? { suggestion } : {}),
     },
   };
 };
