@@ -36,7 +36,7 @@ export const definition: ToolDefinition = {
 };
 
 export const handler: ToolHandler = async (args) => {
-  const rawHash = ((args.sha256 as string) ?? '').trim();
+  const rawHash = ((args.sha256 as string) ?? (args.hash as string) ?? '').trim();
   const data = args.data;
 
   if (!rawHash) {
