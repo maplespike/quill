@@ -3,11 +3,6 @@ packages:
   - "!packages/dashboard"
   - "!packages/flywheel-agent"
 
-# Refresh hard-linked workspace copies after compilation so runtime imports
-# see database/pipeline dist files produced after the initial install.
-syncInjectedDepsAfterScripts:
-  - build
-
 onlyBuiltDependencies:
   - "@tailwindcss/oxide"
   - "better-sqlite3"
@@ -16,35 +11,49 @@ onlyBuiltDependencies:
 overrides:
   # bigint-buffer 1.1.5 advisory has no upstream fix; the maintained
   # @trufflesuite fork is the ecosystem-standard drop-in substitute.
+  "@grpc/grpc-js": "^1.14.5"
+  "@opentelemetry/core": "^2.8.0"
+  "@simplewebauthn/server": "^13.3.2"
+  astro@<=7.4.4: '>=7.4.5'
+  astro@>=5.14.3 <=7.4.6: '>=7.4.7'
   bigint-buffer: "npm:@trufflesuite/bigint-buffer@1.1.10"
+  deepmerge-ts: "^8.0.0"
+  devalue: "^5.9.2"
+  esbuild: "^0.28.1"
+  fast-copy: "^4.1.0"
+  fast-uri: "^4.2.3"
+  fast-xml-parser: "^5.10.1"
+  fast-xml-parser@<=5.11.2: '>=5.12.0'
+  hono: "^4.13.5"
+  hono@<4.13.16: '>=4.13.16'
+  hono@>=3.12.0 <=4.13.15: '>=4.13.16'
+  hono@>=4.1.4 <=4.13.15: '>=4.13.16'
+  hono@>=4.5.1 <=4.13.15: '>=4.13.16'
   # GHSA-ch52-4w7c-c8xp (high): max-stale handling in http-cache-semantics
   # <= 4.2.0 can return another user's cached response. 4.3.0 is the first
   # release outside the vulnerable range. astro@7 declares ^4.2.0, so this
   # moves the resolution inside the range that package already accepts.
   http-cache-semantics: "^4.3.0"
-  undici: "^8.11.2"
-  hono: "^4.13.5"
-  fast-uri: "^4.2.3"
-  svgo: "^4.1.0"
-  stream-json: "^3.5.0"
-  nanoid: "^3.3.18"
-  smol-toml: "^1.9.0"
-  fast-xml-parser: "^5.10.1"
-  deepmerge-ts: "^8.0.0"
-  devalue: "^5.9.2"
-  "@simplewebauthn/server": "^13.3.2"
-  nodemailer: "^10.1.4"
-  "@grpc/grpc-js": "^1.14.5"
-  source-map-js: "^1.2.2"
-  fast-copy: "^4.1.0"
-  "js-yaml@4": "^4.3.2"
   "js-yaml@3": "^3.15.2"
-  protobufjs: "^7.6.3"
+  "js-yaml@4": "^4.3.2"
   linkify-it: "^5.0.2"
+  minimatch@>=7.0.0 <11.0.1: '>=11.0.1'
+  nanoid: "^3.3.18"
+  nodemailer: "^10.1.4"
+  protobufjs: "^7.6.3"
   "semver@5": "^5.7.2"
   sharp: "^0.35.5"
-  ws: "^8.21.0"
-  esbuild: "^0.28.1"
-  "@opentelemetry/core": "^2.8.0"
+  smol-toml: "^1.9.0"
+  source-map-js: "^1.2.2"
+  stream-json: "^3.5.0"
+  svgo: "^4.1.0"
+  undici: "^8.11.2"
   uuid: "^11.1.1"
+  ws: "^8.21.0"
   yaml: "^2.8.3"
+  zod@<4.6.6: '>=4.6.6'
+
+# Refresh hard-linked workspace copies after compilation so runtime imports
+# see database/pipeline dist files produced after the initial install.
+syncInjectedDepsAfterScripts:
+  - build
