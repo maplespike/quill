@@ -58,7 +58,7 @@ api:
       cpu: 500m
       memory: 512Mi
   env:
-    QUILL_API_URL: http://quill-api:8082/v1
+    QUILL_API_URL: http://quill-api.maplespike.svc.cluster.local:8082/v1
     NODE_ENV: production
     ENVIRONMENT: production
     QUILL_STORAGE: sqlite
