@@ -135,6 +135,21 @@ const isProductSurface = PRODUCT_SURFACES.some(
         } catch (e) {}
       })();
     </script>
+    <!-- Language detection redirect: Accept-Language / navigator.language starting with 'fr' -> /fr/ -->
+    <script is:inline define:vars={{ lang, cleanPath }}>
+      (function () {
+        try {
+          var saved = localStorage.getItem('maplespike_lang');
+          var navLang = (navigator.language || '').toLowerCase();
+          var wantsFr = !saved && navLang.startsWith('fr');
+          if (wantsFr && !String(cleanPath).startsWith('/fr')) {
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '/en' || window.location.pathname === '/en.html') {
+              window.location.replace('/fr');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- Plausible Analytics — privacy-first, no cookies, no cross-site tracking -->
     <script defer is:inline data-domain="quill.maplespike.ca" src="https://plausible.io/js/script.js"></script>
     <!-- #788 AI-search visibility: structured data so answer engines can cite
@@ -162,6 +177,9 @@ const isProductSurface = PRODUCT_SURFACES.some(
     <!-- Upstream outage notice: one line, only when a government source is not
          up, and only wording the API derives from the declarative config. -->
     <UpstreamNotice lang={lang} />
+    <div id="lang-banner" class="hidden border-b border-border/60 bg-primary/10 px-4 py-2 text-center text-sm" role="status" aria-live="polite">
+      <a id="lang-banner-link" href="#" class="font-medium text-primary hover:underline"></a>
+    </div>
     <main id="main-content" tabindex="-1" data-surface={isProductSurface ? "product" : "editorial"} data-route={cleanPath}>
       <slot />
     </main>
@@ -265,6 +283,28 @@ const isProductSurface = PRODUCT_SURFACES.some(
       </div>
     </footer>
 
+    <!-- Language banner: show "View in French/English" when user is on the wrong-language page -->
+    <script is:inline define:vars={{ lang }}>
+      (function () {
+        try {
+          var navLang = (navigator.language || '').toLowerCase();
+          var onFr = lang === 'fr';
+          var wantsFr = navLang.startsWith('fr');
+          var wrong = (onFr && !wantsFr) || (!onFr && wantsFr);
+          if (!wrong) return;
+          var banner = document.getElementById('lang-banner');
+          var link = document.getElementById('lang-banner-link');
+          if (!banner || !link) return;
+          var target = onFr
+            ? (location.pathname.replace(/^\/fr/, '') || '/')
+            : ('/fr' + (location.pathname === '/' ? '' : location.pathname));
+          if (target === '') target = '/';
+          link.href = target;
+          link.textContent = onFr ? 'View in English' : 'View in French';
+          banner.classList.remove('hidden');
+        } catch (e) {}
+      })();
+    </script>
     <!-- Runtime config (sets window.MAPLESPIKE before any island runs) -->
     <script src={`/config.js?v=${assetVersion}`} is:inline></script>
     <!-- Load auth state manager (runs before React hydration) -->
