@@ -4,3 +4,4 @@ dist/
 
 # Docs build output
 docs-dist/
+access-log.jsonl
