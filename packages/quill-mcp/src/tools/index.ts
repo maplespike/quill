@@ -53,6 +53,7 @@ import * as searchBankOfCanada from './search-bank-of-canada.js';
 import * as queryDatastore from './query-datastore.js';
 import * as discoverTools from './discover-tools.js';
 import * as gettingStarted from './getting-started.js';
+import * as checkTier from './check-tier.js';
 import * as searchWeather from './search-weather.js';
 import * as searchNutrientFile from './search-nutrient-file.js';
 import * as searchValetApi from './search-valet-api.js';
@@ -323,6 +324,7 @@ export function getAllTools(): ToolModule[] {
   queryDatastore,
   discoverTools,
   gettingStarted,
+  checkTier,
   searchWeather,
   searchNutrientFile,
   searchValetApi,

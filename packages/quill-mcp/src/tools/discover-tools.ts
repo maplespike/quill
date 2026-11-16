@@ -788,6 +788,10 @@ export const definition: ToolDefinition = {
         description: 'Number of results to skip (for pagination). Default 0.',
         minimum: 0,
       },
+      category: {
+        type: 'string',
+        description: 'Filter results by domain category. One of: immigration, health, justice, economy, environment, defence, education, corporate, influence, oversight, provincial, municipal, science, transport, culture, search, data, cache, system.',
+      },
     },
     required: ['query'],
   },
@@ -824,6 +828,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
   const limit = Math.min(Number(args.limit ?? 10), 30);
   const offset = Math.max(0, Number(args.offset ?? 0));
+  const category = args.category ? String(args.category).toLowerCase() : undefined;
 
   if (!query.trim()) {
     return {
@@ -833,7 +838,36 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
 
   const effective = await getEffectiveIndex();
-  const allResults = bm25(query, Math.min(limit + offset, 30), effective);
+
+  // Category filter: narrow the index before BM25 scoring
+  let filteredIndex = effective;
+  if (category) {
+    const catMap: Record<string, (e: { toolName: string; description: string }) => boolean> = {
+      immigration: e => /immigr|refugee|visa|permit|citizenship/i.test(e.toolName + ' ' + e.description),
+      health: e => /health|medical|drug|hospital/i.test(e.toolName + ' ' + e.description),
+      justice: e => /justice|court|tribunal|canlii|correction|parole/i.test(e.toolName + ' ' + e.description),
+      economy: e => /gdp|cpi|labour|trade|econom|statcan|finance/i.test(e.toolName + ' ' + e.description),
+      environment: e => /environment|climate|weather|species|fisheries|npri/i.test(e.toolName + ' ' + e.description),
+      defence: e => /defence|defense|veteran|military/i.test(e.toolName + ' ' + e.description),
+      education: e => /education|universit|school/i.test(e.toolName + ' ' + e.description),
+      corporate: e => /corporate|corporation|filing|sedi|sedar/i.test(e.toolName + ' ' + e.description),
+      influence: e => /lobby|influence|gic|election/i.test(e.toolName + ' ' + e.description),
+      oversight: e => /oversight|audit|oag|pbo|ethics/i.test(e.toolName + ' ' + e.description),
+      provincial: e => /provincial|ontario|quebec/i.test(e.toolName + ' ' + e.description),
+      municipal: e => /municipal|city|town/i.test(e.toolName + ' ' + e.description),
+      science: e => /science|research|space|csa/i.test(e.toolName + ' ' + e.description),
+      transport: e => /transport|transit|gtfs/i.test(e.toolName + ' ' + e.description),
+      culture: e => /culture|heritage|media|broadcast/i.test(e.toolName + ' ' + e.description),
+      search: e => e.toolName.startsWith('search_'),
+      data: e => /data|query|dataset/i.test(e.toolName + ' ' + e.description),
+      cache: e => /cache/i.test(e.toolName),
+      system: e => /system|health|pipeline|optimization/i.test(e.toolName + ' ' + e.description),
+    };
+    const filter = catMap[category];
+    if (filter) filteredIndex = effective.filter(filter);
+  }
+
+  const allResults = bm25(query, Math.min(limit + offset, 30), filteredIndex);
   const results = allResults.slice(offset);
   const lowered = query.toLowerCase();
 

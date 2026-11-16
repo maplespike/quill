@@ -27,7 +27,7 @@ const init = await fetch(MCP, { method: 'POST', headers: { 'Authorization': `Bea
 await init.json();
 const list = await fetch(MCP, { method: 'POST', headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }) });
 const ld = await list.json();
-check('MCP tool count == 185', ld.result?.tools?.length === 185, `got ${ld.result?.tools?.length}`);
+check('MCP tool count == 186', ld.result?.tools?.length === 186, `got ${ld.result?.tools?.length}`);
 
 // 3. Redirects
 for (const [from, to] of [['/health', '/v1/health'], ['/usage', '/v1/usage']]) {
