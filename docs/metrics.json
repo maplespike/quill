@@ -5,10 +5,10 @@
   "modules": {
     "registryCount": 207,
     "ingestionDirs": 203,
-    "description": "207 modules registered at runtime (getAllModules(); counted from quoted registry.ts literals because dist was not built). Includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "description": "207 modules registered at runtime (getAllModules(); counted from quoted registry.ts literals because dist was not built). Includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines."
   },
   "mcpTools": {
-    "count": 184,
+    "count": 185,
     "description": "175 single-tool entries in getAllTools() + 6 WDI adapter + 3 Comtrade adapter = 184 total tools registered at runtime (matches server.getToolCount() at startup in quill-mcp/src/cli.ts:269)"
   },
   "typescript": {
