@@ -17,7 +17,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 > **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in **live** mode (STRIPE_ENV=live since 2026-09-22).
 
-**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/v1/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
+**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
 
 > **Install paths (all defined in this repo; production cluster ships via Nix manifests + Kustomize, not via any of these install paths directly).** The Nix-first build (`flake.nix`) is the source of truth and emits OCI images, K8s manifests, and Podman quadlets. The **canonical registry is the operator-host registry `quill-<svc>`** (was `ghcr.io/reverb256/quill/<svc>` pre-2026-07-10 systemic flip; GHCR push is dormant). Compatible layers ship alongside for self-hosters:
 > 1. `selfhost.sh` / `nix run .#selfhost up` — Podman Quadlets via Nix (rootless, no registry needed). Install path documented.
@@ -114,7 +114,7 @@ Put Node 22.23.3 (or newer) first on `PATH`. Node 22.14 crashes in `undici` 8 be
 
 After boot these URLs respond:
 
-- API: `http://127.0.0.1:8082/v1/health`
+- API: `http://127.0.0.1:8082/health`
 - MCP: `http://127.0.0.1:3001/health`
 - Portal: `http://127.0.0.1:4321/`
 
@@ -223,7 +223,7 @@ nix run .#deploy-saas
 
 ```bash
 # Public endpoints through the tunnel:
-curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/health    # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/health    # 200
 curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/health       # 200
 curl -sI -o /dev/null -w '%{http_code}\n' https://quill.maplespike.ca/           # 200
 ```
