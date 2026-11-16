@@ -307,7 +307,7 @@ spec:
         - name: NODE_ENV
           value: production
         - name: QUILL_API_URL
-          value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
+          value: "http://{{ include "quill.fullname" . }}-api.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.api.port }}"
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:

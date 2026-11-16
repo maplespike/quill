@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
+import McpSetupWizard from "@/components/McpSetupWizard.astro";
 import statsData from "@/data/stats.json";
 
 const platforms: { name: string; icon: string; description: Bi; setup: string }[] = [
@@ -177,6 +178,13 @@ const tb = (bi: Bi) => pickBi(lang, bi);
         <a href={localeUrl('/signup', lang)} class="btn-sheen inline-flex h-11 items-center rounded-full px-7 text-sm font-medium text-primary-foreground">{i18n.t('auth.api_key')} →</a>
         <a href={localeUrl('/docs', lang) + '#mcp-tools'} class="inline-flex h-11 items-center rounded-full border px-7 text-sm font-medium hover:bg-foreground/[0.04] transition-colors">{i18n.t('nav.docs')}</a>
       </div>
+    </div>
+  </section>
+
+  <!-- MCP setup wizard -->
+  <section class="py-12 md:py-16 border-b border-border/60 bg-card/20">
+    <div class="container mx-auto px-4 max-w-3xl">
+      <McpSetupWizard lang={lang} />
     </div>
   </section>
 
