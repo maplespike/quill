@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: AGPL-3.0-only
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import type { QuillResponse, QueryOptions, AuthConfig } from '../types.js';
