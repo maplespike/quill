@@ -1,14 +1,29 @@
 # Rust CI lane: runs on changes to rust/** — fmt, clippy, test
 # Runner shells are non-login: resolve the provisioned Rust toolchain explicitly.
 # rust/rust-toolchain.toml selects the toolchain; missing tooling fails preflight.
-# Jobs require the 'rust' runner label: only runners with the provisioned toolchain
-# carry it (forge does not — a rust job there fails the preflight, #1061).
-#
-# Fork pull requests run on ubuntu-latest and install the stable toolchain there.
-# Same-repo runs stay on the self-hosted rust label and do not rustup.
+# Same-repo jobs run on the arc-maplespike scale set. The stock runner image
+# has no cargo, so those jobs install the stable toolchain (dtolnay/rust-toolchain).
+# Fork pull requests run on ubuntu-latest and install the same toolchain there.
 # The run steps carry a hashFiles guard: this lane also triggers on its own
 # file, so until the `rust/` tree lands (via #998) a missing crate dir skips
 # cleanly instead of failing on `working-directory: ./rust`.
+#
+# Build cache (clippy and test only; rustfmt does not compile).
+# arc-maplespike is an ephemeral scale set: each job gets a new pod name, and
+# the pod disk does not survive it. A fresh pod's /opt/hostedtoolcache pnpm
+# store reused 3 packages and downloaded the rest (CI run 42691263259,
+# runner arc-maplespike-runner-j8b6z). sccache with a local disk cache would
+# therefore miss on every job. Swatinem/rust-cache stores the cargo registry
+# and rust/target dependency artifacts in the GitHub Actions cache service,
+# which outlives the pod. That service is included with Actions. No S3, R2,
+# or GCS.
+# Keys: job id (add-job-id-key) plus `key`, which names the target and the
+# feature set. A clippy entry cannot replace a test entry. A future job that
+# passes --features or --target must use a different `key` or it will share
+# this host/lib/default entry. `workspaces` is only the rust workspace, so
+# no other target directory is archived. cache-bin is false, so ~/.cargo/bin
+# (the toolchain) stays out. The action deletes CARGO_HOME/credentials.toml
+# before it uploads.
 name: Rust CI
 
 on:
@@ -71,6 +86,23 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      # Toolchain first: the cache key includes the rustc version.
+      # key is the feature/target profile for `cargo clippy -p … --lib`
+      # (host, default features, no bench). Do not reuse this key for
+      # another profile.
+      - name: Cache cargo dependencies
+        if: ${{ hashFiles('rust/Cargo.toml') != '' }}
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: rust -> target
+          key: clippy-host-lib-default
+          add-job-id-key: "true"
+          cache-targets: "true"
+          cache-workspace-crates: "false"
+          cache-all-crates: "false"
+          cache-bin: "false"
+          cache-on-failure: "false"
+
       - name: Run clippy on lib targets (warning-tolerant; -D warnings after cleanup)
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}
         run: |
@@ -92,6 +124,20 @@ jobs:
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
         with:
           components: rustfmt, clippy
+
+      # Same scope rules as rust-clippy. This key is the test profile only.
+      - name: Cache cargo dependencies
+        if: ${{ hashFiles('rust/Cargo.toml') != '' }}
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: rust -> target
+          key: test-host-lib-default
+          add-job-id-key: "true"
+          cache-targets: "true"
+          cache-workspace-crates: "false"
+          cache-all-crates: "false"
+          cache-bin: "false"
+          cache-on-failure: "false"
 
       - name: Run lib tests
         if: ${{ hashFiles('rust/Cargo.toml') != '' }}

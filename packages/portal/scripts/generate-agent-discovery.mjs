@@ -5,6 +5,7 @@
  *   - public/.well-known/mcp/server-card.json   — MCP server card (SEP-2127 shape)
  *   - public/.well-known/mcp/server-cards.json  — same card; plural alias path
  *   - public/agent-card.json                    — agent discovery card
+ *   - public/.well-known/agent-card.json        — same card at the RFC 8615 path
  *
  * Counts and the as-of date come from docs/metrics.json (the repo's canonical
  * metrics file) so the published discovery surfaces can never drift from the
@@ -123,10 +124,16 @@ const agentCard = {
 const wellKnownDir = resolve(PUBLIC_DIR, '.well-known/mcp');
 mkdirSync(wellKnownDir, { recursive: true });
 
+// RFC 8615 path an A2A client looks for. The same object, written twice: the
+// portal is a static build with no rewrite layer, so one file is one path.
+const wellKnownRoot = resolve(PUBLIC_DIR, '.well-known');
+mkdirSync(wellKnownRoot, { recursive: true });
+
 const writeJson = (path, data) => writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
 
 writeJson(resolve(wellKnownDir, 'server-card.json'), serverCard);
 writeJson(resolve(wellKnownDir, 'server-cards.json'), serverCard);
 writeJson(resolve(PUBLIC_DIR, 'agent-card.json'), agentCard);
+writeJson(resolve(wellKnownRoot, 'agent-card.json'), agentCard);
 
-console.log(`agent-discovery: wrote 3 files (modules=${modules} tools=${tools} mcp=${mcpVersion})`);
+console.log(`agent-discovery: wrote 4 files (modules=${modules} tools=${tools} mcp=${mcpVersion})`);

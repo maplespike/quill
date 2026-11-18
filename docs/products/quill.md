@@ -76,6 +76,8 @@ node packages/quill-mcp/dist/cli.js
 
 See [`docs/building-on-quill.md`](../building-on-quill.md) for the full builder guide: schemas, entity IDs, claim verification recipe, composition patterns, rate-limit etiquette, and licensing.
 
+The MVP acceptance checklist is [`docs/MVP.md`](../MVP.md).
+
 ## Licensing status
 
 Package and source-file license declarations currently conflict, and data-source labels are heuristic rather than source-by-source legal clearance. Do not infer the license of a whole package, image, or dataset from this summary. See the [open-source audit](../open-source-audit.md), [`LICENSE.md`](../../LICENSE.md), and [`data-source-licenses.json`](../../data-source-licenses.json) for the current facts and unresolved decisions.

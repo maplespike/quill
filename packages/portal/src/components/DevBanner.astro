@@ -1,0 +1,92 @@
+---
+interface Props { lang: "en" | "fr" }
+const { lang } = Astro.props;
+const t = (en: string, fr: string) => lang === "fr" ? fr : en;
+---
+<div id="dev-banner" class="dev-banner" role="status" aria-live="polite">
+  <div class="dev-banner-inner">
+    <span class="dev-banner-badge">{t("BETA", "BÊTA")}</span>
+    <span class="dev-banner-text">
+      {t(
+        "Quill is in active development. Data coverage, endpoints, and schemas may change. Help us test — ",
+        "Quill est en développement actif. La couverture, les points de terminaison et les schémas peuvent changer. Aidez-nous à tester — "
+      )}
+      <a href="https://github.com/maplespike/quill/issues" class="dev-banner-link" target="_blank" rel="noopener noreferrer">
+        {t("report issues on GitHub", "signaler des problèmes sur GitHub")}
+      </a>
+      {t(" or ", " ou ")}
+      <a href="mailto:beta@maplespike.ca" class="dev-banner-link">
+        {t("join the beta tester list", "rejoindre la liste des testeurs bêta")}
+      </a>.
+    </span>
+    <button id="dev-banner-dismiss" type="button" class="dev-banner-dismiss" aria-label={t("Dismiss", "Fermer")}>×</button>
+  </div>
+</div>
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem('ms-dev-banner-dismissed') === '1') {
+        var b = document.getElementById('dev-banner');
+        if (b) b.style.display = 'none';
+      }
+    } catch (e) {}
+    var btn = document.getElementById('dev-banner-dismiss');
+    if (btn) btn.addEventListener('click', function () {
+      try { localStorage.setItem('ms-dev-banner-dismissed', '1'); } catch (e) {}
+      var b = document.getElementById('dev-banner');
+      if (b) b.style.display = 'none';
+    });
+  })();
+</script>
+<style>
+  .dev-banner {
+    background: linear-gradient(90deg, #1a1a2e, #2d1b3d);
+    color: #f6f4ef;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .dev-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .dev-banner-badge {
+    background: #e84545;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+  }
+  .dev-banner-text {
+    flex: 1;
+    min-width: 200px;
+  }
+  .dev-banner-link {
+    color: #93c5fd;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .dev-banner-link:hover { color: #bfdbfe; }
+  .dev-banner-dismiss {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0.25rem;
+  }
+  .dev-banner-dismiss:hover { color: #fff; }
+  @media (prefers-color-scheme: dark) {
+    .dev-banner { background: linear-gradient(90deg, #0a0a0f, #1a1025); }
+  }
+</style>

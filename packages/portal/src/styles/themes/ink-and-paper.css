@@ -402,3 +402,21 @@
     scroll-behavior: auto;
   }
 }
+
+/* ── Dark variant (toggled via .dark class on <html>) ─────────────────── */
+.theme-ink-and-paper.dark {
+  --iap-paper: 60 4.8% 8.2%;
+  --iap-paper-deep: 60 4.8% 5%;
+  --iap-surface: 60 4.8% 11%;
+  --iap-ink: 45 27% 94%;
+  --iap-ink-soft: 44 23.8% 87.6%;
+  --iap-muted: 42 8% 65%;
+  --iap-line: 60 4.8% 21.6%;
+  --iap-line-strong: 60 4.8% 30%;
+  --iap-chip: 60 4.8% 16.5%;
+  --iap-on-ink: 60 4.8% 8.2%;
+  --iap-on-ink-muted: 44 9.7% 69.6%;
+  --iap-on-ink-line: 43 28% 95%;
+  --iap-focus-ring: hsl(45 27% 94% / 0.6);
+  --iap-shadow-panel: 0 24px 60px -36px rgb(0 0 0 / 0.6);
+}
