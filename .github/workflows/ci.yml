@@ -302,6 +302,16 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
+      # #1278 and run 42959473763: an empty head repository must exit 1.
+      # The pulls read uses the fleet-merge-gate App token. A known foreign
+      # head stays excluded. A hold label still skips. Check selection keeps
+      # the latest attempt of one workflow job and still blocks a real failure.
+      - name: Merge gate metadata token
+        run: node scripts/gates/check-merge-gate-token.mjs
+
+      - name: Merge gate metadata token unit tests
+        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
+
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
       # `head: 'changeset-release/prod'`. GitHub IGNORES a `head` filter that is
@@ -369,6 +379,10 @@ jobs:
       - name: Workflow YAML validity check
         run: node scripts/gates/check-workflow-yaml.mjs
 
+      # Changeset entries are transient release notes. The docs-staleness
+      # walker must not file review issues for `.changeset/*.md` (#958, #1118).
+      - name: Docs staleness walker skip list
+        run: node --test scripts/test-docs-staleness.mjs
       # Dependabot security updates that cannot be applied: an alert whose only
       # patch is in a major the parent package does not accept never becomes a
       # PR, so nothing else in the repo sees it. These fixtures pin the

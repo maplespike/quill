@@ -269,7 +269,7 @@ for SVC in $SERVICES; do
     # SBOM gate is generate-sbom.sh below, not a BuildKit attestation.
     echo "  build:   docker build --provenance=false --sbom=false -f $TARGET_ARGS -t $SRC ."
     # shellcheck disable=SC2086
-    docker build --provenance=false --sbom=false -f ${TARGET_ARGS%% *} ${TARGET_ARGS#* } -t "$SRC" "$REPO"
+    docker build --provenance=false --sbom=false --memory=4g -f ${TARGET_ARGS%% *} ${TARGET_ARGS#* } -t "$SRC" "$REPO"
   fi
 
   if [[ "$SBOM" == true ]]; then

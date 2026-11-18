@@ -136,7 +136,7 @@ spec:
   ports:
   - port: {{ .Values.portal.port | default 8080 }}
     targetPort: {{ .Values.portal.port | default 8080 }}
-    nodePort: 30964
+    nodePort: {{ .Values.portal.nodePort | default 30964 }}
   selector:
     app: quill-portal
 {{- if gt (int (.Values.portal.replicas | default 1)) 1 }}
