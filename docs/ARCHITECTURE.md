@@ -13,7 +13,7 @@ Comprehensive architecture documentation for the MapleSpike monorepo — a sover
 
 MapleSpike is a unified data pipeline that discovers, ingests, verifies, and surfaces data from Canadian federal, provincial, territorial, municipal, and other public-sector sources. Source terms vary by publisher and dataset; public availability does not establish reuse permission. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. Data records carry source provenance; citation hashes and audit trails are available on response paths that support them.
 
-The platform currently maintains 184 registered MCP tools, 207 modules in the registry (203 ingestion directories), and approximately 220,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
+The platform currently maintains 186 registered MCP tools, 207 modules in the registry (203 ingestion directories), and approximately 220,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
 
 ```
                            Upstream Government APIs
@@ -37,7 +37,7 @@ The platform currently maintains 184 registered MCP tools, 207 modules in the re
             ▼                             ▼                             ▼
   ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
   │   quill-mcp       │    │    api-server     │    │      engine       │
-  │  (184 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
+  │  (186 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
   │  stdio/SSE modes  │    │  auth + rate      │    │   signal gen)     │
   └────────┬──────────┘    └────────┬──────────┘    └───────────────────┘
            │                        │
@@ -109,7 +109,7 @@ The `database` package provides a SQLite-based storage layer using `better-sqlit
 
 Data is surfaced through three primary access patterns:
 
-1. **Quill (MCP Server)**: The `@maplespike/quill-mcp` package exposes 184 tools via the Model Context Protocol (incl. `x402-deposit`) (see [products/quill.md](./products/quill.md)). Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
+1. **Quill (MCP Server)**: The `@maplespike/quill-mcp` package exposes 186 tools via the Model Context Protocol (incl. `x402-deposit`) (see [products/quill.md](./products/quill.md)). Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
 
 2. **API Server**: The `@maplespike/api-server` package provides a REST API gateway with Bearer authentication, rate limiting, and usage tracking. Multi-tenant architecture supports API keys and JWT tokens. The server wraps pipeline-core and engine functionality for programmatic access.
 
@@ -327,7 +327,7 @@ MapleSpike consumes data from over 1,240 unique external endpoints across Canadi
 
 ### Municipal Sources
 
-- **19 Cities with Direct Fetchers**: Toronto, Vancouver, Montreal, Calgary, Edmonton, Ottawa, Winnipeg, Hamilton, Quebec City, Kitchener, London, Halifax, Victoria, Saskatoon, Regina, St. John's, Windsor, Guelph, and others
+- **19 Cities with Direct Fetchers**: major Canadian municipalities with first-party fetchers, plus others
 - **3,490+ Municipalities**: Via provincial CKAN federation
 - **Regional Authorities**: Peel Region, York Region, Durham Region, Metro Vancouver, Capital Regional District (CRD)
 
@@ -458,7 +458,7 @@ The `@maplespike/pipeline-core` package is the core data pipeline library provid
 
 ### quill-mcp
 
-The `@maplespike/quill-mcp` package (Quill) implements a Model Context Protocol server exposing 184 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
+The `@maplespike/quill-mcp` package (Quill) implements a Model Context Protocol server exposing 186 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
 
 ### api-server
 
@@ -506,4 +506,4 @@ The `pretext-civic` package is an orphaned React component library that was prev
 
 MapleSpike represents a comprehensive approach to Canadian government data aggregation and distribution, balancing technical sophistication with practical deployment constraints. The architecture prioritizes data sovereignty, ease of AI integration, and developer experience while maintaining zero external cloud spend. The monorepo structure with pnpm and Turbo enables efficient development and deployment across 13 packages, while the separation of concerns between ingestion, storage, access, and analysis ensures maintainability and scalability.
 
-The system currently processes 207 data modules across federal, provincial, territorial, and municipal sources, exposing 184 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.
+The system currently processes 207 data modules across federal, provincial, territorial, and municipal sources, exposing 186 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.

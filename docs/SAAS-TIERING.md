@@ -20,7 +20,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 | **Supabase** | Full Postgres engine (Docker); community support | Backups, PITR, branching, SSO, SLA |
 | **Airbyte** | Full pipeline engine (MIT); all connectors | RBAC, SSO, PII masking, enterprise connectors |
 | **dbt Labs** | Full transformation engine (CLI) | IDE, scheduler, CI/CD, governance, collaboration |
-| **MapleSpike** | Full pipeline + 207 modules + 184 MCP tools (package/file license declarations unresolved) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
+| **MapleSpike** | Full pipeline + 207 modules + 186 MCP tools (package/file license declarations unresolved) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
 
 **The pattern:** The community version is the full engine — never crippled. The SaaS version removes operational toil and adds governance features that organizations need for compliance.
 
@@ -33,7 +33,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 │  COMMUNITY (self-hosted)          │  MAPLESPIKE SaaS        │
 │  ──────────────────────────────── │  ─────────────────────  │
 │  ✓ All 207 data modules           │  ✓ Everything in        │
-│  ✓ All 184 MCP tools              │    Community            │
+│  ✓ All 186 MCP tools              │    Community            │
 │  ✓ Entity resolution engine       │  + Managed hosting      │
 │  ✓ Cross-reference queries        │  + Multi-tenant         │
 │  ✓ SQLite-backed local DB         │  + SSO / SAML / RBAC    │
@@ -80,7 +80,7 @@ docker compose up
 |---|---|
 | **Price** | Free, forever |
 | **Data modules** | All 207 |
-| **MCP tools** | All 184 |
+| **MCP tools** | All 186 |
 | **API calls** | Unlimited (your infra) |
 | **AI / RAG** | BYOK only (bring your own AI key) |
 | **Auth** | API key (single-tenant) |
@@ -107,7 +107,7 @@ docker compose up
 |---|---|
 | **Price** | $50/mo CAD (~$35 USD) |
 | **Data modules** | All 207 |
-| **MCP tools** | All 184 |
+| **MCP tools** | All 186 |
 | **API calls** | 50,000/month |
 | **Rate limit** | 60/min |
 | **AI / RAG** | ✅ (BYOK or MapleSpike credits) |

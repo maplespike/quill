@@ -7,7 +7,7 @@ status: active
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Data-layer MCP product:** [Quill](./docs/products/quill.md) (see ADR [0005](./docs/decisions/0005-quill-product-name.md)).
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 207 modules, **184 MCP tools** (runtime `getAllTools()` in `packages/quill-mcp/src/tools/index.ts` + 6 WDI + 3 Comtrade adapter expansions), **~221K lines TS** (221,431 exactly — see metrics.json), 14 packages. The auto-generator `scripts/generate-metrics.mjs` now parses `getAllTools()` directly post-fix; prior runs underreported.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 207 modules, **186 MCP tools** (runtime `getAllTools()` in `packages/quill-mcp/src/tools/index.ts` + 6 WDI + 3 Comtrade adapter expansions), **~221K lines TS** (221,431 exactly — see metrics.json), 14 packages. The auto-generator `scripts/generate-metrics.mjs` now parses `getAllTools()` directly post-fix; prior runs underreported.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -240,7 +240,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (184 tools, incl. `x402-deposit`)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (186 tools, incl. `x402-deposit`)
 ```
 
 For LAN access: **`quill.lan`** (portal), **`api.quill.lan`** (API), **`mcp.quill.lan`** (MCP) — the product's own LAN identity, served by the nexus `nginx-rp` edge (wildcard `CN=*.lan` cert; source `media-k8s/configmap-nginx.yaml`; DNS in nexus unbound `local-dns.conf`). Public addresses stay under the MapleSpike brand (`quill.maplespike.ca`, `api.maplespike.ca`, `mcp.maplespike.ca`). See [docs/ROUTING.md](./docs/ROUTING.md).
@@ -442,7 +442,7 @@ not a flaky check.
 ## Document hygiene
 
 - **`AGENTS.md` is the source of truth.** Sibling `AGENTS.html` is an outdated static snapshot (Jul 3, 2026); do not edit.
-- **Counts that align (as of 2026-09-17):** module count **207** — `scripts/generate-metrics.mjs` now prefers the runtime `getAllModules()` count; previously it counted the unquoted `modulePath: string;` interface field in `registry.ts`, overstating the total by one (correction detailed in CHANGELOG [Unreleased] and `docs/metrics.json`). MCP tool count **184** from `getAllTools()`. `README.md`, `AGENTS.md`, `ROADMAP.md`, `docs/metrics.json`, and the generated discovery artifacts (`agent-card.json`, `server-cards.json`, `agents.json`) all reflect these numbers. Enforcement: `node scripts/check-count-consistency.mjs` fails if any published count disagrees with `docs/metrics.json` or the runtime registry; `node packages/portal/scripts/check-agent-discovery.mjs` validates the discovery artifacts. If a caller sees drift, run both first.
+- **Counts that align (as of 2026-09-17):** module count **207** — `scripts/generate-metrics.mjs` now prefers the runtime `getAllModules()` count; previously it counted the unquoted `modulePath: string;` interface field in `registry.ts`, overstating the total by one (correction detailed in CHANGELOG [Unreleased] and `docs/metrics.json`). MCP tool count **186** from `getAllTools()`. `README.md`, `AGENTS.md`, `ROADMAP.md`, `docs/metrics.json`, and the generated discovery artifacts (`agent-card.json`, `server-cards.json`, `agents.json`) all reflect these numbers. Enforcement: `node scripts/check-count-consistency.mjs` fails if any published count disagrees with `docs/metrics.json` or the runtime registry; `node packages/portal/scripts/check-agent-discovery.mjs` validates the discovery artifacts. If a caller sees drift, run both first.
 - **Live route / pod state** changes between probes (cloudflared flap, etcd flap). Treat the Status section as a *recent snapshot*. To refresh: `curl -sI https://quill.maplespike.ca/<route>` + `kubectl get pods -n maplespike -o wide`.
 
 

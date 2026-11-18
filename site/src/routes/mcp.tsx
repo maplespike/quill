@@ -44,7 +44,7 @@ export const Route = createFileRoute("/mcp")({
   head: () =>
     pageMeta(
       "MCP",
-      "Connect Quill to Claude, ChatGPT, Cursor, Gemini, Grok, or LM Studio. 184 tools.",
+      "Connect Quill to Claude, ChatGPT, Cursor, Gemini, Grok, or LM Studio. 186 tools.",
     ),
   component: McpPage,
 });
@@ -87,7 +87,7 @@ function McpPage() {
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
           <h2 className="font-display text-2xl tracking-tight">Tool families</h2>
           <p className="mt-3 max-w-2xl text-muted">
-            184 tools are live. These are the families a desk actually calls. The full index ships
+            186 tools are live. These are the families a desk actually calls. The full index ships
             with the server.
           </p>
           <div className="mt-8 grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2">

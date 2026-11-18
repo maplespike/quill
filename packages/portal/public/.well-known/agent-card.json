@@ -1,6 +1,6 @@
 {
   "name": "Quill (MapleSpike)",
-  "description": "Canadian government data API — 207 data modules, 184 MCP tools, federal, provincial, territorial, and municipal coverage",
+  "description": "Canadian government data API — 207 data modules, 186 MCP tools, federal, provincial, territorial, and municipal coverage",
   "url": "https://quill.maplespike.ca",
   "author": {
     "name": "Reverb256",
@@ -8,8 +8,8 @@
   },
   "counts": {
     "modules": 207,
-    "mcpTools": 184,
-    "asOf": "2026-11-09"
+    "mcpTools": 186,
+    "asOf": "2026-11-16"
   },
   "mcp": {
     "endpoint": "https://mcp.maplespike.ca/sse",
@@ -43,5 +43,5 @@
     ],
     "verification": "SHA-256 claim bundles on cross-reference tools; verify any hash publicly via GET /v1/claims/verify/{hash} or the get_citation MCP tool"
   },
-  "updatedAt": "2026-11-09"
+  "updatedAt": "2026-11-16"
 }

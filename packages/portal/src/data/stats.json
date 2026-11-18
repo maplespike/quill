@@ -1,12 +1,12 @@
 {
   "_meta": {
-    "generatedAt": "2026-10-16T19:56:26.000Z",
+    "generatedAt": "2026-11-18T12:03:03.000Z",
     "sources": [
       "https://mcp.maplespike.ca/health",
       "pipeline-core registry"
     ]
   },
-  "tools": 185,
+  "tools": 186,
   "modules": 207,
   "jurisdictions": 13,
   "linesOfTs": "~220K"

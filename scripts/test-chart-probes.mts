@@ -191,7 +191,7 @@ test('chart: live values-prod renders every quill image from the in-cluster regi
   }
 });
 
-test("chart: live values-prod matches main's image refs and pull policy", (t) => {
+test("chart: live values-prod matches main's image refs", (t) => {
   if (skipOrFail(t)) return;
   const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
   execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
@@ -204,7 +204,11 @@ test("chart: live values-prod matches main's image refs and pull policy", (t) =>
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
-    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
+    // Lock image refs to main. Pull policy is asserted separately: live
+    // registry pins must be IfNotPresent. The search Deployment used to
+    // ignore images.search.pullPolicy and render the global Never.
+    const imageRefs = (yaml: string) => imagePolicyLines(yaml).filter((line) => line.startsWith('image:'));
+    assert.deepEqual(imageRefs(render()), imageRefs(main));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }
