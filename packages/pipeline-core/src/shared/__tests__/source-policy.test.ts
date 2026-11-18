@@ -149,6 +149,9 @@ describe('applySourcePolicy — committees', () => {
     const record = records[0] as Record<string, unknown>;
     assert.equal(record.text, undefined);
     assert.equal(record.speakerName, 'X');
+    assert.match(String(record.attribution), /Reproduced for non-commercial use/);
+    assert.match(String(record.attribution), /ourcommons\.ca/);
+    assert.match(String(record.attribution), /sencanada\.ca/);
     assert.equal(policy.discovery_only, true);
     assert.equal(policy.commercial_use, false);
     assert.ok(policy.notices.some((n) => n.includes("Speaker's Permission")));

@@ -75,6 +75,10 @@ const tiers: {
       { en: "7-day historical data window", fr: "Fenêtre de données historiques de 7 jours" },
       { en: "REST API access (rate-limited)", fr: "Accès à l'API REST (limité)" },
       { en: "Community Discord support", fr: "Support communautaire Discord" },
+      {
+        en: "House of Commons and Senate debates, committees, Hansard, and votes — free, and not counted toward plan quotas",
+        fr: "Débats, comités, Hansard et votes de la Chambre des communes et du Sénat — gratuits, et non comptés dans les quotas des forfaits",
+      },
     ],
     cta: { en: "Get Started", fr: "Commencer" },
     href: "/signup",
@@ -401,8 +405,8 @@ const featureValues: Record<string, Bi[]> = {
           <h3 class="mb-2 font-semibold">{t("What data modules are included?", "Quels modules de données sont inclus?")}</h3>
           <p class="text-sm text-muted-foreground">
             {t(
-              "The Free tier includes discovery and metadata access (catalog, citations, compliance) across all sources. Pro and Business unlock full data queries and AI analysis on every module.",
-              "Le forfait Gratuit comprend l'accès à la découverte et aux métadonnées (catalogue, citations, conformité) sur toutes les sources. Pro et Entreprise débloquent les requêtes de données complètes et l'analyse IA sur chaque module.",
+              "The Free tier includes discovery and metadata, plus House of Commons and Senate debates, committees, Hansard, and votes. Those parliamentary responses are free and are not counted toward plan quotas. Pro and Business unlock other data queries and AI analysis.",
+              "Le forfait Gratuit comprend la découverte et les métadonnées, ainsi que les débats, les comités, le Hansard et les votes de la Chambre des communes et du Sénat. Ces réponses parlementaires sont gratuites et ne comptent pas dans les quotas des forfaits. Pro et Entreprise débloquent les autres requêtes de données et l'analyse IA.",
             )}
           </p>
         </div>

@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchPoliticians } from './upstream-fetcher.js';
+import { presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_member_info',
@@ -20,12 +21,21 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
   const limit = Math.min((args.limit as number) ?? 10, 50);
   if (!query.trim()) {
-    return { content: { tool: 'get_member_info', error: 'No query provided' }, isError: true };
+    return presentParliamentaryToolResult(
+      { content: { tool: 'get_member_info', error: 'No query provided' }, isError: true },
+      { chamber: 'commons' },
+    );
   }
   try {
     const { results, total } = await fetchPoliticians(query, limit);
-    return { content: { tool: 'get_member_info', query, limit, members: results, totalCount: total } };
+    return presentParliamentaryToolResult(
+      { content: { tool: 'get_member_info', query, limit, members: results, totalCount: total } },
+      { chamber: 'commons' },
+    );
   } catch (error) {
-    return { content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult(
+      { content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true },
+      { chamber: 'commons' },
+    );
   }
 };

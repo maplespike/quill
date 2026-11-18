@@ -1,6 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchCommittees } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult, type ParliamentaryChamber } from '@maplespike/pipeline-core';
 
 /**
  * Search available House of Commons and Senate committee records returned by configured sources.
@@ -52,6 +52,12 @@ export const definition: ToolDefinition = {
  * Core search — injectable fetcher for tests. Applies the discovery-only
  * licence policy to the results before they leave the tool.
  */
+function chamberForFilter(chamber: string): ParliamentaryChamber {
+  if (chamber === 'senate') return 'senate';
+  if (chamber === 'house') return 'commons';
+  return 'both';
+}
+
 export async function runSearchCommittees(
   args: { query: string; chamber?: string; committee?: string; limit?: number },
   fetchFn: typeof fetchCommittees = fetchCommittees,
@@ -68,7 +74,7 @@ export async function runSearchCommittees(
     results = result.results;
     total = result.total;
   } catch {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_committees',
         query,
@@ -80,7 +86,7 @@ export async function runSearchCommittees(
         error: 'Search temporarily unavailable. The API server may be unreachable.',
       },
       isError: true,
-    };
+    }, { chamber: chamberForFilter(chamber) });
   }
 
   // Apply committee filter post-search
@@ -96,31 +102,31 @@ export async function runSearchCommittees(
 
   const applied = applySourcePolicy('committees', filteredResults);
 
-  return {
+  return presentParliamentaryToolResult({
     content: {
       tool: 'search_committees',
       query,
       chamber,
       committee: committeeCode || undefined,
       limit,
-      results: applied.records,
+      results: applied.records as Record<string, unknown>[],
       totalCount: committeeCode ? filteredResults.length : total,
       policy: applied.policy,
     },
-  };
+  }, { chamber: chamberForFilter(chamber) });
 }
 
 export const handler: ToolHandler = async (args) => {
   const query = (args.query as string) ?? '';
   if (!query.trim()) {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_committees',
         query: '',
         error: 'No search query provided. Please specify search terms (e.g., "carbon tax", "arrivecan").',
       },
       isError: true,
-    };
+    }, { chamber: 'both' });
   }
 
   return runSearchCommittees({
