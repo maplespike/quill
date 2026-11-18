@@ -39,6 +39,7 @@ import type {
 } from './types.js';
 
 import { parseCsvLine } from '../../utils/csv.js';
+import { applySourcePolicy } from '../../shared/source-policy.js';
 /* ------------------------------------------------------------------ */
 /*  CSV Parsing Helpers                                                */
 /* ------------------------------------------------------------------ */
@@ -236,9 +237,10 @@ export async function ingestLobbying(
         } catch { /* non-fatal */ }
       }
     } else {
-      // Dry-run mode — return records as structured data
+      // Dry-run mode — return records as structured data. Storage keeps the
+      // address; served copies drop it and carry the OCL attribution line.
       result.recordsIngested = uniqueRecords.length;
-      result.records = uniqueRecords;
+      result.records = applySourcePolicy('federal-lobbying-monthly', uniqueRecords).records;
       log(`[Lobbying] Dry-run — ${uniqueRecords.length} records available`);
     }
   } catch (err) {
@@ -557,8 +559,9 @@ export async function ingestExecutiveStatements(
         } catch { /* non-fatal */ }
       }
     } else {
+      // Served copies are link-only. The stored statement text is unchanged.
       result.recordsIngested = allStatements.length;
-      result.records = allStatements;
+      result.records = applySourcePolicy('media-broadcasting', allStatements).records;
       log(`[ExecStatements] Dry-run — ${allStatements.length} statements available`);
     }
   } catch (err) {
