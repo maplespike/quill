@@ -51,7 +51,7 @@ Status legend: 🔴 open · 🟡 in progress · 🟢 done (live-verified)
 | GAP-17 | 3 (agents-as-infra) | Memo §3 P2 | No continuous watchers | [#844](https://github.com/reverb256/quill/issues/844) | Watchers → grounded briefings w/ citations; maps to kanban cronjobs + notification-service |
 | GAP-18 | 1 (trust) | Memo §3 P2 | No evals for citation accuracy | [#845](https://github.com/reverb256/quill/issues/845) | citecheck-analog suite runnable in `pnpm test` |
 | GAP-19 | 6 (focus) | Memo §2.2 (P2 sketch) | No news-archive module | [#846](https://github.com/reverb256/quill/issues/846) | Neutral news-archive module; **inclusion policy defined before build** (guardrail) |
-| GAP-20 | 5 (reliability) | Exec plan §WS-0 | `/v1/status` live + auth-exempt; portal status page + subdomain not wired | [#847](https://github.com/reverb256/quill/issues/847) | Portal status page + `status.maplespike.ca` serving `/v1/status` |
+| GAP-20 | 5 (reliability) | Exec plan §WS-0 | `/status` renders `/v1/status` freshness, `/v1/municipal/health`, and `/v1/municipal/coverage`. `status.maplespike.ca` is in chart values. DNS is still an operator step ([ops/STATUS-PAGE.md](ops/STATUS-PAGE.md)) | [#847](https://github.com/reverb256/quill/issues/847) | Portal status page + `status.maplespike.ca` serving `/v1/status` |
 | GAP-21 | 1 (verification) | Exec plan §WS-1e | `withClaims` on 7 tools only; sweep incomplete | [#848](https://github.com/reverb256/quill/issues/848) | Every upstream-returning tool emits a `claims` array |
 | GAP-22 | 2 (composition) | Exec plan §WS-2 | `docs/schemas/index.md` deferred | [#849](https://github.com/reverb256/quill/issues/849) | Schema inventory published for non-MCP authors |
 

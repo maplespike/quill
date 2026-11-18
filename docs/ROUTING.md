@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-18
+last-reviewed: 2026-11-09
 status: active
 ---
 
@@ -28,6 +28,7 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 | `mcp.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(Phase D: 301 redirect to `quill.maplespike.ca`; keep for backward compat)* |
 | `data.maplespike.ca` | `cloudflared` → `quill-portal:8080` *(Phase D: 301 redirect to `quill.maplespike.ca`; legacy alias)* |
 | `quill.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(canonical public hostname; see [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md))* |
+| `status.maplespike.ca` | `cloudflared` → `quill-portal:8080` *(status page; `GET /` serves `/status`. DNS is an operator step — [ops/STATUS-PAGE.md](ops/STATUS-PAGE.md))* |
 
 > **LAN edge (verified 2026-09-18):** LAN traffic enters the `nginx-rp` pod
 > (ns `media-reverse-proxy`, hostNetwork on nexus, :80/:443) which serves every

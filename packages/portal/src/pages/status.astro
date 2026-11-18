@@ -162,6 +162,54 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </Card>
       </div>
 
+      <!-- Data freshness, municipal health, and coverage. Aggregate fields only. -->
+      <div id="status-data-root" class="mt-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("Data freshness", "Fraîcheur des données")}</CardTitle>
+            <CardDescription className="text-xs">{t(
+              "Timestamps and freshness windows from GET /v1/status. This page is also prepared for status.maplespike.ca.",
+              "Horodatages et fenêtres de fraîcheur de GET /v1/status. Cette page est aussi prête pour status.maplespike.ca.",
+            )}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div id="freshness-panel">
+              <p class="text-sm text-muted-foreground text-center py-4">{t("Loading freshness…", "Chargement de la fraîcheur…")}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("Municipal source health", "Santé des sources municipales")}</CardTitle>
+            <CardDescription className="text-xs">{t(
+              "Per-city cache state from GET /v1/municipal/health. Counts and timestamps only.",
+              "État du cache par ville depuis GET /v1/municipal/health. Totaux et horodatages seulement.",
+            )}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div id="municipal-health-panel">
+              <p class="text-sm text-muted-foreground text-center py-4">{t("Loading source health…", "Chargement de la santé des sources…")}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("Municipal coverage", "Couverture municipale")}</CardTitle>
+            <CardDescription className="text-xs">{t(
+              "Cached datasets and success timestamps from GET /v1/municipal/coverage.",
+              "Jeux en cache et horodatages de succès depuis GET /v1/municipal/coverage.",
+            )}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div id="municipal-coverage-panel">
+              <p class="text-sm text-muted-foreground text-center py-4">{t("Loading coverage…", "Chargement de la couverture…")}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <!-- Dependency Detail Table -->
       <Card className="mt-6">
         <CardHeader>
@@ -206,7 +254,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         {t(
           "Status checks run client-side from your browser. Results may differ from server-side monitoring. For programmatic health checks, use",
           "Les vérifications d'état s'exécutent côté client dans votre navigateur. Les résultats peuvent différer de la surveillance côté serveur. Pour des vérifications programmatiques, utilisez",
-        )} <code class="font-mono">GET https://api.maplespike.ca/v1/health</code>.
+        )} <code class="font-mono">GET https://api.maplespike.ca/v1/health</code>, <code class="font-mono">/v1/status</code>, <code class="font-mono">/v1/municipal/health</code>, {t("and", "et")} <code class="font-mono">/v1/municipal/coverage</code>.
       </p>
     </div>
   </section>
@@ -450,5 +498,9 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       }, { once: true });
       document.addEventListener("astro:page-load", startStatusPolling);
     })();
+  </script>
+  <script>
+    import { bootStatusData } from "@/lib/status-data-client";
+    bootStatusData();
   </script>
 </BaseLayout>

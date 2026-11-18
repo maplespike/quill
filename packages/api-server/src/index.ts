@@ -705,6 +705,13 @@ export async function handleRequest(
     // Ingest liveness is public observability: the cluster health check reads
     // it without a key, and pipeline names + timestamps are not tenant data.
     || path.startsWith('/v1/ingest/status')
+    // Municipal health and coverage are aggregate observability for the
+    // public status page: city totals, timestamps, and source hosts.
+    // Record search and city payloads stay authenticated.
+    || path === '/v1/municipal/health'
+    || path === '/v1/municipal/health/'
+    || path === '/v1/municipal/coverage'
+    || path === '/v1/municipal/coverage/'
     || path.startsWith('/v1/security/') // currently only /v1/security/audit-summary (public observability); tighten if more routes added under /v1/security/ need auth
     || path.startsWith('/v1/ai/ask')
     || path.startsWith('/v1/ai_ask')

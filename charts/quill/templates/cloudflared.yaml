@@ -6,6 +6,7 @@
     api.maplespike.ca     → quill-api:{{ .Values.api.port }}
     mcp.maplespike.ca     → quill-mcp:{{ .Values.mcp.port }}
     kanban.maplespike.ca  → quill-kanban-exec:8080
+    status.maplespike.ca  → quill-portal:8080 (values ingress; DNS is operator-only)
 
   Authentication: credentials.json (mounted from cloudflared-creds secret,
   synced by scripts/sops-sync-k8s.sh from SOPS-encrypted secrets/cloudflared.yaml).
