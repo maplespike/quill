@@ -19,7 +19,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (184 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (185 tools)
 ```
 
 The system is a pipeline: **ingest → verify → surface**.

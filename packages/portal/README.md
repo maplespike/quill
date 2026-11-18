@@ -10,6 +10,9 @@ SaaS landing page, documentation, AI agent setup guide, and live developer dashb
 
 **Status:** Served from K3s cluster on LAN. GitHub Pages deployment is planned for public launch.
 
+**Beta:** Quill is in active development. A dismissible beta banner is shown at the top of every page.
+Dark/light mode toggle is available in the header (persists via localStorage).
+
 ## AI-friendly features
 
 - **`/llms.txt`** — Compact API index for AI agent discovery (maplespike.ca/llms.txt)
