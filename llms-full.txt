@@ -170,7 +170,7 @@ Cross-reference signals (requires engine)
 ## MCP Server
 
 - Endpoint: https://mcp.maplespike.ca/sse (auth-gated)
-- 183 tools (incl. x402-deposit), all returning real DB results
+- 185 tools (incl. x402-deposit), all returning real DB results
 - Every record includes SHA-256 citation hashes, source provenance, audit trails
 
 ## License
