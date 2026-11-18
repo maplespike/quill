@@ -174,7 +174,7 @@ export const ROUTES: Route[] = [
   { pattern: /^\/v1\/claims\/latest\/?$/, method: 'GET', params: [], handler: withRouteCache(getLatestClaimsHandler, 60) },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
-  // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
+  // Dependency audit snapshot. Reads the build-time file. Does not run pnpm audit.
   { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
   // NOTE: intentionally NOT wrapped in withRouteCache — the body is the
   // calling key's OWN counters (#891) and the route cache keys on
