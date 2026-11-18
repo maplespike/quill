@@ -22,6 +22,7 @@ import { once } from 'node:events';
 import net from 'node:net';
 import { createHmac } from 'node:crypto';
 import { createServer as createHttpServer, request as httpRequest, type IncomingMessage, type Server } from 'node:http';
+import { getAllTools } from '../tools/index.js';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_REASON = 'SKIP_NETWORK_TESTS=1';
@@ -392,7 +393,7 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
       assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
       const listed = JSON.parse((await event()).data);
       assert.equal(listed.id, 2);
-      assert.equal(listed.result.tools.length, 184);
+      assert.equal(listed.result.tools.length, getAllTools().length);
       assert.equal(listed.result._quota.mode, 'api-key');
       assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
       const called = JSON.parse((await event()).data);
