@@ -6,7 +6,8 @@
 //! touching tantivy internals. The sidecar is written after the tantivy
 //! commit, atomically, on every build. `prepare_startup` refuses to serve a
 //! missing index, a missing sidecar, or an index no larger than the committed
-//! sample corpus. The build is deterministic apart from `built_at`: documents
+//! sample corpus, except the one-document bootstrap placeholder written when
+//! `search.bootstrapEmptyIndex` is enabled. The build is deterministic apart from `built_at`: documents
 //! are written in corpus order.
 
 use crate::corpus::Document;
@@ -41,6 +42,12 @@ pub const FIXTURE_DOC_COUNT: u64 = 30;
 
 /// Smallest index `quill-search serve` will publish unless `--min-docs 0`.
 pub const MIN_PRODUCTION_DOCS: u64 = FIXTURE_DOC_COUNT + 1;
+
+/// Document id written by the chart's bootstrap-empty-index init container.
+/// A fresh index claim starts with this one placeholder so `serve` can bind
+/// before the first ingest. `prepare_startup` exempts that index from the
+/// min-docs floor. The next corpus build replaces it.
+pub const BOOTSTRAP_DOC_ID: &str = "quill:search:bootstrap";
 
 /// Options for the check `serve` runs before it binds a port.
 #[derive(Debug, Clone, Copy)]
@@ -261,6 +268,9 @@ fn classify_index(dir: &Path, min_docs: u64) -> std::result::Result<IndexMeta, S
         ));
     }
     if min_docs > 0 && meta.docs < min_docs {
+        if is_bootstrap_placeholder(dir, &meta) {
+            return Ok(meta);
+        }
         return Err(format!(
             "index at `{}` is undersized: {} docs, minimum is {min_docs}. The sample corpus rust/fixtures/sample.jsonl has {FIXTURE_DOC_COUNT} docs. A production index must be larger than that sample.",
             dir.display(),
@@ -268,6 +278,41 @@ fn classify_index(dir: &Path, min_docs: u64) -> std::result::Result<IndexMeta, S
         ));
     }
     Ok(meta)
+}
+
+/// True when `dir` is the one-document bootstrap index (#1346), not a
+/// sample-sized or otherwise undersized corpus.
+fn is_bootstrap_placeholder(dir: &Path, meta: &IndexMeta) -> bool {
+    if meta.docs != 1 {
+        return false;
+    }
+    let Ok(idx) = SearchIndex::open(dir) else {
+        return false;
+    };
+    index_contains_id(&idx, BOOTSTRAP_DOC_ID)
+}
+
+fn index_contains_id(idx: &SearchIndex, id: &str) -> bool {
+    // The id field is tokenized TEXT, so a Term query on the raw
+    // "quill:search:bootstrap" string does not match. Read the stored id
+    // of the single document instead.
+    let searcher = idx.reader.searcher();
+    let Ok(top) = searcher.search(
+        &tantivy::query::AllQuery,
+        &TopDocs::with_limit(1).order_by_score(),
+    ) else {
+        return false;
+    };
+    let Some((_score, addr)) = top.first() else {
+        return false;
+    };
+    let Ok(doc) = searcher.doc::<TantivyDocument>(*addr) else {
+        return false;
+    };
+    doc.get_first(idx.fields.id)
+        .and_then(|v| v.as_str())
+        .map(|stored| stored == id)
+        .unwrap_or(false)
 }
 
 fn missing_meta_detail(dir: &Path) -> String {
@@ -874,5 +919,49 @@ mod tests {
             index.join(META_FILE).is_file(),
             "the rebuilt sidecar stays on disk for inspection"
         );
+    }
+
+    fn bootstrap_docs() -> Vec<Document> {
+        let corpus = r#"
+{"id":"quill:search:bootstrap","kind":"system","title":"Search index bootstrap","text":"Placeholder written because the index claim mounted empty. Replaced by the next corpus build.","url":"","source":"quill-search","published":"","updated":"","meta":{}}
+"#;
+        parse_corpus(corpus.as_bytes()).unwrap()
+    }
+
+    #[test]
+    fn startup_accepts_the_one_document_bootstrap_index() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let meta = build_index(&bootstrap_docs(), &index).unwrap();
+        assert_eq!(meta.docs, 1);
+        let outcome = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(outcome, StartupOutcome::Ready { docs: 1 });
+    }
+
+    #[test]
+    fn startup_still_refuses_a_one_document_index_without_the_bootstrap_marker() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let one = fixture_docs().into_iter().take(1).collect::<Vec<_>>();
+        build_index(&one, &index).unwrap();
+        let err = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("undersized"), "{err}");
+        assert!(err.contains("1 docs"), "{err}");
     }
 }
