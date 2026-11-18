@@ -30,7 +30,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (184 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (186 tools)
 ```
 
 ## Packages
@@ -39,7 +39,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
 - `engine` — Entity resolution, graph building, signals, briefs
 - `portal` — Developer portal & landing page (Astro + React + Tailwind)
 - `api-server` — REST API gateway (auth, rate limits, usage)
-- `quill-mcp` — Quill — data-layer MCP server (184 tools)
+- `quill-mcp` — Quill — data-layer MCP server (186 tools)
 - `sdk` — TypeScript client library (@maplespike/sdk)
 - `sdk-python` — Python client library (quill-sdk on PyPI)
 - `legal-core` — Legal data SDK
@@ -62,7 +62,7 @@ cd packages/quill-mcp
 pnpm start
 ```
 
-All 184 MCP tools return real data — committees, corporate, influence, and
+All 186 MCP tools return real data — committees, corporate, influence, and
 government data are all searchable via the SQLite database. No external
 database configuration required for MCP tools.
 
@@ -170,7 +170,7 @@ Cross-reference signals (requires engine)
 ## MCP Server
 
 - Endpoint: https://mcp.maplespike.ca/sse (auth-gated)
-- 184 tools (incl. x402-deposit), all returning real DB results
+- 186 tools (incl. x402-deposit), all returning real DB results
 - Every record includes SHA-256 citation hashes, source provenance, audit trails
 
 ## License

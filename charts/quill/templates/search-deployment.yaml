@@ -84,7 +84,7 @@ spec:
       containers:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
         # The image carries no ENTRYPOINT/CMD, so the subcommand has to be declared
         # here. Without it the binary prints its clap help and exits 0, and kubelet
         # restarts it forever: 72 restarts in maplespike by 2026-10-30 04:40 CT,

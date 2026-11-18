@@ -3,7 +3,7 @@
   "name": "ca.maplespike/quill",
   "version": "0.4.0",
   "title": "Quill — Canadian Government Data (MapleSpike)",
-  "description": "Canadian government data for AI agents: 207 ingestion modules covering federal, provincial, territorial, and municipal sources, exposed through 184 MCP tools, with SHA-256 claim bundles on cross-reference results. Data comes from primary sources; coverage, freshness, and verification surfaces are machine-readable.",
+  "description": "Canadian government data for AI agents: 207 ingestion modules covering federal, provincial, territorial, and municipal sources, exposed through 186 MCP tools, with SHA-256 claim bundles on cross-reference results. Data comes from primary sources; coverage, freshness, and verification surfaces are machine-readable.",
   "websiteUrl": "https://quill.maplespike.ca/agents",
   "repository": {
     "url": "https://github.com/reverb256/quill",
@@ -22,9 +22,9 @@
   "_meta": {
     "ca.maplespike/quill": {
       "auth": "Authorization: Bearer <api key> — keys are issued at https://quill.maplespike.ca/signup",
-      "toolCount": 184,
+      "toolCount": 186,
       "moduleCount": 207,
-      "countsAsOf": "2026-11-09",
+      "countsAsOf": "2026-11-16",
       "documents": {
         "llms": "https://quill.maplespike.ca/llms.txt",
         "agentsIndex": "https://quill.maplespike.ca/agents.json",
