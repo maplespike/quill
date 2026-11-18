@@ -6,6 +6,7 @@
  */
 
 import pg from 'pg';
+import { dropSediInsiderPostgres } from '@maplespike/database';
 import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { randomUUID } from 'node:crypto';
 import { hashApiKey, generateApiKey } from './auth.js';
@@ -55,6 +56,7 @@ export class PgStorage implements QuillStorage {
   private async migrate(): Promise<void> {
     const client = await this.pool.connect();
     try {
+      await dropSediInsiderPostgres((sql, params) => client.query(sql, params));
       await client.query(`
         CREATE TABLE IF NOT EXISTS tenants (
           id TEXT PRIMARY KEY,

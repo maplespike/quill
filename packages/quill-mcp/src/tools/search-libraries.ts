@@ -5,7 +5,7 @@ import { searchLibraries, LIBRARY_PORTALS } from '@maplespike/pipeline-core/libr
 
 export const definition: ToolDefinition = {
   name: 'search_libraries',
-  description: 'Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, Kitchener, Halifax. Returns branch locations, hours, and contact info.',
+  description: 'Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info.',
   inputSchema: {
     type: 'object',
     properties: {

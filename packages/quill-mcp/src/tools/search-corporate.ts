@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
   name: 'search_corporate',
   description:
     'Search Canadian corporate registry data, federal procurement contracts, ' +
-    'lobbying registrations, and executive statements. Tracks insider transactions, ' +
+    'lobbying registrations, and executive statements. Tracks ' +
     'sole-source contracts, company press releases, and corporate-government interactions. ' +
     'Cross-references with federal lobbying registry and proactive disclosure data.',
   descriptions: {

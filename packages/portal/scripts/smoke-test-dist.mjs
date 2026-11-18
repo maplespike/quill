@@ -139,10 +139,11 @@ const staleClaims = [
   "174 outils MCP",
   "175 MCP tools",
   "165 MCP tools",
-  "206 data modules",
-  "206 modules de données",
-  "206 Canadian government",
-  "206 ingestion modules",
+  // 207 was main's module count before this branch removed SEDI access.
+  "207 data modules",
+  "207 modules de données",
+  "207 Canadian government",
+  "207 ingestion modules",
 ];
 for (const f of htmlFiles) {
   const content = readFileSync(f, "utf8");

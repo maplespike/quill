@@ -119,7 +119,6 @@ export {
   povertyDataSchema,
   rateDecisionsSchema,
   monetaryPolicySchema,
-  insiderTransactionsSchema,
   unionReportsSchema,
   universityDataSchema,
   crtcDecisionsSchema,
@@ -477,12 +476,6 @@ export class MapleSpike {
   bankOfCanada = {
     rateDecisions: (p: any = {}) => this.query('bank-of-canada', 'rate-decisions', p),
     monetaryPolicy: (p: any = {}) => this.query('bank-of-canada', 'monetary-policy', p),
-  };
-
-  // ─── Domain: SEDI ──────────────────────────────────────────
-
-  sedi = {
-    insiderTransactions: (p: any = {}) => this.query('sedi', 'insider-transactions', p),
   };
 
   // ─── Domain: Unions ────────────────────────────────────────

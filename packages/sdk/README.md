@@ -231,7 +231,6 @@ const stats = await ms.ingestion.stats();
 | **education** | `.triCouncilGrants()`, `.researchChairs()`, `.studentLoans()`, `.cudoData()` |
 | **socialPrograms** | `.ccbData()`, `.cppOas()`, `.eiStatistics()`, `.povertyData()` |
 | **bankOfCanada** | `.rateDecisions()`, `.monetaryPolicy()` |
-| **sedi** | `.insiderTransactions()` |
 | **unions** | `.reports()` |
 | **universities** | `.data()` |
 | **crtc** | `.decisions()`, `.ownership()` |

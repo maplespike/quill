@@ -3,17 +3,17 @@
   "//_generated": "2026-11-16",
   "version": "2026-11-16",
   "modules": {
-    "registryCount": 207,
-    "ingestionDirs": 203,
-    "description": "207 modules registered at runtime (getAllModules(); counted from quoted registry.ts literals because dist was not built). Includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "registryCount": 206,
+    "ingestionDirs": 202,
+    "description": "206 modules registered at runtime (getAllModules()). Includes attestation, gc-standards, cross-reference utilities. 202 ingestion/ subdirectories with standalone fetch\u2192parse\u2192persist pipelines."
   },
   "mcpTools": {
-    "count": 186,
-    "description": "177 single-tool entries in getAllTools() + 6 WDI adapter + 3 Comtrade adapter = 186 total tools registered at runtime (matches server.getToolCount() at startup in quill-mcp/src/cli.ts:269)"
+    "count": 185,
+    "description": "176 single-tool entries in getAllTools() + 6 WDI adapter + 3 Comtrade adapter = 185 total tools registered at runtime (matches server.getToolCount() at startup in quill-mcp/src/cli.ts:269)"
   },
   "typescript": {
-    "totalLines": 241584,
-    "totalFiles": 1729,
+    "totalLines": 238239,
+    "totalFiles": 1712,
     "packages": 14,
     "perPackage": {
       "api-server": {
@@ -49,16 +49,16 @@
         "lines": 1050
       },
       "pipeline-core": {
-        "files": 1166,
-        "lines": 158329
+        "files": 1158,
+        "lines": 156159
       },
       "portal": {
         "files": 24,
         "lines": 1568
       },
       "quill-mcp": {
-        "files": 259,
-        "lines": 26151
+        "files": 254,
+        "lines": 25847
       },
       "sdk": {
         "files": 19,

@@ -14,7 +14,7 @@
 - [docs/licensing-audit.md](docs/licensing-audit.md): Data-source licence and provenance audit
 - [docs/decisions/](docs/decisions/): Architecture Decision Records
 - [CONTRIBUTING.md](CONTRIBUTING.md): Contributor guide
-- [packages/quill-mcp/README.md](packages/quill-mcp/README.md): MCP server (data-layer MCP, 184 tools)
+- [packages/quill-mcp/README.md](packages/quill-mcp/README.md): MCP server (data-layer MCP, 185 tools)
 - [packages/sdk/README.md](packages/sdk/README.md): TypeScript SDK
 - [packages/sdk-python/README.md](packages/sdk-python/README.md): Python SDK
 
@@ -58,5 +58,5 @@ municipal, economic, international, environment, corporate, housing, extraction
 ## MCP Server
 
 - Endpoint: https://mcp.maplespike.ca/sse
-- 184 MCP tools across all data categories, including x402-deposit
+- 185 MCP tools across all data categories, including x402-deposit
 - Every record includes SHA-256 citation hashes, source provenance, and audit trails

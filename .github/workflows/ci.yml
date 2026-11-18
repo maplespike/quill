@@ -262,6 +262,22 @@ jobs:
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 
+      # SEDI is excluded. Fail if module code, tools, routes, or a fetch of
+      # that host reappear. The drop migration is included. Pure Node.
+      - name: SEDI exclusion gate
+        run: node scripts/gates/check-no-sedi-access.mjs && node --test scripts/test-no-sedi-access.mjs && pnpm exec tsx --test packages/database/test/drop-sedi-insider.test.ts
+
+      # Declarative ingest suspend (#1320). The script is not on main until
+      # that PR merges. Skip the step when the script is absent so this
+      # branch stays green either way.
+      - name: Chart ingest suspend
+        run: |
+          if pnpm run | grep -q test:chart-ingest-suspend; then
+            pnpm test:chart-ingest-suspend
+          else
+            echo "test:chart-ingest-suspend is not in package.json yet (PR 1320). Skipping."
+          fi
+
       # Gate A6-LICENCE (#1044): every manifest, source header, package licence
       # copy, and the Python/Rust manifests must agree on AGPL-3.0-only, and the
       # NOTICE must carry the OGL/Crown/parliamentary statements. This is the

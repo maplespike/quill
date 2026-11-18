@@ -179,16 +179,8 @@
     "cat": "Corporate",
     "name": "search_corporate_filings",
     "desc": {
-      "en": "SEDAR+ filings, insider reports by company or ticker",
-      "fr": "Dépôts SEDAR+, rapports d'initiés par entreprise ou symbole"
-    }
-  },
-  {
-    "cat": "Corporate",
-    "name": "search_sedi",
-    "desc": {
-      "en": "SEDI insider trading reports by issuer or insider",
-      "fr": "Rapports d'opérations d'initiés SEDI par émetteur ou initié"
+      "en": "SEDAR+ filings by company or ticker",
+      "fr": "Dépôts SEDAR+ par entreprise ou symbole"
     }
   },
   {

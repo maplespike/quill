@@ -15,7 +15,7 @@
  * didn't pass a db.
  */
 
-import { getRawDb } from '@maplespike/database';
+import { dropSediInsiderSqlite, getRawDb } from '@maplespike/database';
 import type { D1Database, D1PreparedStatement } from './committees/db.js';
 
 /**
@@ -55,6 +55,9 @@ class SqliteD1Statement implements D1PreparedStatement {
  * Build a D1Database-compatible adapter backed by the shared SQLite file.
  */
 export function createSqliteD1Adapter(): D1Database {
+  // Same file the API migrates. Running it here covers an ingest pod that
+  // opens the store before the API process does. The drop is idempotent.
+  dropSediInsiderSqlite(getRawDb());
   return {
     prepare(sql: string): D1PreparedStatement {
       return new SqliteD1Statement(sql);

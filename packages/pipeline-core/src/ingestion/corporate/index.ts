@@ -23,7 +23,6 @@ import { fetchMonthlyCommunicationReports } from './lobbying.js';
 import { fetchTendersRss, fetchProactiveDisclosureContracts, isSoleSource } from './procurement.js';
 import type { TenderNotice } from './procurement.js';
 import { fetchCompanyPressReleases, extractExecutiveStatements } from './statements.js';
-import { ingestInsiderTransactions } from './sedi.js';
 import { ingestCorporationsCanada } from './corporations.js';
 import { TRACKED_EXECUTIVES } from './constants.js';
 import { upsertLobbyingRecords, upsertContractAwards, upsertExecutiveStatements, CORPORATE_DDL } from './db.js';
@@ -612,11 +611,10 @@ export async function ingestAllCorporate(
     }
   }
 
-  const [lobbying, procurement, statements, insiderTx, corpRegistry] = await Promise.all([
+  const [lobbying, procurement, statements, corpRegistry] = await Promise.all([
     ingestLobbying(db, options),
     ingestProcurement(db, options),
     ingestExecutiveStatements(db, options),
-    ingestInsiderTransactions(db, options),
     ingestCorporationsCanada(db, options),
   ]);
 
@@ -624,7 +622,6 @@ export async function ingestAllCorporate(
     'lobbying': lobbying,
     'procurement': procurement,
     'executive-statements': statements,
-    'insider-transactions': insiderTx,
     'corporations-canada': corpRegistry,
   };
 
@@ -632,12 +629,11 @@ export async function ingestAllCorporate(
   log(`Lobbying: ${lobbying.recordsFound} records, ${lobbying.recordsIngested} ingested`);
   log(`Procurement: ${procurement.recordsFound} records, ${procurement.recordsIngested} ingested`);
   log(`Exec Statements: ${statements.recordsFound} records, ${statements.recordsIngested} ingested`);
-  log(`Insider Transactions: ${insiderTx.recordsFound} records, ${insiderTx.recordsIngested} ingested`);
   log(`Corp Registry: ${corpRegistry.recordsFound} records, ${corpRegistry.recordsIngested} ingested`);
 
   const totalFound = Object.values(results).reduce((sum, r) => sum + r.recordsFound, 0);
   const totalErrors = lobbying.errors.length + procurement.errors.length + statements.errors.length
-    + insiderTx.errors.length + corpRegistry.errors.length;
+    + corpRegistry.errors.length;
   if (totalErrors > 0) {
     log(`Errors: ${totalErrors}`);
   }
@@ -661,8 +657,6 @@ export async function ingestAllCorporate(
 export type { ExecutiveStory } from './pipeline.js';
 export { buildExecutiveStories } from './pipeline.js';
 
-// Re-export SEDI and Corporations Canada functions
-export { ingestInsiderTransactions } from './sedi.js';
 export { ingestCorporationsCanada } from './corporations.js';
 
 // Re-export lobbying flagging

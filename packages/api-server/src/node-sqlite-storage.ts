@@ -11,6 +11,7 @@
  */
 
 import { DatabaseSync } from 'node:sqlite';
+import { dropSediInsiderSqlite } from '@maplespike/database';
 import { randomUUID } from 'node:crypto';
 import type { QuillStorage, QuillCache, Tenant, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { hashApiKey } from './auth.js';
@@ -54,6 +55,7 @@ export class NodeSqliteStorage implements QuillStorage {
   /* ── Schema ──────────────────────────────────────────────────── */
 
   private migrate(): void {
+    dropSediInsiderSqlite(this.db);
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tenants (
         id TEXT PRIMARY KEY,

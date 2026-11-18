@@ -124,7 +124,6 @@ export const MODULE_TO_REGISTRY: Record<string, string> = {
   // Corporate
   corporate: 'corporate',
   'corporate-filings': 'corporate',
-  sedi: 'corporate',
   'sedar-plus': 'corporate',
   'crown-corporations': 'corporate',
   'cra-charity': 'corporate',

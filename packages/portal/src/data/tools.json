@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-10-16T19:56:26.000Z",
+    "generatedAt": "2026-11-18T15:10:16.000Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -52,7 +52,7 @@
       "cat": "Corporate",
       "name": "search_corporate",
       "desc": {
-        "en": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks insider transactions, sole-source contracts, company press releases, and corporate-government interactions. Cross-references with federal lobbying registry and proactive disclosure data.",
+        "en": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks sole-source contracts, company press releases, and corporate-government interactions. Cross-references with federal lobbying registry and proactive disclosure data.",
         "fr": "Rechercher dans les registres de lobbying fédéraux, les données d'approvisionnement et les déclarations de dirigeants d'entreprises. Le suivi des dirigeants couvre 16 personnes dans les secteurs bancaire, télécoms et médias."
       }
     },
@@ -369,6 +369,22 @@
       }
     },
     {
+      "cat": "General",
+      "name": "getting_started",
+      "desc": {
+        "en": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where to begin.",
+        "fr": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where to begin."
+      }
+    },
+    {
+      "cat": "General",
+      "name": "check_tier",
+      "desc": {
+        "en": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what you can access before calling Pro-gated tools.",
+        "fr": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what you can access before calling Pro-gated tools."
+      }
+    },
+    {
       "cat": "Environment",
       "name": "search_weather",
       "desc": {
@@ -612,7 +628,7 @@
       "cat": "Community",
       "name": "search_libraries",
       "desc": {
-        "en": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, Kitchener, Halifax. Returns branch locations, hours, and contact info.",
+        "en": "Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info.",
         "fr": "Rechercher les bibliothèques publiques dans 15 villes canadiennes. Retourne les horaires, services et coordonnées."
       }
     },
@@ -620,7 +636,7 @@
       "cat": "Municipal",
       "name": "search_municipal_data",
       "desc": {
-        "en": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).",
+        "en": "Search municipal open data across Canadian cities. Covers 10 major Canadian cities. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).",
         "fr": "Rechercher les jeux de données municipaux dans 10 villes canadiennes. Accès aux portails de données ouvertes municipaux."
       }
     },
@@ -668,7 +684,7 @@
       "cat": "Community",
       "name": "search_parks",
       "desc": {
-        "en": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Winnipeg, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns park names, types, amenities, and sizes.",
+        "en": "Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes.",
         "fr": "Rechercher les parcs et installations récréatives dans 12 villes canadiennes. Retourne les équipements, horaires et localisations."
       }
     },
@@ -718,14 +734,6 @@
       "desc": {
         "en": "Search Canadian regional authority data — regional districts, municipalities, and local governance information across Canada including regional services, planning, and transit authorities.",
         "fr": "Rechercher les autorités régionales de transport et de services. Couvre les organismes régionaux canadiens."
-      }
-    },
-    {
-      "cat": "Corporate",
-      "name": "search_sedi",
-      "desc": {
-        "en": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data. Covers TSX-listed company executive and director stock transactions, including purchases, sales, and option exercises.",
-        "fr": "Rechercher les rapports d'initiés SEDI par émetteur ou initié. Couvre les opérations d'initiés déclarées à la SEDI."
       }
     },
     {

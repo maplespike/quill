@@ -204,7 +204,12 @@ test("chart: live values-prod matches main's image refs and pull policy", (t) =>
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
-    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
+    const imageOnly = (lines: string[]) => lines.filter((l) => l.startsWith('image:'));
+    // Image refs must stay pinned to main. Search used the chart-wide
+    // Never pull policy on main even after images.search.pullPolicy was
+    // set to IfNotPresent; this branch uses quill.pullPolicy, so pull
+    // policies are asserted by the previous test instead of a byte match.
+    assert.deepEqual(imageOnly(imagePolicyLines(render())), imageOnly(imagePolicyLines(main)));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }

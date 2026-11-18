@@ -661,17 +661,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
-    name: 'sedi',
-    description: 'SEDI insider trading — TSX-listed executive/director stock transactions',
-    category: 'corporate',
-    modulePath: './sedi/index.js',
-    ingestFunctions: ['ingestSedi', 'ingestSediByIssuer', 'searchInsiderTransactions'],
-    sources: [{ name: 'SEDI (sedi.ca)', format: 'HTML' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.sedi.ca',
-  },
-  {
     name: 'crown-corporations',
     description: 'Crown corporations — annual reports, quarterly financials, governance data for CBC, Canada Post, CMHC, EDC, VIA Rail, BDC',
     category: 'corporate',

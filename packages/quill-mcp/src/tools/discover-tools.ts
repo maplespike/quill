@@ -322,11 +322,11 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_libraries",
-    "description": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, WPG, Hamilton, London, Mississauga, Brampton, Surrey,"
+    "description": "Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info."
   },
   {
     "toolName": "search_municipal_data",
-    "description": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, WPG, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
+    "description": "Search municipal open data across Canadian cities. Covers 10 major Canadian cities. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca)."
   },
   {
     "toolName": "search_npri",
@@ -350,7 +350,7 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_parks",
-    "description": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, WPG, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
+    "description": "Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes."
   },
   {
     "toolName": "search_provincial_data",
@@ -375,10 +375,6 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   {
     "toolName": "search_regional_authorities",
     "description": "Search Canadian regional authority data \u2014 regional districts, municipalities,"
-  },
-  {
-    "toolName": "search_sedi",
-    "description": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data."
   },
   {
     "toolName": "search_un",

@@ -8,7 +8,6 @@ describe('corporate Module', () => {
     assert.equal(typeof mod.ingestLobbying, 'function');
     assert.equal(typeof mod.ingestProcurement, 'function');
     assert.equal(typeof mod.ingestExecutiveStatements, 'function');
-    assert.equal(typeof mod.ingestInsiderTransactions, 'function');
     assert.equal(typeof mod.ingestCorporationsCanada, 'function');
     assert.equal(typeof mod.buildExecutiveStories, 'function');
     assert.equal(typeof mod.detectLobbyingSpikes, 'function');

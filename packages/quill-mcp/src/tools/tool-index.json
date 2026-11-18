@@ -21,7 +21,7 @@
  },
  {
   "n": "search_corporate",
-  "d": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks insider transactions, sole-source contracts, company press releases, an"
+  "d": "Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks sole-source contracts, company press releases, and corporate-government"
  },
  {
   "n": "search_influence",
@@ -180,6 +180,14 @@
   "d": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits."
  },
  {
+  "n": "getting_started",
+  "d": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where "
+ },
+ {
+  "n": "check_tier",
+  "d": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what y"
+ },
+ {
   "n": "search_weather",
   "d": "Search Canadian weather data from Environment Canada — current conditions, forecasts, severe weather alerts, air quality health index (AQHI), radar, marine forecasts, and climate normals. Powered by M"
  },
@@ -301,11 +309,11 @@
  },
  {
   "n": "search_libraries",
-  "d": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey,"
+  "d": "Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info."
  },
  {
   "n": "search_municipal_data",
-  "d": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
+  "d": "Search municipal open data across Canadian cities. Covers 10 major Canadian cities. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca)."
  },
  {
   "n": "search_npri",
@@ -329,7 +337,7 @@
  },
  {
   "n": "search_parks",
-  "d": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Winnipeg, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
+  "d": "Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes."
  },
  {
   "n": "search_provincial_data",
@@ -354,10 +362,6 @@
  {
   "n": "search_regional_authorities",
   "d": "Search Canadian regional authority data — regional districts, municipalities, and local governance information across Canada including regional services, planning, and transit authorities."
- },
- {
-  "n": "search_sedi",
-  "d": "Search SEDI (System for Electronic Disclosure by Insiders) insider trading data. Covers TSX-listed company executive and director stock transactions, including purchases, sales, and option exercises."
  },
  {
   "n": "search_un",

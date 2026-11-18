@@ -20,7 +20,7 @@ void describe('@maplespike/sdk', () => {
       'committees', 'corporate', 'influence', 'regulations', 'courts',
       'oversight', 'data', 'immigration', 'indigenous', 'criminalJustice',
       'defence', 'municipal', 'transport', 'realtime', 'media',
-      'education', 'socialPrograms', 'bankOfCanada', 'sedi', 'unions',
+      'education', 'socialPrograms', 'bankOfCanada', 'unions',
       'universities', 'crtc', 'craCharity', 'provincialRegulators',
     ];
     for (const name of required) {
@@ -42,7 +42,7 @@ void describe('@maplespike/sdk', () => {
     const domains = [
       'immigration', 'indigenous', 'criminalJustice', 'defence', 'municipal',
       'transport', 'realtime', 'media', 'education', 'socialPrograms',
-      'bankOfCanada', 'sedi', 'unions', 'universities', 'crtc',
+      'bankOfCanada', 'unions', 'universities', 'crtc',
       'craCharity', 'provincialRegulators', 'committees', 'corporate',
       'elections', 'oversight', 'gazette', 'lmia', 'courts', 'gic',
       'provincial', 'influence', 'regulations', 'science', 'health',
@@ -68,7 +68,6 @@ void describe('@maplespike/sdk', () => {
     assert.equal(typeof ms.education.triCouncilGrants, 'function');
     assert.equal(typeof ms.socialPrograms.ccbData, 'function');
     assert.equal(typeof ms.bankOfCanada.rateDecisions, 'function');
-    assert.equal(typeof ms.sedi.insiderTransactions, 'function');
     assert.equal(typeof ms.unions.reports, 'function');
     assert.equal(typeof ms.crtc.decisions, 'function');
     assert.equal(typeof ms.craCharity.search, 'function');

@@ -472,16 +472,6 @@ export const monetaryPolicySchema = z.object({
   limit: lim(),
 });
 
-// ─── SEDI / Insider Trading ─────────────────────────────────────────────────
-
-export const insiderTransactionsSchema = z.object({
-  issuer: str(),
-  insider: str(),
-  transaction_type: str(),
-  date_from: str(),
-  limit: lim(),
-});
-
 // ─── Unions ─────────────────────────────────────────────────────────────────
 
 export const unionReportsSchema = z.object({
@@ -694,9 +684,6 @@ export const SCHEMAS: Record<string, z.ZodObject<any>> = {
   // Bank of Canada
   'bank-of-canada/rate-decisions': rateDecisionsSchema,
   'bank-of-canada/monetary-policy': monetaryPolicySchema,
-
-  // SEDI
-  'sedi/insider-transactions': insiderTransactionsSchema,
 
   // Unions
   'unions/union-reports': unionReportsSchema,

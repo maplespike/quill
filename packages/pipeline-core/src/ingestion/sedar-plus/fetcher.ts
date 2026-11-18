@@ -4,6 +4,9 @@
  * Fetches corporate filings from the Canadian SEDAR+ system.
  * Uses the CD Plus API for modern filings and falls back to
  * the legacy SEDAR system for historical documents.
+ *
+ * This is not SEDI. Live automated access here is tracked in
+ * https://github.com/maplespike/quill/issues/1328
  */
 
 import { httpGet } from '../../utils/http.js';
