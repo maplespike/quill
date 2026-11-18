@@ -55,7 +55,7 @@
     "test:workflow-yaml": "node scripts/gates/check-workflow-yaml.mjs",
     "audit:provenance": "python3 scripts/compare-provenance.py",
     "test:workflow-gh": "pnpm exec tsx --test scripts/test-workflow-gh-auth.mts",
-    "test:merge-gate": "pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts",
+    "test:merge-gate": "pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts scripts/test-merge-gate-event-expressions.mts",
     "test:fork-runner": "node --test scripts/test-fork-runner-policy.mjs",
     "test:release-workflow": "pnpm exec tsx --test scripts/test-release-workflow.mts",
     "test:docs-staleness": "node --test scripts/test-docs-staleness.mjs",
