@@ -10,10 +10,11 @@
  *
  * The guard fails when any of these is reverted:
  *   - the metadata read (REST pulls, check-runs, workflow runs, statuses)
- *     leaves the App token
+ *     leaves GITHUB_TOKEN, or those reads are pointed at the App token
+ *   - label, merge, or update-branch leave the App token
  *   - a missing head repository or an unknown mergeable value exits 0
- *   - a foreign event head can reach that read, or a known foreign resolved
- *     head can reach the merge
+ *   - a foreign event head can reach an App-token write, or a known foreign
+ *     resolved head can reach the merge
  *   - a `hold` label is no longer a skip
  *
  * `ready-to-merge` stays required. Checkout of pull-request head code fails
@@ -37,7 +38,7 @@ function codes(text: string): string[] {
   return auditMergeGate(text).map((v) => v.code);
 }
 
-test('the merge gate reads same-repo metadata with the App token and still excludes forks and hold', () => {
+test('the merge gate reads same-repo metadata with GITHUB_TOKEN, writes with the App token, and still excludes forks and hold', () => {
   assert.deepEqual(auditMergeGate(workflow()), []);
 });
 
@@ -46,7 +47,7 @@ test('reverting the pulls read to the ambient token fails', () => {
     'GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
     'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
   );
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
 test('reading GraphQL headRepository again fails', () => {
@@ -57,43 +58,44 @@ test('reading GraphQL headRepository again fails', () => {
   assert.ok(codes(text).includes('graphql-head'));
 });
 
-test('pointing READ_TOKEN at GITHUB_TOKEN fails the metadata read', () => {
-  const text = workflow().replace('READ_TOKEN="$GATE_TOKEN"', 'READ_TOKEN="$GH_TOKEN"');
-  assert.ok(codes(text).includes('metadata-app-token'));
+test('pointing READ_TOKEN at the App token fails the metadata read', () => {
+  const text = workflow().replace('READ_TOKEN="$GH_TOKEN"', 'READ_TOKEN="$GATE_TOKEN"');
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
-test('dropping the App token off the check-runs read fails', () => {
+test('dropping GITHUB_TOKEN off the check-runs read fails', () => {
   const text = workflow().replace(
     'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
     'gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
   );
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
-test('dropping the App token off the statuses read fails', () => {
+test('dropping GITHUB_TOKEN off the statuses read fails', () => {
   const text = workflow().replace(
     'GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
     'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
   );
   assert.notEqual(text, workflow());
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
-test('dropping the App token off the follow-up status Link read fails', () => {
+test('dropping GITHUB_TOKEN off the follow-up status Link read fails', () => {
   const text = workflow().replace(
     'GH_TOKEN="$READ_TOKEN" gh api --include "$status_url"',
     'gh api --include "$status_url"',
   );
   assert.notEqual(text, workflow());
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
-test('dropping the App token off the workflow-run read fails', () => {
+test('dropping GITHUB_TOKEN off the workflow-run read fails', () => {
   const text = workflow().replace(
     'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
     'gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
   );
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
 test('swallowing a pulls API error fails', () => {
@@ -101,7 +103,7 @@ test('swallowing a pulls API error fails', () => {
     'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
     'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" || true',
   );
-  assert.ok(codes(text).includes('metadata-app-token'));
+  assert.ok(codes(text).includes('metadata-github-token'));
 });
 
 test('a foreign event head must exit before the App token is selected', () => {
@@ -118,10 +120,28 @@ test('a foreign event head must exit before the App token is selected', () => {
 test('selecting the App token before the event-head refusal fails', () => {
   const text = workflow().replace(
     '          if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$GH_REPO" ]]; then',
-    '          READ_TOKEN="$GATE_TOKEN"\n          if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$GH_REPO" ]]; then',
+    '          GH_TOKEN="$GATE_TOKEN" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash\n          if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$GH_REPO" ]]; then',
   );
   assert.notEqual(text, workflow());
   assert.ok(codes(text).includes('fork-event-head'));
+});
+
+test('dropping the App token off gh pr merge fails', () => {
+  const text = workflow().replace(
+    'GH_TOKEN="$GATE_TOKEN" gh pr merge',
+    'GH_TOKEN="$GH_TOKEN" gh pr merge',
+  );
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('write-app-token'));
+});
+
+test('dropping the App token off gh pr update-branch fails', () => {
+  const text = workflow().replace(
+    'GH_TOKEN="$GATE_TOKEN" gh pr update-branch',
+    'GH_TOKEN="$GH_TOKEN" gh pr update-branch',
+  );
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('write-app-token'));
 });
 
 test('treating an empty resolved head as a foreign-repo skip fails', () => {

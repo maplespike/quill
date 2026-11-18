@@ -9,10 +9,12 @@
 // An empty result after the retries must exit 1. A known foreign head still
 // exits 0 and does not merge.
 //
-// The pulls, check-run, workflow-run, and commit-status reads must use the
-// App token. A foreign event head must exit before the token is selected.
-// A `hold` label must skip. `ready-to-merge` stays required. The workflow
-// must not check out or run pull-request head code.
+// The pulls, check-run, workflow-run, and commit-status reads must use
+// GITHUB_TOKEN (READ_TOKEN="$GH_TOKEN"). The App token is only for label,
+// merge, and update-branch (run 43099645268 403'd when the App was used
+// for those reads). A foreign event head must exit before any App-token
+// write. A `hold` label must skip. `ready-to-merge` stays required. The
+// workflow must not check out or run pull-request head code.
 //
 // Usage:
 //   node scripts/gates/check-merge-gate-token.mjs [workflow-file]
@@ -86,17 +88,28 @@ function ghIndex(code, command) {
 /**
  * The command at `at` carries the fleet-merge-gate App token on its own
  * line. A token on the previous command does not count. An inline
- * GATE_TOKEN override on that line also passes. A READ_TOKEN use passes
- * only when the last assignment is the App token.
+ * GATE_TOKEN override on that line also passes.
  */
 function commandUsesAppToken(code, at) {
   const lineStart = code.lastIndexOf('\n', at - 1) + 1;
   const prelude = code.slice(lineStart, at);
-  if (/GH_TOKEN="\$\{?GATE_TOKEN/.test(prelude) || /GATE_TOKEN:-\$GH_TOKEN/.test(prelude)) return true;
+  return /GH_TOKEN="\$\{?GATE_TOKEN/.test(prelude) || /GATE_TOKEN:-\$GH_TOKEN/.test(prelude);
+}
+
+/**
+ * The command at `at` is a metadata read and must use GITHUB_TOKEN.
+ * A READ_TOKEN use passes only when the last assignment is GH_TOKEN,
+ * not the App token. An inline GATE_TOKEN override fails the contract.
+ */
+function commandUsesGithubToken(code, at) {
+  const lineStart = code.lastIndexOf('\n', at - 1) + 1;
+  const prelude = code.slice(lineStart, at);
+  if (/GH_TOKEN="\$\{?GATE_TOKEN/.test(prelude) || /GATE_TOKEN:-\$GH_TOKEN/.test(prelude)) return false;
+  if (/GH_TOKEN="\$\{?GH_TOKEN/.test(prelude)) return true;
   if (!/GH_TOKEN="\$READ_TOKEN"/.test(prelude)) return false;
   const assigns = [...code.slice(0, at).matchAll(/READ_TOKEN="([^"]+)"/g)];
   const last = assigns.at(-1)?.[1] ?? '';
-  return last.includes('GATE_TOKEN');
+  return last.includes('GH_TOKEN') && !last.includes('GATE_TOKEN');
 }
 
 /**
@@ -151,8 +164,8 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   if (mergeAt < 0 || mergeAt < pullsAt) {
     fail('fork-resolved-head', 'gh pr merge is missing or precedes the metadata read');
   }
-  if (!commandUsesAppToken(code, pullsAt)) {
-    fail('metadata-app-token', 'REST pulls read does not use the fleet-merge-gate App token');
+  if (!commandUsesGithubToken(code, pullsAt)) {
+    fail('metadata-github-token', 'REST pulls read does not use GITHUB_TOKEN');
   }
   if (code.includes('headRepository') || code.includes('gh pr view')) {
     fail('graphql-head', 'head repository must be read from REST head.repo, not GraphQL headRepository');
@@ -165,32 +178,42 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   const statusesAt = code.indexOf('gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"');
   const statusFollowAt = code.indexOf('gh api --include "$status_url"');
   const runsAt = code.indexOf('actions/runs?head_sha=');
-  if (checksAt < 0 || !commandUsesAppToken(code, checksAt)) {
-    fail('metadata-app-token', 'check-runs read does not use the fleet-merge-gate App token');
+  if (checksAt < 0 || !commandUsesGithubToken(code, checksAt)) {
+    fail('metadata-github-token', 'check-runs read does not use GITHUB_TOKEN');
   }
-  if (statusesAt < 0 || !commandUsesAppToken(code, statusesAt)) {
-    fail('metadata-app-token', 'commit statuses read does not use the fleet-merge-gate App token');
+  if (statusesAt < 0 || !commandUsesGithubToken(code, statusesAt)) {
+    fail('metadata-github-token', 'commit statuses read does not use GITHUB_TOKEN');
   }
-  if (statusFollowAt < 0 || !commandUsesAppToken(code, statusFollowAt)) {
-    fail('metadata-app-token', 'follow-up status Link read does not use the fleet-merge-gate App token');
+  if (statusFollowAt < 0 || !commandUsesGithubToken(code, statusFollowAt)) {
+    fail('metadata-github-token', 'follow-up status Link read does not use GITHUB_TOKEN');
   }
-  if (runsAt < 0 || !commandUsesAppToken(code, runsAt)) {
-    fail('metadata-app-token', 'workflow run read does not use the fleet-merge-gate App token');
+  if (runsAt < 0 || !commandUsesGithubToken(code, runsAt)) {
+    fail('metadata-github-token', 'workflow run read does not use GITHUB_TOKEN');
   }
   for (const needle of [PULLS_READ, '/check-runs', 'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"', 'gh api --include "$status_url"', 'actions/runs?head_sha=']) {
     const at = code.indexOf(needle);
     const line = code.slice(at, code.indexOf('\n', at) === -1 ? code.length : code.indexOf('\n', at));
     if (at >= 0 && line.includes('|| true')) {
-      fail('metadata-app-token', `${needle} read swallows API errors`);
+      fail('metadata-github-token', `${needle} read swallows API errors`);
     }
   }
 
-  const gateAssign = code.indexOf('READ_TOKEN="$GATE_TOKEN"');
   const eventIf = EVENT_HEAD_IF.exec(code);
+  const updateAt = ghIndex(code, 'pr update-branch');
+  if (updateAt < 0 || !commandUsesAppToken(code, updateAt)) {
+    fail('write-app-token', 'gh pr update-branch does not use the fleet-merge-gate App token');
+  }
+  if (mergeAt >= 0 && !commandUsesAppToken(code, mergeAt)) {
+    fail('write-app-token', 'gh pr merge does not use the fleet-merge-gate App token');
+  }
   if (!eventIf || !ifBodyExits(code, EVENT_HEAD_IF, 0)) {
-    fail('fork-event-head', 'a foreign event head repo must exit 0 before any App-token read');
-  } else if (gateAssign >= 0 && eventIf.index > gateAssign) {
-    fail('fork-event-head', 'the foreign event-head exit must run before READ_TOKEN is set to the App token');
+    fail('fork-event-head', 'a foreign event head repo must exit 0 before any App-token write');
+  } else {
+    for (const [at, label] of [[updateAt, 'gh pr update-branch'], [mergeAt, 'gh pr merge']]) {
+      if (at >= 0 && at < eventIf.index) {
+        fail('fork-event-head', `the foreign event-head exit must run before ${label}`);
+      }
+    }
   }
 
   const between = code.slice(pullsAt, mergeAt < 0 ? code.length : mergeAt);
