@@ -1,0 +1,89 @@
+---
+export interface Props {
+  lang?: "en" | "fr";
+}
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const t = (en: string, fr: string) => (lang === "fr" ? fr : en);
+---
+<section class="mcp-wizard rounded-xl border border-border/60 bg-card/40 p-6 space-y-6" aria-labelledby="mcp-wizard-title">
+  <div>
+    <h2 id="mcp-wizard-title" class="text-xl font-semibold">{t("MCP setup wizard", "Assistant de configuration MCP")}</h2>
+    <p class="text-sm text-muted-foreground mt-1">{t("Pick your tool and OS, then copy the config with your key filled in.", "Choisissez votre outil et votre OS, puis copiez la configuration avec votre clé pré-remplie.")}</p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label class="block text-sm font-medium mb-2" for="mcp-tool">{t("Tool", "Outil")}</label>
+      <select id="mcp-tool" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
+        <option value="claude">Claude Desktop</option>
+        <option value="cursor">Cursor</option>
+        <option value="vscode">VS Code</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-2" for="mcp-os">{t("Operating system", "Système d'exploitation")}</label>
+      <select id="mcp-os" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
+        <option value="macos">macOS</option>
+        <option value="windows">Windows</option>
+        <option value="linux">Linux</option>
+      </select>
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium mb-2" for="mcp-key">{t("Your Quill API key", "Votre clé API Quill")}</label>
+    <input id="mcp-key" type="text" value="ms_live_YOUR_KEY" class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono" />
+  </div>
+
+  <div>
+    <p class="text-xs text-muted-foreground mb-2" id="mcp-path"></p>
+    <div class="relative">
+      <pre class="rounded-md bg-muted/50 p-4 text-xs font-mono overflow-x-auto"><code id="mcp-config"></code></pre>
+      <button type="button" id="mcp-copy" class="absolute top-2 right-2 rounded-md border border-border bg-background px-2 py-1 text-xs">{t("Copy", "Copier")}</button>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    function pathFor(tool, os) {
+      if (tool === 'claude') {
+        if (os === 'macos') return '~/Library/Application Support/Claude/claude_desktop_config.json';
+        if (os === 'windows') return '%APPDATA%\\Claude\\claude_desktop_config.json';
+        return '~/.config/Claude/claude_desktop_config.json';
+      }
+      if (tool === 'cursor') return '.cursor/mcp.json';
+      return '.vscode/mcp.json';
+    }
+    function buildConfig(key) {
+      return JSON.stringify({ mcpServers: { quill: { command: 'npx', args: ['-y', '@maplespike/mcp'], env: { QUILL_API_KEY: key || 'ms_live_YOUR_KEY' } } } }, null, 2);
+    }
+    function update() {
+      var tool = document.getElementById('mcp-tool').value;
+      var os = document.getElementById('mcp-os').value;
+      var key = document.getElementById('mcp-key').value;
+      document.getElementById('mcp-path').textContent = pathFor(tool, os);
+      document.getElementById('mcp-config').textContent = buildConfig(key);
+    }
+    function init() {
+      var toolEl = document.getElementById('mcp-tool');
+      if (!toolEl || toolEl.dataset.bound) return;
+      toolEl.dataset.bound = 'true';
+      ['mcp-tool','mcp-os','mcp-key'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', update);
+        if (el) el.addEventListener('change', update);
+      });
+      var copy = document.getElementById('mcp-copy');
+      if (copy) copy.addEventListener('click', async function () {
+        var code = document.getElementById('mcp-config');
+        try { await navigator.clipboard.writeText(code.textContent || ''); copy.textContent = 'Copied'; }
+        catch (e) { copy.textContent = 'Copy failed'; }
+        setTimeout(function () { copy.textContent = 'Copy'; }, 2000);
+      });
+      update();
+    }
+    init();
+    document.addEventListener('astro:page-load', init);
+  })();
+</script>
