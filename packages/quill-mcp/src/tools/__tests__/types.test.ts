@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MCP Server Tool Types Tests — MapleSpike MCP Server
  *

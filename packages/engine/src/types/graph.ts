@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export type SignalType =
   | "procurement_lobbying_overlap"
   | "revolving_door"

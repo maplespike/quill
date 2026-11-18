@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Change Watcher — Real-time Monitoring & Change Detection
  *

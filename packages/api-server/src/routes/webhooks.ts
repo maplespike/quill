@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { validateBody } from '../validate.js';

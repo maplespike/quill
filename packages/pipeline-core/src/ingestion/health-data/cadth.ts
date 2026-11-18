@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * CADTH Ingestion — Canadian Agency for Drugs and Technologies in Health
  *

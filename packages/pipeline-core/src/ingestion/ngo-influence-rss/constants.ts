@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { NgoRssConfig } from './types.js';
 
 /** NGO & influence RSS sources for narrative tracking */

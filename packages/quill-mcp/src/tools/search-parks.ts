@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchParks, PARK_PORTALS } from '@maplespike/pipeline-core/parks';
 

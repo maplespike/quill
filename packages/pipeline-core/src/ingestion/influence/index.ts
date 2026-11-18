@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { parseInfluenceActor, parseInfluenceActors } from './parser.js';
 /**
  * Influence Ingestion — Quill

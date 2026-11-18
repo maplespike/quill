@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * CFIA Ingestion — Canadian Food Inspection Agency
  *

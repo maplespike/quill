@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parsePermanentResidentAdmission, parsePermanentResidentAdmissions } from './parser.js';
  * Immigration Ingestion — Quill

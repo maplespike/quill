@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * search_knowledge_fabric MCP Tool — MapleSpike
  *

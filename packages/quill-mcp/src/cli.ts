@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: AGPL-3.0-only
 // Quill MCP zero-config entry point — stdio transport.
 //
 // Run, after a local build: `node dist/cli.js` or `pnpm start`.

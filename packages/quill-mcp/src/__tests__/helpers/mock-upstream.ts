@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Mock upstream fetch — intercepts all HTTP calls for unit tests.
  *

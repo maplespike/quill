@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseStatCanRecord, parseStatCanRecords } from './parser.js';
  * StatCan Ingestion — Quill

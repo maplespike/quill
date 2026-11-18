@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Watchlist alerts (watchlist-alerts-v1) — unit suites.
  *

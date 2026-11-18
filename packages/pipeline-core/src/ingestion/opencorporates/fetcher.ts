@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { OC_API_BASE, OC_TIMEOUT_MS, OC_UA, OC_REQ_INTERVAL_MS } from './constants.js';
 import type { OCCompany, OCOfficer, OCFiling, OCRelationship, OCSearchResult } from './types.js';

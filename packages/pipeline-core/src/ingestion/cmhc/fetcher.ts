@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * CMHC (Canada Mortgage and Housing Corporation) Fetcher — Quill
  *

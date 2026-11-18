@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 # MapleSpike Bash SDK — Zero-dependency CLI for Canadian government data
 # Usage: maplespike <command> [args...]
 # Depends on: curl, jq (both available in virtually any *nix env)

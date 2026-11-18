@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MapleSpike Module Generator
  *
@@ -917,7 +918,10 @@ for (const [filename, content] of Object.entries(files)) {
     console.log(`  ⚠ Skipping ${filename} — already exists`);
     continue;
   }
-  writeFileSync(filePath, content, 'utf-8');
+  const withHeader = content.startsWith('// SPDX-License-Identifier:')
+    ? content
+    : `// SPDX-License-Identifier: AGPL-3.0-only\n${content}`;
+  writeFileSync(filePath, withHeader, 'utf-8');
   console.log(`  ✓ Created ${filename}`);
 }
 

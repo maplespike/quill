@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchSocrataCatalog } from "../socrata-api.js";
 import type { SocrataView } from "../socrata-api.js";
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { parseCrtcReports, parseCrtcOwnership, parseCmfData, parseTelefilm } from './parser.js';
 import type { MediaRecord, MediaIngestionResult } from './types.js';

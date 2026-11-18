@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * STRIPE_ENV must agree with the key it was handed (QUILL-AUDIT.md 2026-10-24).
  *

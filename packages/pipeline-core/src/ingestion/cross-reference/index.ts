@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { crossReferenceSearch } from './fetcher.js';
 import { CROSS_REF_MODULES } from './constants.js';
 import type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery } from './types.js';

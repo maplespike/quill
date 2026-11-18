@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { PARK_PORTALS, PARK_TIMEOUT_MS, PARK_USER_AGENT } from './constants.js';
 

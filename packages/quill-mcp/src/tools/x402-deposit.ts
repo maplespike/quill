@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * x402 deposit MCP tool (Phase 3).
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * PII hash — dual-key rotation support (Decision 0002 addendum).
  *

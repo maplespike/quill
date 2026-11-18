@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — v0.3.0 Migration: Add Committee and Charity Tables
  *

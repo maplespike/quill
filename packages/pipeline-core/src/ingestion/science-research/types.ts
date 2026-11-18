@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export interface ResearchGrant {
   id: string;
   agency: 'csa' | 'mitacs' | 'genome-canada' | 'cifar' | 'canarie' | 'digital-research' | 'polar' | 'onc' | 'perimeter';

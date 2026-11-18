@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseCppOasBeneficiary, parseCppOasBeneficiarys } from './parser.js';
  * Social Programs Ingestion — Quill

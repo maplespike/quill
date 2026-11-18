@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Extraction Route Tests — MapleSpike API Server
  *

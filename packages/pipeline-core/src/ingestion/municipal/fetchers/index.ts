@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { searchToronto } from './toronto.js';
 import { searchVancouver } from './vancouver.js';
 import { searchMontreal } from './montreal.js';

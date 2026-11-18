@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Ingestion freshness ledger (#889 readiness, 2026-09-22).
  *

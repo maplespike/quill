@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ProvinceCode } from '../provincial-legislatures/types.js';
 
 export { ProvinceCode };

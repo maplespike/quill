@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * API user journey — the path a real customer takes, end to end (#api-tests).
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const PD_USER_AGENT = 'MapleSpike-ProvincialDeep/1.0';
 export const PD_TIMEOUT_MS = 15_000;
 export const MAX_DATASETS_PER_SECTOR = 30;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const UNI_USER_AGENT = 'MapleSpike-Universities/1.0';
 export const UNI_TIMEOUT_MS = 15_000;
 export const CUDO_URL = 'https://ontariosuniversities.ca/open-data/';

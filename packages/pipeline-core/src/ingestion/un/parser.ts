@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { computeHash } from '../../verification/hashing.js';
 import type { UnRecord } from './types.js';
 

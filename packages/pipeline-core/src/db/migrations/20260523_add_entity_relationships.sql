@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- Migration: Add entity_relationships table for cross-module relationship graphs
 -- Date: 2026-05-23
 -- Issue: #451

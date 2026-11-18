@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const CRAWLER_USER_AGENT = 'MapleSpike-MunicipalLongTail/1.0';
 export const CRAWLER_TIMEOUT_MS = 15_000;
 export const MUNICIPAL_KEYWORDS = ['council', 'meeting', 'budget', 'permit', 'zoning', 'transit', 'procurement', 'property', 'tax', 'water', 'waste', 'parks', 'roads'];

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * x402 replay-protection ledger (Phase 2).
  *

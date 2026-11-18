@@ -5,7 +5,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/quill-sdk)](https://pypi.org/project/quill-sdk/)
 [![Python versions](https://img.shields.io/pypi/pyversions/quill-sdk)](https://pypi.org/project/quill-sdk/)
-[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
 ---
 
@@ -96,7 +96,7 @@ pytest
 
 ## License
 
-`quill-sdk` is licensed under the GNU Affero General Public License, version 3
-only (`AGPL-3.0-only`). The text is in [`LICENSE`](./LICENSE). See
-[`LICENSE.md`](../../LICENSE.md). Versions already published on PyPI under MIT
-keep that licence. Releases from version 0.4.0 on are `AGPL-3.0-only`.
+`quill-sdk` is licensed under the Apache License, Version 2.0
+(`Apache-2.0`). The text is in [`LICENSE`](./LICENSE). See
+[`LICENSE.md`](../../LICENSE.md). Versions already published under another
+licence keep that licence. The Quill servers stay `AGPL-3.0-only`.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Canada Student Loans (CSL) Ingestion — Quill
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — AI Settings & Bring Your Own Key
  *

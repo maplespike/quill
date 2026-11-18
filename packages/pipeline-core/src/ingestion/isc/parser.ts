@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { computeHash } from '../../verification/hashing.js';
 
 export async function parseIscRecord(raw: Record<string, unknown>, recordType: string): Promise<Record<string, unknown>> {

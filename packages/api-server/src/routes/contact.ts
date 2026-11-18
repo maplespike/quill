@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — Contact Form (Decision 0002 — DEPRECATED)
  *

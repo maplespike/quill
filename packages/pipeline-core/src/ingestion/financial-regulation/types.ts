@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export interface BankData {
   id: string; institutionName: string; institutionType: string;
   assetsUnderManagement?: number; capitalAdequacyRatio?: number;

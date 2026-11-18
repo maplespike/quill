@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export type LegislationSource = 'justice-canada-xml' | 'ontario-elaws' | 'bc-laws' | 'quebec-legislation' | 'provincial-ckan';
 
 export interface LegislationRecord {

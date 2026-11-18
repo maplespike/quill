@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Manitoba provincial portal decommissioned — using federal CKAN fallback
 // data.gov.mb.ca is DEAD (DNS removed); opendata.manitoba.ca DNS removed.
 import { fetchCKANPackages } from "../gov-api.js";

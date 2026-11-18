@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // PEI uses ArcGIS Hub, NOT Socrata. The old Socrata endpoint (data.princeedwardisland.ca)
 // returned nothing. Now using the ArcGIS REST API via fetchOpenDataPortal.
 import { fetchOpenDataPortal, GOV_DATA_SOURCES } from "../gov-api.js";

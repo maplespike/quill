@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * OAuth exchange contract tests (regression: 2026-09-21).
  *

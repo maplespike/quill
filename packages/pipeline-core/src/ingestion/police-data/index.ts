@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchPoliceData, fetchAllPolice } from './fetcher.js';
 import { parseCrimeRecords, parsePoliceResponse } from './parser.js';
 import { POLICE_AGENCIES } from './constants.js';

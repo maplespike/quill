@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const CER_CKAN = 'https://open.canada.ca/data/api/3/action/package_search';
 export const ENERGY_TIMEOUT_MS = 15_000;
 export const ENERGY_UA = 'MapleSpike-Energy/1.0';

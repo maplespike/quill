@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Northwest Territories Ministerial Travel & Meeting Registry Fetcher
  *

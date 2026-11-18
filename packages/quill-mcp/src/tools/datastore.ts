@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Cross-module datastore — caches MCP results and enables cross-API queries.
 // JSON-file-backed. No native SQLite dependency.
 // Each entry stores results from one tool call, tagged by tool name and query key.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * MapleSpike MCP Tool — search_cross_reference
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseHealthDataRecord, parseHealthDataRecords } from './parser.js';
  * Health Data Ingestion — Quill

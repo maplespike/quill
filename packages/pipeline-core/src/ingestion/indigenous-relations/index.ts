@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
 export { parseLandClaim, parseLandClaims } from './parser.js';
  * Quill — Indigenous Relations Data Ingestion Orchestration

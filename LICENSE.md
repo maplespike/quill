@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-10-24
+last-reviewed: 2026-11-10
 status: final
 ---
 
@@ -7,11 +7,20 @@ status: final
 
 ## Decision
 
-Quill is licensed under the **GNU Affero General Public License, version 3 only**
-(`AGPL-3.0-only`). The rights holder made this decision on 2026-10-24. It
-replaces every earlier declaration in this repository, including the previous
-`AGPL-3.0-or-later` manifest values and the Apache-2.0 and MIT values that some
-packages declared.
+The Quill servers are licensed under the **GNU Affero General Public License,
+version 3 only** (`AGPL-3.0-only`). The client SDKs are licensed under the
+**Apache License, Version 2.0** (`Apache-2.0`). The rights holder set the server
+licence on 2026-10-24 and relicensed the SDKs on 2026-11-10.
+
+Server packages: `api-server`, `quill-mcp`, `pipeline-core`, `database`, and
+`engine`. SDK packages: `packages/sdk`, `packages/sdk-python`, and
+`packages/sdk-shell`. The SDK code is first-party, so the rights holder can
+relicense it.
+
+The 2026-10-24 decision replaced every earlier declaration in this repository,
+including `AGPL-3.0-or-later` and the Apache-2.0 and MIT values that some
+packages declared at that time. The 2026-11-10 decision changes only the client
+SDKs.
 
 This statement is the repository's licence grant for Quill's own code. Where this
 file and an older declaration disagree, this file records the current decision.
@@ -20,13 +29,18 @@ file and an older declaration disagree, this file records the current decision.
 
 | What | Where | Value |
 | --- | --- | --- |
-| Licence text | [`LICENSE`](./LICENSE) | AGPL-3.0 |
+| Server licence text | [`LICENSE`](./LICENSE) | AGPL-3.0 |
 | Root manifest | [`package.json`](./package.json) | `AGPL-3.0-only` |
-| Workspace manifests | `packages/*/package.json` | `AGPL-3.0-only` (all 13) |
-| Per-package licence text | `packages/*/LICENSE` | Byte-identical copy of the root text |
-| Python package | [`packages/sdk-python/pyproject.toml`](./packages/sdk-python/pyproject.toml) | `AGPL-3.0-only` |
+| Server manifests | `packages/{api-server,quill-mcp,pipeline-core,database,engine}/package.json` | `AGPL-3.0-only` |
+| Other workspace manifests | `packages/*/package.json`, except the TypeScript SDK | `AGPL-3.0-only` |
+| TypeScript SDK manifest | [`packages/sdk/package.json`](./packages/sdk/package.json) | `Apache-2.0` |
+| Python SDK manifest | [`packages/sdk-python/pyproject.toml`](./packages/sdk-python/pyproject.toml) | `Apache-2.0` |
+| Shell SDK | [`packages/sdk-shell/maplespike`](./packages/sdk-shell/maplespike) | `Apache-2.0` |
+| Server licence copies | `packages/{api-server,quill-mcp,pipeline-core,database,engine}/LICENSE` | Byte-identical copy of the root text |
+| SDK licence copies | `packages/{sdk,sdk-python,sdk-shell}/LICENSE` | Apache-2.0 |
 | Rust workspace | [`rust/Cargo.toml`](./rust/Cargo.toml) | `AGPL-3.0-only` |
-| First-party source headers | `SPDX-License-Identifier` in `.ts`, `.tsx`, `.js`, `.mjs`, `.astro`, `.py`, `.rs` | `AGPL-3.0-only` |
+| Server source headers | `SPDX-License-Identifier` on first-party server source | `AGPL-3.0-only` |
+| SDK source headers | `SPDX-License-Identifier` on first-party SDK source | `Apache-2.0` |
 | Third-party and data notices | [`NOTICE`](./NOTICE) | Attribution and copyright notices |
 
 `scripts/test-license-coherence.mjs` reads the repository and fails when any of
@@ -37,13 +51,14 @@ these disagree. CI runs it on every pull request.
 The licence covers Quill's own source code, generated artifacts built from that
 code, and the OCI images that Quill publishes. It covers no other material.
 
-- **Published artifacts** carry the same licence. This includes the npm packages
-  (`@maplespike/quill-mcp`, `@maplespike/sdk`, `@maplespike/legal-core`,
-  `@maplespike/legislation`) and the PyPI package `quill-sdk`. Each such package
-  ships a `LICENSE` copy in its archive. Versions already published under
-  Apache-2.0 keep that licence. `@reverb256/mcp-server` 0.2.0 is the published
-  npm release. Releases of `@maplespike/quill-mcp` from version 0.4.0 on are
-  `AGPL-3.0-only`. See [`NOTICE`](./NOTICE).
+- **Published artifacts** carry the licence of the package they come from.
+  `@maplespike/quill-mcp`, `@maplespike/legal-core`, and `@maplespike/legislation`
+  are `AGPL-3.0-only`. `@maplespike/sdk` and the PyPI package `quill-sdk` are
+  `Apache-2.0`. Each such package ships a `LICENSE` copy in its archive. Versions
+  already published under another licence keep that licence. `@reverb256/mcp-server`
+  0.2.0 is the published npm release of the server, under Apache-2.0. Releases of
+  `@maplespike/quill-mcp` from version 0.4.0 on are `AGPL-3.0-only`. See
+  [`NOTICE`](./NOTICE).
 - **Network use.** AGPL section 13 applies. A person who runs a modified Quill as
   a network service must offer the corresponding source to the users of that
   service.
@@ -99,3 +114,8 @@ the User-Agent, the Helm maintainer, and the Python authors field is
 `hello@maplespike.ca`. The earlier audit record is
 [`docs/open-source-audit.md`](./docs/open-source-audit.md); its observations
 describe the tree as it was before the decision.
+
+On 2026-11-10 the rights holder relicensed the client SDKs to `Apache-2.0`.
+The servers stay `AGPL-3.0-only`. `scripts/test-license-coherence.mjs` fails
+when a first-party source file in those packages lacks the matching
+`SPDX-License-Identifier`, or carries a different one.

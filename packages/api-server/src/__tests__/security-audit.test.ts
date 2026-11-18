@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * /v1/security/audit-summary — freshness gate.
  *

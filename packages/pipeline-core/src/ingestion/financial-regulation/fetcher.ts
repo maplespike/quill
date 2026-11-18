@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { httpGet } from '../../utils/http.js';
 import { FINREG_CKAN, FINREG_TIMEOUT_MS, FINREG_UA } from './constants.js';
 import type { FinRegRecord, FinRegIngestionResult } from './types.js';

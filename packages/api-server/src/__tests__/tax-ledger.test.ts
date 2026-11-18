@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Tax Ledger Tests (#811 — GST/HST taxable-revenue tracker)
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Gate A2-REDIS (#764, #770) — the rate limiter must always enforce.
  *

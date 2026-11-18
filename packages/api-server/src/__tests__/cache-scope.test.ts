@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Cache-key scoping regression (#cache-scope).
  *

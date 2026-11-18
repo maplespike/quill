@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Shared DB helpers — bridges pipeline-core ingestion modules
  * to the @maplespike/database shared entity tables.

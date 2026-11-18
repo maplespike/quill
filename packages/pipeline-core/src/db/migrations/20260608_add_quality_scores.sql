@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: AGPL-3.0-only
 -- Data Quality Scores
 -- Persists computed quality scores per module/source so they can be
 -- queried without recomputing, and tracked over time for trend analysis.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * real-time-feeds parser tests (GH#921) — fixture-based, no network.
  *

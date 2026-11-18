@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 // Live upstreams must never gate a deploy. deploy-prod runs the suite with

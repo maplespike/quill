@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Self-scoped usage read — #891 (gate B2-FREEUSAGE).
  *

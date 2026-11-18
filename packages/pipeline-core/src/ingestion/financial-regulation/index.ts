@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { ingestFCAC } from './fetcher.js';
 export { ingestOSFI, ingestCDIC, ingestFCAC, ingestCSA, ingestOBSI, ingestAllFinancialRegulation } from './fetcher.js';
 export {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /** Veterans Affairs Canada data types — Quill */
 
 export interface VeteransRecord {

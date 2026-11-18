@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Database connection utilities — delegated to shared @maplespike/database package
 export {
  createDb,

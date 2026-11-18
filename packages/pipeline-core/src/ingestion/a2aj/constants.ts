@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const A2AJ_BASE = 'https://api.a2aj.ca';
 export const A2AJ_TIMEOUT_MS = 30_000;
 export const A2AJ_USER_AGENT = 'MapleSpike-A2AJ/1.0 (+https://github.com/reverb256/quill)';

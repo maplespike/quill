@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { computeHash } from '../../verification/hashing.js';
 import type { CorporateFiling, CorporateFilingsIngestionResult } from './types.js';
 import { FILINGS_USER_AGENT, FILINGS_TIMEOUT_MS, MAX_FILINGS, FED_CORP_CSV_URLS } from './constants.js';

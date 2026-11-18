@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — Per-Route TTL-Based Caching Middleware
  *

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Context7-shape shell tests — resolve_quill_id + query_quill.
  *

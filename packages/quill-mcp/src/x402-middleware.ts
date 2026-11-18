@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * x402 (Solana USDC) payment middleware for Quill MCP.
  *

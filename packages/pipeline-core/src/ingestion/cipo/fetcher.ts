@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * CIPO (Canadian Intellectual Property Office) Fetcher — Quill
  *

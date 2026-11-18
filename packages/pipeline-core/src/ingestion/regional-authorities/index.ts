@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchAllRegional, searchRegional } from './fetcher.js';
 import { REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP } from './constants.js';
 import type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityCode, RegionalPortalType, RegionalAuthorityConfig } from './types.js';

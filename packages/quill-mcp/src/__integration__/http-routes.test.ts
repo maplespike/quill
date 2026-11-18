@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * HTTP route smoke test for Quill MCP server (index.ts SSE mode).
  *

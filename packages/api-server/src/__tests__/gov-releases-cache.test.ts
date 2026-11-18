@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * /v1/gov/releases must answer fast, and must not lie while doing it.
  *

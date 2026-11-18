@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const SOURCE_ATTRIBUTION_HEADER =
   'Source and license terms are dataset-specific. Review the response citation and source terms before reuse.';
 

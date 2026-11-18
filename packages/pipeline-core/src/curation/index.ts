@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export { CurationService, evaluateThresholds, calculateTrustScore, defaultCurationResult, defaultInsights, defaultBiasAnalysis } from './ai-gateway.js';
 export { CURATION_PROMPT, INSIGHTS_PROMPT, BIAS_ANALYSIS_PROMPT } from './prompts.js';
 export type { CurationResult, ArticleInsights, BiasAnalysis, CurationThresholds } from './scoring.js';

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { ingestAllLegislation } from './fetcher.js';
 import { toLegislationRecord, parseJusticeCanadaXml, parseProvincialCkanPackages, parseProvincialWebHtml } from './parser.js';
 import { LEGISLATION_SOURCES } from './constants.js';

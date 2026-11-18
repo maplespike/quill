@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Guided prompt catalog — curated workflows that chain multiple Quill MCP tools.
 // Each prompt is a reusable template an agent can run with minimal adaptation.
 // Imported by explore-catalog.ts and the MCP server's prompts handler.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Quill — unit tests for /v1/municipal/facets and /v1/municipal/search.
  *

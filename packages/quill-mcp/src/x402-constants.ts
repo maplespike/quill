@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Shared constants for x402 (Solana USDC) payment modules.
  *

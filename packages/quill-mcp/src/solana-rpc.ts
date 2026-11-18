@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Solana JSON-RPC verification for x402 payment proofs (Phase 2).
  *

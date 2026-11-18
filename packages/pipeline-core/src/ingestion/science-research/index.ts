@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchCsaMissions } from './csa.js';
 import { fetchMitacsGrants } from './mitacs.js';
 import { fetchOceanObservations, fetchPolarRecords } from './onc.js';

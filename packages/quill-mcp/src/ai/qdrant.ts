@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Qdrant HTTP client for vector search on the cluster
  *

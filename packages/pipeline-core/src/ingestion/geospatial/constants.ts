@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const GEOSPATIAL_UA = 'MapleSpike-Geospatial/1.0';
 export const GEOSPATIAL_TIMEOUT_MS = 15_000;
 export const MAX_GEOSPATIAL_RECORDS = 300;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * New Brunswick Lobbying Fetcher — Quill
  *

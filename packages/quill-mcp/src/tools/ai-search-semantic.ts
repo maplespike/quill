@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { embed } from '../ai/gateway.js';
 import { searchCollection, getCollectionInfo } from '../ai/qdrant.js';

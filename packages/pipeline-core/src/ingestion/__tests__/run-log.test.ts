@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Ingest run log — CronJob liveness evidence read back by /v1/ingest/status.
  *

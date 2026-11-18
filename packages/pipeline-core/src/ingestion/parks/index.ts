@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { fetchParkData, fetchAllParks } from './fetcher.js';
 import { parseParkData } from './parser.js';
 import { PARK_PORTALS } from './constants.js';
