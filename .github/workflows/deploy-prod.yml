@@ -608,7 +608,7 @@ jobs:
       - name: Check out main (with the pin commit) for the verifier
         # This job has no checkout of its own. Take main, not github.sha, so
         # values-prod.yaml holds the pins build-and-pin just pushed.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
 
