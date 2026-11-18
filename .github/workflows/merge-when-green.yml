@@ -73,13 +73,13 @@ permissions:
   actions: write
 
 concurrency:
-  # One in-flight run per PR. A newer event cancels a stale one. The job does
-  # not sleep, so the cancel window is a single API pass.
+  # One in-flight run per PR when the event carries the number directly
+  # (pull_request_target, workflow_dispatch). workflow_run and check_suite
+  # key on head SHA so this expression never indexes pull_requests[0] —
+  # that [0] access is a startup_failure on any other event.
   group: >-
     gate-${{
-      github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number)
-      || (github.event.workflow_run.pull_requests[0].number && format('pr-{0}', github.event.workflow_run.pull_requests[0].number))
-      || (github.event.check_suite.pull_requests[0].number && format('pr-{0}', github.event.check_suite.pull_requests[0].number))
+      (github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number))
       || (github.event.inputs.pr && format('pr-{0}', github.event.inputs.pr))
       || github.event.workflow_run.head_sha
       || github.event.check_suite.head_sha
@@ -98,8 +98,8 @@ jobs:
         github.event_name != 'pull_request_target'
         || github.event.pull_request.head.repo.full_name == github.repository
       ) && (
-        github.event.workflow_run.head_repository.full_name == github.repository
-        || github.event_name != 'workflow_run'
+        github.event_name != 'workflow_run'
+        || github.event.workflow_run.head_repository.full_name == github.repository
       )
     runs-on: >-
       ${{
@@ -107,8 +107,8 @@ jobs:
           github.event_name != 'pull_request_target'
           || github.event.pull_request.head.repo.full_name == github.repository
         ) && (
-          github.event.workflow_run.head_repository.full_name == github.repository
-          || github.event_name != 'workflow_run'
+          github.event_name != 'workflow_run'
+          || github.event.workflow_run.head_repository.full_name == github.repository
         ) && 'arc-maplespike-gate' || 'ubuntu-latest'
       }}
     timeout-minutes: 5
@@ -145,10 +145,13 @@ jobs:
         env:
           GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token (label, merge, update-branch only)
           GH_TOKEN: ${{ github.token }}
-          # Event-name-guarded: an unguarded check_suite.pull_requests[0] is
-          # evaluated on workflow_dispatch once the other operands are empty,
-          # and that index is a startup_failure (run 43097975426).
-          EVENT_HEAD_REPO: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.event_name == 'workflow_run' && github.event.workflow_run.head_repository.full_name || github.event_name == 'check_suite' && github.event.check_suite.pull_requests[0].head.repo.full_name || '' }}
+          # Never index event arrays in workflow expressions. GitHub evaluates
+          # the whole expression, and pull_requests[0] is a startup_failure
+          # on every other event (run 43097975426). Per-event fields here
+          # are null-safe; check_suite (and a workflow_run fallback) are
+          # resolved in the shell with jq `// empty`.
+          EVENT_HEAD_REPO_PR: ${{ github.event.pull_request.head.repo.full_name }}
+          EVENT_HEAD_REPO_WR: ${{ github.event.workflow_run.head_repository.full_name }}
           EXPECTED_GATE_APP_SLUG: fleet-merge-gate-maplespike
           GH_REPO: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
@@ -277,20 +280,27 @@ jobs:
             exit 1
           fi
 
-          # Foreign heads never use the App token for writes. pull_request_target
-          # and workflow_run carry the head repository (the job `if` already
-          # skipped them). Fill check_suite from the payload when full_name
-          # was absent. This block does not call `gh`.
-          if [[ -z "${EVENT_HEAD_REPO:-}" ]]; then
-            case "$EVENT_NAME" in
-              check_suite)
-                EVENT_HEAD_REPO="$(event_head_repo "${CHECK_SUITE_PRS:-null}")"
-                ;;
-              workflow_run)
+          # Foreign heads never use the App token for writes. Resolve the
+          # event head in the shell so GitHub expressions never index [0].
+          # pull_request_target and workflow_run usually carry the head
+          # repository (the job `if` already skipped forks). Fill check_suite
+          # (and a workflow_run fallback) from the payload with jq.
+          # This block does not call `gh`.
+          EVENT_HEAD_REPO=""
+          case "$EVENT_NAME" in
+            pull_request_target)
+              EVENT_HEAD_REPO="${EVENT_HEAD_REPO_PR:-}"
+              ;;
+            workflow_run)
+              EVENT_HEAD_REPO="${EVENT_HEAD_REPO_WR:-}"
+              if [[ -z "${EVENT_HEAD_REPO}" ]]; then
                 EVENT_HEAD_REPO="$(event_head_repo "${WORKFLOW_RUN_PRS:-null}")"
-                ;;
-            esac
-          fi
+              fi
+              ;;
+            check_suite)
+              EVENT_HEAD_REPO="$(event_head_repo "${CHECK_SUITE_PRS:-null}")"
+              ;;
+          esac
           if [[ -n "${EVENT_HEAD_REPO:-}" && "$EVENT_HEAD_REPO" != "$GH_REPO" ]]; then
             echo "::notice::event head repo ${EVENT_HEAD_REPO} is not ${GH_REPO} — nothing to do."
             exit 0
