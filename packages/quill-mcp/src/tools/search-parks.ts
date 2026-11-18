@@ -3,7 +3,7 @@ import { searchParks, PARK_PORTALS } from '@maplespike/pipeline-core/parks';
 
 export const definition: ToolDefinition = {
   name: 'search_parks',
-  description: 'Search Canadian parks and recreation facilities by city or province. Covers 11 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns park names, types, amenities, and sizes.',
+  description: 'Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes.',
   inputSchema: {
     type: 'object',
     properties: {

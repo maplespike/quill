@@ -309,11 +309,11 @@
  },
  {
   "n": "search_libraries",
-  "d": "Search Canadian public library systems by city, province, or name. Covers 14 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, "
+  "d": "Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info."
  },
  {
   "n": "search_municipal_data",
-  "d": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals"
+  "d": "Search municipal open data across Canadian cities. Covers 10 major Canadian cities. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca)."
  },
  {
   "n": "search_npri",
@@ -337,7 +337,7 @@
  },
  {
   "n": "search_parks",
-  "d": "Search Canadian parks and recreation facilities by city or province. Covers 11 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns"
+  "d": "Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes."
  },
  {
   "n": "search_provincial_data",

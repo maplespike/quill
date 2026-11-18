@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-11-18T12:49:24.000Z",
+    "generatedAt": "2026-11-18T15:10:16.000Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -628,16 +628,16 @@
       "cat": "Community",
       "name": "search_libraries",
       "desc": {
-        "en": "Search Canadian public library systems by city, province, or name. Covers 14 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, Kitchener, Halifax. Returns branch locations, hours, and contact info.",
-        "fr": "Rechercher les bibliothèques publiques dans 14 villes canadiennes. Retourne les horaires, services et coordonnées."
+        "en": "Search Canadian public library systems by city, province, or name. Covers 15 major Canadian cities. Returns branch locations, hours, and contact info.",
+        "fr": "Rechercher les bibliothèques publiques dans 15 villes canadiennes. Retourne les horaires, services et coordonnées."
       }
     },
     {
       "cat": "Municipal",
       "name": "search_municipal_data",
       "desc": {
-        "en": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).",
-        "fr": "Rechercher les jeux de données municipaux dans 9 villes canadiennes. Accès aux portails de données ouvertes municipaux."
+        "en": "Search municipal open data across Canadian cities. Covers 10 major Canadian cities. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).",
+        "fr": "Rechercher les jeux de données municipaux dans 10 villes canadiennes. Accès aux portails de données ouvertes municipaux."
       }
     },
     {
@@ -684,8 +684,8 @@
       "cat": "Community",
       "name": "search_parks",
       "desc": {
-        "en": "Search Canadian parks and recreation facilities by city or province. Covers 11 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns park names, types, amenities, and sizes.",
-        "fr": "Rechercher les parcs et installations récréatives dans 11 villes canadiennes. Retourne les équipements, horaires et localisations."
+        "en": "Search Canadian parks and recreation facilities by city or province. Covers 12 major Canadian cities. Returns park names, types, amenities, and sizes.",
+        "fr": "Rechercher les parcs et installations récréatives dans 12 villes canadiennes. Retourne les équipements, horaires et localisations."
       }
     },
     {
