@@ -16,6 +16,7 @@ import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { ingestAllFinancialRegulation } from '@maplespike/pipeline-core/financial-regulation';
 import { crossReferenceBankingLobbying } from '@maplespike/pipeline-core/financial-regulation';
 import { canAccess } from '../feature-gates.js';
+import { portalHost } from '@maplespike/pipeline-core/config/public-base-url';
 import { runLivePipeline, normalizeFilterString } from './_live.js';
 
 const REGULATOR_ALIASES: Record<string, string> = {
@@ -83,7 +84,7 @@ export const finRegCrossRefHandler: RouteHandler = async (request, ctx) => {
     return jsonResponse(
       buildError(
         'UPGRADE_REQUIRED',
-        'Cross-reference reports require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
+        `Cross-reference reports require a Business plan or higher. Upgrade at ${portalHost()}/billing.`,
         ctx,
       ),
       402,

@@ -56,6 +56,17 @@ export const handler: ToolHandler = async (args) => {
   const limit = Math.min((args.limit as number) ?? 10, 50);
   const sourceType = (args.source_type as string) ?? '';
 
+  if (!process.env.QUILL_QDRANT_ENDPOINT?.trim() || !process.env.QUILL_GATEWAY_URL?.trim()) {
+    return {
+      content: {
+        tool: 'ai_search_semantic',
+        query,
+        error: 'Semantic search is disabled. Set QUILL_QDRANT_ENDPOINT and QUILL_GATEWAY_URL to enable it.',
+      },
+      isError: true,
+    };
+  }
+
   try {
     // Step 1: Get collection info first to understand vector dimensions
     const collectionInfo = await getCollectionInfo();
@@ -64,7 +75,7 @@ export const handler: ToolHandler = async (args) => {
         content: {
           tool: 'ai_search_semantic',
           query,
-          error: 'Could not access Qdrant collection "maplespike" (2048-dim Cosine). Check that Qdrant is running at nexus:30632.',
+          error: 'Could not access the configured Qdrant collection. Check QUILL_QDRANT_ENDPOINT and that the collection exists.',
         },
         isError: true,
       };

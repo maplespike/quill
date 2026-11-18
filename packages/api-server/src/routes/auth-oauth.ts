@@ -22,6 +22,7 @@ import { getProvider, listProviders, buildAuthorizeUrl, loginWithOAuth } from '.
 import { generateNonce, consumeChallenge, setChallenge } from '../auth/challenges.js';
 import { generateApiKey } from '../auth.js';
 import { serializeCookie } from '../auth/github.js';
+import { portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 
 /**
  * OAuth exchange code payload stored in the shared cache.
@@ -68,7 +69,7 @@ function redirectToPortal(code: string, appUrl: string): Response {
 }
 
 function portalUrl(): string {
-  return process.env.PORTAL_URL || process.env.APP_URL || 'https://quill.maplespike.ca';
+  return process.env.PORTAL_URL || process.env.APP_URL || portalOrigin();
 }
 
 /**

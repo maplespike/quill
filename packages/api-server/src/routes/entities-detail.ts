@@ -28,6 +28,7 @@ import {
   crossReferenceEntity,
   entityGraphAvailable,
 } from '@maplespike/pipeline-core';
+import { portalHost } from '@maplespike/pipeline-core/config/public-base-url';
 
 /**
  * Normalize a route param into a raw entity id.
@@ -74,7 +75,7 @@ export const entityByIdHandler: RouteHandler = async (request, ctx, params) => {
   // ── Feature gate: entity profiles require Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'allMcpTools')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity profiles require a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `Entity profiles require a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 
@@ -121,7 +122,7 @@ export const entityLinksHandler: RouteHandler = async (request, ctx, params) => 
   // ── Feature gate: cross-reference reports require Business tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'crossReferenceReports')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity cross-reference links require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `Entity cross-reference links require a Business plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 

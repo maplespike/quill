@@ -80,6 +80,13 @@ test('a payload with no readable date is rejected', () => {
 
 /* ── static fallback reader ─────────────────────────────────────────── */
 
+test('readStaticFallback does not guess a portal path when the env is unset', async () => {
+  delete process.env.QUILL_SECURITY_AUDIT_JSON;
+  const result = await readStaticFallback('live audit failed');
+  assert.equal(result.usable, false);
+  assert.match(result.fallbackReason, /QUILL_SECURITY_AUDIT_JSON is not set/);
+});
+
 test('readStaticFallback marks a missing file unusable and names the reason', async () => {
   const configured = join(tmpdir(), 'quill-audit-does-not-exist.json');
   process.env.QUILL_SECURITY_AUDIT_JSON = configured;

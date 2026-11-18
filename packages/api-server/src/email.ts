@@ -10,6 +10,7 @@
  */
 
 import pino from 'pino';
+import { noreplyEmail, portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 
 const log = pino({
   level: process.env.QUILL_LOG_LEVEL || 'info',
@@ -48,9 +49,9 @@ export function initEmailConfig(env: Record<string, string | undefined>): EmailC
   _config = {
     provider: (env.EMAIL_PROVIDER as EmailConfig['provider']) || 'console',
     sendgridApiKey: env.SENDGRID_API_KEY,
-    fromEmail: env.EMAIL_FROM || 'noreply@maplespike.ca',
+    fromEmail: env.EMAIL_FROM || noreplyEmail(),
     fromName: env.EMAIL_FROM_NAME || 'MapleSpike',
-    appUrl: env.APP_URL || 'https://quill.maplespike.ca',
+    appUrl: env.APP_URL || portalOrigin(),
     appName: env.APP_NAME || 'MapleSpike',
   };
   return _config;
@@ -60,9 +61,9 @@ export function getEmailConfig(): EmailConfig {
   if (!_config) {
     _config = {
       provider: 'console',
-      fromEmail: 'noreply@maplespike.ca',
+      fromEmail: noreplyEmail(),
       fromName: 'MapleSpike',
-      appUrl: 'https://quill.maplespike.ca',
+      appUrl: portalOrigin(),
       appName: 'MapleSpike',
     };
   }

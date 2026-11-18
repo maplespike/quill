@@ -1,8 +1,8 @@
 /**
- * Qdrant HTTP client for vector search on the cluster
+ * Qdrant HTTP client for vector search.
  *
- * Connects to Qdrant at http://nexus:30632/ for semantic search
- * over ingested pipeline data vectors.
+ * The endpoint comes from QUILL_QDRANT_ENDPOINT. Search stays off when
+ * that variable is unset.
  */
 
 /* ------------------------------------------------------------------ */
@@ -17,12 +17,28 @@ export interface QdrantConfig {
   retryDelay?: number;
 }
 
-const DEFAULT_CONFIG: QdrantConfig = {
-  endpoint: process.env.QUILL_QDRANT_ENDPOINT || 'http://nexus:30632',
-  collectionName: 'maplespike', // 2048-dim Cosine, matches all cluster embed models
-  maxRetries: 2,
-  retryDelay: 500,
-};
+function envString(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
+}
+
+export function loadQdrantConfig(override?: Partial<QdrantConfig>): QdrantConfig {
+  return {
+    endpoint: override?.endpoint?.trim() || envString('QUILL_QDRANT_ENDPOINT') || '',
+    collectionName: override?.collectionName || 'maplespike',
+    apiKey: override?.apiKey ?? envString('QUILL_QDRANT_API_KEY'),
+    maxRetries: override?.maxRetries ?? 2,
+    retryDelay: override?.retryDelay ?? 500,
+  };
+}
+
+function requireQdrantEndpoint(config: QdrantConfig): string {
+  const endpoint = config.endpoint.trim().replace(/\/$/, '');
+  if (!endpoint) {
+    throw new Error('Qdrant is disabled. Set QUILL_QDRANT_ENDPOINT to enable vector search.');
+  }
+  return endpoint;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -66,8 +82,8 @@ async function qdrantFetch<T>(
   options: RequestInit = {},
   configOverride?: Partial<QdrantConfig>,
 ): Promise<T> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
-  const endpoint = config.endpoint.replace(/\/$/, '');
+  const config = loadQdrantConfig(configOverride);
+  const endpoint = requireQdrantEndpoint(config);
   const url = `${endpoint}${path}`;
 
   const headers: Record<string, string> = {
@@ -119,7 +135,7 @@ export async function getCollectionInfo(
   collectionName?: string,
   configOverride?: Partial<QdrantConfig>,
 ): Promise<QdrantCollectionInfo | null> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadQdrantConfig(configOverride);
   const name = collectionName || config.collectionName;
 
   try {
@@ -181,7 +197,7 @@ export async function searchCollection(
   options: SearchOptions = {},
   configOverride?: Partial<QdrantConfig>,
 ): Promise<QdrantScoredPoint[]> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadQdrantConfig(configOverride);
   const { limit = 10, scoreThreshold, filter } = options;
 
   const body: Record<string, unknown> = {
@@ -223,7 +239,7 @@ export async function upsertPoints(
   points: QdrantPoint[],
   configOverride?: Partial<QdrantConfig>,
 ): Promise<{ status: string; operationId?: number }> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadQdrantConfig(configOverride);
 
   if (points.length === 0) {
     return { status: 'ok' };
@@ -259,7 +275,7 @@ export async function deletePoints(
   ids: (string | number)[],
   configOverride?: Partial<QdrantConfig>,
 ): Promise<{ status: string }> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadQdrantConfig(configOverride);
 
   const body = {
     points: ids,
@@ -284,7 +300,7 @@ export async function countPoints(
   filter?: Record<string, unknown>,
   configOverride?: Partial<QdrantConfig>,
 ): Promise<number> {
-  const config: QdrantConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadQdrantConfig(configOverride);
 
   const body: Record<string, unknown> = {};
   if (filter) body.filter = filter;
@@ -314,7 +330,8 @@ export async function countPoints(
  * (Inline helper — avoids cross-package dependency on gateway.ts)
  */
 async function embedText(text: string, configOverride?: Partial<QdrantConfig>): Promise<number[] | null> {
-  const endpoint = process.env.QUILL_GATEWAY_URL || 'http://nexus:30880/v1';
+  const endpoint = process.env.QUILL_GATEWAY_URL?.trim();
+  if (!endpoint) return null;
   const model = process.env.QUILL_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
   const apiKey = configOverride?.apiKey || process.env.QUILL_GATEWAY_API_KEY;
 

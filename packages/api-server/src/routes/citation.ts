@@ -12,8 +12,7 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { computeHash, canonicalJson, citationStore } from '@maplespike/pipeline-core';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 import { existsSync, readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -29,33 +28,41 @@ const log = pino({
 /* ------------------------------------------------------------------ */
 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 let pipelineData: Record<string, any> | null = null;
+
+/** Comma-separated paths in QUILL_PIPELINE_DATA_PATH. Unset means the index is off. */
+function configuredPipelineDataPaths(): string[] {
+  const raw = process.env.QUILL_PIPELINE_DATA_PATH?.trim();
+  if (!raw) return [];
+  return raw.split(',').map((p) => p.trim()).filter(Boolean);
+}
 
 function loadPipelineData(): Record<string, any> | null {
   if (pipelineData) return pipelineData;
 
-  const paths = [
-    resolve(__dirname, '../../../../packages/portal/assets/pipeline-data.json'),
-    resolve('/data/projects/own/maplespike/packages/portal/assets/pipeline-data.json'),
-  ];
+  const paths = configuredPipelineDataPaths();
+  if (paths.length === 0) return null;
 
   for (const p of paths) {
-    if (existsSync(p)) {
-      try {
-        const raw = readFileSync(p, 'utf-8');
-        pipelineData = JSON.parse(raw);
-        log.info(`Loaded pipeline data from ${p} (${raw.length} bytes)`);
-        return pipelineData;
-      } catch (err) {
-        log.error(`Failed to load ${p}: ${err}`);
-      }
+    if (!existsSync(p)) continue;
+    try {
+      const raw = readFileSync(p, 'utf-8');
+      pipelineData = JSON.parse(raw);
+      log.info(`Loaded pipeline data from ${p} (${raw.length} bytes)`);
+      return pipelineData;
+    } catch (err) {
+      log.error(`Failed to load ${p}: ${err}`);
     }
   }
-  log.error('Pipeline data not found at any path');
+  log.error('Pipeline data file is not at QUILL_PIPELINE_DATA_PATH');
   return null;
+}
+
+/** True when a path was configured and none of the files exist. */
+export function pipelineDataFileAbsent(): boolean {
+  const paths = configuredPipelineDataPaths();
+  if (paths.length === 0 || pipelineData) return false;
+  return paths.every((p) => !existsSync(p));
 }
 
 /* ------------------------------------------------------------------ */
@@ -209,6 +216,12 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
     const result = await findRecordByHash(targetHash);
 
     if (!result) {
+      if (pipelineDataFileAbsent()) {
+        return jsonResponse(
+          buildError('PIPELINE_DATA_UNAVAILABLE', 'The configured pipeline data file is not available. QUILL_PIPELINE_DATA_PATH does not point at a readable file.', ctx),
+          503,
+        );
+      }
       return jsonResponse(
         buildError('CITATION_NOT_FOUND', `No record is currently indexed for hash sha256:${targetHash}. This lookup does not determine whether a source record was changed or where a hash originated.`, ctx),
         404,
@@ -415,5 +428,5 @@ function getSourceConfig(sourceKey: string): SourceInfo {
     oversight: { name: 'Oversight Bodies — OAG, PBO, Ethics, CB, CRTC', url: 'https://www.oag-bvg.gc.ca/' },
     canlii:    { name: 'CanLII — Canadian Legal Information Institute', url: 'https://www.canlii.org/' },
   };
-  return configs[sourceKey] || { name: `MapleSpike — ${sourceKey}`, url: 'https://quill.maplespike.ca/' };
+  return configs[sourceKey] || { name: `MapleSpike — ${sourceKey}`, url: `${portalOrigin()}/` };
 }

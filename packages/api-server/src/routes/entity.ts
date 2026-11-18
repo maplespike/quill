@@ -10,6 +10,7 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { memoryStore } from '../loaders/memory-store.js';
 import { canAccess } from '../feature-gates.js';
+import { portalHost } from '@maplespike/pipeline-core/config/public-base-url';
 
 /**
  * POST /entity/resolve
@@ -28,7 +29,7 @@ export const entityResolveHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: entity resolution requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'allMcpTools')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity resolution requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `Entity resolution requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 
@@ -100,7 +101,7 @@ export const entityConnectionsHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: entity connections requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'allMcpTools')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity connections require a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `Entity connections require a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 

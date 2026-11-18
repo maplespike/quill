@@ -68,6 +68,15 @@ api:
     APP_URL: https://quill.maplespike.ca
     GITHUB_REDIRECT_URI: https://api.maplespike.ca/v1/auth/github/callback
     MAPLESPIKE_OAUTH_REDIRECT_BASE: https://api.maplespike.ca/v1/auth/oauth
+    # Public site origin. Brand hosts stay the code default when this is unset.
+    QUILL_PUBLIC_BASE_URL: https://quill.maplespike.ca
+    # AI gateway and Qdrant stay unset. A cluster check found no Service for
+    # them. A set URL would turn the feature on and answer 503. Set the env
+    # when the Service exists.
+    # Astral Key is deployed.
+    ASTRAL_KEY_URL: http://astral-key.astral-key.svc.cluster.local:8080
+    # Baked by Dockerfile.api. The image also sets this env.
+    QUILL_SECURITY_AUDIT_JSON: /app/data/security/audit.json
     TRUST_PROXY: 'true'
     REDIS_URL: redis://quill-redis:6379
     STRIPE_ENV: live
@@ -98,6 +107,10 @@ mcp:
     limits:
       cpu: 500m
       memory: 256Mi
+  env:
+    # Gateway, Qdrant, Knowledge Fabric, and SearXNG stay unset. No Service
+    # for them is in the cluster. Set the env when the Service exists.
+    QUILL_PUBLIC_BASE_URL: https://quill.maplespike.ca
   ingress:
     host: mcp.maplespike.ca
     tls: true

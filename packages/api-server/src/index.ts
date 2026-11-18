@@ -17,6 +17,7 @@
  */
 
 import type { Env, RouteHandler, RouteContext, ApiResponse } from './types.js';
+import { portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
@@ -740,7 +741,7 @@ export async function handleRequest(
       metaOverrides: { cacheStatus: 'miss', durationMs },
     };
     logger.warn({ requestId, durationMs }, 'Authentication failed');
-    return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://quill.maplespike.ca/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
+    return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', `Valid API key required. Get one at ${portalOrigin()}/signup`, ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
   }
 
   const baseTenant = tenant?.tenant || { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false };
@@ -808,7 +809,7 @@ export async function handleRequest(
       jsonResponse(
         buildError(
           'UPGRADE_REQUIRED',
-          'This endpoint requires a Pro or Business plan. The Free tier includes discovery & metadata only (catalog, citations, compliance). Upgrade at https://quill.maplespike.ca/pricing',
+          `This endpoint requires a Pro or Business plan. The Free tier includes discovery & metadata only (catalog, citations, compliance). Upgrade at ${portalOrigin()}/pricing`,
           bc,
         ),
         402,

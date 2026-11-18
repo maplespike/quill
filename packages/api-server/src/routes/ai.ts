@@ -16,6 +16,7 @@ import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../re
 import { validateBody } from '../validate.js';
 import { resolveAIConfig } from './ai-settings.js';
 import { canAccess } from '../feature-gates.js';
+import { portalHost } from '@maplespike/pipeline-core/config/public-base-url';
 
 /**
  * Strip HTML tags and dangerous URI schemes from AI-generated text.
@@ -54,11 +55,19 @@ function sanitizeString(val: string): string {
 }
 
 // ── AI Gateway ──────────────────────────────────────────────────────
-// Order: QUILL_AI_ENDPOINT > QUILL_GATEWAY_URL > AI_ENDPOINT > default
-const GATEWAY_ENDPOINT = process.env.QUILL_AI_ENDPOINT
-  || process.env.QUILL_GATEWAY_URL
-  || process.env.AI_ENDPOINT
-  || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1';
+// Order: QUILL_AI_ENDPOINT > QUILL_GATEWAY_URL > AI_ENDPOINT. Unset means off.
+function envValue(...names: string[]): string {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) return value;
+  }
+  return '';
+}
+
+function gatewayEndpoint(): string {
+  return envValue('QUILL_AI_ENDPOINT', 'QUILL_GATEWAY_URL', 'AI_ENDPOINT');
+}
+
 const GATEWAY_API_KEY = process.env.QUILL_GATEWAY_API_KEY || '';
 // Model: check QUILL_AI_MODEL > QUILL_CHAT_MODEL > AI_MODEL > default
 const CHAT_MODEL = process.env.QUILL_AI_MODEL
@@ -71,9 +80,10 @@ const EMBED_MODEL = process.env.QUILL_EMBED_MODEL
   || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
 
 // ── Qdrant Vector DB ───────────────────────────────────────────────
-// Override via QUILL_QDRANT_ENDPOINT; default matches cluster DNS
-const QDRANT_ENDPOINT = process.env.QUILL_QDRANT_ENDPOINT
-  || 'http://qdrant.ai-inference.svc.cluster.local:6333';
+// QUILL_QDRANT_ENDPOINT. Unset means semantic search is off.
+function qdrantEndpoint(): string {
+  return envValue('QUILL_QDRANT_ENDPOINT');
+}
 const QDRANT_COLLECTION = process.env.QUILL_QDRANT_COLLECTION
   || 'brain_wiki';
 
@@ -127,7 +137,8 @@ async function gatewayChat(
     }
 
     // Standard OpenAI-compatible chat completions (gateway or BYOK)
-    const endpoint = config?.endpoint || GATEWAY_ENDPOINT;
+    const endpoint = (config?.endpoint || gatewayEndpoint()).trim();
+    if (!endpoint) return null;
     const chatModel = config?.model || CHAT_MODEL;
 
     const headers: Record<string, string> = {
@@ -166,8 +177,9 @@ async function gatewayChat(
  * we trip the breaker and fall back to direct Qdrant search + the
  * existing gatewayChat LLM path.
  */
-const FUSION_ENDPOINT = process.env.QUILL_FUSION_ENDPOINT
-  || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1';
+function fusionEndpoint(): string {
+  return envValue('QUILL_FUSION_ENDPOINT');
+}
 const FUSION_API_KEY = process.env.QUILL_GATEWAY_API_KEY || '';
 const FUSION_MODEL = process.env.QUILL_FUSION_MODEL
   || process.env.QUILL_AI_MODEL
@@ -264,7 +276,9 @@ async function callFusionGateway(
     return null;
   }
 
-  const endpoint = (options.endpoint || FUSION_ENDPOINT).replace(/\/$/, '');
+  const configured = (options.endpoint || fusionEndpoint()).trim();
+  if (!configured) return null;
+  const endpoint = configured.replace(/\/$/, '');
   const model = options.model || FUSION_MODEL;
   const temperature = options.temperature ?? 0.3;
   const maxTokens = options.maxTokens ?? 2048;
@@ -335,13 +349,15 @@ async function embedQuery(text: string): Promise<number[] | null> {
   }
 
   // Fallback: AI Gateway embeddings
+  const gateway = gatewayEndpoint();
+  if (!gateway) return null;
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     if (GATEWAY_API_KEY) headers['Authorization'] = `Bearer ${GATEWAY_API_KEY}`;
 
-    const resp = await fetch(`${GATEWAY_ENDPOINT}/embeddings`, {
+    const resp = await fetch(`${gateway}/embeddings`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -414,8 +430,10 @@ interface QdrantSearchResult {
  * payload fields mapped to a consistent shape, or null on failure.
  */
 async function qdrantVectorSearch(vector: number[], limit = 10): Promise<QdrantSearchResult | null> {
+  const configured = qdrantEndpoint();
+  if (!configured) return null;
   try {
-    const endpoint = QDRANT_ENDPOINT.replace(/\/$/, '');
+    const endpoint = configured.replace(/\/$/, '');
     const url = `${endpoint}/collections/${encodeURIComponent(QDRANT_COLLECTION)}/points/search`;
 
     const resp = await fetch(url, {
@@ -495,6 +513,7 @@ async function qdrantVectorSearch(vector: number[], limit = 10): Promise<QdrantS
  * Returns null if either step fails (caller should fall back).
  */
 async function qdrantSearch(query: string, limit = 10): Promise<QdrantSearchResult | null> {
+  if (!qdrantEndpoint()) return null;
   const vector = await embedQuery(query);
   if (!vector) return null;
   return qdrantVectorSearch(vector, limit);
@@ -556,7 +575,7 @@ export const aiAskHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: RAG-powered AI requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'aiRag')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'AI queries with RAG require a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `AI queries with RAG require a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       bc), 402);
   }
 
@@ -757,7 +776,7 @@ export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: AI analysis requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'aiAnalyze')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'AI document analysis requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `AI document analysis requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       bc), 402);
   }
 
@@ -769,6 +788,14 @@ export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
     });
     if (errs.length > 0) {
       return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
+
+    if (!gatewayEndpoint()) {
+      return jsonResponse(buildError(
+        'AI_DISABLED',
+        'AI gateway is disabled. Set QUILL_AI_ENDPOINT, QUILL_GATEWAY_URL, or AI_ENDPOINT to enable document analysis.',
+        bc,
+      ), 503);
     }
 
     const mode = (body.mode as string) || 'general';

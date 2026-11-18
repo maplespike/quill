@@ -7,6 +7,7 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { loadConfig } from '../config.js';
+import { apiOrigin, portalOrigin } from '@maplespike/pipeline-core/config/public-base-url';
 
 export const openApiHandler: RouteHandler = async (_request, ctx) => {
   try {
@@ -20,11 +21,11 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       description: `Canadian public-sector data API. Module coverage and response fields vary by endpoint and source. Where supplied, Quill record hashes support integrity comparisons but do not establish source authenticity or reuse rights. Publisher terms vary by dataset; consult the original source. Software license declarations vary by repository artifact; see https://github.com/reverb256/quill/blob/main/docs/open-source-audit.md.`,
       contact: {
         name: 'MapleSpike',
-        url: 'https://quill.maplespike.ca',
+        url: portalOrigin(),
       },
     },
     servers: [
-      { url: 'https://api.maplespike.ca/v1', description: 'Production' },
+      { url: `${apiOrigin()}/v1`, description: 'Production' },
       { url: 'http://localhost:8081/v1', description: 'Development' },
     ],
     security: [{ BearerAuth: [] }],
@@ -34,7 +35,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'API key (quill_ prefix)',
-          description: 'Get your API key at https://quill.maplespike.ca',
+          description: `Get your API key at ${portalOrigin()}`,
         },
       },
       schemas: {
