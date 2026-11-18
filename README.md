@@ -20,12 +20,14 @@ status: active
 </p>
 
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
+>
+> **MVP acceptance:** [docs/MVP.md](./docs/MVP.md) locks the ship scope ([#790](https://github.com/maplespike/quill/issues/790)).
 
 **Status:** Active development · **License:** [`AGPL-3.0-only`](./LICENSE) · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
 > **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:maplespike/quill.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 207 modules, **184 MCP tools** (incl. `x402-deposit`), ~220K lines TS, 14 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 207 modules, **185 MCP tools** (incl. `x402-deposit`), ~220K lines TS, 14 packages.
 
 ---
 
@@ -63,12 +65,12 @@ quill/
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── quill-mcp/        # Quill — data-layer MCP server (✅ 184 tools (incl. `x402-deposit`), all live)
+│   ├── quill-mcp/        # Quill — data-layer MCP server (✅ 185 tools (incl. `x402-deposit`), all live)
 │   ├── sdk/              # TypeScript client library (@maplespike/sdk)
 │   ├── sdk-python/       # Python client library (`quill-sdk` on PyPI)
 │   ├── legal-core/       # Legal data SDK
 │   └── legislation/      # Legislation XML parser
-├── docs/                 # Architecture docs, roadmap, gap analysis
+├── docs/                 # Architecture docs, roadmap, gap analysis, MVP checklist (`docs/MVP.md`)
 ├── CONTRIBUTING.md       # Contributor guide
 ├── .hermes/              # Analysis plans and retrospectives
 ├── .sisyphus/            # Orchestration plans
@@ -82,7 +84,7 @@ quill/
 ## Build Plan (7 Phases)
 
 ```
-pipeline-core ──→ SQLite DB ──→ MCP server (184 live tools (incl. `x402-deposit`)) ──→ Dashboard / Console
+pipeline-core ──→ SQLite DB ──→ MCP server (185 live tools (incl. `x402-deposit`)) ──→ Dashboard / Console
      │                                                             │
      └── Engine reads same DB ──→ briefs/signals ─────────────────┘
                                                                      │
@@ -93,7 +95,7 @@ pipeline-core ──→ SQLite DB ──→ MCP server (184 live tools (incl. `x
 |-------|------|--------|
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | ✅ DONE |
 | 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | ✅ DONE |
-| 3 | **Wire MCP** — 184 tools (incl. `x402-deposit`) all returning real DB results | ✅ DONE |
+| 3 | **Wire MCP** — 185 tools (incl. `x402-deposit`) all returning real DB results | ✅ DONE |
 | 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ✅ DONE |
 | 5 | **Live Dashboard** — hits MCP/API for live data | ✅ DONE |
 | 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🟡 Stripe live (checkout, webhooks, portal, expiry reconciliation); crypto/Interac pending |
@@ -121,7 +123,7 @@ cd packages/quill-mcp
 pnpm start
 ```
 
-**All 184 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
+**All 185 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 **For full deployment guide, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 

@@ -31,7 +31,8 @@ const GENERATOR = resolve(PORTAL_DIR, 'scripts/generate-agent-discovery.mjs');
 const CARD_REL = '.well-known/mcp/server-card.json';
 const CARDS_REL = '.well-known/mcp/server-cards.json';
 const AGENT_CARD_REL = 'agent-card.json';
-const TARGETS = [CARD_REL, CARDS_REL, AGENT_CARD_REL];
+const WELL_KNOWN_AGENT_CARD_REL = '.well-known/agent-card.json';
+const TARGETS = [CARD_REL, CARDS_REL, AGENT_CARD_REL, WELL_KNOWN_AGENT_CARD_REL];
 
 // ── Idempotency mode ─────────────────────────────────────────────────
 if (process.argv.includes('--idempotency')) {
@@ -131,6 +132,15 @@ if (aliasRaw !== null && cardRaw !== null) {
 
 // Agent card
 const agentCard = jsonOf(AGENT_CARD_REL);
+
+// A2A discovery reads the well-known path. A second copy is only safe while it
+// is byte-identical; hand-editing one of them fails here.
+const wellKnownAgentRaw = rawOf(WELL_KNOWN_AGENT_CARD_REL);
+const rootAgentRaw = rawOf(AGENT_CARD_REL);
+if (wellKnownAgentRaw !== null && rootAgentRaw !== null) {
+  if (wellKnownAgentRaw === rootAgentRaw) ok('.well-known/agent-card.json matches agent-card.json byte-for-byte');
+  else bad('.well-known/agent-card.json differs from agent-card.json');
+}
 if (agentCard) {
   if (agentCard.counts?.modules === wantModules && agentCard.counts?.mcpTools === wantTools) {
     ok(`agent card counts match docs/metrics.json (${wantModules} modules, ${wantTools} tools)`);
