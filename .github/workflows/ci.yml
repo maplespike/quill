@@ -307,15 +307,15 @@ jobs:
       - name: Workflow gh auth unit tests
         run: pnpm exec tsx --test scripts/test-workflow-gh-auth.mts
 
-      # #1278: GITHUB_TOKEN's `gh pr view` returns headRepository null, so the
-      # merge gate exited 0 on same-repo PRs (run 42579953147 on #1275).
-      # The metadata read must use the fleet-merge-gate App token, a foreign
-      # head must be excluded, and a hold label must skip.
+      # #1278 and run 42959473763: an empty head repository must exit 1.
+      # The pulls read uses the fleet-merge-gate App token. A known foreign
+      # head stays excluded. A hold label still skips. Check selection keeps
+      # the latest attempt of one workflow job and still blocks a real failure.
       - name: Merge gate metadata token
         run: node scripts/gates/check-merge-gate-token.mjs
 
       - name: Merge gate metadata token unit tests
-        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts
+        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
 
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
