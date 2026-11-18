@@ -141,3 +141,32 @@ affinity:
             app: quill-api
         topologyKey: kubernetes.io/hostname
 {{- end }}
+
+{{/*
+  Temporary forge backup claim (nexus outage, 2026-11-18).
+  quill.backupsTempOn renders "true" when backups.tempClaim.enabled is set
+  and this release is listed in backups.tempClaim.releases. While it is on,
+  every backup / freshness / drill job mounts the temporary claim instead of
+  the nexus-only <release>-backups claim. The original claim stays rendered
+  so Argo CD never prunes it (longhorn class reclaimPolicy is Delete).
+*/}}
+{{- define "quill.backupsTempOn" -}}
+{{- $t := ((.Values.backups | default dict).tempClaim | default dict) -}}
+{{- if and $t.enabled (has .Release.Name ($t.releases | default list)) -}}true{{- end -}}
+{{- end }}
+
+{{- define "quill.backupsClaimName" -}}
+{{- if eq (include "quill.backupsTempOn" .) "true" -}}
+{{- printf "%s-%s" (include "quill.fullname" .) (.Values.backups.tempClaim.nameSuffix | default "backups-forge-temp") -}}
+{{- else -}}
+{{- printf "%s-backups" (include "quill.fullname" .) -}}
+{{- end -}}
+{{- end }}
+
+{{- define "quill.backupsRetentionDays" -}}
+{{- if eq (include "quill.backupsTempOn" .) "true" -}}
+{{- .Values.backups.tempClaim.retentionDays | default 5 -}}
+{{- else -}}
+{{- (.Values.backups | default dict).retentionDays | default 14 -}}
+{{- end -}}
+{{- end }}

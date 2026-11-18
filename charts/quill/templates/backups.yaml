@@ -66,6 +66,29 @@ spec:
   resources:
     requests:
       storage: {{ $backups.storage | default "30Gi" | quote }}
+{{- if eq (include "quill.backupsTempOn" $) "true" }}
+---
+# TEMPORARY (nexus outage 2026-11-18): the <release>-backups claim above has
+# its only Longhorn replica on nexus. This claim uses a 1-replica class whose
+# disk tag only matches forge's archive disk, so its data lives on forge while
+# the backup pods still run next to the api volume. Remove with tempClaim.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.backupsClaimName" $ }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    quill.maplespike.ca/temporary: "nexus-outage-20261118"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $backups.tempClaim.storageClass | default "longhorn-archive-retain-1r" | quote }}
+  resources:
+    requests:
+      storage: {{ $backups.tempClaim.storage | default "12Gi" | quote }}
+{{- end }}
 {{- if $sqlite }}
 ---
 apiVersion: batch/v1
@@ -125,7 +148,7 @@ spec:
           - name: sqlite-backup
             image: {{ include "quill.image" (dict "svc" "api" "ctx" $) | quote }}
             imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "api" "ctx" $) }}
-            command: ["node", "/scripts/sqlite-backup.mjs"]
+            command: [{{ if eq (include "quill.backupsTempOn" $) "true" }}"nice", "-n", "19", {{ end }}"node", "/scripts/sqlite-backup.mjs"]
             env:
             - name: QUILL_DB_PATH
               value: /data/quill/maplespike.db
@@ -134,7 +157,7 @@ spec:
             - name: BACKUP_LABEL
               value: maplespike
             - name: RETENTION_DAYS
-              value: {{ $backups.retentionDays | default 14 | quote }}
+              value: {{ include "quill.backupsRetentionDays" $ | quote }}
             securityContext:
               allowPrivilegeEscalation: false
               capabilities:
@@ -157,7 +180,7 @@ spec:
               claimName: {{ include "quill.fullname" . }}-api-data
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaimName" $ }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -218,14 +241,14 @@ spec:
           - name: search-backup
             image: {{ .Values.redis.image | quote }}
             imagePullPolicy: {{ .Values.redis.pullPolicy | default "IfNotPresent" }}
-            command: ["/bin/sh", "/scripts/search-backup.sh"]
+            command: [{{ if eq (include "quill.backupsTempOn" $) "true" }}"nice", "-n", "19", {{ end }}"/bin/sh", "/scripts/search-backup.sh"]
             env:
             - name: INDEX_DIR
               value: /search/index
             - name: DEST_DIR
               value: /backups/search
             - name: RETENTION_DAYS
-              value: {{ $backups.retentionDays | default 14 | quote }}
+              value: {{ include "quill.backupsRetentionDays" $ | quote }}
             securityContext:
               allowPrivilegeEscalation: false
               capabilities:
@@ -250,7 +273,7 @@ spec:
               readOnly: true
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaimName" $ }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -335,7 +358,7 @@ spec:
             - name: DEST_DIR
               value: /backups/postgres
             - name: RETENTION_DAYS
-              value: {{ $backups.retentionDays | default 14 | quote }}
+              value: {{ include "quill.backupsRetentionDays" $ | quote }}
             securityContext:
               allowPrivilegeEscalation: false
               capabilities:
@@ -353,7 +376,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaimName" $ }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -450,7 +473,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaimName" $ }}
               readOnly: true
           - name: scripts
             configMap:
@@ -544,7 +567,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaimName" $ }}
               readOnly: true
           - name: scratch
             emptyDir: {}

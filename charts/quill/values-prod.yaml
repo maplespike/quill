@@ -303,6 +303,21 @@ backups:
   storage: 30Gi
   storageClass: longhorn
   accessMode: ReadWriteOnce
+  # TEMPORARY (Infra, 2026-11-18, nexus outage): quill-backups has its only
+  # Longhorn replica on nexus, so every backup job is failing. While enabled,
+  # the backup, freshness and drill jobs for the listed releases write to a
+  # small 1-replica claim on forge's archive disk instead (reclaim Retain),
+  # keep 5 days, and run under nice 19. The old claim is untouched and still
+  # rendered. Revert this block (or set enabled: false) once nexus is back and
+  # quill-backups is healthy again; then delete the temp claim by hand.
+  tempClaim:
+    enabled: true
+    releases:
+      - quill
+    nameSuffix: backups-forge-temp
+    storageClass: longhorn-archive-retain-1r
+    storage: 12Gi
+    retentionDays: 5
   timeZone: Etc/UTC
   resources:
     requests:
