@@ -81,7 +81,7 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || startsWith(runner.name, 'arc-')
 
       - uses: actions/setup-node@v4
