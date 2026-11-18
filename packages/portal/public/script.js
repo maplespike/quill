@@ -140,10 +140,10 @@
   }
 
   function initTheme() {
-    if (document.documentElement.classList.contains('theme-ink-and-paper')) return;
     const saved = localStorage.getItem(LS_THEME);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+    const initial = saved || (prefersDark ? 'dark' : 'light');
+    applyTheme(initial);
   }
 
   function toggleTheme() {

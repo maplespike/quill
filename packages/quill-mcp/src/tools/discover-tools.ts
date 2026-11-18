@@ -322,11 +322,11 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_libraries",
-    "description": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey,"
+    "description": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, WPG, Hamilton, London, Mississauga, Brampton, Surrey,"
   },
   {
     "toolName": "search_municipal_data",
-    "description": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
+    "description": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, WPG, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
   },
   {
     "toolName": "search_npri",
@@ -350,7 +350,7 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_parks",
-    "description": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Winnipeg, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
+    "description": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, WPG, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
   },
   {
     "toolName": "search_provincial_data",
@@ -779,6 +779,15 @@ export const definition: ToolDefinition = {
         minimum: 1,
         maximum: 30,
       },
+      offset: {
+        type: 'number',
+        description: 'Number of results to skip (for pagination). Default 0.',
+        minimum: 0,
+      },
+      category: {
+        type: 'string',
+        description: 'Filter results by domain category. One of: immigration, health, justice, economy, environment, defence, education, corporate, influence, oversight, provincial, municipal, science, transport, culture, search, data, cache, system.',
+      },
     },
     required: ['query'],
   },
@@ -814,6 +823,8 @@ async function getEffectiveIndex(): Promise<Array<{ toolName: string; descriptio
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
   const limit = Math.min(Number(args.limit ?? 10), 30);
+  const offset = Math.max(0, Number(args.offset ?? 0));
+  const category = args.category ? String(args.category).toLowerCase() : undefined;
 
   if (!query.trim()) {
     return {
@@ -823,8 +834,43 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
 
   const effective = await getEffectiveIndex();
-  const results = bm25(query, limit, effective);
+
+  // Category filter: narrow the index before BM25 scoring
+  let filteredIndex = effective;
+  if (category) {
+    const catMap: Record<string, (e: { toolName: string; description: string }) => boolean> = {
+      immigration: e => /immigr|refugee|visa|permit|citizenship/i.test(e.toolName + ' ' + e.description),
+      health: e => /health|medical|drug|hospital/i.test(e.toolName + ' ' + e.description),
+      justice: e => /justice|court|tribunal|canlii|correction|parole/i.test(e.toolName + ' ' + e.description),
+      economy: e => /gdp|cpi|labour|trade|econom|statcan|finance/i.test(e.toolName + ' ' + e.description),
+      environment: e => /environment|climate|weather|species|fisheries|npri/i.test(e.toolName + ' ' + e.description),
+      defence: e => /defence|defense|veteran|military/i.test(e.toolName + ' ' + e.description),
+      education: e => /education|universit|school/i.test(e.toolName + ' ' + e.description),
+      corporate: e => /corporate|corporation|filing|sedi|sedar/i.test(e.toolName + ' ' + e.description),
+      influence: e => /lobby|influence|gic|election/i.test(e.toolName + ' ' + e.description),
+      oversight: e => /oversight|audit|oag|pbo|ethics/i.test(e.toolName + ' ' + e.description),
+      provincial: e => /provincial|ontario|quebec/i.test(e.toolName + ' ' + e.description),
+      municipal: e => /municipal|city|town/i.test(e.toolName + ' ' + e.description),
+      science: e => /science|research|space|csa/i.test(e.toolName + ' ' + e.description),
+      transport: e => /transport|transit|gtfs/i.test(e.toolName + ' ' + e.description),
+      culture: e => /culture|heritage|media|broadcast/i.test(e.toolName + ' ' + e.description),
+      search: e => e.toolName.startsWith('search_'),
+      data: e => /data|query|dataset/i.test(e.toolName + ' ' + e.description),
+      cache: e => /cache/i.test(e.toolName),
+      system: e => /system|health|pipeline|optimization/i.test(e.toolName + ' ' + e.description),
+    };
+    const filter = catMap[category];
+    if (filter) filteredIndex = effective.filter(filter);
+  }
+
+  const allResults = bm25(query, Math.min(limit + offset, 30), filteredIndex);
+  const results = allResults.slice(offset);
   const lowered = query.toLowerCase();
+
+  // Suggest a broader query when no results are found
+  const suggestion = results.length === 0
+    ? 'No matching tools found. Try a broader query (e.g., "search", "data", "health") or call getting_started for an overview.'
+    : undefined;
 
   // #838: meta-queries ("what can you do", "overview", "featured") lead with
   // the cross-reference/influence composition surface.
@@ -845,6 +891,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         featured: FEATURED_TOOLS.includes(r.toolName) || undefined,
       })),
       total: results.length,
+      ...(suggestion ? { suggestion } : {}),
     },
   };
 };
