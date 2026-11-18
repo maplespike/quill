@@ -180,6 +180,14 @@
   "d": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits."
  },
  {
+  "n": "getting_started",
+  "d": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where "
+ },
+ {
+  "n": "check_tier",
+  "d": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what y"
+ },
+ {
   "n": "search_weather",
   "d": "Search Canadian weather data from Environment Canada — current conditions, forecasts, severe weather alerts, air quality health index (AQHI), radar, marine forecasts, and climate normals. Powered by M"
  },
@@ -301,11 +309,11 @@
  },
  {
   "n": "search_libraries",
-  "d": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Winnipeg, Hamilton, London, Mississauga, Brampton, Surrey,"
+  "d": "Search Canadian public library systems by city, province, or name. Covers 14 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, "
  },
  {
   "n": "search_municipal_data",
-  "d": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
+  "d": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals"
  },
  {
   "n": "search_npri",
@@ -329,7 +337,7 @@
  },
  {
   "n": "search_parks",
-  "d": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Winnipeg, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
+  "d": "Search Canadian parks and recreation facilities by city or province. Covers 11 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns"
  },
  {
   "n": "search_provincial_data",

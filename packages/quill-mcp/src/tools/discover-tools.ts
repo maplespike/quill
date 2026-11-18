@@ -322,11 +322,11 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_libraries",
-    "description": "Search Canadian public library systems by city, province, or name. Covers 15 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, WPG, Hamilton, London, Mississauga, Brampton, Surrey,"
+    "description": "Search Canadian public library systems by city, province, or name. Covers 14 cities: Toronto, Ottawa, Montreal, Vancouver, Calgary, Edmonton, Hamilton, London, Mississauga, Brampton, Surrey, Burnaby, "
   },
   {
     "toolName": "search_municipal_data",
-    "description": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, WPG, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-langua"
+    "description": "Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals"
   },
   {
     "toolName": "search_npri",
@@ -350,7 +350,7 @@ const toolIndex: Array<{ toolName: string; description: string }> = [
   },
   {
     "toolName": "search_parks",
-    "description": "Search Canadian parks and recreation facilities by city or province. Covers 12 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, WPG, Mississauga, Surrey, Burnaby, Hamilton, Halifa"
+    "description": "Search Canadian parks and recreation facilities by city or province. Covers 11 cities: Toronto, Vancouver, Calgary, Edmonton, Montreal, Ottawa, Mississauga, Surrey, Burnaby, Hamilton, Halifax. Returns"
   },
   {
     "toolName": "search_provincial_data",

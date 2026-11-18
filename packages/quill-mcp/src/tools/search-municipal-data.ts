@@ -3,11 +3,11 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchMunicipalData } from './upstream-fetcher.js';
 
-const CITIES = ['toronto','vancouver','montreal','calgary','ottawa','edmonton','winnipeg','quebec','hamilton','mississauga'];
+const CITIES = ['toronto','vancouver','montreal','calgary','ottawa','edmonton','quebec','hamilton','mississauga'];
 
 export const definition: ToolDefinition = {
   name: 'search_municipal_data',
-  description: 'Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).',
+  description: 'Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).',
   inputSchema: { type: 'object', properties: {
     query: { type: 'string', maxLength: 2000, description: 'Search terms (e.g., "budget", "transit", "crime", "permits")' },
     city: { type: 'string', enum: CITIES, description: 'City to search (omit for all)' },
