@@ -11,7 +11,13 @@
  *   QUILL_API_KEY  — API key for the server
  */
 
-const API_BASE = process.env.QUILL_API_URL || '';
+// Normalize so callers can pass either `https://host` or `https://host/v1`.
+const _rawApiBase = (process.env.QUILL_API_URL || '').replace(/\/+$/, '');
+const API_BASE = _rawApiBase === ''
+  ? ''
+  : _rawApiBase.endsWith('/v1')
+    ? _rawApiBase
+    : `${_rawApiBase}/v1`;
 const API_KEY = process.env.QUILL_API_KEY || 'maplespike-dev-key';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
@@ -151,11 +157,14 @@ export async function getHealth() {
 
 export async function getUsage() {
   return callApi<{
-    periodCalls: number;
-    periodLimit: number;
-    tier: string;
-    daily: { count: number; limit: number };
-    monthly: { count: number; limit: number };
+    scope: string;
+    tenant: { id: string; name: string; tier: string };
+    period: { date: string; yearMonth: string };
+    usage: {
+      daily: { calls: number; limit: number; remaining: number; percentUsed: number };
+      monthly: { calls: number; limit: number; remaining: number; percentUsed: number };
+    };
+    resetDate: string;
   }>('/usage');
 }
 

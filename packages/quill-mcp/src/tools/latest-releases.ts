@@ -65,9 +65,17 @@ export const handler: ToolHandler = async (args) => {
           releases: [],
           totalCount: 0,
           note: `Statistics Canada covers federal data only. Use query_gov_data with jurisdiction="${jurisdiction}" for provincial data sources.`,
+          suggestion: 'Try jurisdiction="federal" or use query_gov_data for provincial/territorial data.',
         },
       };
     }
+
+    // Sort by release date descending so the newest releases come first
+    filtered.sort((a, b) => {
+      const da = a.release_date ? new Date(a.release_date).getTime() : 0;
+      const db = b.release_date ? new Date(b.release_date).getTime() : 0;
+      return db - da;
+    });
 
     const releases = filtered.slice(0, limit).map(r => ({
       title: r.title,
