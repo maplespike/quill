@@ -158,7 +158,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `canlii` | https://www.canlii.org/info/terms.html | link-only |
 | `cipo` | https://ised-isde.canada.ca/site/canadian-intellectual-property-office/en | — |
 | `cmhc` | https://www.cmhc-schl.gc.ca/copyright | — |
-| `committees` | https://open.canada.ca/en/open-government-licence-canada | non-commercial, discovery-only |
+| `committees` | https://www.ourcommons.ca/en/important-notices | non-commercial, discovery-only |
 | `corporate` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `corporate-filings` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `cra-charity` | https://www.canada.ca/en/revenue-agency/services/charities-giving/charities-listings.html | pii-minimized |
