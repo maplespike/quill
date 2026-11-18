@@ -20,6 +20,8 @@ routes = [
 HOMELAB_API = "https://api.maplespike.ca"
 CACHE_TTL = "3600"
 
+# Infra owns quota:<service> (ok or over) in a KV namespace bound as QUOTA_FLAGS.
+# The namespace id is set at deploy time. It is not stored here.
 # KV for rate limiting (optional, free tier)
 [[kv_namespaces]]
 binding = "RATE_LIMIT"

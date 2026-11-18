@@ -646,4 +646,13 @@ export interface Env {
   /** Declared money mode: 'live' or 'test'. Must agree with STRIPE_SECRET_KEY. */
   STRIPE_ENV?: string;
   STRIPE_SECRET_KEY?: string;
+  /**
+   * Infra's Workers KV binding. Keys are `quota:<service>` (`ok` or `over`).
+   * Leave this unset to keep D1/KV/R2 writes on the in-cluster store.
+   */
+  QUOTA_FLAGS?: {
+    get(key: string): Promise<string | null>;
+  };
+  /** Cache TTL for the quota flag, in milliseconds. Clamped to 1s–300s. */
+  CF_QUOTA_FLAG_TTL_MS?: string;
 }
