@@ -1,6 +1,7 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as api from './api-client.js';
 import { searchCkan } from './upstream-fetcher.js';
+import { localizeQuery, sourceUrl } from '../i18n/french-sources.js';
 
 const KNOWN_JURISDICTIONS = ['federal', 'ontario', 'british-columbia', 'alberta', 'quebec', 'all'];
 
@@ -39,6 +40,11 @@ export const definition: ToolDefinition = {
         maximum: 50,
         description: 'Maximum results to return (default: 10)',
       },
+      lang: {
+        type: 'string',
+        enum: ['en', 'fr'],
+        description: 'Query language. When "fr", the search terms are localized to French and French source paths are returned. Default: en',
+      },
     },
     required: ['query'],
   },
@@ -59,6 +65,23 @@ export const handler: ToolHandler = async (args) => {
 
   const limit = Math.min((args.limit as number) ?? 10, 50);
   const jurisdiction = (args.jurisdiction as string) || 'all';
+  const lang = args.lang === 'fr' ? 'fr' : 'en';
+  // French queries are issued against the same sources using the official
+  // French terminology; the FR path of each source is returned alongside.
+  const localized = localizeQuery(query, lang);
+  const searchTerm = lang === 'fr' ? localized.localized : query;
+  const bilingual = {
+    lang,
+    query_localized: searchTerm,
+    applied_terms: localized.applied,
+    french_source_paths: {
+      canlii: sourceUrl('canlii', 'fr'),
+      gazette: sourceUrl('gazette-p1', 'fr'),
+      justice_laws: sourceUrl('justice-laws', 'fr'),
+      statcan: sourceUrl('statcan', 'fr'),
+      quebec_open_data: sourceUrl('quebec-open-data', 'fr'),
+    },
+  };
 
   // Validate jurisdiction against known values
   if (!KNOWN_JURISDICTIONS.includes(jurisdiction)) {
@@ -78,7 +101,7 @@ export const handler: ToolHandler = async (args) => {
   }
 
   try {
-    const data = await searchCkan(query, limit);
+    const data = await searchCkan(searchTerm, limit);
 
     return {
       content: {
@@ -86,6 +109,8 @@ export const handler: ToolHandler = async (args) => {
         query,
         jurisdiction,
         limit,
+        lang,
+        bilingual,
         results: data.results,
         totalCount: data.total,
       },
@@ -97,6 +122,8 @@ export const handler: ToolHandler = async (args) => {
         query,
         jurisdiction,
         limit,
+        lang,
+        bilingual,
         results: [],
         totalCount: 0,
         error: (error instanceof Error && error.message) || String(error),
