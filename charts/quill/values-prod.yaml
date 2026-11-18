@@ -88,6 +88,10 @@ api:
     storageClass: longhorn
     # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
     nodeName: ""
+    # Leave empty to use <release>-api-data. Set to an already-provisioned
+    # claim (for example a restored volume) to point workloads at it. The
+    # chart still renders <release>-api-data so Argo prune cannot delete it.
+    existingClaim: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
 mcp:

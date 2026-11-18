@@ -141,3 +141,22 @@ affinity:
             app: quill-api
         topologyKey: kubernetes.io/hostname
 {{- end }}
+
+{{/*
+  quill.apiDataClaim — PVC name for the API SQLite volume.
+  When api.storage.existingClaim is set, workloads mount that already-
+  provisioned claim (for example a restored Longhorn volume). The chart
+  still always renders <release>-api-data so Argo prune cannot delete the
+  original PVC (its reclaim policy is often Delete).
+*/}}
+{{- define "quill.apiDataClaim" -}}
+{{- $existing := "" -}}
+{{- if and .Values.api .Values.api.storage -}}
+{{- $existing = .Values.api.storage.existingClaim | default "" -}}
+{{- end -}}
+{{- if $existing -}}
+{{- $existing -}}
+{{- else -}}
+{{- printf "%s-api-data" (include "quill.fullname" .) -}}
+{{- end -}}
+{{- end -}}
