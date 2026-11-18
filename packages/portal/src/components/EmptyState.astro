@@ -1,0 +1,18 @@
+---
+interface Props {
+  title?: string;
+  message?: string;
+  suggestion?: string;
+  icon?: string;
+  lang?: "en" | "fr";
+}
+const { title = "No results found", message = "Try a different search term.", suggestion, icon = "⌕", lang = "en" } = Astro.props;
+const t = (en: string, fr: string) => lang === "fr" ? fr : en;
+---
+<div class="empty-state flex flex-col items-center justify-center py-12 px-4 text-center">
+  <span class="text-4xl mb-3 opacity-40" aria-hidden="true">{icon}</span>
+  <h3 class="text-lg font-semibold text-foreground mb-1">{title}</h3>
+  <p class="text-sm text-muted-foreground mb-3 max-w-md">{message}</p>
+  {suggestion && <p class="text-sm text-muted-foreground/70 mb-4">{suggestion}</p>}
+  <slot />
+</div>
