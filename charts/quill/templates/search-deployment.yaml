@@ -129,13 +129,13 @@ spec:
       containers:
       - name: search
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
-        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
-        # Dockerfile.search sets the same ENTRYPOINT/CMD, so this block restates
-        # the image's own defaults. Kept explicit on purpose: the previous
-        # quill/search image had neither, and a manifest that names the
-        # subcommand is readable without opening the image. Args mirror the
-        # documented CLI (rust/crates/quill-search/src/main.rs:
-        # `serve --index --port --metrics-port`) and the containerPorts below.
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        # The image carries no ENTRYPOINT/CMD, so the subcommand has to be declared
+        # here. Without it the binary prints its clap help and exits 0, and kubelet
+        # restarts it forever: 72 restarts in maplespike by 2026-10-30 04:40 CT,
+        # with `quill-search` reported Degraded. Args mirror the documented CLI
+        # (rust/crates/quill-search/src/main.rs: `serve --index --port --metrics-port`)
+        # and the containerPorts below.
         command: ["quill-search"]
         args:
           - serve

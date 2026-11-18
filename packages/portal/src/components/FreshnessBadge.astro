@@ -1,0 +1,21 @@
+---
+interface Props {
+  seconds: number;
+  lang?: "en" | "fr";
+}
+const { seconds, lang = "en" } = Astro.props;
+const t = (en: string, fr: string) => lang === "fr" ? fr : en;
+
+let color = "text-green-600 dark:text-green-400";
+let label = t("Fresh", "Récent");
+if (seconds > 86400 * 30) { color = "text-red-600 dark:text-red-400"; label = t("Stale", "Ancien"); }
+else if (seconds > 86400 * 7) { color = "text-yellow-600 dark:text-yellow-400"; label = t("Aging", "Vieillissant"); }
+
+const days = Math.floor(seconds / 86400);
+const hours = Math.floor((seconds % 86400) / 3600);
+const timeStr = days > 0 ? `${days}d` : `${hours}h`;
+---
+<span class={`inline-flex items-center gap-1 text-xs font-medium ${color}`} title={t(`Updated ${timeStr} ago`, `Mis à jour il y a ${timeStr}`)}>
+  <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+  {label} ({timeStr})
+</span>
