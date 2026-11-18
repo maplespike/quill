@@ -188,12 +188,17 @@ Extend the from-scratch protocol implementation in `packages/quill-mcp/src/serve
       provenance-backed briefing on X regulation"), `narrative-shift` (Gazette + committee
       evidence comparison).
 - [x] **Progress/streaming for heavy calls:** emit `notifications/progress` on long handlers;
-      document a client-side pattern for chunked `linked_entities`/`track_bill` work.
+      document a client-side pattern for chunked `linked_entities`/`track_bill` work. Server-side
+      job surface added in #829: `tools/call` with `_meta.quill.async` returns a handle, the work
+      is polled at `quill://jobs/{id}`, cancelled with `jobs/cancel`, and announced via
+      `notifications/resources/updated` on 2026-07-28 connections (docs/building-on-quill.md §4.1).
 - [x] **Discoverability:** rebuild `discover_tools` index programmatically from the live tool
       registry (drop the drift-prone static array).
-- [ ] **Protocol hygiene:** keep `2025-03-26` handshake for compatibility; add a
+- [x] **Protocol hygiene:** keep `2025-03-26` handshake for compatibility; add a
       `QUILL_PROTOCOL_VERSION` env to opt into 2026-07-28 semantics (stateless mode, `Mcp-Method`
-      headers, `subscriptions/listen`) once SSE clients migrate.
+      headers, `subscriptions/listen`) once SSE clients migrate. Shipped in #830:
+      `packages/quill-mcp/src/protocol-version.ts` negotiates only when server env and client
+      handshake both ask for `2026-07-28`; default clients are byte-for-byte unchanged.
 
 **Acceptance:** `mcp.maplespike.ca/sse` advertises `resources` + `prompts` capabilities; an MCP
 client (Claude Desktop / a 10-line TS client) can `resources/read quill://entities/{id}` and
