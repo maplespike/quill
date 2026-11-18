@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { createI18n } from "@maplespike/i18n";
 import { pick, pickBi, type Bi } from "@/utils/bilingual";
 import { localeUrl } from "@/utils/localeUrl";
+import McpSetupWizard from "@/components/McpSetupWizard.astro";
 import statsData from "@/data/stats.json";
 import toolsData from "@/data/tools.json";
 
@@ -137,6 +138,7 @@ const errorCodes = [
 
     <!-- Main content -->
     <div class="docs-content">
+      <McpSetupWizard lang={lang} />
       <!-- ═══ 00: QUICKSTART ═══ -->
       <section id="quickstart" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-2">

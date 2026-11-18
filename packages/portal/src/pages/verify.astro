@@ -153,6 +153,42 @@ const i18n = createI18n(lang);
         </Card>
       </div>
 
+      <!-- Recent citations -->
+      <section class="py-8" aria-labelledby="recent-citations-title">
+        <div class="container mx-auto px-4 max-w-4xl">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-base" id="recent-citations-title">Recent citations</CardTitle>
+              <CardDescription>Latest claim bundles registered by Quill. Click verify to inspect one.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div id="recent-citations-status" class="mb-4 text-sm text-muted-foreground">Loading…</div>
+              <div id="recent-citations-error" class="hidden rounded-md border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-500"></div>
+              <div id="recent-citations-empty" class="hidden rounded-md border border-border/60 bg-card/40 p-4 text-sm text-muted-foreground">No recent citations yet.</div>
+              <div id="recent-citations-list" class="hidden space-y-3"></div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <!-- Verify any claim -->
+      <section class="py-8" aria-labelledby="verify-any-claim-title">
+        <div class="container mx-auto px-4 max-w-4xl">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base" id="verify-any-claim-title">Verify any claim</CardTitle>
+              <CardDescription>Enter free text. We compute its SHA-256 hash in your browser.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <textarea id="free-text-input" rows="4" spellcheck="false" placeholder="Paste any text or JSON here…" class="w-full rounded-lg border border-border bg-muted/40 px-4 py-2.5 font-mono text-sm outline-none transition-colors focus:border-[var(--maple)] focus:ring-2 focus:ring-maple/20"></textarea>
+              <button id="compute-hash-btn" type="button" class="btn-sheen press-feedback inline-flex h-11 items-center justify-center rounded-lg px-6 text-sm font-medium text-primary-foreground transition-all duration-200 disabled:opacity-50">Compute hash</button>
+              <div id="computed-hash-result" class="hidden rounded-md bg-muted/40 p-4 font-mono text-sm break-all"></div>
+              <a id="verify-computed-link" class="hidden inline-flex items-center gap-1 text-sm text-primary hover:underline" href="#">Verify this hash →</a>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       <!-- How it works -->
       <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">
         <Card>
@@ -455,6 +491,106 @@ const i18n = createI18n(lang);
           btn.disabled = false;
         }
       });
+    })();
+  </script>
+
+  <script is:inline>
+    (function () {
+      "use strict";
+      var cfg = window.MAPLESPIKE || {};
+      var apiBase = (cfg.apiBase || "https://api.maplespike.ca") + "/v1";
+
+      var statusEl = document.getElementById("recent-citations-status");
+      var errorEl = document.getElementById("recent-citations-error");
+      var emptyEl = document.getElementById("recent-citations-empty");
+      var listEl = document.getElementById("recent-citations-list");
+
+      function renderRow(claim) {
+        var hash = String(claim.sha256 || "");
+        var verifyUrl = "/verify?hash=" + encodeURIComponent(hash);
+
+        var card = document.createElement("article");
+        card.className = "rounded-xl border border-border/60 bg-card/40 p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between";
+
+        var info = document.createElement("div");
+        var title = document.createElement("p");
+        title.className = "text-sm font-medium leading-snug text-foreground";
+        title.textContent = claim.claim || "(no claim statement)";
+        info.appendChild(title);
+
+        var meta = document.createElement("p");
+        meta.className = "mt-1 text-xs text-muted-foreground";
+        meta.textContent = (claim.source_name || "—") + " · " + (claim.retrieved_at ? new Date(claim.retrieved_at).toLocaleString("en-CA") : "Not recorded");
+        info.appendChild(meta);
+
+        var hashEl = document.createElement("p");
+        hashEl.className = "mt-1 font-mono text-xs text-muted-foreground break-all";
+        hashEl.textContent = hash;
+        info.appendChild(hashEl);
+
+        card.appendChild(info);
+
+        var link = document.createElement("a");
+        link.href = verifyUrl;
+        link.className = "inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-[var(--maple)]/40 hover:text-foreground";
+        link.textContent = "Verify";
+        card.appendChild(link);
+        return card;
+      }
+
+      fetch(apiBase + "/claims/latest", { headers: { Accept: "application/json" } })
+        .then(function (response) {
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          return response.json();
+        })
+        .then(function (payload) {
+          if (statusEl) statusEl.classList.add("hidden");
+          var claims = payload && payload.data && Array.isArray(payload.data.claims) ? payload.data.claims : [];
+          if (claims.length === 0) {
+            if (emptyEl) emptyEl.classList.remove("hidden");
+            return;
+          }
+          if (listEl) {
+            listEl.classList.remove("hidden");
+            claims.forEach(function (claim) { listEl.appendChild(renderRow(claim)); });
+          }
+        })
+        .catch(function () {
+          if (statusEl) statusEl.classList.add("hidden");
+          if (errorEl) {
+            errorEl.textContent = "Could not load recent citations. Try again shortly.";
+            errorEl.classList.remove("hidden");
+          }
+        });
+
+      var computeBtn = document.getElementById("compute-hash-btn");
+      if (computeBtn) {
+        computeBtn.addEventListener("click", async function () {
+          var textEl = document.getElementById("free-text-input");
+          var resultEl = document.getElementById("computed-hash-result");
+          var linkEl = document.getElementById("verify-computed-link");
+          var text = textEl ? textEl.value : "";
+          try {
+            var data = new TextEncoder().encode(text);
+            var buf = await crypto.subtle.digest("SHA-256", data);
+            var hash = Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+            var full = "sha256:" + hash;
+            if (resultEl) {
+              resultEl.textContent = full;
+              resultEl.classList.remove("hidden");
+            }
+            if (linkEl) {
+              linkEl.href = "/verify?hash=" + encodeURIComponent(full);
+              linkEl.classList.remove("hidden");
+            }
+          } catch (err) {
+            if (resultEl) {
+              resultEl.textContent = "Unable to compute hash in this browser.";
+              resultEl.classList.remove("hidden");
+            }
+          }
+        });
+      }
     })();
   </script>
 </BaseLayout>

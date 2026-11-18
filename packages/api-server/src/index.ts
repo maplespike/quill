@@ -632,6 +632,23 @@ export async function handleRequest(
     );
   }
 
+  // --- /usage → /v1/usage (308) ---
+  // Ops monitors and MCP tooling (system_health) reach for `/usage` first;
+  // the real path is `/v1/usage`. Mirror the /health redirect so callers that
+  // guess the short form never 404.
+  if (url.pathname === '/usage' || url.pathname === '/usage/') {
+    const target = new URL('/v1/usage', url);
+    target.search = url.search;
+    return finalizeResponse(
+      new Response(null, {
+        status: 308,
+        headers: { Location: target.toString(), 'Cache-Control': 'public, max-age=86400' },
+      }),
+      environment,
+      requestOrigin,
+    );
+  }
+
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const durationMs = Date.now() - startTime;

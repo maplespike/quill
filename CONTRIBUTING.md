@@ -37,6 +37,44 @@ Remote nodes have fish/devenv startup noise. Use:
 ssh nexus 'bash --norc --noprofile -c "your command here"'
 ```
 
+## Beta Testing (current phase)
+
+Quill is in **active development / beta**. We welcome testers.
+
+### Getting a dev key
+The free tier (35 calls/day, 1,000/month) is available to everyone via
+[quill.maplespike.ca/signup](https://quill.maplespike.ca/signup). For higher
+limits during testing, contact the maintainers for a dev key (internal tier).
+
+### Running locally
+```bash
+# Clone
+git clone git@github.com:maplespike/quill.git
+cd quill
+pnpm install
+
+# Build
+pnpm --filter @maplespike/api-server build
+pnpm --filter @maplespike/quill-mcp build
+pnpm --filter @maplespike/portal build
+
+# Run tests
+pnpm --filter @maplespike/api-server test:unit   # 606 tests
+pnpm --filter @maplespike/quill-mcp test:unit    # 894 tests
+pnpm --filter @maplespike/portal test            # 112 tests
+```
+
+### What to test
+- **API endpoints**: hit `/v1/health`, `/v1/gov/releases`, `/v1/usage` with your key.
+- **MCP tools**: connect via `https://mcp.maplespike.ca/mcp` (streamable-http) or run locally with `node packages/quill-mcp/dist/cli.js`.
+- **Portal**: check the dark/light mode toggle, data explorer, citation verification.
+- **Report issues**: [GitHub Issues](https://github.com/maplespike/quill/issues) or beta@maplespike.ca.
+
+### Canada & open source
+Quill is built in Canada, for Canada. We welcome contributions from Canadian
+developers, researchers, journalists, and civic technologists. Source terms vary
+by publisher; see `docs/licensing-audit.md` and `data-source-licenses.json`.
+
 ## Local Setup
 
 ### Activate Git Hooks
