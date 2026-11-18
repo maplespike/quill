@@ -36,6 +36,14 @@ const active = (href: string) => cleanPath === href || cleanPath.startsWith(href
       <LanguageSwitcher currentLang={lang} currentPath={pathname} />
       <a href={localeUrl('/signup', lang)} class="quill-button header-signup">{t("Get API key", "Obtenir une clé API")} <span aria-hidden="true">↗</span></a>
       <div id="nav-auth-container" class="flex items-center"></div>
+      <span class="relative group">
+        <button id="theme-toggle" type="button" class="h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/10 transition-colors" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="h-4 w-4 dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="h-4 w-4 hidden dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-foreground text-background rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">Toggle dark mode</span>
+      </span>
+      <span id="theme-announce" class="sr-only" aria-live="polite" aria-atomic="true"></span>
       <button id="mobile-menu-toggle" type="button" class="menu-toggle" aria-controls="mobile-nav" aria-expanded="false" aria-label={t("Open navigation", "Ouvrir la navigation")} data-open-label={t("Open navigation", "Ouvrir la navigation")} data-close-label={t("Close navigation", "Fermer la navigation")}><span aria-hidden="true">☰</span></button>
     </div>
   </div>
