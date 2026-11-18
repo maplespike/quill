@@ -45,6 +45,7 @@
     "test:node-images": "pnpm exec tsx --test scripts/test-node-images.mts",
     "test:chart-probes": "pnpm exec tsx --test scripts/test-chart-probes.mts",
     "test:chart-ingest-deadlines": "pnpm exec tsx --test scripts/test-chart-ingest-deadlines.mts",
+    "test:chart-ingest-suspend": "pnpm exec tsx --test scripts/test-chart-ingest-suspend.mts",
     "test:chart-priority-classes": "pnpm exec tsx --test scripts/test-chart-priority-classes.mts",
     "test:lockstep": "pnpm exec tsx --test scripts/test-secret-lockstep.mts",
     "test:stall-watchdog": "pnpm exec tsx --test scripts/test-stall-watchdog.mts",
