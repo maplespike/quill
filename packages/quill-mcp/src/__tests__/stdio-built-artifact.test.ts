@@ -227,7 +227,7 @@ describe('built stdio entry point (dist/cli.js)', () => {
   it('non-production build: pretty logs stay off stdout', async () => {
     child = spawnBuilt('development');
     await handshake(child);
-    // Tool registration (184 tools) can outlast the handshake on a loaded
+    // Tool registration (186 tools) can outlast the handshake on a loaded
     // runner, so wait for the ready line instead of assuming a fixed delay.
     // 2026-10-21 deploy gate: at 500 ms only one tool had registered and this
     // assertion failed with stderr holding just that first line.
