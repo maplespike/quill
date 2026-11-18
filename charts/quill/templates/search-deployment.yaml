@@ -92,7 +92,7 @@ spec:
       # overwrite a populated index.
       - name: bootstrap-empty-index
         image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
         command: ["/bin/sh", "-c"]
         args:
           - |
