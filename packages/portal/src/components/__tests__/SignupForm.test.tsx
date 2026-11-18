@@ -202,4 +202,23 @@ describe('SignupForm', () => {
     const docLink = screen.getByRole('link', { name: /account identity and device linking/i })
     expect(docLink).toHaveAttribute('href', '/docs/guide/identity-model.html')
   })
+
+  test('fresh-device passkey sign-in shows the French no-passkey error', async () => {
+    const prev = (window as any).__LANG
+    ;(window as any).__LANG = 'fr'
+    try {
+      fetchMock.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
+      const user = userEvent.setup()
+      render(<SignupForm />)
+      await waitFor(() => {
+        return !screen.queryByText(/loading sign-in options/i)
+      })
+      await user.click(screen.getByRole('button', { name: /sign in with passkey/i }))
+      expect(await screen.findByText(/Aucune clé d'accès n'a été trouvée sur cet appareil/i)).toBeInTheDocument()
+      expect(screen.getByText(/connectez-vous avec GitHub ou un portefeuille/i)).toBeInTheDocument()
+      expect(screen.getByText(/en créer une nouvelle commence plutôt un nouveau compte/i)).toBeInTheDocument()
+    } finally {
+      (window as any).__LANG = prev
+    }
+  })
 })

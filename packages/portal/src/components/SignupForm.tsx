@@ -221,8 +221,14 @@ export default function SignupForm() {
     // second-key path (GitHub / wallet) rather than only "create another
     // passkey", which would silently fork the account (see #892).
     if (!authState.userId) {
+      const lang =
+        (typeof window !== "undefined" ? (window as any).__LANG : "en") === "fr"
+          ? "fr"
+          : "en";
       setError(
-        "No passkey found on this device. Passkeys are stored on the device that created them. If you already have an account, sign in with GitHub or a wallet to use it here — creating a passkey instead starts a new account."
+        lang === "fr"
+          ? "Aucune clé d'accès n'a été trouvée sur cet appareil. Les clés d'accès sont stockées sur l'appareil qui les a créées. Si vous avez déjà un compte, connectez-vous avec GitHub ou un portefeuille pour l'utiliser ici — en créer une nouvelle commence plutôt un nouveau compte."
+          : "No passkey found on this device. Passkeys are stored on the device that created them. If you already have an account, sign in with GitHub or a wallet to use it here — creating a passkey instead starts a new account."
       );
       setShowIdentityHelp(true);
       setBusy(null);
