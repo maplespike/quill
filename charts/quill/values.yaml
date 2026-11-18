@@ -1,3 +1,248 @@
+# Quill Helm Chart Values
+# Override per-environment: helm install -f values-prod.yaml
+
+# Scheduling priority (fleet resource policy, 2026-10-26). Both classes exist
+# cluster-wide with preemptionPolicy: Never, so neither can evict a miner.
+# critical: always-on services and every backup/restore-drill/freshness job.
+# batch: ingest and engine CronJobs; the kubelet evicts these first under
+# memory pressure. Set a key to "" to omit priorityClassName for that tier.
+priorityClass:
+  critical: fleet-critical
+  batch: fleet-batch
+
+# Image configuration
+image:
+  registry: nexus:5000
+  tag: stable
+  pullPolicy: Always
+
+# API Server
+api:
+  replicas: 2  # #816: >=2 so the tunnel origin stays healthy across rollouts
+  port: 8084
+  metricsPort: 9464
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  env:
+    QUILL_API_URL: "https://api.maplespike.ca"
+    NODE_ENV: "production"
+    # #806: Stripe environment. Default 'test'; flip to 'live' at go-live.
+    STRIPE_ENV: "test"
+    # In-process probe behind /v1/upstream/status (UPSTREAM-OUTAGES.md §6).
+    # "0" disables probing; the API then reports unknown states, no banner.
+    QUILL_UPSTREAM_PROBE: "1"
+  ingress:
+    host: api.maplespike.ca
+    tls: true
+
+# MCP Server
+mcp:
+  replicas: 1
+  port: 3001
+  metricsPort: 9465
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    host: mcp.maplespike.ca
+    tls: true
+
+# Redis — cache + distributed rate-limit state (gate A2-REDIS, #764 / #770).
+# Disabled here so a bare `helm install` stays self-contained; the production
+# values enable it and point api.env.REDIS_URL at the Service this renders.
+redis:
+  enabled: false
+  replicas: 1
+  image: public.ecr.aws/docker/library/redis:8.2.3-alpine
+  # Prefer empty nodeName + nodeSelector in prod (longhorn). Leave empty here.
+  nodeName: ""
+  maxmemory: 128mb
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
+
+# Ingestion Runner (CronJobs)
+# `enabled` defaults to false: CronJobs fetch from live upstreams, so an
+# environment opts in explicitly (values-prod.yaml does). Schedule keys are
+# QUILL_PIPELINE aliases — see
+# packages/pipeline-core/src/cli/run-pipeline.ts (PIPELINE_CONFIG).
+ingestion:
+  enabled: false
+  # Node holding the api pod's SQLite volume (RWO PVC) when QUILL_STORAGE=sqlite.
+  nodeName: ""
+  activeDeadlineSeconds: 1800
+  # Per-pipeline deadline overrides (seconds). A pipeline listed here gets its
+  # own activeDeadlineSeconds; everything else uses the value above.
+  # influence: the 2026-10-23 04:00 run hit the 1800s default and failed on
+  # deadline, so it gets twice the headroom rather than a fifth of the chart.
+  deadlines:
+    influence: 3600
+  backoffLimit: 1
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  schedules:
+    committees: "0 */6 * * *"
+    corporate: "0 2 * * *"
+    influence: "0 4 * * *"
+    gazette: "0 */12 * * *"
+    gic: "0 6 * * *"
+    lmia: "0 8 * * *"
+    immigration: "0 3 * * *"
+    indigenous: "0 5 * * *"
+    defence: "0 7 * * *"
+    oversight: "0 */12 * * *"
+    canlii: "0 7 * * *"
+    provincial: "0 9 * * *"
+    realtime: "*/30 * * * *"
+    media: "0 10 * * *"
+    social: "0 11 * * *"
+    ngo-rss: "*/15 * * * *"
+    unions: "0 12 * * *"
+    universities: "0 13 * * *"
+    culture: "0 14 * * *"
+    legislation: "0 15 * * *"
+    a2aj: "0 16 * * *"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Engine (Sweep)
+# The schedule is unused unless engine.enabled is true. The CronJob template
+# is charts/quill/templates/engine-cronjob.yaml. It runs the sweep entry on
+# the api image, which already contains packages/engine/dist.
+engine:
+  enabled: false
+  replicas: 1
+  schedule: "*/15 * * * *"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Portal (deployed via .github/workflows/deploy-portal.yml — not via Helm)
+# Current: K3s cluster (nginx). Future: GitHub Pages if made public.
+
+# Monitoring
+monitoring:
+  pushgateway:
+    enabled: true
+    namespace: observability
+  uptimeKuma:
+    enabled: true
+    namespace: ai-inference
+
+  # ── Alerting ──────────────────────────────────────────────────
+  # Prometheus alerting rules (PrometheusRule CRD) defined in k8s/infra.nix:
+  #   CronJobFailed          — severity=critical, fires when a CronJob fails
+  #   CronJobRunningTooLong  — severity=warning,  fires when job runs >30m
+  #   PipelineIngestionStale — severity=warning,  fires when pushgateway >2h stale
+  #   NoPipelineData         — severity=critical, fires when data >24h old
+  #
+  # Alerts are routed by Alertmanager (deployed via k8s/infra.nix):
+  #   critical → Slack (#alerts-maplespike)
+  #   warning  → Email (admin@maplespike.ca)
+  #
+  # Grafana Alerting provisioning (contact points + notification policies)
+  # lives in config/grafana/provisioning/ for Grafana-side notifications.
+  # Before production use, replace placeholders in both:
+  #   - k8s/infra.nix — Alertmanager Slack URL + SMTP smarthost
+  #   - config/grafana/provisioning/ — Slack webhook URL + email addresses
+  alerting:
+    slack:
+      enabled: true
+      channel: "#alerts-quill"
+      # webhook_url set via Alertmanager config in k8s/infra.nix
+    email:
+      enabled: true
+      to: "admin@maplespike.ca"
+      smarthost: "localhost:25"
+
+# Cloudflare Tunnel (cloudflared)
+cloudflared:
+  enabled: true
+  image: cloudflare/cloudflared
+  tag: latest
+  pullPolicy: Always
+  replicas: 2  # #816: >=2 cloudflared replicas for tunnel HA (was 1 → 521s)
+  tunnelId: "cec1b070-796f-4524-b43e-9b05c32af906"
+  # Ultra-light: may include forge. Heavy workloads use affinityHosts instead.
+  affinityHosts:
+    - nexus
+    - sentry-agent
+    - forge
+  preferredHost: nexus
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  # quill.maplespike.ca is now served by Cloudflare Pages (free tier)
+  # — no tunnel ingress needed for the portal
+  ingress:
+    - hostname: api.maplespike.ca
+      service: http://quill-api.maplespike.svc.cluster.local:8084
+    - hostname: mcp.maplespike.ca
+      service: http://quill-mcp.maplespike.svc.cluster.local:3001
+    - hostname: kanban.maplespike.ca
+      service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
+
+# Backups. Off unless an environment opts in (values-prod.yaml does).
+# The claim uses longhorn, the same durable class as the API SQLite volume.
+# A cluster without that class sets backups.storageClass and search.storageClass
+# to a class that survives the node. local-path does not. See docs/ops/BACKUPS.md.
+# accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
+# that mounts the claim has a working NFS client. Backup pods follow
+# api.storage.nodeName, the same pin as the API pod.
+backups:
+  enabled: false
+  schedule: "15 1 * * *"
+  searchSchedule: "45 1 * * *"
+  postgresSchedule: "15 1 * * *"
+  freshnessSchedule: "20 */6 * * *"
+  drillSchedule: "30 3 * * 0"
+  retentionDays: 14
+  maxAgeHours: 26
+  storage: 30Gi
+  storageClass: longhorn
+  accessMode: ReadWriteOnce
+  timeZone: Etc/UTC
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Secrets (set via --set or external secrets)
+secrets:
+  apiKey: ""
+  jwtSecret: ""
+  canliiApiKey: ""
+
 search:
   replicas: 0
   migrateLegacyIndex: false
