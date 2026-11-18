@@ -403,6 +403,15 @@ class QuillHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         p = parsed.path
 
+        # ── Self-hosted analytics summary endpoint ────────
+        if p == "/analytics" or p == "/analytics/":
+            self._serve_analytics()
+            return
+
+        # ── Self-hosted analytics (privacy-respecting) ─────
+        if p.endswith(".html") or p == "/" or not os.path.splitext(p)[1]:
+            self._log_pageview(p)
+
         # ── Serve docs under /docs/ ────────────────────────
         if p.startswith("/docs/") or p == "/docs":
             rel = p.removeprefix("/docs/")
@@ -568,9 +577,56 @@ class QuillHandler(SimpleHTTPRequestHandler):
         print(dbg, file=sys.stderr)
         return super().do_GET()
 
+    def _serve_analytics(self):
+        # Serve aggregated page-view counts from access-log.jsonl
+        try:
+            import json, collections, os
+            log_path = os.path.join(DIRECTORY, "access-log.jsonl")
+            counts = collections.Counter()
+            total = 0
+            if os.path.exists(log_path):
+                with open(log_path) as f:
+                    for line in f:
+                        try:
+                            entry = json.loads(line)
+                            counts[entry.get("path", "/")] += 1
+                            total += 1
+                        except Exception:
+                            pass
+            body = json.dumps({"total_views": total, "pages": dict(counts.most_common(20))}, indent=2).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            SimpleHTTPRequestHandler.end_headers(self)
+            self.wfile.write(body)
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-Type", "application/json")
+            SimpleHTTPRequestHandler.end_headers(self)
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
+
     def log_message(self, format, *args):
-        # Quieter logging
+        # Access logging: write to stderr (captured by container runtime)
         sys.stderr.write("[portal] %s - %s\n" % (self.client_address[0], format % args))
+
+    def _log_pageview(self, path):
+        # Lightweight self-hosted analytics: append a JSON line to the access log
+        # file. No cookies, no PII beyond a truncated IP hash. Privacy-respecting.
+        try:
+            import json, hashlib, datetime, os
+            ip_hash = hashlib.sha256(self.client_address[0].encode()).hexdigest()[:12]
+            entry = {
+                "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "path": path.split("?")[0],
+                "ip_hash": ip_hash,
+                "ua": self.headers.get("User-Agent", "")[:80],
+                "ref": self.headers.get("Referer", "")[:120],
+            }
+            log_path = os.path.join(DIRECTORY, "access-log.jsonl")
+            with open(log_path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception:
+            pass  # never let analytics break a request
 
 
 # ── Main ────────────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ const categories = [
 ];
 const mcpConfig = JSON.stringify({ mcpServers: { quill: { url: 'https://mcp.maplespike.ca/sse', headers: { Authorization: 'Bearer YOUR_API_KEY' } } } }, null, 2);
 const curlSnippet = 'curl --get https://api.maplespike.ca/v1/gov/search \\\n  --data-urlencode "q=housing" \\\n  -H "Authorization: Bearer $QUILL_KEY"';
+const exampleResponse = JSON.stringify({ data: { sha256: 'sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', verified: true, source_name: 'House of Commons — Committee Evidence', source_url: 'https://www.ourcommons.ca/Committees/', retrieved_at: '2026-10-01T12:00:00Z' } }, null, 2);
 ---
 <div class="public-record-landing">
   <section class="record-hero page-width" aria-labelledby="hero-title">
@@ -24,11 +25,12 @@ const curlSnippet = 'curl --get https://api.maplespike.ca/v1/gov/search \\\n  --
       <p class="eyebrow"><span class="editorial-dot" aria-hidden="true"></span>{t('CANADIAN PUBLIC DATA. CONNECTED.', 'LES DONNÉES PUBLIQUES CANADIENNES. RELIÉES.')}</p>
       <h1 id="hero-title">{t('The public record.', 'Les dossiers publics.')}<br /><em>{t('An open possibility.', 'Un monde de possibles.')}</em></h1>
       <p class="hero-description">{t('Find the source. Follow the story. Build something that matters. Quill connects Canada’s public-sector data to you and your AI tools.', 'Trouvez la source. Suivez l’histoire. Créez quelque chose d’utile. Quill relie les données du secteur public canadien à vous et à vos outils IA.')}</p>
-      <form class="hero-search" action={url('/explorer')} method="GET" role="search">
+      <form class="hero-search relative" action={url('/explorer')} method="GET" role="search">
         <label class="sr-only" for="landing-query">{t('Search public data', 'Rechercher des données publiques')}</label>
         <span aria-hidden="true" class="search-symbol">⌕</span>
-        <input id="landing-query" name="query" type="search" required placeholder={t('What are you looking into?', 'Quel sujet vous intéresse ?')} />
+        <input id="landing-query" name="query" type="search" required placeholder={t('What are you looking into?', 'Quel sujet vous intéresse ?')} autocomplete="off" />
         <button type="submit" aria-label={t('Search public data', 'Rechercher des données publiques')}><span aria-hidden="true">↗</span></button>
+        <ul id="landing-suggestions" class="absolute left-0 right-0 top-full z-20 mt-2 hidden max-h-60 overflow-auto rounded-md border border-border bg-background shadow-lg" role="listbox" aria-label={t('Search suggestions', 'Suggestions de recherche')}></ul>
       </form>
       <div class="hero-suggestions"><span>{t('START WITH', 'ESSAYEZ')}</span>{['housing', 'lobbying', 'procurement'].map((query, index) => <a href={`${url('/explorer')}?query=${query}`}>{[t('Housing', 'Logement'), t('Lobbying', 'Lobbying'), t('Procurement', 'Marchés publics')][index]}</a>)}</div>
       <div class="hero-links"><a class="text-link" href={url('/agents')}>{t('Connect your AI', 'Connecter votre IA')} <span aria-hidden="true">↗</span></a><span class="hero-link-note">{t('MCP + REST API', 'MCP + API REST')}</span></div>
@@ -39,6 +41,32 @@ const curlSnippet = 'curl --get https://api.maplespike.ca/v1/gov/search \\\n  --
       <figcaption><span>{t('A new perspective on the public record.', 'Un autre regard sur les dossiers publics.')}</span><span class="art-edition">№ 001</span></figcaption>
       <span class="art-disclosure">{t('AI-generated illustration · not a map or dataset', 'Illustration générée par IA · ni carte ni jeu de données')}</span>
     </figure>
+  </section>
+
+  <section class="page-width onboarding-section" aria-labelledby="onboarding-title">
+    <div class="section-heading"><div><p class="eyebrow">{t('GET STARTED', 'DÉMARRER')}</p><h2 id="onboarding-title">{t('From key to first answer in three steps.', 'De la clé à la première réponse en trois étapes.')}</h2></div><p>{t('Get a free key, make one call, and connect your AI. No credit card required.', 'Obtenez une clé gratuite, faites un appel, connectez votre IA. Aucune carte de crédit requise.')}</p></div>
+    <p class="onboarding-summary text-sm text-muted-foreground mb-6">{t('1. Get your free key → 2. Make your first call (copy-paste curl) → 3. Connect your AI (MCP config)', '1. Obtenez votre clé gratuite → 2. Faites votre premier appel (curl à copier-coller) → 3. Connectez votre IA (config MCP)')}</p>
+    <ol class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <li class="rounded-xl border border-border/60 bg-card/40 p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--maple)] text-primary-foreground text-sm font-semibold">1</span><h3 class="text-base font-semibold">{t('Get your free key', 'Obtenez votre clé gratuite')}</h3></div>
+        <p class="text-sm text-muted-foreground mb-4">{t('Create a free account and copy your API key.', 'Créez un compte gratuit et copiez votre clé API.')}</p>
+        <a href={url('/signup')} class="quill-button light-button inline-flex">{t('Get your API key', 'Obtenir votre clé API')} <span aria-hidden="true">↗</span></a>
+      </li>
+      <li class="rounded-xl border border-border/60 bg-card/40 p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--maple)] text-primary-foreground text-sm font-semibold">2</span><h3 class="text-base font-semibold">{t('Make your first call (copy-paste curl)', 'Faites votre premier appel (curl à copier-coller)')}</h3></div>
+        <p class="text-sm text-muted-foreground mb-4">{t('Paste this curl into your terminal.', 'Collez ce curl dans votre terminal.')}</p>
+        <div class="console-code"><div class="code-toolbar"><span>terminal</span><button type="button" data-copy-target="onboarding-curl-text" data-copy-label={t('Copy', 'Copier')} data-copied-label={t('Copied', 'Copié')} data-error-label={t('Copy failed — select the code', 'Échec — sélectionnez le code')} aria-label={t('Copy REST example', 'Copier l’exemple REST')}>{t('Copy', 'Copier')}</button></div><pre><code id="onboarding-curl-text">{curlSnippet}</code></pre></div>
+      </li>
+      <li class="rounded-xl border border-border/60 bg-card/40 p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--maple)] text-primary-foreground text-sm font-semibold">3</span><h3 class="text-base font-semibold">{t('Connect your AI (MCP config)', 'Connectez votre IA (config MCP)')}</h3></div>
+        <p class="text-sm text-muted-foreground mb-4">{t('Add this to your MCP client config.', 'Ajoutez ceci à la config de votre client MCP.')}</p>
+        <div class="console-code"><div class="code-toolbar"><span>mcp.json</span><button type="button" data-copy-target="onboarding-mcp-text" data-copy-label={t('Copy', 'Copier')} data-copied-label={t('Copied', 'Copié')} data-error-label={t('Copy failed — select the code', 'Échec — sélectionnez le code')} aria-label={t('Copy MCP configuration', 'Copier la configuration MCP')}>{t('Copy', 'Copier')}</button></div><pre><code id="onboarding-mcp-text">{mcpConfig}</code></pre></div>
+      </li>
+    </ol>
+    <div class="mt-6 rounded-xl border border-border/60 bg-card/40 p-5">
+      <p class="eyebrow mb-2">{t('LIVE EXAMPLE RESPONSE', 'EXEMPLE DE RÉPONSE EN DIRECT')}</p>
+      <pre class="overflow-x-auto rounded-md bg-muted p-3 text-xs"><code>{exampleResponse}</code></pre>
+    </div>
   </section>
 
   <section class="coverage-band" aria-label={t('Platform coverage', 'Couverture de la plateforme')}>
@@ -97,4 +125,52 @@ const curlSnippet = 'curl --get https://api.maplespike.ca/v1/gov/search \\\n  --
   }
   setupCopyControls();
   document.addEventListener('astro:page-load', setupCopyControls);
+</script>
+<script is:inline>
+  (function () {
+    var KEY = 'quill-recent-searches';
+    var DEFAULTS = ['housing', 'lobbying', 'procurement'];
+    function readRecent() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveRecent(q) {
+      if (!q) return;
+      try {
+        var list = readRecent().filter(function (x) { return x !== q; });
+        list.unshift(q);
+        localStorage.setItem(KEY, JSON.stringify(list.slice(0, 8)));
+      } catch (e) {}
+    }
+    function renderSuggestions(input, listEl) {
+      var q = (input.value || '').toLowerCase().trim();
+      var recent = readRecent();
+      var pool = q ? recent.filter(function (x) { return String(x).toLowerCase().indexOf(q) !== -1; }) : recent;
+      var extras = DEFAULTS.filter(function (x) { return pool.indexOf(x) === -1 && (q ? x.toLowerCase().indexOf(q) !== -1 : true); });
+      var items = pool.concat(extras).slice(0, 8);
+      listEl.innerHTML = '';
+      if (items.length === 0) { listEl.classList.add('hidden'); return; }
+      items.forEach(function (item) {
+        var li = document.createElement('li');
+        li.className = 'cursor-pointer px-3 py-2 text-sm hover:bg-muted/60';
+        li.setAttribute('role', 'option');
+        li.textContent = item;
+        li.addEventListener('mousedown', function (e) { e.preventDefault(); input.value = item; listEl.classList.add('hidden'); });
+        listEl.appendChild(li);
+      });
+      listEl.classList.remove('hidden');
+    }
+    function init() {
+      var input = document.getElementById('landing-query');
+      var listEl = document.getElementById('landing-suggestions');
+      if (!input || !listEl || input.dataset.suggestBound) return;
+      input.dataset.suggestBound = 'true';
+      input.addEventListener('focus', function () { renderSuggestions(input, listEl); });
+      input.addEventListener('input', function () { renderSuggestions(input, listEl); });
+      input.addEventListener('blur', function () { setTimeout(function () { listEl.classList.add('hidden'); }, 150); });
+      var form = input.closest('form');
+      if (form) form.addEventListener('submit', function () { saveRecent(input.value.trim()); });
+    }
+    init();
+    document.addEventListener('astro:page-load', init);
+  })();
 </script>
