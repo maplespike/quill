@@ -373,6 +373,14 @@ jobs:
       # bare "$K" call, and the workflow timeout-minutes safety net.
       - name: Isolation-timeout regression tests
         run: pnpm exec tsx --test scripts/test-isolation-timeout.mts
+      # 2026-11-09 health audit: e2e-smoke.sh still called the removed
+      # /v1/modules route, expected a top-level openapi key, and probed MCP
+      # /healthz. quill-health-check.sh counted backup and engine CronJobs
+      # as ingest feeds. These fixtures pin both scripts.
+      - name: Smoke script contract tests
+        run: |
+          bash scripts/test-health-check-ingest-filter.sh
+          node --test scripts/test-e2e-smoke-contract.mjs
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.
