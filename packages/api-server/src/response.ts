@@ -48,6 +48,76 @@ export const UNKNOWN_SOURCE_CITATION: CitationMeta = {
  * These are ready-to-paste strings AI agents can use directly without
  * formatting — matches the Katzilla pattern for AI-agent-friendly citations.
  */
+const PAYLOAD_ATTRIBUTION_KEYS = ['attribution', 'attribution_text', 'attributionText'] as const;
+const RECORD_LIST_KEYS = ['releases', 'records', 'results', 'items'] as const;
+
+function trimmedString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function attributionOnRecord(record: Record<string, unknown>): string | null {
+  for (const key of PAYLOAD_ATTRIBUTION_KEYS) {
+    const text = trimmedString(record[key]);
+    if (text) return text;
+  }
+  return null;
+}
+
+/**
+ * Attribution the payload already carries. An envelope `attribution` wins.
+ * A list is used only when every record states the same attribution.
+ */
+export function attributionOnPayload(data: unknown): string | null {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+  const obj = data as Record<string, unknown>;
+  const direct = attributionOnRecord(obj);
+  if (direct) return direct;
+  for (const key of RECORD_LIST_KEYS) {
+    const list = obj[key];
+    if (!Array.isArray(list) || list.length === 0) continue;
+    const texts: string[] = [];
+    let usable = true;
+    for (const item of list) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        usable = false;
+        break;
+      }
+      const text = attributionOnRecord(item as Record<string, unknown>);
+      if (!text) {
+        usable = false;
+        break;
+      }
+      texts.push(text);
+    }
+    if (!usable) continue;
+    const unique = new Set(texts);
+    if (unique.size === 1) return texts[0];
+  }
+  return null;
+}
+
+function sourceNameFromAttribution(attribution: string): string {
+  const match = /^Source:\s*([^.]+)/.exec(attribution);
+  const name = match?.[1]?.trim().replace(/,\s*$/, '');
+  if (name) return name;
+  return 'Publisher attribution supplied with this response';
+}
+
+function citationFromAttribution(attribution: string): CitationMeta {
+  return {
+    source_name: sourceNameFromAttribution(attribution),
+    source_url: '',
+    retrieved_at: null,
+    data_hash: '',
+    license: attribution,
+    license_basis: 'source-configuration',
+    attribution_text: attribution,
+    update_frequency: 'not supplied',
+  };
+}
+
 export function enrichCitation(meta: CitationMeta): CitationMeta {
   if (meta.citation_text && meta.citation_footnote) return meta;
   const d = meta.retrieved_at ? new Date(meta.retrieved_at) : null;
@@ -234,6 +304,13 @@ export function buildSuccess<T>(
     ? applyTokenOptimization(data, ctx.queryOptions)
     : data;
 
+  const payloadAttribution = extraCitation ? null : attributionOnPayload(data);
+  const citation = extraCitation
+    ? enrichCitation({ ...UNKNOWN_SOURCE_CITATION, ...extraCitation })
+    : enrichCitation(payloadAttribution
+      ? citationFromAttribution(payloadAttribution)
+      : UNKNOWN_SOURCE_CITATION);
+
   return {
     success: true,
     data: optimizedData,
@@ -241,9 +318,7 @@ export function buildSuccess<T>(
     error: null,
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
-    citation: extraCitation
-      ? enrichCitation({ ...UNKNOWN_SOURCE_CITATION, ...extraCitation })
-      : enrichCitation(UNKNOWN_SOURCE_CITATION),
+    citation,
   };
 }
 

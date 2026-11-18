@@ -160,6 +160,48 @@ describe('buildSuccess', () => {
     assert.match(resp.citation!.license, /No publisher license declaration/);
   });
 
+  it('copies a payload attribution into the response citation', () => {
+    const attribution = 'Source: Statistics Canada. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada.';
+    const resp = buildSuccess({
+      releases: [{ title: 'Consumer Price Index' }],
+      attribution,
+    }, makeContext());
+
+    assert.equal(resp.citation!.attribution_text, attribution);
+    assert.equal(resp.citation!.license, attribution);
+    assert.equal(resp.citation!.source_name, 'Statistics Canada');
+    assert.equal(resp.citation!.license_basis, 'source-configuration');
+    assert.equal(/not specified/i.test(resp.citation!.source_name), false);
+    assert.equal(/No publisher license declaration/.test(resp.citation!.license), false);
+    assert.match(resp.citation!.citation_text ?? '', /Statistics Canada/);
+  });
+
+  it('uses one shared record attribution when the envelope has none', () => {
+    const attribution = 'Contains information licensed under the Open Government Licence – Canada.';
+    const resp = buildSuccess({
+      results: [
+        { id: 'a', attribution_text: attribution },
+        { id: 'b', attribution_text: attribution },
+      ],
+    }, makeContext());
+
+    assert.equal(resp.citation!.attribution_text, attribution);
+    assert.equal(resp.citation!.license, attribution);
+    assert.equal(resp.citation!.license_basis, 'source-configuration');
+  });
+
+  it('keeps the no-declaration citation when record attributions differ', () => {
+    const resp = buildSuccess({
+      results: [
+        { attribution_text: 'Source: Statistics Canada.' },
+        { attribution_text: 'Contains information licensed under the Open Government Licence – Canada.' },
+      ],
+    }, makeContext());
+
+    assert.equal(resp.citation!.source_name, UNKNOWN_SOURCE_CITATION.source_name);
+    assert.equal(resp.citation!.license_basis, 'no-publisher-declaration');
+  });
+
   it('merges extra citation fields when provided', () => {
     const ctx = makeContext();
     const resp = buildSuccess('data', ctx, {
@@ -169,6 +211,16 @@ describe('buildSuccess', () => {
 
     assert.equal(resp.citation!.source_name, 'Custom Source');
     assert.equal(resp.citation!.source_url, 'https://custom.ca/data');
+  });
+
+  it('keeps an explicit citation when the payload also carries attribution', () => {
+    const resp = buildSuccess(
+      { attribution: 'Source: Statistics Canada.' },
+      makeContext(),
+      { source_name: 'Custom Source', source_url: 'https://custom.ca/data' },
+    );
+    assert.equal(resp.citation!.source_name, 'Custom Source');
+    assert.equal(resp.citation!.attribution_text, undefined);
   });
 
   it('applies token optimization when queryOptions provided', () => {
