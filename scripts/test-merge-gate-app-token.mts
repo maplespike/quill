@@ -4,15 +4,15 @@
  *
  * Run 42579953147 evaluated #1275 after coverage passed. `gh pr view` ran
  * with GH_TOKEN=github.token, returned a null headRepository through five
- * retries, and the step exited 0: "PR #1275 head repo unknown is not
- * maplespike/quill". A later authenticated view of head
- * e30311f8751e75e3f95dd40687630758077cc284 returned maplespike/quill and
- * mergeable=true. The same null still happened on #1252 (run 42690795055)
- * after #1274 minted the fleet-merge-gate App token for branch writes only.
+ * retries, and the step exited 0. Run 42959473763 minted the fleet-merge-gate
+ * App token and still exited 0 on #1326, because the read was still that
+ * GraphQL field and an empty value took the foreign-repo skip.
  *
  * The guard fails when any of these is reverted:
- *   - the metadata read (gh pr view, check-runs, statuses) leaves the App token
- *   - a foreign event head can reach that read, or a foreign/unknown resolved
+ *   - the metadata read (REST pulls, check-runs, workflow runs, statuses)
+ *     leaves the App token
+ *   - a missing head repository or an unknown mergeable value exits 0
+ *   - a foreign event head can reach that read, or a known foreign resolved
  *     head can reach the merge
  *   - a `hold` label is no longer a skip
  *
@@ -41,9 +41,20 @@ test('the merge gate reads same-repo metadata with the App token and still exclu
   assert.deepEqual(auditMergeGate(workflow()), []);
 });
 
-test('reverting gh pr view to the ambient token fails', () => {
-  const text = workflow().replace('GH_TOKEN="$READ_TOKEN" gh pr view', 'gh pr view');
+test('reverting the pulls read to the ambient token fails', () => {
+  const text = workflow().replace(
+    'GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+  );
   assert.ok(codes(text).includes('metadata-app-token'));
+});
+
+test('reading GraphQL headRepository again fails', () => {
+  const text = workflow().replace(
+    "jq -r '.headRepo // empty'",
+    "jq -r '.headRepository.nameWithOwner // empty'",
+  );
+  assert.ok(codes(text).includes('graphql-head'));
 });
 
 test('pointing READ_TOKEN at GITHUB_TOKEN fails the metadata read', () => {
@@ -61,8 +72,34 @@ test('dropping the App token off the check-runs read fails', () => {
 
 test('dropping the App token off the statuses read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses',
-    'gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses',
+    'GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
+    'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
+  );
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('metadata-app-token'));
+});
+
+test('dropping the App token off the follow-up status Link read fails', () => {
+  const text = workflow().replace(
+    'GH_TOKEN="$READ_TOKEN" gh api --include "$status_url"',
+    'gh api --include "$status_url"',
+  );
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('metadata-app-token'));
+});
+
+test('dropping the App token off the workflow-run read fails', () => {
+  const text = workflow().replace(
+    'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
+    'gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
+  );
+  assert.ok(codes(text).includes('metadata-app-token'));
+});
+
+test('swallowing a pulls API error fails', () => {
+  const text = workflow().replace(
+    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" || true',
   );
   assert.ok(codes(text).includes('metadata-app-token'));
 });
@@ -87,12 +124,34 @@ test('selecting the App token before the event-head refusal fails', () => {
   assert.ok(codes(text).includes('fork-event-head'));
 });
 
-test('treating an empty resolved head as same-repo fails', () => {
+test('treating an empty resolved head as a foreign-repo skip fails', () => {
   const text = workflow().replace(
-    'if [[ "$HEAD_REPO" != "$GH_REPO" ]]; then',
-    'if [[ -n "$HEAD_REPO" && "$HEAD_REPO" != "$GH_REPO" ]]; then',
+    `          if [[ -z "$HEAD_REPO" ]]; then
+            echo "::error::PR #\${PR_NUMBER} head repository is missing after 5 reads of GET /repos/\${GH_REPO}/pulls/\${PR_NUMBER} (head.repo). The gate did not merge. Unknown metadata is not a foreign repository. Re-run the gate after the pulls API returns head.repo.full_name."
+            exit 1
+          fi
+`,
+    `          if [[ -z "$HEAD_REPO" ]]; then
+            echo "::notice::PR #\${PR_NUMBER} head repo unknown is not \${GH_REPO} — nothing to do."
+            exit 0
+          fi
+`,
   );
-  assert.ok(codes(text).includes('fork-resolved-head'));
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('unknown-head'));
+});
+
+test('dropping the unknown-mergeable failure fails', () => {
+  const text = workflow().replace(
+    `          if [[ "$MERGEABLE" == "UNKNOWN" ]]; then
+            echo "::error::PR #\${PR_NUMBER} mergeable is still unknown after 5 reads of GET /repos/\${GH_REPO}/pulls/\${PR_NUMBER}. The gate did not merge. Re-run the gate after GitHub finishes the mergeable calculation."
+            exit 1
+          fi
+`,
+    '',
+  );
+  assert.notEqual(text, workflow());
+  assert.ok(codes(text).includes('unknown-mergeable'));
 });
 
 test('removing the pull_request_target same-repo job if fails', () => {

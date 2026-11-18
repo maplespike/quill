@@ -1,0 +1,17 @@
+---
+interface Props {
+  lines?: number;
+  width?: string;
+  lang?: "en" | "fr";
+}
+const { lines = 3, width = "100%" } = Astro.props;
+---
+<div class="skeleton animate-pulse space-y-3" style={`width: ${width}`}>
+  {Array.from({ length: lines }).map((_, i) => (
+    <div class={`h-4 bg-muted rounded ${i === lines - 1 ? 'w-3/4' : 'w-full'}`}></div>
+  ))}
+</div>
+<style>
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+</style>
