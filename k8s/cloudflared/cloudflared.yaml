@@ -1,7 +1,7 @@
 # Cloudflare Tunnel (cloudflared) for the Quill public endpoints.
 #
 # Routed hostnames (ingress rules below):
-#   quill.maplespike.ca  -> quill-portal:8080
+#   (quill.maplespike.ca moved to Cloudflare Pages project maplespike-quill, #1304)
 #   api.maplespike.ca    -> quill-api:8082
 #   mcp.maplespike.ca    -> quill-mcp:3001
 #
@@ -39,8 +39,6 @@ data:
     protocol: http2
     metrics: 0.0.0.0:2000
     ingress:
-      - hostname: quill.maplespike.ca
-        service: http://10.43.4.171:8080
       - hostname: api.maplespike.ca
         service: http://10.43.126.210:8082
       - hostname: mcp.maplespike.ca
