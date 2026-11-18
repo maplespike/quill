@@ -22,7 +22,6 @@ import { once } from 'node:events';
 import net from 'node:net';
 import { createHmac } from 'node:crypto';
 import { createServer as createHttpServer, request as httpRequest, type IncomingMessage, type Server } from 'node:http';
-import { getAllTools } from '../tools/index.js';
 
 const SKIP = process.env.SKIP_NETWORK_TESTS === '1';
 const SKIP_REASON = 'SKIP_NETWORK_TESTS=1';
@@ -393,7 +392,7 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
       assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
       const listed = JSON.parse((await event()).data);
       assert.equal(listed.id, 2);
-      assert.equal(listed.result.tools.length, getAllTools().length);
+      assert.equal(listed.result.tools.length, 185);
       assert.equal(listed.result._quota.mode, 'api-key');
       assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
       const called = JSON.parse((await event()).data);
@@ -455,7 +454,7 @@ function startIndex(port: number, env: Record<string, string>): ChildProcess {
   });
 }
 
-// Cold start of src/index.ts (tsx + 184 tool modules) measured ~20 s per
+// Cold start of src/index.ts (tsx + 185 tool modules) measured ~20 s per
 // server on a loaded CI runner. Every test below spawns its own server, so
 // run them concurrently: the spawns overlap instead of serialising nine
 // cold starts, which is what pushed this file past the 180 s per-file
