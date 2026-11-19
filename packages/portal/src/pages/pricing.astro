@@ -286,6 +286,15 @@ const featureValues: Record<string, Bi[]> = {
           </Card>
         ))}
       </div>
+      <p class="mt-8 text-center text-xs text-muted-foreground">
+        {t(
+          "Sign in with a passkey, GitHub, or a wallet. Passkeys stay on the device that creates them — ",
+          "Connectez-vous avec une clé d'accès, GitHub ou un portefeuille. Les clés d'accès restent sur l'appareil qui les crée — "
+        )}
+        <a href="/docs/guide/identity-model.html" class="text-primary underline underline-offset-2 hover:no-underline">
+          {t("learn how account identity works", "découvrez le fonctionnement de l'identité de compte")}
+        </a>.
+      </p>
     </div>
   </section>
 
