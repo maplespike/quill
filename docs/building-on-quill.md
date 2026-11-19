@@ -190,7 +190,9 @@ data contract for every ingestion module — the fields other MCP authors should
 link against — and `quill://schemas/{module}` returns one module's full
 field-level schema (`name`, `type`, `required`, `description`). Read the schema
 before composing so your server's expectations match Quill's output exactly
-(no guessing field names).
+(no guessing field names). A browsable snapshot of the same inventory — for
+authors without an MCP client — is generated to
+[`docs/schemas/index.md`](./schemas/index.md).
 
 Heavy calls accept `_meta.progressToken` and stream `notifications/progress`.
 
