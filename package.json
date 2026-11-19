@@ -2,7 +2,7 @@
   "name": "quill",
   "version": "0.4.0",
   "private": true,
-  "description": "MapleSpike — civilian intelligence data platform",
+  "description": "MapleSpike \u2014 civilian intelligence data platform",
   "workspaces": [
     "packages/*"
   ],
@@ -36,7 +36,7 @@
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
     "build:engine": "pnpm --filter @maplespike/engine build",
     "build:sdk": "pnpm --filter @maplespike/sdk build",
-    "test": "turbo test && pnpm run test:docs && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:node-images && pnpm run test:chart-ingest-deadlines && pnpm run test:chart-probes && pnpm run test:lockstep && pnpm run test:secrets-history && pnpm run test:gitignore && pnpm run test:workflow-gh && pnpm run test:merge-gate && pnpm run test:fork-runner && pnpm run test:release-workflow && pnpm run test:pages-gating && pnpm run test:readme-lint-flags && pnpm run test:hang-bounds && pnpm run test:stall-watchdog && pnpm run test:isolation-timeout && pnpm run test:search-corpus-policy && pnpm run test:source-compliance && pnpm run test:source-compliance-unit && pnpm run test:count-ts && pnpm run test:license && pnpm run test:docs-staleness",
+    "test": "turbo test && pnpm run test:docs && pnpm run test:skill-review && pnpm run test:external && pnpm run test:ca && pnpm run test:pins && pnpm run test:node-images && pnpm run test:chart-ingest-deadlines && pnpm run test:chart-probes && pnpm run test:lockstep && pnpm run test:secrets-history && pnpm run test:gitignore && pnpm run test:workflow-gh && pnpm run test:merge-gate && pnpm run test:fork-runner && pnpm run test:release-workflow && pnpm run test:pages-gating && pnpm run test:readme-lint-flags && pnpm run test:hang-bounds && pnpm run test:stall-watchdog && pnpm run test:isolation-timeout && pnpm run test:search-corpus-policy && pnpm run test:source-compliance && pnpm run test:source-compliance-unit && pnpm run test:count-ts && pnpm run test:license && pnpm run test:docs-staleness",
     "test:packages": "turbo test",
     "test:docs": "pnpm exec tsx --test scripts/test-doc-links.mts scripts/test-flip-readiness.mts",
     "test:external": "pnpm exec tsx --test scripts/test-external-hosts.mts",
@@ -66,7 +66,8 @@
     "e2e:smoke": "bash scripts/e2e-smoke.sh --mode=local",
     "test:e2e:signup": "pnpm exec tsx scripts/e2e-signup-reveal.mts",
     "dev:up": "bash scripts/dev-up.sh",
-    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
+    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo",
+    "test:skill-review": "node --test scripts/test-skill-review-freshness.mjs"
   },
   "engines": {
     "node": ">=22.12"

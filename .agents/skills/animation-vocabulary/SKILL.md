@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-09-22
+last-reviewed: 2026-11-09
 name: animation-vocabulary
 description: Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop in; "the iOS rubber-band scroll" → Rubber-banding). Use when the user asks "what's it called when…", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.
 ---
@@ -56,7 +56,7 @@ Output:
 
 ## Glossary
 
-_A curated snapshot mirroring the project's `/vocabulary` page; keep the two in sync when either changes._
+This glossary is the term list for the skill. The portal has no `/vocabulary` route. Do not look for a page to keep in sync. Portal motion tokens (`--ease-out`, `--ease-in-out`, `--ease-drawer`, `--stagger-delay`) live in `packages/portal/src/styles/globals.css`. They do not define these names.
 
 ### Entrances & Exits — how elements appear and disappear
 - **Fade in / Fade out** — Element appears or disappears by changing opacity.

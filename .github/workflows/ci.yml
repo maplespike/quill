@@ -252,6 +252,12 @@ jobs:
       - name: TypeScript line-count unit test
         run: pnpm exec tsx --test scripts/test-count-ts.mts
 
+      # Issues #1197–#1201: the auto-issue walker opens a review when
+      # last-reviewed on these skill docs is older than 30 days. Fail here
+      # instead of waiting for the next Monday sweep.
+      - name: Skill review freshness
+        run: node --test scripts/test-skill-review-freshness.mjs
+
       # Gate A6-COMPLIANCE: licence coverage + policy drift + paid-tier
       # enforcement tripwires. Fails when a registry module lacks a licence
       # entry or when the runtime policy table drifts from
