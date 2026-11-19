@@ -1,4 +1,5 @@
 ---
+last-reviewed: 2026-11-09
 name: quill-provenance-briefing
 description: Produce a provenance-backed briefing on a Canadian regulation, bill, policy area, or entity — every factual claim annotated with a verifiable SHA-256 claim hash, source URL, and retrieval time from Quill MCP tools.
 version: 1.0.0
@@ -32,18 +33,26 @@ can independently confirm the sourcing. This is the skill that turns Quill from
    - `search_gazette` and `search_legislation` for regulatory status.
    - `search_committees` + `search_debates` for parliamentary consideration.
    - `track_bill` when a specific bill is named.
-   - `search_narrative_tracker` / `search_ngo_rss` for policy-actor messaging.
-   Each response carries a `claims` array — capture `sha256`, `sourceName`,
-   `sourceUrl`, and `retrievedAt` for every claim you cite.
+   - `ngo_narrative_tracker` / `search_ngo_rss` for policy-actor messaging.
+   `fact_check` and `track_bill` attach a `claims` array. Capture `sha256`,
+   `sourceName`, `sourceUrl`, and `retrievedAt` for every claim you cite.
+   `search_gazette`, `search_legislation`, `search_committees`,
+   `search_debates`, `ngo_narrative_tracker`, and `search_ngo_rss` do not
+   attach `claims`. Cite the source URL and mark the point `[unverified]`
+   until a claim hash exists.
 3. **Fact-check critical numbers** — for any statistic you plan to headline,
-   run `fact_check` on that exact figure and prefer evidence with `verified`
-   provenance; flag anything the registry cannot corroborate.
+   run `fact_check` on that exact figure. Treat the matches as related
+   records, not an independent verification. Flag anything the search cannot
+   corroborate.
 4. **Write the briefing** — structure: Executive Summary → Status/Chronology →
    Key Evidence (each bullet: claim, source, date, sha256) → Gaps & Contradictions
    → Verification appendix listing every hash + how to verify it.
-5. **Hand the reader the verification recipe** — state that any hash can be
-   checked with `verify_claim` (hash + original data) or `get_citation` (hash),
-   or locally with `echo -n '<data>' | sha256sum`.
+5. **Hand the reader the verification recipe** — state that a hash is checked
+   with `verify_claim` (`sha256`, plus the canonical record value when you
+   have it) or `get_citation` (hash). `verify_claim` compares the SHA-256 of
+   Quill's canonical JSON. A raw `sha256sum` of the source text does not
+   reproduce that hash. A match checks record integrity. It does not
+   authenticate the source.
 
 ## Output format
 

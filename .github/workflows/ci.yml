@@ -155,6 +155,12 @@ jobs:
           fi
           echo "no conflict markers"
 
+      # Issues #955 #956 #957 #959. Docs-only edits skip this workflow
+      # (paths-ignore **/*.md); docs-validation.yml runs the same test when
+      # those four files change.
+      - name: Last-reviewed frontmatter
+        run: node --test scripts/test-last-reviewed.mjs
+
       # Lint the workflow files themselves. actionlint catches schema errors
       # AND the untrusted-input class — an expression interpolated straight
       # into a `run:` script — which is how the auto-merge PR-title injection
