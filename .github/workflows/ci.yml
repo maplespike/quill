@@ -155,6 +155,16 @@ jobs:
           fi
           echo "no conflict markers"
 
+      # docs/METRICS-VALIDATION.md. Run before `pnpm build` so a freshly
+      # built pipeline-core dist cannot change the result. The generator
+      # keeps date stamps when counts do not change, and it does not write
+      # a count taken from dist/, so this diff stays quiet across days.
+      - name: Validate docs/metrics.json is up to date
+        run: |
+          node --test scripts/test-generate-metrics.mjs
+          node scripts/generate-metrics.mjs
+          git diff --exit-code docs/metrics.json
+
       # Lint the workflow files themselves. actionlint catches schema errors
       # AND the untrusted-input class — an expression interpolated straight
       # into a `run:` script — which is how the auto-merge PR-title injection

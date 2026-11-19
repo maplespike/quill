@@ -5,7 +5,7 @@
   "modules": {
     "registryCount": 207,
     "ingestionDirs": 203,
-    "description": "207 modules registered at runtime (getAllModules(); counted from quoted registry.ts literals because dist was not built). Includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "description": "207 modules registered (quoted modulePath entries in registry.ts). Includes attestation, gc-standards, cross-reference utilities. 203 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
     "count": 186,

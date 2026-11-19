@@ -25,7 +25,7 @@ The CI workflow (`ci.yml`) runs two checks:
    git diff --exit-code docs/metrics.json
    ```
 
-2. **Metrics drift check** — On PRs, compares generated metrics against committed metrics.json and warns on drift.
+2. **Metrics drift check** — `.github/workflows/metrics-drift-check.yml` runs the same generator and fails on `git diff --exit-code docs/metrics.json`. Date stamps stay as committed when the counts do not change, so the diff does not fail just because the calendar day changed.
 
 ## Auto-Fix
 
