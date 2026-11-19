@@ -12,6 +12,7 @@
 
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
+import { applyMediaRssMetadataSqlite } from '@maplespike/database';
 import type { QuillStorage, QuillCache, Tenant, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { hashApiKey } from './auth.js';
 
@@ -24,6 +25,7 @@ export class NodeSqliteStorage implements QuillStorage {
     this.db.exec('PRAGMA journal_mode = WAL');
     this.db.exec('PRAGMA foreign_keys = ON');
     this.migrate();
+    applyMediaRssMetadataSqlite(this.db);
     this.seed();
   }
 

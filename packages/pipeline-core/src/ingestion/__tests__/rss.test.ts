@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRSS, hashString, deduplicateItems, RSS_SOURCES, fetchFeed, RSS_EXCERPT_MAX } from '../rss.js';
+import { parseRSS, hashString, deduplicateItems, RSS_SOURCES, fetchFeed } from '../rss.js';
 import type { RSSItem } from '../rss.js';
 
 describe('RSS Module', () => {
@@ -84,7 +84,13 @@ describe('RSS Module', () => {
 </rss>`;
       const res = parseRSS(xml);
       assert.equal(res.items!.length, 1);
-      assert.ok(res.items![0].contentSnippet?.includes('Paragraph with bold text'));
+      assert.equal(res.items![0].title, 'Test');
+      assert.equal(res.items![0].link, 'https://example.com/test');
+      const item = res.items![0] as Record<string, unknown>;
+      assert.equal(item.contentSnippet, undefined);
+      assert.equal(item.content, undefined);
+      assert.equal(item.description, undefined);
+      assert.equal(item.summary, undefined);
     });
 
     it('extracts pubDate', () => {
@@ -204,22 +210,18 @@ describe('RSS Module', () => {
     });
   });
 
-  describe('excerpt policy (licence compliance)', () => {
-    it('stores only a short plain-text excerpt, never the full content', () => {
+  describe('metadata-only policy (licence compliance)', () => {
+    it('keeps headline, link, and date and drops description and body', () => {
       const long = 'word '.repeat(200);
-      const xml = `<?xml version="1.0"?>\n<rss version="2.0">\n  <channel>\n    <item>\n      <title>Headline</title>\n      <link>https://example.com/long</link>\n      <description><![CDATA[<p>${long}</p>]]></description>\n    </item>\n  </channel>\n</rss>`;
-      const item = parseRSS(xml).items![0];
-      assert.ok(item.contentSnippet && item.contentSnippet.length <= RSS_EXCERPT_MAX);
-      assert.equal(item.content, item.contentSnippet);
-      assert.ok(!item.contentSnippet!.includes('<'));
-    });
-
-    it('falls back to content:encoded for the excerpt when description is absent', () => {
-      const long = 'word '.repeat(200);
-      const xml = `<?xml version="1.0"?>\n<rss version="2.0">\n  <channel>\n    <item>\n      <title>T</title>\n      <link>https://example.com/body-only</link>\n      <content:encoded><![CDATA[<div>${long}</div>]]></content:encoded>\n    </item>\n  </channel>\n</rss>`;
-      const item = parseRSS(xml).items![0];
-      assert.ok(item.contentSnippet && item.contentSnippet.length <= RSS_EXCERPT_MAX);
-      assert.equal(item.content, item.contentSnippet);
+      const xml = `<?xml version="1.0"?>\n<rss version="2.0">\n  <channel>\n    <item>\n      <title>Headline</title>\n      <link>https://example.com/long</link>\n      <pubDate>Mon, 01 Jan 2026 12:00:00 GMT</pubDate>\n      <description><![CDATA[<p>${long}</p>]]></description>\n      <content:encoded><![CDATA[<div>${long}</div>]]></content:encoded>\n    </item>\n  </channel>\n</rss>`;
+      const item = parseRSS(xml).items![0] as Record<string, unknown>;
+      assert.equal(item.title, 'Headline');
+      assert.equal(item.link, 'https://example.com/long');
+      assert.equal(item.pubDate, 'Mon, 01 Jan 2026 12:00:00 GMT');
+      for (const key of ['content', 'contentSnippet', 'description', 'summary', 'excerpt', 'body']) {
+        assert.equal(item[key], undefined, key);
+      }
+      assert.equal(JSON.stringify(item).includes(long.trim()), false);
     });
   });
 

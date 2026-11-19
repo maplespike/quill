@@ -14,7 +14,6 @@ export interface MediaRecord {
   value?: number;
   entity?: string;
   category?: string;
-  description: string;
   hash: string;
   ingestedAt: string;
 }

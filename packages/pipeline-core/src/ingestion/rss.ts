@@ -16,8 +16,6 @@ export interface RSSItem {
   title?: string;
   link?: string;
   guid?: string;
-  contentSnippet?: string;
-  content?: string;
   pubDate?: string;
 }
 
@@ -33,15 +31,12 @@ export interface RSSSource {
   preferHttp1?: boolean;
 }
 
-/** Max plain-text excerpt length for feed items (licence policy: headline +
- *  link + short excerpt only; no full-text republication). */
-export const RSS_EXCERPT_MAX = 300;
-
-/** Canonical article shape produced by the pipeline. */
+/**
+ * Canonical article shape. Licence policy: headline, source name, published
+ * date, and link only. No description, summary, excerpt, or body.
+ */
 export interface RawArticle {
   title: string;
-  summary: string;
-  content?: string;
   url: string;
   source: string;
   publishedAt: string;
@@ -170,27 +165,8 @@ export function parseRSS(xmlText: string): RSSFeed {
     const pubDateMatch = itemBlock.match(/<pubDate[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/pubDate>/i);
     if (pubDateMatch) item.pubDate = pubDateMatch[1].trim();
 
-    const descMatch = itemBlock.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
-    if (descMatch) {
-      // Licence policy: news feeds serve a short excerpt only — never store
-      // the publisher’s full content.
-      const plainDesc = descMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      item.contentSnippet = plainDesc.length > RSS_EXCERPT_MAX
-        ? `${plainDesc.slice(0, RSS_EXCERPT_MAX - 1)}…`
-        : plainDesc;
-      item.content = item.contentSnippet;
-    }
-
-    const contentMatch = itemBlock.match(/<content:encoded[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content:encoded>/i);
-    if (contentMatch && !item.contentSnippet) {
-      // Fallback excerpt when the feed carries no description; the full
-      // body is deliberately not stored (licence policy).
-      const plainBody = contentMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      item.contentSnippet = plainBody.length > RSS_EXCERPT_MAX
-        ? `${plainBody.slice(0, RSS_EXCERPT_MAX - 1)}…`
-        : plainBody;
-      item.content = item.contentSnippet;
-    }
+    // Licence policy: do not read description or content:encoded. Those
+    // fields are publisher body text and are not stored.
 
     if (item.title || item.link) {
       items.push(item);
