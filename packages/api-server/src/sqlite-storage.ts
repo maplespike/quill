@@ -7,6 +7,7 @@
 
 import Database from 'better-sqlite3';
 import { randomUUID } from 'node:crypto';
+import { applyPrivateNamesSqlite } from '@maplespike/database';
 import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 
@@ -23,6 +24,7 @@ export class SqliteStorage implements QuillStorage {
     this.db.pragma('foreign_keys = ON');
 
     this.migrate();
+    applyPrivateNamesSqlite(this.db);
     this.seed();
   }
 

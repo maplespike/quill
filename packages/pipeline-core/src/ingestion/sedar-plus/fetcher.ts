@@ -218,7 +218,7 @@ function mapCdPlusFiling(raw: RawCdPlusFiling): SedarFiling {
   const ingestedAt = new Date().toISOString();
   const rawJurisdiction = (raw.jurisdiction ?? '').toUpperCase();
 
-  return {
+  return redactPrivateFiling({
     filingId: raw.filingId ?? raw.id ?? `unknown-${Date.now()}`,
     issuerId: raw.issuerId ?? '',
     issuerName: raw.companyName ?? raw.issuerName ?? 'Unknown',
@@ -237,7 +237,18 @@ function mapCdPlusFiling(raw: RawCdPlusFiling): SedarFiling {
     projectNumber: raw.projectNumber ?? null,
     isLegacy: raw.isLegacy ?? false,
     ingestedAt,
-  };
+  });
+}
+
+/** Insider reports and early-warning reports name private individuals. Keep the filing, not the person. */
+export function redactPrivateFiling(filing: SedarFiling): SedarFiling {
+  if (filing.filingType === 'insider-report') {
+    return { ...filing, title: 'Insider report', description: null };
+  }
+  if (filing.filingType === 'early-warning-report') {
+    return { ...filing, title: 'Early warning report', description: null };
+  }
+  return filing;
 }
 
 function mapCdPlusIssuer(raw: RawCdPlusIssuer): SedarIssuer {

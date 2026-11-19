@@ -143,24 +143,20 @@ function makeFiling(
 
 function makeDonation(
   overrides: Partial<Donation> & {
-    donorName: string;
-    recipientName: string;
-    amount: number;
+    party: string;
+    amountBand: string;
+    totalAmount: number;
   },
 ): Donation {
   return {
     id: overrides.id ?? uid("donation"),
     source: overrides.source ?? "elections_canada",
-    donorName: overrides.donorName,
-    donorPersonId: overrides.donorPersonId,
-    donorOrganizationId: overrides.donorOrganizationId,
-    recipientName: overrides.recipientName,
-    recipientType: overrides.recipientType ?? "political_party",
-    amount: overrides.amount,
-    currency: overrides.currency ?? "CAD",
-    date: overrides.date ?? "2024-03-01",
-    isCorporate: overrides.isCorporate ?? false,
-    rawData: {},
+    party: overrides.party,
+    riding: overrides.riding ?? '',
+    amountBand: overrides.amountBand,
+    contributionCount: overrides.contributionCount ?? 1,
+    totalAmount: overrides.totalAmount,
+    jurisdiction: overrides.jurisdiction,
     createdAt: isoNow(),
     updatedAt: isoNow(),
   };
@@ -359,11 +355,10 @@ describe("GraphBuilder", () => {
     const donations = [
       makeDonation({
         id: "d1",
-        donorName: "SNC-Lavalin",
-        donorOrganizationId: "org-snc",
-        recipientName: "Liberal Party of Canada",
-        amount: 10_000,
-        isCorporate: true,
+        party: "Example Party",
+        riding: "Example Riding",
+        amountBand: "2000+",
+        totalAmount: 10_000,
       }),
     ];
 
@@ -400,7 +395,8 @@ describe("GraphBuilder", () => {
     );
 
     expect(graph.nodes.length).toBeGreaterThanOrEqual(20);
-    expect(graph.edges.length).toBeGreaterThanOrEqual(20);
+    // Donation aggregates do not add a donor edge.
+    expect(graph.edges.length).toBeGreaterThanOrEqual(18);
   });
 
   it("finds neighbors of a node", () => {
@@ -733,17 +729,15 @@ describe("Signal: Sole-Source Heavy Lobbying", () => {
 });
 
 describe("Signal: Donation Proximity Correlation", () => {
-  it("detects donor who is also a contract vendor", () => {
+  it("does not build a thread from a donor name", () => {
     const am = makeAliasManager();
     const donations = [
       makeDonation({
         id: "d1",
-        donorName: "SNC-Lavalin",
-        donorOrganizationId: "org-snc",
-        recipientName: "Liberal Party of Canada",
-        amount: 15_000,
-        isCorporate: true,
-        date: "2023-06-01",
+        party: "Example Party",
+        riding: "",
+        amountBand: "2000+",
+        totalAmount: 15_000,
       }),
     ];
     const contracts = [
@@ -766,8 +760,7 @@ describe("Signal: Donation Proximity Correlation", () => {
       new EntityResolver(am),
       am,
     );
-    expect(threads.length).toBeGreaterThanOrEqual(1);
-    expect(threads[0].signalType).toBe("donation_proximity_correlation");
+    expect(threads.length).toBe(0);
   });
 });
 
@@ -1075,12 +1068,10 @@ describe("runAllDetectors", () => {
     const donations = [
       makeDonation({
         id: "d1",
-        donorName: "SNC-Lavalin",
-        donorOrganizationId: "org-snc",
-        recipientName: "Liberal Party of Canada",
-        amount: 10_000,
-        isCorporate: true,
-        date: "2024-01-15",
+        party: "Example Party",
+        riding: "Example Riding",
+        amountBand: "2000+",
+        totalAmount: 10_000,
       }),
     ];
 

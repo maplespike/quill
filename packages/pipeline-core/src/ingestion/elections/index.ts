@@ -33,7 +33,7 @@ import type {
   RawThirdPartySpendingRecord,
 } from './types.js';
 import type { D1Database } from '../committees/db.js';
-import { upsertOrganization, upsertDonation } from '../../shared-db.js';
+import { upsertOrganization, upsertDonationAggregate } from '../../shared-db.js';
 
 
 /**
@@ -200,40 +200,29 @@ export async function ingestThirdPartyAds(
           }
 
           // Also upsert to shared tables
-          try {
-            upsertOrganization(ad.registrantName, {
-              type: ad.registrantType,
-              province: ad.province ?? undefined,
-              city: ad.city ?? undefined,
-              source: "elections",
-              rawData: {
-                officerName: ad.officerName,
-                influenceActorId: ad.influenceActorId,
-                corporateEntityNumber: ad.corporateEntityNumber,
-              },
-            });
-          } catch { /* non-fatal */ }
+          if (ad.registrantType !== 'individual') {
+            try {
+              upsertOrganization(ad.registrantName, {
+                type: ad.registrantType,
+                province: ad.province ?? undefined,
+                city: ad.city ?? undefined,
+                source: "elections",
+                rawData: {
+                  influenceActorId: ad.influenceActorId,
+                  corporateEntityNumber: ad.corporateEntityNumber,
+                },
+              });
+            } catch { /* non-fatal */ }
+          }
           if (ad.totalSpending !== null && ad.totalSpending > 0) {
             try {
-              upsertDonation(
-                ad.registrantName,
-                ad.electionPeriod.electionName ?? "Elections Canada Third-Party Advertising",
-                "election-advertising",
-                ad.totalSpending,
-                ad.electionPeriod.startDate ?? ad.registrationDate ?? new Date().toISOString().substring(0, 10),
-                {
-                  donorOrganizationId: undefined, // org ID could be resolved later
-                  province: ad.province ?? undefined,
-                  riding: ad.targetedRidings?.[0],
-                  isCorporate: ad.registrantType === "corporation",
-                  source: "elections",
-                  rawData: {
-                    registrationNumber: ad.registrationNumber,
-                    registrantType: ad.registrantType,
-                    electionPeriod: ad.electionPeriod,
-                  },
-                },
-              );
+              upsertDonationAggregate({
+                party: 'unspecified',
+                riding: ad.targetedRidings?.[0],
+                amount: ad.totalSpending,
+                jurisdiction: ad.province ?? undefined,
+                source: 'elections',
+              });
             } catch { /* non-fatal */ }
           }
 

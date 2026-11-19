@@ -1,24 +1,12 @@
 import type { BaseEntity, GovernmentSource } from "./base";
 
-export type DonationRecipientType =
-  | "political_party"
-  | "leadership_candidate"
-  | "nomination_contestant"
-  | "candidate"
-  | "riding_association"
-  | "third_party";
-
-export interface Donation extends BaseEntity {
-  donorName: string;
-  donorPersonId?: string;
-  donorOrganizationId?: string;
-  recipientName: string;
-  recipientType: DonationRecipientType;
-  amount: number;
-  currency: string;
-  date: string;
-  province?: string;
-  riding?: string;
-  isCorporate: boolean;
+/** Aggregate donation. No donor name. */
+export interface Donation extends Omit<BaseEntity, "rawData"> {
+  party: string;
+  riding: string;
+  amountBand: string;
+  contributionCount: number;
+  totalAmount: number;
+  jurisdiction?: string;
   source: GovernmentSource;
 }

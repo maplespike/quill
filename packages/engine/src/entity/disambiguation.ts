@@ -235,35 +235,12 @@ export class DisambiguationEngine {
   }
 
   private findDonationCorrelation(
-    context: DisambiguationContext,
-    donations: Donation[],
+    _context: DisambiguationContext,
+    _donations: Donation[],
   ):
     | { entity: Person | Organization; confidence: number; reasoning: string[] }
     | null {
-    const query = context.query.toLowerCase();
-
-    for (const candidate of context.candidates) {
-      const entity = candidate.entity;
-      const matches = donations.filter((d) => {
-        const donorMatch = this.resolver.resolveOrgNames(
-          d.donorName,
-          entity.names[0],
-        );
-        return donorMatch >= 0.85;
-      });
-
-      if (matches.length >= 2) {
-        return {
-          entity,
-          confidence: candidate.confidence,
-          reasoning: [
-            `Correlated with ${matches.length} donation records`,
-            `Examples: ${matches.slice(0, 2).map((d) => `$${d.amount} to ${d.recipientName}`).join(", ")}`,
-          ],
-        };
-      }
-    }
-
+    // Donation rows do not name a donor, so they cannot disambiguate a person.
     return null;
   }
 

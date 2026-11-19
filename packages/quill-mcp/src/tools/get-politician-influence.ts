@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchPoliticians, fetchParliamentVotes, fetchEntityCrossReference } from './upstream-fetcher.js';
+import { stripPrivateIndividualNames } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_politician_influence',
@@ -28,7 +29,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const mp = mpSearch.results[0] as Record<string, unknown> | undefined;
 
     return {
-      content: {
+      content: stripPrivateIndividualNames({
         tool: 'get_politician_influence',
         query: name,
         mpFound: !!mp,
@@ -44,7 +45,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         },
         openParliamentUrl: mp?.url ? `https://api.openparliament.ca${mp.url}` : null,
         sources: ['api.openparliament.ca', 'ouvert.canada.ca'],
-      },
+      }),
     };
   } catch (error) {
     return { content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true };

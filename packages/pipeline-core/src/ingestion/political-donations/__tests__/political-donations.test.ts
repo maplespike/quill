@@ -17,42 +17,43 @@ describe('political-donations Module', () => {
     assert.equal(summary.totalContributions, 0);
   });
 
-  it('parser handles valid contribution records', async () => {
+  it('aggregates by party, riding, and amount band and drops donor names', async () => {
     const { parseContributions } = await import('../parser.js');
-    const records = [
-      { donor: 'John Doe', amount: 1000, date: '2024-01-15', party: 'Liberal' },
-    ];
-    const contributions = await parseContributions(records, 'federal');
-    assert.equal(contributions.length, 1);
-    assert.equal(contributions[0].donor, 'John Doe');
-    assert.equal(contributions[0].amount, 1000);
-    assert.equal(contributions[0].party, 'Liberal');
+    const records = await parseContributions([
+      { donor: 'Example Donor A', amount: 1000, party: 'Example Party', riding: 'Example Riding' },
+      { contributorName: 'Example Donor B', amount: 50, party: 'Example Party', riding: 'Example Riding' },
+      { name: 'Example Donor C', amount: 2500, party: 'Other Party', riding: '' },
+    ], 'federal');
+    assert.equal(records.length, 3);
+    const serialized = JSON.stringify(records);
+    assert.equal(serialized.includes('donor'), false);
+    assert.equal(serialized.includes('Example Donor'), false);
+    const mid = records.find((r) => r.amountBand === '1000-1999');
+    assert.equal(mid?.party, 'Example Party');
+    assert.equal(mid?.riding, 'Example Riding');
+    assert.equal(mid?.contributionCount, 1);
+    assert.equal(mid?.totalAmount, 1000);
   });
 
-  it('parser skips records missing donor or amount', async () => {
+  it('parser skips records missing an amount', async () => {
     const { parseContributions } = await import('../parser.js');
-    const records = [
-      { donor: 'Jane Smith' },
-      { amount: 500 },
+    const records = await parseContributions([
+      { party: 'Example Party' },
+      { amount: 'not-a-number' },
       {},
-    ];
-    const contributions = await parseContributions(records, 'ON');
-    assert.equal(contributions.length, 0);
+    ], 'ON');
+    assert.equal(records.length, 0);
   });
 
   it('summarizeContributions aggregates correctly', async () => {
     const { parseContributions, summarizeContributions } = await import('../parser.js');
-    const records = [
-      { donor: 'A', amount: 100 },
-      { donor: 'B', amount: 200 },
-      { donor: 'C', amount: 300 },
-    ];
-    const contributions = await parseContributions(records, 'federal');
-    const summary = summarizeContributions(contributions);
+    const records = await parseContributions([
+      { amount: 100, party: 'Example Party' },
+      { amount: 200, party: 'Example Party' },
+      { amount: 300, party: 'Example Party' },
+    ], 'federal');
+    const summary = summarizeContributions(records);
     assert.equal(summary.totalContributions, 3);
     assert.equal(summary.totalAmount, 600);
-    assert.equal(summary.averageAmount, 200);
-    assert.equal(summary.maxAmount, 300);
-    assert.equal(summary.minAmount, 100);
   });
 });
