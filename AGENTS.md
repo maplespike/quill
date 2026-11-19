@@ -439,6 +439,14 @@ even the commit body; see #983.)
 An issue still open after a green gate merge is this convention being missed,
 not a flaky check.
 
+`.github/workflows/label-guard.yml` alerts when `ready-to-merge` is removed
+from an open pull request. It does not put the label back. It skips a
+closed or merged pull request, and it skips a removal by the merge gate
+while that gate is merging. `hold` is optional. Only Atlas sets it. Add it
+to pause an approved pull request. The guard does not require `hold`, and
+it does not alert when the pull request already carries `hold`. The
+convention is that the merge gate also skips a held pull request.
+
 ## Document hygiene
 
 - **`AGENTS.md` is the source of truth.** Sibling `AGENTS.html` is an outdated static snapshot (Jul 3, 2026); do not edit.

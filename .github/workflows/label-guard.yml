@@ -1,0 +1,127 @@
+---
+# Label guard — alert when ready-to-merge is removed from an open pull request.
+#
+# pull_request_target runs this file from the default branch. The job
+# does not check out the repository and does not run pull-request code.
+# Event fields enter run scripts only through env. They are never
+# interpolated into the script text.
+#
+# The job does not add or remove labels on the pull request. It opens a
+# label-guard issue, or comments on the open one for that pull request.
+# The token is the workflow GITHUB_TOKEN. The only permissions are
+# issues: write and pull-requests: read.
+#
+# It skips a pull request that is closed or merged. It skips a removal
+# by the merge gate while that gate is merging. The gate's App login is
+# fleet-merge-gate[bot]. The gate workflow's token login is
+# github-actions[bot]. This job does not list workflow runs.
+#
+# hold is optional. Only Atlas sets it. The guard does not require it
+# and does not create it. When the pull request already carries hold,
+# the guard does not alert. The convention is that the merge gate also
+# skips a held pull request. This file does not change the gate.
+name: Label guard
+
+on:
+  pull_request_target:
+    types: [unlabeled]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: label-guard-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  alert:
+    if: >-
+      github.event.label.name == 'ready-to-merge'
+      && github.event.pull_request.state == 'open'
+      && github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Open or update the label-guard issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SENDER: ${{ github.event.sender.login }}
+          REMOVED_AT: ${{ github.event.pull_request.updated_at }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${PR_NUMBER:-}" =~ ^[0-9]+$ ]]; then
+            echo "::error::PR number is not numeric."
+            exit 1
+          fi
+          if [[ -z "${SENDER:-}" ]]; then
+            SENDER="unknown"
+          fi
+          if [[ -z "${REMOVED_AT:-}" ]]; then
+            REMOVED_AT="unknown"
+          fi
+          if [[ -z "${RUN_URL:-}" ]]; then
+            RUN_URL="unknown"
+          fi
+
+          # The merge gate removes the label while it merges. Do not alert.
+          case "$SENDER" in
+            "fleet-merge-gate[bot]"|"github-actions[bot]")
+              echo "::notice::sender is the merge gate — nothing to do."
+              exit 0
+              ;;
+          esac
+
+          meta="$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json state,merged,labels)"
+          state="$(jq -r '.state' <<<"$meta")"
+          merged="$(jq -r '.merged' <<<"$meta")"
+          if [[ "$state" != "OPEN" || "$merged" == "true" ]]; then
+            echo "::notice::pull request is closed or merged — nothing to do."
+            exit 0
+          fi
+          # hold is optional. The guard does not create it. It does not alert
+          # when the pull request already carries it.
+          if jq -e 'any(.labels[]?; .name == "hold")' <<<"$meta" >/dev/null; then
+            echo "::notice::pull request carries hold — nothing to do."
+            exit 0
+          fi
+
+          gh label create label-guard \
+            --repo "$GH_REPO" \
+            --color D93F0B \
+            --description "ready-to-merge was removed from an open pull request." \
+            --force
+
+          body_file="${RUNNER_TEMP}/label-guard-body"
+          jq -nr \
+            --arg sender "$SENDER" \
+            --arg at "$REMOVED_AT" \
+            --arg pr "$PR_NUMBER" \
+            --arg url "$PR_URL" \
+            --arg run "$RUN_URL" \
+            '"label-guard-pr:\($pr)\n\nPR #\($pr) lost the ready-to-merge label.\n\nWho: \($sender)\nWhen: \($at)\nPull request: \($url)\nRun: \($run)\n"' \
+            > "$body_file"
+
+          existing="$(gh issue list --repo "$GH_REPO" --state open --label label-guard --limit 100 --json number,body \
+            | jq -r --arg pr "$PR_NUMBER" '
+                [ .[]
+                  | select((.body // "") | test("(^|\n)label-guard-pr:" + $pr + "(\n|$)"))
+                  | .number
+                ] | min // empty
+              ')"
+          if [[ -n "$existing" ]]; then
+            gh issue comment "$existing" --repo "$GH_REPO" --body-file "$body_file"
+            echo "::notice::commented on label-guard issue #${existing}."
+          else
+            gh issue create --repo "$GH_REPO" \
+              --title "label-guard: ready-to-merge removed from #${PR_NUMBER}" \
+              --body-file "$body_file" \
+              --label label-guard
+            echo "::notice::opened a label-guard issue for #${PR_NUMBER}."
+          fi

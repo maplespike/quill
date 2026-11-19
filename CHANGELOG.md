@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — 2026-11-09
+
+### Added
+- **Label guard alerts when `ready-to-merge` is removed from an open pull request.** `.github/workflows/label-guard.yml` runs on `pull_request_target` `unlabeled`. It does not check out pull-request code and it does not put the label back. It opens a `label-guard` issue, or comments on the open one for that pull request, with the actor, the time, the pull request, and a link to the run. It skips a closed or merged pull request, and it skips a removal by the merge gate while that gate is merging. The token is `GITHUB_TOKEN` with `issues: write` and `pull-requests: read`. `hold` is optional. Only Atlas sets it. The guard does not require it. Regression tests in `scripts/test-label-guard.mts`.
+
 ## [Unreleased] — 2026-11-04
 
 ### Fixed

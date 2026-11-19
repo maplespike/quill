@@ -311,6 +311,13 @@ jobs:
 
       - name: Merge gate metadata token unit tests
         run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
+      # scripts/test-label-guard.mts parses label-guard.yml. The trigger is
+      # unlabeled for ready-to-merge. No step adds a label to the pull
+      # request. There is no checkout of the pull request head. Permissions
+      # are issues: write and pull-requests: read. Event fields go through
+      # env vars.
+      - name: Label guard unit tests
+        run: pnpm exec tsx --test scripts/test-label-guard.mts
 
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for

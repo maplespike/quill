@@ -11,6 +11,14 @@ Every change follows: **Issue → Branch/Worktree → PR → Merge → Close Iss
 6. **Merge**: Squash merge to `main` for most changes. `prod` is reserved for production releases via changeset publish workflow.
 7. **Cleanup**: Remove worktree after merge: `git worktree remove /data/projects/own/maplespike-NNN`
 
+### Merge gate
+
+Add the `ready-to-merge` label after you read the diff. The merge gate squash-merges the pull request when checks are green.
+
+`hold` is optional. Only Atlas sets it. You can add it to pause an approved pull request. The label guard does not require `hold`, does not create it, and does not alert when a pull request already carries it. The convention is that the merge gate also skips a held pull request.
+
+`.github/workflows/label-guard.yml` opens a `label-guard` issue when `ready-to-merge` is removed from an open pull request. It does not put the label back. It skips a closed or merged pull request, and it skips a removal by the merge gate while that gate is merging.
+
 > **Branch Protection**: `main` is protected requiring PRs + CI. `prod` is production-only (changesets publish to `prod` then merge to `main`). Pre-commit hooks warn on commits to `prod`.
 
 ## Development Environment
