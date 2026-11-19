@@ -9,6 +9,8 @@
  *   await migratePg(pool);
  */
 
+import { applyGazetteRiasCapPostgres } from "./gazette-rias-migration.js";
+
 export const PG_DOMAIN_MIGRATION_SQL = `
 -- ─── Persons ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS persons (
@@ -459,6 +461,7 @@ export async function migrateDomainTables(pool: import("pg").Pool): Promise<void
   const client = await pool.connect();
   try {
     await client.query(PG_DOMAIN_MIGRATION_SQL);
+    await applyGazetteRiasCapPostgres(client);
     console.log("[migrate-pg] Domain tables migration complete");
   } finally {
     client.release();

@@ -16,6 +16,7 @@
  */
 
 import { GazettePart, type GazetteRecord } from './types.js';
+import { capRiasExcerpt } from './rias.js';
 import { computeHash } from '../../verification/hashing.js';
 
 
@@ -252,11 +253,13 @@ export function extractRIASText(html: string): string | null {
   const riasHeadingPattern = /<h[1-6][^>]*>(?:Regulatory\s+Impact\s+Analysis\s+Statement|RIAS)\s*<\/h[1-6]>\s*(<p[^>]*>[\s\S]*?)(?=<h[1-6]|<footer|<div\s+class="[^"]*footer)/i;
   const match = html.match(riasHeadingPattern);
   if (match && match[1]) {
-    // Strip HTML tags
-    return match[1]
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+    // Strip HTML tags and cap at 300 characters. The full RIAS is not stored.
+    return capRiasExcerpt(
+      match[1]
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    );
   }
 
   return null;

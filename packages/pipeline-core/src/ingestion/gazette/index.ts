@@ -27,6 +27,7 @@
 import { fetchGazetteFeed, fetchRegulationDetail, GazetteFetchError } from './fetcher.js';
 import { parseGazetteRSS, extractRIALink, extractDepartment, extractRIASText, extractRegulationId } from './parser.js';
 import { GAZETTE_RSS_URLS, GAZETTE_DDL } from './constants.js';
+import { capRiasExcerpt } from './rias.js';
 import { GazettePart, type GazetteRecord, type GazetteIngestionResult } from './types.js';
 import type { D1Database } from '../committees/db.js';
 
@@ -217,7 +218,7 @@ async function upsertGazetteRecord(
     record.description,
     record.registrationNumber,
     record.riasUrl,
-    record.riasText,
+    capRiasExcerpt(record.riasText),
     record.commentDeadline,
     record.department,
     record.regulationId,
