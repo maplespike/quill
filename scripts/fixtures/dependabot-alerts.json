@@ -1,0 +1,115 @@
+[
+  {
+    "number": 1,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "rustls" },
+      "manifest_path": "packages/edge-worker/pnpm-lock.yaml",
+      "scope": "runtime"
+    },
+    "security_advisory": {
+      "ghsa_id": "GHSA-0000-0000-0001",
+      "severity": "high",
+      "summary": "rustls certificate validation bypass"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "rustls" },
+      "severity": "high",
+      "vulnerable_version_range": ">= 0.20.0, < 0.20.9",
+      "first_patched_version": { "identifier": "0.20.9" }
+    }
+  },
+  {
+    "number": 6,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "tar" },
+      "manifest_path": "pnpm-lock.yaml",
+      "scope": "runtime"
+    },
+    "security_advisory": {
+      "ghsa_id": "GHSA-0000-0000-0006",
+      "severity": "high",
+      "summary": "tar path traversal"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "tar" },
+      "severity": "high",
+      "vulnerable_version_range": ">= 6.0.0, < 6.2.1",
+      "first_patched_version": { "identifier": "7.5.16" }
+    }
+  },
+  {
+    "number": 2,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "lru" },
+      "manifest_path": "pnpm-lock.yaml",
+      "scope": "runtime"
+    },
+    "security_advisory": {
+      "ghsa_id": "GHSA-0000-0000-0002",
+      "severity": "moderate",
+      "summary": "lru cache poisoning"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "lru" },
+      "severity": "moderate",
+      "vulnerable_version_range": ">= 3.0.0, < 3.1.1",
+      "first_patched_version": null
+    }
+  },
+  {
+    "number": 3,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "nodemailer" },
+      "manifest_path": "packages/notification-service/package.json",
+      "scope": "runtime"
+    },
+    "security_advisory": {
+      "ghsa_id": "GHSA-0000-0000-0003",
+      "severity": "high",
+      "summary": "nodemailer header injection"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "nodemailer" },
+      "severity": "high",
+      "vulnerable_version_range": ">= 6.0.0, < 6.9.9",
+      "first_patched_version": { "identifier": "6.9.10" }
+    }
+  },
+  {
+    "number": 4,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "fast-uri" },
+      "manifest_path": "pnpm-lock.yaml",
+      "scope": "runtime"
+    },
+    "security_advisory": {
+      "ghsa_id": "GHSA-0000-0000-0004",
+      "severity": "high",
+      "summary": "fast-uri host confusion"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "fast-uri" },
+      "severity": "high",
+      "vulnerable_version_range": ">= 2.0.0, < 2.1.1",
+      "first_patched_version": { "identifier": "3.0.0" }
+    }
+  },
+  {
+    "number": 5,
+    "state": "open",
+    "dependency": {
+      "package": { "ecosystem": "npm", "name": "already-fixed" },
+      "manifest_path": "pnpm-lock.yaml"
+    },
+    "security_vulnerability": {
+      "package": { "ecosystem": "npm", "name": "already-fixed" },
+      "vulnerable_version_range": ">= 1.0.0, < 1.2.0",
+      "first_patched_version": { "identifier": "1.2.0" }
+    }
+  }
+]

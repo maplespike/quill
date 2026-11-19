@@ -383,6 +383,13 @@ jobs:
       # walker must not file review issues for `.changeset/*.md` (#958, #1118).
       - name: Docs staleness walker skip list
         run: node --test scripts/test-docs-staleness.mjs
+      # Dependabot security updates that cannot be applied: an alert whose only
+      # patch is in a major the parent package does not accept never becomes a
+      # PR, so nothing else in the repo sees it. These fixtures pin the
+      # classifier, the rendered issue body and the 403/404 no-fail contract of
+      # scripts/gates/dependabot-unfixable-report.mjs.
+      - name: Dependabot unfixable report unit tests
+        run: pnpm exec tsx --test scripts/test-dependabot-unfixable-report.mts
 
       - name: Fork runner policy
         run: node scripts/gates/check-fork-runner-policy.mjs
