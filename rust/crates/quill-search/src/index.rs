@@ -3,13 +3,18 @@
 //! `build_index` writes a tantivy index to an empty/new directory and records
 //! corpus metadata (doc count, kinds, build timestamp) in a sidecar
 //! `quill-meta.json`, which `serve` reads for `/health` and `/stats` without
-//! touching tantivy internals. The build is deterministic: documents are
-//! written in corpus order.
+//! touching tantivy internals. The sidecar is written after the tantivy
+//! commit, atomically, on every build. `prepare_startup` refuses to serve a
+//! missing index, a missing sidecar, or an index no larger than the committed
+//! sample corpus, except the one-document bootstrap placeholder written when
+//! `search.bootstrapEmptyIndex` is enabled. The build is deterministic apart from `built_at`: documents
+//! are written in corpus order.
 
 use crate::corpus::Document;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::io::Write;
 use std::path::Path;
 use tantivy::collector::TopDocs;
 use tantivy::doc;
@@ -28,6 +33,39 @@ pub struct IndexMeta {
 }
 
 pub const META_FILE: &str = "quill-meta.json";
+
+/// Document count of `rust/fixtures/sample.jsonl`.
+///
+/// A serve process that reports this count is serving the sample corpus, not
+/// a production build. `prepare_startup` treats that size as too small.
+pub const FIXTURE_DOC_COUNT: u64 = 30;
+
+/// Smallest index `quill-search serve` will publish unless `--min-docs 0`.
+pub const MIN_PRODUCTION_DOCS: u64 = FIXTURE_DOC_COUNT + 1;
+
+/// Document id written by the chart's bootstrap-empty-index init container.
+/// A fresh index claim starts with this one placeholder so `serve` can bind
+/// before the first ingest. `prepare_startup` exempts that index from the
+/// min-docs floor. The next corpus build replaces it.
+pub const BOOTSTRAP_DOC_ID: &str = "quill:search:bootstrap";
+
+/// Options for the check `serve` runs before it binds a port.
+#[derive(Debug, Clone, Copy)]
+pub struct StartupOptions<'a> {
+    /// Refuse an index with fewer docs. `0` disables the floor.
+    pub min_docs: u64,
+    /// When the current index is unusable, rebuild from this JSONL corpus.
+    pub corpus: Option<&'a Path>,
+}
+
+/// What `prepare_startup` did to the index directory.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StartupOutcome {
+    /// The directory already had a usable index and sidecar.
+    Ready { docs: u64 },
+    /// The directory was rebuilt from the supplied corpus.
+    Rebuilt { docs: u64 },
+}
 
 /// Tantivy field registry for the corpus schema.
 #[derive(Debug, Clone)]
@@ -125,14 +163,263 @@ pub fn build_index(docs: &[Document], out_dir: &Path) -> Result<IndexMeta> {
     };
 
     writer.commit().context("tantivy commit failed")?;
+    // Drop the writer before the sidecar write so the commit's file set is
+    // finished. The sidecar is not a tantivy file. Write it after commit so
+    // it never describes a half-built index, and so a later open still finds it.
+    drop(writer);
+    write_index_meta(out_dir, &meta)?;
 
-    // Sidecar metadata for /health + /stats. Write after commit so the meta
-    // file never describes a half-built index.
-    let meta_path = out_dir.join(META_FILE);
-    let meta_bytes = serde_json::to_vec_pretty(&meta).context("cannot serialize index meta")?;
-    std::fs::write(&meta_path, meta_bytes)
-        .with_context(|| format!("cannot write `{}`", meta_path.display()))?;
+    Ok(meta)
+}
 
+/// Write `quill-meta.json` next to a finished index.
+///
+/// The write is atomic (temp file, fsync, rename). A crash leaves either the
+/// previous sidecar or no sidecar. It does not leave a partial JSON file
+/// under the name `serve` reads.
+fn write_index_meta(out_dir: &Path, meta: &IndexMeta) -> Result<()> {
+    let final_path = out_dir.join(META_FILE);
+    let tmp_path = out_dir.join(format!(".{META_FILE}.tmp"));
+    let bytes = serde_json::to_vec_pretty(meta).context("cannot serialize index meta")?;
+    {
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(&tmp_path)
+            .with_context(|| format!("cannot open `{}`", tmp_path.display()))?;
+        file.write_all(&bytes)
+            .with_context(|| format!("cannot write `{}`", tmp_path.display()))?;
+        file.write_all(b"\n")
+            .with_context(|| format!("cannot write `{}`", tmp_path.display()))?;
+        file.sync_all()
+            .with_context(|| format!("cannot flush `{}`", tmp_path.display()))?;
+    }
+    std::fs::rename(&tmp_path, &final_path)
+        .with_context(|| format!("cannot publish `{META_FILE}` at `{}`", final_path.display()))?;
+    if !final_path.is_file() {
+        anyhow::bail!(
+            "index build did not leave `{META_FILE}` at `{}`",
+            final_path.display()
+        );
+    }
+    Ok(())
+}
+
+/// Decide whether `index_dir` is safe to serve.
+///
+/// A missing directory, a missing or unreadable `quill-meta.json`, a tantivy
+/// directory that will not open, or a doc count below `min_docs` is a refusal.
+/// When `corpus` is set, the function rebuilds the directory from that corpus
+/// and applies the same check to the result. It does not bind a port.
+pub fn prepare_startup(index_dir: &Path, opts: StartupOptions<'_>) -> Result<StartupOutcome> {
+    let problem = match classify_index(index_dir, opts.min_docs) {
+        Ok(meta) => return Ok(StartupOutcome::Ready { docs: meta.docs }),
+        Err(problem) => problem,
+    };
+    let Some(corpus) = opts.corpus else {
+        return Err(refusal(problem, index_dir));
+    };
+    let docs = crate::corpus::load_corpus(corpus).map_err(|e| {
+        refusal(
+            format!("cannot rebuild from `{}`: {e}", corpus.display()),
+            index_dir,
+        )
+    })?;
+    if docs.is_empty() {
+        return Err(refusal(
+            format!("corpus `{}` contains no documents", corpus.display()),
+            index_dir,
+        ));
+    }
+    replace_index(&docs, index_dir)
+        .map_err(|e| refusal(format!("rebuild failed: {e:#}"), index_dir))?;
+    match classify_index(index_dir, opts.min_docs) {
+        Ok(meta) => Ok(StartupOutcome::Rebuilt { docs: meta.docs }),
+        Err(again) => Err(refusal(
+            format!(
+                "rebuilt from `{}` and the index is still unusable: {again}",
+                corpus.display()
+            ),
+            index_dir,
+        )),
+    }
+}
+
+fn classify_index(dir: &Path, min_docs: u64) -> std::result::Result<IndexMeta, String> {
+    if !dir.is_dir() {
+        return Err(format!(
+            "index directory `{}` does not exist",
+            dir.display()
+        ));
+    }
+    let meta_path = dir.join(META_FILE);
+    if !meta_path.is_file() {
+        return Err(missing_meta_detail(dir));
+    }
+    let meta_bytes = std::fs::read(&meta_path)
+        .map_err(|e| format!("cannot read `{}`: {e}", meta_path.display()))?;
+    let meta: IndexMeta = serde_json::from_slice(&meta_bytes)
+        .map_err(|e| format!("cannot parse `{}`: {e}", meta_path.display()))?;
+    if let Err(e) = Index::open_in_dir(dir) {
+        return Err(format!(
+            "cannot open the tantivy index at `{}`: {e}",
+            dir.display()
+        ));
+    }
+    if min_docs > 0 && meta.docs < min_docs {
+        if is_bootstrap_placeholder(dir, &meta) {
+            return Ok(meta);
+        }
+        return Err(format!(
+            "index at `{}` is undersized: {} docs, minimum is {min_docs}. The sample corpus rust/fixtures/sample.jsonl has {FIXTURE_DOC_COUNT} docs. A production index must be larger than that sample.",
+            dir.display(),
+            meta.docs
+        ));
+    }
+    Ok(meta)
+}
+
+/// True when `dir` is the one-document bootstrap index (#1346), not a
+/// sample-sized or otherwise undersized corpus.
+fn is_bootstrap_placeholder(dir: &Path, meta: &IndexMeta) -> bool {
+    if meta.docs != 1 {
+        return false;
+    }
+    let Ok(idx) = SearchIndex::open(dir) else {
+        return false;
+    };
+    index_contains_id(&idx, BOOTSTRAP_DOC_ID)
+}
+
+fn index_contains_id(idx: &SearchIndex, id: &str) -> bool {
+    // The id field is tokenized TEXT, so a Term query on the raw
+    // "quill:search:bootstrap" string does not match. Read the stored id
+    // of the single document instead.
+    let searcher = idx.reader.searcher();
+    let Ok(top) = searcher.search(
+        &tantivy::query::AllQuery,
+        &TopDocs::with_limit(1).order_by_score(),
+    ) else {
+        return false;
+    };
+    let Some((_score, addr)) = top.first() else {
+        return false;
+    };
+    let Ok(doc) = searcher.doc::<TantivyDocument>(*addr) else {
+        return false;
+    };
+    doc.get_first(idx.fields.id)
+        .and_then(|v| v.as_str())
+        .map(|stored| stored == id)
+        .unwrap_or(false)
+}
+
+fn missing_meta_detail(dir: &Path) -> String {
+    match Index::open_in_dir(dir) {
+        Ok(_) => format!(
+            "index directory `{}` has a tantivy index but `{META_FILE}` is missing. An index build must write this sidecar before serve starts.",
+            dir.display()
+        ),
+        Err(_) => format!(
+            "index directory `{}` is missing `{META_FILE}`",
+            dir.display()
+        ),
+    }
+}
+
+fn refusal(detail: String, index_dir: &Path) -> anyhow::Error {
+    let mut msg = format!("refusing to serve: {detail}");
+    if let Some(note) = parent_sidecar_note(index_dir) {
+        msg.push(' ');
+        msg.push_str(&note);
+    }
+    msg.push_str(
+        " Rebuild with `quill-search index --corpus <jsonl> --out <index-dir>`, or start serve with `--corpus` so this process rebuilds before it listens. Steps: docs/runbooks/search-reindex.md.",
+    );
+    anyhow::anyhow!(msg)
+}
+
+/// The volume used to be mounted at the index path, so the real sidecar can
+/// sit on the claim root, one directory above the path serve opens now.
+fn parent_sidecar_note(index_dir: &Path) -> Option<String> {
+    let parent = index_dir.parent()?;
+    if parent.as_os_str().is_empty() {
+        return None;
+    }
+    let path = parent.join(META_FILE);
+    if !path.is_file() {
+        return None;
+    }
+    let docs = std::fs::read(&path)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<IndexMeta>(&bytes).ok())
+        .map(|meta| meta.docs);
+    Some(match docs {
+        Some(n) => format!(
+            "A sidecar is at `{}` and reports {n} docs. That path is the claim root. This process and the search backup both read `{}`. The volume used to be mounted at the index path, so the real files can sit one level up.",
+            path.display(),
+            index_dir.join(META_FILE).display()
+        ),
+        None => format!(
+            "A file exists at `{}` but it is not a readable sidecar. This process reads `{}`.",
+            path.display(),
+            index_dir.join(META_FILE).display()
+        ),
+    })
+}
+
+/// Build `docs` into a sibling directory, then swap it into `out_dir`.
+fn replace_index(docs: &[Document], out_dir: &Path) -> Result<IndexMeta> {
+    let parent = match out_dir.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent.to_path_buf(),
+        _ => std::path::PathBuf::from("."),
+    };
+    std::fs::create_dir_all(&parent)
+        .with_context(|| format!("cannot create `{}`", parent.display()))?;
+    let name = out_dir
+        .file_name()
+        .context("index path has no directory name")?;
+    let tmp = parent.join(format!(".{}.reindex", name.to_string_lossy()));
+    let trash = parent.join(format!(".{}.replaced", name.to_string_lossy()));
+    if tmp.exists() {
+        std::fs::remove_dir_all(&tmp)
+            .with_context(|| format!("cannot remove stale rebuild dir `{}`", tmp.display()))?;
+    }
+    let meta = build_index(docs, &tmp)?;
+    let published = tmp.join(META_FILE);
+    if !published.is_file() {
+        anyhow::bail!(
+            "index build did not write `{META_FILE}` in `{}`",
+            tmp.display()
+        );
+    }
+    if trash.exists() {
+        std::fs::remove_dir_all(&trash)
+            .with_context(|| format!("cannot remove `{}`", trash.display()))?;
+    }
+    if out_dir.exists() {
+        std::fs::rename(out_dir, &trash).with_context(|| {
+            format!(
+                "cannot move `{}` aside to `{}`",
+                out_dir.display(),
+                trash.display()
+            )
+        })?;
+    }
+    if let Err(err) = std::fs::rename(&tmp, out_dir) {
+        if trash.exists() && !out_dir.exists() {
+            let _ = std::fs::rename(&trash, out_dir);
+        }
+        return Err(err).with_context(|| {
+            format!(
+                "cannot move rebuilt index `{}` to `{}`",
+                tmp.display(),
+                out_dir.display()
+            )
+        });
+    }
+    let _ = std::fs::remove_dir_all(&trash);
     Ok(meta)
 }
 
@@ -437,5 +724,244 @@ mod tests {
         assert!(ts.ends_with('Z'));
         assert_eq!(&ts[4..5], "-");
         assert_eq!(&ts[10..11], "T");
+    }
+
+    #[test]
+    fn fixture_corpus_is_the_thirty_doc_sample() {
+        assert_eq!(FIXTURE_DOC_COUNT, 30);
+        assert_eq!(
+            crate::fixture::load_fixture().len() as u64,
+            FIXTURE_DOC_COUNT
+        );
+        assert_eq!(MIN_PRODUCTION_DOCS, FIXTURE_DOC_COUNT + 1);
+    }
+
+    #[test]
+    fn build_writes_quill_meta_json() {
+        let dir = tempfile::tempdir().unwrap();
+        let docs = fixture_docs();
+        let meta = build_index(&docs, dir.path()).unwrap();
+        let meta_path = dir.path().join(META_FILE);
+        assert!(meta_path.is_file(), "build must leave {META_FILE}");
+        assert!(
+            !dir.path().join(format!(".{META_FILE}.tmp")).exists(),
+            "temp sidecar must not remain"
+        );
+        let on_disk: IndexMeta =
+            serde_json::from_slice(&std::fs::read(&meta_path).unwrap()).unwrap();
+        assert_eq!(on_disk.docs, meta.docs);
+        assert_eq!(on_disk.docs, docs.len() as u64);
+        assert_eq!(on_disk.kinds, meta.kinds);
+        assert_eq!(on_disk.built_at, meta.built_at);
+    }
+
+    fn corpus_file(dir: &Path, name: &str, docs: &[Document]) -> std::path::PathBuf {
+        let path = dir.join(name);
+        let lines = docs
+            .iter()
+            .map(|doc| serde_json::to_string(doc).unwrap())
+            .collect::<Vec<_>>()
+            .join("\n");
+        std::fs::write(&path, format!("{lines}\n")).unwrap();
+        path
+    }
+
+    #[test]
+    fn startup_refuses_missing_index_missing_meta_and_undersized() {
+        let root = tempfile::tempdir().unwrap();
+        let missing = root.path().join("missing");
+        let err = prepare_startup(
+            &missing,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("does not exist"), "{err}");
+        assert!(err.contains("docs/runbooks/search-reindex.md"), "{err}");
+
+        let built = root.path().join("built");
+        build_index(&fixture_docs(), &built).unwrap();
+        std::fs::remove_file(built.join(META_FILE)).unwrap();
+        let err = prepare_startup(
+            &built,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains(META_FILE), "{err}");
+        assert!(
+            err.contains("has a tantivy index"),
+            "a tantivy dir without the sidecar must be named: {err}"
+        );
+
+        let small = root.path().join("small");
+        build_index(&fixture_docs(), &small).unwrap();
+        let err = prepare_startup(
+            &small,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("undersized"), "{err}");
+        assert!(err.contains("3 docs"), "{err}");
+        assert!(err.contains(&MIN_PRODUCTION_DOCS.to_string()), "{err}");
+    }
+
+    #[test]
+    fn startup_names_a_claim_root_sidecar() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        std::fs::create_dir_all(&index).unwrap();
+        let parent_meta = IndexMeta {
+            docs: 100,
+            kinds: BTreeMap::new(),
+            built_at: "2026-11-01T00:00:00Z".to_string(),
+        };
+        std::fs::write(
+            root.path().join(META_FILE),
+            serde_json::to_vec_pretty(&parent_meta).unwrap(),
+        )
+        .unwrap();
+        let err = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("claim root"), "{err}");
+        assert!(err.contains("100 docs"), "{err}");
+        assert!(
+            err.contains(&index.join(META_FILE).display().to_string()),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn startup_rebuilds_from_corpus_and_writes_meta() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let corpus = corpus_file(root.path(), "corpus.jsonl", &fixture_docs());
+        let outcome = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: 1,
+                corpus: Some(&corpus),
+            },
+        )
+        .unwrap();
+        assert_eq!(outcome, StartupOutcome::Rebuilt { docs: 3 });
+        let meta_path = index.join(META_FILE);
+        assert!(meta_path.is_file(), "rebuild must write {META_FILE}");
+        let on_disk: IndexMeta =
+            serde_json::from_slice(&std::fs::read(&meta_path).unwrap()).unwrap();
+        assert_eq!(on_disk.docs, 3);
+        let opened = SearchIndex::open(&index).unwrap();
+        assert_eq!(opened.meta.docs, 3);
+    }
+
+    #[test]
+    fn startup_keeps_a_usable_index_when_a_corpus_is_also_set() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let meta = build_index(&fixture_docs(), &index).unwrap();
+        let mut other = fixture_docs();
+        other.pop();
+        let corpus = corpus_file(root.path(), "other.jsonl", &other);
+        let outcome = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: 1,
+                corpus: Some(&corpus),
+            },
+        )
+        .unwrap();
+        assert_eq!(outcome, StartupOutcome::Ready { docs: 3 });
+        let on_disk: IndexMeta =
+            serde_json::from_slice(&std::fs::read(index.join(META_FILE)).unwrap()).unwrap();
+        assert_eq!(on_disk.built_at, meta.built_at);
+        assert_eq!(on_disk.docs, 3);
+    }
+
+    #[test]
+    fn startup_refuses_a_rebuild_that_stays_undersized() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let corpus = corpus_file(root.path(), "corpus.jsonl", &fixture_docs());
+        let err = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: Some(&corpus),
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("still unusable"), "{err}");
+        assert!(err.contains("undersized"), "{err}");
+        assert!(
+            index.join(META_FILE).is_file(),
+            "the rebuilt sidecar stays on disk for inspection"
+        );
+    }
+
+    fn bootstrap_docs() -> Vec<Document> {
+        let corpus = r#"
+{"id":"quill:search:bootstrap","kind":"system","title":"Search index bootstrap","text":"Placeholder written because the index claim mounted empty. Replaced by the next corpus build.","url":"","source":"quill-search","published":"","updated":"","meta":{}}
+"#;
+        parse_corpus(corpus.as_bytes()).unwrap()
+    }
+
+    #[test]
+    fn startup_accepts_the_one_document_bootstrap_index() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let meta = build_index(&bootstrap_docs(), &index).unwrap();
+        assert_eq!(meta.docs, 1);
+        let outcome = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(outcome, StartupOutcome::Ready { docs: 1 });
+    }
+
+    #[test]
+    fn startup_still_refuses_a_one_document_index_without_the_bootstrap_marker() {
+        let root = tempfile::tempdir().unwrap();
+        let index = root.path().join("index");
+        let one = fixture_docs().into_iter().take(1).collect::<Vec<_>>();
+        build_index(&one, &index).unwrap();
+        let err = prepare_startup(
+            &index,
+            StartupOptions {
+                min_docs: MIN_PRODUCTION_DOCS,
+                corpus: None,
+            },
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(err.contains("refusing to serve"), "{err}");
+        assert!(err.contains("undersized"), "{err}");
+        assert!(err.contains("1 docs"), "{err}");
     }
 }

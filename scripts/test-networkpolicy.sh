@@ -73,6 +73,7 @@ check "service CIDR allowed exactly once" 1 "cidr: 10.43.0.0/16"
 check "redis port (svc egress + intra ingress)" 2 "port: 6379"
 check "portal port (svc egress + edge + intra + astral)" 4 "port: 8080"
 check "api port (svc egress + edge + intra)" 3 "port: 8082"
+check "search port (svc egress + intra, not the edge)" 2 "port: 8083"
 check "mcp port (svc egress + edge + intra)" 3 "port: 3001"
 
 echo "== allowed sources =="
