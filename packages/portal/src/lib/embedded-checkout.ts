@@ -46,6 +46,7 @@ export async function createEmbeddedSession(args: {
   apiBase: string;
   apiKey: string;
   planId: string;
+  locale?: "en" | "fr";
   fetchImpl?: typeof fetch;
 }): Promise<EmbeddedSessionResult> {
   const doFetch = args.fetchImpl ?? fetch;
@@ -54,7 +55,11 @@ export async function createEmbeddedSession(args: {
     res = await doFetch(`${args.apiBase.replace(/\/$/, "")}/v1/billing/stripe/checkout`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${args.apiKey}` },
-      body: JSON.stringify({ plan_id: args.planId, embedded: true }),
+      body: JSON.stringify({
+        plan_id: args.planId,
+        embedded: true,
+        ...(args.locale ? { locale: args.locale } : {}),
+      }),
     });
   } catch (e) {
     return { ok: false, error: `Could not reach billing (${(e as Error).message})` };

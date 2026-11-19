@@ -1,0 +1,14 @@
+---
+import { renewalDisclosure, type DisclosureLang, type PaidPlanId } from "@/lib/renewal-disclosure";
+
+interface Props {
+  lang: DisclosureLang;
+  planId: PaidPlanId;
+}
+
+const { lang, planId } = Astro.props;
+---
+
+<p class="text-xs leading-relaxed text-muted-foreground" data-renewal-disclosure={planId}>
+  {renewalDisclosure(lang, planId)}
+</p>

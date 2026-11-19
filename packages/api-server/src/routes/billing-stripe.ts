@@ -179,7 +179,7 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
 
   // `embedded: true` asks for Stripe Embedded Checkout (the portal mounts the
   // form in-page and receives client_secret) instead of the hosted redirect.
-  let body: { plan_id?: string; customer_id?: string; embedded?: boolean } = {};
+  let body: { plan_id?: string; customer_id?: string; embedded?: boolean; locale?: string } = {};
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -217,6 +217,7 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
     // While unregistered the charged amount is exactly the plan price — charging
     // tax unregistered is non-compliant (CRA small-supplier rules).
     const tax = computeHst(plan.amount_cents);
+    const locale = body.locale === 'fr' ? 'fr' : 'en';
     const session = await stripe.createCheckoutSession({
       customerId,
       amountCents: tax.totalCents,
@@ -230,6 +231,9 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
       successUrl: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}&order=${orderId}`,
       cancelUrl: `${baseUrl}/pricing?checkout=cancel&order=${orderId}`,
       expiresAtUnix: expiresAt,
+      locale,
+      // Disclosure uses the catalog price. The charged total may add tax later.
+      renewalAmountCents: plan.amount_cents,
       // Embedded Checkout (the portal mounts Stripe's form in-page). The session
       // then carries client_secret instead of a redirect url, and returns via
       // return_url — success_url/cancel_url are invalid alongside it.

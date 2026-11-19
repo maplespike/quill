@@ -3,10 +3,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createI18n } from "@maplespike/i18n";
 import { pick } from "@/utils/bilingual";
+import { renewalDisclosure } from "@/lib/renewal-disclosure";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
 const t = (en: string, fr: string) => pick(lang, en, fr);
+const updated = lang === "fr" ? "9 novembre 2026" : "November 9, 2026";
 ---
 
 <BaseLayout title={i18n.t('terms.title')} description={t(
@@ -18,7 +20,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         {i18n.t('terms.title')}
       </h1>
-      <p class="mt-2 text-muted-foreground">{i18n.t('terms.last_updated', { date: 'October 14, 2026' })}</p>
+      <p class="mt-2 text-muted-foreground">{i18n.t('terms.last_updated', { date: updated })}</p>
     </div>
   </section>
 
@@ -82,9 +84,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-3">
           <p>{t(
-            "Free tier includes 1,000 API calls per month with no credit card required. Paid plans — Pro ($50 CAD/month) and Business ($200 CAD/month) — unlock higher rate limits and additional features as described on our",
-            "Le palier gratuit inclut 1 000 appels API par mois sans carte de crédit requise. Les forfaits payants — Pro (50 $ CA/mois) et Affaires (200 $ CA/mois) — débloquent des limites de débit supérieures et des fonctionnalités supplémentaires, comme décrit sur notre",
+            "Free tier includes 1,000 API calls per month with no credit card required. Paid plans unlock higher rate limits and additional features as described on our",
+            "Le palier gratuit inclut 1 000 appels API par mois sans carte de crédit requise. Les forfaits payants débloquent des limites de débit supérieures et des fonctionnalités supplémentaires, comme décrit sur notre",
           )} <a href="/pricing" class="text-primary hover:underline">{t("pricing page", "page de tarification")}</a>.</p>
+          <p>{renewalDisclosure(lang, "pro")}</p>
+          <p>{renewalDisclosure(lang, "business")}</p>
           <p><strong>{t("Payment.", "Paiement.")}</strong> {t(
             "Subscriptions are processed by",
             "Les abonnements sont traités par",
@@ -115,8 +119,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             "Si un frais de renouvellement échoue, nous réessayons et pouvons rétrograder votre palier à Gratuit à la fin du délai de grâce ; aucune donnée n'est supprimée.",
           )}</p>
           <p>{t(
-            "Our refund and cancellation terms are also summarized at checkout. By subscribing you acknowledge having read this section and our",
-            "Nos conditions de remboursement et d'annulation sont également résumées au moment du paiement. En vous abonnant, vous reconnaissez avoir lu cette section et notre",
+            "The same summary appears next to the purchase action on the pricing page and on the checkout page, before you pay. By subscribing you acknowledge having read this section and our",
+            "Le même résumé apparaît à côté de l'action d'achat sur la page des tarifs et sur la page de paiement, avant que vous payiez. En vous abonnant, vous reconnaissez avoir lu cette section et notre",
           )} <a href="/privacy" class="text-primary hover:underline">{t("Privacy Policy", "politique de confidentialité")}</a>.</p>
         </CardContent>
       </Card>

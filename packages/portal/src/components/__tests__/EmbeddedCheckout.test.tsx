@@ -14,6 +14,19 @@ import EmbeddedCheckout from '@/components/EmbeddedCheckout';
 
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 describe('Embedded checkout startup', () => {
+  test('starts a business session when the page query asks for it', async () => {
+    Object.defineProperty(window, 'location', {
+      value: { search: '?plan=business', hostname: 'quill.maplespike.ca', protocol: 'https:' },
+      configurable: true,
+    });
+    Object.defineProperty(window, 'MAPLESPIKE', { value: { apiKey: 'fixture-key' }, writable: true, configurable: true });
+    mocks.loadStripe.mockResolvedValueOnce(null);
+    mocks.createSession.mockResolvedValueOnce({ ok: true, clientSecret: 'fixture-secret' });
+    render(<EmbeddedCheckout />);
+    await waitFor(() => expect(mocks.createSession).toHaveBeenCalledOnce());
+    expect(mocks.createSession.mock.calls[0][0].planId).toBe('business');
+  });
+
   test('asks visitors to sign in without loading the payment SDK', async () => {
     Object.defineProperty(window, 'MAPLESPIKE', { value: { apiKey: '' }, writable: true, configurable: true });
     render(<EmbeddedCheckout />);

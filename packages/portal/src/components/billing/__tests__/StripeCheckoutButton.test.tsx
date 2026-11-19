@@ -117,6 +117,7 @@ describe('StripeCheckoutButton', () => {
     await userEvent.click(button)
 
     // Expect redirect to checkout URL
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({ plan_id: 'pro', locale: 'en' })
     expect(locationMock.href).toBe('https://checkout.stripe.com/pay/cs_test')
     // Expect order ID to be stored in sessionStorage
     expect(window.sessionStorage.setItem).toHaveBeenCalledWith('last_stripe_order_id', 'order_123')

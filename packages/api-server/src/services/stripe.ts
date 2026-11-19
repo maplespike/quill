@@ -181,7 +181,54 @@ export interface StripeCheckoutSession {
   client_secret?: string | null;
 }
 
-export async function createCheckoutSession(args: {
+/**
+ * Text Stripe shows beside the pay button. The portal shows the same facts
+ * before the click. Amount is the catalog price in CAD, not a tax add-on.
+ */
+function formatAmountCents(cents: number, currency: string, locale: 'en' | 'fr'): string {
+  const amount = cents / 100;
+  const code = currency.toUpperCase();
+  if (locale === 'fr') {
+    const formatted = new Intl.NumberFormat('fr-CA', {
+      style: 'currency',
+      currency: code,
+      currencyDisplay: 'code',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    // Intl may insert a narrow no-break space before the currency symbol.
+    const spaced = formatted.replace(/[  ]/g, ' ');
+    return code === 'CAD' ? spaced.replace('CAD', '$ CA').trim() : spaced;
+  }
+  return `$${amount.toFixed(2)} ${code}`;
+}
+
+function intervalCopy(months: number, locale: 'en' | 'fr'): { per: string; each: string } {
+  if (locale === 'fr') {
+    if (months === 1) return { per: 'par mois', each: 'chaque mois' };
+    return { per: `tous les ${months} mois`, each: `tous les ${months} mois` };
+  }
+  if (months === 1) return { per: 'per month', each: 'each month' };
+  return { per: `every ${months} months`, each: `every ${months} months` };
+}
+
+export function checkoutRenewalMessage(args: {
+  productName: string;
+  amountCents: number;
+  currency: string;
+  intervalMonths: number;
+  locale?: 'en' | 'fr';
+}): string {
+  const locale = args.locale === 'fr' ? 'fr' : 'en';
+  const amount = formatAmountCents(args.amountCents, args.currency, locale);
+  const interval = intervalCopy(args.intervalMonths, locale);
+  if (locale === 'fr') {
+    return `Le forfait ${args.productName} coûte ${amount} ${interval.per}. L'abonnement se renouvelle automatiquement ${interval.each} jusqu'à l'annulation. Annulez en tout temps depuis votre tableau de bord. L'annulation prend effet à la fin de la période de facturation en cours, et vous conservez l'accès payant jusqu'à cette date.`;
+  }
+  return `${args.productName} is ${amount} ${interval.per}. The subscription renews automatically ${interval.each} until you cancel. Cancel any time from your account dashboard. Cancellation takes effect at the end of the current billing period, and you keep paid access until then.`;
+}
+
+export function checkoutSessionParams(args: {
   customerId: string;
   amountCents: number;
   currency: string; // ISO 4217 lower-case, e.g. "cad"
@@ -201,9 +248,17 @@ export async function createCheckoutSession(args: {
    */
   uiMode?: 'hosted' | 'embedded';
   returnUrl?: string;
-}): Promise<StripeCheckoutSession> {
+  /** Page language. The submit-button disclosure follows this value. */
+  locale?: 'en' | 'fr';
+  /**
+   * Catalog price for the disclosure. Defaults to amountCents. Pass the
+   * pre-tax plan price when amountCents already includes tax.
+   */
+  renewalAmountCents?: number;
+}): Record<string, unknown> {
   const embedded = args.uiMode === 'embedded';
-  return stripeFetch<StripeCheckoutSession>('POST', '/checkout/sessions', {
+  const locale = args.locale === 'fr' ? 'fr' : 'en';
+  return {
     mode: 'subscription',
     ...(embedded
       ? { ui_mode: 'embedded', return_url: args.returnUrl ?? args.successUrl }
@@ -226,7 +281,41 @@ export async function createCheckoutSession(args: {
     allow_promotion_codes: 'true',
     // Capture payment_method on subscription so renewals work
     payment_method_collection: 'always',
-  });
+    locale,
+    'custom_text[submit][message]': checkoutRenewalMessage({
+      productName: args.productName,
+      amountCents: args.renewalAmountCents ?? args.amountCents,
+      currency: args.currency,
+      intervalMonths: args.intervalMonths,
+      locale,
+    }),
+  };
+}
+
+export async function createCheckoutSession(args: {
+  customerId: string;
+  amountCents: number;
+  currency: string; // ISO 4217 lower-case, e.g. "cad"
+  productName: string;
+  description?: string;
+  planId: string;
+  tenantId: string;
+  orderId: string;
+  intervalMonths: number;
+  successUrl: string;
+  cancelUrl: string;
+  expiresAtUnix: number;
+  /**
+   * 'embedded' mounts Stripe's payment form inside our own page (needs the
+   * publishable key in the browser). Embedded sessions take `return_url` and
+   * reject `success_url`/`cancel_url`, so the three are mutually exclusive.
+   */
+  uiMode?: 'hosted' | 'embedded';
+  returnUrl?: string;
+  locale?: 'en' | 'fr';
+  renewalAmountCents?: number;
+}): Promise<StripeCheckoutSession> {
+  return stripeFetch<StripeCheckoutSession>('POST', '/checkout/sessions', checkoutSessionParams(args));
 }
 
 /**

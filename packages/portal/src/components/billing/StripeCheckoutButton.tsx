@@ -135,7 +135,7 @@ export default function StripeCheckoutButton({
           "Content-Type": "application/json",
           Authorization: `Bearer ${key}`,
         },
-        body: JSON.stringify({ plan_id: planId }),
+        body: JSON.stringify({ plan_id: planId, locale: lang }),
       });
       const body = (await res.json()) as ApiEnvelope<CheckoutResponseData>;
       if (!body.success || !body.data) {

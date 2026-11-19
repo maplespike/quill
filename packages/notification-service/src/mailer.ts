@@ -64,6 +64,14 @@ export class Mailer {
       return { success: false, error: 'Recipient email address is required' };
     }
 
+    const postalAddress = this.config.postalAddress.trim();
+    if (!postalAddress) {
+      return {
+        success: false,
+        error: "NOTIFICATION_POSTAL_ADDRESS is required before a commercial alert can be sent",
+      };
+    }
+
     const payload = buildNotificationEmail({
       to: params.to,
       unsubscribeToken: params.unsubscribeToken,
@@ -72,6 +80,8 @@ export class Mailer {
       eventType: params.eventType,
       summary: params.summary,
       apiBaseUrl: this.config.apiBaseUrl,
+      postalAddress,
+      senderEmail: this.config.fromEmail,
     });
 
     if (this.dryRun) {
