@@ -311,6 +311,15 @@ jobs:
 
       - name: Merge gate metadata token unit tests
         run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
+      # Incident rule for the secrets job (issue #1040). gitleaks-action
+      # requires GITLEAKS_LICENSE on organisation repos and otherwise exits
+      # with "License key is required." on every PR. The check names the
+      # missing env var. It does not print a secret value.
+      - name: Gitleaks license env check
+        run: python3 scripts/check-gitleaks-license.py
+
+      - name: Gitleaks license env unit tests
+        run: pnpm exec tsx --test scripts/test-gitleaks-license.mts
 
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
@@ -618,6 +627,12 @@ jobs:
       - name: ARC runner tools
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
+
+      # Fail here, naming GITLEAKS_LICENSE, before the action reports a
+      # missing organisation licence. scripts/check-gitleaks-license.py
+      # reads the workflow file only and does not print a secret value.
+      - name: Gitleaks license env check
+        run: python3 scripts/check-gitleaks-license.py
 
       - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v3
