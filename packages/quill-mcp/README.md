@@ -192,7 +192,7 @@ All MCP server env vars are also documented in repo-root [`.env.example`](../../
 | `QUILL_LOCALE` | `en-CA` | `en-CA` or `fr-CA` for tool descriptions. |
 | `QUILL_HANDLER_TIMEOUT_MS` | `55000` | Max handler runtime before gateway kills the connection. |
 | `TRUST_PROXY` | `false` | Honor `X-Forwarded-For` for IP-keyed quota. ONLY set behind a trusted proxy. |
-| `ASTRAL_KEY_URL` | *(none)* | Optional: delegate `/auth/verify` to astral-key instead of comparing local `QUILL_API_KEY`. |
+| `ASTRAL_KEY_URL` | *(none)* | Optional: verify Astral Key access tokens via `/api/v1/auth/verify`; other authentication methods remain available. Requires an Astral Key verifier that rejects refresh tokens. |
 
 ---
 

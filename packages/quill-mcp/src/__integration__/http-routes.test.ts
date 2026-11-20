@@ -392,7 +392,7 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
       assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
       const listed = JSON.parse((await event()).data);
       assert.equal(listed.id, 2);
-      assert.equal(listed.result.tools.length, 184);
+      assert.equal(listed.result.tools.length, 186);
       assert.equal(listed.result._quota.mode, 'api-key');
       assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
       const called = JSON.parse((await event()).data);
@@ -453,6 +453,41 @@ function startIndex(port: number, env: Record<string, string>): ChildProcess {
     detached: true,
   });
 }
+
+describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
+  it('uses the Astral Key API route and rejects errors or invalid tokens', async () => {
+    const requests: Array<{ url: string | undefined; method: string | undefined; token: string }> = [];
+    const astral = createHttpServer(async (req, res) => {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) chunks.push(Buffer.from(chunk));
+      const { token } = JSON.parse(Buffer.concat(chunks).toString()) as { token: string };
+      requests.push({ url: req.url, method: req.method, token });
+      res.writeHead(token === 'error-token' ? 503 : 200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ valid: token !== 'invalid-token' }));
+    });
+    const astralPort = await listen(astral);
+    const port = await getFreePort();
+    const proc = startIndex(port, { ASTRAL_KEY_URL: `http://127.0.0.1:${astralPort}/` });
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      await waitForReady(`${base}/health`);
+      for (const [token, expected] of [['accepted-token', 200], ['invalid-token', 401], ['error-token', 401]] as const) {
+        const response = await fetch(`${base}/mcp`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
+        });
+        assert.equal(response.status, expected);
+      }
+      assert.deepEqual(requests, ['accepted-token', 'invalid-token', 'error-token'].map(token => ({
+        url: '/api/v1/auth/verify', method: 'POST', token,
+      })));
+    } finally {
+      await stopServer(proc);
+      await new Promise<void>((resolve, reject) => astral.close(err => err ? reject(err) : resolve()));
+    }
+  });
+});
 
 // Cold start of src/index.ts (tsx + 184 tool modules) measured ~20 s per
 // server on a loaded CI runner. Every test below spawns its own server, so

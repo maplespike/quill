@@ -199,11 +199,13 @@ async function astralAccepts(token: string): Promise<boolean> {
   const astralKeyUrl = process.env.ASTRAL_KEY_URL;
   if (!astralKeyUrl) return false;
   try {
-    const res = await fetch(`${astralKeyUrl}/auth/verify`, {
+    const res = await fetch(`${astralKeyUrl.replace(/\/+$/, '')}/api/v1/auth/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
+      signal: AbortSignal.timeout(5000),
     });
+    if (!res.ok) return false;
     const data = await res.json() as { valid: boolean };
     return data.valid === true;
   } catch {
