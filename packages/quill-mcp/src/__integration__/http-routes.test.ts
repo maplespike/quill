@@ -462,7 +462,13 @@ describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
       for await (const chunk of req) chunks.push(Buffer.from(chunk));
       const { token } = JSON.parse(Buffer.concat(chunks).toString()) as { token: string };
       requests.push({ url: req.url, method: req.method, token });
+      if (token === 'disconnect-token') {
+        req.socket.destroy();
+        return;
+      }
       res.writeHead(token === 'error-token' ? 503 : 200, { 'Content-Type': 'application/json' });
+      if (token === 'malformed-token') return res.end('{');
+      if (token === 'nonboolean-token') return res.end(JSON.stringify({ valid: 'true' }));
       res.end(JSON.stringify({ valid: token !== 'invalid-token' }));
     });
     const astralPort = await listen(astral);
@@ -471,7 +477,11 @@ describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
     const base = `http://127.0.0.1:${port}`;
     try {
       await waitForReady(`${base}/health`);
-      for (const [token, expected] of [['accepted-token', 200], ['invalid-token', 401], ['error-token', 401]] as const) {
+      const cases = [
+        ['accepted-token', 200], ['invalid-token', 401], ['error-token', 401],
+        ['malformed-token', 401], ['nonboolean-token', 401], ['disconnect-token', 401],
+      ] as const;
+      for (const [token, expected] of cases) {
         const response = await fetch(`${base}/mcp`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -479,7 +489,7 @@ describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
         });
         assert.equal(response.status, expected);
       }
-      assert.deepEqual(requests, ['accepted-token', 'invalid-token', 'error-token'].map(token => ({
+      assert.deepEqual(requests, cases.map(([token]) => ({
         url: '/api/v1/auth/verify', method: 'POST', token,
       })));
     } finally {
