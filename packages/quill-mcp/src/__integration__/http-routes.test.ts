@@ -456,12 +456,14 @@ function startIndex(port: number, env: Record<string, string>): ChildProcess {
 
 describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
   it('uses the Astral Key API route and rejects errors or invalid tokens', async () => {
-    const requests: Array<{ url: string | undefined; method: string | undefined; token: string }> = [];
+    const requests: Array<{ url: string | undefined; method: string | undefined; token: string; audience?: string; requiredScopes?: string[] }> = [];
     const astral = createHttpServer(async (req, res) => {
       const chunks: Buffer[] = [];
       for await (const chunk of req) chunks.push(Buffer.from(chunk));
-      const { token } = JSON.parse(Buffer.concat(chunks).toString()) as { token: string };
-      requests.push({ url: req.url, method: req.method, token });
+      const { token, audience, required_scopes } = JSON.parse(Buffer.concat(chunks).toString()) as {
+        token: string; audience?: string; required_scopes?: string[];
+      };
+      requests.push({ url: req.url, method: req.method, token, audience, requiredScopes: required_scopes });
       if (token === 'disconnect-token') {
         req.socket.destroy();
         return;
@@ -473,7 +475,11 @@ describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
     });
     const astralPort = await listen(astral);
     const port = await getFreePort();
-    const proc = startIndex(port, { ASTRAL_KEY_URL: `http://127.0.0.1:${astralPort}/` });
+    const proc = startIndex(port, {
+      ASTRAL_KEY_URL: `http://127.0.0.1:${astralPort}/`,
+      ASTRAL_KEY_AUDIENCE: 'quill-mcp',
+      ASTRAL_KEY_SCOPES: 'mcp:tools:call:read, mcp:tools:list',
+    });
     const base = `http://127.0.0.1:${port}`;
     try {
       await waitForReady(`${base}/health`);
@@ -490,7 +496,11 @@ describe('Astral Key verification', { skip: SKIP && SKIP_REASON }, () => {
         assert.equal(response.status, expected);
       }
       assert.deepEqual(requests, cases.map(([token]) => ({
-        url: '/api/v1/auth/verify', method: 'POST', token,
+        url: '/api/v1/auth/verify',
+        method: 'POST',
+        token,
+        audience: 'quill-mcp',
+        requiredScopes: ['mcp:tools:call:read', 'mcp:tools:list'],
       })));
     } finally {
       await stopServer(proc);

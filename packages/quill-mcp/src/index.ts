@@ -195,14 +195,38 @@ function sendSse(client: SseClient, event: string, data: unknown): boolean {
   return writeToClient(client, `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
+/**
+ * Audience this MCP server requires from Astral capability tokens.
+ *
+ * When unset, only token validity is checked — that accepts general session
+ * JWTs, which carry no audience, and is not an authorization boundary. Set it
+ * to require a capability token minted for this server.
+ */
+function astralAudience(): string {
+  return (process.env.ASTRAL_KEY_AUDIENCE ?? '').trim();
+}
+
+/** Scopes required alongside ASTRAL_KEY_AUDIENCE, comma-separated. */
+function astralRequiredScopes(): string[] {
+  return (process.env.ASTRAL_KEY_SCOPES ?? '')
+    .split(',')
+    .map(scope => scope.trim())
+    .filter(Boolean);
+}
+
 async function astralAccepts(token: string): Promise<boolean> {
   const astralKeyUrl = process.env.ASTRAL_KEY_URL;
   if (!astralKeyUrl) return false;
+  const audience = astralAudience();
+  const requiredScopes = astralRequiredScopes();
   try {
     const res = await fetch(`${astralKeyUrl.replace(/\/+$/, '')}/api/v1/auth/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({
+        token,
+        ...(audience ? { audience, required_scopes: requiredScopes } : {}),
+      }),
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return false;
