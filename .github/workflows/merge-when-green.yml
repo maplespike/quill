@@ -15,6 +15,15 @@
 # pull request and the head SHA, checks the gate once, and either squash-merges
 # or exits 0. A pending or red check is not this job's failure.
 #
+# A CANCELLED run is not a verdict either, and it is the one that reads worst.
+# concurrency.cancel-in-progress supersedes a stale attempt every time a new
+# event fires, and GitHub reports the superseded attempt as `cancelled` — which
+# `gh pr checks` renders as `fail`, in the same column as a real failure.
+# Measured 2026-11-22 on #1374: `merge` showed `fail` while every other listed
+# check was still pending, and the PR was merged by hand at mergeStateStatus
+# UNSTABLE on that reading. Read the checks themselves; if the only red cell is
+# this workflow and the run says `cancelled`, the gate simply had not judged yet.
+#
 # "Not my turn" exits 0, never 1. A red check on a PR that is only waiting for
 # its label is a misleading signal. A known foreign head exits 0 and does not
 # merge. Missing head-repository metadata, an unknown mergeable value, or a
