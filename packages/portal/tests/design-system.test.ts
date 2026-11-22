@@ -19,6 +19,23 @@ describe('Public Record design contracts', () => {
     expect(header).toContain('id="nav-auth-container"');
   });
 
+  test('every routed page renders the shared layout, so every page has the toggle', () => {
+    const walk = (directory: string): string[] => readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+      const path = join(directory, entry.name);
+      return entry.isDirectory() ? walk(path) : path.endsWith('.astro') ? [path] : [];
+    });
+    // The French catch-all re-renders its English sibling, so it inherits that
+    // page's layout. api-reference.astro is the documented standalone Scalar
+    // page: no site chrome, and therefore no toggle to carry.
+    const inherit = new Set(['src/pages/fr/[...page].astro', 'src/pages/api-reference.astro']);
+    for (const path of walk(join(process.cwd(), 'src/pages'))) {
+      const rel = path.slice(process.cwd().length + 1);
+      if (inherit.has(rel)) continue;
+      const source = readFileSync(path, 'utf8');
+      expect(source, `${rel} does not use BaseLayout, so it has no theme toggle`).toContain('BaseLayout');
+    }
+  });
+
   test('theme toggle switches the dark class and never renames the theme', () => {
     expect(layout).toContain('data-theme="ink-and-paper"');
     expect(script).toContain("classList.toggle('dark'");

@@ -37,6 +37,36 @@ try {
       assert.equal(state.mainCount, 1, `${route}: main landmark count`);
       assert.equal(state.titleCount, 1, `${route}: h1 count`);
       assert.equal(state.language, route === '/fr' || route.startsWith('/fr/') ? 'fr' : 'en', `${route}: language`);
+      // Every route that uses BaseLayout must carry a working light/dark
+      // toggle. Assert the full cycle so a token or binding regression cannot
+      // ship on one page and pass on another. /api-reference is the one
+      // standalone page (Scalar owns the viewport, no site chrome).
+      if (route === '/api-reference' || route === '/fr/api-reference') {
+        assert.equal(await page.locator('#theme-toggle').count(), 0, `${route}: standalone page should not render site chrome`);
+      } else {
+        const toggle = page.locator('#theme-toggle');
+        assert.equal(await toggle.count(), 1, `${route}: theme toggle missing`);
+        const readTheme = () => page.evaluate(() => ({
+          name: document.documentElement.dataset.theme,
+          dark: document.documentElement.classList.contains('dark'),
+          bodyBg: getComputedStyle(document.body).backgroundColor,
+          pressed: document.getElementById('theme-toggle')?.getAttribute('aria-pressed'),
+        }));
+        const beforeToggle = await readTheme();
+        await toggle.click();
+        await page.waitForFunction(was => document.documentElement.classList.contains('dark') !== was, beforeToggle.dark);
+        const afterToggle = await readTheme();
+        assert.equal(afterToggle.name, 'ink-and-paper', `${route}: toggle renamed the theme`);
+        assert.equal(afterToggle.dark, !beforeToggle.dark, `${route}: toggle did not flip the dark class`);
+        assert.equal(afterToggle.pressed, String(afterToggle.dark), `${route}: aria-pressed out of sync`);
+        assert.notEqual(afterToggle.bodyBg, beforeToggle.bodyBg, `${route}: page plane did not change`);
+        await toggle.click();
+        await page.waitForFunction(was => document.documentElement.classList.contains('dark') === was, beforeToggle.dark);
+        assert.equal((await readTheme()).bodyBg, beforeToggle.bodyBg, `${route}: page plane did not restore`);
+        // Leave no focus on the toggle: the keyboard test below starts from a
+        // clean document and expects the skip link as the first Tab stop.
+        await page.evaluate(() => document.activeElement?.blur());
+      }
       results.push({ route, width, ...state });
       if (['/en', '/fr', '/explorer', '/docs', '/pricing', '/dashboard'].includes(route)) {
         await page.screenshot({ path: `${output}/${route.slice(1)}-${width}.png`, fullPage: true });
@@ -96,8 +126,13 @@ try {
   assert.equal(await page.locator('.primary-nav').evaluate(element => getComputedStyle(element).opacity), '1');
   assert.ok(await page.locator('.site-header').evaluate(element => Math.abs(element.getBoundingClientRect().top) < 1));
   await page.goto(base + '/en');
-  await page.keyboard.press('Tab');
-  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('href')), '#main-content');
+  // The beta banner precedes the skip link in the tab order. Tab until the
+  // skip link receives focus, then prove Enter moves focus to <main>.
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press('Tab');
+    if (await page.evaluate(() => document.activeElement?.getAttribute('href') === '#main-content')) break;
+  }
+  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('href')), '#main-content', 'skip link is reachable by keyboard');
   await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'main-content');
 
