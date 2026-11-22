@@ -401,7 +401,12 @@ jobs:
           curl -sSfL -o /tmp/helm.tgz \
             "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
           tar -xzf /tmp/helm.tgz -C /tmp
-          install_dir="${HOME}/.local/bin"
+          # $HOME is /home/runner on the ARC runners and not writable there:
+          # build-and-test died at `mkdir: cannot create directory
+          # /home/runner/.local/bin: Permission denied` on 888629d7, 2875e9b4
+          # and dd994d1a (2026-11-22), which is why those runs went red on a
+          # step that has nothing to do with their diff. RUNNER_TEMP is writable.
+          install_dir="${RUNNER_TEMP:-/tmp}/bin"
           mkdir -p "$install_dir"
           mv /tmp/linux-amd64/helm "$install_dir/helm"
           echo "$install_dir" >> "$GITHUB_PATH"
