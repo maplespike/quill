@@ -403,6 +403,16 @@ class QuillHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         p = parsed.path
 
+        # ── Runtime Stripe publishable key ─────────────────────────
+        # The key is public by design (it ships in the client bundle), but it is
+        # an environment fact, not a code fact. Baking it in at build time meant
+        # an image built without PUBLIC_STRIPE_PUBLISHABLE_KEY rendered
+        # "Checkout is not configured for this build" until someone rebuilt it.
+        # Serve /config.js with whatever the deployment supplies instead.
+        if p == "/config.js":
+            self._serve_config_js()
+            return
+
         # ── Self-hosted analytics summary endpoint ────────
         if p == "/analytics" or p == "/analytics/":
             self._serve_analytics()
@@ -576,6 +586,30 @@ class QuillHandler(SimpleHTTPRequestHandler):
         dbg += " → fallthrough"
         print(dbg, file=sys.stderr)
         return super().do_GET()
+
+    def _serve_config_js(self):
+        """Serve config.js, appending the runtime publishable key when set."""
+        cfg_path = os.path.join(DIRECTORY, "config.js")
+        try:
+            with open(cfg_path, "r", encoding="utf-8") as f:
+                body = f.read()
+        except OSError:
+            body = "window.MAPLESPIKE = window.MAPLESPIKE || {};\n"
+        publishable = os.environ.get("STRIPE_PUBLISHABLE_KEY", "").strip()
+        if publishable:
+            # json.dumps keeps the value a valid JS string literal whatever it
+            # contains. Empty env leaves the built file untouched, so the
+            # build-time PUBLIC_STRIPE_PUBLISHABLE_KEY path still works.
+            body += (
+                "\n// injected at runtime by server.py from STRIPE_PUBLISHABLE_KEY\n"
+                f"window.MAPLESPIKE.stripePublishableKey = {json.dumps(publishable)};\n"
+            )
+        payload = body.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/javascript; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
     def _serve_analytics(self):
         # Serve aggregated page-view counts from access-log.jsonl

@@ -8,14 +8,18 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout as StripeEmbeddedCheckout } from "@stripe/react-stripe-js";
-import { createEmbeddedSession, keyLookUsable, publishableKey } from "../lib/embedded-checkout";
+import { createEmbeddedSession, keyLookUsable, resolvePublishableKey } from "../lib/embedded-checkout";
 import { deriveApiBase } from "../lib/api-base";
 
 const env: Record<string, unknown> =
   (typeof import.meta !== "undefined" && (import.meta as { env?: Record<string, unknown> }).env) || {};
 
 export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: string }) {
-  const key = publishableKey(env);
+  // Runtime (/config.js injection) first, build-time env second.
+  const key = resolvePublishableKey({
+    buildEnv: env,
+    runtimeWindow: typeof window !== "undefined" ? window : undefined,
+  });
   const usability = keyLookUsable(key);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
