@@ -9,6 +9,7 @@ import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, St
 import { randomUUID } from 'node:crypto';
 import { hashApiKey } from './auth.js';
 import type { Env } from './types.js';
+import { applyGazetteRiasCapD1, applyGazetteRiasCapMemory } from '@maplespike/database';
 
 /* ------------------------------------------------------------------ */
 /*  D1 Implementation (Cloudflare Workers production)                  */
@@ -19,6 +20,11 @@ export class D1Storage implements QuillStorage {
 
   constructor(db: Env['DB']) {
     this.db = db;
+  }
+
+  /** Idempotent licence migration for Gazette rows stored in this D1 database. */
+  async applyLicenceMigrations(): Promise<void> {
+    await applyGazetteRiasCapD1(this.db);
   }
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
@@ -587,7 +593,9 @@ export class MemoryStorage implements QuillStorage {
   private watchEvents: Map<string, WatchEvent> = new Map();
 
   constructor() {
-    // No hardcoded keys — demo keys are opt-in via ALLOW_DEMO_KEYS in auth.ts
+    // No hardcoded keys — demo keys are opt-in via ALLOW_DEMO_KEYS in auth.ts.
+    // Memory holds no gazette rows; the call keeps this backend on the migration path.
+    applyGazetteRiasCapMemory();
   }
 
   /** Register a new tenant + key for testing. */

@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { applyGazetteRiasCapSqlite } from "./gazette-rias-migration.js";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
@@ -499,6 +500,7 @@ export function runMigrations(db?: DbClient): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
     `);
+  applyGazetteRiasCapSqlite(sqlite);
 }
 
 /**

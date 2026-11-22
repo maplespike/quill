@@ -421,6 +421,11 @@ CREATE INDEX IF NOT EXISTS idx_gazette_registration ON gazette_records(registrat
 CREATE INDEX IF NOT EXISTS idx_gazette_department ON gazette_records(department);
 CREATE INDEX IF NOT EXISTS idx_gazette_part_date ON gazette_records(part, published_at DESC);
 
+-- Idempotent cap. Full RIAS text already stored is cut to 300 characters.
+UPDATE gazette_records
+SET rias_text = substr(rias_text, 1, 300)
+WHERE rias_text IS NOT NULL AND length(rias_text) > 300;
+
 -- Influence Actor Tables
 --
 -- Tracks international organizations, NGOs, think tanks, consultancies,

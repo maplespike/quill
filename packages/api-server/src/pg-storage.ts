@@ -6,6 +6,7 @@
  */
 
 import pg from 'pg';
+import { applyGazetteRiasCapPostgres } from '@maplespike/database';
 import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier, TaxLedgerEntryInsert, TaxLedgerSummary, Watch, WatchInsert, WatchEvent, WatchEventInsert } from './types.js';
 import { randomUUID } from 'node:crypto';
 import { hashApiKey, generateApiKey } from './auth.js';
@@ -43,6 +44,7 @@ export class PgStorage implements QuillStorage {
 
   async init(): Promise<void> {
     await this.migrate();
+    await applyGazetteRiasCapPostgres(this.pool);
     await this.seed();
   }
 
