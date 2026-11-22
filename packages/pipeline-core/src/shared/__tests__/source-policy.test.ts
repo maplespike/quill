@@ -230,6 +230,36 @@ describe('applySourcePolicy — Statistics Canada notices', () => {
   });
 });
 
+describe('applySourcePolicy — news and NGO RSS metadata', () => {
+  it('drops description, summary, excerpt, and body for media and NGO feeds', () => {
+    const body = 'x'.repeat(400);
+    for (const source of ['media-broadcasting', 'ngo-influence-rss', 'rss']) {
+      const { records } = applySourcePolicy(source, [
+        {
+          title: 'Headline',
+          source: 'Example Outlet',
+          publishedAt: '2026-01-02',
+          url: 'https://example.com/story',
+          summary: body,
+          description: body,
+          excerpt: body,
+          content: body,
+          text: body,
+        },
+      ]);
+      const record = records[0] as Record<string, unknown>;
+      assert.equal(record.title, 'Headline');
+      assert.equal(record.source, 'Example Outlet');
+      assert.equal(record.publishedAt, '2026-01-02');
+      assert.equal(record.url, 'https://example.com/story');
+      for (const key of ['summary', 'description', 'excerpt', 'content', 'text']) {
+        assert.equal(record[key], undefined, `${source}.${key}`);
+      }
+      assert.equal(JSON.stringify(record).includes(body), false);
+    }
+  });
+});
+
 describe('applySourcePolicy — link-only sources', () => {
   it('keeps citations/metadata, drops content bodies, and cuts summaries to a short excerpt', () => {
     const { records, policy } = applySourcePolicy('canlii', [

@@ -67,8 +67,8 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   canlii: { linkOnly: true },
   'sedar-plus': { linkOnly: true },
   sedi: { linkOnly: true },
-  // RSS/news feeds: headline + link + short excerpt only; no full-text
-  // republication without a licence.
+  // RSS/news and NGO feeds: headline, source, date, and link only.
+  // projectFeedMetadata drops description, summary, excerpt, and body.
   'media-broadcasting': { linkOnly: true },
   'ngo-influence-rss': { linkOnly: true },
   // Canada Gazette / federal legislation: reproduce accurately, never as an
@@ -298,6 +298,45 @@ function truncateExcerpt(value: string, max: number): string {
   return value.length <= max ? value : `${value.slice(0, max - 1)}…`;
 }
 
+/** Body keys removed from news, media, and NGO RSS records. No excerpt remains. */
+const FEED_BODY_KEYS = new Set([
+  'summary',
+  'description',
+  'excerpt',
+  'content',
+  'contentsnippet',
+  'contentencoded',
+  'contentbody',
+  'body',
+  'text',
+  'abstract',
+  'notes',
+  'html',
+  'rawtext',
+  'fulltext',
+  'rawcontent',
+]);
+
+/**
+ * News, media, and NGO RSS records: headline, source, date, and link only.
+ * Description, summary, excerpt, and body text are removed, not truncated.
+ */
+export function projectFeedMetadata<T>(value: T): T {
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (node && typeof node === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const [key, child] of Object.entries(node as Record<string, unknown>)) {
+        if (FEED_BODY_KEYS.has(normalizedKey(key))) continue;
+        out[key] = walk(child);
+      }
+      return out;
+    }
+    return node;
+  };
+  return walk(value) as T;
+}
+
 /**
  * Drop content-body fields (full text, speeches, transcripts) and, when a
  * maximum is given, truncate summary fields to a short excerpt. Used for
@@ -378,6 +417,10 @@ export interface AppliedSourcePolicy {
 export function applySourcePolicy(sourceId: string, records: unknown[]): AppliedSourcePolicy {
   const policy = policyForModule(sourceId);
   let out: unknown[] = records;
+  const feedFamily = MODULE_SOURCE_ALIASES[sourceId] ?? sourceId;
+  if (feedFamily === 'media-broadcasting' || feedFamily === 'ngo-influence-rss') {
+    out = projectFeedMetadata(out);
+  }
   if (policy.discoveryOnly || policy.linkOnly) {
     out = stripContentBodies(out, { maxSummaryLength: SHORT_EXCERPT_MAX });
   }

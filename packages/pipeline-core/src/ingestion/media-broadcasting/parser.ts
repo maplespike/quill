@@ -8,7 +8,6 @@ export async function toMediaRecord(
   title: string,
   url: string,
   year: number,
-  description: string,
   additionalData: {
     value?: number;
     entity?: string;
@@ -26,7 +25,6 @@ export async function toMediaRecord(
     value: additionalData.value,
     entity: additionalData.entity,
     category: additionalData.category,
-    description,
     hash,
     ingestedAt: new Date().toISOString(),
   };
@@ -48,7 +46,6 @@ export async function parseCrtcReports(html: string, maxRecords: number): Promis
       t,
       m[1].startsWith('http') ? m[1] : `https://crtc.gc.ca${m[1]}`,
       year ? parseInt(year) : new Date().getFullYear(),
-      'CRTC market report',
     ));
   }
 
@@ -70,7 +67,6 @@ export async function parseCrtcOwnership(html: string, maxRecords: number): Prom
       t,
       m[1].startsWith('http') ? m[1] : `https://crtc.gc.ca${m[1]}`,
       new Date().getFullYear(),
-      'CRTC ownership chart',
     ));
   }
 
@@ -93,7 +89,6 @@ export async function parseCmfData(html: string, maxRecords: number): Promise<Me
       t,
       m[1].startsWith('http') ? m[1] : `https://www.cmf-fmc.ca${m[1]}`,
       year ? parseInt(year) : new Date().getFullYear(),
-      'CMF open data',
     ));
   }
 
@@ -116,7 +111,6 @@ export async function parseTelefilm(html: string, maxRecords: number): Promise<M
       t,
       m[1].startsWith('http') ? m[1] : `https://telefilm.ca${m[1]}`,
       year ? parseInt(year) : new Date().getFullYear(),
-      'Telefilm report',
     ));
   }
 

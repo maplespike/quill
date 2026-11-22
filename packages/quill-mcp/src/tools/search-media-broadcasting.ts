@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchCkan } from './upstream-fetcher.js';
+import { projectFeedMetadata } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_media_broadcasting',
@@ -30,7 +31,15 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
   try {
     const result = await searchCkan(query + ' media broadcasting CRTC', limit);
-    return { content: { tool: 'search_media_broadcasting', query, limit, ...result } };
+    return {
+      content: {
+        tool: 'search_media_broadcasting',
+        query,
+        limit,
+        ...result,
+        results: projectFeedMetadata(result.results),
+      },
+    };
   } catch (err) {
     return { content: { tool: 'search_media_broadcasting', query, error: err instanceof Error ? err.message : 'Unknown error' }, isError: true };
   }

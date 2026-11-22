@@ -23,7 +23,7 @@ export function searchNgoRss(items: NgoRssItem[], query: string): NgoRssItem[] {
 export function classifyNarrative(item: NgoRssItem): NarrativeFlag[] {
   const flags: NarrativeFlag[] = [];
   const tags = item.narrativeTags.map(t => t.toLowerCase());
-  const text = `${item.title} ${item.summary}`.toLowerCase();
+  const text = item.title.toLowerCase();
 
   if (tags.some(t => t.includes('wef') || t.includes('global-governance'))) flags.push('wef-alignment');
   if (tags.some(t => t.includes('foreign-policy') || t.includes('trade'))) flags.push('foreign-influence');

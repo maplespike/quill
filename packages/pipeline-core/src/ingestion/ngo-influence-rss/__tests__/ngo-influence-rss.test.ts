@@ -26,11 +26,12 @@ describe('ngo-influence-rss Module', () => {
     const item = {
       id: 'test-1',
       title: 'Climate change policy is impacting the economy',
-      summary: 'Policy analysis on climate and the economy',
       source: 'test-source',
       url: 'https://example.com/test',
       publishedAt: '2026-01-01',
       narrativeTags: ['economic-policy'],
+      category: 'think-tank' as const,
+      hash: 'abc',
     };
     const result = classifyNarrative(item as any);
     assert.ok(Array.isArray(result));
