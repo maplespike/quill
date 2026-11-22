@@ -64,6 +64,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build quill-mcp
+        # portal's gen:all reads packages/quill-mcp/dist/tools/index.js for the
+        # authoritative tool registry and fails outright when it is absent
+        # (run 45037143372). The dist is gitignored, so it must be built here.
+        run: pnpm --filter @maplespike/quill-mcp build
+
       - name: Build the portal
         # pnpm --dir avoids depending on the workspace package name, and the
         # package's own `build` script is the canonical output: gen:all then
