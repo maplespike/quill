@@ -298,7 +298,16 @@ backups:
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"
   drillSchedule: "30 3 * * 0"
-  retentionDays: 14
+  # 14 -> 7 days (2026-11-22). Measured before the change: the quill-backups
+  # claim held 14.26 GiB of actual blocks on a 30Gi Longhorn claim, with
+  # numberOfReplicas 2, so ~28.5 GiB of cluster storage for one SQLite file
+  # (~2 GiB) plus the search index. It is the 4th largest Longhorn consumer
+  # and the only one whose size is purely a retention policy. 7 days still
+  # covers the 26h freshness window and the weekly restore drill
+  # (drillSchedule Sunday), and the Longhorn backupstore holds the
+  # volume-level snapshots independently. Existing archives age out on the
+  # next run, so the reclaim is automatic and needs no PVC surgery.
+  retentionDays: 7
   maxAgeHours: 26
   storage: 30Gi
   storageClass: longhorn
