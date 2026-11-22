@@ -1,5 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
-import { createEmbeddedSession, keyLookUsable, publishableKey, PUBLISHABLE_KEY_ENV } from "../embedded-checkout";
+import {
+  createEmbeddedSession,
+  keyLookUsable,
+  publishableKey,
+  resolvePublishableKey,
+  runtimePublishableKey,
+  PUBLISHABLE_KEY_ENV,
+} from "../embedded-checkout";
 
 describe("publishableKey", () => {
   test("reads and trims the build-time value", () => {
@@ -72,5 +79,38 @@ describe("createEmbeddedSession", () => {
     const r = await createEmbeddedSession({ apiBase: "https://api.maplespike.ca", apiKey: "k", planId: "pro", fetchImpl: fetchImpl as unknown as typeof fetch });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toContain("ECONNREFUSED");
+  });
+});
+
+describe("runtimePublishableKey", () => {
+  test("reads the key the server injected into /config.js", () => {
+    expect(runtimePublishableKey({ MAPLESPIKE: { stripePublishableKey: " pk_live_rt " } })).toBe("pk_live_rt");
+  });
+  test("is empty when the page has no runtime config", () => {
+    expect(runtimePublishableKey(undefined)).toBe("");
+    expect(runtimePublishableKey({})).toBe("");
+    expect(runtimePublishableKey({ MAPLESPIKE: {} })).toBe("");
+  });
+});
+
+describe("resolvePublishableKey", () => {
+  test("prefers the runtime value over the build-time value", () => {
+    expect(
+      resolvePublishableKey({
+        buildEnv: { [PUBLISHABLE_KEY_ENV]: "pk_live_build" },
+        runtimeWindow: { MAPLESPIKE: { stripePublishableKey: "pk_live_runtime" } },
+      }),
+    ).toBe("pk_live_runtime");
+  });
+  test("falls back to the build-time value when runtime is absent or blank", () => {
+    const buildEnv = { [PUBLISHABLE_KEY_ENV]: "pk_live_build" };
+    expect(resolvePublishableKey({ buildEnv })).toBe("pk_live_build");
+    expect(resolvePublishableKey({ buildEnv, runtimeWindow: { MAPLESPIKE: { stripePublishableKey: "   " } } })).toBe(
+      "pk_live_build",
+    );
+  });
+  test("returns empty when neither source is configured", () => {
+    expect(resolvePublishableKey({})).toBe("");
+    expect(resolvePublishableKey({ runtimeWindow: {} })).toBe("");
   });
 });

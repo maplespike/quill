@@ -187,6 +187,16 @@ secrets:
   stripeSecretKey: ''
   stripeWebhookSecret: ''
   stripeAccountId: ''
+  # Publishable by design: it ships in the portal's client bundle, so it is not
+  # a secret and is not duplicated here. The canonical copy is the build env in
+  # .github/workflows/ci.yml; the portal image bakes it into its bundle at build
+  # time, so an empty value here is the normal case.
+  #
+  # When set, portal.yaml passes it to the portal as STRIPE_PUBLISHABLE_KEY and
+  # server.py appends it to /config.js — the recovery path for an image built
+  # without it (the 2026-11 "Checkout is not configured for this build" bug).
+  # Do not paste the key here: the leakguard gate flags a pk_live_ literal in
+  # this file, and the image rebuild is the delivery path.
   stripePublishableKey: ''
 ingestion:
   enabled: true

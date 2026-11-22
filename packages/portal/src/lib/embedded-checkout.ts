@@ -33,6 +33,29 @@ export function keyLookUsable(key: string): { ok: boolean; reason?: string } {
   return { ok: true };
 }
 
+/**
+ * The key can reach the browser two ways:
+ *   1. baked in at build time from `PUBLIC_STRIPE_PUBLISHABLE_KEY`, and
+ *   2. injected at runtime by the static server into `/config.js`
+ *      (`window.MAPLESPIKE.stripePublishableKey`).
+ * Runtime wins when set, so an image built without the build-time env can still
+ * take payments once the deployment supplies the key — no rebuild required.
+ * This is what made "Checkout is not configured for this build" permanent on a
+ * portal whose dist/ was built by a pipeline that never set the env.
+ */
+export function runtimePublishableKey(win: unknown): string {
+  const value = (win as { MAPLESPIKE?: { stripePublishableKey?: unknown } } | undefined)
+    ?.MAPLESPIKE?.stripePublishableKey;
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function resolvePublishableKey(args: {
+  buildEnv?: Record<string, unknown>;
+  runtimeWindow?: unknown;
+}): string {
+  return runtimePublishableKey(args.runtimeWindow) || publishableKey(args.buildEnv ?? {});
+}
+
 export type EmbeddedSessionResult =
   | { ok: true; clientSecret: string }
   | { ok: false; error: string; status?: number };
