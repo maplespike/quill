@@ -26,7 +26,7 @@ export {
   InterestCategorySchema,
   InterestSchema,
 } from "./disclosure";
-export { DonationRecipientTypeSchema, DonationSchema } from "./donation";
+export { DonationSchema } from "./donation";
 export {
   GACProjectSchema,
   GACProjectStatusSchema,

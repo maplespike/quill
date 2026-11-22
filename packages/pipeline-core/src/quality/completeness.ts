@@ -39,7 +39,7 @@ export const MODULE_EXPECTED_FIELDS: Record<string, string[]> = {
   lobbying: ['filingNumber', 'registrantName', 'clientName', 'subjectMatter', 'startDate', 'endDate', 'institution'],
   'goc-spending': ['contractNumber', 'title', 'vendorName', 'department', 'value', 'startDate'],
   gazette: ['title', 'department', 'publicationDate', 'type', 'url'],
-  elections: ['donorName', 'recipientName', 'amount', 'date', 'province'],
+  elections: ['party', 'riding', 'amountBand', 'totalAmount', 'jurisdiction'],
   'proactive-disclosure': ['personName', 'position', 'department', 'year', 'interests', 'filingDate'],
   ati: ['requestNumber', 'summary', 'department', 'decision', 'pages'],
   oversight: ['organization', 'reportTitle', 'publicationDate', 'summary', 'recommendations'],

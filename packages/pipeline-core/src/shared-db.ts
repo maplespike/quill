@@ -6,7 +6,7 @@
  * This module upserts resolved entities into the shared tables so the engine
  * can read from them via loadFromDb().
  */
-import { getRawDb } from "@maplespike/database";
+import { donationAmountBand, getRawDb } from "@maplespike/database";
 
 const now = (): string => new Date().toISOString();
 
@@ -206,52 +206,41 @@ export function upsertLobbyingFiling(
 }
 
 /**
- * Upsert a donation into the shared `donations` table.
+ * Upsert a donation aggregate. The row has no donor name.
  */
-export function upsertDonation(
-  donorName: string,
-  recipientName: string,
-  recipientType: string,
-  amount: number,
-  date: string,
-  opts?: {
-    donorPersonId?: string;
-    donorOrganizationId?: string;
-    currency?: string;
-    province?: string;
-    riding?: string;
-    isCorporate?: boolean;
-    source: string;
-    rawData?: Record<string, unknown>;
-  },
-): string {
+export function upsertDonationAggregate(input: {
+  party: string;
+  riding?: string;
+  amount: number;
+  contributionCount?: number;
+  jurisdiction?: string;
+  source: string;
+}): string {
   const db = getRawDb();
-  const rawSource = opts?.source ?? "manual";
-  const rawData = opts?.rawData ?? {};
-  const id = `donation-${Buffer.from(donorName + recipientName + date).toString("hex")}`;
-
+  const party = input.party.trim() || 'unspecified';
+  const riding = input.riding?.trim() ?? '';
+  const amountBand = donationAmountBand(input.amount);
+  const id = `donation-agg-${Buffer.from(`${input.source}|${party}|${riding}|${amountBand}|${input.jurisdiction ?? ''}`).toString('hex')}`;
   db.prepare(
-    `INSERT OR IGNORE INTO donations (id, donor_name, donor_person_id, donor_organization_id, recipient_name, recipient_type, amount, currency, date, province, riding, is_corporate, source, raw_data, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO donations
+      (id, party, riding, amount_band, contribution_count, total_amount, jurisdiction, source, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       contribution_count = contribution_count + excluded.contribution_count,
+       total_amount = total_amount + excluded.total_amount,
+       updated_at = excluded.updated_at`,
   ).run(
     id,
-    donorName,
-    opts?.donorPersonId ?? null,
-    opts?.donorOrganizationId ?? null,
-    recipientName,
-    recipientType,
-    amount,
-    opts?.currency ?? "CAD",
-    date,
-    opts?.province ?? null,
-    opts?.riding ?? null,
-    opts?.isCorporate ? 1 : 0,
-    rawSource,
-    JSON.stringify(rawData),
+    party,
+    riding,
+    amountBand,
+    input.contributionCount ?? 1,
+    input.amount,
+    input.jurisdiction ?? null,
+    input.source,
     now(),
     now(),
   );
-
   return id;
 }
 

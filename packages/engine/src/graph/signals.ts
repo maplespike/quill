@@ -332,62 +332,16 @@ export function detectSoleSourceHeavyLobbying(
  * Detects donors who are also vendors or lobbyists near a recipient's portfolio.
  */
 export function detectDonationProximityCorrelation(
-  donations: Donation[],
-  contracts: Contract[],
-  filings: LobbyingFiling[],
-  persons: Person[],
-  organizations: Organization[],
+  _donations: Donation[],
+  _contracts: Contract[],
+  _filings: LobbyingFiling[],
+  _persons: Person[],
+  _organizations: Organization[],
   _resolver?: EntityResolver,
   _aliasManager?: AliasManager,
 ): IntelligenceThread[] {
-  const resolver =
-    _resolver ??
-    new EntityResolver(_aliasManager ?? new AliasManager({} as never));
-   const threads: IntelligenceThread[] = [];
-
-  for (const donation of donations) {
-    // Check if donor is also a contract vendor
-    for (const contract of contracts) {
-      const donorIsVendor =
-        resolver.resolveOrgNames(donation.donorName, contract.vendorName) >=
-        0.7;
-
-      // Check if donor org matches lobbying client
-      const donorIsLobbyist = filings.some(
-        (f) =>
-          resolver.resolveOrgNames(donation.donorName, f.clientName) >= 0.7,
-      );
-
-      if (!donorIsVendor && !donorIsLobbyist) continue;
-
-      // Check temporal proximity (within 2 years)
-      const donationDate = new Date(donation.date);
-      const contractDate = new Date(contract.startDate);
-      const diffMonths =
-        Math.abs(donationDate.getTime() - contractDate.getTime()) /
-        (1000 * 60 * 60 * 24 * 30);
-
-      if (diffMonths > 24) continue;
-
-      const org = findOrg(organizations, donation.donorName, resolver);
-      const confidence = donorIsVendor && donorIsLobbyist ? 0.85 : 0.7;
-
-      threads.push({
-        id: nextThreadId(),
-        title: `Donation–contract proximity: ${donation.donorName}`,
-        description: `${donation.donorName} donated $${donation.amount.toLocaleString()} to ${donation.recipientName} and ${donorIsVendor ? `received a $${contract.value.toLocaleString()} contract from ${contract.department}` : "lobbied the same department"} within ${Math.round(diffMonths)} months.`,
-        signalType: "donation_proximity_correlation",
-        confidence,
-        nodes: [donation.id, contract.id, ...(org ? [org.id] : [])],
-        edges: [],
-        sources: [donation.source, contract.source],
-        createdAt: isoNow(),
-        updatedAt: isoNow(),
-      });
-    }
-  }
-
-  return threads;
+  // Aggregates do not name a donor, so this signal cannot match a person or firm.
+  return [];
 }
 
 /**

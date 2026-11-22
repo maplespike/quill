@@ -22,7 +22,7 @@ export type {
   TenderStatus,
 } from "./contract";
 export type { Disclosure, Interest, InterestCategory } from "./disclosure";
-export type { Donation, DonationRecipientType } from "./donation";
+export type { Donation } from "./donation";
 export type { GACProject, GACProjectStatus, ImplementingPartner } from "./gac";
 export type {
   Edge,

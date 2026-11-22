@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { applyPrivateNamesSqlite } from "./private-names-migration.js";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
@@ -194,22 +195,18 @@ export function runMigrations(db?: DbClient): void {
 
     CREATE TABLE IF NOT EXISTS donations (
       id TEXT PRIMARY KEY,
-      donor_name TEXT NOT NULL,
-      donor_person_id TEXT,
-      donor_organization_id TEXT,
-      recipient_name TEXT NOT NULL,
-      recipient_type TEXT NOT NULL,
-      amount REAL NOT NULL,
-      currency TEXT NOT NULL DEFAULT 'CAD',
-      date TEXT NOT NULL,
-      province TEXT,
-      riding TEXT,
-      is_corporate INTEGER NOT NULL DEFAULT 0,
+      party TEXT NOT NULL,
+      riding TEXT NOT NULL DEFAULT '',
+      amount_band TEXT NOT NULL,
+      contribution_count INTEGER NOT NULL,
+      total_amount REAL NOT NULL,
+      jurisdiction TEXT,
       source TEXT NOT NULL,
-      raw_data TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE INDEX IF NOT EXISTS idx_donations_aggregate ON donations(party, riding, amount_band);
 
     CREATE TABLE IF NOT EXISTS disclosures (
       id TEXT PRIMARY KEY,
@@ -499,6 +496,7 @@ export function runMigrations(db?: DbClient): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
     `);
+  applyPrivateNamesSqlite(sqlite);
 }
 
 /**
