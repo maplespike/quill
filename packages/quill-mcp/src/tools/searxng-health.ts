@@ -32,8 +32,15 @@ export const definition: ToolDefinition = {
 export const handler: ToolHandler = async (params) => {
   const { checkEngines = true, maxResults = 10 } = params;
 
-  // SearXNG URL from env or default to cluster service
-  const SEARXNG_URL = process.env.SEARXNG_URL || 'http://searxng.search.svc.cluster.local:8080';
+  const SEARXNG_URL = process.env.SEARXNG_URL?.trim();
+  if (!SEARXNG_URL) {
+    return {
+      content: [{
+        type: 'text',
+        text: 'SearXNG health checks are disabled. Set SEARXNG_URL to enable them.',
+      }],
+    };
+  }
 
   try {
     // Get engine status from /stats endpoint

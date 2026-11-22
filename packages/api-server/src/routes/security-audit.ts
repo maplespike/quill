@@ -80,47 +80,23 @@ const SEV_RANK: Record<AuditAdvisory['severity'], number> = {
 };
 
 /**
- * Resolve the path to the build-time audit.json that the dashboard
- * used to read directly. Multiple candidate locations so the route
- * works in both `pnpm dev` (cwd = repo root) and `pnpm build` cwd =
- * packages/api-server. Async + dynamic node:* imports keep the
- * Cloudflare Workers bundle honest: without this, the top-level
- * `node:fs` import crashes module-init in Workers projects that
- * haven't enabled `nodejs_compat`.
+ * Resolve the build-time audit.json from QUILL_SECURITY_AUDIT_JSON.
+ * The path is not guessed. An unset or missing file is a 503.
+ * Async + dynamic node:* imports keep the Cloudflare Workers bundle
+ * honest: without this, a top-level `node:fs` import crashes module-init
+ * in Workers projects that have not enabled `nodejs_compat`.
  */
 async function findStaticAuditPath(): Promise<{ path: string | null; missingOverride?: string }> {
   const { existsSync } = await import('node:fs');
   const { resolve } = await import('node:path');
-  // Explicit override first: the api image bakes the snapshot at a stable path
-  // (/app/data/security/audit.json) that is not one of the cwd-relative
-  // guesses below.
-  //
-  // An override is authoritative. When it names a file that is not there, do
-  // NOT fall through to the guesses: the API would then serve a *different*
-  // snapshot as if it were the configured one, which is the same lie this
-  // route exists to stop (2026-10-24: the CI checkout has a committed
-  // packages/portal/public/data/security/audit.json, so a broken override
-  // silently answered from it).
-  const override = process.env.QUILL_SECURITY_AUDIT_JSON;
-  if (override) {
-    return existsSync(override)
-      ? { path: resolve(override) }
-      : { path: null, missingOverride: resolve(override) };
-  }
-  const candidates = [
-    // dev: cwd = repo root
-    'packages/portal/public/data/security/audit.json',
-    // packaged: cwd = packages/api-server
-    '../portal/public/data/security/audit.json',
-    // docker: cwd = /app inside the image
-    '/app/packages/portal/public/data/security/audit.json',
-    // docker (Dockerfile.api bakes the generated snapshot here)
-    '/app/data/security/audit.json',
-  ];
-  for (const c of candidates) {
-    if (existsSync(resolve(c))) return { path: resolve(c) };
-  }
-  return { path: null };
+  // The snapshot path is QUILL_SECURITY_AUDIT_JSON only. The API image sets
+  // it to the file baked at build time. There is no portal-path guess: a
+  // missing or unset path is a 503, not a different snapshot.
+  const override = process.env.QUILL_SECURITY_AUDIT_JSON?.trim();
+  if (!override) return { path: null };
+  return existsSync(override)
+    ? { path: resolve(override) }
+    : { path: null, missingOverride: resolve(override) };
 }
 
 /**
@@ -171,7 +147,7 @@ export async function readStaticFallback(reason: string): Promise<AuditResult> {
   if (!path) {
     const rejection = found.missingOverride
       ? `QUILL_SECURITY_AUDIT_JSON points at ${found.missingOverride}, which does not exist (${reason})`
-      : `no static audit.json found (${reason})`;
+      : `QUILL_SECURITY_AUDIT_JSON is not set (${reason})`;
     return {
       source: 'static',
       fallbackReason: rejection,

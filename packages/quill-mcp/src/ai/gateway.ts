@@ -1,8 +1,8 @@
 /**
  * AI Inference Gateway HTTP client
  *
- * OpenAI-compatible HTTP client for the cluster's AI Inference Gateway
- * at http://nexus:30880/. Supports chat completions and embeddings.
+ * OpenAI-compatible HTTP client. The endpoint comes from QUILL_GATEWAY_URL.
+ * Chat and embeddings stay off when that variable is unset.
  *
  * PII Sanitization: ALL messages sent to the AI and ALL responses received
  * are scanned for Canadian PII (SIN, passport, health card, etc.) and
@@ -25,14 +25,29 @@ export interface GatewayConfig {
   retryDelay?: number;
 }
 
-const DEFAULT_CONFIG: GatewayConfig = {
-  endpoint: process.env.QUILL_GATEWAY_URL || 'http://nexus:30880/v1',
-  chatModel: process.env.QUILL_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct',
-  embedModel: process.env.QUILL_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
-  apiKey: process.env.QUILL_GATEWAY_API_KEY || undefined,
-  maxRetries: 2,
-  retryDelay: 1_000,
-};
+function envString(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
+}
+
+export function loadGatewayConfig(override?: Partial<GatewayConfig>): GatewayConfig {
+  return {
+    endpoint: override?.endpoint?.trim() || envString('QUILL_GATEWAY_URL') || '',
+    chatModel: override?.chatModel || process.env.QUILL_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct',
+    embedModel: override?.embedModel || process.env.QUILL_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
+    apiKey: override?.apiKey ?? envString('QUILL_GATEWAY_API_KEY'),
+    maxRetries: override?.maxRetries ?? 2,
+    retryDelay: override?.retryDelay ?? 1_000,
+  };
+}
+
+function requireGatewayEndpoint(config: GatewayConfig): string {
+  const endpoint = config.endpoint.trim().replace(/\/$/, '');
+  if (!endpoint) {
+    throw new Error('AI gateway is disabled. Set QUILL_GATEWAY_URL to enable chat and embeddings.');
+  }
+  return endpoint;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Chat Completion                                                    */
@@ -68,7 +83,7 @@ export async function chatCompletion(
   options: ChatCompletionOptions & { model?: string } = {},
   configOverride?: Partial<GatewayConfig>,
 ): Promise<ChatCompletionResult> {
-  const config: GatewayConfig = { ...DEFAULT_CONFIG, ...configOverride };
+  const config = loadGatewayConfig(configOverride);
   const {
     temperature = 0.3,
     maxTokens = 4096,
@@ -76,7 +91,7 @@ export async function chatCompletion(
     model = config.chatModel,
   } = options;
 
-  const endpoint = config.endpoint.replace(/\/$/, '');
+  const endpoint = requireGatewayEndpoint(config);
   const body: Record<string, unknown> = {
     model,
     messages: messages.map(m => ({
@@ -161,8 +176,8 @@ export async function embed(
   text: string,
   configOverride?: Partial<GatewayConfig>,
 ): Promise<EmbeddingResult> {
-  const config: GatewayConfig = { ...DEFAULT_CONFIG, ...configOverride };
-  const endpoint = config.endpoint.replace(/\/$/, '');
+  const config = loadGatewayConfig(configOverride);
+  const endpoint = requireGatewayEndpoint(config);
 
   // Some embedding models require the input to be wrapped in a specific format
   const input = typeof text === 'string' ? text : JSON.stringify(text);

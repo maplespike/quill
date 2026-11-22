@@ -75,7 +75,7 @@ describe('browserBin / browserEnabled', () => {
 });
 
 // Optional live integration test — only fires when RUN_BROWSER_LIVE=1.
-describe('browser-fetch (live, requires /home/j_kro/.local/bin/lightpanda)', () => {
+describe('browser-fetch (live, requires lightpanda on PATH or LIGHTPANDA_BIN)', () => {
   before(() => setMock(false));
   after(() => setMock(true));
 

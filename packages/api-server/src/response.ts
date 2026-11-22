@@ -20,6 +20,7 @@ import { TIER_LIMITS } from './types.js';
 import { normalizeFields, convertUnits } from './utils/normalize.js';
 import { randomUUID } from 'node:crypto';
 import { applySecurityHeaders } from './middleware/security-headers.js';
+import { configuredCorsOrigins } from '@maplespike/pipeline-core/config/public-base-url';
 import { buildBilingualError, detectLocale } from './error-codes.js';
 import type { BilingualError } from './error-codes.js';
 
@@ -316,51 +317,17 @@ function buildAllowedOrigins(): string[] {
     'http://127.0.0.1:8082',
     'http://127.0.0.1:3001',
     'http://127.0.0.1:3000',
-    // Production (maplespike.ca via Cloudflare)
-    'https://maplespike.ca',
-    'https://www.maplespike.ca',
-    'https://data.maplespike.ca',
-    'https://api.maplespike.ca',
-    'https://api.data.maplespike.ca',
-    'https://mcp.maplespike.ca',
-    'https://quill.maplespike.ca',
-    'https://www.quill.maplespike.ca',
-    // Production (LAN)
-    'https://quill.maplespike.ca',
-    'https://www.quill.maplespike.ca',
-    'https://api.maplespike.ca',
-    'https://quill.maplespike.ca',
-    'https://mcp.maplespike.ca',
-    'https://portal.maplespike.ca',
-    // In-cluster LAN aliases (.lan)
+    // Brand hosts, plus any host derived from QUILL_PUBLIC_BASE_URL /
+    // MAPLESPIKE_DOMAIN. Brand hosts stay in the list as defaults.
+    ...configuredCorsOrigins(),
+    // In-cluster LAN aliases (.lan). These are deployment names, not the public brand.
     'https://quill-api.lan',
     'https://quill-portal.lan',
     'https://quill-mcp.lan',
     'https://quill.lan',
-    // Dev subdomains
-    'https://dev.maplespike.ca',
-    'https://dev-api.maplespike.ca',
-    'https://dev-mcp.maplespike.ca',
-    // LAN aliases
-    'https://quill.maplespike.ca',
-    'https://quill.maplespike.ca',
-    // Auto-derived from MAPLESPIKE_DOMAIN env var
-    ...(() => {
-      const d = process.env.MAPLESPIKE_DOMAIN;
-      if (!d) return [] as string[];
-      return [
-        `https://${d}`,
-        `https://api.${d}`,
-        `https://mcp.${d}`,
-        `https://portal.${d}`,
-        `https://dev.${d}`,
-        `https://dev-api.${d}`,
-        `https://dev-mcp.${d}`,
-    ];
-  })(),
   // Operator-supplied extra origins — comma-separated env var.
   // Use for self-hosters running on custom domains not covered by the
-  // hardcoded list or MAPLESPIKE_DOMAIN. Example:
+  // public base URL. Example:
   //   ALLOWED_ORIGINS_OVERRIDE="https://portal.foo.com,https://api.foo.com"
   ...(process.env.ALLOWED_ORIGINS_OVERRIDE
     ? process.env.ALLOWED_ORIGINS_OVERRIDE
@@ -371,12 +338,18 @@ function buildAllowedOrigins(): string[] {
   ];
 }
 
-// Rebuilt when the two env vars that shape the list change, so a test (or a
+// Rebuilt when the env vars that shape the list change, so a test (or a
 // long-lived process) never serves a list computed for a different config.
 let cachedOrigins: { key: string; list: string[] } | null = null;
 
 function allowedOrigins(): string[] {
-  const key = `${process.env.MAPLESPIKE_DOMAIN ?? ''}|${process.env.ALLOWED_ORIGINS_OVERRIDE ?? ''}`;
+  const key = [
+    process.env.QUILL_PUBLIC_BASE_URL ?? '',
+    process.env.MAPLESPIKE_PUBLIC_URL ?? '',
+    process.env.MAPLESPIKE_DOMAIN ?? '',
+    process.env.APP_URL ?? '',
+    process.env.ALLOWED_ORIGINS_OVERRIDE ?? '',
+  ].join('|');
   if (cachedOrigins?.key !== key) cachedOrigins = { key, list: buildAllowedOrigins() };
   return cachedOrigins.list;
 }

@@ -100,8 +100,34 @@ spec:
         {{- end }}
         - name: QUILL_API_URL
           value: "{{ .Values.api.env.QUILL_API_URL }}"
+        {{- with .Values.api.env.QUILL_QDRANT_ENDPOINT }}
         - name: QUILL_QDRANT_ENDPOINT
-          value: "{{ .Values.api.env.QUILL_QDRANT_ENDPOINT | default "http://qdrant:6333" }}"
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.QUILL_AI_ENDPOINT }}
+        - name: QUILL_AI_ENDPOINT
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.QUILL_FUSION_ENDPOINT }}
+        - name: QUILL_FUSION_ENDPOINT
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.ASTRAL_KEY_URL }}
+        - name: ASTRAL_KEY_URL
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.QUILL_SECURITY_AUDIT_JSON }}
+        - name: QUILL_SECURITY_AUDIT_JSON
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.QUILL_PIPELINE_DATA_PATH }}
+        - name: QUILL_PIPELINE_DATA_PATH
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.api.env.QUILL_PUBLIC_BASE_URL }}
+        - name: QUILL_PUBLIC_BASE_URL
+          value: {{ . | quote }}
+        {{- end }}
         - name: QUILL_QDRANT_COLLECTION
           value: "{{ .Values.api.env.QUILL_QDRANT_COLLECTION | default "maplespike" }}"
         - name: QUILL_EMBED_MODEL
@@ -324,6 +350,26 @@ spec:
             secretKeyRef:
               name: quill-secrets
               key: apiKey
+        {{- with .Values.mcp.env.QUILL_GATEWAY_URL }}
+        - name: QUILL_GATEWAY_URL
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.mcp.env.QUILL_QDRANT_ENDPOINT }}
+        - name: QUILL_QDRANT_ENDPOINT
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.mcp.env.KNOWLEDGE_FABRIC_URL }}
+        - name: KNOWLEDGE_FABRIC_URL
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.mcp.env.SEARXNG_URL }}
+        - name: SEARXNG_URL
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.mcp.env.QUILL_PUBLIC_BASE_URL }}
+        - name: QUILL_PUBLIC_BASE_URL
+          value: {{ . | quote }}
+        {{- end }}
         resources:
           requests:
             cpu: {{ .Values.mcp.resources.requests.cpu }}

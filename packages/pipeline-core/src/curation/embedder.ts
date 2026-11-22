@@ -54,15 +54,20 @@ export interface EmbedderResult {
 /*  Default Configuration                                              */
 /* ------------------------------------------------------------------ */
 
-const DEFAULT_CONFIG: EmbedderConfig = {
-  qdrantUrl: process.env.QDRANT_URL || 'http://qdrant.ai-inference:6333',
-  qdrantCollection: process.env.QDRANT_COLLECTION || 'brain_wiki',
-  embeddingEndpoint: process.env.EMBEDDING_ENDPOINT
-    || 'http://ai-inference-gateway.ai-inference:8080/v1/embeddings',
-  chunkSize: parseInt(process.env.CHUNK_SIZE || '512', 10),
-  chunkOverlap: parseInt(process.env.CHUNK_OVERLAP || '64', 10),
-  batchSize: 100,
-};
+function envString(name: string): string {
+  return process.env[name]?.trim() || '';
+}
+
+function defaultConfig(): EmbedderConfig {
+  return {
+    qdrantUrl: envString('QDRANT_URL'),
+    qdrantCollection: process.env.QDRANT_COLLECTION?.trim() || 'brain_wiki',
+    embeddingEndpoint: envString('EMBEDDING_ENDPOINT'),
+    chunkSize: parseInt(process.env.CHUNK_SIZE || '512', 10),
+    chunkOverlap: parseInt(process.env.CHUNK_OVERLAP || '64', 10),
+    batchSize: 100,
+  };
+}
 
 const log = createLogger('qdrant-embedder');
 
@@ -150,13 +155,17 @@ export class QdrantEmbedder {
   private embeddingModel: string;
 
   constructor(config?: Partial<EmbedderConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...defaultConfig(), ...config };
     this.embeddingModel = process.env.EMBEDDING_MODEL
       || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
   }
 
   private getQdrantUrl(): string {
-    return this.config.qdrantUrl.replace(/\/$/, '');
+    const url = this.config.qdrantUrl.trim();
+    if (!url) {
+      throw new Error('Qdrant embedder is disabled. Set QDRANT_URL to enable it.');
+    }
+    return url.replace(/\/$/, '');
   }
 
   /* ---------------------------------------------------------------- */
@@ -265,7 +274,10 @@ export class QdrantEmbedder {
    * Falls back to local endpoint if GATEWAY_ENDPOINT is set differently.
    */
   private async embedOne(text: string, signal?: AbortSignal): Promise<number[]> {
-    const endpoint = this.config.embeddingEndpoint.replace(/\/$/, '');
+    const endpoint = this.config.embeddingEndpoint.trim().replace(/\/$/, '');
+    if (!endpoint) {
+      throw new Error('Embedding is disabled. Set EMBEDDING_ENDPOINT to enable it.');
+    }
 
     // First try the fusion gateway's embeddings endpoint
     try {

@@ -15,6 +15,7 @@
 import { verifyMessage, getAddress } from 'viem';
 import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
 import { generateToken } from './jwt.js';
+import { relyingPartyDomain } from '@maplespike/pipeline-core/config/public-base-url';
 
 export interface Web3ChallengeRequest {
   address: string;
@@ -56,7 +57,7 @@ export function createChallenge(req: Web3ChallengeRequest): Web3ChallengeRespons
 
   const nonce = generateNonce();
   const address = getAddress(req.address); // Checksum the address
-  const domain = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
+  const domain = relyingPartyDomain();
   const chainId = req.chainId || 1;
   const issuedAt = new Date().toISOString();
 

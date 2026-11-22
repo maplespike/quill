@@ -10,6 +10,7 @@ import type { RouteHandler, QuillStorage, Tenant } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { canAccess } from '../feature-gates.js';
+import { portalHost } from '@maplespike/pipeline-core/config/public-base-url';
 
 /**
  * Extended storage with optional key management methods.
@@ -26,7 +27,7 @@ export const listKeysHandler: RouteHandler = async (_request, ctx) => {
   // ── Feature gate: API key management requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key management requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `API key management requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 
@@ -41,7 +42,7 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
   // ── Feature gate: API key creation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key creation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `API key creation requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 
@@ -76,7 +77,7 @@ export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
   // ── Feature gate: API key revocation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key revocation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `API key revocation requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 
@@ -111,7 +112,7 @@ export const rotateKeyHandler: RouteHandler = async (_request, ctx, params) => {
   // ── Feature gate: key rotation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Key rotation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
+      `Key rotation requires a Pro plan or higher. Upgrade at ${portalHost()}/billing.`,
       ctx), 402);
   }
 

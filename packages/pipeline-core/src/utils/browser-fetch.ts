@@ -21,10 +21,11 @@
  *     return canned HTML — no real binary required.
  *
  * Runtime requirement:
- *   - The `lightpanda` binary must be present at $LIGHTPANDA_BIN (default
- *     `/home/j_kro/.local/bin/lightpanda`). The repo's Nix / docker-compose
- *     / Helm layers do NOT install it; self-hosters must pull the
- *     precompiled CLI from https://github.com/lightpanda-io/lightpanda/releases
+ *   - The `lightpanda` binary is taken from $LIGHTPANDA_BIN when that
+ *     variable is set. Otherwise the wrapper looks up `lightpanda` on PATH.
+ *     The repo's Nix / docker-compose / Helm layers do NOT install it;
+ *     self-hosters must pull the precompiled CLI from
+ *     https://github.com/lightpanda-io/lightpanda/releases
  *     or skip the browserFetch callers.
  *   - bundle-safe: `node:child_process` is dynamic-imported so the file
  *     still compiles for Cloudflare Workers / Bun (where browserFetch is
@@ -46,9 +47,11 @@
  *   // resp.body — rendered HTML describing publication cards
  */
 
-const DEFAULT_BIN = '/home/j_kro/.local/bin/lightpanda';
-
-const BIN_PATH = process.env['LIGHTPANDA_BIN'] ?? DEFAULT_BIN;
+/** LIGHTPANDA_BIN when set, otherwise the `lightpanda` name for a PATH lookup. */
+export function browserBin(): string {
+  const fromEnv = process.env['LIGHTPANDA_BIN']?.trim();
+  return fromEnv || 'lightpanda';
+}
 
 // Default --log-level read from env at module load. Per-call
 // BrowserFetchOptions.logLevel overrides this when set.
@@ -216,7 +219,8 @@ async function runLightpanda(
     let stdoutBytes = 0;
     let settled = false;
 
-    const proc = spawn(BIN_PATH, args, {
+    const bin = browserBin();
+    const proc = spawn(bin, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
@@ -266,7 +270,7 @@ async function runLightpanda(
       if (settled) return;
       settled = true;
       clearTimeout(hardKill);
-      reject(new Error(`browserFetch: spawn failed for ${BIN_PATH}: ${err.message}`));
+      reject(new Error(`browserFetch: spawn failed for ${browserBin()}: ${err.message}`));
     });
 
     proc.on('close', (code: number | null) => {
@@ -282,11 +286,6 @@ async function runLightpanda(
       });
     });
   });
-}
-
-/** Resolved lightpanda CLI binary path (introspection / diagnostics). */
-export function browserBin(): string {
-  return BIN_PATH;
 }
 
 /** True when browserFetch will actually spawn the subprocess on next call. */
