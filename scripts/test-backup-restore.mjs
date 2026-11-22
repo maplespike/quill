@@ -153,7 +153,7 @@ test('chart backup contract', (t) => {
   assert.match(values, /preferredHost: &quillPreferredHost nexus/);
   assert.match(values, /backups:\n(?:  .*\n)*?  affinityHosts: \*quillHeavyHosts/);
   assert.match(values, /backups:\n(?:  .*\n)*?  preferredHost: \*quillPreferredHost/);
-  assert.match(values, /retentionDays: 14/);
+  assert.match(values, /retentionDays: 7/);
   assert.match(backups, /kind: CronJob/);
   assert.match(backups, /quill.fullname" \. }}-backup-sqlite/);
   assert.match(backups, /quill.fullname" \. }}-backup-search/);
