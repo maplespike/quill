@@ -71,6 +71,10 @@ api:
     TRUST_PROXY: 'true'
     REDIS_URL: redis://quill-redis:6379
     STRIPE_ENV: live
+    # Account the live and test keys belong to (pk_live_ and pk_test_ carry the
+    # same id). Diagnostics only — the billing status payload's
+    # accountFingerprint reads it; no Connect/Stripe-Account usage.
+    STRIPE_ACCOUNT_ID: acct_1TXKNtIZlbpvSCVX
   ingress:
     host: api.maplespike.ca
     tls: true

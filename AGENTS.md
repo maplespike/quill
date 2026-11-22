@@ -303,19 +303,27 @@ Three payment methods implemented. **Live** mode is active since 2026-09-22 (`ST
 - `GET /v1/billing/orders` — Create/query payment orders
 - `POST /v1/billing/reconcile` — Manual reconciliation
 
-**Env vars (delivered to `maplespike-secrets` — keys `stripe-secret-key` / `stripe-webhook-secret` — and injected into the api via secretKeyRef):**
+**Env vars the chart actually injects into the api** — three via `secretKeyRef`
+from the `maplespike-secrets` ExternalSecret (`media-k8s`, sourced from Bitwarden
+Secrets Manager project `k3s`), two inline from `values-prod.yaml`:
 
 | Variable | Source |
 |----------|--------|
-| `STRIPE_SECRET_KEY` | `sk_live_51TXKNt...` (live) |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_live_51TXKNt...` (live) |
-| `STRIPE_TEST_SECRET_KEY` | `sk_test_51TXKNt...` (test) |
-| `STRIPE_TEST_PUBLISHABLE_KEY` | `pk_test_51TXKNt...` (test) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
-| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` |
-| `STRIPE_ENV` | `live` (since 2026-09-22; set in `charts/quill/values-prod.yaml`) |
-| `QUILL_BILLING_SECRET` | 256-bit HMAC for order signing |
-| `MAPLESPIKE_BILLING_EMAIL` | `billing@maplespike.ca` |
+| `STRIPE_SECRET_KEY` | `maplespike-secrets.stripe-secret-key` (live key) |
+| `STRIPE_WEBHOOK_SECRET` | `maplespike-secrets.stripe-webhook-secret` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
+| `QUILL_BILLING_SECRET` | `maplespike-secrets.quill-billing-secret` — 256-bit HMAC for order signing |
+| `STRIPE_ENV` | `live` (since 2026-09-22, `charts/quill/values-prod.yaml`); `config.ts:validateStripeEnv` refuses to boot on a key/mode mismatch |
+| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` (`charts/quill/values-prod.yaml`) — diagnostics only, feeds `accountFingerprint` in the billing status payload |
+
+**Stripe config deliberately absent from the Deployment:** the api carries no
+publishable key, because the portal is a separate artefact on Cloudflare Pages.
+The browser-side key reaches it as `PUBLIC_STRIPE_PUBLISHABLE_KEY`, baked at
+Pages build time from the repo variable `vars.PUBLIC_STRIPE_PUBLISHABLE_KEY`
+(`deploy-docs.yml`, `deploy-demo-pages.yml`; `ci.yml` inlines a live one) and
+consumed by `packages/portal/src/lib/embedded-checkout.ts`, which fails closed
+when it is missing or malformed. `STRIPE_TEST_SECRET_KEY` is read only by
+`config.ts:validateStripeEnv` as a guard — a live key must never occupy the
+test slot — and no deployment sets it.
 
 **Crypto treasury wallets** (8 EVM chains) — private keys encrypted with `age-plugin-yubikey` (both Nano + NFC Yubikeys required as recipients). Public addresses set on deployment:
 

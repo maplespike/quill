@@ -532,6 +532,57 @@ describe('stripeWebhookHandler', () => {
     assert.equal(t.stripeSubscriptionId, 'sub_webhook_test');
   });
 
+  it('treats invoice.paid as a renewal, alias of invoice.payment_succeeded', async () => {
+    // Regression: the live endpoint subscribed `invoice.paid`, but the switch
+    // only knew `invoice.payment_succeeded`, so renewals were recorded as
+    // `unhandled`. Both events fire on a paid invoice with the same payload
+    // shape; neither may fall through to the default branch.
+    const tenantId = 'tenant_invoice_paid';
+    const res = await signAndPost({
+      id: 'evt_invoice_paid1',
+      type: 'invoice.paid',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'in_test_paid1',
+          object: 'invoice',
+          customer: 'cus_invoice_paid',
+          amount_paid: 2900,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.notEqual(body.data.action, 'unhandled', 'invoice.paid must not fall through to the default branch');
+    assert.match(body.data.action, /^renewal_logged/, `expected a renewal action, got "${body.data.action}"`);
+  });
+
+  it('treats invoice.payment_succeeded identically to invoice.paid', async () => {
+    const tenantId = 'tenant_invoice_ps';
+    const res = await signAndPost({
+      id: 'evt_invoice_ps1',
+      type: 'invoice.payment_succeeded',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'in_test_ps1',
+          object: 'invoice',
+          customer: 'cus_invoice_ps',
+          amount_paid: 2900,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.match(body.data.action, /^renewal_logged/);
+  });
+
   it('downgrades tier on customer.subscription.deleted when customer is bound', async () => {
     const tenantId = 'tenant_sub_delete_test';
     const customerId = 'cus_to_delete';
