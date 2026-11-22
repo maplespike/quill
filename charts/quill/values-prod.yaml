@@ -298,16 +298,25 @@ backups:
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"
   drillSchedule: "30 3 * * 0"
-  # 14 -> 7 days (2026-11-22). Measured before the change: the quill-backups
-  # claim held 14.26 GiB of actual blocks on a 30Gi Longhorn claim, with
-  # numberOfReplicas 2, so ~28.5 GiB of cluster storage for one SQLite file
-  # (~2 GiB) plus the search index. It is the 4th largest Longhorn consumer
-  # and the only one whose size is purely a retention policy. 7 days still
-  # covers the 26h freshness window and the weekly restore drill
-  # (drillSchedule Sunday), and the Longhorn backupstore holds the
-  # volume-level snapshots independently. Existing archives age out on the
-  # next run, so the reclaim is automatic and needs no PVC surgery.
-  retentionDays: 7
+  # 14 -> 7 -> 3 days (2026-11-22). Measured at 14 days: the quill-backups
+  # claim held 14.26 GiB of actual blocks on a 30Gi Longhorn claim with
+  # numberOfReplicas 2, so ~28.5 GiB of cluster storage — the 4th largest
+  # Longhorn consumer, and the only one whose size is purely a policy number.
+  #
+  # WHY 3 AND NOT MORE: two jobs write a full archive per day (a SQLite dump
+  # and a complete tantivy index tarball), so 7 days was 14 archives and 3
+  # days is 6. Three is the floor that still satisfies both consumers:
+  #   - verify-freshness needs the newest backup younger than maxAgeHours: 26;
+  #     a daily job against a 3-day window can lose two runs and still pass.
+  #   - the weekly drill (Sunday) restores whatever is current; it does not
+  #     need history, and Longhorn's S3 backupstore holds the volume-level
+  #     snapshots separately (weekly-backup, retain: 1).
+  # The search index is derived data — rebuildable from the SQLite dump by the
+  # ingest pipelines — so long index history has no recovery value that the
+  # dump does not already provide.
+  # Archives age out via `-mtime +RETENTION_DAYS` on the next run; no PVC
+  # surgery, and storageClass stays put (immutable on a bound claim anyway).
+  retentionDays: 3
   maxAgeHours: 26
   storage: 30Gi
   storageClass: longhorn
