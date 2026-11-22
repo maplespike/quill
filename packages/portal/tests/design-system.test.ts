@@ -7,6 +7,7 @@ const layout = read('src/layouts/BaseLayout.astro');
 const landing = read('src/components/LandingBody.astro');
 const header = read('src/components/SiteHeader.astro');
 const css = read('src/styles/editorial.css');
+const script = read('public/script.js');
 
 describe('Public Record design contracts', () => {
   test('every route gets the same local-font theme and one main landmark', () => {
@@ -16,6 +17,16 @@ describe('Public Record design contracts', () => {
     expect(layout).toContain('id="main-content" tabindex="-1"');
     expect(layout).toContain('<SiteHeader ');
     expect(header).toContain('id="nav-auth-container"');
+  });
+
+  test('theme toggle switches the dark class and never renames the theme', () => {
+    expect(layout).toContain('data-theme="ink-and-paper"');
+    expect(script).toContain("classList.toggle('dark'");
+    // data-theme must stay "ink-and-paper"; writing light/dark into it made
+    // the design check flaky and produced a half-dark page.
+    expect(script).not.toMatch(/setAttribute\(\s*['"]data-theme['"]/);
+    expect(script).toContain('aria-pressed');
+    expect(header).toContain('aria-pressed="false"');
   });
 
   test('header supports keyboard dismissal and idempotent SPA binding', () => {
