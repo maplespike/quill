@@ -583,6 +583,77 @@ describe('stripeWebhookHandler', () => {
     assert.match(body.data.action, /^renewal_logged/);
   });
 
+  it('records charge.refunded as a refund, not an unhandled event', async () => {
+    // charge.refunded is handled in the switch but was not one of the events the
+    // live endpoint subscribed, so refunds never arrived. It is subscribed now.
+    const res = await signAndPost({
+      id: 'evt_refund1',
+      type: 'charge.refunded',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'ch_test_refund1',
+          object: 'charge',
+          amount_refunded: 1500,
+          currency: 'cad',
+          metadata: { tenant_id: 'tenant_refund' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.notEqual(body.data.action, 'unhandled');
+    assert.match(body.data.action, /^refund_/);
+  });
+
+  it('treats customer.subscription.paused and .resumed as handled events', async () => {
+    const tenantId = 'tenant_paused_events_test';
+    const customerId = 'cus_paused_events';
+    const bind = await signAndPost({
+      id: 'evt_bind_paused_events',
+      type: 'checkout.session.completed',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'cs_test_bind_paused_events',
+          object: 'checkout.session',
+          customer: customerId,
+          subscription: 'sub_paused_events',
+          amount_total: 5000,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro', order_id: 'MS-PAUSE02' },
+        },
+      },
+    });
+    assert.equal((await bind.json()).data.action, 'tier_upgraded');
+
+    for (const [typ, status] of [['customer.subscription.paused', 'paused'], ['customer.subscription.resumed', 'active']] as const) {
+      const res = await signAndPost({
+        id: `evt_paused_events_${status}`,
+        type: typ,
+        created: Math.floor(Date.now() / 1000),
+        livemode: false,
+        data: {
+          object: {
+            id: 'sub_paused_events',
+            object: 'subscription',
+            customer: customerId,
+            status,
+            current_period_end: Math.floor(Date.now() / 1000) + 86400,
+            metadata: { tenant_id: tenantId, plan_id: 'pro' },
+          },
+        },
+      });
+      assert.equal(res.status, 200);
+      const body = await res.json();
+      assert.notEqual(body.data.action, 'unhandled', `${typ} must not fall through to the default branch`);
+      assert.notEqual(body.data.action, 'rejected_cross_tenant', `${typ} lost the customer binding`);
+      assert.match(body.data.action, /^tier_/, `expected a tier action for ${typ}, got "${body.data.action}"`);
+    }
+  });
+
   it('downgrades tier on customer.subscription.deleted when customer is bound', async () => {
     const tenantId = 'tenant_sub_delete_test';
     const customerId = 'cus_to_delete';
