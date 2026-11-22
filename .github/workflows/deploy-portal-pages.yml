@@ -71,6 +71,11 @@ jobs:
         # 45037143372 and 45037297872 failed on the missing intermediates).
         env:
           MAPLESPIKE_DOMAIN: maplespike.ca
+          # Pages is static: there is no server.py to inject the key at request
+          # time, so the bundle is the only delivery path. Without this the
+          # checkout island shipped an empty key and rendered "Checkout is not
+          # configured for this build" on every plan page (2026-11-22).
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
         run: pnpm build
 
       - name: Confirm the portal output exists
