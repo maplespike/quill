@@ -303,19 +303,24 @@ Three payment methods implemented. **Live** mode is active since 2026-09-22 (`ST
 - `GET /v1/billing/orders` — Create/query payment orders
 - `POST /v1/billing/reconcile` — Manual reconciliation
 
-**Env vars (delivered to `maplespike-secrets` — keys `stripe-secret-key` / `stripe-webhook-secret` — and injected into the api via secretKeyRef):**
+**Env vars the chart actually injects into the api** — three via `secretKeyRef`
+from the `maplespike-secrets` ExternalSecret (`media-k8s`, sourced from Bitwarden
+Secrets Manager project `k3s`), two inline from `values-prod.yaml`:
 
 | Variable | Source |
 |----------|--------|
-| `STRIPE_SECRET_KEY` | `sk_live_51TXKNt...` (live) |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_live_51TXKNt...` (live) |
-| `STRIPE_TEST_SECRET_KEY` | `sk_test_51TXKNt...` (test) |
-| `STRIPE_TEST_PUBLISHABLE_KEY` | `pk_test_51TXKNt...` (test) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
-| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` |
-| `STRIPE_ENV` | `live` (since 2026-09-22; set in `charts/quill/values-prod.yaml`) |
-| `QUILL_BILLING_SECRET` | 256-bit HMAC for order signing |
-| `MAPLESPIKE_BILLING_EMAIL` | `billing@maplespike.ca` |
+| `STRIPE_SECRET_KEY` | `maplespike-secrets.stripe-secret-key` (live key) |
+| `STRIPE_WEBHOOK_SECRET` | `maplespike-secrets.stripe-webhook-secret` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
+| `QUILL_BILLING_SECRET` | `maplespike-secrets.quill-billing-secret` — 256-bit HMAC for order signing |
+| `STRIPE_ENV` | `live` (since 2026-09-22, `charts/quill/values-prod.yaml`); `config.ts:validateStripeEnv` refuses to boot on a key/mode mismatch |
+| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` (`charts/quill/values-prod.yaml`) — diagnostics only, feeds `accountFingerprint` in the billing status payload |
+
+**Not injected, and nothing reads them:** `STRIPE_PUBLISHABLE_KEY` /
+`STRIPE_TEST_PUBLISHABLE_KEY` (the portal is never handed a publishable key —
+`services/stripe.ts` creates Checkout Sessions server-side and returns the
+session URL) and `STRIPE_TEST_SECRET_KEY` (there is no test-mode deployment;
+test-mode keys appear in CI only). Adding any of them back means adding a
+consumer first, otherwise the manifest advertises config the code ignores.
 
 **Crypto treasury wallets** (8 EVM chains) — private keys encrypted with `age-plugin-yubikey` (both Nano + NFC Yubikeys required as recipients). Public addresses set on deployment:
 
