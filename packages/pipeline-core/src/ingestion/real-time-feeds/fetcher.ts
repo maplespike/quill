@@ -186,26 +186,85 @@ async function fetchCbsaBorders(): Promise<{ records: RealtimeRecord[]; error: s
 
 /* ── Parole Board Decisions (HTML) ──────────────────── */
 
-async function fetchParoleDecisions(): Promise<{ records: RealtimeRecord[]; error: string | null }> {
-  const resp = await fetchText('https://www.canada.ca/en/parole-board/services/decision-registry.html');
-  if (!resp.ok) return { records: [], error: resp.error };
-  const html = resp.body;
-  const now = new Date().toISOString();
-  const records: RealtimeRecord[] = [];
+const PAROLE_REGISTRY_URL = 'https://www.canada.ca/en/parole-board/services/decision-registry.html';
 
+function stripChrome(html: string): string {
+  let out = html;
+  const block = /<(nav|header|footer)\b[^>]*>[\s\S]*?<\/\1>/gi;
+  for (let i = 0; i < 8; i++) {
+    const next = out.replace(block, ' ');
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
+function paroleLinkText(raw: string): string {
+  return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * An individual decision document, not a canada.ca menu link or a registry
+ * explainer ("What is the decision registry?"). The registry landing page
+ * does not list decisions.
+ */
+function looksLikeParoleDecision(href: string, title: string): boolean {
+  const path = href.split(/[?#]/)[0].toLowerCase();
+  if (!path || path.startsWith('#') || path.startsWith('javascript:')) return false;
+  if (/\/(what-is|how-do-i|how-to|faq|frequently|contact|about)[-/]/.test(path)) return false;
+  if (/decision-registry\/?$/.test(path)) return false;
+  if (/\.pdf$/.test(path)) return true;
+  if (/\/decisions?\/[^/]+$/.test(path)) return true;
+  if (/\b(?:19|20)\d{2}-\d{2}-\d{2}\b/.test(title) && /\bdecision\b/i.test(title)) return true;
+  if (/\bdecision\s*(?:no\.?|number|#)\s*\d+/i.test(title)) return true;
+  return false;
+}
+
+function absoluteParoleUrl(href: string): string {
+  if (href.startsWith('http://') || href.startsWith('https://')) return href;
+  if (href.startsWith('/')) return `https://www.canada.ca${href}`;
+  return `https://www.canada.ca/${href}`;
+}
+
+/**
+ * Parse Parole Board HTML into decision records. Navigation and registry
+ * explainers are not decisions. Exported for fixture tests — no network.
+ * Hash is filled by the caller.
+ */
+export function parseParoleBoardHtml(html: string, now = new Date().toISOString()): RealtimeRecord[] {
+  const scoped = stripChrome(html);
+  const records: RealtimeRecord[] = [];
   const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   let m: RegExpExecArray | null;
-  while ((m = lp.exec(html)) !== null && records.length < 30) {
-    const t = m[2].replace(/<[^>]+>/g, '').trim();
-    if (t.length < 10 || !/(decision|registry|hearing|appeal|parole)/i.test(t)) continue;
+  while ((m = lp.exec(scoped)) !== null && records.length < 30) {
+    const title = paroleLinkText(m[2]);
+    const href = m[1].trim();
+    if (title.length < 10 || !looksLikeParoleDecision(href, title)) continue;
     records.push({
-      source: 'parole-board-decisions', title: t,
-      url: m[1].startsWith('http') ? m[1] : `https://www.canada.ca${m[1]}`,
-      publishedAt: now, summary: 'Parole Board decision', severity: 'info', region: '',
-      hash: await computeHash(`pbc-${t}`, 'sha256'), ingestedAt: now,
+      source: 'parole-board-decisions',
+      title,
+      url: absoluteParoleUrl(href),
+      publishedAt: now,
+      summary: 'Parole Board decision',
+      severity: 'info',
+      region: '',
+      hash: '',
+      ingestedAt: now,
     });
   }
-  return { records, error: null };
+  return records;
+}
+
+async function fetchParoleDecisions(): Promise<{ records: RealtimeRecord[]; error: string | null }> {
+  const resp = await fetchText(PAROLE_REGISTRY_URL);
+  if (!resp.ok) return { records: [], error: resp.error };
+  const now = new Date().toISOString();
+  const parsed = parseParoleBoardHtml(resp.body, now);
+  const hashed = await Promise.all(parsed.map(async (record) => ({
+    ...record,
+    hash: await computeHash(`pbc-${record.title}`, 'sha256'),
+  })));
+  return { records: hashed, error: null };
 }
 
 /* ── Main Orchestrator ──────────────────────────────── */
