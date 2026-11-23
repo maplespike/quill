@@ -498,6 +498,12 @@ export function runMigrations(db?: DbClient): void {
       citation_json TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- latest() orders by created_at DESC, hash DESC.
+    -- Forward-only. Same statement as
+    -- packages/pipeline-core/src/db/migrations/20261110_citation_records_latest_index.sql.
+    CREATE INDEX IF NOT EXISTS idx_citation_records_created_at_hash
+      ON citation_records (created_at DESC, hash DESC);
     `);
 }
 
