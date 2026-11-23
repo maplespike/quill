@@ -129,8 +129,22 @@ jobs:
         github.event.workflow_run.head_repository.full_name == github.repository
         || github.event_name != 'workflow_run'
       ) && (
+        # A workflow_run event only exists to merge a PR. When the triggering
+        # run was a push to main, the payload carries `pull_requests: []` -- the
+        # measured shape of all 28 no-op gate runs on 2026-11-23 13:10Z.
+        #
+        # MEASURED 2026-11-23 14:20Z: gating on `workflow_run.head_branch` (the
+        # #1402 fix) did NOT stop them either: the jobs came back `queued` with
+        # an empty runner_name and a set started_at, not `skipped`, which means
+        # the condition evaluated TRUE. head_branch is empty in these payloads,
+        # so `'' != 'main'` passes and the job asks for a runner anyway.
+        #
+        # pull_requests is the field the concurrency group already trusts, and
+        # it is unambiguous: populated for a PR-branch run, empty for a push.
+        # A run with no PR number has nothing to merge, so the job is skipped
+        # before it can claim the single arc-maplespike-gate runner.
         github.event_name != 'workflow_run'
-        || (github.event.workflow_run.head_branch != 'main' && github.event.workflow_run.head_branch != 'prod')
+        || github.event.workflow_run.pull_requests[0].number != null
       )
     runs-on: >-
       ${{
