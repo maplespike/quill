@@ -65,4 +65,23 @@ describe('alternate portal CSP copies', () => {
     assertAnalyticsHosts(nginxCsp);
     assertAnalyticsHosts(headersCsp);
   });
+
+  // 2026-11-23: the live site served "Payment form could not load: Failed to
+  // load Stripe.js" because server.py had the Stripe directives and these two
+  // copies never did. Only the analytics hosts were compared, so the drift was
+  // invisible. Every copy must carry the Stripe origins.
+  test('nginx.conf and _headers allow the Stripe embedded-checkout origins', () => {
+    const nginx = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
+    const headers = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
+    const copies: Array<[string, string]> = [
+      ['nginx.conf', nginx.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? ''],
+      ['public/_headers', headers.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? ''],
+    ];
+    for (const [name, value] of copies) {
+      expect(directive(value, 'script-src'), name).toContain('https://js.stripe.com');
+      expect(directive(value, 'frame-src'), name).toContain('https://js.stripe.com');
+      expect(directive(value, 'frame-src'), name).toContain('https://hooks.stripe.com');
+      expect(directive(value, 'connect-src'), name).toContain('https://api.stripe.com');
+    }
+  });
 });
