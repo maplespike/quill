@@ -119,13 +119,19 @@ describe('the three portal CSP copies are one policy', () => {
     }
   });
 
-  test('the build emits hash-based script-src, which is what makes unsafe-inline inert', () => {
-    // If security.csp is removed, 'unsafe-inline' silently becomes a blanket
-    // grant again: CSP3 only prefers hashes because a hash exists.
+  test("'unsafe-inline' in script-src is deliberate, and the config does not try to hash around it", () => {
+    // Measured 2026-11-23: Astro's security.csp emitted a meta CSP with SHA-384
+    // hashes and the site broke with 83 securitypolicyviolations — inline event
+    // handlers (script-src-attr) cannot be hashed at all, and several `is:inline`
+    // blocks never got a hash. It was reverted within the hour. The meta policy
+    // only tightens, so the page's own scripts stopped running.
+    //
+    // This test exists so nobody re-enables it believing it is free hardening:
+    // the audit (e2e/csp-audit.mjs) is what shows the difference, and removing
+    // 'unsafe-inline' for real starts with deleting the inline handlers.
     const astroConfig = readFileSync(join(__dirname, '..', 'astro.config.mjs'), 'utf8');
-    expect(astroConfig).toContain('security:');
-    expect(astroConfig).toMatch(/algorithm:\s*'SHA-(256|384|512)'/);
-    expect(astroConfig).toContain("'https://js.stripe.com'");
+    expect(astroConfig).not.toContain('security:');
+    expect(directive(csp, 'script-src')).toContain("'unsafe-inline'");
   });
 
   test('no copy allows a host nothing in the portal uses', () => {
