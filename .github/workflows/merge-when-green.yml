@@ -56,6 +56,20 @@ on:
       - "Open-source facts audit"
       - "Auto-assign Sprint-to-Live Milestone"
       - "Dependabot Auto-Merge"
+    # Never on main/prod. A completed run on main has nothing left to merge, so
+    # the job could only claim the single `arc-maplespike-gate` runner, install
+    # gh, and exit 0 as "not my turn" -- while competing with real CI for the
+    # 6-pod `arc-runners` ResourceQuota. Measured 2026-11-23 13:10Z: 48 such runs
+    # created in 60 minutes, 24 of the 25 newest runs in the repo were this
+    # workflow, and every sampled queued run had `pull_requests: []` with
+    # `head_branch: main`. They were 28 of the 100 queued runs, median queue age
+    # 145 minutes.
+    #
+    # PR events are unaffected: for a pull_request run the triggering branch is
+    # the PR head branch, and pull_request_target (labeled/synchronize) remains
+    # the primary trigger. branches-ignore applies to the branch the triggering
+    # workflow ran on, i.e. workflow_run.head_branch.
+    branches-ignore: [main, prod]
     types: [completed]
   check_suite:
     types: [completed]
