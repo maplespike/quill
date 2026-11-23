@@ -1,7 +1,7 @@
 # Quill (MapleSpike) — Full Documentation Archive
 
 > Version: 1.0.0
-> Licensing status: package/file declarations conflict; government data terms are source-specific. See `docs/open-source-audit.md` and `LICENSE.md`.
+> Licensing status: Quill's own code is AGPL-3.0-only (issue #1044). Government data terms are source-specific. See `LICENSE.md` and `docs/open-source-audit.md`.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse
 > Source: https://github.com/maplespike/quill
@@ -175,7 +175,7 @@ Cross-reference signals (requires engine)
 
 ## License
 
-- Repository, package, file, and dependency license declarations conflict; see `LICENSE.md` and `docs/open-source-audit.md`.
+- Quill's own code is AGPL-3.0-only. See `LICENSE.md`. Third-party code keeps its own licence. See `docs/open-source-audit.md`.
 - Quill does not grant independent reuse rights in source data. Terms are publisher- and dataset-specific; consult original sources. See `docs/licensing-audit.md`.
 
 Copyright © MapleSpike / reverb256. The @maplespike/* npm scope is the

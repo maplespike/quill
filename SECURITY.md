@@ -112,4 +112,4 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 
 ## License metadata
 
-Repository, package, and file-level license declarations conflict. This document does not determine which terms apply to each artifact. See [LICENSE.md](./LICENSE.md) and the [open-source audit](./docs/open-source-audit.md) for observed declarations and unresolved decisions.
+Quill's own code is `AGPL-3.0-only`. The rights holder made that decision on 2026-10-24 (issue #1044). See [LICENSE.md](./LICENSE.md). Third-party code keeps its own licence. Source-data terms are separate. The [open-source audit](./docs/open-source-audit.md) records the tree before that decision.
