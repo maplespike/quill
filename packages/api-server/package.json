@@ -45,7 +45,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241201.0",
+    "@cloudflare/workers-types": "^5.20261120.1",
     "@opentelemetry/api": "^1.10.0",
     "@types/better-sqlite3": "^7.6.0",
     "@types/imap": "^0.8.40",
