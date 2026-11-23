@@ -358,9 +358,8 @@ const CORS_EXPOSE_HEADERS =
 
 /**
  * Apply the standard MapleSpike CORS headers to a response Headers instance.
- * Pulls the allowed origin from getAllowedOrigin() so dev/IP/prod origins all
- * stay in one place. Used by jsonResponse, corsPreflight, and finalizeResponse
- * to keep header drift out of the API surface.
+ * Pulls the allowed origin from getAllowedOrigin() so dev and prod origins
+ * stay in one place. Callers use applyCorsAndSecurityHeaders.
  */
 export function applyCorsHeaders(
   headers: Headers,
@@ -370,6 +369,23 @@ export function applyCorsHeaders(
   headers.set('Access-Control-Allow-Methods', CORS_METHODS);
   headers.set('Access-Control-Allow-Headers', CORS_ALLOWED_HEADERS);
   headers.set('Access-Control-Expose-Headers', CORS_EXPOSE_HEADERS);
+}
+
+/**
+ * Apply the CORS headers and the OWASP security headers together.
+ *
+ * The normal handler, the Redis cache hit, preflight, rate-limit
+ * rejections, and server errors all call this helper. One function
+ * keeps those paths from drifting apart.
+ */
+export function applyCorsAndSecurityHeaders(
+  headers: Headers,
+  requestOrigin: string | null | undefined,
+  environment?: string,
+): Headers {
+  applySecurityHeaders(headers, environment);
+  applyCorsHeaders(headers, requestOrigin);
+  return headers;
 }
 
 /**
@@ -478,13 +494,12 @@ export function jsonResponse<T>(
     ...extraHeaders,
   };
 
-  // Apply OWASP security headers and CORS
+  // Apply OWASP security headers and CORS through the shared helper.
   const head = new Headers();
   for (const [key, value] of Object.entries(headers)) {
     head.set(key, value);
   }
-  applySecurityHeaders(head, environment);
-  applyCorsHeaders(head, requestOrigin);
+  applyCorsAndSecurityHeaders(head, requestOrigin, environment);
 
   return new Response(JSON.stringify(body, null, 2), {
     status,
@@ -515,9 +530,8 @@ export function addRateLimitHeaders(
 
 export function corsPreflight(requestOrigin?: string | null, environment?: string): Response {
   const headers = new Headers();
-  applyCorsHeaders(headers, requestOrigin ?? null);
+  applyCorsAndSecurityHeaders(headers, requestOrigin ?? null, environment);
   headers.set('Access-Control-Max-Age', '86400');
-  applySecurityHeaders(headers, environment);
   return new Response(null, { status: 204, headers });
 }
 

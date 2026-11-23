@@ -28,7 +28,7 @@ import {
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
-  applyCorsHeaders,
+  applyCorsAndSecurityHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
 import { detectLocale, buildBilingualError } from './error-codes.js';
@@ -55,7 +55,6 @@ import { healthHandler } from './routes/health.js';
 import { versionHandler } from './routes/version.js';
 import { statusHandler } from './routes/status.js';
 import { addAttributionHeader } from './middleware/attribution.js';
-import { applySecurityHeaders } from './middleware/security-headers.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
@@ -548,8 +547,7 @@ function finalizeResponse(
   requestOrigin: string | null | undefined = undefined,
 ): Response {
   const headers = new Headers(response.headers);
-  applySecurityHeaders(headers, environment);
-  applyCorsHeaders(headers, requestOrigin);
+  applyCorsAndSecurityHeaders(headers, requestOrigin, environment);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
