@@ -1,0 +1,10 @@
+# Staging-only overrides. Applied on top of values-prod.yaml by the
+# quill-staging ArgoCD Application (media-k8s helm/apps/quill-staging.yaml).
+# Distinct NodePorts so staging Services do not collide with production
+# (which keeps the chart defaults 31283/31745/30964).
+api:
+  nodePort: 31284
+mcp:
+  nodePort: 31746
+portal:
+  nodePort: 30965
