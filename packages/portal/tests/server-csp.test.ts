@@ -54,34 +54,66 @@ function assertAnalyticsHosts(value: string) {
   expect(connect).not.toMatch(/https:\/\/\*\.(?:plausible\.io|cloudflareinsights\.com|cloudflare\.com)/);
 }
 
-describe('alternate portal CSP copies', () => {
-  test('nginx.conf and _headers allow the same analytics hosts', () => {
-    const nginx = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
-    const headers = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
-    const nginxCsp = nginx.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? '';
-    const headersCsp = headers.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? '';
-    expect(nginxCsp.length).toBeGreaterThan(0);
-    expect(headersCsp.length).toBeGreaterThan(0);
-    assertAnalyticsHosts(nginxCsp);
-    assertAnalyticsHosts(headersCsp);
+function parsePolicy(value: string): Map<string, string[]> {
+  const policy = new Map<string, string[]>();
+  for (const part of value.split(';')) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const [name, ...sources] = trimmed.split(/\s+/);
+    policy.set(name, sources);
+  }
+  return policy;
+}
+
+const nginxConf = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
+const headersFile = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
+const nginxCsp = nginxConf.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? '';
+const headersCsp = headersFile.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? '';
+
+// There is one policy served by three servers. Comparing only the analytics hosts
+// is what let the served copy ship without js.stripe.com or frame-src at all, so
+// the live checkout could not load its payment form while these tests passed.
+// Now the copies must be identical directive-for-directive: any future edit that
+// touches one file and not the others fails here, by name.
+describe('the three portal CSP copies are one policy', () => {
+  const copies: Array<[string, Map<string, string[]>]> = [
+    ['server.py', parsePolicy(csp)],
+    ['nginx.conf', parsePolicy(nginxCsp)],
+    ['public/_headers', parsePolicy(headersCsp)],
+  ];
+
+  test.each([
+    ['nginx.conf', parsePolicy(nginxCsp)],
+    ['public/_headers', parsePolicy(headersCsp)],
+  ] as Array<[string, Map<string, string[]>]>)('%s matches server.py exactly', (name, parsed) => {
+    const reference = copies[0][1];
+    expect(parsed.size, `${name} directive count`).toBeGreaterThan(5);
+    expect([...parsed.keys()].sort()).toEqual([...reference.keys()].sort());
+    for (const [directiveName, sources] of reference) {
+      expect(parsed.get(directiveName), `${name} → ${directiveName}`).toEqual(sources);
+    }
   });
 
-  // 2026-11-23: the live site served "Payment form could not load: Failed to
-  // load Stripe.js" because server.py had the Stripe directives and these two
-  // copies never did. Only the analytics hosts were compared, so the drift was
-  // invisible. Every copy must carry the Stripe origins.
-  test('nginx.conf and _headers allow the Stripe embedded-checkout origins', () => {
-    const nginx = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
-    const headers = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
-    const copies: Array<[string, string]> = [
-      ['nginx.conf', nginx.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? ''],
-      ['public/_headers', headers.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? ''],
-    ];
-    for (const [name, value] of copies) {
-      expect(directive(value, 'script-src'), name).toContain('https://js.stripe.com');
-      expect(directive(value, 'frame-src'), name).toContain('https://js.stripe.com');
-      expect(directive(value, 'frame-src'), name).toContain('https://hooks.stripe.com');
-      expect(directive(value, 'connect-src'), name).toContain('https://api.stripe.com');
+  test('every copy carries the hardening directives, quoted correctly', () => {
+    for (const [name, parsed] of copies) {
+      expect(parsed.get('object-src'), name).toEqual(["'none'"]);
+      expect(parsed.get('base-uri'), name).toEqual(["'self'"]);
+      expect(parsed.get('form-action'), name).toEqual(["'self'"]);
+      // `frame-ancestors none` (unquoted) is an invalid source expression and the
+      // directive is discarded. nginx.conf shipped exactly that until today.
+      expect(parsed.get('frame-ancestors'), name).toEqual(["'none'"]);
+      expect(parsed.has('upgrade-insecure-requests'), name).toBe(true);
+      expect(parsed.get('default-src'), name).toEqual(["'self'"]);
+    }
+  });
+
+  test('no copy allows a host nothing in the portal uses', () => {
+    for (const [name, parsed] of copies) {
+      const flat = [...parsed.values()].flat().join(' ');
+      expect(flat, name).not.toContain('fonts.googleapis.com');
+      expect(flat, name).not.toContain('fonts.gstatic.com');
+      expect(flat, name).not.toContain('googleusercontent.com');
+      expect(flat, name).not.toContain('https://www.google.com');
     }
   });
 });
