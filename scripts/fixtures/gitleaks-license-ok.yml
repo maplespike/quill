@@ -1,0 +1,14 @@
+# Fixture for scripts/test-gitleaks-license.mts.
+# The gitleaks action step passes GITLEAKS_LICENSE from secrets.
+# Deleting that env line must fail scripts/check-gitleaks-license.py.
+name: fixture
+on: [pull_request]
+jobs:
+  secrets-event-range:
+    runs-on: ubuntu-latest
+    steps:
+      - name: gitleaks (event range)
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
