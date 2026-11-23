@@ -143,6 +143,10 @@ export function saveMunicipalRecordCache(
         records.length,
         JSON.stringify(stripped),
       );
+      // Keep the FTS5 index (gh #794) warm at write time; the search path
+      // also self-heals, but doing it here means the first search after an
+      // ingest doesn't have to re-index the row.
+      try { syncSearchIndex(db); } catch { /* index unavailable — search degrades */ }
     } catch {
       // best-effort — never break the request path over a cache write
     }
@@ -213,6 +217,168 @@ export function loadMunicipalRecordCache(
       // like "no cache present yet" forever.
       const msg = err instanceof Error ? err.message : String(err);
       console.warn(`[MunicipalCache] loadMunicipalRecordCache JSON parse failed for ${cityId}/${dataset}: ${msg}`);
+      return null;
+    }
+  });
+  return result ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// FTS5 full-text index over cached records (gh issue #794)
+//
+// The index is DERIVED state: one FTS5 row per cached record, keyed by
+// (city_id, dataset, record_index) with the record's JSON text as the
+// searchable body. Two tables back it:
+//
+//   municipal_records_fts   — FTS5 virtual table (bm25/token matching)
+//   municipal_search_sync   — (city_id, dataset) -> succeeded_at watermark of
+//                             the cache row that was last indexed
+//
+// Synchronisation is lazy and self-healing: every search (and every cache
+// write) re-scans `municipal_records_cache` and re-indexes only the rows whose
+// `succeeded_at` watermark moved, plus purges index rows for deleted cache
+// rows. That keeps the index correct even when rows are written by a
+// different process (cron sweep, manual SQL poke) that never calls the
+// save helper. Cost is a metadata scan over ~dozens of rows per search.
+// ---------------------------------------------------------------------------
+
+/** One indexed record — the canonical search sort key. */
+export interface MunicipalSearchHit {
+  cityId: string;
+  dataset: string;
+  recordIndex: number;
+}
+
+/**
+ * Turn free-text user input into an FTS5 MATCH expression.
+ *
+ * Only word/number runs are kept and each is quoted, joined with implicit
+ * AND. That is deliberate:
+ *   - user input can never inject FTS5 syntax (quotes, `*`, `-`, parens),
+ *   - matching is TOKEN-based, not substring-based ("rating" no longer
+ *     matches "Operating"), which is the point of moving off `includes()`.
+ * Returns null when the query has no searchable tokens.
+ */
+export function toFtsMatchQuery(query: string): string | null {
+  const tokens = query.toLowerCase().match(/[\p{L}\p{N}]+/gu);
+  if (!tokens || tokens.length === 0) return null;
+  return tokens.map((t) => `"${t}"`).join(' ');
+}
+
+/** Idempotent DDL for the FTS5 index + its sync watermark table. */
+function bootstrapSearchSchema(db: DatabaseSync): void {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS municipal_search_sync (
+      city_id TEXT NOT NULL,
+      dataset TEXT NOT NULL,
+      succeeded_at TEXT NOT NULL,
+      PRIMARY KEY (city_id, dataset)
+    );
+    CREATE VIRTUAL TABLE IF NOT EXISTS municipal_records_fts USING fts5(
+      city_id UNINDEXED,
+      dataset UNINDEXED,
+      record_index UNINDEXED,
+      body
+    );
+  `);
+}
+
+/**
+ * Bring the FTS5 index in line with `municipal_records_cache`. Only rows whose
+ * `succeeded_at` differs from the recorded watermark are (re)indexed, so a
+ * steady-state search does zero writes. Throws on FTS5-unavailable SQLite
+ * builds; callers treat that as "index unavailable" and degrade.
+ */
+function syncSearchIndex(db: DatabaseSync): void {
+  bootstrapSearchSchema(db);
+
+  const cacheRows = db.prepare(`
+    SELECT city_id, dataset, records_json, succeeded_at
+    FROM municipal_records_cache
+  `).all() as Array<{
+    city_id: string;
+    dataset: string;
+    records_json: string;
+    succeeded_at: string;
+  }>;
+
+  const watermarks = new Map<string, string>();
+  for (const row of db.prepare(`SELECT city_id, dataset, succeeded_at FROM municipal_search_sync`).all() as Array<{
+    city_id: string; dataset: string; succeeded_at: string;
+  }>) {
+    watermarks.set(`${row.city_id}\u0000${row.dataset}`, row.succeeded_at);
+  }
+
+  const delIndex = db.prepare(`DELETE FROM municipal_records_fts WHERE city_id = ? AND dataset = ?`);
+  const insertRecord = db.prepare(`
+    INSERT INTO municipal_records_fts (city_id, dataset, record_index, body)
+    VALUES (?, ?, ?, ?)
+  `);
+  const markSynced = db.prepare(`
+    INSERT INTO municipal_search_sync (city_id, dataset, succeeded_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(city_id, dataset) DO UPDATE SET succeeded_at = excluded.succeeded_at
+  `);
+
+  const liveKeys = new Set<string>();
+  for (const row of cacheRows) {
+    const key = `${row.city_id}\u0000${row.dataset}`;
+    liveKeys.add(key);
+    if (watermarks.get(key) === row.succeeded_at) continue;
+
+    delIndex.run(row.city_id, row.dataset);
+    let records: unknown[];
+    try {
+      const parsed = JSON.parse(row.records_json);
+      records = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      records = [];
+    }
+    records.forEach((rec, index) => {
+      insertRecord.run(row.city_id, row.dataset, index, JSON.stringify(rec));
+    });
+    markSynced.run(row.city_id, row.dataset, row.succeeded_at);
+  }
+
+  // Cache rows that vanished must not keep leaking into search results.
+  for (const key of watermarks.keys()) {
+    if (liveKeys.has(key)) continue;
+    const [cityId, dataset] = key.split('\u0000');
+    delIndex.run(cityId, dataset);
+    db.prepare(`DELETE FROM municipal_search_sync WHERE city_id = ? AND dataset = ?`).run(cityId, dataset);
+  }
+}
+
+/**
+ * FTS5 lookup for `/v1/municipal/search?q=`.
+ *
+ * Returns the matching record keys in canonical order (city_id, dataset,
+ * record_index) so the route layer can drive keyset pagination straight off
+ * this list. Returns `[]` for an empty/tokenless query and `null` when the DB
+ * or FTS5 is unavailable (callers then fall back to "no results" — the route
+ * is offline-first and never invents data).
+ */
+export function searchMunicipalRecordKeys(query: string): MunicipalSearchHit[] | null {
+  const match = toFtsMatchQuery(query);
+  if (!match) return [];
+
+  const result = withCacheDb<MunicipalSearchHit[] | null>((db) => {
+    try {
+      syncSearchIndex(db);
+      const rows = db.prepare(`
+        SELECT city_id, dataset, record_index
+        FROM municipal_records_fts
+        WHERE municipal_records_fts MATCH ?
+        ORDER BY city_id, dataset, record_index
+      `).all(match) as Array<{ city_id: string; dataset: string; record_index: number }>;
+      return rows.map((r) => ({
+        cityId: r.city_id,
+        dataset: r.dataset,
+        recordIndex: r.record_index,
+      }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[MunicipalCache] FTS5 search failed (${msg}); search returns no results`);
       return null;
     }
   });
