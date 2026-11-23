@@ -34,6 +34,24 @@ export type {
   RegistryBreakdown,
   CrossReferenceResult,
 } from './entity/resolver-lib.js';
+
+// Bilingual entity names (issues #741, #743) — EN/FR institutional name pairs
+// used to expand entity lookups across both official languages.
+export {
+  BILINGUAL_ENTITY_NAMES,
+  normalizeEntityName,
+  coreEntityName,
+  resolveBilingualEntity,
+  bilingualEntityCandidates,
+  isBilingualEntityPair,
+  localizeEntityName,
+  resetBilingualEntityIndex,
+} from './entity/bilingual.js';
+export type {
+  BilingualEntityName,
+  BilingualEntityMatch,
+  EntityLang,
+} from './entity/bilingual.js';
 export * from './verification/index.js';
 export * from './claims/index-barrel.js';
 export * from './audit/index.js';
