@@ -139,6 +139,29 @@ jobs:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
 
+      # The ARC gate image does not ship gh (ubuntu-latest does). Run
+      # 44380736633 on main failed at "gh: command not found" before it
+      # could read PR metadata. Install a pinned gh into RUNNER_TEMP when
+      # it is missing; do not check out or run pull-request code.
+      - name: Install gh
+        env:
+          GH_VERSION: "2.103.2"
+          # Official checksums.txt for v2.103.2, fetched 2026-11-18 from
+          # https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_checksums.txt
+          GH_TARBALL_SHA256: "62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8"
+        run: |
+          set -euo pipefail
+          if command -v gh >/dev/null 2>&1; then gh --version | head -1; exit 0; fi
+          dest="$RUNNER_TEMP/gh"
+          mkdir -p "$dest"
+          tarball="$RUNNER_TEMP/gh_${GH_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL -o "$tarball" \
+            "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
+          echo "${GH_TARBALL_SHA256}  ${tarball}" | sha256sum -c -
+          tar -xz -C "$dest" --strip-components=1 -f "$tarball"
+          echo "$dest/bin" >> "$GITHUB_PATH"
+          "$dest/bin/gh" --version | head -1
+
       - name: Evaluate the gate once
         env:
           GATE_TOKEN: ${{ steps.gate.outputs.token }}  # fleet-merge-gate App token (same-repo metadata read, merge, update-branch); empty = GITHUB_TOKEN
