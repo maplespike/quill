@@ -86,6 +86,52 @@ test('local restore drill script backs up and checks sqlite and the search index
   assert.match(run.stdout, /local restore drill: ok/);
 });
 
+test('search backup script explains a missing sidecar and writes no archive', () => {
+  const dir = tempDir();
+  try {
+    const index = path.join(dir, 'index');
+    const dest = path.join(dir, 'backups');
+    spawnSync('mkdir', ['-p', index], { encoding: 'utf8' });
+    const run = spawnSync('sh', ['charts/quill/files/search-backup.sh'], {
+      cwd: root,
+      encoding: 'utf8',
+      env: { ...process.env, INDEX_DIR: index, DEST_DIR: dest, RETENTION_DAYS: '14' },
+    });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /refused to archive/);
+    assert.match(run.stderr, /quill-meta\.json is missing/);
+    assert.match(run.stderr, /no archive was written/);
+    assert.match(run.stderr, /docs\/runbooks\/search-reindex\.md/);
+    assert.equal(existsSync(dest), false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('search backup script names a sidecar left on the claim root', () => {
+  const dir = tempDir();
+  try {
+    const index = path.join(dir, 'index');
+    const dest = path.join(dir, 'backups');
+    spawnSync('mkdir', ['-p', index], { encoding: 'utf8' });
+    writeFileSync(
+      path.join(dir, 'quill-meta.json'),
+      '{"docs":400,"kinds":{},"built_at":"2026-11-01T00:00:00Z"}\n',
+    );
+    const run = spawnSync('sh', ['charts/quill/files/search-backup.sh'], {
+      cwd: root,
+      encoding: 'utf8',
+      env: { ...process.env, INDEX_DIR: index, DEST_DIR: dest, RETENTION_DAYS: '14' },
+    });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /claim root/);
+    assert.match(run.stderr, new RegExp(path.join(dir, 'quill-meta.json').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.equal(existsSync(dest), false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('search backup script drops an archive older than retention', () => {
   const dir = tempDir();
   try {

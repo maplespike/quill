@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] — 2026-11-10
+
+### Fixed
+- **In-namespace calls to quill-search on TCP 8083 were dropped.** `quill-allow-intra-namespace` allows ingress on 8083 from pods in the namespace, and the cluster-service egress rule allows that port on the service CIDR. The public edge policy does not. A health check from the API pod to `quill-search:8083` no longer times out for lack of a matching port.
+- **Search serve treated a 30-doc sample index as healthy, and the search backup exited when `quill-meta.json` was missing.** `quill-search serve` now checks the index before it listens. A missing directory, a missing sidecar, or fewer than 31 docs (the sample corpus is 30) exits with `refusing to serve` and does not open the port. Set `QUILL_SEARCH_CORPUS` or `--corpus` to rebuild from a JSONL corpus on that start. Every `quill-search index` build writes `quill-meta.json` after the tantivy commit. `search-backup.sh` prints why it refused and writes no archive when the sidecar is missing, including when the file is still on the claim root. Hand rebuild steps are in `docs/runbooks/search-reindex.md`.
+
 ## [Unreleased] — 2026-11-04
 
 ### Fixed

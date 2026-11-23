@@ -79,7 +79,7 @@ Confirm with the drill command, or open the file and run `SELECT count(*)` on th
 
 Scale `deploy/quill-search` to 0. Extract the newest `search/index-*.tar.gz` into the `index/` directory on `quill-search-data`. Scale the deployment back to 1. `GET /health` must show the `docs` value from the matching `index-*.meta.json`.
 
-You can rebuild the index from the SQLite corpus instead. The index is derived. The archive is the faster path back to the last built index.
+You can rebuild the index from the SQLite corpus instead. The index is derived. The archive is the faster path back to the last built index. Follow `docs/runbooks/search-reindex.md` to rebuild by hand.
 
 ## Restore Postgres
 

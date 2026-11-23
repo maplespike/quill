@@ -43,7 +43,36 @@ enum Command {
         /// Private metrics port (default 9466). Public port never serves /metrics.
         #[arg(long, default_value_t = serve::DEFAULT_METRICS_PORT)]
         metrics_port: u16,
+        /// JSONL corpus. When the index is missing, missing quill-meta.json,
+        /// or below `--min-docs`, rebuild from this file before listening.
+        /// `QUILL_SEARCH_CORPUS` is the same switch.
+        #[arg(long)]
+        corpus: Option<PathBuf>,
+        /// Minimum document count. Below this the process exits and does not
+        /// listen. Default is one more than the 30-doc sample corpus. `0`
+        /// disables the floor. `QUILL_SEARCH_MIN_DOCS` is the same switch.
+        #[arg(long)]
+        min_docs: Option<u64>,
     },
+}
+
+fn resolve_min_docs(flag: Option<u64>) -> Result<u64> {
+    if let Some(value) = flag {
+        return Ok(value);
+    }
+    match std::env::var("QUILL_SEARCH_MIN_DOCS") {
+        Err(_) => Ok(index::MIN_PRODUCTION_DOCS),
+        Ok(raw) => raw.parse::<u64>().with_context(|| {
+            format!("QUILL_SEARCH_MIN_DOCS must be a non-negative integer, got `{raw}`")
+        }),
+    }
+}
+
+fn corpus_from_env() -> Option<PathBuf> {
+    std::env::var("QUILL_SEARCH_CORPUS")
+        .ok()
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
 }
 
 fn main() -> Result<()> {
@@ -65,11 +94,12 @@ fn main() -> Result<()> {
             }
             let meta = index::build_index(&docs, &out)?;
             println!(
-                "indexed {} docs into {} ({} kinds; built at {})",
+                "indexed {} docs into {} ({} kinds; built at {}; wrote {})",
                 meta.docs,
                 out.display(),
                 meta.kinds.len(),
-                meta.built_at
+                meta.built_at,
+                index::META_FILE
             );
             Ok(())
         }
@@ -77,7 +107,33 @@ fn main() -> Result<()> {
             index: index_dir,
             port,
             metrics_port,
+            corpus,
+            min_docs,
         } => {
+            let min_docs = resolve_min_docs(min_docs)?;
+            let corpus = corpus.or_else(corpus_from_env);
+            match index::prepare_startup(
+                &index_dir,
+                index::StartupOptions {
+                    min_docs,
+                    corpus: corpus.as_deref(),
+                },
+            )? {
+                index::StartupOutcome::Ready { docs } => {
+                    tracing::info!("index at {} is ready ({} docs)", index_dir.display(), docs);
+                }
+                index::StartupOutcome::Rebuilt { docs } => {
+                    tracing::info!(
+                        "rebuilt index at {} from {} ({} docs)",
+                        index_dir.display(),
+                        corpus
+                            .as_ref()
+                            .map(|p| p.display().to_string())
+                            .unwrap_or_else(|| "(corpus)".to_string()),
+                        docs
+                    );
+                }
+            }
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()
