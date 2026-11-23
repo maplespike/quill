@@ -106,6 +106,9 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.9.1
         version: 0.9.1(hono@4.13.18)(zod@4.6.7)
+      '@maplespike/database':
+        specifier: workspace:*
+        version: link:../database
       '@maplespike/engine':
         specifier: workspace:*
         version: link:../engine
