@@ -163,10 +163,12 @@ class QuillHandler(SimpleHTTPRequestHandler):
     # frame-src, and the payment form could not load for any visitor.
     #
     # Notes on the deliberate choices:
-    #   'unsafe-inline'/'unsafe-eval' in script-src  Astro hydration and the
-    #     existing analytics snippets rely on inline scripts. Replacing them with
-    #     a nonce or hashes is the way to drop these; until then they are the one
-    #     soft spot, so nothing else in script-src should be widened casually.
+    #   'unsafe-inline' in script-src  the static fallback only. astro.config.mjs
+    #     security.csp emits per-build SHA-384 hashes into every page's meta CSP,
+    #     and a hash overrides 'unsafe-inline' in CSP3 browsers — so the effective
+    #     rule for inline script is the hash, not a blanket grant. 'unsafe-eval'
+    #     and data: were removed on 2026-11-23; e2e/csp-audit.mjs fails on any
+    #     securitypolicyviolation, so a dependency that starts eval'ing is caught.
     #   object-src 'none'        no plugins, ever — cheap and removes a whole class.
     #   base-uri 'self'          stops <base> injection rewriting every relative URL.
     #   frame-ancestors 'none'   quoted keyword: a bare `none` is an invalid source
@@ -175,7 +177,7 @@ class QuillHandler(SimpleHTTPRequestHandler):
     #     directive it falls back to default-src 'self' and never renders.
     CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
+        "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
         "style-src 'self' 'unsafe-inline'; "
         "font-src 'self'; "
         "img-src 'self' data: blob: https://*.stripe.com; "

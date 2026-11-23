@@ -107,6 +107,27 @@ describe('the three portal CSP copies are one policy', () => {
     }
   });
 
+  test('script-src no longer grants eval or data: URLs', () => {
+    // Removed 2026-11-23. Nothing in the built site needs either; the audit in
+    // e2e/csp-audit.mjs loads every route under this policy and fails on a
+    // securitypolicyviolation, so a dependency that starts eval'ing is caught
+    // by looking at the site rather than by trusting this list.
+    for (const [name, parsed] of copies) {
+      const scriptSrc = parsed.get('script-src') ?? [];
+      expect(scriptSrc, name).not.toContain("'unsafe-eval'");
+      expect(scriptSrc, name).not.toContain('data:');
+    }
+  });
+
+  test('the build emits hash-based script-src, which is what makes unsafe-inline inert', () => {
+    // If security.csp is removed, 'unsafe-inline' silently becomes a blanket
+    // grant again: CSP3 only prefers hashes because a hash exists.
+    const astroConfig = readFileSync(join(__dirname, '..', 'astro.config.mjs'), 'utf8');
+    expect(astroConfig).toContain('security:');
+    expect(astroConfig).toMatch(/algorithm:\s*'SHA-(256|384|512)'/);
+    expect(astroConfig).toContain("'https://js.stripe.com'");
+  });
+
   test('no copy allows a host nothing in the portal uses', () => {
     for (const [name, parsed] of copies) {
       const flat = [...parsed.values()].flat().join(' ');
