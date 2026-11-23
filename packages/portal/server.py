@@ -155,16 +155,35 @@ class QuillHandler(SimpleHTTPRequestHandler):
         "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
     }
 
+    # CANONICAL POLICY. This string, public/_headers and nginx.conf are three
+    # copies for three servers, and tests/server-csp.test.ts asserts they carry
+    # exactly the same directives with the same sources. Do not edit one copy:
+    # edit all three, or the test fails. Drift here is not cosmetic — the copy
+    # Cloudflare Pages actually serves was missing https://js.stripe.com and
+    # frame-src, and the payment form could not load for any visitor.
+    #
+    # Notes on the deliberate choices:
+    #   'unsafe-inline'/'unsafe-eval' in script-src  Astro hydration and the
+    #     existing analytics snippets rely on inline scripts. Replacing them with
+    #     a nonce or hashes is the way to drop these; until then they are the one
+    #     soft spot, so nothing else in script-src should be widened casually.
+    #   object-src 'none'        no plugins, ever — cheap and removes a whole class.
+    #   base-uri 'self'          stops <base> injection rewriting every relative URL.
+    #   frame-ancestors 'none'   quoted keyword: a bare `none` is an invalid source
+    #     expression and the directive is discarded.
+    #   frame-src                the Stripe payment form is an iframe; without this
+    #     directive it falls back to default-src 'self' and never renders.
     CSP = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
         "style-src 'self' 'unsafe-inline'; "
         "font-src 'self'; "
-        "img-src 'self' data: blob:; "
-        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
+        "img-src 'self' data: blob: https://*.stripe.com; "
         "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; "
-        "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
-        "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
+        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
+        "media-src 'self' data: blob:; worker-src 'self' blob:; "
+        "object-src 'none'; base-uri 'self'; form-action 'self'; "
+        "frame-ancestors 'none'; upgrade-insecure-requests"
     )
 
     def __init__(self, *args, **kwargs):
