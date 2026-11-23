@@ -137,13 +137,18 @@ spec:
                 secretKeyRef:
                   name: quill-secrets
                   key: internalJwtSecret
+            {{- /* Per-pipeline override first (ingestion.pipelineResources.<name>),
+                   then the shared ingestion.resources. values-prod.yaml documents
+                   that `corporate` peaks above the shared 512Mi limit and must be
+                   raised alone rather than every ingest job. */}}
+            {{- $ingRes := (get ($.Values.ingestion.pipelineResources | default dict) $name) | default $.Values.ingestion.resources }}
             resources:
               requests:
-                cpu: {{ $.Values.ingestion.resources.requests.cpu }}
-                memory: {{ $.Values.ingestion.resources.requests.memory }}
+                cpu: {{ $ingRes.requests.cpu }}
+                memory: {{ $ingRes.requests.memory }}
               limits:
-                cpu: {{ $.Values.ingestion.resources.limits.cpu }}
-                memory: {{ $.Values.ingestion.resources.limits.memory }}
+                cpu: {{ $ingRes.limits.cpu }}
+                memory: {{ $ingRes.limits.memory }}
             {{- if $sqlite }}
             volumeMounts:
             - name: data
