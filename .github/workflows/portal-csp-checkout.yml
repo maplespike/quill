@@ -1,13 +1,14 @@
 ---
 # Browsers enforce the CSP, after our JavaScript has already decided everything
 # worked. That is why two failures this year were invisible to the unit tests:
-# the copy of the policy Cloudflare Pages serves never allowed js.stripe.com, so
-# no visitor could load the payment form while every static assertion passed.
+# the copy of the policy Cloudflare Pages serves never allowed js.stripe.com (no
+# visitor could load the payment form), and an Astro meta-CSP experiment blocked
+# 83 inline scripts and handlers. Static assertions cannot see either.
 #
 # This job looks at the site the way a browser does:
 #   1. the static contract (three copies, one policy) via vitest;
 #   2. every built route loaded under the policy from public/_headers, failing on
-#      any securitypolicyviolation — hashes, eval removal, img/font/connect;
+#      any securitypolicyviolation — hashes, eval, img/font/connect;
 #   3. the embedded checkout form driven end to end in Stripe TEST mode, with a
 #      session this job creates and expires itself. No live key, no charge.
 name: Portal CSP + checkout
@@ -18,7 +19,7 @@ on:
     paths:
       - 'packages/portal/**'
       - 'packages/quill-mcp/**'
-      - 'scripts/build-packages.sh'
+      - 'packages/pipeline-core/**'
       - '.github/workflows/portal-csp-checkout.yml'
   push:
     branches: [main]
@@ -45,7 +46,7 @@ jobs:
     timeout-minutes: 45
     env:
       # Job-level env so step `if:` can branch on whether the secrets exist;
-      # secrets themselves are not available in an `if:` expression.
+      # secret values themselves are not available in an `if:` expression.
       STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
       STRIPE_TEST_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY }}
     steps:
@@ -55,22 +56,36 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v4
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build workspace packages
-        # generate-plans.mjs reads the built MCP registry and fails the portal
-        # build without it ("build @maplespike/quill-mcp before regenerating
-        # portal artifacts"). The shared script also repairs pnpm's injected
-        # copies of workspace deps, which --filter alone does not (#859 class).
-        run: bash scripts/build-packages.sh
+      - name: Build the workspace
+        # Root `pnpm build`, NOT a per-package build. The portal's gen:all loads
+        # quill-mcp's built tool registry, which imports pipeline-core, which
+        # imports @maplespike/database; only turbo's dependency order builds that
+        # chain correctly (runs 45037143372 and 45037297872 failed on the missing
+        # intermediates). Same invocation the Pages deploy uses.
+        env:
+          MAPLESPIKE_DOMAIN: maplespike.ca
+          # Not needed for the audit, but it keeps this build byte-comparable to
+          # the one that ships — the checkout page renders its real state.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+        run: pnpm build
+
+      - name: The portal output exists
+        run: |
+          set -euo pipefail
+          test -f packages/portal/dist/index.html || {
+            echo "::error::pnpm build did not produce packages/portal/dist/index.html"
+            exit 1
+          }
 
       - name: Static CSP contract — three copies, one policy
         run: pnpm --filter ./packages/portal exec vitest run tests/server-csp.test.ts
@@ -79,14 +94,11 @@ jobs:
         if: runner.environment == 'github-hosted'
         run: pnpm --filter ./packages/portal exec playwright install --with-deps chromium
 
-      - name: Build the portal
-        run: pnpm --filter ./packages/portal build
-
       - name: Every route under the policy it ships with
         # Serves dist/ with the real Content-Security-Policy from public/_headers
         # and fails on any securitypolicyviolation in a real browser. This is the
-        # check that the old static test could not make: the policy has to work,
-        # not merely look right.
+        # check that the static test cannot make: the policy has to work, not
+        # merely look right.
         run: node packages/portal/e2e/csp-audit.mjs
 
       - name: Embedded checkout form (test mode — never live, never charged)
@@ -96,9 +108,9 @@ jobs:
           E2E_STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
           E2E_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY }}
           E2E_SCREENSHOT: /tmp/quill-checkout-${{ github.run_id }}.png
-        # The check creates its own test-mode session from the secret key and
-        # expires it whether it passes or fails; the publishable key is injected
-        # as runtime config because the deployed bundle carries the live one.
+        # The check mints its own test-mode session from the secret key and expires
+        # it whether it passes or fails; the publishable key is injected as runtime
+        # config because the deployed bundle carries the live one.
         run: node packages/portal/e2e/checkout-embedded.mjs
 
       - name: Upload the screenshot
