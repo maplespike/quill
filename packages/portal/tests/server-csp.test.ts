@@ -107,14 +107,14 @@ describe('the three portal CSP copies are one policy', () => {
     }
   });
 
-  test('script-src no longer grants eval or data: URLs', () => {
-    // Removed 2026-11-23. Nothing in the built site needs either; the audit in
-    // e2e/csp-audit.mjs loads every route under this policy and fails on a
-    // securitypolicyviolation, so a dependency that starts eval'ing is caught
-    // by looking at the site rather than by trusting this list.
+  test('script-src grants eval only because /api-reference needs it, and never data:', () => {
+    // Measured 2026-11-23 with e2e/csp-audit.mjs: removing 'unsafe-eval' left
+    // exactly one violating route — /api-reference, where Scalar's chunk calls
+    // new Function. It came back with that reason attached rather than silently.
+    // 'data:' was removed the same day and no route asked for it back.
     for (const [name, parsed] of copies) {
       const scriptSrc = parsed.get('script-src') ?? [];
-      expect(scriptSrc, name).not.toContain("'unsafe-eval'");
+      expect(scriptSrc, name).toContain("'unsafe-eval'");
       expect(scriptSrc, name).not.toContain('data:');
     }
   });

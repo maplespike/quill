@@ -14,10 +14,12 @@
 # DO NOT EDIT THIS POLICY IN ISOLATION. This file, server.py's CSP constant and
 # nginx.conf are three copies for three servers, and tests/server-csp.test.ts now asserts
 # all three carry exactly the same directives, sources and values. Edit all three together.
-# script-src no longer grants 'unsafe-eval' or data: (nothing in the built site needs
-# either; e2e/csp-audit.mjs fails on any securitypolicyviolation). 'unsafe-inline' remains
-# here only as the CSP2 fallback — astro.config.mjs security.csp renders per-build SHA-384
-# hashes into every page, and a hash overrides 'unsafe-inline' in CSP3 browsers.
+# script-src grants 'unsafe-eval' because /api-reference loads Scalar's bundle, which
+# calls new Function (audit, 2026-11-23: exactly one violating route, and only that
+# chunk). data: was removed the same day and nothing needs it. Removing 'unsafe-eval'
+# for real means replacing Scalar; removing 'unsafe-inline' means deleting the inline
+# event handlers — both source refactors, not header edits. e2e/csp-audit.mjs is the
+# check that tells you which is which.
 #
 # Google Fonts, https://www.google.com and *.googleusercontent.com were removed the same day:
 # nothing in the portal references them (the theme uses local fonts, see
@@ -30,7 +32,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   Cache-Control: public, no-transform
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.stripe.com; connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; media-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.stripe.com; connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; media-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 /config.js
   Cache-Control: public, max-age=60
