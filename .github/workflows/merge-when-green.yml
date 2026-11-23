@@ -504,7 +504,7 @@ jobs:
             fi
             status_next="$(printf '%s\n' "$status_raw" | awk '
               BEGIN { nexturl = "" }
-              /^$/ { exit }
+              /^\r?$/ { exit }
               tolower($0) ~ /^link:/ {
                 line = $0
                 sub(/^[Ll]ink:[ \t]*/, "", line)
