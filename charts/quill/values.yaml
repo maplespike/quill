@@ -21,6 +21,11 @@ api:
   replicas: 2  # #816: >=2 so the tunnel origin stays healthy across rollouts
   port: 8084
   metricsPort: 9464
+  # Deployment-level annotations (not pod-template annotations). Used by
+  # stakater/reloader to roll this Deployment when a referenced Secret changes;
+  # Reloader reads triggers from workload metadata, not from the Secret. Empty
+  # by default so production rendering is unchanged.
+  deploymentAnnotations: {}
   resources:
     requests:
       cpu: 100m
