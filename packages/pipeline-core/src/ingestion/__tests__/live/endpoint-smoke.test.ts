@@ -1,75 +1,76 @@
-import { describe, it, after } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { getAllModules, runModule } from '../../registry.js';
-import { fetchFeed as rssFetchFeed, RSS_SOURCES } from '../../rss.js';
+import fs from 'node:fs';
+import { getAllModules } from '../../registry.js';
+import { probeEndpoint, LIVE_PROBE_MAX_ATTEMPTS, LIVE_PROBE_TIMEOUT_MS } from '../../live-probe.js';
 
-interface TestResult {
-  name: string;
-  sources: number;
-  status: 'PASS' | 'FAIL' | 'SKIP';
-  duration: number;
-  error?: string;
-}
+/**
+ * Live reachability probe. One GET per distinct healthCheckUrl.
+ *
+ * Do not start a full ingest from this file. A full ingest waits in httpGet's
+ * per-host token loop before any request timeout starts, and that wait has
+ * no deadline. The 2026-11-09 run (42638195165) was cancelled at the 20
+ * minute job limit while still queued on open.canada.ca, with no failure
+ * line for the in-flight module. A timeout here throws and names the URL.
+ */
 
-const results: TestResult[] = [];
 const shouldRun = process.env.LIVE_DATA_TEST === 'true';
+
+function noteEndpoint(url: string): void {
+  const file = process.env.LIVE_SMOKE_ENDPOINT_FILE;
+  if (file) fs.writeFileSync(file, url);
+  console.log(`# probing ${url}`);
+}
 
 describe('Live endpoint smoke tests', { skip: !shouldRun }, () => {
   if (!shouldRun) return;
 
-  const modules = getAllModules();
+  const skipped: string[] = [];
+  const missing: string[] = [];
+  const byUrl = new Map<string, string[]>();
 
-  for (const mod of modules) {
+  for (const mod of getAllModules()) {
     const pattern = mod.testCallPattern ?? 'runModule';
-
     if (pattern === 'skip') {
-      results.push({ name: mod.name, sources: mod.sources.length, status: 'SKIP', duration: 0 });
-      it(`[SKIP] ${mod.name}`, () => {});
+      skipped.push(mod.name);
       continue;
     }
+    const url = mod.healthCheckUrl;
+    if (!url) {
+      missing.push(mod.name);
+      continue;
+    }
+    const names = byUrl.get(url) ?? [];
+    names.push(mod.name);
+    byUrl.set(url, names);
+  }
 
-    it(mod.name, async (t) => {
-      const start = performance.now();
-      let result: unknown;
+  for (const name of skipped) {
+    it(`[SKIP] ${name}`, () => {});
+  }
 
-      try {
-        if (mod.name === 'rss') {
-          // RSS module: use fetchFeed with first source URL
-          const url = RSS_SOURCES[0]?.url;
-          if (!url) throw new Error('No RSS source URL available');
-          result = await rssFetchFeed(url);
-        } else {
-          result = await runModule(mod.name, { limit: 1 });
-        }
-
-        const duration = Math.round(performance.now() - start);
-
-        assert.notStrictEqual(result, null, `${mod.name} returned null`);
-        assert.notStrictEqual(result, undefined, `${mod.name} returned undefined`);
-
-        if (result && typeof result === 'object' && 'error' in (result as Record<string, unknown>)) {
-          throw new Error(`Module returned error: ${(result as Record<string, unknown>).error}`);
-        }
-
-        results.push({ name: mod.name, sources: mod.sources.length, status: 'PASS', duration });
-      } catch (err) {
-        const duration = Math.round(performance.now() - start);
-        results.push({ name: mod.name, sources: mod.sources.length, status: 'FAIL', duration, error: String(err) });
-        throw err;
-      }
+  for (const name of missing) {
+    it(name, () => {
+      throw new Error(
+        `no healthCheckUrl for module ${name} — refusing to run a full ingest with no per-request deadline`,
+      );
     });
   }
 
-  after(() => {
-    console.log('\n# Live Endpoint Smoke Test Summary');
-    console.log('# Module | Sources | Status | Duration | Error');
-    for (const r of results) {
-      const err = r.error ? ` | ${r.error.replace(/\n/g, '\\n')}` : '';
-      console.log(`${r.name} | ${r.sources} | ${r.status} | ${r.duration}ms${err}`);
-    }
-    const passed = results.filter((r) => r.status === 'PASS').length;
-    const failed = results.filter((r) => r.status === 'FAIL').length;
-    const skipped = results.filter((r) => r.status === 'SKIP').length;
-    console.log(`# Total: ${results.length} | PASS: ${passed} | FAIL: ${failed} | SKIP: ${skipped}`);
-  });
+  for (const [url, names] of byUrl) {
+    // The test name is the URL so a TAP `not ok` line names the endpoint.
+    it(url, { timeout: LIVE_PROBE_TIMEOUT_MS * LIVE_PROBE_MAX_ATTEMPTS + 5_000 }, async () => {
+      noteEndpoint(url);
+      try {
+        const result = await probeEndpoint(url);
+        assert.ok(
+          result.status >= 200 && result.status < 500,
+          `HTTP ${result.status} from ${url} (modules: ${names.join(', ')})`,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`${message} (modules: ${names.join(', ')})`);
+      }
+    });
+  }
 });
