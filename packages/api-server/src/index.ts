@@ -144,9 +144,14 @@ import {
   extractionCachedHandler,
 } from './routes/extraction.js';
 import { upstreamStatusHandler } from './routes/upstream-status.js';
+import { fixtureItemHandler, fixtureListHandler } from './routes/mock.js';
 
 export const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
+  // Synthetic fixtures. The handler returns 404 unless QUILL_FIXTURES=1.
+  // The list route must stay ahead of the :id route.
+  { pattern: /^\/v1\/fixtures\/?$/, method: 'GET', params: [], handler: fixtureListHandler },
+  { pattern: /^\/v1\/fixtures\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: fixtureItemHandler },
   { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(statusHandler, 30) },
   // Upstream health, read by the site banner. 15 s cache: the prober ticks once
@@ -670,6 +675,9 @@ export async function handleRequest(
   const path = url.pathname;
   const authExempt =
     path.startsWith('/v1/health')
+    // Fixture payloads are invented and the handler refuses them unless
+    // QUILL_FIXTURES=1. Keep the off-switch message reachable with no key.
+    || path.startsWith('/v1/fixtures')
     || path.startsWith('/v1/version')
     || path.startsWith('/v1/status')
     // Upstream health is public observability: the site banner reads it before

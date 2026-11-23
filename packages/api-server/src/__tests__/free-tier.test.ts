@@ -43,6 +43,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/ingest/status',
     '/v1/llms.txt',
     '/v1/llms-full.txt',
+    '/v1/fixtures',
+    '/v1/fixtures/fixture-committee-001',
   ];
 
   const blocked: string[] = [
