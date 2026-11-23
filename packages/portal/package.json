@@ -48,7 +48,7 @@
     "@radix-ui/react-tabs": "^1.2.1",
     "@radix-ui/react-toggle": "^1.2.1",
     "@scalar/api-reference": "^1.76.4",
-    "@simplewebauthn/browser": "^13.3.0",
+    "@simplewebauthn/browser": "^14.0.0",
     "@tailwindcss/vite": "4.3.3",
     "astro": "^7.4.4",
     "class-variance-authority": "^0.7.1",
