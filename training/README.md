@@ -124,6 +124,6 @@ training/
 
 ## References
 
-- Issue [#318](https://github.com/reverb256/quill/issues/318)
+- Issue [#318](https://github.com/maplespike/quill/issues/318)
 - AI Inference Gateway: internal cluster service
 - Unsloth: https://unsloth.ai
