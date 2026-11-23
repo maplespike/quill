@@ -521,7 +521,9 @@ jobs:
               }
               END { printf "%s", nexturl }
             ')"
-            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^$/ { capture = 1; next } capture { print }')"
+            # gh api --include emits CRLF headers; the separator line is "\r", so
+            # /^$/ never matched and the body came back empty -> jq input EOF -> break.
+            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^\r?$/ { capture = 1; next } capture { print }')"
             if ! printf '%s\n' "$status_body" | jq -cen --argjson http_status "$status_http" --arg next "$status_next" 'input as $body | if ($body | type) != "array" then error("commit status body is not an array") else {http_status: $http_status, next: (if $next == "" then null else $next end), body: $body} end' >> "$RUNNER_TEMP/status-pages.json"; then
               echo "::error::commit status pagination returned a body that is not a JSON array. The gate did not merge."
               exit 1
