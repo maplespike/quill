@@ -67,8 +67,14 @@ on:
     #
     # PR events are unaffected: for a pull_request run the triggering branch is
     # the PR head branch, and pull_request_target (labeled/synchronize) remains
-    # the primary trigger. branches-ignore applies to the branch the triggering
-    # workflow ran on, i.e. workflow_run.head_branch.
+    # the primary trigger.
+    #
+    # MEASURED 2026-11-23: branches-ignore alone did NOT stop these. After
+    # e977aa54 landed with exactly this filter, 17 main-branch workflow_run gate
+    # runs were created in 12 minutes (13:54:43Z-13:58:59Z), i.e. the filter was
+    # accepted but did not exclude push runs on main. It is kept as a cheap
+    # pre-dispatch guard; the enforcement is the job condition below, which
+    # reads the same payload field and cannot be silently ignored.
     branches-ignore: [main, prod]
     types: [completed]
   check_suite:
@@ -122,6 +128,9 @@ jobs:
       ) && (
         github.event.workflow_run.head_repository.full_name == github.repository
         || github.event_name != 'workflow_run'
+      ) && (
+        github.event_name != 'workflow_run'
+        || (github.event.workflow_run.head_branch != 'main' && github.event.workflow_run.head_branch != 'prod')
       )
     runs-on: >-
       ${{
