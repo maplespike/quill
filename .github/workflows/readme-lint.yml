@@ -31,7 +31,12 @@ permissions:
 jobs:
   readme-lint:
     name: "Check documentation links and markdown formatting"
-    runs-on: ubuntu-latest
+    # Same-repo on arc-maplespike. A fork stays on ubuntu-latest.
+    # lychee-action is composite (downloads its binary). markdownlint-cli2
+    # is a node24 action and uses the runner's own Node. Neither needs a
+    # Docker daemon. Verified on arc-maplespike-runner 2026-11-09: Node
+    # v22.23.4 and pnpm 10.32.1 are already on the pre-baked image.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
