@@ -3,7 +3,6 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import statsData from "@/data/stats.json";
 import {
   Table,
@@ -121,13 +120,13 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <!-- Results Summary -->
     <div class="explorer-results-summary flex flex-wrap gap-3 items-center justify-between mb-4 reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
-        {t("Showing", "Affichage de")} <span id="results-shown" class="font-medium text-foreground">1&ndash;10</span> {t("of", "sur")}
-        <span id="results-total" class="font-medium text-foreground">12,847</span> {t("results", "résultats")}
+        {t("Showing", "Affichage de")} <span id="results-shown" class="font-medium text-foreground">0</span> {t("of", "sur")}
+        <span id="results-total" class="font-medium text-foreground">0</span> {t("results", "résultats")}
         <span id="results-status" class="ml-2 hidden text-xs"></span>
       </p>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled>{t("Previous", "Précédent")}</Button>
-        <Button variant="outline" size="sm">{t("Next", "Suivant")}</Button>
+        <Button variant="outline" size="sm" disabled>{t("Next", "Suivant")}</Button>
       </div>
     </div>
 
@@ -144,155 +143,13 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
               <TableHead>{t("Trust", "Confiance")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody id="explorer-results">
-            <TableRow className="transition-colors duration-200 ease-out hover:bg-muted/30">
-              <TableCell>
-                <a href="/explorer/result/1" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("House of Commons — Standing Committee on Finance (FINA) — Meeting No. 142", "Chambre des communes — Comité permanent des finances (FINA) — Réunion n° 142")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Evidence of ministerial briefing on fiscal update and economic projections for 2026–2027.", "Témoignages de la séance d'information ministérielle sur la mise à jour économique et les projections financières pour 2026–2027.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">{t("Committees", "Comités")}</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("House of Commons", "Chambre des communes")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-15</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">96%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 96%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
+          <TableBody id="explorer-results" data-explorer-state="empty">
             <TableRow>
-              <TableCell>
-                <a href="/explorer/result/2" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Lobbying Registry — Monthly Communication Report — January 2026", "Registre de lobbying — Rapport mensuel de communication — Janvier 2026")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Registered lobbying communications between designated public office holders and in-house lobbyists.", "Communications de lobbying enregistrées entre les titulaires de charge publique désignés et les lobbyistes internes.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">{t("Lobbying", "Lobbying")}</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("OCL Registry", "Registre du commissariat au lobbying")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-14</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">98%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 98%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/3" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Canada Gazette — Part I — Proposed Regulations — Clean Fuel Standard Amendments", "Gazette du Canada — Partie I — Règlements proposés — Modifications au Règlement sur les carburants propres")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Proposed regulatory amendments to the Clean Fuel Standard published for public comment.", "Modifications réglementaires proposées au Règlement sur les carburants propres publiées pour commentaires publics.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">{t("Gazette", "Gazette")}</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("Canada Gazette", "Gazette du Canada")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-12</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">99%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 99%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/4" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Governor-in-Council Appointments — February 2026 Report", "Nominations par décret — Rapport de février 2026")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("New appointments and renewals to federal boards, commissions, and tribunals.", "Nouvelles nominations et renouvellements aux conseils, commissions et tribunaux fédéraux.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">GIC</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("Infobase API", "API Infobase")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-10</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">94%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 94%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/5" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("SEDI Insider Trade Report — BCE Inc. — Executive Share Disposition", "Rapport d'opération d'initié SEDI — BCE Inc. — Aliénation d'actions par un dirigeant")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Insider trade report filed with SEDI for disposition of common shares by senior officer.", "Rapport d'opération d'initié déposé auprès de SEDI pour l'aliénation d'actions ordinaires par un cadre supérieur.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">SEDI</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("SEDI Database", "Base de données SEDI")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-09</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-amber-500">87%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-amber-500" style="width: 87%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/6" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("OAG — 2026 Spring Reports — Volume 1 — Climate Change Adaptation", "BVG — Rapports du printemps 2026 — Volume 1 — Adaptation aux changements climatiques")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Auditor General audit of federal climate change adaptation programs and expenditures.", "Audit du vérificateur général des programmes et dépenses fédéraux d'adaptation aux changements climatiques.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">OAG</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("OAG Website", "Site Web du BVG")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-07</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">97%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 97%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/7" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Competition Bureau — Merger Review — Rogers–Shaw Post-Closing Compliance", "Bureau de la concurrence — Examen du regroupement — Conformité post-clôture Rogers–Shaw")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Compliance monitoring update on merger remedies and divestiture requirements.", "Mise à jour de la surveillance de la conformité concernant les mesures correctives et les exigences de cession du regroupement.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">{t("Competition", "Concurrence")}</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("Competition Bureau", "Bureau de la concurrence")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-05</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">92%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 92%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/8" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("CanLII — Federal Court of Appeal — 2026 FCA 89 — Environmental Review", "CanLII — Cour d'appel fédérale — 2026 CAF 89 — Examen environnemental")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Appeal decision regarding federal environmental assessment jurisdiction.", "Décision d'appel concernant la compétence fédérale en matière d'évaluation environnementale.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">CanLII</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">CanLII</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-03</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">95%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 95%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/9" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Statistics Canada — Labour Force Survey — April 2026", "Statistique Canada — Enquête sur la population active — Avril 2026")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Monthly LFS results including unemployment rate, participation rate, and employment by industry.", "Résultats mensuels de l'EPA, dont le taux de chômage, le taux de participation et l'emploi par industrie.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">StatCan</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("StatCan WDS", "SDS de Statistique Canada")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-01</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">99%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 99%"></div></div>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <a href="/explorer/result/10" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Procurement — TPSGC — IT Services Contract Award — March 2026", "Approvisionnement — SPAC — Octroi de contrat de services TI — Mars 2026")}</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Contract award notice for enterprise IT services with 3-year term and option periods.", "Avis d'octroi de contrat pour des services TI d'entreprise avec une durée de 3 ans et des périodes d'option.")}</p>
-              </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">{t("Procurement", "Approvisionnement")}</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">{t("CanadaBuys", "AchatsCanada")}</TableCell>
-              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-04-28</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-medium text-emerald-500">93%</span>
-                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 93%"></div></div>
-                </div>
+              <TableCell colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                {t(
+                  "No results yet. Search to load records from the live API.",
+                  "Aucun résultat pour le moment. Lancez une recherche pour charger les enregistrements depuis l'API en direct.",
+                )}
               </TableCell>
             </TableRow>
           </TableBody>
@@ -303,15 +160,14 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
     <!-- Pagination -->
     <div class="mt-6 flex items-center justify-between reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
-        {t("Page", "Page")} <span class="font-medium text-foreground">1</span> {t("of", "de")}
-        <span class="font-medium text-foreground">1</span>
+        {t("Page", "Page")} <span id="results-page" class="font-medium text-foreground">0</span> {t("of", "de")}
+        <span id="results-pages" class="font-medium text-foreground">0</span>
       </p>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           {t("Previous", "Précédent")}
         </Button>
-        <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">1</Button>
         <Button variant="outline" size="sm" disabled>{t("Next", "Suivant")}</Button>
       </div>
     </div>
@@ -322,8 +178,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       "use strict";
 
       // Live search against the real API via the portal's same-origin /api
-      // reverse proxy (server.py). If the API is unreachable we fall back to
-      // the server-rendered showcase rows above — never fabricated data.
+      // reverse proxy (server.py). The default table is empty. A failed
+      // request stays empty and says the API is unreachable.
       var cfg = window.MAPLESPIKE || {};
       var apiBase = (cfg.apiBase || "") ? cfg.apiBase + "/v1" : "/api/v1";
 
@@ -331,6 +187,8 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
       var tbody = document.getElementById("explorer-results");
       var shownEl = document.getElementById("results-shown");
       var totalEl = document.getElementById("results-total");
+      var pageEl = document.getElementById("results-page");
+      var pagesEl = document.getElementById("results-pages");
       var statusEl = document.getElementById("results-status");
       if (!form || !tbody || form.dataset.searchBound) return;
       form.dataset.searchBound = 'true';
@@ -346,15 +204,20 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
         searching: L("Searching…", "Recherche…"),
         liveBadge: L("· live", "· en direct"),
         unavailable: L("· unavailable (API)", "· indisponible (API)"),
-        unreachable: L("· API unreachable — showing showcase data", "· API injoignable — affichage des données de démonstration"),
-        showing: L("1–10", "1–10"),
-        total: L("12,847", "12 847"),
+        unreachable: L("· API unreachable", "· API injoignable"),
+        unreachableBody: L(
+          "The live API is unreachable. Try the search again later.",
+          "L'API en direct est injoignable. Réessayez la recherche plus tard.",
+        ),
         govModule: L("Government", "Gouvernement"),
       };
 
-      // Preserve the SSR showcase rows as the initial (no-query) state and as
-      // the honest fallback when the live search API is unreachable.
-      var showcaseHtml = tbody.innerHTML;
+      function setCounts(shown, total) {
+        shownEl.textContent = String(shown);
+        totalEl.textContent = String(total);
+        if (pageEl) pageEl.textContent = shown > 0 ? "1" : "0";
+        if (pagesEl) pagesEl.textContent = shown > 0 ? "1" : "0";
+      }
 
       function esc(s) {
         return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -378,8 +241,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
             '<tr><td colspan="5" class="px-4 py-10 text-center text-sm text-muted-foreground">' +
             STR.noResults + esc(query) + STR.noResults2 +
             "</td></tr>";
-          shownEl.textContent = "0";
-          totalEl.textContent = "0";
+          setCounts(0, 0);
           return;
         }
         var rows = results.map(function (r) {
@@ -402,8 +264,7 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
           );
         }).join("");
         tbody.innerHTML = rows;
-        shownEl.textContent = String(results.length);
-        totalEl.textContent = String(results.length);
+        setCounts(results.length, results.length);
       }
 
       function setStatus(text, kind) {
@@ -433,11 +294,11 @@ const t = (en: string, fr: string) => pick(lang, en, fr);
           }
           renderResults(data.results || [], query);
         } catch (err) {
-          // Honest fallback: restore the server-rendered showcase rows rather
-          // than showing a fabricated empty state.
-          tbody.innerHTML = showcaseHtml;
-          shownEl.textContent = STR.showing;
-          totalEl.textContent = STR.total;
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="px-4 py-10 text-center text-sm text-muted-foreground">' +
+            STR.unreachableBody +
+            "</td></tr>";
+          setCounts(0, 0);
           setStatus(STR.unreachable, "warn");
         }
       }
