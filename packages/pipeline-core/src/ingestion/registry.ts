@@ -2652,13 +2652,16 @@ function isDbFirstSignature(fn: unknown): boolean {
  * Returns true if the endpoint responds 2xx-4xx (alive), false otherwise.
  * Skips check if no healthCheckUrl is set (assumes healthy).
  */
-export async function healthCheckModule(info: ModuleInfo): Promise<boolean> {
+export async function healthCheckModule(
+  info: ModuleInfo,
+  timeoutMs = 5000,
+): Promise<boolean> {
   if (!info.healthCheckUrl) return true;
 
   try {
     const resp = await httpGet(info.healthCheckUrl, {
       method: 'HEAD',
-      timeoutMs: 5000,
+      timeoutMs,
     });
     // Treat 2xx-4xx as alive (4xx means endpoint exists, just no data for this request)
     if (resp.statusCode >= 200 && resp.statusCode < 500) return true;
