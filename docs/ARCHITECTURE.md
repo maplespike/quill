@@ -37,7 +37,7 @@ The platform currently maintains 184 registered MCP tools, 207 modules in the re
             ▼                             ▼                             ▼
   ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
   │   quill-mcp       │    │    api-server     │    │      engine       │
-  │  (184 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
+  │  (186 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
   │  stdio/SSE modes  │    │  auth + rate      │    │   signal gen)     │
   └────────┬──────────┘    └────────┬──────────┘    └───────────────────┘
            │                        │
@@ -109,7 +109,7 @@ The `database` package provides a SQLite-based storage layer using `better-sqlit
 
 Data is surfaced through three primary access patterns:
 
-1. **Quill (MCP Server)**: The `@maplespike/quill-mcp` package exposes 184 tools via the Model Context Protocol (incl. `x402-deposit`) (see [products/quill.md](./products/quill.md)). Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
+1. **Quill (MCP Server)**: The `@maplespike/quill-mcp` package exposes 186 tools via the Model Context Protocol (incl. `x402-deposit`) (see [products/quill.md](./products/quill.md)). Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
 
 2. **API Server**: The `@maplespike/api-server` package provides a REST API gateway with Bearer authentication, rate limiting, and usage tracking. Multi-tenant architecture supports API keys and JWT tokens. The server wraps pipeline-core and engine functionality for programmatic access.
 
@@ -458,7 +458,7 @@ The `@maplespike/pipeline-core` package is the core data pipeline library provid
 
 ### quill-mcp
 
-The `@maplespike/quill-mcp` package (Quill) implements a Model Context Protocol server exposing 184 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
+The `@maplespike/quill-mcp` package (Quill) implements a Model Context Protocol server exposing 186 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
 
 ### api-server
 

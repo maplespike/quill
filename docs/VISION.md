@@ -19,7 +19,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (185 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (186 tools)
 ```
 
 The system is a pipeline: **ingest → verify → surface**.
@@ -31,7 +31,7 @@ The system is a pipeline: **ingest → verify → surface**.
    provenance, and an audit trail. Data-quality scores are computed per claim
    bundle.
 3. **Surface** — via the REST API (`api.maplespike.ca`), the data-layer MCP
-   server (`mcp.maplespike.ca`, 184 tools), the TypeScript/Python SDKs, and
+   server (`mcp.maplespike.ca`, 186 tools), the TypeScript/Python SDKs, and
    the developer portal.
 
 ## Principles
@@ -59,7 +59,7 @@ The system is a pipeline: **ingest → verify → surface**.
 |-------|--------|
 | 1. Shared DB (better-sqlite3 wrapper, schema migration) | ✅ Done |
 | 2. Ingestion wiring | ✅ Done |
-| 3. MCP server — 184 tools returning real data | ✅ Done |
+| 3. MCP server — 186 tools returning real data | ✅ Done |
 | 4. Engine integration (entity resolution + briefs) | ✅ Done |
 | 5. Live dashboard | ✅ Done |
 | 6. SaaS / public API (Stripe + crypto + Interac billing) | 🟡 Stripe live; crypto/Interac pending |
