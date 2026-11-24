@@ -17,10 +17,8 @@ images:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/mcp"
     pullPolicy: IfNotPresent
-    # digest removed: the pinned digest no longer exists in the node
-    # containerd store (registry unreachable during the outage). Fall back to
-    # the tag, which is present locally as 60628fe4ffde3.
-    tag: "bd65fcbe5ee40911a173b08dc5b90ce7db07ff83"
+    digest: "sha256:e91fd9fa4c3aeaf6280422fd3c3c055f6bd6c91f24b90e7a181c7f0ed3ea18d2"
+    tag: "e8d1e8d25c96f0b4c8841bf87abddc1c64ba2e41"
   portal:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/portal"
