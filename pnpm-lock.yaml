@@ -96,7 +96,7 @@ importers:
         version: 8.72.2(eslint@10.15.0(jiti@2.7.0))(typescript@6.0.3)
       wrangler:
         specifier: ^4.156.0
-        version: 4.162.0(@types/node@26.6.1)(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        version: 4.162.0(@cloudflare/workers-types@5.20261120.1)(@types/node@26.6.1)(bufferutil@4.1.0)(utf-8-validate@6.0.6)
 
   packages/api-server:
     dependencies:
@@ -111,7 +111,7 @@ importers:
         version: link:../engine
       '@maplespike/pipeline-core':
         specifier: workspace:*
-        version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)
+        version: file:packages/pipeline-core(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)
       '@opentelemetry/exporter-otlp-grpc':
         specifier: ^0.26.0
         version: 0.26.0(@opentelemetry/api@1.10.0)
@@ -141,7 +141,7 @@ importers:
         version: 12.11.1
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
+        version: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
       hono:
         specifier: ^4.13.5
         version: 4.13.18
@@ -174,8 +174,8 @@ importers:
         version: 4.6.7
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20241201.0
-        version: 4.20260511.1
+        specifier: ^5.20261120.1
+        version: 5.20261120.1
       '@opentelemetry/api':
         specifier: ^1.10.0
         version: 1.10.0
@@ -227,7 +227,7 @@ importers:
         version: 12.11.1
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
+        version: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
       pg:
         specifier: ^8.23.1
         version: 8.23.1
@@ -257,7 +257,7 @@ importers:
         version: 12.11.1
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
+        version: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
       fuse.js:
         specifier: ^7.5.0
         version: 7.5.0
@@ -334,7 +334,7 @@ importers:
         version: link:../database
       '@maplespike/pipeline-core':
         specifier: workspace:*
-        version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)
+        version: file:packages/pipeline-core(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)
       better-sqlite3:
         specifier: ^12.11.1
         version: 12.11.1
@@ -359,7 +359,7 @@ importers:
     dependencies:
       '@maplespike/database':
         specifier: workspace:*
-        version: file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)
+        version: file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)
       '@qdrant/js-client-rest':
         specifier: ^1.20.0
         version: 1.20.0(typescript@6.0.3)
@@ -499,7 +499,7 @@ importers:
         version: 0.9.12(prettier@3.9.4)(typescript@6.0.3)
       '@maplespike/quill-mcp':
         specifier: workspace:*
-        version: file:packages/quill-mcp(@opentelemetry/api@1.10.0)(typescript@6.0.3)
+        version: file:packages/quill-mcp(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(typescript@6.0.3)
       '@maplespike/sdk':
         specifier: workspace:*
         version: link:../sdk
@@ -547,7 +547,7 @@ importers:
     dependencies:
       '@maplespike/database':
         specifier: workspace:*
-        version: file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)
+        version: file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)
       '@maplespike/pipeline-core':
         specifier: workspace:*
         version: link:../pipeline-core
@@ -997,8 +997,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20260511.1':
-    resolution: {integrity: sha512-FA+si7cOq9i/gtCHhIc0XJL0l1F/ApF+m00752Aj7WZFJrj3ZulT2T8/+rT3BabMT0QEnqFEGIqCgrmqhgEfMg==}
+  '@cloudflare/workers-types@5.20261120.1':
+    resolution: {integrity: sha512-bpaDXQ1oYqWhLCAqV5fO0pPB2tduDEEFyIMedZVi0NqzW/7T8DlJ8hUe3DqoDG1RQ8X7zTbK555Qr9yAyyUhmQ==}
 
   '@codemirror/autocomplete@6.20.4':
     resolution: {integrity: sha512-yF8RhOf2SXlg00+qtupzLhrglcas61boqaONiNcbPIebHCpJocpqTBA6dyrtUrQO47hqyTdeob/3XnYilT7TaQ==}
@@ -7935,7 +7935,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20261113.1':
     optional: true
 
-  '@cloudflare/workers-types@4.20260511.1': {}
+  '@cloudflare/workers-types@5.20261120.1': {}
 
   '@codemirror/autocomplete@6.20.4':
     dependencies:
@@ -8621,10 +8621,10 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@maplespike/database@file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)':
+  '@maplespike/database@file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)':
     dependencies:
       better-sqlite3: 12.11.1
-      drizzle-orm: 0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
+      drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(better-sqlite3@12.11.1)(pg@8.23.1)
       pg: 8.23.1
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
@@ -8657,10 +8657,10 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@maplespike/database@file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)':
+  '@maplespike/database@file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)':
     dependencies:
       better-sqlite3: 12.11.1
-      drizzle-orm: 0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
+      drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
       pg: 8.23.1
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
@@ -8693,10 +8693,10 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@maplespike/database@file:packages/database(@opentelemetry/api@1.10.0)':
+  '@maplespike/database@file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(gel@2.2.0)':
     dependencies:
       better-sqlite3: 12.11.1
-      drizzle-orm: 0.45.4(@opentelemetry/api@1.10.0)(better-sqlite3@12.11.1)(pg@8.23.1)
+      drizzle-orm: 0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1)
       pg: 8.23.1
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
@@ -8729,9 +8729,9 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@maplespike/pipeline-core@file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)':
+  '@maplespike/pipeline-core@file:packages/pipeline-core(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)(typescript@6.0.3)':
     dependencies:
-      '@maplespike/database': file:packages/database(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)
+      '@maplespike/database': file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(gel@2.2.0)
       '@qdrant/js-client-rest': 1.20.0(typescript@6.0.3)
       amqplib: 2.2.0
       fast-xml-parser: 5.12.1
@@ -8770,9 +8770,9 @@ snapshots:
       - sqlite3
       - typescript
 
-  '@maplespike/pipeline-core@file:packages/pipeline-core(@opentelemetry/api@1.10.0)(typescript@6.0.3)':
+  '@maplespike/pipeline-core@file:packages/pipeline-core(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(typescript@6.0.3)':
     dependencies:
-      '@maplespike/database': file:packages/database(@opentelemetry/api@1.10.0)
+      '@maplespike/database': file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)
       '@qdrant/js-client-rest': 1.20.0(typescript@6.0.3)
       amqplib: 2.2.0
       fast-xml-parser: 5.12.1
@@ -8811,10 +8811,10 @@ snapshots:
       - sqlite3
       - typescript
 
-  '@maplespike/quill-mcp@file:packages/quill-mcp(@opentelemetry/api@1.10.0)(typescript@6.0.3)':
+  '@maplespike/quill-mcp@file:packages/quill-mcp(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(typescript@6.0.3)':
     dependencies:
-      '@maplespike/database': file:packages/database(@opentelemetry/api@1.10.0)
-      '@maplespike/pipeline-core': file:packages/pipeline-core(@opentelemetry/api@1.10.0)(typescript@6.0.3)
+      '@maplespike/database': file:packages/database(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)
+      '@maplespike/pipeline-core': file:packages/pipeline-core(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(typescript@6.0.3)
       jose: 6.2.15
       pino: 10.4.0
       pino-pretty: 13.2.0
@@ -12225,9 +12225,9 @@ snapshots:
       esbuild: 0.28.1
       tsx: 4.23.15
 
-  drizzle-orm@0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1):
+  drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@7.6.13)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260511.1
+      '@cloudflare/workers-types': 5.20261120.1
       '@opentelemetry/api': 1.10.0
       '@types/better-sqlite3': 7.6.13
       '@types/pg': 8.23.1
@@ -12235,9 +12235,9 @@ snapshots:
       gel: 2.2.0
       pg: 8.23.1
 
-  drizzle-orm@0.45.4(@cloudflare/workers-types@4.20260511.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1):
+  drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(better-sqlite3@12.11.1)(gel@2.2.0)(pg@8.23.1):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260511.1
+      '@cloudflare/workers-types': 5.20261120.1
       '@opentelemetry/api': 1.10.0
       '@types/better-sqlite3': 9.6.0
       '@types/pg': 8.23.1
@@ -12245,8 +12245,9 @@ snapshots:
       gel: 2.2.0
       pg: 8.23.1
 
-  drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(better-sqlite3@12.11.1)(pg@8.23.1):
+  drizzle-orm@0.45.4(@cloudflare/workers-types@5.20261120.1)(@opentelemetry/api@1.10.0)(better-sqlite3@12.11.1)(pg@8.23.1):
     optionalDependencies:
+      '@cloudflare/workers-types': 5.20261120.1
       '@opentelemetry/api': 1.10.0
       better-sqlite3: 12.11.1
       pg: 8.23.1
@@ -15173,7 +15174,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261113.1
       '@cloudflare/workerd-windows-64': 1.20261113.1
 
-  wrangler@4.162.0(@types/node@26.6.1)(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  wrangler@4.162.0(@cloudflare/workers-types@5.20261120.1)(@types/node@26.6.1)(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261113.1)
@@ -15185,6 +15186,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20261113.1
     optionalDependencies:
+      '@cloudflare/workers-types': 5.20261120.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - '@types/node'
