@@ -217,10 +217,10 @@ jobs:
       - name: Build all packages
         run: pnpm build
         env:
-          # Publishable by design: this exact value ships in the portal's client
-          # bundle, so it belongs in git next to the build that consumes it — not
-          # in a GitHub variable, where it would be invisible state.
-          PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_live_51TXKNtIZlbpvSCVXPrwYO2dinosjcpXJTFtzvgNWNKYuulIovwEstgih1CGYDOXOXxgunw6MAprIirNBpLhtjJJt00nZ41pewc
+          # Publishable by design: ships in the portal's client bundle. The
+          # value lives in the repo variable PUBLIC_STRIPE_PUBLISHABLE_KEY,
+          # the same variable the Pages and CSP workflows already use.
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
       # Design-logic invariants that historically broke only in prod builds
       # (lang-toggle .html targets, dashboard tab, reveal-on-scroll observer,
