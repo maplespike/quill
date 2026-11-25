@@ -3,9 +3,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { resolveCredential } from "@/lib/embedded-checkout";
 
 interface CheckoutSuccessPollerProps {
-  orderId: string;
+  /** Optional; resolved from ?order= / sessionStorage in the browser when empty. */
+  orderId?: string;
   apiBase?: string;
   apiKey?: string;
   /** Polling interval in ms (default 1500). */
@@ -47,8 +49,17 @@ function getApiBase(override?: string): string {
 function resolveApiKey(overridden?: string): string | null {
   if (overridden) return overridden;
   if (typeof window === "undefined") return null;
-  const g = (window as any).MAPLESPIKE?.apiKey as string | undefined;
-  return g ?? null;
+  // Same resolution as EmbeddedCheckout (lib/embedded-checkout.ts): injected
+  // window.MAPLESPIKE.apiKey first (empty in every shipped config), then the
+  // credential the session actually stored — `quill-api-key` (signup /
+  // workspace) or the `maplespike_token` JWT.
+  let storage: Storage | undefined;
+  try {
+    storage = window.localStorage;
+  } catch {
+    storage = undefined;
+  }
+  return resolveCredential({ runtimeWindow: window, storage }) || null;
 }
 
 const PLAN_LABEL: Record<string, { en: string; fr: string }> = {
@@ -68,8 +79,29 @@ const PLAN_LABEL: Record<string, { en: string; fr: string }> = {
  * excluded is the classic React trap that would make maxPolls effectively
  * infinite.
  */
+/**
+ * The portal is a static build, so the page can't read ?order= at render
+ * time. Resolve it in the browser: the explicit prop, then the ?order= Stripe
+ * returns with, then the id StripeCheckoutButton stashed in sessionStorage.
+ */
+export function resolveOrderId(explicit?: string): string {
+  if (explicit) return explicit;
+  if (typeof window === "undefined") return "";
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get("order");
+    if (fromUrl && /^[A-Za-z0-9_-]{1,64}$/.test(fromUrl)) return fromUrl;
+  } catch {
+    /* malformed URL */
+  }
+  try {
+    return window.sessionStorage.getItem("last_stripe_order_id") ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export default function CheckoutSuccessPoller({
-  orderId,
+  orderId: orderIdProp,
   apiBase,
   apiKey,
   pollMs = 1500,
@@ -81,8 +113,17 @@ export default function CheckoutSuccessPoller({
   const [polls, setPolls] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const lang = (typeof window !== "undefined" ? (window as any).__LANG : "en") === "fr" ? "fr" : "en";
+  const [orderId, setOrderId] = useState(orderIdProp ?? "");
+  const [orderResolved, setOrderResolved] = useState(Boolean(orderIdProp));
+  useEffect(() => {
+    if (!orderResolved) {
+      setOrderId(resolveOrderId(orderIdProp));
+      setOrderResolved(true);
+    }
+  }, [orderIdProp, orderResolved]);
 
   useEffect(() => {
+    if (!orderResolved) return;
     if (!orderId) {
       setStatus("error");
       setError(lang === "fr" ? "ID de commande manquant." : "Missing order id.");
@@ -148,7 +189,7 @@ export default function CheckoutSuccessPoller({
     // apiKey resolution happens once per mount; maxPolls and apiBase are
     // externally stable for any given checkout-success session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderId, apiBase, apiKey, pollMs, maxPolls]);
+  }, [orderId, orderResolved, apiBase, apiKey, pollMs, maxPolls]);
 
   if (status === "loading" || (status === "pending" && polls < maxPolls)) {
     return (

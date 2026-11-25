@@ -227,7 +227,9 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
       tenantId,
       orderId,
       intervalMonths: plan.interval_months,
-      successUrl: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}&order=${orderId}`,
+      // /dashboard/checkout-success mounts CheckoutSuccessPoller; plain
+      // /dashboard never handled ?checkout=success, so buyers saw no confirmation.
+      successUrl: `${baseUrl}/dashboard/checkout-success?session_id={CHECKOUT_SESSION_ID}&order=${orderId}`,
       cancelUrl: `${baseUrl}/pricing?checkout=cancel&order=${orderId}`,
       expiresAtUnix: expiresAt,
       // Embedded Checkout (the portal mounts Stripe's form in-page). The session

@@ -7,20 +7,11 @@ import { localeUrl } from "@/utils/localeUrl";
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
 
-// Stripe redirects back here with ?session_id=...&order=... — capture both so
-// the poller can re-find the order after a pod restart or webhook delay.
-const url = Astro.url;
-const orderIdFromUrl = url.searchParams.get("order") ?? "";
-let orderId = orderIdFromUrl;
-if (!orderId) {
-  try {
-    orderId = typeof window !== "undefined" ? window.sessionStorage?.getItem("last_stripe_order_id") ?? "" : "";
-  } catch { /* SSR or storage locked */ }
-}
-if (!orderId && typeof window === "undefined") {
-  // SSR fallback: Cookie is not currently used for the order id; the URL
-  // ?order= query is the canonical channel we wrote into successUrl.
-}
+// Stripe redirects back here with ?session_id=...&order=... (successUrl in
+// api-server routes/billing-stripe.ts). This page is prerendered (output:
+// 'static'), so Astro.url has no query string at build time; the poller
+// resolves the order id in the browser. `orderId` only matters for SSR.
+const orderId = Astro.url.searchParams.get("order") ?? "";
 ---
 
 <BaseLayout title={i18n.t('dashboard.billing.success_title')} description="Stripe checkout completed; verifying payment." lang={lang}>
@@ -38,25 +29,14 @@ if (!orderId && typeof window === "undefined") {
       </p>
     </div>
 
-    {orderId ? (
-      <CheckoutSuccessPoller orderId={orderId} client:load />
-    ) : (
-      <div class="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-6 reveal-on-scroll">
-        <h2 class="font-semibold text-yellow-700 dark:text-yellow-300">
-          {lang === "fr" ? "ID de commande manquant" : "Missing order id"}
-        </h2>
-        <p class="mt-2 text-sm text-muted-foreground">
-          {lang === "fr"
-            ? "Impossible de vérifier le statut sans ID de commande. Visitez la facturation pour voir vos abonnements."
-            : "Cannot verify status without an order id. Visit billing to see your subscriptions."}
-        </p>
-        <a
-          href={localeUrl('/dashboard/billing', lang)}
-          class="mt-4 inline-flex items-center gap-1.5 rounded-md border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition-colors duration-200 ease-out press-feedback"
-        >
-          {lang === "fr" ? "Voir la facturation" : "View billing"} →
-        </a>
-      </div>
-    )}
+    {/* Static build: ?order= is only known in the browser, so the poller
+        always mounts and resolves the order id itself (prop → ?order= →
+        sessionStorage). It shows the missing-id message when none exists. */}
+    <CheckoutSuccessPoller orderId={orderId} client:load />
+    <p class="mt-6 text-sm text-muted-foreground">
+      <a href={localeUrl('/dashboard/billing', lang)} class="text-primary hover:underline">
+        {lang === "fr" ? "Voir la facturation" : "View billing"} →
+      </a>
+    </p>
   </section>
 </BaseLayout>

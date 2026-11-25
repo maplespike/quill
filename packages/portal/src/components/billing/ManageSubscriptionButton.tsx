@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { resolveCredential } from "@/lib/embedded-checkout";
 
 interface ManageSubscriptionButtonProps {
   /** Override the public API base. */
@@ -36,13 +37,17 @@ function getApiBase(override?: string): string {
 function resolveApiKey(overridden?: string): string | null {
   if (overridden) return overridden;
   if (typeof window === "undefined") return null;
-  const g = (window as any).MAPLESPIKE?.apiKey as string | undefined;
-  if (g) return g;
+  // Same resolution as EmbeddedCheckout (lib/embedded-checkout.ts): injected
+  // window.MAPLESPIKE.apiKey first (empty in every shipped config), then the
+  // credential the session actually stored — `quill-api-key` (signup /
+  // workspace) or the `maplespike_token` JWT.
+  let storage: Storage | undefined;
   try {
-    return window.localStorage.getItem("maplespike_api_key");
+    storage = window.localStorage;
   } catch {
-    return null;
+    storage = undefined;
   }
+  return resolveCredential({ runtimeWindow: window, storage }) || null;
 }
 
 /**

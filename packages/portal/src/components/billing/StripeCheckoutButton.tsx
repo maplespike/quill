@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { resolveCredential } from "@/lib/embedded-checkout";
 
 interface StripeCheckoutButtonProps {
   planId: "pro" | "business";
@@ -10,11 +11,9 @@ interface StripeCheckoutButtonProps {
   /** Override the public API base (otherwise derived from window.location). */
   apiBase?: string;
   /**
-   * Optional pre-set API key. ONLY acceptable as a prop or via
-   * window.MAPLESPIKE.apiKey. We deliberately do NOT read from localStorage
-   * — a single XSS on the portal would expose the raw bearer (this is the
-   * exact bug GitHub shipped for years before moving to sessionStorage /
-   * httpOnly cookies). Auth must complete before the button can fire.
+   * Optional pre-set API key. Otherwise resolved like EmbeddedCheckout:
+   * window.MAPLESPIKE.apiKey, then the stored `quill-api-key` /
+   * `maplespike_token` (see resolveCredential in lib/embedded-checkout.ts).
    */
   apiKey?: string;
   /**
@@ -64,10 +63,17 @@ function getApiBase(override?: string): string {
 function resolveApiKey(overridden?: string): string | null {
   if (overridden) return overridden;
   if (typeof window === "undefined") return null;
-  // window.MAPLESPIKE is set by /auth.js after OAuth exchange; this is the
-  // ONLY client-side source for the bearer. localStorage is NOT safe.
-  const g = (window as any).MAPLESPIKE?.apiKey as string | undefined;
-  return g ?? null;
+  // Same resolution as EmbeddedCheckout (lib/embedded-checkout.ts): injected
+  // window.MAPLESPIKE.apiKey first (empty in every shipped config), then the
+  // credential the session actually stored — `quill-api-key` (signup /
+  // workspace) or the `maplespike_token` JWT.
+  let storage: Storage | undefined;
+  try {
+    storage = window.localStorage;
+  } catch {
+    storage = undefined;
+  }
+  return resolveCredential({ runtimeWindow: window, storage }) || null;
 }
 
 const COPY: Record<
@@ -86,13 +92,13 @@ const COPY: Record<
 
 /**
  * Buy-Pro / Buy-Business island — drops into static .astro pages next to the
- * non-Stripe CTAs. Reads the user's API key from `window.MAPLESPIKE.apiKey`
- * (set by auth.js post-OAuth-exchange); surfaces a redirect-to-signup if the
- * key is missing.
+ * non-Stripe CTAs. Resolves the visitor's credential (injected config, then
+ * the stored `quill-api-key` / `maplespike_token`); redirects to signup if
+ * there is none.
  *
- * On success: redirects to `checkout_url` and the user lands on Stripe's
- * hosted checkout. Returning to /dashboard triggers the `checkout=success`
- * banner, which polls /v1/billing/stripe/order/:id until paid.
+ * On success: redirects to `checkout_url` (Stripe hosted checkout). Stripe
+ * returns to /dashboard/checkout-success, whose poller reads
+ * /v1/billing/stripe/order/:id until paid.
  */
 export default function StripeCheckoutButton({
   planId,
@@ -117,10 +123,7 @@ export default function StripeCheckoutButton({
     setError(null);
     const key = resolveApiKey(apiKey);
     if (!key) {
-      // Send users without an active session to /signup first; we don't
-      // expose localStorage fallback because that would defeat the whole
-      // "no XSS exfil" goal. The /signup page must complete OAuth/passkey
-      // exchange before returning.
+      // No credential anywhere: send the visitor to /signup first.
       const prefix = lang === "fr" ? "/fr" : "";
       const fallbackHref = notSignedInHref ?? `${prefix}/signup?plan=${planId}&return=${prefix}/pricing`;
       window.location.href = fallbackHref;
