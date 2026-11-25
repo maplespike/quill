@@ -21,8 +21,19 @@
 
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
+import { SHORT_EXCERPT_MAX } from '../../shared/source-policy.js';
 import { TRACKED_EXECUTIVES, CORPORATE_SOURCES } from './constants.js';
 import type { ExecutiveStatement } from './types.js';
+
+/**
+ * RSS descriptions are publisher text. Store a short plain excerpt, the same
+ * limit the source policy uses for served excerpts (and rss.ts).
+ */
+export function capStatementText(raw: string): string {
+  const plain = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (plain.length <= SHORT_EXCERPT_MAX) return plain;
+  return `${plain.slice(0, SHORT_EXCERPT_MAX - 1)}…`;
+}
 
 
 /**
@@ -160,6 +171,7 @@ export function extractExecutiveStatements(
         exec.organization === release.organization &&
         (release.title.includes(exec.name) || release.body.includes(exec.name))
       ) {
+        const text = capStatementText(release.body);
         statements.push({
           id: release.id,
           executiveName: exec.name,
@@ -169,8 +181,8 @@ export function extractExecutiveStatements(
           statementType: 'press-release',
           date: release.date,
           title: release.title,
-          text: release.body,
-          excerpt: release.body.substring(0, 500),
+          text,
+          excerpt: text,
           sourceUrl: release.url,
           topics: extractTopics(release.title + ' ' + release.body),
           isCommitteeAppearance: false,

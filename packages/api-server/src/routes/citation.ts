@@ -6,12 +6,17 @@
  * A stored or indexed hash match checks record integrity. It does not authenticate
  * the source response or establish source-data reuse rights.
  *
+ * Restricted sources (discovery-only, link-only, or personal-information
+ * minimization) return the hash, the source link, and attribution. They do
+ * not return the stored record. Open sources still return the stored record
+ * inside verify_command so a caller can recompute the hash.
+ *
  * Hash format: sha256:<64 hex characters>.
  */
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
-import { computeHash, canonicalJson, citationStore } from '@maplespike/pipeline-core';
+import { computeHash, canonicalJson, citationStore, applySourcePolicy } from '@maplespike/pipeline-core';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
@@ -180,6 +185,50 @@ async function findRecordByHash(targetHash: string): Promise<CitationResult | nu
   return null;
 }
 
+/**
+ * Discovery-only, link-only, and personal-information sources must not leave
+ * this public route with stored text. The hash still proves a match. The
+ * stored bytes stay off the response.
+ */
+function restrictedCitation(
+  result: CitationResult,
+  targetHash: string,
+): { data_hash: string; source_url: string; source_name: string; attribution_text?: string } | null {
+  const applied = applySourcePolicy(result.source || '', []);
+  const restricted = applied.policy.discovery_only
+    || applied.policy.link_only
+    || applied.policy.minimize_personal_information;
+  if (!restricted) return null;
+
+  const parts: string[] = [];
+  const stored = result.attributionText?.trim();
+  if (stored) parts.push(stored);
+  for (const notice of applied.policy.notices) {
+    const line = notice.trim();
+    if (line && !parts.includes(line)) parts.push(line);
+  }
+
+  let sourceUrl = '';
+  if (typeof result.sourceUrl === 'string' && result.sourceUrl.trim()) {
+    sourceUrl = result.sourceUrl;
+  } else {
+    for (const key of ['source_url', 'sourceUrl', 'url'] as const) {
+      const value = result.record[key];
+      if (typeof value === 'string' && value.trim()) {
+        sourceUrl = value;
+        break;
+      }
+    }
+  }
+
+  return {
+    data_hash: targetHash,
+    source_url: sourceUrl,
+    source_name: result.source || '',
+    ...(parts.length > 0 ? { attribution_text: parts.join('\n') } : {}),
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /*  Handler                                                           */
 /* ------------------------------------------------------------------ */
@@ -215,6 +264,21 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
       );
     }
 
+    const verificationScope = citationStore.has(targetHash)
+      ? 'claim-store-hash-match'
+      : 'pipeline-index-hash-match';
+
+    // Restricted sources: hash, source link, and attribution only.
+    // verify_command would echo canonical JSON of the stored record.
+    const limited = restrictedCitation(result, targetHash);
+    if (limited) {
+      return jsonResponse(buildSuccess({
+        verified: true,
+        verification_scope: verificationScope,
+        citation: limited,
+      }, ctx));
+    }
+
     const citation: Record<string, unknown> = {
       source_name: result.source || 'Government of Canada',
       source_url: result.record.source_url || result.record.url || '',
@@ -234,7 +298,7 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
     return jsonResponse(buildSuccess({
       // This is a successful hash lookup, not source authentication.
       verified: true,
-      verification_scope: citationStore.has(targetHash) ? 'claim-store-hash-match' : 'pipeline-index-hash-match',
+      verification_scope: verificationScope,
       provenance_evidence: result.provenanceEvidence ?? null,
       citation,
       verify_command: `echo -n '${canonicalJson(result.record).replace(/'/g, "'\\''")}' | sha256sum`,

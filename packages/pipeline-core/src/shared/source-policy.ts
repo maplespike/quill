@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { presentParliamentary } from './parliamentary-public.js';
+import { LOBBYING_ODLA_ATTRIBUTION_STATEMENT } from './attribution.js';
 
 /**
  * Source licence policy — runtime enforcement of the per-source flags recorded
@@ -49,6 +50,9 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   // only — and do NOT extend to commercial purposes or financial gain.
   committees: { commercialUse: false, discoveryOnly: true },
   'parliamentary-voting': { commercialUse: false, discoveryOnly: true },
+  // openparliament.ca republishes House of Commons proceedings under the
+  // Speaker's Permission. Discovery metadata only, with the Commons notice.
+  openparliament: { commercialUse: false, discoveryOnly: true },
   // Lobbying, charity, and political-finance records can carry individuals’
   // names. The licences do not grant personal-information rights (Privacy Act
   // s. 3 exemption), so output is minimized and no cross-source person
@@ -59,6 +63,9 @@ export const SOURCE_POLICIES: Record<string, Partial<SourcePolicy>> = {
   'ontario-lobbying': { minimizePersonalInformation: true },
   'cra-charity': { minimizePersonalInformation: true },
   'political-donations': { minimizePersonalInformation: true },
+  // Influence records mix CRA charity listings and grant data. Contact
+  // details are minimized; names in a public role stay.
+  influence: { minimizePersonalInformation: true },
   // Statistics Canada Open Licence: data must not be merged or linked to
   // attempt to identify an individual, business, or organization — records
   // stay aggregate and never enter the entity graph.
@@ -187,9 +194,19 @@ export const NOT_OFFICIAL_VERSION_NOTICE =
 const NOTICES_BY_SOURCE: Record<string, string[]> = {
   committees: [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
   'parliamentary-voting': [COMMONS_REPRODUCTION_NOTICE, SENATE_REPRODUCTION_NOTICE],
+  openparliament: [COMMONS_REPRODUCTION_NOTICE],
+  'federal-lobbying-monthly': [LOBBYING_ODLA_ATTRIBUTION_STATEMENT],
   gazette: [NOT_OFFICIAL_VERSION_NOTICE],
   legislation: [NOT_OFFICIAL_VERSION_NOTICE],
 };
+
+/** Lobbying families whose served records must not carry a registrant address. */
+const LOBBYING_FAMILY_IDS = new Set([
+  'federal-lobbying-monthly',
+  'provincial-lobbying',
+  'quebec-lobbying',
+  'ontario-lobbying',
+]);
 
 /** Required notices for a source family (empty for sources with none). */
 export function noticesForSource(sourceId: string): string[] {
@@ -353,6 +370,23 @@ export function minimizePersonalInfo<T>(value: T): T {
   return walk(value, false) as T;
 }
 
+/** Drop registrant_address / registrantAddress from served lobbying records. */
+function stripRegistrantAddress<T>(value: T): T {
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (node && typeof node === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const [key, child] of Object.entries(node as Record<string, unknown>)) {
+        if (normalizedKey(key) === 'registrantaddress') continue;
+        out[key] = walk(child);
+      }
+      return out;
+    }
+    return node;
+  };
+  return walk(value) as T;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Application                                                        */
 /* ------------------------------------------------------------------ */
@@ -379,6 +413,7 @@ export interface AppliedSourcePolicy {
  */
 export function applySourcePolicy(sourceId: string, records: unknown[]): AppliedSourcePolicy {
   const policy = policyForModule(sourceId);
+  const familyId = MODULE_SOURCE_ALIASES[sourceId] ?? sourceId;
   let out: unknown[] = records;
   if (policy.discoveryOnly || policy.linkOnly) {
     out = stripContentBodies(out, { maxSummaryLength: SHORT_EXCERPT_MAX });
@@ -386,7 +421,19 @@ export function applySourcePolicy(sourceId: string, records: unknown[]): Applied
   if (policy.minimizePersonalInformation) {
     out = minimizePersonalInfo(out);
   }
-  const familyId = MODULE_SOURCE_ALIASES[sourceId] ?? sourceId;
+  if (LOBBYING_FAMILY_IDS.has(familyId)) {
+    out = stripRegistrantAddress(out);
+  }
+  if (familyId === 'federal-lobbying-monthly') {
+    // OCL Open Data Licence Agreement requires this attribution line.
+    out = out.map((record) => {
+      if (!record || typeof record !== 'object') return record;
+      const r = record as Record<string, unknown>;
+      const existing = typeof r.attribution_text === 'string' && r.attribution_text.trim();
+      if (existing) return r;
+      return { ...r, attribution_text: LOBBYING_ODLA_ATTRIBUTION_STATEMENT };
+    });
+  }
   if (policy.aggregateOnly && (familyId === "statcan" || familyId === "nu-statcan")) {
     // Statistics Canada Open Licence: carry the required source notice with
     // every record; publisher-supplied attribution text still wins.

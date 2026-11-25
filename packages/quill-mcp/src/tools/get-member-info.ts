@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchPoliticians } from './upstream-fetcher.js';
-import { presentParliamentaryToolResult } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_member_info',
@@ -17,25 +17,37 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+/** Core lookup — injectable fetcher for tests. Member records are discovery-only. */
+export async function runGetMemberInfo(
+  args: { query?: string; limit?: number },
+  fetchFn: typeof fetchPoliticians = fetchPoliticians,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '');
-  const limit = Math.min((args.limit as number) ?? 10, 50);
+  const limit = Math.min(args.limit ?? 10, 50);
   if (!query.trim()) {
-    return presentParliamentaryToolResult(
-      { content: { tool: 'get_member_info', error: 'No query provided' }, isError: true },
-      { chamber: 'commons' },
-    );
+    return presentParliamentaryToolResult({ content: { tool: 'get_member_info', error: 'No query provided' }, isError: true }, { chamber: 'commons' });
   }
   try {
-    const { results, total } = await fetchPoliticians(query, limit);
-    return presentParliamentaryToolResult(
-      { content: { tool: 'get_member_info', query, limit, members: results, totalCount: total } },
-      { chamber: 'commons' },
-    );
+    const { results, total } = await fetchFn(query, limit);
+    const applied = applySourcePolicy('openparliament', results);
+    return presentParliamentaryToolResult({
+      content: {
+        tool: 'get_member_info',
+        query,
+        limit,
+        members: applied.records,
+        totalCount: total,
+        policy: applied.policy,
+      },
+    }, { chamber: 'commons' });
   } catch (error) {
-    return presentParliamentaryToolResult(
-      { content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true },
-      { chamber: 'commons' },
-    );
+    return presentParliamentaryToolResult({ content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true }, { chamber: 'commons' });
   }
+}
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  return runGetMemberInfo({
+    query: args.query as string | undefined,
+    limit: args.limit as number | undefined,
+  });
 };

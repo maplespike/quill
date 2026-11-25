@@ -27,6 +27,15 @@ on:
       - 'docs/**/*.svg'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      # Unrelated trees do not run this suite. paths-ignore applies only
+      # when every changed file matches, so a mixed code change still runs.
+      # PR validation has no path filter and still reports on every pull
+      # request, so the merge gate still sees a completed check.
+      - 'openspec/**'
+      - 'training/**'
+      - 'ops/**'
+      - '.changeset/**'
+      - 'assets/**'
   pull_request:
     branches: [main, prod]
     paths-ignore:
@@ -38,6 +47,12 @@ on:
       - 'docs/**/*.svg'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      # Same unrelated trees as the push filter above.
+      - 'openspec/**'
+      - 'training/**'
+      - 'ops/**'
+      - '.changeset/**'
+      - 'assets/**'
 
 concurrency:
   # One run per PR; a new push cancels the superseded run. Main/prod and
@@ -52,14 +67,15 @@ env:
   NODE_ENV: test
 
 jobs:
-  # PR path filter. Runs on a GitHub-hosted runner (it checks out nothing and
-  # only reads the PR's file list over the API), so it never waits behind the
-  # single arc-maplespike runner. Pushes to main/prod skip the filter step and
-  # every job below runs in full, so main always gets the complete signal.
+  # PR path filter. Same-repo runs use arc-maplespike, the label the other
+  # light jobs use. A fork pull request stays on ubuntu-latest. The job
+  # checks out nothing; dorny/paths-filter reads the file list over the API
+  # (node action, no extra tools). Pushes to main/prod skip the filter step
+  # and every job below runs in full, so main always gets the complete signal.
   # Filters are deny-lists ("everything except ..."): a path nobody thought
   # about runs the jobs instead of silently skipping them.
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 5
     permissions:
       contents: read
@@ -132,10 +148,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -316,6 +332,15 @@ jobs:
 
       - name: Merge gate metadata token unit tests
         run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
+      # Incident rule for the secrets job (issue #1040). gitleaks-action
+      # requires GITLEAKS_LICENSE on organisation repos and otherwise exits
+      # with "License key is required." on every PR. The check names the
+      # missing env var. It does not print a secret value.
+      - name: Gitleaks license env check
+        run: python3 scripts/check-gitleaks-license.py
+
+      - name: Gitleaks license env unit tests
+        run: pnpm exec tsx --test scripts/test-gitleaks-license.mts
 
       # Incident rule for run 38942770925 (2026-10-16 17:50, issue #6eb58bc5).
       # The weekly release lane asked `pulls.list` for
@@ -378,6 +403,14 @@ jobs:
       # bare "$K" call, and the workflow timeout-minutes safety net.
       - name: Isolation-timeout regression tests
         run: pnpm exec tsx --test scripts/test-isolation-timeout.mts
+      # 2026-11-09 health audit: e2e-smoke.sh still called the removed
+      # /v1/modules route, expected a top-level openapi key, and probed MCP
+      # /healthz. quill-health-check.sh counted backup and engine CronJobs
+      # as ingest feeds. These fixtures pin both scripts.
+      - name: Smoke script contract tests
+        run: |
+          bash scripts/test-health-check-ingest-filter.sh
+          node --test scripts/test-e2e-smoke-contract.mjs
       # An invalid workflow file is silent: GitHub starts zero jobs and marks
       # the run failed, which reads as an infrastructure problem rather than a
       # syntax error. Two workflows have been broken this way unnoticed.
@@ -406,7 +439,12 @@ jobs:
           curl -sSfL -o /tmp/helm.tgz \
             "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
           tar -xzf /tmp/helm.tgz -C /tmp
-          install_dir="${HOME}/.local/bin"
+          # $HOME is /home/runner on the ARC runners and not writable there:
+          # build-and-test died at `mkdir: cannot create directory
+          # /home/runner/.local/bin: Permission denied` on 888629d7, 2875e9b4
+          # and dd994d1a (2026-11-22), which is why those runs went red on a
+          # step that has nothing to do with their diff. RUNNER_TEMP is writable.
+          install_dir="${RUNNER_TEMP:-/tmp}/bin"
           mkdir -p "$install_dir"
           mv /tmp/linux-amd64/helm "$install_dir/helm"
           echo "$install_dir" >> "$GITHUB_PATH"
@@ -458,10 +496,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -509,10 +547,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -537,7 +575,11 @@ jobs:
   search-dockerfile:
     needs: changes
     if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.search == 'true') }}
-    runs-on: ubuntu-latest
+    # Same-repo on arc-maplespike. Forks stay on ubuntu-latest, which already
+    # has a Docker engine. The pre-baked ARC image has node, pnpm, git, gh,
+    # and the arc-tools packages; it does not guarantee a Docker daemon, so
+    # the step below installs docker.io + buildx when `docker info` fails.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 10
     permissions:
       contents: read
@@ -545,15 +587,47 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Ensure Docker Buildx
+        run: |
+          set -euo pipefail
+          ready() {
+            command -v docker >/dev/null 2>&1 \
+              && docker info >/dev/null 2>&1 \
+              && docker buildx version >/dev/null 2>&1
+          }
+          if ready; then
+            echo "docker buildx ready: $(docker buildx version)"
+            exit 0
+          fi
+          if ! command -v sudo >/dev/null 2>&1; then
+            echo "::error::docker buildx is not usable and sudo is missing, so this job cannot install it."
+            exit 1
+          fi
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends docker.io docker-buildx || \
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends docker.io
+          if ! docker info >/dev/null 2>&1; then
+            sudo service docker start || sudo systemctl start docker || true
+          fi
+          if ! docker info >/dev/null 2>&1 && sudo docker info >/dev/null 2>&1; then
+            sudo chmod 666 /var/run/docker.sock
+          fi
+          if ! ready; then
+            echo "::error::docker buildx build --check needs a live Docker engine. The install did not leave one reachable."
+            docker info || true
+            exit 1
+          fi
+          echo "docker buildx installed: $(docker buildx version)"
       - name: Check Dockerfile.search (target quill-search)
         run: docker buildx build --check -f Dockerfile.search --target quill-search .
 
   secrets:
     needs: build-and-test
-    # Runs on a GitHub-hosted runner for every PR, including forks. The
-    # licence secret is not available here. secrets-event-range runs the
-    # gitleaks action only for same-repo events.
-    runs-on: ubuntu-latest
+    # Same-repo runs use arc-maplespike. A fork stays on ubuntu-latest.
+    # The licence secret is not used here. gitleaks is downloaded in-job
+    # (pinned GITLEAKS_VERSION); curl is on the pre-baked ARC image.
+    # secrets-event-range runs the gitleaks action only for same-repo events.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 45
     permissions:
       contents: read
@@ -610,7 +684,10 @@ jobs:
     # the sibling secrets job's baseline-enforced full-history gate.
     # Push and pull_request scanning are unchanged.
     if: github.event_name != 'workflow_dispatch' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: ubuntu-latest
+    # Same-repo only (the if above). arc-maplespike has node for the
+    # node24 action. Forks never reach this job, so they never reach the
+    # licence secret or the homelab runner.
+    runs-on: arc-maplespike
     timeout-minutes: 45
     permissions:
       contents: read
@@ -623,6 +700,12 @@ jobs:
       - name: ARC runner tools
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
+
+      # Fail here, naming GITLEAKS_LICENSE, before the action reports a
+      # missing organisation licence. scripts/check-gitleaks-license.py
+      # reads the workflow file only and does not print a secret value.
+      - name: Gitleaks license env check
+        run: python3 scripts/check-gitleaks-license.py
 
       - name: gitleaks (event range)
         uses: gitleaks/gitleaks-action@v3
@@ -667,10 +750,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22

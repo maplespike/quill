@@ -10,7 +10,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseGeoApiAlerts, parseCbsaBordersHtml } from '../real-time-feeds/fetcher.js';
+import { parseGeoApiAlerts, parseCbsaBordersHtml, parseParoleBoardHtml } from '../real-time-feeds/fetcher.js';
 
 /** GeoJSON feature as returned by /collections/weather-alerts/items (live shape). */
 const GEOAPI_FIXTURE = {
@@ -121,5 +121,52 @@ describe('parseCbsaBordersHtml (CBSA HTML replacement)', () => {
   it('returns [] when the bwttaf table is absent (page structure changed)', () => {
     assert.deepEqual(parseCbsaBordersHtml('<html><body>No table here</body></html>'), []);
     assert.deepEqual(parseCbsaBordersHtml('<table id="other"><tr><td>x</td></tr></table>'), []);
+  });
+});
+
+/**
+ * Live decision-registry.html (2026-11-10) lists explainers and canada.ca
+ * navigation, not decision documents. Those links must not be labelled
+ * "Parole Board decision".
+ */
+const PAROLE_FIXTURE = `
+<header>
+  <nav>
+    <a href="/en/services/policing/parole.html">Parole, record suspension, expungement and clemency</a>
+    <a href="/en/parole-board/services/decision-registry/decisions/1999-1.html">Decision 1999-01-01 — menu link</a>
+  </nav>
+</header>
+<main>
+  <h3><a href="/en/parole-board/services/decision-registry/what-is-the-decision-registry.html">What is the decision registry?</a></h3>
+  <h3><a href="/en/parole-board/services/decision-registry/how-do-i-request-a-decision-from-the-registry.html">How do I request a decision from the registry?</a></h3>
+  <a href="/en/parole-board.html">Parole Board of Canada</a>
+  <a href="/en/parole-board/services/decision-registry/decisions/2026-0142.html">Decision 2026-01-15 — conditional release</a>
+</main>
+<footer>
+  <a href="/en/parole-board/corporate/contact-us.html">Contact the Parole Board of Canada</a>
+</footer>
+`;
+
+describe('parseParoleBoardHtml', () => {
+  it('does not treat navigation or registry explainers as decisions', () => {
+    const records = parseParoleBoardHtml(PAROLE_FIXTURE, '2026-11-10T00:00:00.000Z');
+    assert.equal(records.length, 1);
+    assert.equal(records[0].title, 'Decision 2026-01-15 — conditional release');
+    assert.equal(records[0].summary, 'Parole Board decision');
+    assert.equal(
+      records[0].url,
+      'https://www.canada.ca/en/parole-board/services/decision-registry/decisions/2026-0142.html',
+    );
+    assert.equal(records[0].source, 'parole-board-decisions');
+    const titles = records.map((record) => record.title).join('\n');
+    assert.equal(/menu link|decision registry|Parole Board of Canada|Contact the Parole/i.test(titles), false);
+  });
+
+  it('returns no decisions when the page is only navigation and explainers', () => {
+    const html = PAROLE_FIXTURE.replace(
+      '<a href="/en/parole-board/services/decision-registry/decisions/2026-0142.html">Decision 2026-01-15 — conditional release</a>',
+      '',
+    );
+    assert.deepEqual(parseParoleBoardHtml(html), []);
   });
 });

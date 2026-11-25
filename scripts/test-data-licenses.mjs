@@ -38,6 +38,21 @@ test('every entry records the non-grant decision and a review note', () => {
   }
 });
 
+test('committees terms lead is the House of Commons important-notices page', () => {
+  const committees = sources.find((s) => s.id === 'committees');
+  assert.ok(committees, 'committees family missing');
+  assert.equal(
+    committees.source_terms,
+    'https://www.ourcommons.ca/en/important-notices',
+    'committee proceedings are not under the federal OGL',
+  );
+  assert.equal(
+    licences.includes('| `committees` | https://www.ourcommons.ca/en/important-notices |'),
+    true,
+    'DATA-LICENSES.md still lists the OGL for committees',
+  );
+});
+
 test('recorded publisher terms leads are absolute https URLs', () => {
   for (const s of sources) {
     if (s.source_terms) {

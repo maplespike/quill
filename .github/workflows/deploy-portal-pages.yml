@@ -1,0 +1,116 @@
+# =============================================================================
+# Quill — Deploy Portal to Cloudflare Pages
+#
+# WHY THIS EXISTS
+#
+# On 2026-11-09 quill.maplespike.ca moved off the Cloudflare Tunnel and onto
+# the Pages project `maplespike-quill` (#1304). The tunnel ingress entry was
+# removed (see the cloudflared-config ConfigMap comment), but no workflow was
+# added to publish the portal — so merging a portal change to main updated the
+# `quill-portal` deployment in the cluster and changed nothing that visitors
+# see. The public site quietly went stale from that day.
+#
+# This workflow closes that gap: build `packages/portal`, publish `dist/` to
+# the Pages project on every portal change to main.
+#
+# ROUTING (docs/ROUTING.md)
+#   quill.maplespike.ca  -> Cloudflare Pages -> project maplespike-quill
+#   api.maplespike.ca    -> tunnel -> quill-api:8082
+#   mcp.maplespike.ca    -> tunnel -> quill-mcp:3001
+#   maplespike.ca        -> Pages project maplespike-brand (NOT this workflow)
+#
+# The cluster deployment from deploy-prod.yml still exists and is still
+# verified; it is the in-cluster copy, not the public origin.
+#
+# Requires repo secrets: CLOUDFLARE_API_TOKEN (Pages:Edit), CLOUDFLARE_ACCOUNT_ID.
+# =============================================================================
+name: Deploy Portal to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/portal/**"
+      - "packages/i18n/**"
+      - ".github/workflows/deploy-portal-pages.yml"
+  workflow_dispatch:
+
+# One publish at a time; a newer merge supersedes a queued run.
+concurrency:
+  group: portal-pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build portal + publish to Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the workspace
+        # Not just the portal: portal's gen:all loads quill-mcp's built tool
+        # registry, which imports pipeline-core, which imports @maplespike/database.
+        # Only turbo's dependency order builds that chain correctly (runs
+        # 45037143372 and 45037297872 failed on the missing intermediates).
+        env:
+          MAPLESPIKE_DOMAIN: maplespike.ca
+          # Pages is static: there is no server.py to inject the key at request
+          # time, so the bundle is the only delivery path. Without this the
+          # checkout island shipped an empty key and rendered "Checkout is not
+          # configured for this build" on every plan page (2026-11-22).
+          PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+        run: pnpm build
+
+      - name: Confirm the portal output exists
+        # The publish step would otherwise upload an empty or stale directory.
+        run: |
+          set -euo pipefail
+          test -f packages/portal/dist/index.html || {
+            echo "::error::pnpm build did not produce packages/portal/dist/index.html"
+            exit 1
+          }
+
+      - name: Assert the theme toggle shipped
+        # Regression guard: the toggle went missing from the public site once
+        # because nothing checked the published artifact. Fail here instead.
+        run: |
+          set -euo pipefail
+          n=$(grep -c 'id="theme-toggle"' packages/portal/dist/index.html || true)
+          if [ "$n" -lt 1 ]; then
+            echo "::error::dist/index.html has no #theme-toggle — refusing to publish"
+            exit 1
+          fi
+          echo "theme toggle present in dist/index.html"
+
+      - name: Publish to Cloudflare Pages
+        working-directory: packages/portal
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set"
+            exit 1
+          fi
+          npx --yes wrangler@4 pages deploy dist \
+            --project-name=maplespike-quill \
+            --branch=main \
+            --commit-dirty=true

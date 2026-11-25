@@ -53,10 +53,16 @@ jobs:
     # Dependabot opens same-repo pull requests. The actor check and the head
     # repository check both have to pass. A fork pull request does not run.
     if: github.actor == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
-    # NOT self-hosted, deliberately (#1041): on the four self-hosted runners a
-    # waiting job holds a slot the checks it is waiting on need, which starved
-    # main CI for 30min+ (measured 2026-10-09). This job runs only `gh`, so a
-    # GitHub-hosted runner costs a fraction of a cent. Do NOT move it back.
+    # Stays on a GitHub-hosted runner on purpose.
+    # 1. Security. Dependabot pull requests are untrusted third-party code.
+    #    pull_request runs the workflow from the merge commit, and an Actions
+    #    bump edits .github/workflows. That modified file would execute on
+    #    the homelab if this job used arc-maplespike, with
+    #    MERGE_GATE_APP_PRIVATE_KEY in the environment. GitHub-hosted
+    #    runners are destroyed at the end of the job.
+    # 2. Capacity (#1041). The wait loop holds a runner for up to 20
+    #    minutes while the checks it is waiting on need that pool. Measured
+    #    2026-10-09: that starved main CI. Do NOT move it back.
     runs-on: ubuntu-latest
     steps:
       # The fleet-merge-gate App carries Workflows:write; GITHUB_TOKEN cannot
@@ -71,7 +77,7 @@ jobs:
         id: gate
         if: ${{ vars.MERGE_GATE_APP_ID != '' }}
         continue-on-error: true
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}

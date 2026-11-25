@@ -101,6 +101,12 @@ spec:
         env:
         - name: API_UPSTREAM
           value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
+        # Public by design (it ships in the browser bundle), but it is an
+        # environment fact: server.py appends it to /config.js so the embedded
+        # checkout works even when the image was built without
+        # PUBLIC_STRIPE_PUBLISHABLE_KEY. Empty = fall back to the built bundle.
+        - name: STRIPE_PUBLISHABLE_KEY
+          value: {{ index (.Values.secrets | default dict) "stripePublishableKey" | default "" | quote }}
         ports:
         - name: http
           containerPort: {{ .Values.portal.port | default 8080 }}

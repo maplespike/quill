@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestParliamentaryVotes } from '@maplespike/pipeline-core/parliamentary-voting';
-import { presentParliamentaryToolResult } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const getVotingRecordDefinition: ToolDefinition = {
   name: 'get_voting_record',
@@ -56,77 +56,43 @@ export const comparePartyVotingDefinition: ToolDefinition = {
   },
 };
 
-export const getVotingRecordHandler: ToolHandler = async (args) => {
-  const divisionId = args.divisionId as string;
-
+/** Shared runner. House and Senate votes are discovery-only. */
+export async function runParliamentaryVoteTool(
+  tool: string,
+  fields: Record<string, unknown>,
+  ingest: () => Promise<unknown> = ingestParliamentaryVotes,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   try {
-    const result = await ingestParliamentaryVotes();
+    const result = await ingest();
+    const applied = applySourcePolicy('parliamentary-voting', [result]);
     return presentParliamentaryToolResult({
       content: {
-        tool: 'get_voting_record',
-        divisionId,
-        data: result as Record<string, unknown>,
+        tool,
+        ...fields,
+        data: applied.records[0],
+        policy: applied.policy,
       },
     }, { chamber: 'commons' });
   } catch (error) {
     return presentParliamentaryToolResult({
       content: {
-        tool: 'get_voting_record',
-        divisionId,
+        tool,
+        ...fields,
         error: (error as Error).message,
       },
       isError: true,
     }, { chamber: 'commons' });
   }
+}
+
+export const getVotingRecordHandler: ToolHandler = async (args) => {
+  return runParliamentaryVoteTool('get_voting_record', { divisionId: args.divisionId });
 };
 
 export const getMPVotingPatternHandler: ToolHandler = async (args) => {
-  const mpId = args.mpId as string;
-  const years = args.years as number[] | undefined;
-
-  try {
-    const result = await ingestParliamentaryVotes();
-    return presentParliamentaryToolResult({
-      content: {
-        tool: 'get_mp_voting_pattern',
-        mpId,
-        years,
-        data: result as Record<string, unknown>,
-      },
-    }, { chamber: 'commons' });
-  } catch (error) {
-    return presentParliamentaryToolResult({
-      content: {
-        tool: 'get_mp_voting_pattern',
-        mpId,
-        years,
-        error: (error as Error).message,
-      },
-      isError: true,
-    }, { chamber: 'commons' });
-  }
+  return runParliamentaryVoteTool('get_mp_voting_pattern', { mpId: args.mpId, years: args.years });
 };
 
 export const comparePartyVotingHandler: ToolHandler = async (args) => {
-  const divisionId = args.divisionId as string;
-
-  try {
-    const result = await ingestParliamentaryVotes();
-    return presentParliamentaryToolResult({
-      content: {
-        tool: 'compare_party_voting',
-        divisionId,
-        data: result as Record<string, unknown>,
-      },
-    }, { chamber: 'commons' });
-  } catch (error) {
-    return presentParliamentaryToolResult({
-      content: {
-        tool: 'compare_party_voting',
-        divisionId,
-        error: (error as Error).message,
-      },
-      isError: true,
-    }, { chamber: 'commons' });
-  }
+  return runParliamentaryVoteTool('compare_party_voting', { divisionId: args.divisionId });
 };

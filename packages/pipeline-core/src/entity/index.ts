@@ -53,3 +53,16 @@ export type {
   RegistryBreakdown,
   CrossReferenceResult,
 } from './resolver-lib.js';
+
+// Bilingual institutional names (issue #743) — public-role names only.
+export {
+  BILINGUAL_ENTITY_NAMES,
+  normalizeEntityName,
+  coreEntityName,
+  resolveBilingualEntity,
+  bilingualEntityCandidates,
+  isBilingualEntityPair,
+  localizeEntityName,
+  resetBilingualEntityIndex,
+} from './bilingual.js';
+export type { BilingualEntityName, BilingualEntityMatch, EntityLang } from './bilingual.js';

@@ -80,4 +80,4 @@ Research) during 2026. Their contributions are recorded here with attribution.
 | Pattern-inspiration repos | See [CREDITS.md](../CREDITS.md) | See CREDITS table |
 | Product vision | reverb256 (MapleSpike) | — |
 
-**License:** Quill's package declarations are inconsistent and under rights-holder review. See [LICENSE.md](../LICENSE.md), [LICENSE](../LICENSE), and [CREDITS.md](../CREDITS.md). Source-data terms are separate and vary by publisher and dataset.
+**License:** Quill's own code is AGPL-3.0-only. See [LICENSE.md](../LICENSE.md) and [LICENSE](../LICENSE). Third-party notices are in [CREDITS.md](../CREDITS.md). Source-data terms are separate and vary by publisher and dataset.

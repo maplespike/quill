@@ -16,6 +16,11 @@ import { parliamentaryToolMetersQuota } from '@maplespike/pipeline-core';
 import { getQuotaTracker, type QuotaIdentity, type QuotaTracker } from './quota.js';
 import { runWithIdentity } from './context.js';
 import { mcpMetrics, registerMetricTool } from './metrics.js';
+import {
+  negotiateProtocolVersion,
+  type ProtocolNegotiation,
+} from './protocol-version.js';
+import { JobManager, JOB_URI_PREFIX, parseJobUri, type JobRecord } from './jobs.js';
 
 // ── Claim Stack + Agent-native surfaces (WS-1/WS-3) ──────────────
 import { citationStore } from '@maplespike/pipeline-core';
@@ -54,6 +59,7 @@ interface ServerCapabilities {
   tools?: Record<string, unknown>;
   resources?: Record<string, unknown>;
   prompts?: Record<string, unknown>;
+  subscriptions?: Record<string, unknown>;
 }
 
 // ─── Logging ────────────────────────────────────────────────────────────
@@ -142,9 +148,32 @@ export class McpServer {
   /** Optional quota tracker — when present, gates calls after the free tier. */
   private quota: QuotaTracker | null = null;
 
+  /** Protocol negotiated for the current connection (legacy 2025-03-26 by default). */
+  private negotiation: ProtocolNegotiation = negotiateProtocolVersion(undefined);
+
+  /** Long-running job surface (#829): in-process, bounded, TTL'd. */
+  private readonly jobs = new JobManager();
+
+  /** `subscriptions/listen` sinks (2026-07-28 only), keyed by subscription id. */
+  private readonly subscriptions = new Map<
+    string,
+    { uris: string[] | null; sink: (response: JsonRpcResponse) => void }
+  >();
+  private subscriptionSeq = 0;
+
   /** Inject a quota tracker (typically via getQuotaTracker() singleton). */
   setQuota(tracker: QuotaTracker): void {
     this.quota = tracker;
+  }
+
+  /** Protocol negotiated on the last initialize (for transports reporting it). */
+  getNegotiatedProtocol(): ProtocolNegotiation {
+    return this.negotiation;
+  }
+
+  /** Job registry, exposed for transport shutdown and tests. */
+  getJobs(): JobManager {
+    return this.jobs;
   }
 
   // ── Timeout handling ──────────────────────────────────────────────────
@@ -210,6 +239,20 @@ export class McpServer {
       case 'prompts/get':
         this.handlePromptsGet(id, params, send);
         break;
+      // ── 2026-07-28 surfaces (opt-in via QUILL_PROTOCOL_VERSION) ────
+      case 'subscriptions/listen':
+        this.handleSubscriptionsListen(id, params, send);
+        break;
+      case 'subscriptions/cancel':
+        this.handleSubscriptionsCancel(id, params, send);
+        break;
+      // ── Long-running job surface (#829) ───────────────────────────
+      case 'jobs/list':
+        this.handleJobsList(id, send);
+        break;
+      case 'jobs/cancel':
+        this.handleJobsCancel(id, params, send);
+        break;
       default:
         if (id !== null && id !== undefined) {
           send(this.error(id, -32601, `Method not found: ${method}`));
@@ -254,16 +297,32 @@ export class McpServer {
   ): void {
     this.clientCapabilities = (params?.capabilities as Record<string, unknown>) ?? {};
 
-    log.info(`Initialize: protocolVersion=${params?.protocolVersion ?? 'unknown'}`);
+    const requested = typeof params?.protocolVersion === 'string'
+      ? params.protocolVersion
+      : undefined;
+    this.negotiation = negotiateProtocolVersion(requested);
+
+    log.info(`Initialize: protocolVersion=${requested ?? 'unknown'} -> ${this.negotiation.version}`);
 
     const capabilities: ServerCapabilities = {
       tools: {}, // tools/list is supported
-      resources: { listChanged: false }, // resources/list + read + templates
+      resources: {
+        listChanged: this.negotiation.modern, // resources/updated on job completion
+        subscribe: this.negotiation.subscriptionsListen,
+        // 2026-07-28: resources carry a client-side freshness hint.
+        ...(this.negotiation.resourceTtlMs !== null
+          ? { ttlMs: this.negotiation.resourceTtlMs }
+          : {}),
+      },
       prompts: {}, // prompts/list + get
+      // 2026-07-28 only — legacy clients never see this capability.
+      ...(this.negotiation.subscriptionsListen
+        ? { subscriptions: { listen: true } }
+        : {}),
     };
 
     send(this.result(id ?? null, {
-      protocolVersion: params?.protocolVersion ?? '2025-03-26',
+      protocolVersion: this.negotiation.version,
       capabilities,
       serverInfo: {
         name: this.serverName,
@@ -316,7 +375,18 @@ export class McpServer {
         description: 'Most recently registered claim bundles (record hash, claim, source, source retrieval time when evidenced, and license metadata). A hash match does not authenticate the source or establish reuse rights.',
         mimeType: 'application/json',
       },
+      {
+        uri: 'quill://jobs',
+        name: 'Long-running jobs',
+        description: 'Jobs started with tools/call _meta.quill.async — one entry per job with state and timing. Poll quill://jobs/{id} for the result.',
+        mimeType: 'application/json',
+      },
     ];
+    if (this.negotiation.resourceTtlMs !== null) {
+      for (const resource of resources) {
+        (resource as Record<string, unknown>)['ttlMs'] = this.negotiation.resourceTtlMs;
+      }
+    }
     send(this.result(id ?? null, { resources }));
   }
 
@@ -350,6 +420,12 @@ export class McpServer {
         description: 'Versioned field-level schema for a single ingestion module — name, type, required, description per field.',
         mimeType: 'application/json',
       },
+      {
+        uriTemplate: 'quill://jobs/{id}',
+        name: 'Long-running job status',
+        description: 'Status, progress and (once finished) the result of a job started with tools/call _meta.quill.async.',
+        mimeType: 'application/json',
+      },
     ];
     send(this.result(id ?? null, { resourceTemplates }));
   }
@@ -377,6 +453,45 @@ export class McpServer {
             uri,
             mimeType: 'application/json',
             text: JSON.stringify(tools, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://jobs — job index (#829)
+      if (uri === 'quill://jobs') {
+        this.jobs.prune();
+        const jobs = this.jobs.list().map(job => ({
+          id: job.id,
+          uri: `${JOB_URI_PREFIX}${job.id}`,
+          tool: job.tool,
+          state: job.state,
+          createdAt: job.createdAt,
+          finishedAt: job.finishedAt ?? null,
+        }));
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify({ count: jobs.length, jobs }, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://jobs/{id} — long-running job status + result
+      const jobId = parseJobUri(uri);
+      if (jobId) {
+        const job = this.jobs.get(jobId);
+        if (!job) {
+          send(this.error(id ?? null, -32602, `Job not found: ${jobId}`));
+          return;
+        }
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify(this.jobs.toResource(job), null, 2),
           }],
         }));
         return;
@@ -605,6 +720,188 @@ export class McpServer {
     }
   }
 
+  // ── Subscriptions (2026-07-28, #830) ──────────────────────────────────
+
+  private handleSubscriptionsListen(
+    id: string | number | undefined,
+    params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    if (!this.negotiation.subscriptionsListen) {
+      // Legacy handshake: the method simply does not exist, exactly as before.
+      send(this.error(
+        id ?? null,
+        -32601,
+        'Method not found: subscriptions/listen (requires QUILL_PROTOCOL_VERSION=2026-07-28 and a 2026-07-28 handshake)',
+      ));
+      return;
+    }
+
+    const rawUris = params?.uris;
+    if (rawUris !== undefined && !Array.isArray(rawUris)) {
+      send(this.error(id ?? null, -32602, 'Invalid params: "uris" must be an array of strings'));
+      return;
+    }
+    const uris = Array.isArray(rawUris)
+      ? rawUris.filter((u): u is string => typeof u === 'string')
+      : null;
+    if (uris && uris.length > 50) {
+      send(this.error(id ?? null, -32602, 'Invalid params: at most 50 URIs per subscription'));
+      return;
+    }
+
+    const subscriptionId = `sub-${++this.subscriptionSeq}`;
+    this.subscriptions.set(subscriptionId, { uris, sink: send });
+    send(this.result(id ?? null, { subscriptionId, uris: uris ?? [] }));
+  }
+
+  private handleSubscriptionsCancel(
+    id: string | number | undefined,
+    params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    if (!this.negotiation.subscriptionsListen) {
+      send(this.error(id ?? null, -32601, 'Method not found: subscriptions/cancel'));
+      return;
+    }
+    const subscriptionId = typeof params?.subscriptionId === 'string' ? params.subscriptionId : '';
+    if (!subscriptionId) {
+      send(this.error(id ?? null, -32602, 'Invalid params: must include "subscriptionId"'));
+      return;
+    }
+    const existed = this.subscriptions.delete(subscriptionId);
+    send(this.result(id ?? null, { subscriptionId, cancelled: existed }));
+  }
+
+  /** Push `notifications/resources/updated` to subscribers that asked for the URI. */
+  private notifyResourceUpdated(uri: string): void {
+    for (const { uris, sink } of this.subscriptions.values()) {
+      if (uris !== null && !uris.some(u => uri === u || uri.startsWith(`${u}/`) || u.startsWith(`${uri}/`))) {
+        continue;
+      }
+      sink({
+        jsonrpc: '2.0',
+        method: 'notifications/resources/updated',
+        params: { uri },
+      });
+    }
+  }
+
+  // ── Long-running jobs (#829) ──────────────────────────────────────────
+
+  private handleJobsList(
+    id: string | number | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    this.jobs.prune();
+    send(this.result(id ?? null, {
+      jobs: this.jobs.list().map(job => this.jobs.toResource(job)),
+    }));
+  }
+
+  private handleJobsCancel(
+    id: string | number | undefined,
+    params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    const jobId = typeof params?.id === 'string' ? params.id : '';
+    if (!jobId) {
+      send(this.error(id ?? null, -32602, 'Invalid params: must include "id"'));
+      return;
+    }
+    const job = this.jobs.cancel(jobId);
+    if (!job) {
+      send(this.error(id ?? null, -32602, `Job not found: ${jobId}`));
+      return;
+    }
+    send(this.result(id ?? null, this.jobs.toResource(job)));
+  }
+
+  /**
+   * Start a tool call as a long-running job and answer immediately with the
+   * job handle. The handler gets no 55s deadline here — that is the point of
+   * the surface — but it can be cancelled, and its result is sanitized and
+   * quota-accounted exactly like a synchronous call.
+   */
+  private startToolJob(
+    id: string | number | undefined,
+    toolName: string,
+    tool: { definition: ToolDefinition; handler: ToolHandler },
+    args: Record<string, unknown>,
+    send: (r: JsonRpcResponse) => void,
+    progressToken: unknown,
+    identity?: QuotaIdentity,
+  ): void {
+    const startedMs = Date.now();
+    // Jobs escape the 55s handler deadline, but not every deadline: a runaway
+    // job would hold a slot forever. Default cap is 10 minutes.
+    const maxJobMs = parseInt(process.env['QUILL_JOB_TIMEOUT_MS'] ?? '', 10) || 600_000;
+    const job: JobRecord = this.jobs.start({
+      tool: toolName,
+      runner: async (_signal, report) => {
+        report({ step: 'started', fraction: 0 });
+        const call = () => tool.handler(args);
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const deadline = new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`Job "${toolName}" exceeded ${maxJobMs}ms`)),
+            maxJobMs,
+          );
+          timer.unref?.();
+        });
+        try {
+          const raw = identity
+            ? await Promise.race([runWithIdentity(identity, call), deadline])
+            : await Promise.race([call(), deadline]);
+          report({ step: 'sanitizing', fraction: 0.95 });
+          return sanitizeOutput(raw);
+        } finally {
+          clearTimeout(timer);
+        }
+      },
+      onUpdate: (record, kind) => {
+        if (progressToken !== undefined) {
+          send({
+            jsonrpc: '2.0',
+            method: 'notifications/progress',
+            params: {
+              progressToken,
+              progress: kind === 'done' ? 1 : (record.progress[record.progress.length - 1]?.fraction ?? 0),
+              tool: toolName,
+              jobId: record.id,
+              jobState: record.state,
+            },
+          });
+        }
+        if (kind !== 'done') return;
+
+        const seconds = (Date.now() - startedMs) / 1000;
+        mcpMetrics.record(toolName, record.state === 'succeeded' ? 'success' : 'error', seconds);
+        if (this.quota && identity && record.state === 'succeeded') {
+          this.quota.recordCall(identity);
+        }
+        this.notifyResourceUpdated(`${JOB_URI_PREFIX}${record.id}`);
+        this.notifyResourceUpdated('quill://jobs');
+      },
+    });
+
+    const uri = `${JOB_URI_PREFIX}${job.id}`;
+    send(this.result(id ?? null, {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          jobId: job.id,
+          uri,
+          tool: toolName,
+          state: job.state,
+          pollWith: { method: 'resources/read', params: { uri } },
+          cancelWith: { method: 'jobs/cancel', params: { id: job.id } },
+        }, null, 2),
+      }],
+      isError: false,
+    }));
+  }
+
   private async handleToolCall(
     id: string | number | undefined,
     params: Record<string, unknown> | undefined,
@@ -706,6 +1003,16 @@ export class McpServer {
         send(notification);
       }
     };
+
+    // ── Long-running job mode (#829) ──────────────────────────────
+    // _meta.quill.async asks the server to run this call as a job instead of
+    // holding the request open until QUILL_HANDLER_TIMEOUT_MS. The client gets
+    // a job handle immediately and polls quill://jobs/{id}.
+    const quillMeta = meta.quill as Record<string, unknown> | undefined;
+    if (quillMeta?.async === true) {
+      this.startToolJob(id, toolName, tool, args, send, progressToken, identity);
+      return;
+    }
 
     // Run handler with timeout; catch sync and async errors.
     // The handler runs inside an AsyncLocalStorage.run() context so that

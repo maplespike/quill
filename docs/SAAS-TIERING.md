@@ -200,7 +200,7 @@ if (!canAccess(ctx.tenant.tier, 'aiRag')) {
 
 ## Licensing Status
 
-Do not use SaaS tiers or feature gates to describe software rights. The repository, package, and file-level license declarations conflict, and some artifacts have no declared license. No tier currently creates or proves a separate license grant. See the [open-source audit](./open-source-audit.md) and `LICENSE.md`; rights-holder and counsel review is required before publishing license terms or offering relicensing.
+Do not use SaaS tiers or feature gates to describe software rights. Quill's own code is `AGPL-3.0-only`. See [LICENSE.md](../LICENSE.md). No tier creates a separate licence grant or a right to relicense the code. Source-data terms are separate. The [open-source audit](./open-source-audit.md) records the tree before the 2026-10-24 decision.
 
 The `commercialLicense` feature-gate identifier is a product configuration label only. It does not create a license, change an existing license, or establish that MapleSpike has authority to grant additional rights.
 

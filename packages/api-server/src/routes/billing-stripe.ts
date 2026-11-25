@@ -529,6 +529,12 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         break;
       }
 
+      // `invoice.paid` and `invoice.payment_succeeded` both fire when an
+      // invoice is paid, and the webhook endpoint may subscribe either one.
+      // Handling only payment_succeeded meant a subscription change on the
+      // Stripe side (the live endpoint subscribed `invoice.paid`) silently
+      // downgraded every renewal to action 'unhandled'. Treat them as aliases.
+      case 'invoice.paid':
       case 'invoice.payment_succeeded': {
         // Renewal confirmation — tier is already set by subscription.updated.
         // #811: this is also the canonical charge event for the tax ledger —

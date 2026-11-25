@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestDonationsByJurisdiction } from '@maplespike/pipeline-core/political-donations';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 export const getDonationsByJurisdictionDefinition: ToolDefinition = {
   name: 'get_donations_by_jurisdiction',
@@ -49,83 +50,53 @@ export const getDonationsTrendsDefinition: ToolDefinition = {
   },
 };
 
-export const getDonationsByJurisdictionHandler: ToolHandler = async (args) => {
-  const jurisdiction = args.jurisdiction as string;
-  const year = args.year as number | undefined;
-
+/** Shared runner. Donation records minimize personal contact details. */
+export async function runDonationsTool(
+  tool: string,
+  fields: Record<string, unknown>,
+  ingest: (jurisdiction: string) => Promise<unknown> = ingestDonationsByJurisdiction,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const jurisdiction = String(fields.jurisdiction ?? '');
   try {
-    const result = await ingestDonationsByJurisdiction(jurisdiction);
+    const result = await ingest(jurisdiction);
+    const applied = applySourcePolicy('political-donations', result === null || result === undefined ? [] : [result]);
     return {
       content: {
-        tool: 'get_donations_by_jurisdiction',
-        jurisdiction,
-        year,
-        data: result,
+        tool,
+        ...fields,
+        data: applied.records[0] ?? null,
+        policy: applied.policy,
       },
     };
   } catch (error) {
     return {
       content: {
-        tool: 'get_donations_by_jurisdiction',
-        jurisdiction,
-        year,
+        tool,
+        ...fields,
         error: (error as Error).message,
       },
       isError: true,
     };
   }
+}
+
+export const getDonationsByJurisdictionHandler: ToolHandler = async (args) => {
+  return runDonationsTool('get_donations_by_jurisdiction', {
+    jurisdiction: args.jurisdiction,
+    year: args.year,
+  });
 };
 
 export const compareDonationsPartiesHandler: ToolHandler = async (args) => {
-  const jurisdiction = args.jurisdiction as string;
-  const year = args.year as number | undefined;
-
-  try {
-    const result = await ingestDonationsByJurisdiction(jurisdiction);
-    return {
-      content: {
-        tool: 'compare_donations_parties',
-        jurisdiction,
-        year,
-        data: result,
-      },
-    };
-  } catch (error) {
-    return {
-      content: {
-        tool: 'compare_donations_parties',
-        jurisdiction,
-        year,
-        error: (error as Error).message,
-      },
-      isError: true,
-    };
-  }
+  return runDonationsTool('compare_donations_parties', {
+    jurisdiction: args.jurisdiction,
+    year: args.year,
+  });
 };
 
 export const getDonationsTrendsHandler: ToolHandler = async (args) => {
-  const jurisdiction = args.jurisdiction as string;
-  const years = args.years as number[] | undefined;
-
-  try {
-    const result = await ingestDonationsByJurisdiction(jurisdiction);
-    return {
-      content: {
-        tool: 'get_donations_trends',
-        jurisdiction,
-        years,
-        data: result,
-      },
-    };
-  } catch (error) {
-    return {
-      content: {
-        tool: 'get_donations_trends',
-        jurisdiction,
-        years,
-        error: (error as Error).message,
-      },
-      isError: true,
-    };
-  }
+  return runDonationsTool('get_donations_trends', {
+    jurisdiction: args.jurisdiction,
+    years: args.years,
+  });
 };

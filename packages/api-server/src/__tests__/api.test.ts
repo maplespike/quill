@@ -101,7 +101,7 @@ describe('API Server Routes', () => {
       assert.ok(body.success);
       assert.ok(body.data);
       const result = body.data.results[0];
-      assert.match(result.license, /declarations conflict/i);
+      assert.equal(result.license, 'AGPL-3.0-only');
       assert.equal(result.attributionRequired, null);
       assert.equal(result.sourceAttributed, null);
     }

@@ -155,16 +155,40 @@ class QuillHandler(SimpleHTTPRequestHandler):
         "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
     }
 
+    # CANONICAL POLICY. This string, public/_headers and nginx.conf are three
+    # copies for three servers, and tests/server-csp.test.ts asserts they carry
+    # exactly the same directives with the same sources. Do not edit one copy:
+    # edit all three, or the test fails. Drift here is not cosmetic — the copy
+    # Cloudflare Pages actually serves was missing https://js.stripe.com and
+    # frame-src, and the payment form could not load for any visitor.
+    #
+    # Notes on the deliberate choices:
+    #   'unsafe-inline' and 'unsafe-eval' in script-src  both are measured, not
+    #     inherited. 'unsafe-inline' because pages carry inline event handlers
+    #     (script-src-attr), which no hash can authorise. 'unsafe-eval' because
+    #     /api-reference loads Scalar, which calls new Function — the only eval
+    #     user the 2026-11-23 audit found. data: was removed that day and nothing
+    #     needed it. Attempting Astro's security.csp instead broke 83 inline
+    #     scripts/handlers site-wide and was reverted within the hour; the way out
+    #     is deleting the handlers and replacing Scalar, which e2e/csp-audit.mjs
+    #     will confirm when it lands.
+    #   object-src 'none'        no plugins, ever — cheap and removes a whole class.
+    #   base-uri 'self'          stops <base> injection rewriting every relative URL.
+    #   frame-ancestors 'none'   quoted keyword: a bare `none` is an invalid source
+    #     expression and the directive is discarded.
+    #   frame-src                the Stripe payment form is an iframe; without this
+    #     directive it falls back to default-src 'self' and never renders.
     CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://plausible.io https://js.stripe.com; "
         "style-src 'self' 'unsafe-inline'; "
         "font-src 'self'; "
-        "img-src 'self' data: blob:; "
-        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
+        "img-src 'self' data: blob: https://*.stripe.com; "
         "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://cloudflareinsights.com https://plausible.io https://api.stripe.com; "
-        "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
-        "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
+        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
+        "media-src 'self' data: blob:; worker-src 'self' blob:; "
+        "object-src 'none'; base-uri 'self'; form-action 'self'; "
+        "frame-ancestors 'none'; upgrade-insecure-requests"
     )
 
     def __init__(self, *args, **kwargs):
@@ -403,6 +427,16 @@ class QuillHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         p = parsed.path
 
+        # ── Runtime Stripe publishable key ─────────────────────────
+        # The key is public by design (it ships in the client bundle), but it is
+        # an environment fact, not a code fact. Baking it in at build time meant
+        # an image built without PUBLIC_STRIPE_PUBLISHABLE_KEY rendered
+        # "Checkout is not configured for this build" until someone rebuilt it.
+        # Serve /config.js with whatever the deployment supplies instead.
+        if p == "/config.js":
+            self._serve_config_js()
+            return
+
         # ── Self-hosted analytics summary endpoint ────────
         if p == "/analytics" or p == "/analytics/":
             self._serve_analytics()
@@ -576,6 +610,30 @@ class QuillHandler(SimpleHTTPRequestHandler):
         dbg += " → fallthrough"
         print(dbg, file=sys.stderr)
         return super().do_GET()
+
+    def _serve_config_js(self):
+        """Serve config.js, appending the runtime publishable key when set."""
+        cfg_path = os.path.join(DIRECTORY, "config.js")
+        try:
+            with open(cfg_path, "r", encoding="utf-8") as f:
+                body = f.read()
+        except OSError:
+            body = "window.MAPLESPIKE = window.MAPLESPIKE || {};\n"
+        publishable = os.environ.get("STRIPE_PUBLISHABLE_KEY", "").strip()
+        if publishable:
+            # json.dumps keeps the value a valid JS string literal whatever it
+            # contains. Empty env leaves the built file untouched, so the
+            # build-time PUBLIC_STRIPE_PUBLISHABLE_KEY path still works.
+            body += (
+                "\n// injected at runtime by server.py from STRIPE_PUBLISHABLE_KEY\n"
+                f"window.MAPLESPIKE.stripePublishableKey = {json.dumps(publishable)};\n"
+            )
+        payload = body.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/javascript; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
     def _serve_analytics(self):
         # Serve aggregated page-view counts from access-log.jsonl

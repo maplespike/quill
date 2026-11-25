@@ -11,7 +11,7 @@ status: active
 > **Modules:** 207 registered modules (runtime `getAllModules()`), 203 standalone ingestion subdirs — see [`docs/metrics.json`](./docs/metrics.json)
 > **MCP tools:** **185** registered in `tools/index.ts` (added `getting_started` for onboarding; 184 prior + 1 new). All 185 verified live via MCP.
 > **TypeScript:** 221,431 lines across 1,622 files, 14 packages
-> **MVP tracker:** [#665](https://github.com/reverb256/quill/issues/665) — Real readiness: ~30%
+> **MVP tracker:** [#665](https://github.com/maplespike/quill/issues/665) — Real readiness: ~30%
 > **Open issues:** 4 strategic (the 3 quality sub-issues from the v0.3.0 cleanup are closed; full list at bottom)
 
 ---

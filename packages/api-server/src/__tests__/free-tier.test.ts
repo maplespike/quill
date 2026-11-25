@@ -47,6 +47,8 @@ describe('isFreeTierRoute — Free tier whitelist', () => {
     '/v1/export/committees/meeting-1',
     '/v1/export/parliamentary-voting',
     '/v1/export/parliamentary-voting/div-1',
+    '/v1/fixtures',
+    '/v1/fixtures/fixture-committee-001',
   ];
 
   const blocked: string[] = [
