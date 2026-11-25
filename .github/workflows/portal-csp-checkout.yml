@@ -91,8 +91,19 @@ jobs:
         run: pnpm --filter ./packages/portal exec vitest run tests/server-csp.test.ts
 
       - name: Chromium for the audit
-        if: runner.environment == 'github-hosted'
-        run: pnpm --filter ./packages/portal exec playwright install --with-deps chromium
+        # This step used to be gated on `runner.environment == 'github-hosted'`,
+        # so on the self-hosted ARC fleet it was ALWAYS skipped and the audit
+        # below launched with no browser at all:
+        #   browserType.launch: Executable doesn't exist at /ms-playwright/chromium-…
+        # The check had never passed in any run. Only the GitHub-hosted Ubuntu
+        # runner needs --with-deps (it runs apt); the runner image already ships
+        # the OS libraries a browser needs.
+        run: |
+          if [ "${{ runner.environment }}" = "github-hosted" ]; then
+            pnpm --filter ./packages/portal exec playwright install --with-deps chromium
+          else
+            pnpm --filter ./packages/portal exec playwright install chromium
+          fi
 
       - name: Every route under the policy it ships with
         # Serves dist/ with the real Content-Security-Policy from public/_headers
