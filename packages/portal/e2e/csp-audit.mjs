@@ -162,10 +162,11 @@ const routes = REMOTE && !existsSync(DIST) ? await routesFromRemote() : routesFr
 if (!REMOTE) console.log(`policy: ${policy}\n`);
 
 const server = REMOTE ? null : await serveWithPolicy(policy);
+// Bundled Chromium, same as checkout-embedded.mjs. Do not use the `chrome`
+// channel: ARC runners have no Google Chrome at /opt/google/chrome.
+const EXEC = (process.env.E2E_EXECUTABLE_PATH || "").trim();
 const browser = await chromium.launch(
-  existsSync("/usr/bin/chromium")
-    ? { executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] }
-    : { channel: process.env.E2E_BROWSER_CHANNEL || "chrome", args: ["--no-sandbox"] },
+  EXEC ? { executablePath: EXEC, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
 );
 
 const problems = [];

@@ -38,10 +38,9 @@
  *                            bundle carries the live key, and Stripe refuses to
  *                            mount a test-mode client_secret with it.
  *   E2E_SCREENSHOT           default /tmp/quill-checkout-embedded.png
- *   E2E_BROWSER_CHANNEL      default `chrome` (system Chrome); set to `chromium`
- *                            to use Playwright's own download.
- *   E2E_EXECUTABLE_PATH      explicit browser binary; otherwise /usr/bin/chromium
- *                            is used when present.
+ *   E2E_EXECUTABLE_PATH      optional explicit browser binary. When unset, this
+ *                            check launches Playwright's bundled Chromium (the
+ *                            CI path). Do not pass a Playwright channel name.
  *
  * Exit 0 = passed or skipped, 1 = failed. A skip is printed loudly on purpose:
  * "green because nothing ran" is the failure mode this whole exercise is about.
@@ -56,7 +55,6 @@ const STRIPE_KEY_FILE = process.env.E2E_STRIPE_SECRET_KEY_FILE || "";
 const STRIPE_KEY = (process.env.E2E_STRIPE_SECRET_KEY || "").trim();
 const PUBLISHABLE = (process.env.E2E_PUBLISHABLE_KEY || "").trim();
 const OUT = process.env.E2E_SCREENSHOT || "/tmp/quill-checkout-embedded.png";
-const CHANNEL = process.env.E2E_BROWSER_CHANNEL || "chrome";
 const API_PATTERN = "**/v1/billing/stripe/checkout";
 const STORAGE_KEY = "quill-api-key";
 const FIXTURE_KEY = "quill_e2e_fixture_key";
@@ -145,12 +143,13 @@ if (PUBLISHABLE && secretIsTest !== PUBLISHABLE.startsWith("pk_test_")) {
   process.exit(1);
 }
 
-// Chromium is not always where Playwright's `chrome` channel expects it (this
-// host has /usr/bin/chromium and no /opt/google/chrome). Prefer an explicit
-// path, then the system chromium, then the channel.
-const EXEC = process.env.E2E_EXECUTABLE_PATH || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : "");
+// Always use Playwright's bundled Chromium unless an explicit binary is
+// provided. A `channel: "chrome"` launch looks for Google Chrome at
+// /opt/google/chrome, which the ARC runners do not have
+// (run 45550425692: "Chromium distribution 'chrome' is not found").
+const EXEC = (process.env.E2E_EXECUTABLE_PATH || "").trim();
 const browser = await chromium.launch(
-  EXEC ? { executablePath: EXEC, args: ["--no-sandbox"] } : { channel: CHANNEL, args: ["--no-sandbox"] },
+  EXEC ? { executablePath: EXEC, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
 );
 try {
   const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
