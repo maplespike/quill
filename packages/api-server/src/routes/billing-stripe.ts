@@ -160,11 +160,21 @@ async function authorizeEvent(
   customerId: string | undefined,
   orderId: string | null,
   db: import('../types.js').QuillStorage,
+  subscriptionId?: string,
 ): Promise<boolean> {
-  if (!tenantId || !customerId) return false;
-  const bound = await db.getTenantStripeCustomerId(tenantId);
-  if (bound === customerId) return true;
-  if (orderId) {
+  if (!tenantId) return false;
+  // A bound customer id is the usual proof. After customer.deleted unbinds
+  // the cus_ (so checkout can create a fresh one) the subscription id is
+  // left in place so a later customer.subscription.deleted can still match.
+  if (customerId) {
+    const bound = await db.getTenantStripeCustomerId(tenantId);
+    if (bound && bound === customerId) return true;
+  }
+  if (subscriptionId) {
+    const boundSub = await db.getTenantStripeSubscriptionId(tenantId);
+    if (boundSub && boundSub === subscriptionId) return true;
+  }
+  if (orderId && customerId) {
     const order = await db.getStripeOrderById(orderId);
     if (order && order.tenant_id === tenantId && order.stripe_customer_id === customerId) {
       // Persist the binding for future strict-path checks.
@@ -470,7 +480,8 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
           typeof obj.current_period_end === 'number' ? obj.current_period_end : undefined;
 
         // Defense-in-depth + delivery-reorder tolerance: see authorizeEvent.
-        if (!tenantId || !planId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db))) {
+        const subscriptionId = typeof obj.id === 'string' ? obj.id : undefined;
+        if (!tenantId || !planId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db, subscriptionId))) {
           result.processed = true;
           result.action = 'rejected_cross_tenant';
           webhookLog.warn(
@@ -530,11 +541,12 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         const customerId = extractCustomerId(obj.customer);
         const orderId = stripe.orderIdFromMetadata(obj.metadata);
 
-        if (!tenantId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db))) {
+        const subscriptionId = typeof obj.id === 'string' ? obj.id : undefined;
+        if (!tenantId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db, subscriptionId))) {
           result.processed = true;
           result.action = 'rejected_cross_tenant';
           webhookLog.warn(
-            { tenantId, customerId, orderId, type: event.type },
+            { tenantId, customerId, orderId, subscriptionId, type: event.type },
             'rejected subscription.deleted: customer not bound to tenant',
           );
           break;
@@ -543,7 +555,7 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         await _ctx.db.updateTenantStripe(tenantId, {
           tier: 'free',
           stripeSubscriptionStatus: 'canceled',
-          stripeSubscriptionId: undefined,
+          stripeSubscriptionId: '', // '' clears; undefined would be skipped
         });
         if (orderId) {
           const order = await _ctx.db.getStripeOrderById(orderId);
@@ -708,8 +720,14 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
       case 'customer.deleted': {
         // Unbind the deleted customer so checkout creates a fresh one and the
         // portal stops pointing at a dead cus_. Only if it is still the
-        // tenant's bound customer. Subscriptions are cancelled by Stripe and
-        // arrive separately as customer.subscription.deleted.
+        // tenant's bound customer.
+        //
+        // Also drop the tenant to free immediately. Stripe may deliver
+        // customer.deleted before customer.subscription.deleted; if we left
+        // the paid tier in place the later event would fail authorizeEvent
+        // (the cus_ is already gone) and the tenant would keep paid access.
+        // The subscription id is deliberately left bound so a later
+        // subscription.* event can still authorize via getTenantStripeSubscriptionId.
         const tenantId = stripe.tenantIdFromMetadata(obj.metadata);
         const customerId = typeof obj.id === 'string' ? obj.id : undefined;
         if (!tenantId || !customerId || (await _ctx.db.getTenantStripeCustomerId(tenantId)) !== customerId) {
@@ -717,8 +735,12 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
           result.action = 'customer_not_bound';
           break;
         }
-        // '' clears the binding (storage skips undefined fields).
-        await _ctx.db.updateTenantStripe(tenantId, { stripeCustomerId: '', stripeSubscriptionId: '' });
+        // '' clears the customer binding (storage skips undefined fields).
+        await _ctx.db.updateTenantStripe(tenantId, {
+          tier: 'free',
+          stripeCustomerId: '',
+          stripeSubscriptionStatus: 'canceled',
+        });
         result.processed = true;
         result.action = 'customer_unbound';
         break;

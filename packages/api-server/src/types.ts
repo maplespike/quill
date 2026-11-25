@@ -458,6 +458,8 @@ export interface QuillStorage {
   updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void>;
   /** Look up a tenant's Stripe customer id (cross-tenant defense-in-depth check in authorizeEvent). */
   getTenantStripeCustomerId(tenantId: string): Promise<string | null>;
+  /** Bound Stripe subscription id, or null if unset. */
+  getTenantStripeSubscriptionId(tenantId: string): Promise<string | null>;
   /** Tenant's stored Stripe subscription status (e.g. 'disputed' entitlement hold). */
   getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null>;
 

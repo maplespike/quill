@@ -356,13 +356,16 @@ describe('charge.dispute.created / closed', () => {
 });
 
 describe('customer.deleted', () => {
-  it('unbinds the deleted customer; portal then reports no customer', async () => {
+  it('unbinds the deleted customer, drops the paid tier, and keeps the sub_ id for a later event', async () => {
     const t = 'tenant_wc_custdel';
     ensureTenant(t);
-    await db.updateTenantStripe(t, { stripeCustomerId: 'cus_FAKE_del', stripeSubscriptionId: 'sub_FAKE_del' });
+    await db.updateTenantStripe(t, { tier: 'pro', stripeCustomerId: 'cus_FAKE_del', stripeSubscriptionId: 'sub_FAKE_del', stripeSubscriptionStatus: 'active' });
     const r = await post({ id: eid('cd'), type: 'customer.deleted', data: { object: { id: 'cus_FAKE_del', object: 'customer', metadata: { tenant_id: t } } } });
     assert.equal(r.body.data.action, 'customer_unbound');
+    assert.equal(row(t).tier, 'free');
+    assert.equal(row(t).stripeSubscriptionStatus, 'canceled');
     assert.ok(!(await db.getTenantStripeCustomerId(t)));
+    assert.equal(await db.getTenantStripeSubscriptionId(t), 'sub_FAKE_del');
     const portal = await stripePortalHandler(new Request('http://localhost/v1/billing/stripe/portal', { method: 'POST' }), ctx(t), {});
     assert.equal(portal.status, 404);
   });
@@ -374,6 +377,48 @@ describe('customer.deleted', () => {
     const r = await post({ id: eid('cd2'), type: 'customer.deleted', data: { object: { id: 'cus_FAKE_other', object: 'customer', metadata: { tenant_id: t } } } });
     assert.equal(r.body.data.action, 'customer_not_bound');
     assert.equal(await db.getTenantStripeCustomerId(t), 'cus_FAKE_keep');
+  });
+
+  it('out of order: customer.deleted before subscription.deleted still ends on free (later event authorizes via sub_ id)', async () => {
+    const t = 'tenant_wc_order_cus_first';
+    const cus = 'cus_FAKE_order1';
+    const sub = 'sub_FAKE_order1';
+    ensureTenant(t);
+    await db.updateTenantStripe(t, { tier: 'business', stripeCustomerId: cus, stripeSubscriptionId: sub, stripeSubscriptionStatus: 'active' });
+    const first = await post({ id: eid('cd_oo'), type: 'customer.deleted', data: { object: { id: cus, object: 'customer', metadata: { tenant_id: t } } } });
+    assert.equal(first.body.data.action, 'customer_unbound');
+    assert.equal(row(t).tier, 'free', 'must not keep a paid tier after the customer is gone');
+    assert.ok(!(await db.getTenantStripeCustomerId(t)));
+    assert.equal(await db.getTenantStripeSubscriptionId(t), sub);
+    const second = await post({
+      id: eid('sd_oo'),
+      type: 'customer.subscription.deleted',
+      data: { object: { id: sub, object: 'subscription', customer: cus, status: 'canceled', metadata: { tenant_id: t, plan_id: 'business' } } },
+    });
+    assert.equal(second.body.data.action, 'tier_cancelled', `later event must not be rejected_cross_tenant, got ${second.body.data.action}`);
+    assert.equal(row(t).tier, 'free');
+    assert.equal(await db.getTenantStripeSubscriptionId(t), null);
+  });
+
+  it('normal order: subscription.deleted then customer.deleted leaves the tenant free and fully unbound', async () => {
+    const t = 'tenant_wc_order_sub_first';
+    const cus = 'cus_FAKE_order2';
+    const sub = 'sub_FAKE_order2';
+    ensureTenant(t);
+    await db.updateTenantStripe(t, { tier: 'pro', stripeCustomerId: cus, stripeSubscriptionId: sub, stripeSubscriptionStatus: 'active' });
+    const first = await post({
+      id: eid('sd_no'),
+      type: 'customer.subscription.deleted',
+      data: { object: { id: sub, object: 'subscription', customer: cus, status: 'canceled', metadata: { tenant_id: t, plan_id: 'pro' } } },
+    });
+    assert.equal(first.body.data.action, 'tier_cancelled');
+    assert.equal(row(t).tier, 'free');
+    assert.equal(await db.getTenantStripeSubscriptionId(t), null);
+    assert.equal(await db.getTenantStripeCustomerId(t), cus, 'customer binding remains for the later customer.deleted');
+    const second = await post({ id: eid('cd_no'), type: 'customer.deleted', data: { object: { id: cus, object: 'customer', metadata: { tenant_id: t } } } });
+    assert.equal(second.body.data.action, 'customer_unbound');
+    assert.equal(row(t).tier, 'free');
+    assert.ok(!(await db.getTenantStripeCustomerId(t)));
   });
 });
 

@@ -475,6 +475,16 @@ export class PgStorage implements QuillStorage {
     return row?.stripe_customer_id ?? null;
   }
 
+  async getTenantStripeSubscriptionId(tenantId: string): Promise<string | null> {
+    const { rows } = await this.pool.query(
+      'SELECT stripe_subscription_id FROM tenants WHERE id = $1',
+      [tenantId],
+    );
+    const row = rows[0] as { stripe_subscription_id: string | null } | undefined;
+    const id = row?.stripe_subscription_id ?? null;
+    return id ? id : null;
+  }
+
   async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
     const { rows } = await this.pool.query('SELECT stripe_subscription_status FROM tenants WHERE id = $1', [tenantId]);
     const row = rows[0] as { stripe_subscription_status: string | null } | undefined;

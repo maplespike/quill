@@ -428,6 +428,11 @@ export class NodeSqliteStorage implements QuillStorage {
     const row = this.db.prepare('SELECT stripe_customer_id FROM tenants WHERE id = ?').get(tenantId) as { stripe_customer_id: string | null } | undefined;
     return row?.stripe_customer_id ?? null;
   }
+  async getTenantStripeSubscriptionId(tenantId: string): Promise<string | null> {
+    const row = this.db.prepare('SELECT stripe_subscription_id FROM tenants WHERE id = ?').get(tenantId) as { stripe_subscription_id: string | null } | undefined;
+    const id = row?.stripe_subscription_id ?? null;
+    return id ? id : null;
+  }
 
   async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
     const row = this.db.prepare('SELECT stripe_subscription_status FROM tenants WHERE id = ?').get(tenantId) as { stripe_subscription_status: string | null } | undefined;
