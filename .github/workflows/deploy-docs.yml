@@ -166,6 +166,11 @@ jobs:
     # private repo (the current state) spends no hosted minutes here.
     if: needs.build.result == 'success' && needs.build.outputs.verdict == 'enabled'
     runs-on: ubuntu-24.04
+    # One GitHub Pages site per repo. Share this group with deploy-demo-pages.yml
+    # so two deployments never overlap. Does not change this job's trigger.
+    concurrency:
+      group: github-pages-site
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
