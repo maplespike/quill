@@ -56,15 +56,17 @@ preferredHost: &quillPreferredHost nexus
 # media-k8s #671 (383ade63) caps Longhorn at 40Gi / 3 claims and
 # local-path at 50Gi / 4 claims. This cutover's local-path copies are
 # only api + search (10Gi / 2), which fits. backups is NFS, not
-# local-path, sized to match the existing 30Gi claim (17.25 GiB used
-# 2026-11-24 11:31 PM America/Winnipeg; Bound sizes re-checked 11:40 PM
-# CT). Leave backupsVolumeName empty in git until Infra provides the PV
-# name; enabling the flag with an empty name fails the render. No node
-# pin on the backups claim. The backup job stays co-located with
-# api-data and mounts the NFS claim there (RWX).
+# local-path: Infra's PersistentVolume quill-backups-nfs is 40Gi, RWX,
+# Retain, storageClassName empty, with claimRef
+# maplespike/quill-backups-local. The PVC request stays 30Gi (17.25 GiB
+# used 2026-11-24 11:31 PM America/Winnipeg; Bound sizes re-checked
+# 11:40 PM CT) so it is <= 40Gi and can bind. No node pin on the
+# backups claim. The backup job stays co-located with api-data and
+# mounts the NFS claim there (RWX). Staging keeps backupsVolumeName
+# empty; a staging cutover is a later pass.
 storageCutover:
   useLocalPathCopies: false
-  backupsVolumeName: ""
+  backupsVolumeName: quill-backups-nfs
   api:
     size: 5Gi
     storageClass: local-path

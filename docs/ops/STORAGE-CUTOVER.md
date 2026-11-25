@@ -33,7 +33,10 @@ claim, bound to the NFS PV Infra provides.
 | quill-backups-local | 30Gi | 17.25 GiB | Infra NFS PV (RWX static bind) |
 | **local-path total** | **10Gi / 2** | **2.62 GiB** | under the 50Gi / 4 cap |
 
-Leave `backupsVolumeName` empty in git until Infra provides the PV name.
+Production sets `storageCutover.backupsVolumeName` to `quill-backups-nfs`.
+Infra's PV is 40Gi, RWX, Retain, `storageClassName` empty, with claimRef
+`maplespike/quill-backups-local`. The chart PVC requests 30Gi (at most
+40Gi) and ReadWriteMany so it can bind. Staging keeps the value empty.
 Do not put a node pin on the backups claim. The backup job stays
 co-located with api-data and mounts the NFS volume there (RWX). It writes
 the SQLite snapshot and search archive to an emptyDir scratch volume
@@ -44,9 +47,11 @@ fails the job if the backups mount is missing or not writable.
 
 ## Runbook (in order)
 
-1. **Infra provides the NFS PersistentVolume** (RWX, capacity at least 30Gi).
-   Set `storageCutover.backupsVolumeName` to that PV's name. Do not enable
-   the flag before this is set.
+1. **Confirm the Infra NFS PersistentVolume** `quill-backups-nfs` (40Gi,
+   RWX, Retain, `storageClassName` empty, claimRef
+   `maplespike/quill-backups-local`). Production already sets
+   `storageCutover.backupsVolumeName` to that name. Do not enable the
+   flag until this PV is present and the PVC can bind.
 
 2. **Freeze**
    - Pause Argo CD `selfHeal` on the quill application.

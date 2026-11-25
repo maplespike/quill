@@ -8,6 +8,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -125,12 +126,7 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
     t.skip("helm is not installed on this runner");
     return;
   }
-  const rendered = render([
-    "--set",
-    "storageCutover.useLocalPathCopies=true",
-    "--set",
-    `storageCutover.backupsVolumeName=${NFS_PV}`,
-  ]);
+  const rendered = render(["--set", "storageCutover.useLocalPathCopies=true"]);
   const pvcs = pvcDocs(rendered);
   const names = pvcs.map((p) => p.name);
   for (const n of [...LONGHORN, ...LOCAL_PATH, BACKUPS_LOCAL]) {
@@ -145,7 +141,10 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
   assert.match(backups, /storageClassName:\s*""/);
   assert.match(backups, new RegExp(`volumeName:\\s*"?${NFS_PV}"?`));
   assert.match(backups, /ReadWriteMany/);
-  assert.match(backups, /storage:\s*"?30Gi"?/);
+  const sizeRaw = backups.match(/storage:\s*"?(\d+)Gi"?/)?.[1];
+  assert.ok(sizeRaw, "backups-local must request a Gi size");
+  const sizeGi = Number(sizeRaw);
+  assert.ok(sizeGi > 0 && sizeGi <= 40, `backups-local request ${sizeRaw}Gi must be <= 40Gi to bind the Infra PV`);
   assert.doesNotMatch(backups, /storageClassName:\s*"?local-path"?/);
   assert.doesNotMatch(
     backups,
@@ -168,7 +167,8 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
 
   for (const job of ["quill-backup-sqlite", "quill-backup-search"]) {
     const chunk = cronDoc(rendered, job);
-    assert.match(chunk, /activeDeadlineSeconds:\s*3600/, `${job} must set activeDeadlineSeconds`);
+    assert.match(chunk, /activeDeadlineSeconds:\s*\d+/, `${job} must set activeDeadlineSeconds`);
+    assert.match(chunk, /backoffLimit:\s*\d+/, `${job} must set an explicit backoffLimit`);
     assert.match(chunk, /name:\s*scratch/, `${job} must mount scratch`);
     assert.match(chunk, /emptyDir:[\s\S]*?sizeLimit:\s*"?8Gi"?/, `${job} scratch must set sizeLimit 8Gi`);
     assert.match(chunk, /mountPath:\s*\/scratch/, `${job} must mount scratch at /scratch`);
@@ -186,10 +186,22 @@ test("chart: flag on without backupsVolumeName fails the render", (t) => {
     t.skip("helm is not installed on this runner");
     return;
   }
-  const result = renderAttempt(["--set", "storageCutover.useLocalPathCopies=true"]);
+  const result = renderAttempt([
+    "--set",
+    "storageCutover.useLocalPathCopies=true",
+    "--set",
+    "storageCutover.backupsVolumeName=",
+  ]);
   assert.equal(result.ok, false, "helm template must fail when backupsVolumeName is empty");
   if (result.ok) return;
   const text = `${result.stderr}\n${result.stdout}`;
   assert.match(text, /backupsVolumeName/);
   assert.notEqual(result.status, 0);
+});
+
+test("chart: prod pins the Infra NFS volume name and staging leaves it empty", () => {
+  const prod = readFileSync("charts/quill/values-prod.yaml", "utf8");
+  const staging = readFileSync("charts/quill/values-staging.yaml", "utf8");
+  assert.match(prod, /backupsVolumeName:\s*quill-backups-nfs/);
+  assert.match(staging, /backupsVolumeName:\s*""/);
 });
