@@ -449,6 +449,11 @@ export const ERROR_CODES: Record<string, BilingualError> = {
     en: 'Webhook processing error',
     fr: 'Erreur de traitement du webhook',
   },
+  PRICE_UNAVAILABLE: {
+    code: 'PRICE_UNAVAILABLE',
+    en: 'Checkout is temporarily unavailable for this plan',
+    fr: 'Le paiement est temporairement indisponible pour cette offre',
+  },
   INVALID_PLAN: {
     code: 'INVALID_PLAN',
     en: 'Invalid plan',
