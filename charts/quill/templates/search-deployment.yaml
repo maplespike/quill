@@ -156,7 +156,7 @@ spec:
       volumes:
       - name: index
         persistentVolumeClaim:
-          claimName: {{ include "quill.fullname" . }}-search-data
+          claimName: {{ include "quill.searchDataClaim" . }}
       {{- if .Values.search.migrateLegacyIndex }}
       - name: legacy
         persistentVolumeClaim:

@@ -154,7 +154,7 @@ spec:
           volumes:
           - name: data
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-api-data
+              claimName: {{ include "quill.apiDataClaim" . }}
           - name: backups
             persistentVolumeClaim:
               claimName: {{ include "quill.fullname" . }}-backups
@@ -209,10 +209,8 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
-          {{- else if and .Values.search .Values.search.nodeName }}
-          nodeName: {{ .Values.search.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: search-backup
@@ -246,7 +244,7 @@ spec:
           volumes:
           - name: index
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-search-data
+              claimName: {{ include "quill.searchDataClaim" . }}
               readOnly: true
           - name: backups
             persistentVolumeClaim:
@@ -409,7 +407,7 @@ spec:
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: freshness
@@ -506,7 +504,7 @@ spec:
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: drill

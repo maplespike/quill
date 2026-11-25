@@ -141,3 +141,26 @@ affinity:
             app: quill-api
         topologyKey: kubernetes.io/hostname
 {{- end }}
+
+{{/*
+  Claim names for the API SQLite volume and the search index volume.
+  storageCutover.useLocalPathCopies defaults to false, so workloads keep the
+  existing Longhorn PVCs. The local-path copies are rendered beside them;
+  flipping the flag is the only switch. quill-backups is not part of this
+  cutover and always uses the Longhorn claim.
+*/}}
+{{- define "quill.apiDataClaim" -}}
+{{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
+{{- printf "%s-api-data-local" (include "quill.fullname" .) -}}
+{{- else -}}
+{{- printf "%s-api-data" (include "quill.fullname" .) -}}
+{{- end -}}
+{{- end }}
+
+{{- define "quill.searchDataClaim" -}}
+{{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
+{{- printf "%s-search-data-local" (include "quill.fullname" .) -}}
+{{- else -}}
+{{- printf "%s-search-data" (include "quill.fullname" .) -}}
+{{- end -}}
+{{- end }}

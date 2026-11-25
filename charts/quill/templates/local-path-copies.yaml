@@ -1,0 +1,51 @@
+{{/*
+  Side-by-side local-path copies of the API SQLite and search index claims.
+  These are ADDED next to the existing Longhorn PVCs (quill-api-data,
+  quill-search-data). They are never a replacement and must not share those
+  names. Workloads keep the old claims until storageCutover.useLocalPathCopies
+  is flipped. quill-backups is intentionally not copied here.
+*/}}
+{{- $cutover := .Values.storageCutover | default dict }}
+{{- $apiCopy := $cutover.api | default dict }}
+{{- $searchCopy := $cutover.search | default dict }}
+{{- if $apiCopy.size }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-api-data-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-api
+    component: api
+    storage-cutover: local-path-copy
+  annotations:
+    volume.kubernetes.io/selected-node: {{ $apiCopy.node | default "sentry" | quote }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $apiCopy.storageClass | default "local-path" | quote }}
+  resources:
+    requests:
+      storage: {{ $apiCopy.size | quote }}
+{{- end }}
+{{- if $searchCopy.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-search-data-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-search
+    component: search
+    storage-cutover: local-path-copy
+  annotations:
+    volume.kubernetes.io/selected-node: {{ $searchCopy.node | default "sentry" | quote }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $searchCopy.storageClass | default "local-path" | quote }}
+  resources:
+    requests:
+      storage: {{ $searchCopy.size | quote }}
+{{- end }}

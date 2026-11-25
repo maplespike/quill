@@ -10,6 +10,11 @@ priorityClass:
   critical: fleet-critical
   batch: fleet-batch
 
+# Keep existing Longhorn claims unless an environment flips this after a
+# verified copy onto the local-path PVCs. See docs/ops/STORAGE-CUTOVER.md.
+storageCutover:
+  useLocalPathCopies: false
+
 # Image configuration
 image:
   registry: nexus:5000

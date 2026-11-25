@@ -86,6 +86,6 @@ spec:
           volumes:
           - name: data
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-api-data
+              claimName: {{ include "quill.apiDataClaim" . }}
           {{- end }}
 {{- end }}

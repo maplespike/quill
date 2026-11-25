@@ -46,6 +46,34 @@ affinityHosts: &quillHeavyHosts
   - sentry
 preferredHost: &quillPreferredHost nexus
 
+# Side-by-side local-path copies of quill-api-data and quill-search-data on
+# sentry. Workloads keep the existing Longhorn claims until
+# useLocalPathCopies is flipped. quill-backups stays on Longhorn; an
+# archive-disk move is a later, separate PR.
+#
+# Sizing (fits Infra's local-path cap of 15Gi / 3 claims, media-k8s #671
+# adjusted now that backups are not copied):
+#   quill-api-data-local    5Gi
+#   quill-search-data-local 5Gi
+#   total                   10Gi / 2 PVCs
+#   remaining headroom      5Gi / 1 claim
+# Live usage 2026-11-24 11:31 PM America/Winnipeg (#671, still current
+# Bound sizes at 2026-11-24 11:40 PM): api actual 2.46 GiB, search 0.16 GiB
+# (2.62 GiB combined). sentry / was 237G, 172G used, 56G avail, 76% full.
+# After a thin-provisioned copy of the actual data: ~175G used, ~53G avail,
+# ~77%, well under the 85% ceiling (~22G of headroom remained to 85%).
+# Even a thick 10Gi write would stay around 77–78%.
+storageCutover:
+  useLocalPathCopies: false
+  api:
+    size: 5Gi
+    storageClass: local-path
+    node: sentry
+  search:
+    size: 5Gi
+    storageClass: local-path
+    node: sentry
+
 api:
   replicas: 1
   port: 8082
@@ -85,11 +113,13 @@ api:
     size: 5Gi
     # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
     # the single-nexus failure domain for the API's SQLite volume.
-    storageClass: local-path
+    storageClass: longhorn
     # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
     nodeName: ""
   affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
+  # Pin to sentry for the local-path cutover (the new claims bind there).
+  # Longhorn can still attach the existing claim on sentry until the flip.
+  preferredHost: sentry
 mcp:
   replicas: 1
   port: 3001
@@ -142,7 +172,7 @@ database:
     limits:
       cpu: 500m
       memory: 512Mi
-  storageClass: local-path
+  storageClass: longhorn
   nodeName: ""
 portal:
   enabled: true
@@ -296,7 +326,7 @@ search:
   # Durable class. The claim is quill-search-data. The old local-path
   # quill-search-index claim is rendered only while migrateLegacyIndex is
   # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
-  storageClass: local-path
+  storageClass: longhorn
   migrateLegacyIndex: false
   # Serve process idles near 2Mi (operator sample). This pod runs
   # `quill-search serve` only. Index build (32MiB tantivy writer) and the
@@ -317,7 +347,7 @@ search:
   # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
+  preferredHost: sentry
 
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
@@ -358,7 +388,7 @@ backups:
   retentionDays: 3
   maxAgeHours: 26
   storage: 30Gi
-  storageClass: local-path
+  storageClass: longhorn
   accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:
