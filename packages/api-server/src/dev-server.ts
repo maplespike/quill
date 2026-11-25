@@ -16,8 +16,10 @@
 import './telemetry.js';
 
 import * as http from 'node:http';
-import { handleRequest, getMetricsRoute } from './index.js';
-import { apiMetrics, isKnownPipeline, normalizeApiMethod, normalizeApiStatus } from './metrics.js';
+import { handleRequest } from './index.js';
+import { apiMetrics, isKnownPipeline } from './metrics.js';
+import { createNodeRequestListener } from './node-listener.js';
+import type { Tier } from './middleware/rate-limiter.js';
 import { getAllModules, getLatestIngestRuns, getLatestSuccessfulIngestRuns } from '@maplespike/pipeline-core';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import type { QuillStorage, QuillCache } from './types.js';
@@ -29,7 +31,6 @@ import logger from './logger.js';
 
 import { redisClient } from './cache/redis.js';
 import { rateLimiter } from './middleware/rate-limiter.js';
-import { credentialCacheScope } from './middleware/cache-middleware.js';
 import { validateConfig as validateUpstreamConfig } from './upstream/maintenance-config.js';
 import { startUpstreamProber } from './upstream/prober.js';
 
@@ -112,36 +113,9 @@ log.info(
   '[redis] cache + rate limiter initialised',
 );
 
-// ── Cache route configuration ──
-interface CacheRouteConfig {
-  pattern: RegExp;
-  ttl: number; // seconds
-}
-
-const CACHE_ROUTES: CacheRouteConfig[] = [
-  { pattern: /^\/v1\/modules\/?$/, ttl: 300 },       // 5 min
-  { pattern: /^\/v1\/health\/?$/, ttl: 10 },           // 10 s
-  { pattern: /^\/v1\/explorer\/?$/, ttl: 60 },         // 1 min
-];
-
-// Routes NEVER cached
-const NO_CACHE_PREFIXES = ['/v1/auth/', '/v1/billing/'];
-
-/**
- * Check if a path matches a no-cache prefix.
- */
-function isNoCachePath(pathname: string): boolean {
-  return NO_CACHE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-}
-
-/**
- * Find matching cache config for a request.
- */
-function matchCacheRoute(pathname: string): CacheRouteConfig | null {
-  for (const cfg of CACHE_ROUTES) {
-    if (cfg.pattern.test(pathname)) return cfg;
-  }
-  return null;
+function limiterTier(tier: string): Tier {
+  if (tier === 'BASIC' || tier === 'PREMIUM') return tier;
+  return 'FREE';
 }
 
 function verifyStorageHealth(): boolean {
@@ -217,143 +191,19 @@ const metricsServer = http.createServer((req, res) => {
   res.end(renderMetrics());
 });
 
-const server = http.createServer(async (req, res) => {
-  const startedAt = Date.now();
-  const requestMethod = normalizeApiMethod(req.method ?? 'GET');
-  let status = 500;
-  let route = 'unmatched';
-  let metricsRecorded = false;
-  const recordMetrics = () => {
-    if (metricsRecorded) return;
-    metricsRecorded = true;
-    if (route !== 'metrics') apiMetrics.record(route, requestMethod, normalizeApiStatus(status), (Date.now() - startedAt) / 1000);
-  };
-  res.once('finish', recordMetrics);
-
-  try {
-    const protocol = (req.socket as { encrypted?: boolean }).encrypted ? 'https' : 'http';
-    const host = req.headers.host || 'localhost';
-    const url = `${protocol}://${host}${req.url || '/'}`;
-    const parsedUrl = new URL(url);
-    const pathname = parsedUrl.pathname;
-    const search = parsedUrl.search;
-    route = getMetricsRoute(pathname, req.method ?? 'GET');
-
-    if (pathname === '/metrics') {
-      route = 'metrics';
-      status = 404;
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Not found\n');
-      return;
-    }
-
-    // ── Rate limit check (skip health) ──
-    if (!pathname.startsWith('/v1/health')) {
-      const ip = rateLimiter.extractIP(req);
-      const tier = rateLimiter.extractTier(req);
-      // Always returns a decision — Redis when connected, the in-process
-      // window otherwise. There is no pass-through mode.
-      const rlResult = await rateLimiter.check(ip, tier);
-
-      // Set rate-limit headers on every response
-      res.setHeader('X-RateLimit-Limit', String(rlResult.limit));
-      res.setHeader('X-RateLimit-Remaining', String(rlResult.remaining));
-      res.setHeader('X-RateLimit-Reset', String(rlResult.resetTime));
-
-      if (!rlResult.allowed) {
-        status = 429;
-        res.setHeader('Retry-After', String(rlResult.retryAfter));
-        res.writeHead(429, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          error: 'rate_limit_exceeded',
-          retry_after: rlResult.retryAfter,
-        }));
-        return;
-      }
-    }
-
-    // ── Cache check (GET only, matching routes) ──
-    let cacheStatus: 'hit' | 'miss' | 'bypass' = 'bypass';
-
-    if (req.method === 'GET' && !isNoCachePath(pathname)) {
-      const cacheCfg = matchCacheRoute(pathname);
-      if (cacheCfg) {
-        // Scope the key to the caller: identity-dependent routes (/v1/me,
-        // /v1/usage, /v1/annotations, /v1/auth/me) must never replay one
-        // caller's body to another. Anonymous requests stay shared.
-        const cacheKey = `v1:GET:${pathname}${search}${credentialCacheScope(JSON.stringify(req.headers['authorization'] ?? ''))}`;
-        const cached = await redisClient.get<string>(cacheKey);
-        if (cached !== null) {
-          cacheStatus = 'hit';
-          status = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.setHeader('X-Cache-Status', 'HIT');
-          res.end(cached);
-          return;
-        }
-
-        // Cache miss — capture the response, cache it, then serve
-        cacheStatus = 'miss';
-      }
-    }
-
-    // ── Normal request handling ──
-    const headers = new Headers();
-    for (const [key, value] of Object.entries(req.headers)) {
-      if (value) {
-        headers.set(key, Array.isArray(value) ? value.join(', ') : value);
-      }
-    }
-
-    let body: string | null = null;
-    if (req.method === 'POST' || req.method === 'PUT') {
-      const chunks: Buffer[] = [];
-      for await (const chunk of req) {
-        chunks.push(chunk as Buffer);
-      }
-      body = Buffer.concat(chunks).toString('utf-8');
-    }
-
-    const request = new Request(url, {
-      method: req.method,
-      headers,
-      body,
-    });
-
-    const response = await handleRequest(request, env, db, cache);
-    status = response.status;
-
-    const responseHeaders: Record<string, string> = {};
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value;
-    });
-
-    // Add cache status header
-    responseHeaders['X-Cache-Status'] = cacheStatus === 'miss' ? 'MISS' : 'BYPASS';
-
-    res.writeHead(response.status, responseHeaders);
-
-    const responseBody = await response.text();
-    res.end(responseBody);
-
-    // ── Asynchronous cache store (after response is sent) ──
-    if (cacheStatus === 'miss' && response.status >= 200 && response.status < 300) {
-      const cacheCfg = matchCacheRoute(pathname);
-      if (cacheCfg && req.method === 'GET') {
-        // Scope the key to the caller: identity-dependent routes (/v1/me,
-        // /v1/usage, /v1/annotations, /v1/auth/me) must never replay one
-        // caller's body to another. Anonymous requests stay shared.
-        const cacheKey = `v1:GET:${pathname}${search}${credentialCacheScope(JSON.stringify(req.headers['authorization'] ?? ''))}`;
-        redisClient.set(cacheKey, responseBody, cacheCfg.ttl).catch(() => {});
-      }
-    }
-  } catch (err) {
-    log.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Fatal API request error');
-    status = 500;
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Server error', message_fr: 'Erreur interne du serveur' } }));
-  }
-});
+const server = http.createServer(createNodeRequestListener({
+  responseCache: redisClient,
+  rateLimiter: {
+    extractIP: (req) => rateLimiter.extractIP(req),
+    extractTier: (req) => rateLimiter.extractTier(req),
+    check: (ip, tier) => rateLimiter.check(ip, limiterTier(tier)),
+  },
+  handleRequest,
+  env,
+  db,
+  quillCache: cache,
+  environment: env.ENVIRONMENT,
+}));
 
 if (!verifyStorageHealth()) {
   log.error('Health check failed — aborting startup');

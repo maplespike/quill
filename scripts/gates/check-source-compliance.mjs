@@ -13,8 +13,10 @@
  *      discoveryOnly:true — the combination that keeps non-commercial content
  *      out of paid tiers;
  *   5. the paid-tier surfaces stop applying the policy (tripwire text checks
- *      on the export route and the committees tools): removing these hooks
- *      would make non-commercial content reachable again.
+ *      on the export route, the committees tools, the openparliament tools,
+ *      the corporate and influence record outputs, and the NGO-RSS, media,
+ *      and donations tools): removing these hooks would make restricted
+ *      content reachable again.
  *
  * Pure Node — no build, no cluster. Source files are parsed textually; the
  * tables are machine-formatted one entry per line, and minimum-count sanity
@@ -145,6 +147,22 @@ export function surfaceProblems(root) {
     ['packages/api-server/src/routes/export.ts', 'DISCOVERY_ONLY_BULK_EXPORT_REASON'],
     ['packages/quill-mcp/src/tools/search-committees.ts', 'applySourcePolicy('],
     ['packages/quill-mcp/src/tools/search-committees-op.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-debates.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-votes.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-bills.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/track-bill.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/get-member-info.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/get-politician-influence.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/parliamentary-voting.ts', 'applySourcePolicy('],
+    ['packages/pipeline-core/src/ingestion/corporate/index.ts', 'applySourcePolicy('],
+    ['packages/pipeline-core/src/ingestion/corporate/sedi.ts', 'applySourcePolicy('],
+    ['packages/pipeline-core/src/ingestion/influence/index.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-corporate.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-influence.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-sedi.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-ngo-rss.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/search-media-broadcasting.ts', 'applySourcePolicy('],
+    ['packages/quill-mcp/src/tools/political-donations.ts', 'applySourcePolicy('],
   ];
   for (const [file, needle] of required) {
     const p = resolve(root, file);

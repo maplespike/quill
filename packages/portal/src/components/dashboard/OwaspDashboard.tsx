@@ -45,6 +45,8 @@ interface AuditAdvisory {
 interface AuditMeta {
   source: "live" | "static";
   generatedAgeSeconds: number;
+  ageDays?: number;
+  stale?: boolean;
   fallbackReason?: string;
 }
 
@@ -53,6 +55,8 @@ interface AuditPayload {
   summary: AuditSummary;
   top: AuditAdvisory[];
   note?: string;
+  stale?: boolean;
+  ageDays?: number;
   _meta?: AuditMeta;
 }
 
@@ -232,10 +236,10 @@ function resolveAuditEndpoint(): string {
 }
 
 /**
- * Fetches `/v1/security/audit-summary` (re-runs pnpm audit server-side)
- * with a graceful fallback to the build-time `/data/security/audit.json` if
- * the API is unreachable. Staleness is explicitly surfaced in the UI so
- * a build-time snapshot is never confused for live data.
+ * Fetches `/v1/security/audit-summary`, which serves the build-time snapshot
+ * from `scripts/gen-security-audit.mjs`. Falls back to
+ * `/data/security/audit.json` when the API is unreachable. The badge shows
+ * the snapshot age so a build-time file is not presented as a live scan.
  */
 function DependencySecurityPanel() {
   const [audit, setAudit] = React.useState<AuditPayload>(EMPTY_AUDIT);
@@ -322,6 +326,16 @@ function DependencySecurityPanel() {
   const ageSeconds =
     audit._meta?.generatedAgeSeconds ??
     Math.floor((Date.now() - new Date(audit.generatedAt).getTime()) / 1000);
+  const ageDays =
+    audit.ageDays ??
+    audit._meta?.ageDays ??
+    Math.max(0, Math.floor(ageSeconds / 86_400));
+  const stale =
+    typeof audit.stale === "boolean"
+      ? audit.stale
+      : typeof audit._meta?.stale === "boolean"
+        ? audit._meta.stale
+        : ageSeconds > 7 * 24 * 60 * 60;
 
   const sourceBadge =
     fetchSource === "live"
@@ -344,7 +358,7 @@ function DependencySecurityPanel() {
               title={
                 audit._meta?.fallbackReason ??
                 audit.note ??
-                "Live data from /v1/security/audit-summary"
+                "Build-time snapshot from /v1/security/audit-summary"
               }
             >
               {sourceBadge.label}
@@ -353,18 +367,26 @@ function DependencySecurityPanel() {
           <p className="mt-1 text-sm text-muted-foreground">
             Source: <code className="font-mono text-xs">pnpm audit --json</code>{" "}
             <span className="opacity-70">
-              (re-run server-side by{" "}
-              <code className="font-mono text-xs">/v1/security/audit-summary</code>)
+              (snapshot served by{" "}
+              <code className="font-mono text-xs">/v1/security/audit-summary</code>
+              {". Refresh with "}
+              <code className="font-mono text-xs">node scripts/gen-security-audit.mjs</code>
+              .)
             </span>
           </p>
         </div>
         {loadState === "ok" && (
-          <p className="text-xs text-muted-foreground">
-            Updated{" "}
-            <time dateTime={audit.generatedAt}>
-              {new Date(audit.generatedAt).toLocaleString("en-CA")}
-            </time>
-          </p>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">
+              Updated{" "}
+              <time dateTime={audit.generatedAt}>
+                {new Date(audit.generatedAt).toLocaleString("en-CA")}
+              </time>
+            </p>
+            {stale && (
+              <p className="mt-1 text-xs text-amber-300">Stale snapshot ({ageDays} days old).</p>
+            )}
+          </div>
         )}
       </div>
 

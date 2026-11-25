@@ -175,7 +175,7 @@ jobs:
       id-token: write
     steps:
       - name: Download portal dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: portal-dist
           path: packages/portal/dist

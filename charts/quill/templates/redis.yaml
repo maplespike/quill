@@ -89,8 +89,10 @@ spec:
         # liveness failureThreshold 5 waits out several of them.
         # startupProbe runs first, so module load and any AOF/RDB replay
         # finish before liveness is allowed to kill the process (5 min).
-        # Requests and limits stay the cache budget: 50m/64Mi, 200m/192Mi,
-        # maxmemory 128mb. A slow disk is not a reason to raise that budget.
+        # Probe timings are about a slow ping, not the cache size.
+        # When redis.resources is omitted the chart default is a 50m/64Mi
+        # request and a 200m/192Mi limit. maxmemory stays 128mb. A slow disk
+        # is not a reason to raise that ceiling.
         startupProbe:
           exec:
             command: ["redis-cli", "ping"]

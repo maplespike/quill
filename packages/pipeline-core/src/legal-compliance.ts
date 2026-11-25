@@ -27,11 +27,17 @@ export interface ComplianceAuditEntry {
   detail?: string;
 }
 
-const DECLARATION_UNRESOLVED = 'License declarations conflict; rights-holder review required.';
+/**
+ * Software licence for Quill's own code.
+ *
+ * The rights holder chose AGPL-3.0-only on 2026-10-24 (issue #1044).
+ * LICENSE.md is the grant. This report is not a data-source licence.
+ */
+export const QUILL_SOFTWARE_LICENSE = 'AGPL-3.0-only';
 
-// This endpoint previously presented a hand-written package map as a resolved
-// compliance result. Repository metadata and file-level notices conflict, so
-// do not convert those observations into a license or attribution conclusion.
+// Reviewed first-party workspaces. Each one declares QUILL_SOFTWARE_LICENSE.
+// attributionRequired and sourceAttributed stay null: this report states the
+// software licence. It does not judge publisher attribution for source data.
 const REVIEWED_PACKAGES = [
   'pipeline-core',
   'engine',
@@ -57,12 +63,13 @@ export async function logComplianceEvent(entry: ComplianceAuditEntry): Promise<v
 }
 
 export function getComplianceCheck(packageName: string): ComplianceResult {
+  const reviewed = REVIEWED_PACKAGES.includes(packageName);
   return {
     package: packageName,
-    license: DECLARATION_UNRESOLVED,
+    license: reviewed ? QUILL_SOFTWARE_LICENSE : 'Not a reviewed Quill workspace package.',
     attributionRequired: null,
     sourceAttributed: null,
-    packagesChecked: REVIEWED_PACKAGES.includes(packageName) ? 1 : 0,
+    packagesChecked: reviewed ? 1 : 0,
     recordsModified: 0,
   };
 }
@@ -72,11 +79,10 @@ export function getFullComplianceReport(): ComplianceResult[] {
 }
 
 export function getPackageLicense(packageName: string): string | null {
-  return REVIEWED_PACKAGES.includes(packageName) ? DECLARATION_UNRESOLVED : null;
+  return REVIEWED_PACKAGES.includes(packageName) ? QUILL_SOFTWARE_LICENSE : null;
 }
 
 export function getAllLicensedPackages(): string[] {
-  // Legacy API name retained for compatibility; entries are under review, not
-  // affirmatively licensed or cleared by this package.
+  // First-party workspaces covered by the 2026-10-24 AGPL-3.0-only decision.
   return [...REVIEWED_PACKAGES];
 }

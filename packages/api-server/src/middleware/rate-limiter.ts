@@ -26,6 +26,7 @@
  */
 
 import Redis from 'ioredis';
+import { applyCorsAndSecurityHeaders } from '../response.js';
 import logger from '../logger.js';
 import { resolveRedisUrl, redisHostOf } from '../cache/redis-url.js';
 
@@ -440,11 +441,24 @@ export class RateLimiter {
       }
 
       if (!result.allowed) {
+        res.statusCode = 429;
+        // The Node listener writes these through sendNodeResponse. This
+        // Express-style path is a second early return, so it calls the
+        // same helper before ending the response.
         if (res.setHeader) {
+          const headers = new Headers();
+          headers.set('Content-Type', 'application/json');
+          const origin = req.headers?.origin;
+          applyCorsAndSecurityHeaders(
+            headers,
+            Array.isArray(origin) ? origin[0] ?? null : origin ?? null,
+            process.env.ENVIRONMENT,
+          );
+          headers.forEach((value, key) => {
+            res.setHeader(key, value);
+          });
           res.setHeader('Retry-After', String(result.retryAfter));
         }
-        res.statusCode = 429;
-        res.setHeader?.('Content-Type', 'application/json');
         res.end(JSON.stringify({
           error: 'rate_limit_exceeded',
           retry_after: result.retryAfter,

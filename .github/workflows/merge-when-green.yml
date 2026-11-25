@@ -56,6 +56,26 @@ on:
       - "Open-source facts audit"
       - "Auto-assign Sprint-to-Live Milestone"
       - "Dependabot Auto-Merge"
+    # Never on main/prod. A completed run on main has nothing left to merge, so
+    # the job could only claim the single `arc-maplespike-gate` runner, install
+    # gh, and exit 0 as "not my turn" -- while competing with real CI for the
+    # 6-pod `arc-runners` ResourceQuota. Measured 2026-11-23 13:10Z: 48 such runs
+    # created in 60 minutes, 24 of the 25 newest runs in the repo were this
+    # workflow, and every sampled queued run had `pull_requests: []` with
+    # `head_branch: main`. They were 28 of the 100 queued runs, median queue age
+    # 145 minutes.
+    #
+    # PR events are unaffected: for a pull_request run the triggering branch is
+    # the PR head branch, and pull_request_target (labeled/synchronize) remains
+    # the primary trigger.
+    #
+    # MEASURED 2026-11-23: branches-ignore alone did NOT stop these. After
+    # e977aa54 landed with exactly this filter, 17 main-branch workflow_run gate
+    # runs were created in 12 minutes (13:54:43Z-13:58:59Z), i.e. the filter was
+    # accepted but did not exclude push runs on main. It is kept as a cheap
+    # pre-dispatch guard; the enforcement is the job condition below, which
+    # reads the same payload field and cannot be silently ignored.
+    branches-ignore: [main, prod]
     types: [completed]
   check_suite:
     types: [completed]
@@ -101,6 +121,21 @@ jobs:
     # skipped. pull_request_target from a fork is skipped. check_suite and
     # workflow_dispatch are not fork pull_request events; the script still
     # refuses a fork head repository.
+    #
+    # NO PR NUMBER, NOTHING TO MERGE (measured 2026-11-23).
+    # A workflow_run payload from a push to main carries `pull_requests: []`.
+    # Two earlier attempts to filter these failed, each measured:
+    #   * #1400 `branches-ignore: [main, prod]` -- 17 main-branch runs in the 12
+    #     minutes after it landed (13:54:43Z-13:58:59Z).
+    #   * #1402 `head_branch != 'main'` in this condition -- the jobs came back
+    #     `queued` with an empty runner_name and a set started_at, not `skipped`
+    #     (14:20Z). head_branch is empty in these payloads, so `'' != 'main'`
+    #     passed and each run still claimed the single gate runner.
+    # So gate on the field the concurrency group already trusts: pull_requests is
+    # populated for a PR-branch run and empty for a push, and a run with no PR
+    # number has nothing to merge. This condition is one folded scalar -- keep
+    # prose OUT of it. #1403 put `#` comments in here and GitHub rejected the
+    # whole workflow file ("workflow file issue", zero jobs, main went red).
     if: >-
       (
         github.event_name != 'pull_request_target'
@@ -108,6 +143,9 @@ jobs:
       ) && (
         github.event.workflow_run.head_repository.full_name == github.repository
         || github.event_name != 'workflow_run'
+      ) && (
+        github.event_name != 'workflow_run'
+        || github.event.workflow_run.pull_requests[0].number != null
       )
     runs-on: >-
       ${{
@@ -134,7 +172,7 @@ jobs:
         id: gate
         if: ${{ vars.MERGE_GATE_APP_ID != '' }}
         continue-on-error: true
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}

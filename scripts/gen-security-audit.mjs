@@ -17,6 +17,17 @@
  * missing — writes a stub with summary: { total: 0, … } so the dashboard can
  * still render with "No CVEs found" instead of crashing on a missing fetch.
  *
+ * This script is the refresh path for GET /v1/security/audit-summary.
+ * The route serves the file written here. It does not run `pnpm audit`.
+ * Also invoked by `pnpm -F @maplespike/portal gen:security` and by the
+ * API image build (`Dockerfile.api`). The CI `audit` job step
+ * "Emit audit.json snapshot" writes raw `pnpm audit --json` into the same
+ * gitignored path; it does not produce this normalized summary.
+ *
+ * pnpm / corepack / npx lookups use a few-second timeout (see
+ * scripts/lib/command-probe.mjs). A hung or missing binary writes the
+ * stub and exits 0. There is no scheduled job.
+ *
  * Usage:
  *   node scripts/gen-security-audit.mjs
  *   pnpm -F @maplespike/portal gen:security
@@ -25,6 +36,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolvePnpm } from "./lib/command-probe.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -90,9 +102,15 @@ function writeStub(reason) {
   console.warn(`✗ pnpm audit unavailable — wrote stub (${reason})`);
 }
 
+const resolved = await resolvePnpm();
+if (!resolved) {
+  writeStub("pnpm probe failed or timed out (pnpm, corepack, and npx)");
+  process.exit(0);
+}
+
 let raw;
 try {
-  raw = execFileSync("pnpm", ["audit", "--json"], {
+  raw = execFileSync(resolved.bin, ["audit", "--json"], {
     cwd: PROJECT_ROOT,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],

@@ -23,6 +23,7 @@ interface EndpointEntry {
 
 const ENDPOINTS: EndpointEntry[] = [
   { method: 'GET', path: '/v1/health', description: 'Service health check' },
+  { method: 'GET', path: '/v1/security/audit-summary', description: 'Dependency audit snapshot. generatedAt is the snapshot time. stale is true after 7 days (public)' },
   { method: 'GET', path: '/v1/onboarding', description: 'Developer onboarding guide' },
   { method: 'POST', path: '/v1/register', description: 'Register a new tenant and get API key' },
   { method: 'GET', path: '/v1/verify/{token}', description: 'Verify email address' },

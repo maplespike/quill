@@ -27,6 +27,12 @@ import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from
 import { verifyApiJwt } from './auth/api-jwt.js';
 import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
 import { verifyTenantKeyWithApi } from './auth/tenant-key.js';
+import {
+  negotiateFromHeaders,
+  checkStatelessRequest,
+  PROTOCOL_VERSION_HEADER,
+  type ProtocolNegotiation,
+} from './protocol-version.js';
 import logger from './logger.js';
 import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http';
 
@@ -312,7 +318,8 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, X-API-Key, Mcp-Session-Id, Last-Event-ID',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, X-API-Key, Mcp-Session-Id, Last-Event-ID, Mcp-Method, Mcp-Protocol-Version',
+      'Access-Control-Expose-Headers': 'Mcp-Protocol-Version',
       'Access-Control-Max-Age': '86400',
     });
     res.end();
@@ -523,6 +530,33 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 
       const messages = Array.isArray(parsed) ? parsed : [parsed];
       const responses: unknown[] = [];
+
+      // 2026-07-28 opt-in (#830). Stateless requests carry Mcp-Method and must
+      // agree with the body; the negotiated version is echoed back so clients
+      // can confirm what they got. Legacy requests are untouched.
+      const negotiation: ProtocolNegotiation = negotiateFromHeaders(req.headers);
+      const bodyMethod = (() => {
+        const first = messages[0] as { method?: unknown } | undefined;
+        return first && typeof first === 'object' && typeof first.method === 'string'
+          ? first.method
+          : undefined;
+      })();
+      const statelessProblem = messages.length === 1
+        ? checkStatelessRequest(negotiation, req.headers, bodyMethod)
+        : null;
+      if (statelessProblem) {
+        res.writeHead(400, {
+          'Content-Type': 'application/json',
+          [PROTOCOL_VERSION_HEADER]: negotiation.version,
+        });
+        res.end(JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32600, message: statelessProblem },
+        }));
+        return;
+      }
+
       const acceptLang = req.headers['accept-language'] || '';
       const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
       const identity = buildIdentity('api-key', token);
@@ -545,12 +579,20 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       run().then(() => {
         if (res.headersSent) return;
         if (responses.length === 0) {
-          res.writeHead(202, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.writeHead(202, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            [PROTOCOL_VERSION_HEADER]: negotiation.version,
+          });
           res.end('');
           return;
         }
         const payload = Array.isArray(parsed) ? responses : responses[0];
-        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          [PROTOCOL_VERSION_HEADER]: negotiation.version,
+        });
         res.end(JSON.stringify(payload));
       }).catch((err: unknown) => {
         logger.error({ errorType: err instanceof Error ? err.name : 'unknown' }, 'Error handling streamable HTTP message');
@@ -581,6 +623,7 @@ httpServer.listen(PORT, () => {
 function shutdown(signal: string): void {
   logger.warn('%s received, closing SSE connections', signal);
   getQuotaTracker().flushSync();
+  server.getJobs().shutdown();
   for (const id of [...clients.keys()]) dropClient(id);
   metricsServer.close();
   httpServer.close(() => process.exit(0));
