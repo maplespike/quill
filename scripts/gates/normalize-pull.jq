@@ -17,6 +17,7 @@
   headRefOid: (.head.sha // ""),
   labels: (if (.labels | type) == "array" then .labels else [] end),
   author: { login: (.user.login // "") },
+  title: (.title // ""),
   body: (.body // "")
 }
 # END normalize-pull.jq

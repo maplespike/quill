@@ -326,7 +326,7 @@ jobs:
         run: node scripts/gates/check-merge-gate-token.mjs
 
       - name: Merge gate metadata token unit tests
-        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts
+        run: pnpm exec tsx --test scripts/test-merge-gate-app-token.mts scripts/test-merge-gate-checks.mts scripts/test-merge-gate-dependabot.mts
       # Incident rule for the secrets job (issue #1040). gitleaks-action
       # requires GITLEAKS_LICENSE on organisation repos and otherwise exits
       # with "License key is required." on every PR. The check names the

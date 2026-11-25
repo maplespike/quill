@@ -40,17 +40,17 @@ import { fileURLToPath } from 'node:url';
 export const TOKEN_KEYS = ['GH_TOKEN', 'GITHUB_TOKEN'];
 
 // `gh <subcommand>` or `gh --flag`: the CLI is actually being invoked.
-const GH_INVOKE_RE = /\bgh\s+(?:--)?[a-z][a-z-]*/g;
+const GH_INVOKE_RE = /(?:\bgh|"?\$GH"?)\s+(?:--)?[a-z][a-z-]*/g;
 
 // …and these forms never need credentials.
-const INFORMATIONAL_RE = /^gh\s+(?:--version|--help|version|help|completion)\b/;
+const INFORMATIONAL_RE = /^(?:gh|"?\$GH"?)\s+(?:--version|--help|version|help|completion)\b/;
 
 // Writes that change a branch or merge it. `gh pr merge` and
 // `gh pr update-branch` are both pushes from the API's point of view, so for a
 // PR that edits .github/workflows they are refused for GITHUB_TOKEN: "refusing
 // to allow a GitHub App to create or update workflow". Only the
 // fleet-merge-gate App installation token (Workflows:write) can do them.
-const BRANCH_WRITE_RE = /\bgh\s+pr\s+(?:merge|update-branch|rebase)\b/g;
+const BRANCH_WRITE_RE = /(?:\bgh|"?\$GH"?)\s+pr\s+(?:merge|update-branch|rebase)\b/g;
 
 // A GH_TOKEN value that resolves to the minted App token.
 const APP_TOKEN_VALUE_RE = /steps\.gate\.outputs\.token|MERGE_GATE_APP/;

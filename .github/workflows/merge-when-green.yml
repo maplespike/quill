@@ -177,10 +177,10 @@ jobs:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
 
-      # The ARC gate image does not ship gh (ubuntu-latest does). Run
-      # 44380736633 on main failed at "gh: command not found" before it
-      # could read PR metadata. Install a pinned gh into RUNNER_TEMP when
-      # it is missing; do not check out or run pull-request code.
+      # Always install the pinned, sha256-verified gh binary into a private
+      # RUNNER_TEMP directory (never skip when gh is already on PATH, and never
+      # add it to GITHUB_PATH or fall back to PATH). Every gate command calls
+      # "$GH" explicitly and fails closed on checksum mismatch.
       - name: Install gh
         env:
           GH_VERSION: "2.103.2"
@@ -189,16 +189,27 @@ jobs:
           GH_TARBALL_SHA256: "62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8"
         run: |
           set -euo pipefail
-          if command -v gh >/dev/null 2>&1; then gh --version | head -1; exit 0; fi
-          dest="$RUNNER_TEMP/gh"
+          if [[ -z "${RUNNER_TEMP:-}" ]]; then
+            echo "::error::RUNNER_TEMP is not set; cannot install pinned gh."
+            exit 1
+          fi
+          dest="$RUNNER_TEMP/gh-pinned"
+          rm -rf "$dest"
           mkdir -p "$dest"
           tarball="$RUNNER_TEMP/gh_${GH_VERSION}_linux_amd64.tar.gz"
+          rm -f "$tarball"
           curl -fsSL -o "$tarball" \
             "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
           echo "${GH_TARBALL_SHA256}  ${tarball}" | sha256sum -c -
           tar -xz -C "$dest" --strip-components=1 -f "$tarball"
-          echo "$dest/bin" >> "$GITHUB_PATH"
-          "$dest/bin/gh" --version | head -1
+          rm -f "$tarball"
+          gh_bin="$dest/bin/gh"
+          if [[ ! -x "$gh_bin" ]]; then
+            echo "::error::Pinned GitHub CLI binary missing at ${gh_bin}."
+            exit 1
+          fi
+          echo "GH=${gh_bin}" >> "$GITHUB_ENV"
+          "$gh_bin" --version | head -1
 
       - name: Evaluate the gate once
         env:
@@ -226,6 +237,11 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [[ -z "${GH:-}" || ! -x "$GH" ]]; then
+            echo "::error::Pinned gh binary (GH) is unset or not executable; failing closed."
+            exit 1
+          fi
+
           # gh's --jq flag has no --arg. Pass values with real jq, and let a
           # failed API call fail this step. Do not append `|| true`.
           pr_number_from_list() {
@@ -247,7 +263,7 @@ jobs:
 
           lookup_open_pr() {
             local sha="$1"
-            GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/pulls?state=open&per_page=100" \
+            GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/pulls?state=open&per_page=100" \
               | jq -s -r --arg sha "$sha" '
                   [ .[][]? | select(.head.sha == $sha) | .number ] | first // empty
                 '
@@ -370,7 +386,7 @@ jobs:
           # old GraphQL field was still empty). After these retries, missing
           # head metadata or an unknown mergeable value exits 1.
           for try in 1 2 3 4 5; do
-            if ! PULL="$(GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")"; then
+            if ! PULL="$(GH_TOKEN="$READ_TOKEN" "$GH" api "repos/${GH_REPO}/pulls/${PR_NUMBER}")"; then
               echo "::error::PR #${PR_NUMBER} pulls API read failed on try ${try}/5. The gate did not merge. Unknown metadata is not a foreign repository. Confirm the fleet-merge-gate App can read pull requests, then re-run the gate."
               exit 1
             fi
@@ -394,6 +410,7 @@ jobs:
                 headRefOid: (.head.sha // ""),
                 labels: (if (.labels | type) == "array" then .labels else [] end),
                 author: { login: (.user.login // "") },
+                title: (.title // ""),
                 body: (.body // "")
               }
               # END normalize-pull.jq
@@ -439,6 +456,150 @@ jobs:
             echo "::notice::PR #${PR_NUMBER} does not have the ready-to-merge label — nothing to do."
             exit 0
           fi
+          DEPENDABOT_DECISION="$(jq -c '
+            # BEGIN dependabot-gate.jq
+            # Decide whether a pull request passes the Dependabot semver-patch/minor gate.
+            # Non-Dependabot PRs pass unaffected (controlled by ready-to-merge / hold).
+            # Dependabot PRs (`dependabot[bot]` or `app/dependabot`) auto-merge ONLY when
+            # every parsed update is semver-patch or semver-minor; major, downgrade,
+            # prerelease, or unparseable updates are skipped (allow: false).
+            def clean_ver:
+              tostring
+              | sub("^[ \\t\\r\\n`\"\u0027(\\[]+"; "")
+              | sub("[ \\t\\r\\n`\"\u0027.,;:)\\]]+$"; "")
+              | sub("^[vV](?=[0-9])"; "");
+
+            def parse_ver:
+              clean_ver
+              | if test("^[0-9]+(\\.[0-9]+){0,3}$") then
+                  split(".")
+                  | map(tonumber)
+                  | if (length == 1 and .[0] >= 10000) then
+                      null
+                    else
+                      {
+                        major: .[0],
+                        minor: (.[1] // 0),
+                        patch: (.[2] // 0),
+                        extra: (.[3] // 0)
+                      }
+                    end
+                else
+                  null
+                end;
+
+            def classify_pair($from_raw; $to_raw):
+              ($from_raw | parse_ver) as $f
+              | ($to_raw | parse_ver) as $t
+              | if ($f == null or $t == null) then
+                  "unknown"
+                elif $t.major > $f.major then
+                  "major"
+                elif $t.major < $f.major then
+                  "unknown"
+                elif $t.minor > $f.minor then
+                  "minor"
+                elif $t.minor < $f.minor then
+                  "unknown"
+                elif ($t.patch > $f.patch) or ($t.patch == $f.patch and $t.extra > $f.extra) then
+                  "patch"
+                else
+                  "unknown"
+                end;
+
+            def body_preamble:
+              (.body // "")
+              | gsub("\r\n"; "\n")
+              | (split("\n<details")[0] // "")
+              | (split("\n---")[0] // "");
+
+            def extract_from_to_title:
+              (.title // "")
+              | capture("(?:^|\\s)from\\s+(?<from>\\S+)\\s+to\\s+(?<to>\\S+)(?:\\s|$)"; "i")?;
+
+            def extract_from_to_body($preamble):
+              (
+                $preamble
+                | split("\n")
+                | map(select(test("^[ \\t]*(?:bumps|updates)\\s+.*\\s+from\\s+\\S+\\s+to\\s+\\S+"; "i")))
+                | .[0]? // empty
+                | capture("\\sfrom\\s+(?<from>\\S+)\\s+to\\s+(?<to>\\S+)"; "i")?
+              ) // (
+                $preamble
+                | capture("previous-version=(?<from>[^&\\s)]+)&new-version=(?<to>[^&\\s)]+)"; "i")?
+              );
+
+            def extract_grouped_rows($preamble):
+              [
+                $preamble
+                | split("\n")[]
+                | select(test("^\\s*\\|[^|]+\\|[^|]+\\|[^|]+\\|"))
+                | select(test("^\\s*\\|\\s*Package\\s*\\|\\s*From\\s*\\|\\s*To\\s*\\|"; "i") | not)
+                | select(test("^\\s*\\|(?:\\s*:?-+:?\\s*\\|)+\\s*$") | not)
+                | capture("^\\s*\\|[^|]+\\|\\s*(?:`(?<f1>[^`]+)`|(?<f2>[^|\\s]+))\\s*\\|\\s*(?:`(?<t1>[^`]+)`|(?<t2>[^|\\s]+))\\s*\\|")
+                | { from: (.f1 // .f2), to: (.t1 // .t2) }
+              ];
+
+            ((.author.login // "") | (. == "dependabot[bot]" or . == "app/dependabot")) as $is_dependabot
+            | if ($is_dependabot | not) then
+                { allow: true, kind: "non-dependabot", grouped: false, reason: "author is not Dependabot" }
+              else
+                body_preamble as $preamble
+                | ((.title // "") | test("bump the [^\\n]+ group"; "i"))
+                  or ($preamble | test("^[ \\t]*(?:bumps|updates) the [^\\n]+ group"; "i")) as $is_grouped
+                | if $is_grouped then
+                    extract_grouped_rows($preamble) as $rows
+                    | if ($rows | length) == 0 then
+                        { allow: false, kind: "unknown", grouped: true, reason: "grouped Dependabot PR has no parseable version table" }
+                      else
+                        ($rows | map(classify_pair(.from; .to))) as $kinds
+                        | if ($kinds | any(. == "major")) then
+                            { allow: false, kind: "major", grouped: true, reason: "grouped Dependabot PR contains a semver-major update" }
+                          elif ($kinds | any(. == "unknown")) then
+                            { allow: false, kind: "unknown", grouped: true, reason: "grouped Dependabot PR contains an unknown or unsupported version transition" }
+                          elif ($kinds | all(. == "patch")) then
+                            { allow: true, kind: "patch", grouped: true, reason: "all grouped Dependabot updates are semver-patch" }
+                          else
+                            { allow: true, kind: "minor", grouped: true, reason: "all grouped Dependabot updates are semver-minor or patch" }
+                          end
+                      end
+                  else
+                    (extract_from_to_title // null) as $t_pair
+                    | (extract_from_to_body($preamble) // null) as $b_pair
+                    | if ($t_pair == null and $b_pair == null) then
+                        { allow: false, kind: "unknown", grouped: false, reason: "could not parse from/to versions from Dependabot PR title or body" }
+                      else
+                        (if $t_pair != null then classify_pair($t_pair.from; $t_pair.to) else null end) as $t_kind
+                        | (if $b_pair != null then classify_pair($b_pair.from; $b_pair.to) else null end) as $b_kind
+                        | if ($t_kind != null and $b_kind != null and $t_kind != $b_kind) then
+                            if ($t_kind == "major" or $b_kind == "major") then
+                              { allow: false, kind: "major", grouped: false, reason: "Dependabot update includes a semver-major transition" }
+                            else
+                              { allow: false, kind: "unknown", grouped: false, reason: "Dependabot title and body versions classify differently" }
+                            end
+                          else
+                            ($t_kind // $b_kind) as $kind
+                            | if $kind == "patch" then
+                                { allow: true, kind: "patch", grouped: false, reason: "Dependabot update is semver-patch" }
+                              elif $kind == "minor" then
+                                { allow: true, kind: "minor", grouped: false, reason: "Dependabot update is semver-minor" }
+                              elif $kind == "major" then
+                                { allow: false, kind: "major", grouped: false, reason: "Dependabot update is semver-major" }
+                              else
+                                { allow: false, kind: "unknown", grouped: false, reason: "Dependabot update version transition is unknown or unsupported" }
+                              end
+                          end
+                      end
+                  end
+              end
+            # END dependabot-gate.jq
+          ' <<<"$META")"
+          if [[ "$(jq -r '.allow' <<<"$DEPENDABOT_DECISION")" != "true" ]]; then
+            DEPENDABOT_KIND="$(jq -r '.kind // "unknown"' <<<"$DEPENDABOT_DECISION")"
+            DEPENDABOT_REASON="$(jq -r '.reason // "update type is not semver-patch or minor"' <<<"$DEPENDABOT_DECISION")"
+            echo "::notice::PR #${PR_NUMBER} Dependabot update skipped (${DEPENDABOT_KIND}): ${DEPENDABOT_REASON}."
+            exit 0
+          fi
           HEAD_REPO="$(jq -r '.headRepo // empty' <<<"$META")"
           if [[ -z "$HEAD_REPO" ]]; then
             echo "::error::PR #${PR_NUMBER} head repository is missing after 5 reads of GET /repos/${GH_REPO}/pulls/${PR_NUMBER} (head.repo). The gate did not merge. Unknown metadata is not a foreign repository. Re-run the gate after the pulls API returns head.repo.full_name."
@@ -482,8 +643,8 @@ jobs:
             echo "::error::RUNNER_TEMP is not set. The gate did not merge."
             exit 1
           fi
-          GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$RUNNER_TEMP/check-pages.json"
-          GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}&per_page=100" > "$RUNNER_TEMP/run-pages.json"
+          GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs?per_page=100" > "$RUNNER_TEMP/check-pages.json"
+          GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}&per_page=100" > "$RUNNER_TEMP/run-pages.json"
           REPO_ID="$(jq -r '.base.repo.id // empty' <<<"$PULL")"
           if [[ ! "$REPO_ID" =~ ^[0-9]+$ ]]; then
             echo "::error::PR #${PR_NUMBER} base repository id is missing from the pulls API. The gate did not merge."
@@ -525,12 +686,12 @@ jobs:
             esac
             printf '%s\n' "$status_url" >> "$RUNNER_TEMP/status-urls.txt"
             if [[ "$status_url" == "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100" ]]; then
-              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")"; then
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" "$GH" api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100")"; then
                 echo "::error::commit status pagination request failed. The gate did not merge."
                 exit 1
               fi
             else
-              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" gh api --include "$status_url")"; then
+              if ! status_raw="$(GH_TOKEN="$READ_TOKEN" "$GH" api --include "$status_url")"; then
                 echo "::error::commit status pagination request failed. The gate did not merge."
                 exit 1
               fi
@@ -943,7 +1104,7 @@ jobs:
             if [[ -z "${GATE_TOKEN:-}" ]]; then
               echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token; a workflow-editing PR cannot be updated with GITHUB_TOKEN."
             fi
-            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
+            if ! GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" "$GH" pr update-branch "$PR_NUMBER" --repo "$GH_REPO"; then
               echo "::warning::could not update the branch of PR #${PR_NUMBER}."
             fi
             exit 0
@@ -962,13 +1123,13 @@ jobs:
           jq -r '.body // ""' <<<"$META" > "$BODY_FILE"
 
           echo "::notice::Squash-merging PR #${PR_NUMBER} at ${HEAD_SHA}."
-          GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
+          GH_TOKEN="${GATE_TOKEN:-$GH_TOKEN}" "$GH" pr merge "$PR_NUMBER" --repo "$GH_REPO" --squash --delete-branch \
             --match-head-commit "$HEAD_SHA" \
             --body-file "$BODY_FILE"
           echo "::notice::Merged #${PR_NUMBER} via the ready-to-merge gate."
 
           echo "Dispatching CI on main after merge."
-          if gh workflow run CI --repo "$GH_REPO" --ref main; then
+          if "$GH" workflow run CI --repo "$GH_REPO" --ref main; then
             echo "::notice::dispatched CI on main after #${PR_NUMBER} merged."
           else
             echo "::warning::failed to dispatch CI on main after #${PR_NUMBER} merged."
@@ -983,13 +1144,13 @@ jobs:
               if [[ ! "$n" =~ ^[0-9]+$ ]]; then
                 continue
               fi
-              if ! state="$(gh issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1)"; then
+              if ! state="$("$GH" issue view "$n" --repo "$GH_REPO" --json state -q .state 2>&1)"; then
                 echo "::warning::close-loop could not read the state of #${n}: ${state}"
                 continue
               fi
               case "$state" in
                 OPEN)
-                  if gh issue close "$n" --repo "$GH_REPO" --reason completed \
+                  if "$GH" issue close "$n" --repo "$GH_REPO" --reason completed \
                     --comment "Closed by the ready-to-merge gate when #${PR_NUMBER} merged (deterministic closure — #983)."; then
                     echo "::notice::Close-loop closed #${n} (referenced by #${PR_NUMBER})."
                   else
