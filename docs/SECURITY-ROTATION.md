@@ -76,4 +76,22 @@ rm -f secrets/tmp*.yaml
 ### Notes
 - Rotating JWT_SECRET invalidates all issued session tokens — users must re-authenticate.
 - The repo is now public (AGPL-3.0). The #854 history rewrite must precede any public flip if not already done.
-- The Stripe key tested earlier (`sk_live_51TX...`) may be one of the leaked keys — rotate it ASAP.
+- The Stripe P0 from the leak is **corroborated but not proven** — see "Stripe rotation status" below.
+
+## Stripe rotation status (checked 2026-11-22)
+
+- Bitwarden `maplespike-secrets.stripe-secret-key` (project `k3s`) was last revised
+  **2026-10-24T17:03:36**, ten days after the 2026-10-14 leak. The webhook secret carries the
+  identical timestamp, which is what one rotation event replacing both looks like — rotating only
+  the API key would not touch the webhook secret.
+- That stored key authenticates against `GET https://api.stripe.com/v1/account` as **live**
+  (HTTP 200), and ESO reported `SecretSynced` 13m before that check, so the deployed key is a
+  working live key, not a stale test one.
+- The leaked value is **not recoverable from this clone** (branch `wip/atlas-backup-20261014` is
+  gone and no commit reachable from `--all` still carries a `sk_live_` literal), so rotation cannot
+  be proven from artifacts — only corroborated by the timestamps above.
+- To close it, confirm in the dashboard: https://dashboard.stripe.com/apikeys should show the live
+  secret key created 2026-10-24, not 2026-10-14. If it shows 2026-10-14, the leaked key is still
+  live — roll it now, then update `maplespike-secrets.stripe-secret-key` and
+  `stripe-webhook-secret` in Bitwarden (ESO refreshes within 1h, or force it with the annotate
+  command in step 1).

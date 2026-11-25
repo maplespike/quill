@@ -15,6 +15,7 @@
  *   4. Persist to database (or return structured data)
  */
 
+import { applySourcePolicy } from '../../shared/source-policy.js';
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { CORPORATE_SOURCES } from './constants.js';
@@ -351,8 +352,9 @@ export async function ingestInsiderTransactions(
       result.recordsIngested = ingested;
       log(`[SEDI] Persisted ${ingested} insider transactions`);
     } else {
+      // Served copies are link-only. Stored rows are unchanged.
       result.recordsIngested = limited.length;
-      result.records = limited;
+      result.records = applySourcePolicy('sedi', limited).records;
       log(`[SEDI] Dry-run — ${limited.length} transactions available`);
     }
   } catch (err) {

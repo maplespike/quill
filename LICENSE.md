@@ -26,7 +26,7 @@ file and an older declaration disagree, this file records the current decision.
 | Per-package licence text | `packages/*/LICENSE` | Byte-identical copy of the root text |
 | Python package | [`packages/sdk-python/pyproject.toml`](./packages/sdk-python/pyproject.toml) | `AGPL-3.0-only` |
 | Rust workspace | [`rust/Cargo.toml`](./rust/Cargo.toml) | `AGPL-3.0-only` |
-| First-party source headers | `SPDX-License-Identifier` in `.ts`, `.tsx`, `.js`, `.mjs`, `.astro`, `.py`, `.rs` | `AGPL-3.0-only` |
+| First-party source headers | `SPDX-License-Identifier` in `.ts`, `.tsx`, `.js`, `.mjs`, `.mts`, `.astro`, `.py`, `.rs`, and shebang scripts | `AGPL-3.0-only` |
 | Third-party and data notices | [`NOTICE`](./NOTICE) | Attribution and copyright notices |
 
 `scripts/test-license-coherence.mjs` reads the repository and fails when any of

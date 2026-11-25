@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchCkan } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_sedi',
@@ -24,7 +25,11 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+/** Core search — injectable fetcher for tests. SEDI records are link-only. */
+export async function runSearchSedi(
+  args: { query?: string; limit?: number },
+  fetchFn: typeof searchCkan = searchCkan,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '');
   const limit = Number(args.limit ?? 20);
 
@@ -40,13 +45,16 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
 
   try {
-    const result = await searchCkan(query, limit);
+    const result = await fetchFn(query, limit);
+    const applied = applySourcePolicy('sedi', result.results);
     return {
       content: {
         tool: 'search_sedi',
         query,
         limit,
-        ...result,
+        results: applied.records,
+        total: result.total,
+        policy: applied.policy,
       },
     };
   } catch (err) {
@@ -59,4 +67,11 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
       isError: true,
     };
   }
+}
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  return runSearchSedi({
+    query: args.query as string | undefined,
+    limit: args.limit as number | undefined,
+  });
 };

@@ -19,7 +19,7 @@
 ## 1. Where Quill Stands (audit synthesis)
 
 ### Repo facts (`gh` audit, reverb256/quill)
-- **Private**, 0 stars, 0 forks. Created 2026-05-12, last push 2026-08-21. GitHub displayed license "Other" at the time of this snapshot. Package/file declarations conflict; see [open-source audit](./open-source-audit.md). Do not assume a simple AGPL/MIT split or add a dual-license label without rights-holder approval.
+- **Private**, 0 stars, 0 forks. Created 2026-05-12, last push 2026-08-21. GitHub displayed license "Other" at the time of this snapshot. The rights holder later chose `AGPL-3.0-only` for Quill's own code (2026-10-24, issue #1044). See [LICENSE.md](../LICENSE.md). The [open-source audit](./open-source-audit.md) records the earlier conflict.
 - Private + zero stars = the entire open-source growth loop (Context7-style) is currently **switched off**.
 
 ### Codebase facts

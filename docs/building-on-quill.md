@@ -181,6 +181,8 @@ hard-coding tool names.
 | Resource (template) | `quill://citations/{hash}` | Verifiable claim bundle (hash, source, retrievedAt, license) |
 | Resource | `quill://claims/latest` | Recently registered claim bundles — discover what Quill has attested, then verify any hash |
 | Resource (template) | `quill://crossref/{name}` | Entity connection subgraph (center + relationship edges) |
+| Resource | `quill://jobs` | Long-running jobs: id, tool, state, timing |
+| Resource (template) | `quill://jobs/{id}` | One job's state, progress and (when finished) result |
 | Prompt | `influence-map` | Multi-step influence-trail workflow |
 | Prompt | `provenance-brief` | Provenance-backed briefing workflow |
 | Prompt | `narrative-shift` | Gazette + committee narrative analysis |
@@ -193,6 +195,83 @@ before composing so your server's expectations match Quill's output exactly
 (no guessing field names).
 
 Heavy calls accept `_meta.progressToken` and stream `notifications/progress`.
+
+### 4.1 Heavy cross-references: jobs instead of timeouts
+
+Synchronous calls are bounded by `QUILL_HANDLER_TIMEOUT_MS` (55s in the
+hosted deployment) so the MCP gateway always gets an answer. Cross-references
+that legitimately take longer should run as a **job**: the server returns a
+handle immediately and the work continues in the background.
+
+```jsonc
+// 1. start — add _meta.quill.async; progressToken is optional but recommended
+{
+  "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+  "params": {
+    "name": "linked_entities",
+    "arguments": { "name": "Acme Consulting Inc." },
+    "_meta": { "progressToken": "crossref-1", "quill": { "async": true } }
+  }
+}
+// -> { "jobId": "...", "uri": "quill://jobs/...", "state": "running",
+//      "pollWith": { "method": "resources/read", "params": { "uri": "quill://jobs/..." } },
+//      "cancelWith": { "method": "jobs/cancel", "params": { "id": "..." } } }
+```
+
+```jsonc
+// 2. poll — cheap while running; carries the payload once finished
+{ "jsonrpc": "2.0", "id": 2, "method": "resources/read",
+  "params": { "uri": "quill://jobs/<id>" } }
+// -> { "state": "running" | "succeeded" | "failed" | "cancelled",
+//      "progressCount": 2, "latestProgress": { "step": "sanitizing", "fraction": 0.95 },
+//      "result": { "content": [ ... ] } | null, "error": null }
+```
+
+```jsonc
+// 3. cancel (optional)
+{ "jsonrpc": "2.0", "id": 3, "method": "jobs/cancel", "params": { "id": "<id>" } }
+```
+
+- `quill://jobs` lists jobs; `quill://jobs/{id}` is the status surface.
+- With a `progressToken` you also get `notifications/progress` frames carrying
+  `jobId` and `jobState`, plus a final `progress: 1`.
+- Jobs are **in-process**: bounded (oldest evicted past 50 jobs), kept ~30
+  minutes after finishing, and dropped on restart. They exist so one call can
+  outlive one request — they are not a durable queue. Persist anything you need
+  to keep.
+- The same sanitisation, quota accounting and x402 gating apply as for a
+  synchronous call; only the delivery changes.
+
+### 4.2 Protocol version (opt-in 2026-07-28)
+
+The default handshake is `2025-03-26` and stays the default — nothing changes
+for existing clients. Operators can opt in to `2026-07-28` semantics by setting
+`QUILL_PROTOCOL_VERSION=2026-07-28`; clients opt in per connection by sending
+`protocolVersion: "2026-07-28"` in `initialize` (or the `Mcp-Protocol-Version`
+header on `POST /mcp`). **Both** sides must opt in.
+
+Once negotiated:
+
+| Feature | 2025-03-26 (default) | 2026-07-28 (opt-in) |
+|---|---|---|
+| `subscriptions/listen` | absent (`-32601`) | available — subscribe to resource URIs |
+| `capabilities.subscriptions` | absent | `{ "listen": true }` |
+| `resources` capability | `{ listChanged: false }` | `{ listChanged: true, subscribe: true, ttlMs: 30000 }` |
+| resources in `resources/list` | no `ttlMs` | `ttlMs` per resource |
+| `POST /mcp` statefulness | stateless request/response | stateless **and** requires an `Mcp-Method` header that matches the body method |
+
+Subscribers get `notifications/resources/updated` when a job finishes, so a
+2026-07-28 client can avoid polling entirely:
+
+```jsonc
+{ "jsonrpc": "2.0", "id": 4, "method": "subscriptions/listen",
+  "params": { "uris": ["quill://jobs"] } }
+// -> { "subscriptionId": "sub-1", "uris": ["quill://jobs"] }
+```
+
+`subscriptions/cancel { "subscriptionId": "sub-1" }` stops it. An unknown
+`QUILL_PROTOCOL_VERSION` value is ignored rather than guessed, so a typo can
+never silently migrate production traffic.
 
 ## 5. Composition patterns
 

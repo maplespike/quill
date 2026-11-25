@@ -170,7 +170,7 @@ All MCP server env vars are also documented in repo-root [`.env.example`](../../
 | `QUILL_FREE_QUOTA` | `1000` | Override the free quota per identity / calendar month (UTC). |
 | `QUOTA_PERSIST_PATH` | *(none)* | Atomic JSON snapshot path (single-node persistence). |
 
-### x402 (Solana USDC) micropayments — Phases 1, 2, 3 of [issue #750](https://github.com/reverb256/quill/issues/750)
+### x402 (Solana USDC) micropayments — Phases 1, 2, 3 of [issue #750](https://github.com/maplespike/quill/issues/750)
 
 | Variable | Default | Description |
 |----------|---------|-------------|

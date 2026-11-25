@@ -49,6 +49,9 @@ concurrency:
 
 jobs:
   build:
+    # Stays on a GitHub-hosted runner. actions/upload-pages-artifact and
+    # actions/deploy-pages refuse self-hosted runners, including ARC.
+    # The workflow is disabled_manually until Pages can be enabled.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -98,6 +101,7 @@ jobs:
 
   deploy:
     needs: build
+    # deploy-pages must run on a GitHub-hosted runner.
     runs-on: ubuntu-latest
     environment:
       name: github-pages

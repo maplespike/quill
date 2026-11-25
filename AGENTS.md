@@ -17,7 +17,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 > **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in **live** mode (STRIPE_ENV=live since 2026-09-22).
 
-**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/v1/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
+**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
 
 > **Install paths (all defined in this repo; production cluster ships via Nix manifests + Kustomize, not via any of these install paths directly).** The Nix-first build (`flake.nix`) is the source of truth and emits OCI images, K8s manifests, and Podman quadlets. The **canonical registry is the operator-host registry `quill-<svc>`** (was `ghcr.io/reverb256/quill/<svc>` pre-2026-07-10 systemic flip; GHCR push is dormant). Compatible layers ship alongside for self-hosters:
 > 1. `selfhost.sh` / `nix run .#selfhost up` — Podman Quadlets via Nix (rootless, no registry needed). Install path documented.
@@ -114,7 +114,7 @@ Put Node 22.23.3 (or newer) first on `PATH`. Node 22.14 crashes in `undici` 8 be
 
 After boot these URLs respond:
 
-- API: `http://127.0.0.1:8082/v1/health`
+- API: `http://127.0.0.1:8082/health`
 - MCP: `http://127.0.0.1:3001/health`
 - Portal: `http://127.0.0.1:4321/`
 
@@ -223,7 +223,7 @@ nix run .#deploy-saas
 
 ```bash
 # Public endpoints through the tunnel:
-curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/health    # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/health    # 200
 curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/health       # 200
 curl -sI -o /dev/null -w '%{http_code}\n' https://quill.maplespike.ca/           # 200
 ```
@@ -303,19 +303,27 @@ Three payment methods implemented. **Live** mode is active since 2026-09-22 (`ST
 - `GET /v1/billing/orders` — Create/query payment orders
 - `POST /v1/billing/reconcile` — Manual reconciliation
 
-**Env vars (delivered to `maplespike-secrets` — keys `stripe-secret-key` / `stripe-webhook-secret` — and injected into the api via secretKeyRef):**
+**Env vars the chart actually injects into the api** — three via `secretKeyRef`
+from the `maplespike-secrets` ExternalSecret (`media-k8s`, sourced from Bitwarden
+Secrets Manager project `k3s`), two inline from `values-prod.yaml`:
 
 | Variable | Source |
 |----------|--------|
-| `STRIPE_SECRET_KEY` | `sk_live_51TXKNt...` (live) |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_live_51TXKNt...` (live) |
-| `STRIPE_TEST_SECRET_KEY` | `sk_test_51TXKNt...` (test) |
-| `STRIPE_TEST_PUBLISHABLE_KEY` | `pk_test_51TXKNt...` (test) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
-| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` |
-| `STRIPE_ENV` | `live` (since 2026-09-22; set in `charts/quill/values-prod.yaml`) |
-| `QUILL_BILLING_SECRET` | 256-bit HMAC for order signing |
-| `MAPLESPIKE_BILLING_EMAIL` | `billing@maplespike.ca` |
+| `STRIPE_SECRET_KEY` | `maplespike-secrets.stripe-secret-key` (live key) |
+| `STRIPE_WEBHOOK_SECRET` | `maplespike-secrets.stripe-webhook-secret` (signing secret of the live endpoint `we_1UINQwIZlbpvSCVXysk56SCA`) |
+| `QUILL_BILLING_SECRET` | `maplespike-secrets.quill-billing-secret` — 256-bit HMAC for order signing |
+| `STRIPE_ENV` | `live` (since 2026-09-22, `charts/quill/values-prod.yaml`); `config.ts:validateStripeEnv` refuses to boot on a key/mode mismatch |
+| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` (`charts/quill/values-prod.yaml`) — diagnostics only, feeds `accountFingerprint` in the billing status payload |
+
+**Stripe config deliberately absent from the Deployment:** the api carries no
+publishable key, because the portal is a separate artefact on Cloudflare Pages.
+The browser-side key reaches it as `PUBLIC_STRIPE_PUBLISHABLE_KEY`, baked at
+Pages build time from the repo variable `vars.PUBLIC_STRIPE_PUBLISHABLE_KEY`
+(`deploy-docs.yml`, `deploy-demo-pages.yml`; `ci.yml` inlines a live one) and
+consumed by `packages/portal/src/lib/embedded-checkout.ts`, which fails closed
+when it is missing or malformed. `STRIPE_TEST_SECRET_KEY` is read only by
+`config.ts:validateStripeEnv` as a guard — a live key must never occupy the
+test slot — and no deployment sets it.
 
 **Crypto treasury wallets** (8 EVM chains) — private keys encrypted with `age-plugin-yubikey` (both Nano + NFC Yubikeys required as recipients). Public addresses set on deployment:
 

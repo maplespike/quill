@@ -15,6 +15,15 @@
 # pull request and the head SHA, checks the gate once, and either squash-merges
 # or exits 0. A pending or red check is not this job's failure.
 #
+# A CANCELLED run is not a verdict either, and it is the one that reads worst.
+# concurrency.cancel-in-progress supersedes a stale attempt every time a new
+# event fires, and GitHub reports the superseded attempt as `cancelled` — which
+# `gh pr checks` renders as `fail`, in the same column as a real failure.
+# Measured 2026-11-22 on #1374: `merge` showed `fail` while every other listed
+# check was still pending, and the PR was merged by hand at mergeStateStatus
+# UNSTABLE on that reading. Read the checks themselves; if the only red cell is
+# this workflow and the run says `cancelled`, the gate simply had not judged yet.
+#
 # "Not my turn" exits 0, never 1. A red check on a PR that is only waiting for
 # its label is a misleading signal. A known foreign head exits 0 and does not
 # merge. Missing head-repository metadata, an unknown mergeable value, or a
@@ -47,6 +56,26 @@ on:
       - "Open-source facts audit"
       - "Auto-assign Sprint-to-Live Milestone"
       - "Dependabot Auto-Merge"
+    # Never on main/prod. A completed run on main has nothing left to merge, so
+    # the job could only claim the single `arc-maplespike-gate` runner, install
+    # gh, and exit 0 as "not my turn" -- while competing with real CI for the
+    # 6-pod `arc-runners` ResourceQuota. Measured 2026-11-23 13:10Z: 48 such runs
+    # created in 60 minutes, 24 of the 25 newest runs in the repo were this
+    # workflow, and every sampled queued run had `pull_requests: []` with
+    # `head_branch: main`. They were 28 of the 100 queued runs, median queue age
+    # 145 minutes.
+    #
+    # PR events are unaffected: for a pull_request run the triggering branch is
+    # the PR head branch, and pull_request_target (labeled/synchronize) remains
+    # the primary trigger.
+    #
+    # MEASURED 2026-11-23: branches-ignore alone did NOT stop these. After
+    # e977aa54 landed with exactly this filter, 17 main-branch workflow_run gate
+    # runs were created in 12 minutes (13:54:43Z-13:58:59Z), i.e. the filter was
+    # accepted but did not exclude push runs on main. It is kept as a cheap
+    # pre-dispatch guard; the enforcement is the job condition below, which
+    # reads the same payload field and cannot be silently ignored.
+    branches-ignore: [main, prod]
     types: [completed]
   check_suite:
     types: [completed]
@@ -92,6 +121,21 @@ jobs:
     # skipped. pull_request_target from a fork is skipped. check_suite and
     # workflow_dispatch are not fork pull_request events; the script still
     # refuses a fork head repository.
+    #
+    # NO PR NUMBER, NOTHING TO MERGE (measured 2026-11-23).
+    # A workflow_run payload from a push to main carries `pull_requests: []`.
+    # Two earlier attempts to filter these failed, each measured:
+    #   * #1400 `branches-ignore: [main, prod]` -- 17 main-branch runs in the 12
+    #     minutes after it landed (13:54:43Z-13:58:59Z).
+    #   * #1402 `head_branch != 'main'` in this condition -- the jobs came back
+    #     `queued` with an empty runner_name and a set started_at, not `skipped`
+    #     (14:20Z). head_branch is empty in these payloads, so `'' != 'main'`
+    #     passed and each run still claimed the single gate runner.
+    # So gate on the field the concurrency group already trusts: pull_requests is
+    # populated for a PR-branch run and empty for a push, and a run with no PR
+    # number has nothing to merge. This condition is one folded scalar -- keep
+    # prose OUT of it. #1403 put `#` comments in here and GitHub rejected the
+    # whole workflow file ("workflow file issue", zero jobs, main went red).
     if: >-
       (
         github.event_name != 'pull_request_target'
@@ -99,6 +143,9 @@ jobs:
       ) && (
         github.event.workflow_run.head_repository.full_name == github.repository
         || github.event_name != 'workflow_run'
+      ) && (
+        github.event_name != 'workflow_run'
+        || github.event.workflow_run.pull_requests[0].number != null
       )
     runs-on: >-
       ${{
@@ -125,10 +172,33 @@ jobs:
         id: gate
         if: ${{ vars.MERGE_GATE_APP_ID != '' }}
         continue-on-error: true
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.MERGE_GATE_APP_ID }}
           private-key: ${{ secrets.MERGE_GATE_APP_PRIVATE_KEY }}
+
+      # The ARC gate image does not ship gh (ubuntu-latest does). Run
+      # 44380736633 on main failed at "gh: command not found" before it
+      # could read PR metadata. Install a pinned gh into RUNNER_TEMP when
+      # it is missing; do not check out or run pull-request code.
+      - name: Install gh
+        env:
+          GH_VERSION: "2.103.2"
+          # Official checksums.txt for v2.103.2, fetched 2026-11-18 from
+          # https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_checksums.txt
+          GH_TARBALL_SHA256: "62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8"
+        run: |
+          set -euo pipefail
+          if command -v gh >/dev/null 2>&1; then gh --version | head -1; exit 0; fi
+          dest="$RUNNER_TEMP/gh"
+          mkdir -p "$dest"
+          tarball="$RUNNER_TEMP/gh_${GH_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL -o "$tarball" \
+            "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
+          echo "${GH_TARBALL_SHA256}  ${tarball}" | sha256sum -c -
+          tar -xz -C "$dest" --strip-components=1 -f "$tarball"
+          echo "$dest/bin" >> "$GITHUB_PATH"
+          "$dest/bin/gh" --version | head -1
 
       - name: Evaluate the gate once
         env:
@@ -472,7 +542,7 @@ jobs:
             fi
             status_next="$(printf '%s\n' "$status_raw" | awk '
               BEGIN { nexturl = "" }
-              /^$/ { exit }
+              /^\r?$/ { exit }
               tolower($0) ~ /^link:/ {
                 line = $0
                 sub(/^[Ll]ink:[ \t]*/, "", line)
@@ -489,7 +559,9 @@ jobs:
               }
               END { printf "%s", nexturl }
             ')"
-            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^$/ { capture = 1; next } capture { print }')"
+            # gh api --include emits CRLF headers; the separator line is "\r", so
+            # /^$/ never matched and the body came back empty -> jq input EOF -> break.
+            status_body="$(printf '%s\n' "$status_raw" | awk 'BEGIN { capture = 0 } /^\r?$/ { capture = 1; next } capture { print }')"
             if ! printf '%s\n' "$status_body" | jq -cen --argjson http_status "$status_http" --arg next "$status_next" 'input as $body | if ($body | type) != "array" then error("commit status body is not an array") else {http_status: $http_status, next: (if $next == "" then null else $next end), body: $body} end' >> "$RUNNER_TEMP/status-pages.json"; then
               echo "::error::commit status pagination returned a body that is not a JSON array. The gate did not merge."
               exit 1

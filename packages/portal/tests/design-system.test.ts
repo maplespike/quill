@@ -7,6 +7,7 @@ const layout = read('src/layouts/BaseLayout.astro');
 const landing = read('src/components/LandingBody.astro');
 const header = read('src/components/SiteHeader.astro');
 const css = read('src/styles/editorial.css');
+const script = read('public/script.js');
 
 describe('Public Record design contracts', () => {
   test('every route gets the same local-font theme and one main landmark', () => {
@@ -16,6 +17,33 @@ describe('Public Record design contracts', () => {
     expect(layout).toContain('id="main-content" tabindex="-1"');
     expect(layout).toContain('<SiteHeader ');
     expect(header).toContain('id="nav-auth-container"');
+  });
+
+  test('every routed page renders the shared layout, so every page has the toggle', () => {
+    const walk = (directory: string): string[] => readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+      const path = join(directory, entry.name);
+      return entry.isDirectory() ? walk(path) : path.endsWith('.astro') ? [path] : [];
+    });
+    // The French catch-all re-renders its English sibling, so it inherits that
+    // page's layout. api-reference.astro is the documented standalone Scalar
+    // page: no site chrome, and therefore no toggle to carry.
+    const inherit = new Set(['src/pages/fr/[...page].astro', 'src/pages/api-reference.astro']);
+    for (const path of walk(join(process.cwd(), 'src/pages'))) {
+      const rel = path.slice(process.cwd().length + 1);
+      if (inherit.has(rel)) continue;
+      const source = readFileSync(path, 'utf8');
+      expect(source, `${rel} does not use BaseLayout, so it has no theme toggle`).toContain('BaseLayout');
+    }
+  });
+
+  test('theme toggle switches the dark class and never renames the theme', () => {
+    expect(layout).toContain('data-theme="ink-and-paper"');
+    expect(script).toContain("classList.toggle('dark'");
+    // data-theme must stay "ink-and-paper"; writing light/dark into it made
+    // the design check flaky and produced a half-dark page.
+    expect(script).not.toMatch(/setAttribute\(\s*['"]data-theme['"]/);
+    expect(script).toContain('aria-pressed');
+    expect(header).toContain('aria-pressed="false"');
   });
 
   test('header supports keyboard dismissal and idempotent SPA binding', () => {

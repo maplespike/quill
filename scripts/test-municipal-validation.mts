@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Gate G2 fixtures for the municipal candidate validator (#872).
  * Negative controls are the EXACT live failures reported on 2026-09-21.

@@ -140,13 +140,17 @@ spec:
                 secretKeyRef:
                   name: quill-secrets
                   key: internalJwtSecret
+            {{- $res := $.Values.ingestion.resources }}
+            {{- if and $.Values.ingestion.resourcesByPipeline (index $.Values.ingestion.resourcesByPipeline $name) }}
+            {{- $res = index $.Values.ingestion.resourcesByPipeline $name }}
+            {{- end }}
             resources:
               requests:
-                cpu: {{ $.Values.ingestion.resources.requests.cpu }}
-                memory: {{ $.Values.ingestion.resources.requests.memory }}
+                cpu: {{ $res.requests.cpu }}
+                memory: {{ $res.requests.memory }}
               limits:
-                cpu: {{ $.Values.ingestion.resources.limits.cpu }}
-                memory: {{ $.Values.ingestion.resources.limits.memory }}
+                cpu: {{ $res.limits.cpu }}
+                memory: {{ $res.limits.memory }}
             {{- if $sqlite }}
             volumeMounts:
             - name: data
