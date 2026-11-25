@@ -13,7 +13,6 @@ overrides:
   # @trufflesuite fork is the ecosystem-standard drop-in substitute.
   "@grpc/grpc-js": "^1.14.5"
   "@opentelemetry/core": "^2.8.0"
-  "@simplewebauthn/server": "^13.3.2"
   astro@<=7.4.4: '>=7.4.5'
   astro@>=5.14.3 <=7.4.6: '>=7.4.7'
   bigint-buffer: "npm:@trufflesuite/bigint-buffer@1.1.10"
