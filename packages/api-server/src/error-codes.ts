@@ -44,6 +44,11 @@ export const ERROR_CODES: Record<string, BilingualError> = {
     en: 'Resource not found',
     fr: 'Ressource non trouvée',
   },
+  FIXTURES_DISABLED: {
+    code: 'FIXTURES_DISABLED',
+    en: 'Fixture routes are off. They serve synthetic fixtures. Set QUILL_FIXTURES=1 to enable them.',
+    fr: 'Les routes de fixtures sont arrêtées. Elles servent des données synthétiques. Définissez QUILL_FIXTURES=1 pour les activer.',
+  },
   METHOD_NOT_ALLOWED: {
     code: 'METHOD_NOT_ALLOWED',
     en: 'Method not allowed',

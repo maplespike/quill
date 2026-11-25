@@ -23,7 +23,7 @@
  * NEVER hits the real Stripe API. NEVER logs key values.
  */
 
-import { describe, it, beforeEach, before } from 'node:test';
+import { describe, it, beforeEach, afterEach, before } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -532,6 +532,128 @@ describe('stripeWebhookHandler', () => {
     assert.equal(t.stripeSubscriptionId, 'sub_webhook_test');
   });
 
+  it('treats invoice.paid as a renewal, alias of invoice.payment_succeeded', async () => {
+    // Regression: the live endpoint subscribed `invoice.paid`, but the switch
+    // only knew `invoice.payment_succeeded`, so renewals were recorded as
+    // `unhandled`. Both events fire on a paid invoice with the same payload
+    // shape; neither may fall through to the default branch.
+    const tenantId = 'tenant_invoice_paid';
+    const res = await signAndPost({
+      id: 'evt_invoice_paid1',
+      type: 'invoice.paid',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'in_test_paid1',
+          object: 'invoice',
+          customer: 'cus_invoice_paid',
+          amount_paid: 2900,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.notEqual(body.data.action, 'unhandled', 'invoice.paid must not fall through to the default branch');
+    assert.match(body.data.action, /^renewal_logged/, `expected a renewal action, got "${body.data.action}"`);
+  });
+
+  it('treats invoice.payment_succeeded identically to invoice.paid', async () => {
+    const tenantId = 'tenant_invoice_ps';
+    const res = await signAndPost({
+      id: 'evt_invoice_ps1',
+      type: 'invoice.payment_succeeded',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'in_test_ps1',
+          object: 'invoice',
+          customer: 'cus_invoice_ps',
+          amount_paid: 2900,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.match(body.data.action, /^renewal_logged/);
+  });
+
+  it('records charge.refunded as a refund, not an unhandled event', async () => {
+    // charge.refunded is handled in the switch but was not one of the events the
+    // live endpoint subscribed, so refunds never arrived. It is subscribed now.
+    const res = await signAndPost({
+      id: 'evt_refund1',
+      type: 'charge.refunded',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'ch_test_refund1',
+          object: 'charge',
+          amount_refunded: 1500,
+          currency: 'cad',
+          metadata: { tenant_id: 'tenant_refund' },
+        },
+      },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.notEqual(body.data.action, 'unhandled');
+    assert.match(body.data.action, /^refund_/);
+  });
+
+  it('treats customer.subscription.paused and .resumed as handled events', async () => {
+    const tenantId = 'tenant_paused_events_test';
+    const customerId = 'cus_paused_events';
+    const bind = await signAndPost({
+      id: 'evt_bind_paused_events',
+      type: 'checkout.session.completed',
+      created: Math.floor(Date.now() / 1000),
+      livemode: false,
+      data: {
+        object: {
+          id: 'cs_test_bind_paused_events',
+          object: 'checkout.session',
+          customer: customerId,
+          subscription: 'sub_paused_events',
+          amount_total: 5000,
+          currency: 'cad',
+          metadata: { tenant_id: tenantId, plan_id: 'pro', order_id: 'MS-PAUSE02' },
+        },
+      },
+    });
+    assert.equal((await bind.json()).data.action, 'tier_upgraded');
+
+    for (const [typ, status] of [['customer.subscription.paused', 'paused'], ['customer.subscription.resumed', 'active']] as const) {
+      const res = await signAndPost({
+        id: `evt_paused_events_${status}`,
+        type: typ,
+        created: Math.floor(Date.now() / 1000),
+        livemode: false,
+        data: {
+          object: {
+            id: 'sub_paused_events',
+            object: 'subscription',
+            customer: customerId,
+            status,
+            current_period_end: Math.floor(Date.now() / 1000) + 86400,
+            metadata: { tenant_id: tenantId, plan_id: 'pro' },
+          },
+        },
+      });
+      assert.equal(res.status, 200);
+      const body = await res.json();
+      assert.notEqual(body.data.action, 'unhandled', `${typ} must not fall through to the default branch`);
+      assert.notEqual(body.data.action, 'rejected_cross_tenant', `${typ} lost the customer binding`);
+      assert.match(body.data.action, /^tier_/, `expected a tier action for ${typ}, got "${body.data.action}"`);
+    }
+  });
+
   it('downgrades tier on customer.subscription.deleted when customer is bound', async () => {
     const tenantId = 'tenant_sub_delete_test';
     const customerId = 'cus_to_delete';
@@ -972,5 +1094,80 @@ describe('Restart-survival (NodeSqliteStorage; simulates k3s pod eviction)', () 
       db.close();
       try { fs.unlinkSync(dbPath2); } catch { /* ignore */ }
     });
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────
+// 9. Embedded Checkout wire value
+//
+// Stripe retired `ui_mode=embedded`: the live account answers "The ui_mode
+// value `embedded` is no longer supported. Use `embedded_page` instead."
+// (checked 2026-11-23 under our own Stripe-Version pin, so the pin does not
+// rescue it). Embedded sessions would 400 before the browser ever saw a
+// client_secret.
+// ──────────────────────────────────────────────────────────────────
+describe('createCheckoutSession ui_mode', () => {
+  let originalFetch: typeof global.fetch;
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  async function captureBody(uiMode?: 'hosted' | 'embedded') {
+    let url = '';
+    let body = '';
+    global.fetch = (async (input: any, init: any) => {
+      url = String(input);
+      body = String(init?.body ?? '');
+      return new Response(
+        JSON.stringify({
+          id: 'cs_test_ui',
+          object: 'checkout.session',
+          url: 'https://checkout.stripe.com/c/pay/cs_test_ui',
+          status: 'open',
+          client_secret: 'cs_test_ui_secret',
+          metadata: {},
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      );
+    }) as typeof fetch;
+
+    await stripe.createCheckoutSession({
+      customerId: 'cus_test_ui',
+      amountCents: 5000,
+      currency: 'cad',
+      productName: 'MapleSpike Pro',
+      planId: 'pro',
+      tenantId: 'tenant_ui',
+      orderId: 'MS-UI-1',
+      intervalMonths: 1,
+      successUrl: 'https://quill.maplespike.ca/checkout/thanks',
+      cancelUrl: 'https://quill.maplespike.ca/pricing',
+      expiresAtUnix: Math.floor(Date.now() / 1000) + 1800,
+      uiMode,
+      returnUrl: 'https://quill.maplespike.ca/checkout/return',
+    });
+
+    return { url, body };
+  }
+
+  it('sends embedded_page, never the retired embedded value', async () => {
+    const { url, body } = await captureBody('embedded');
+    assert.equal(url, 'https://api.stripe.com/v1/checkout/sessions');
+    assert.ok(body.includes('ui_mode=embedded_page'), `expected ui_mode=embedded_page, got: ${body}`);
+    assert.ok(!/(^|&)ui_mode=embedded(&|$)/.test(body), 'must not send the retired `embedded` value');
+    assert.ok(body.includes('return_url='), 'embedded sessions take return_url');
+    assert.ok(!body.includes('success_url='), 'embedded sessions reject success_url');
+    assert.ok(!body.includes('cancel_url='), 'embedded sessions reject cancel_url');
+  });
+
+  it('omits ui_mode for the hosted redirect', async () => {
+    const { body } = await captureBody('hosted');
+    assert.ok(!body.includes('ui_mode='), `hosted sessions must not send ui_mode, got: ${body}`);
+    assert.ok(body.includes('success_url=') && body.includes('cancel_url='));
   });
 });

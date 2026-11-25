@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchCorporate } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 /**
  * Search corporate registry data, federal lobbying records, procurement contracts,
@@ -47,8 +48,37 @@ const datasetSourceMap: Record<string, string[]> = {
   all: ['corporate', 'lobbying', 'procurement'],
 };
 
-export const handler: ToolHandler = async (args) => {
-  const query = (args.query as string) ?? '';
+function corporatePolicyId(dataset: string): string {
+  if (dataset === 'lobbying') return 'federal-lobbying-monthly';
+  if (dataset === 'statements') return 'media-broadcasting';
+  return 'corporate';
+}
+
+/** Mixed corporate results: each record type keeps its own policy. */
+function projectMixedCorporateRecord(record: Record<string, unknown>): unknown {
+  if (
+    'registrant_address' in record
+    || 'registrantAddress' in record
+    || 'registrant_name' in record
+    || 'registrantName' in record
+  ) {
+    return applySourcePolicy('federal-lobbying-monthly', [record]).records[0];
+  }
+  if ('executiveName' in record || 'statementType' in record) {
+    return applySourcePolicy('media-broadcasting', [record]).records[0];
+  }
+  if ('insiderName' in record || 'insider_name' in record) {
+    return applySourcePolicy('sedi', [record]).records[0];
+  }
+  return record;
+}
+
+/** Core search — injectable fetcher for tests. Record type selects the policy. */
+export async function runSearchCorporate(
+  args: { query?: string; dataset?: string; limit?: number },
+  fetchFn: typeof fetchCorporate = fetchCorporate,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query ?? '';
   if (!query.trim()) {
     return {
       content: {
@@ -60,15 +90,15 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const dataset = (args.dataset as string) ?? 'all';
-  const limit = Math.min((args.limit as number) ?? 10, 50);
+  const dataset = args.dataset ?? 'all';
+  const limit = Math.min(args.limit ?? 10, 50);
 
   const sourceKeys = datasetSourceMap[dataset] || datasetSourceMap.all;
 
   let results: Record<string, unknown>[];
   let total: number;
   try {
-    const result = await fetchCorporate(query, limit);
+    const result = await fetchFn(query, limit);
     results = result.results;
     total = result.total;
   } catch {
@@ -86,14 +116,26 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
+  const prepared = dataset === 'all' ? results.map(projectMixedCorporateRecord) : results;
+  const applied = applySourcePolicy(corporatePolicyId(dataset), prepared);
+
   return {
     content: {
       tool: 'search_corporate',
       query,
       dataset,
       limit,
-      results,
+      results: applied.records,
       totalCount: total,
+      policy: applied.policy,
     },
   };
+}
+
+export const handler: ToolHandler = async (args) => {
+  return runSearchCorporate({
+    query: args.query as string | undefined,
+    dataset: args.dataset as string | undefined,
+    limit: args.limit as number | undefined,
+  });
 };

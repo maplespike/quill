@@ -16,7 +16,7 @@ import {
 
 describe('source licence policy — flags', () => {
   it('committee sources are commercial-use-blocked and discovery-only', () => {
-    for (const id of ['committees', 'parliamentary-voting']) {
+    for (const id of ['committees', 'parliamentary-voting', 'openparliament']) {
       const policy = policyForModule(id);
       assert.equal(policy.commercialUse, false, `${id} must block commercial use`);
       assert.equal(policy.discoveryOnly, true, `${id} must be discovery-only`);
@@ -33,6 +33,7 @@ describe('source licence policy — flags', () => {
       'ontario-lobbying',
       'cra-charity',
       'political-donations',
+      'influence',
     ]) {
       assert.equal(policyForModule(id).minimizePersonalInformation, true, `${id} must minimize PII`);
     }
@@ -191,6 +192,76 @@ describe('applySourcePolicy — lobbying minimization', () => {
     const input = [{ id: 'b1', email: 'contact@bankofcanada.ca', phone: '1-800-303-1282' }];
     const { records } = applySourcePolicy('bank-of-canada', input);
     assert.deepEqual(records, input);
+  });
+
+  it('drops registrant_address and adds the OCL attribution line', () => {
+    const { records, policy } = applySourcePolicy('lobbying', [
+      {
+        id: 'l2',
+        client_name: 'Acme Corp',
+        registrant_name: 'Jane Doe',
+        registrant_address: '12 Elm St',
+        registrantAddress: '12 Elm St',
+      },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.registrant_address, undefined);
+    assert.equal(record.registrantAddress, undefined);
+    assert.equal(record.registrant_name, 'Jane Doe');
+    assert.equal(record.client_name, 'Acme Corp');
+    assert.equal(
+      record.attribution_text,
+      'Contains information licensed under the Open Data Licence Agreement — Office of the Commissioner of Lobbying.',
+    );
+    assert.ok(policy.notices.some((n) => n.includes('Office of the Commissioner of Lobbying')));
+  });
+
+  it('keeps a publisher-supplied attribution line on lobbying records', () => {
+    const { records } = applySourcePolicy('federal-lobbying-monthly', [
+      { id: 'l3', registrant_address: '9 Oak Ave', attribution_text: 'Publisher line.' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.registrant_address, undefined);
+    assert.equal(record.attribution_text, 'Publisher line.');
+  });
+
+  it('drops a provincial registrant address and does not add the federal OCL line', () => {
+    const { records } = applySourcePolicy('provincial-lobbying', [
+      { id: 'p1', registrant_address: '1 Main St', client_name: 'North Co' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.registrant_address, undefined);
+    assert.equal(record.client_name, 'North Co');
+    assert.equal(record.attribution_text, undefined);
+  });
+});
+
+describe('applySourcePolicy — openparliament', () => {
+  it('strips debate text and attaches the Commons notice', () => {
+    const { records, policy } = applySourcePolicy('openparliament', [
+      { id: 'd1', date: '2026-02-01', text: 'full debate', url: 'https://openparliament.ca/debates/1' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.text, undefined);
+    assert.equal(record.date, '2026-02-01');
+    assert.equal(record.url, 'https://openparliament.ca/debates/1');
+    assert.equal(policy.discovery_only, true);
+    assert.equal(policy.commercial_use, false);
+    assert.ok(policy.notices.some((n) => n.includes("Speaker's Permission")));
+    assert.equal(policy.notices.some((n) => n.includes('Senate')), false);
+  });
+});
+
+describe('applySourcePolicy — influence', () => {
+  it('minimizes personal contact fields', () => {
+    const { records, policy } = applySourcePolicy('influence', [
+      { id: 'a1', name: 'Ada Lovelace', email: 'ada@example.com', role: 'director' },
+    ]);
+    const record = records[0] as Record<string, unknown>;
+    assert.equal(record.email, undefined);
+    assert.equal(record.name, 'Ada Lovelace');
+    assert.equal(record.role, 'director');
+    assert.equal(policy.minimize_personal_information, true);
   });
 });
 

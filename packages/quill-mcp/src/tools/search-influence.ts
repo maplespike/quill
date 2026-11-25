@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchCkan } from './upstream-fetcher.js';
+import { applySourcePolicy } from '@maplespike/pipeline-core';
 
 /**
  * Search influence tracking data — international organizations, NGOs, think tanks,
@@ -39,8 +40,12 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args) => {
-  const query = (args.query as string) ?? '';
+/** Core search — injectable fetcher for tests. Influence records minimize personal information. */
+export async function runSearchInfluence(
+  args: { query?: string; category?: string; limit?: number },
+  fetchFn: typeof searchCkan = searchCkan,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
+  const query = args.query ?? '';
   if (!query.trim()) {
     return {
       content: {
@@ -52,12 +57,12 @@ export const handler: ToolHandler = async (args) => {
     };
   }
 
-  const category = (args.category as string) ?? 'all';
-  const limit = Math.min((args.limit as number) ?? 10, 50);
+  const category = args.category ?? 'all';
+  const limit = Math.min(args.limit ?? 10, 50);
 
-  const result = await searchCkan(query, limit);
-  let results = result.results;
-  let total = result.total;
+  const result = await fetchFn(query, limit);
+  const results = result.results;
+  const total = result.total;
 
   // Apply category filter if provided
   let filteredResults = results;
@@ -68,14 +73,25 @@ export const handler: ToolHandler = async (args) => {
     );
   }
 
+  const applied = applySourcePolicy('influence', filteredResults);
+
   return {
     content: {
       tool: 'search_influence',
       query,
       category,
       limit,
-      results: filteredResults,
-      totalCount: category !== 'all' ? filteredResults.length : total,
+      results: applied.records,
+      totalCount: category !== 'all' ? applied.records.length : total,
+      policy: applied.policy,
     },
   };
+}
+
+export const handler: ToolHandler = async (args) => {
+  return runSearchInfluence({
+    query: args.query as string | undefined,
+    category: args.category as string | undefined,
+    limit: args.limit as number | undefined,
+  });
 };

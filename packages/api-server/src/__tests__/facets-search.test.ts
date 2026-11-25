@@ -134,7 +134,7 @@ test('municipalSearchHandler returns matched records with citation + cache marke
   }
 });
 
-test('municipalSearchHandler ?q= full-text substring filter', async () => {
+test('municipalSearchHandler ?q= full-text token filter', async () => {
   const { json } = await invoke(municipalSearchHandler, 'http://test/v1/municipal/search?q=b1');
   assert.ok(json.data.records.length > 0, 'q=b1 should match toronto/budget which has [{id:"b1"}]');
   for (const r of json.data.records) {

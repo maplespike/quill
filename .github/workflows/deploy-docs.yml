@@ -52,31 +52,38 @@ concurrency:
 jobs:
   build:
     name: Build portal + docs
-    # EXCEPTION (2026-08-13): GitHub Pages deployment (actions/upload-pages-
-    # artifact + actions/deploy-pages) requires a GitHub-hosted runner and
-    # cannot run on self-hosted. This is the ONLY workflow still on a hosted
-    # runner. To go fully self-hosted, move Pages to a self-hosted static
-    # host (Cloudflare Pages / nginx) and delete this workflow.
-    runs-on: ubuntu-24.04
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # Push and workflow_dispatch only (no pull_request), so the homelab
+    # runner is not exposed to a fork. The pre-baked arc-maplespike image
+    # already has Node v22.23.4 and pnpm 10.32.1 (measured 2026-11-09 on
+    # arc-maplespike-runner). arc-tools installs them when a runner lacks
+    # that pair. Pages deploy actions stay on the deploy job below.
+    runs-on: arc-maplespike
+    timeout-minutes: 45
     permissions:
       contents: read
+      # The probe GETs /pages. pages:write is the scope the hosted job used
+      # when that call succeeded; read alone is not what this repo measured.
       pages: write
-      id-token: write
+    outputs:
+      verdict: ${{ steps.pages-probe.outputs.verdict }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: ARC runner tools
+        uses: ./.github/actions/arc-tools
+
       - name: Setup pnpm
         # package.json "packageManager" is the version source of truth.
         # An explicit version here makes pnpm/action-setup fail with
-        # "Multiple versions of pnpm specified".
+        # "Multiple versions of pnpm specified". Skipped when the ARC image
+        # already has that pnpm (ARC_NEED_NODE=0).
+        if: env.ARC_NEED_NODE != '0'
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
+        if: env.ARC_NEED_NODE != '0'
         uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -138,6 +145,53 @@ jobs:
         if: steps.pages-probe.outputs.verdict == 'not-enabled'
         run: |
           echo "::warning::Pages is not enabled on ${{ github.repository }} (private repo on the free plan — POST /pages is refused with 422). The portal + docs build above IS verified; the deploy is skipped. Enable Pages (public flip or paid plan — see issue #1086), then re-run: the deploy path is unchanged and will fire on the next run."
+
+      - name: Upload portal dist
+        # Hand the built site to the hosted deploy job. Skipped when Pages
+        # is not enabled, so a free-plan push does not publish an artifact.
+        if: steps.pages-probe.outputs.verdict == 'enabled'
+        uses: actions/upload-artifact@v7
+        with:
+          name: portal-dist
+          path: packages/portal/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    # actions/configure-pages, upload-pages-artifact, and deploy-pages
+    # refuse self-hosted runners. This job stays on ubuntu-24.04. It does
+    # not start unless the ARC build's probe said enabled, so a free-plan
+    # private repo (the current state) spends no hosted minutes here.
+    if: needs.build.result == 'success' && needs.build.outputs.verdict == 'enabled'
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Download portal dist
+        uses: actions/download-artifact@v8
+        with:
+          name: portal-dist
+          path: packages/portal/dist
+
+      # Re-emit the build probe so each Pages action keeps its step if.
+      # No checkout: the site is the artifact, and the probe already ran.
+      - name: Carry the Pages verdict
+        id: pages-probe
+        env:
+          VERDICT: ${{ needs.build.outputs.verdict }}
+        run: |
+          if [ "$VERDICT" != "enabled" ]; then
+            echo "::error::refusing to deploy without verdict=enabled (got ${VERDICT:-empty})."
+            exit 1
+          fi
+          echo "verdict=enabled" >> "$GITHUB_OUTPUT"
 
       - name: Setup GitHub Pages
         if: steps.pages-probe.outputs.verdict == 'enabled'

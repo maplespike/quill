@@ -127,7 +127,12 @@ Do not hand-pick hover or tint hexes. Derive them from the source role with
 
 ### User preferences
 
-- `color-scheme: light` on the theme root; Quill has no dark theme by design.
+- `color-scheme: light` on the theme root; light is the default. The header
+  toggle switches to the ink-and-paper dark variant
+  (`.theme-ink-and-paper.dark`, `color-scheme: dark`), which inverts the
+  paper/ink planes and remembers the choice in `localStorage`
+  (`maplespike-theme`). The `.dark` class is the switch — `data-theme` keeps
+  naming the design theme (`ink-and-paper`).
 - `@media (prefers-contrast: more)`: muted text → soft ink (12.5:1), hairlines →
   strong line, focus ring fully opaque (mono labels are already 11–12px).
 - `@media (forced-colors: active)`: system `Highlight` focus, `CanvasText`

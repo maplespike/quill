@@ -8,14 +8,23 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout as StripeEmbeddedCheckout } from "@stripe/react-stripe-js";
-import { createEmbeddedSession, keyLookUsable, publishableKey } from "../lib/embedded-checkout";
+import {
+  createEmbeddedSession,
+  keyLookUsable,
+  resolveCredential,
+  resolvePublishableKey,
+} from "../lib/embedded-checkout";
 import { deriveApiBase } from "../lib/api-base";
 
 const env: Record<string, unknown> =
   (typeof import.meta !== "undefined" && (import.meta as { env?: Record<string, unknown> }).env) || {};
 
 export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: string }) {
-  const key = publishableKey(env);
+  // Runtime (/config.js injection) first, build-time env second.
+  const key = resolvePublishableKey({
+    buildEnv: env,
+    runtimeWindow: typeof window !== "undefined" ? window : undefined,
+  });
   const usability = keyLookUsable(key);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -23,9 +32,16 @@ export default function EmbeddedCheckoutIsland({ planId = "pro" }: { planId?: st
 
   useEffect(() => {
     if (!usability.ok) return;
-    const apiKey = (window as unknown as { MAPLESPIKE?: { apiKey?: string } }).MAPLESPIKE?.apiKey || "";
+    // Runtime config first (a deployment may inject one), then the credential
+    // the session already stored: `quill-api-key` from signup/workspace, or the
+    // `maplespike_token` JWT. Reading only the config global is what made a
+    // signed-in visitor see "sign in first" — see resolveCredential.
+    const apiKey = resolveCredential({
+      runtimeWindow: window,
+      storage: window.localStorage,
+    });
     if (!apiKey) {
-      setError("Sign in first — embedded checkout needs your API key.");
+      setError("Sign in first, or save an API key in the workspace — checkout needs one.");
       return;
     }
     let cancelled = false;

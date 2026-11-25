@@ -410,7 +410,7 @@ Three packages (`sdk`, `legal-core`, `legislation`) are published to npm while o
 
 ### License and Provenance Status
 
-Package manifests, package-level license files, and source-file SPDX declarations conflict; some workspace packages have no declared license. This architecture document does not determine which declaration controls any artifact. Do not infer the license of an SDK, package, container image, or dependency from neighboring package metadata. See the [open-source audit](./open-source-audit.md) for observed declarations and unresolved questions. Data-source terms are separate and vary by publisher and dataset; public availability is not a reuse grant.
+Quill's own code is `AGPL-3.0-only`. The rights holder made that decision on 2026-10-24. See [LICENSE.md](../LICENSE.md). Third-party dependencies keep their own licences. Do not infer a dependency's licence from a neighbouring Quill package. Data-source terms are separate and vary by publisher and dataset. Public availability is not a reuse grant. The [open-source audit](./open-source-audit.md) records the tree before the decision.
 
 ### Ingestion Module Architecture
 
@@ -454,7 +454,7 @@ The `pretext-civic` package is orphaned because the portal migrated from Next.js
 
 ### pipeline-core
 
-The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 203 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. Its package manifest declares AGPL-3.0-or-later, but file-level and repository-wide license scope remains under review; see the [open-source audit](./open-source-audit.md).
+The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 203 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. Its package manifest declares `AGPL-3.0-only`. See [LICENSE.md](../LICENSE.md).
 
 ### quill-mcp
 

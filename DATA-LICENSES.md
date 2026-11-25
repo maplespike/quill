@@ -158,7 +158,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `canlii` | https://www.canlii.org/info/terms.html | link-only |
 | `cipo` | https://ised-isde.canada.ca/site/canadian-intellectual-property-office/en | — |
 | `cmhc` | https://www.cmhc-schl.gc.ca/copyright | — |
-| `committees` | https://open.canada.ca/en/open-government-licence-canada | non-commercial, discovery-only |
+| `committees` | https://www.ourcommons.ca/en/important-notices | non-commercial, discovery-only |
 | `corporate` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `corporate-filings` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `cra-charity` | https://www.canada.ca/en/revenue-agency/services/charities-giving/charities-listings.html | pii-minimized |
@@ -207,7 +207,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `indigenous-land-claims` | _no single terms URL recorded — see the source family note_ | — |
 | `indigenous-relations` | _no single terms URL recorded — see the source family note_ | — |
 | `indigenous-services-directory` | _no single terms URL recorded — see the source family note_ | — |
-| `influence` | _no single terms URL recorded — see the source family note_ | — |
+| `influence` | https://open.canada.ca/en/open-government-licence-canada | pii-minimized |
 | `ircc` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `ircc-family-sponsorship` | https://open.canada.ca/en/open-government-licence-canada | — |
 | `isc` | https://open.canada.ca/en/open-government-licence-canada | — |
@@ -259,6 +259,7 @@ This index is generated from [`data-source-licenses.json`](./data-source-license
 | `ontario-provincial` | https://www.ontario.ca/page/ontario-open-data-terms-use | — |
 | `ontario-securities-commission` | https://www.osc.ca/en/about-us/terms-use | — |
 | `opencorporates` | https://opencorporates.com/terms | — |
+| `openparliament` | https://www.ourcommons.ca/en/important-notices | non-commercial, discovery-only |
 | `ottawa-oc-transpo` | https://open.ottawa.ca/pages/open-data-licence | — |
 | `oversight` | _no single terms URL recorded — see the source family note_ | — |
 | `parks` | _no single terms URL recorded — see the source family note_ | — |

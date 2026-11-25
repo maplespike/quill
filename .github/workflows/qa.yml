@@ -13,6 +13,13 @@ on:
       - 'docs/**/*.svg'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      # Unrelated trees do not run this suite. A mixed code change still runs.
+      # PR validation has no path filter and still reports on every pull request.
+      - 'openspec/**'
+      - 'training/**'
+      - 'ops/**'
+      - '.changeset/**'
+      - 'assets/**'
   push:
     branches: [main, prod]
     paths-ignore:
@@ -24,6 +31,12 @@ on:
       - 'docs/**/*.svg'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      # Same unrelated trees as the pull_request filter above.
+      - 'openspec/**'
+      - 'training/**'
+      - 'ops/**'
+      - '.changeset/**'
+      - 'assets/**'
 
 concurrency:
   # One run per PR; a new push cancels the superseded run. Main/prod and
@@ -35,14 +48,14 @@ permissions:
   contents: read
 
 jobs:
-  # PR path filter. Runs on a GitHub-hosted runner (it checks out nothing and
-  # only reads the PR's file list over the API), so it never waits behind the
-  # single arc-maplespike runner. Pushes to main/prod skip the filter step and
-  # every job below runs in full, so main always gets the complete signal.
+  # PR path filter. Same-repo runs use arc-maplespike, the label the other
+  # light jobs use. A fork pull request stays on ubuntu-latest. The job
+  # checks out nothing; dorny/paths-filter reads the file list over the API.
+  # Pushes to main/prod skip the filter step and every job below runs in full.
   # Filters are deny-lists ("everything except ..."): a path nobody thought
   # about runs the jobs instead of silently skipping them.
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
     timeout-minutes: 5
     permissions:
       contents: read
@@ -116,10 +129,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -162,10 +175,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -215,10 +228,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22
@@ -274,10 +287,10 @@ jobs:
         if: startsWith(runner.name, 'arc-')
         uses: ./.github/actions/arc-tools
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: runner.environment == 'github-hosted' || (startsWith(runner.name, 'arc-') && env.ARC_NEED_NODE != '0')
         with:
           node-version: 22

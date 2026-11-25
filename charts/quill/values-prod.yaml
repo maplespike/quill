@@ -11,32 +11,32 @@ images:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/api"
     pullPolicy: IfNotPresent
-    digest: "sha256:9cf03a1f6930cefe12b96dc8d04dfb164fc77158efaaa756285d08b0aab65939"
-    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
+    digest: "sha256:42846d14ae8287cfe01ae44e0453b3363a778d61b72a548f3e8d2de4788ad84e"
+    tag: "9f3a48d6ae9982f0adf3f637f8c7d9dedf0a680b"
   mcp:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/mcp"
     pullPolicy: IfNotPresent
-    digest: "sha256:b1eb898e366a0ccd7c3546dc5961ab2ea9db7745d9d5e3d1dc6ee19c87ade3d5"
-    tag: "04c08cf1d09ebf2f8d157892b203f428ce4adbe0"
+    digest: "sha256:081bab0cd640e5412d56c887269f877b1a21c93cd103399e0ed53e2645ccbade"
+    tag: "bd65fcbe5ee40911a173b08dc5b90ce7db07ff83"
   portal:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/portal"
     pullPolicy: IfNotPresent
-    digest: "sha256:86739247d84869e2233c7b1dc960790b1ba76c27fb2be4eb37bb668b31565dba"
-    tag: "43baff851caa87f1b12a98229fd044cf4e2d5379"
+    digest: "sha256:4f040e2eb0257e314686030e80fcf06505e65b478f7b05838c68ed4da602a430"
+    tag: "8db874fc6c7248fa0cb73360aeee8f8d44454efa"
   ingest:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/ingest"
     pullPolicy: IfNotPresent
-    digest: "sha256:13c37c96088298478d64d34268558b193b52fa70a2b4d3a498b562ec6bb2ca24"
-    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
+    digest: "sha256:2c1184bf9a53d92d15e183d64aa7f7e3341b08735e7d7c13a7e2bec23e49eec1"
+    tag: "bd65fcbe5ee40911a173b08dc5b90ce7db07ff83"
   search:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/search"
     pullPolicy: IfNotPresent
-    digest: "sha256:40f98ad3a15c172fdded1a4ca1921a601da0af96b953bdb179fd0d7b6a3c6cc5"
-    tag: "cd4101f18a1625ecf4973459f1e022ea3cbd8b4a"
+    digest: "sha256:4f5fcbfdafefe209d2a0145debc0405649bebde0c6185d89fb110bc1f7da7f24"
+    tag: "bd65fcbe5ee40911a173b08dc5b90ce7db07ff83"
 # CPU order (Reverb 2026-10-28 15:06 CT): nexus first, then sentry;
 # forge last and only for ultra-light work (cloudflared). Heavy workloads
 # use required hostname In affinityHosts + preferredHost weight 100.
@@ -50,10 +50,13 @@ api:
   replicas: 1
   port: 8082
   metricsPort: 9464
+  # Memory request covers a live working set of about 146Mi (operator
+  # sample), plus headroom. That sample is not a 7-day peak. Ingest, engine,
+  # and backup peaks are separate pods. CPU request unchanged. Limit stays 512Mi.
   resources:
     requests:
       cpu: 100m
-      memory: 128Mi
+      memory: 192Mi
     limits:
       cpu: 500m
       memory: 512Mi
@@ -71,6 +74,10 @@ api:
     TRUST_PROXY: 'true'
     REDIS_URL: redis://quill-redis:6379
     STRIPE_ENV: live
+    # Account the live and test keys belong to (pk_live_ and pk_test_ carry the
+    # same id). Diagnostics only — the billing status payload's
+    # accountFingerprint reads it; no Connect/Stripe-Account usage.
+    STRIPE_ACCOUNT_ID: acct_1TXKNtIZlbpvSCVX
   ingress:
     host: api.maplespike.ca
     tls: true
@@ -91,10 +98,12 @@ mcp:
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  # No working-set or CPU sample in-repo. The Grafana dashboard counts
+  # pipeline jobs only. Modest cut. Limit stays 256Mi.
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 96Mi
     limits:
       cpu: 500m
       memory: 256Mi
@@ -110,9 +119,12 @@ redis:
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
   maxmemory: 128mb
+  # No working-set sample. maxmemory 128mb is the data ceiling, already
+  # above this 64Mi request and under the 192Mi limit, so the memory request
+  # stays. CPU request halved. No CPU sample.
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 64Mi
     limits:
       cpu: 200m
@@ -143,9 +155,12 @@ portal:
   # Combined with required podAntiAffinity when replicas>1 (portal.yaml).
   affinityHosts: *quillHeavyHosts
   preferredHost: *quillPreferredHost
+  # No production working-set sample in-repo. A local idle start of
+  # packages/portal/server.py was about 20Mi, so 32Mi already has headroom.
+  # CPU request halved. No CPU sample. Limit stays 64Mi.
   resources:
     requests:
-      cpu: 50m
+      cpu: 25m
       memory: 32Mi
     limits:
       cpu: 100m
@@ -187,6 +202,16 @@ secrets:
   stripeSecretKey: ''
   stripeWebhookSecret: ''
   stripeAccountId: ''
+  # Publishable by design: it ships in the portal's client bundle, so it is not
+  # a secret and is not duplicated here. The canonical copy is the build env in
+  # .github/workflows/ci.yml; the portal image bakes it into its bundle at build
+  # time, so an empty value here is the normal case.
+  #
+  # When set, portal.yaml passes it to the portal as STRIPE_PUBLISHABLE_KEY and
+  # server.py appends it to /config.js — the recovery path for an image built
+  # without it (the 2026-11 "Checkout is not configured for this build" bug).
+  # Do not paste the key here: the leakguard gate flags a pk_live_ literal in
+  # this file, and the image rebuild is the delivery path.
   stripePublishableKey: ''
 ingestion:
   enabled: true
@@ -233,6 +258,16 @@ ingestion:
     limits:
       cpu: 500m
       memory: 512Mi
+  # Per-pipeline resource overrides (see cronjobs.yaml). Corporate ingest
+  # OOMKilled at 512Mi (2026-11-23 audit); raise that pipeline alone.
+  resourcesByPipeline:
+    corporate:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
 # Policy-intelligence sweep. Uses the pinned api image (no images.engine pin).
 # The sweep file is packages/engine/dist/sweep/run.js. Rebuild the api image
 # before this job can succeed; the manifest is not applied by this change.
@@ -263,10 +298,14 @@ search:
   # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
   storageClass: longhorn
   migrateLegacyIndex: false
+  # Serve process idles near 2Mi (operator sample). This pod runs
+  # `quill-search serve` only. Index build (32MiB tantivy writer) and the
+  # search backup tar are other containers. 32Mi is headroom over that idle
+  # sample. No CPU sample; CPU request halved. Limit stays 512Mi.
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 50m
+      memory: 32Mi
     limits:
       cpu: 500m
       memory: 512Mi
@@ -298,7 +337,25 @@ backups:
   searchSchedule: "45 1 * * *"
   freshnessSchedule: "20 */6 * * *"
   drillSchedule: "30 3 * * 0"
-  retentionDays: 14
+  # 14 -> 7 -> 3 days (2026-11-22). Measured at 14 days: the quill-backups
+  # claim held 14.26 GiB of actual blocks on a 30Gi Longhorn claim with
+  # numberOfReplicas 2, so ~28.5 GiB of cluster storage — the 4th largest
+  # Longhorn consumer, and the only one whose size is purely a policy number.
+  #
+  # WHY 3 AND NOT MORE: two jobs write a full archive per day (a SQLite dump
+  # and a complete tantivy index tarball), so 7 days was 14 archives and 3
+  # days is 6. Three is the floor that still satisfies both consumers:
+  #   - verify-freshness needs the newest backup younger than maxAgeHours: 26;
+  #     a daily job against a 3-day window can lose two runs and still pass.
+  #   - the weekly drill (Sunday) restores whatever is current; it does not
+  #     need history, and Longhorn's S3 backupstore holds the volume-level
+  #     snapshots separately (weekly-backup, retain: 1).
+  # The search index is derived data — rebuildable from the SQLite dump by the
+  # ingest pipelines — so long index history has no recovery value that the
+  # dump does not already provide.
+  # Archives age out via `-mtime +RETENTION_DAYS` on the next run; no PVC
+  # surgery, and storageClass stays put (immutable on a bound claim anyway).
+  retentionDays: 3
   maxAgeHours: 26
   storage: 30Gi
   storageClass: longhorn

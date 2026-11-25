@@ -1,5 +1,15 @@
 import { describe, expect, test, vi } from "vitest";
-import { createEmbeddedSession, keyLookUsable, publishableKey, PUBLISHABLE_KEY_ENV } from "../embedded-checkout";
+import {
+  API_KEY_STORAGE,
+  SESSION_TOKEN_STORAGE,
+  createEmbeddedSession,
+  keyLookUsable,
+  publishableKey,
+  resolveCredential,
+  resolvePublishableKey,
+  runtimePublishableKey,
+  PUBLISHABLE_KEY_ENV,
+} from "../embedded-checkout";
 
 describe("publishableKey", () => {
   test("reads and trims the build-time value", () => {
@@ -72,5 +82,84 @@ describe("createEmbeddedSession", () => {
     const r = await createEmbeddedSession({ apiBase: "https://api.maplespike.ca", apiKey: "k", planId: "pro", fetchImpl: fetchImpl as unknown as typeof fetch });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toContain("ECONNREFUSED");
+  });
+});
+
+describe("resolveCredential", () => {
+  const storage = (entries: Record<string, string>) => ({
+    getItem: (k: string) => entries[k] ?? null,
+  });
+
+  test("reads the key signup and the workspace already store", () => {
+    expect(resolveCredential({ storage: storage({ [API_KEY_STORAGE]: " quill_live_key " }) })).toBe("quill_live_key");
+  });
+
+  test("falls back to the session JWT for an OAuth sign-in", () => {
+    expect(resolveCredential({ storage: storage({ [SESSION_TOKEN_STORAGE]: "aaa.bbb.ccc" }) })).toBe("aaa.bbb.ccc");
+  });
+
+  test("prefers an explicitly injected config key over storage", () => {
+    expect(
+      resolveCredential({
+        runtimeWindow: { MAPLESPIKE: { apiKey: "quill_injected" } },
+        storage: storage({ [API_KEY_STORAGE]: "quill_stored" }),
+      }),
+    ).toBe("quill_injected");
+  });
+
+  test("ignores the empty prod default instead of treating it as a credential", () => {
+    expect(
+      resolveCredential({
+        runtimeWindow: { MAPLESPIKE: { apiKey: "  " } },
+        storage: storage({ [API_KEY_STORAGE]: "quill_stored" }),
+      }),
+    ).toBe("quill_stored");
+  });
+
+  test("is empty for a visitor with nothing stored, and survives a throwing Storage", () => {
+    expect(resolveCredential({})).toBe("");
+    expect(resolveCredential({ storage: storage({}) })).toBe("");
+    expect(
+      resolveCredential({
+        storage: {
+          getItem: () => {
+            throw new Error("SecurityError: storage disabled");
+          },
+        },
+      }),
+    ).toBe("");
+  });
+});
+
+describe("runtimePublishableKey", () => {
+  test("reads the key the server injected into /config.js", () => {
+    expect(runtimePublishableKey({ MAPLESPIKE: { stripePublishableKey: " pk_live_rt " } })).toBe("pk_live_rt");
+  });
+  test("is empty when the page has no runtime config", () => {
+    expect(runtimePublishableKey(undefined)).toBe("");
+    expect(runtimePublishableKey({})).toBe("");
+    expect(runtimePublishableKey({ MAPLESPIKE: {} })).toBe("");
+  });
+});
+
+describe("resolvePublishableKey", () => {
+  test("prefers the runtime value over the build-time value", () => {
+    expect(
+      resolvePublishableKey({
+        buildEnv: { [PUBLISHABLE_KEY_ENV]: "pk_live_build" },
+        runtimeWindow: { MAPLESPIKE: { stripePublishableKey: "pk_live_runtime" } },
+      }),
+    ).toBe("pk_live_runtime");
+  });
+  test("falls back to the build-time value when runtime is absent or blank", () => {
+    const buildEnv = { [PUBLISHABLE_KEY_ENV]: "pk_live_build" };
+    expect(resolvePublishableKey({ buildEnv })).toBe("pk_live_build");
+    expect(resolvePublishableKey({ buildEnv, runtimeWindow: { MAPLESPIKE: { stripePublishableKey: "   " } } })).toBe(
+      "pk_live_build",
+    );
+  });
+  test("returns empty when neither source is configured", () => {
+    expect(resolvePublishableKey({})).toBe("");
+    expect(resolvePublishableKey({ runtimeWindow: {} })).toBe("");
   });
 });
