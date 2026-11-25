@@ -28,7 +28,7 @@ import {
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
-  applyCorsHeaders,
+  applyCorsAndSecurityHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
 import { detectLocale, buildBilingualError } from './error-codes.js';
@@ -55,7 +55,6 @@ import { healthHandler } from './routes/health.js';
 import { versionHandler } from './routes/version.js';
 import { statusHandler } from './routes/status.js';
 import { addAttributionHeader } from './middleware/attribution.js';
-import { applySecurityHeaders } from './middleware/security-headers.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
@@ -144,9 +143,14 @@ import {
   extractionCachedHandler,
 } from './routes/extraction.js';
 import { upstreamStatusHandler } from './routes/upstream-status.js';
+import { fixtureItemHandler, fixtureListHandler } from './routes/mock.js';
 
 export const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
+  // Synthetic fixtures. The handler returns 404 unless QUILL_FIXTURES=1.
+  // The list route must stay ahead of the :id route.
+  { pattern: /^\/v1\/fixtures\/?$/, method: 'GET', params: [], handler: fixtureListHandler },
+  { pattern: /^\/v1\/fixtures\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: fixtureItemHandler },
   { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(statusHandler, 30) },
   // Upstream health, read by the site banner. 15 s cache: the prober ticks once
@@ -174,7 +178,7 @@ export const ROUTES: Route[] = [
   { pattern: /^\/v1\/claims\/latest\/?$/, method: 'GET', params: [], handler: withRouteCache(getLatestClaimsHandler, 60) },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
-  // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
+  // Dependency audit snapshot. Reads the build-time file. Does not run pnpm audit.
   { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
   // NOTE: intentionally NOT wrapped in withRouteCache — the body is the
   // calling key's OWN counters (#891) and the route cache keys on
@@ -543,8 +547,7 @@ function finalizeResponse(
   requestOrigin: string | null | undefined = undefined,
 ): Response {
   const headers = new Headers(response.headers);
-  applySecurityHeaders(headers, environment);
-  applyCorsHeaders(headers, requestOrigin);
+  applyCorsAndSecurityHeaders(headers, requestOrigin, environment);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -632,6 +635,23 @@ export async function handleRequest(
     );
   }
 
+  // --- /usage → /v1/usage (308) ---
+  // Ops monitors and MCP tooling (system_health) reach for `/usage` first;
+  // the real path is `/v1/usage`. Mirror the /health redirect so callers that
+  // guess the short form never 404.
+  if (url.pathname === '/usage' || url.pathname === '/usage/') {
+    const target = new URL('/v1/usage', url);
+    target.search = url.search;
+    return finalizeResponse(
+      new Response(null, {
+        status: 308,
+        headers: { Location: target.toString(), 'Cache-Control': 'public, max-age=86400' },
+      }),
+      environment,
+      requestOrigin,
+    );
+  }
+
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const durationMs = Date.now() - startTime;
@@ -653,6 +673,9 @@ export async function handleRequest(
   const path = url.pathname;
   const authExempt =
     path.startsWith('/v1/health')
+    // Fixture payloads are invented and the handler refuses them unless
+    // QUILL_FIXTURES=1. Keep the off-switch message reachable with no key.
+    || path.startsWith('/v1/fixtures')
     || path.startsWith('/v1/version')
     || path.startsWith('/v1/status')
     // Upstream health is public observability: the site banner reads it before

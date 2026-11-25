@@ -41,12 +41,12 @@ The publisher-group table, the required attribution statements (OGL–Canada, St
 
 ## Software licensing is separate
 
-This file concerns upstream data provenance only. It does not resolve the repository's own package/SPDX conflicts, dependency notices, code provenance, or OCI image licensing. See [`open-source-audit.md`](./open-source-audit.md), [`LICENSE.md`](../LICENSE.md), and [`CREDITS.md`](../CREDITS.md).
+This file concerns upstream data provenance only. Quill's own code is `AGPL-3.0-only`. The rights holder made that decision on 2026-10-24 ([#1044](https://github.com/maplespike/quill/issues/1044)). See [`LICENSE.md`](../LICENSE.md). `scripts/test-license-coherence.mjs` enforces it in CI. Third-party code keeps its own licence. See [`NOTICE`](../NOTICE), [`open-source-audit.md`](./open-source-audit.md), and [`CREDITS.md`](../CREDITS.md).
 
-Observed software-license state as of 2026-09-30, carried here only so the two questions are not conflated:
+The list below is the software-licence state on 2026-09-30, before that decision. It is a historical record. It does not describe the current tree.
 
 - 13 workspace packages, with conflicting declarations: `@maplespike/portal` declares MIT in its manifest and Apache-2.0 in its adjacent license text; `@maplespike/quill-mcp` declares Apache-2.0 while most of its own files declare AGPL-3.0-or-later or MIT; `@maplespike/api-server` declares Apache-2.0 with two AGPL-tagged files; `@maplespike/database` and `@maplespike/notification-service` have **no** `license` metadata at all, and `database` is a runtime workspace dependency of other packages.
 - 942 installed dependency records (654 production) with three production records lacking license metadata.
 - A bounded attribution sweep recorded in [`CREDITS.md`](../CREDITS.md); no exhaustive similarity analysis has been performed.
 
-None of this is resolved by anything in this file, and none of it changes the data-source conclusions above. In particular, **no software license in this repository licenses upstream data**, and no dataset entry in `data-source-licenses.json` grants reuse rights.
+Those 2026-09-30 observations do not change the data-source conclusions above. **No software licence in this repository licences upstream data**, and no dataset entry in `data-source-licenses.json` grants reuse rights.

@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { ingestAllNgoRss, searchNgoRss } from '@maplespike/pipeline-core';
+import { ingestAllNgoRss, searchNgoRss, applySourcePolicy } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_ngo_rss',
@@ -25,7 +25,11 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+/** Core search — injectable ingest for tests. NGO RSS is link-only (300-char excerpts). */
+export async function runSearchNgoRss(
+  args: { query?: string; limit?: number },
+  ingestFn: typeof ingestAllNgoRss = ingestAllNgoRss,
+): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '');
   const limit = Number(args.limit ?? 20);
 
@@ -41,9 +45,9 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   }
 
   try {
-    const all = await ingestAllNgoRss();
+    const all = await ingestFn();
     const results = searchNgoRss(all.items, query);
-    const sliced = results.slice(0, limit);
+    const applied = applySourcePolicy('ngo-influence-rss', results.slice(0, limit));
 
     return {
       content: {
@@ -53,7 +57,8 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         total: results.length,
         sourcesAttempted: all.sourcesAttempted,
         sourcesSucceeded: all.sourcesSucceeded,
-        items: sliced,
+        items: applied.records,
+        policy: applied.policy,
         errors: all.errors.length > 0 ? all.errors.slice(0, 5) : undefined,
       },
     };
@@ -67,4 +72,11 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
       isError: true,
     };
   }
+}
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  return runSearchNgoRss({
+    query: args.query as string | undefined,
+    limit: args.limit as number | undefined,
+  });
 };

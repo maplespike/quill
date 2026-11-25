@@ -10,6 +10,11 @@ on:
         required: false
         default: 'false'
 
+concurrency:
+  # A second label event on the same issue replaces the queued ingest.
+  group: kanban-ingest-${{ github.event.issue.number || format('dispatch-{0}', github.run_id) }}
+  cancel-in-progress: true
+
 permissions:
   issues: read
   contents: read

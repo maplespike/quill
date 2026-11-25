@@ -132,6 +132,20 @@ export interface RecentClaim {
   createdAt: string;
 }
 
+/**
+ * Forward-only index for latest(). Column order matches CITATION_LATEST_SQL.
+ * Same statement as db/migrations/20261110_citation_records_latest_index.sql.
+ */
+export const CITATION_RECORDS_LATEST_INDEX_DDL = `CREATE INDEX IF NOT EXISTS idx_citation_records_created_at_hash
+  ON citation_records (created_at DESC, hash DESC);`;
+
+/**
+ * Newest claims. ORDER BY matches idx_citation_records_created_at_hash so
+ * SQLite walks that index and reads citation_json only for the LIMIT rows.
+ */
+export const CITATION_LATEST_SQL = `SELECT hash, citation_json, created_at FROM citation_records
+           ORDER BY created_at DESC, hash DESC LIMIT ?`;
+
 /** Ensure the citation_records table exists (idempotent). */
 export const CITATION_RECORDS_DDL = `
 CREATE TABLE IF NOT EXISTS citation_records (
@@ -140,6 +154,7 @@ CREATE TABLE IF NOT EXISTS citation_records (
   citation_json TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+${CITATION_RECORDS_LATEST_INDEX_DDL}
 `;
 
 let sqlite: Database | null = null;
@@ -236,13 +251,11 @@ export class CitationStore {
     const db = getSqlite();
     if (db) {
       try {
-        // Deterministic order: created_at desc, then hash desc — batches
-        // register many bundles within the same millisecond, so a hash
-        // tie-break keeps the index stable across runs.
-        const rows = db.prepare(
-          `SELECT hash, citation_json, created_at FROM citation_records
-           ORDER BY created_at DESC, hash DESC LIMIT ?`,
-        ).all(limit) as Array<{ hash: string; citation_json: string; created_at: string }>;
+        // Deterministic order: created_at DESC, then hash DESC. Batches
+        // register many bundles in the same millisecond, so the hash
+        // tie-break keeps results stable. The ORDER BY matches
+        // idx_citation_records_created_at_hash.
+        const rows = db.prepare(CITATION_LATEST_SQL).all(limit) as Array<{ hash: string; citation_json: string; created_at: string }>;
         for (const row of rows) {
           const bundle = decodeClaimBundle(JSON.parse(row.citation_json), row.hash);
           records.push({

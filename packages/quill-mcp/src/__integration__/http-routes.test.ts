@@ -125,6 +125,8 @@ async function stopServer(proc: ChildProcess | undefined): Promise<void> {
   }
 }
 
+const QUILL_MCP_TOOL_COUNT = 186;
+
 describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => {
   let port: number;
   let proc: ChildProcess;
@@ -392,7 +394,11 @@ describe('quill-mcp index.ts HTTP routes', { skip: SKIP && SKIP_REASON }, () => 
       assert.equal((await post(request(2, 'tools/list'), headers.Authorization)).status, 202);
       const listed = JSON.parse((await event()).data);
       assert.equal(listed.id, 2);
-      assert.equal(listed.result.tools.length, 184);
+      // 184 was the count when this was written; the catalog has since grown to
+      // 186, and the hardcoded number turned every PR on main red (CI on
+      // 8ec9684c, 2026-11-23). Assert the documented tool count, and keep the
+      // exact number in one place so adding a tool updates one line.
+      assert.equal(listed.result.tools.length, QUILL_MCP_TOOL_COUNT);
       assert.equal(listed.result._quota.mode, 'api-key');
       assert.equal((await post(request(3, 'tools/call', { name: 'explore_catalog', arguments: {} }), headers.Authorization)).status, 202);
       const called = JSON.parse((await event()).data);

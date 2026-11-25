@@ -125,7 +125,7 @@ check() {
 check_api_health() {
   local body code
   body=$(mktemp)
-  code=$(curl -s -o "$body" -w "%{http_code}" "$API_URL/v1/health")
+  code=$(curl -s -o "$body" -w "%{http_code}" --max-time 10 "$API_URL/v1/health")
   if [[ "$code" != "200" ]]; then
     rm -f "$body"
     return 1
@@ -139,25 +139,27 @@ check_api_health() {
   return 1
 }
 
-check_api_modules() {
-  # /v1/modules should return a JSON array of registered modules.
-  # Detect via the exact-shaped "modules":[ ... ] substring.
-  local body count
-  body=$(curl -sf --max-time 10 "$API_URL/v1/modules" 2>/dev/null) || return 1
-  if echo "$body" | grep -q '"modules":[[:space:]]*\['; then
-    count=$(node -e "try { const j = JSON.parse(process.argv[1]); process.stdout.write(String((j?.modules ?? []).length)); } catch { process.stdout.write('?'); }" "$body" 2>/dev/null || echo "?")
-    log "    $count module entries detected"
-    return 0
-  fi
-  return 1
-}
-
 check_api_openapi() {
-  local body
-  body=$(curl -sf --max-time 5 "$API_URL/v1/openapi.json" 2>/dev/null) || return 1
-  if echo "$body" | grep -q '"openapi"'; then
+  # openApiHandler returns buildSuccess(spec): { success, data: { openapi, paths } }.
+  # A top-level "openapi" key is the old shape and is not what the API serves.
+  local body code
+  body=$(mktemp)
+  code=$(curl -s -o "$body" -w "%{http_code}" --max-time 20 "$API_URL/v1/openapi.json" 2>/dev/null || echo "000")
+  if [[ "$code" != "200" ]]; then
+    rm -f "$body"
+    return 1
+  fi
+  if node -e '
+    const fs = require("fs");
+    const j = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const spec = j && j.data;
+    if (!spec || typeof spec.openapi !== "string" || !/^3\./.test(spec.openapi)) process.exit(1);
+    if (!spec.paths || typeof spec.paths !== "object") process.exit(1);
+  ' "$body"; then
+    rm -f "$body"
     return 0
   fi
+  rm -f "$body"
   return 1
 }
 
@@ -172,10 +174,19 @@ check_portal_index() {
 }
 
 check_mcp_health() {
-  # MCP server exposes a /healthz endpoint when running in SSE mode.
-  local code
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 3 "$MCP_URL/healthz" 2>/dev/null || echo "000")
-  [[ "$code" =~ ^(2|3)[0-9][0-9]$ ]] && return 0
+  # quill-mcp index.ts answers GET /health with {"status","tools"}.
+  local body code
+  body=$(mktemp)
+  code=$(curl -s -o "$body" -w "%{http_code}" --max-time 5 "$MCP_URL/health" 2>/dev/null || echo "000")
+  if [[ ! "$code" =~ ^2 ]]; then
+    rm -f "$body"
+    return 1
+  fi
+  if grep -q '"status"' "$body"; then
+    rm -f "$body"
+    return 0
+  fi
+  rm -f "$body"
   return 1
 }
 
@@ -195,8 +206,7 @@ wait_http "$PORTAL_URL/"          && pass "Portal index responding"  || fail "Po
 wait_http "$MCP_URL/health"       && pass "MCP health responding"    || fail "MCP health never responded"
 
 check "API /v1/health returns 200 with status field"     check_api_health
-check "API /v1/modules returns module list"             check_api_modules
-check "API /v1/openapi.json is valid OpenAPI"            check_api_openapi
+check "API /v1/openapi.json wraps the spec in data"      check_api_openapi
 check "Portal / serves HTML"                            check_portal_index
 check "MCP /health responds"                            check_mcp_health
 

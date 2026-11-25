@@ -6,6 +6,10 @@ on:
     - cron: "0 7 * * 1"  # 7 AM Monday
   workflow_dispatch:
 
+concurrency:
+  group: weekly-git-health
+  cancel-in-progress: true
+
 jobs:
   check-nodes:
     name: "Check all cluster nodes"

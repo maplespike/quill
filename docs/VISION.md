@@ -19,7 +19,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (184 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — data-layer MCP server (185 tools)
 ```
 
 The system is a pipeline: **ingest → verify → surface**.
@@ -80,4 +80,4 @@ Research) during 2026. Their contributions are recorded here with attribution.
 | Pattern-inspiration repos | See [CREDITS.md](../CREDITS.md) | See CREDITS table |
 | Product vision | reverb256 (MapleSpike) | — |
 
-**License:** Quill's package declarations are inconsistent and under rights-holder review. See [LICENSE.md](../LICENSE.md), [LICENSE](../LICENSE), and [CREDITS.md](../CREDITS.md). Source-data terms are separate and vary by publisher and dataset.
+**License:** Quill's own code is AGPL-3.0-only. See [LICENSE.md](../LICENSE.md) and [LICENSE](../LICENSE). Third-party notices are in [CREDITS.md](../CREDITS.md). Source-data terms are separate and vary by publisher and dataset.

@@ -402,3 +402,108 @@
     scroll-behavior: auto;
   }
 }
+
+/* ══ Dark variant (toggled via the .dark class on <html>) ══════════════════
+   The switch is the CLASS, never the data-theme attribute: `data-theme`
+   keeps naming the design theme (`ink-and-paper`) so the design contract,
+   the browser check and the token tests stay meaningful. script.js and the
+   BaseLayout pre-paint script only add/remove `.dark`.
+
+   Everything the light block maps must be re-mapped here. Overriding only
+   the raw --iap-* roles leaves the Tailwind semantic vars (--background,
+   --card, --border …) paper-light, which is the half-dark page bug: dark
+   body, light cards. The raw roles and the semantic mapping move together. */
+.theme-ink-and-paper.dark {
+  /* ── Raw colour roles, inverted (paper ↔ ink) ──────────────────────── */
+  --iap-paper: 60 4.8% 8.2%;
+  --iap-paper-deep: 60 4.8% 5%;
+  --iap-surface: 60 4.8% 11%;
+  --iap-ink: 45 27% 94%;
+  --iap-ink-soft: 44 23.8% 87.6%;
+  --iap-muted: 42 8% 65%;
+  --iap-line: 60 4.8% 21.6%;
+  --iap-line-strong: 60 4.8% 30%;
+  --iap-chip: 60 4.8% 16.5%;
+  /* on-ink roles are NOT inverted: they describe text on the reversed plane
+     (the integration console), and that plane stays dark in both schemes. */
+  --iap-on-ink: 43 28% 95%;         /* #f6f4ef */
+  --iap-on-ink-muted: 44 9.7% 69.6%; /* #b9b5aa */
+  --iap-on-ink-line: 60 5.5% 21.6%; /* #3a3a34 */
+  --iap-focus-ring: hsl(45 27% 94% / 0.6);
+  --iap-shadow-panel: 0 24px 60px -36px rgb(0 0 0 / 0.6);
+
+  /* Editorial red needs a lighter step on ink: #a63029 is 6.1:1 on paper but
+     ~2.6:1 on #161614. #e84545 is 4.6:1 on ink (and is the one place the
+     bright maple red is allowed — it fails on paper). */
+  --editorial-red: #e84545;
+
+  /* ── Semantic role mapping (mirrors the light block) ───────────────── */
+  --background: 60 4.8% 8.2%;         /* ink */
+  --foreground: 45 27% 94%;           /* paper */
+
+  --card: 60 4.8% 11%;                /* surface */
+  --card-foreground: 45 27% 94%;      /* paper */
+
+  --popover: 60 4.8% 11%;             /* surface */
+  --popover-foreground: 45 27% 94%;   /* paper */
+
+  --primary: 45 27% 94%;              /* paper does the emphasis on ink */
+  --primary-foreground: 60 4.8% 8.2%; /* ink */
+
+  --secondary: 60 4.8% 16.5%;         /* chip */
+  --secondary-foreground: 45 27% 94%; /* paper */
+  --muted: 60 4.8% 16.5%;             /* chip */
+  --muted-foreground: 42 8% 65%;      /* 7.9:1 on ink */
+  --accent: 60 4.8% 16.5%;            /* chip */
+  --accent-foreground: 45 27% 94%;    /* paper */
+
+  --destructive: 44 23.8% 87.6%;      /* paper-deep plane */
+  --destructive-foreground: 60 4.8% 8.2%; /* ink */
+
+  --border: 60 4.8% 21.6%;            /* line */
+  --input: 60 4.8% 30%;               /* line-strong */
+
+  --ring: 45 27% 94%;                 /* paper */
+
+  --chart-1: 45 27% 94%;              /* paper */
+  --chart-2: 42 8% 65%;               /* muted */
+  --chart-3: 60 4.8% 30%;             /* line-strong */
+  --chart-4: 60 4.8% 5%;              /* paper-deep */
+  --chart-5: 44 9.7% 69.6%;           /* on-ink-muted */
+
+  --sidebar-background: 60 4.8% 8.2%;
+  --sidebar-foreground: 45 27% 94%;
+  --sidebar-primary: 45 27% 94%;
+  --sidebar-primary-foreground: 60 4.8% 8.2%;
+  --sidebar-accent: 60 4.8% 16.5%;
+  --sidebar-accent-foreground: 45 27% 94%;
+  --sidebar-border: 60 4.8% 21.6%;
+  --sidebar-ring: 45 27% 94%;
+
+  color-scheme: dark;
+}
+
+/* ── Reversed plane in dark: stay dark, not "light panel on light page" ───
+   .integration-section paints itself with --iap-ink, which is now paper. Pin
+   it to a dark panel so the console keeps its identity and its light on-ink
+   text stays readable. */
+.theme-ink-and-paper.dark .integration-section {
+  background: hsl(60 4.8% 11%);
+  color: hsl(var(--iap-on-ink));
+}
+.theme-ink-and-paper.dark .integration-console {
+  background: hsl(60 4.8% 5%);
+}
+.theme-ink-and-paper.dark .light-button {
+  background: hsl(43 28% 95%);
+  border-color: hsl(43 28% 95%);
+  color: hsl(60 4.8% 8.2%);
+}
+.theme-ink-and-paper.dark .light-button:hover {
+  background: hsl(44 23.8% 87.6%);
+}
+
+/* Documentation syntax accents: the paper-tuned steps (#79551a, #23616b)
+   disappear on ink. Brighter steps keep 9–10:1 on the dark page. */
+.theme-ink-and-paper.dark .docs-content [class*="text-[#D4A017]"] { color: #e0b357; }
+.theme-ink-and-paper.dark .docs-content [class*="text-[#0891B2]"] { color: #5cc8dc; }

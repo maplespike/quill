@@ -211,6 +211,17 @@ spec:
               key: quill-billing-secret
         - name: STRIPE_ENV
           value: "{{ .Values.api.env.STRIPE_ENV | default "test" }}"
+        # Stripe account id — diagnostics only: services/stripe.ts reads it via
+        # readAccountId() and reports `accountFingerprint` in the billing status
+        # payload. Not a secret (the account id is embedded in the publishable
+        # key), and nothing sets a Stripe-Account header, so no Connect path
+        # depends on it. Omitted when unset rather than injected empty, same
+        # reasoning as REDIS_URL above: "unset" reads as "not configured", an
+        # empty string only produces a fingerprint of "missing" either way.
+        {{- if .Values.api.env.STRIPE_ACCOUNT_ID }}
+        - name: STRIPE_ACCOUNT_ID
+          value: "{{ .Values.api.env.STRIPE_ACCOUNT_ID }}"
+        {{- end }}
         {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
         volumeMounts:
         - name: data
@@ -309,7 +320,7 @@ spec:
         - name: NODE_ENV
           value: production
         - name: QUILL_API_URL
-          value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
+          value: "http://{{ include "quill.fullname" . }}-api.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.api.port }}"
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:

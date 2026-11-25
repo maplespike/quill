@@ -27,6 +27,9 @@ const VALUES = 'charts/quill/values-prod.yaml';
 // Live values-prod is registry-migrated (16927140). The unmigrated case renders
 // a frozen pre-migration copy so it keeps testing the legacy docker.io path.
 const LEGACY_VALUES = 'scripts/fixtures/values-prod-legacy.yaml';
+// Redis request numbers are frozen here so a values-prod right-size does not
+// fail the probe gate. Limits and maxmemory stay asserted on the live file.
+const REDIS_BUDGET_VALUES = 'scripts/fixtures/values-prod-redis-budget.yaml';
 const REGISTRY = 'registry.registry.svc.cluster.local:5000';
 const QUILL_APPS = ['api', 'mcp', 'portal', 'search', 'ingest'];
 
@@ -146,7 +149,15 @@ test('chart: quill-redis probes survive a slow ping and a slow start', (t) => {
   }
   assert.equal(liveness.match(/failureThreshold:\s*(\d+)/)?.[1], '5');
   assert.equal(startup.match(/failureThreshold:\s*(\d+)/)?.[1], '30');
-  // Cache budget stays. A slow disk is not a reason to raise it.
+  // Ceiling stays on the live chart. A slow disk is not a reason to raise it.
+  assert.match(doc, /cpu:\s*200m/);
+  assert.match(doc, /memory:\s*192Mi/);
+  assert.match(doc, /"128mb"/);
+});
+
+test('chart: historical redis request pair is frozen in the budget fixture', (t) => {
+  if (skipOrFail(t)) return;
+  const doc = deployment(render(REDIS_BUDGET_VALUES), 'quill-redis');
   assert.match(doc, /cpu:\s*50m/);
   assert.match(doc, /memory:\s*64Mi/);
   assert.match(doc, /cpu:\s*200m/);

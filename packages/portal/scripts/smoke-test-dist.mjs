@@ -220,6 +220,47 @@ try {
   fail(`discovery artifact checks errored: ${e.message}`);
 }
 
+// ── 9. Default /signal and /explorer do not render invented records ──
+const inventedSamples = [
+  "SIG-001",
+  "Thirteen new lobbying registrations",
+  "Office of the Commissioner of Lobbying",
+  "Meeting No. 142",
+  "Réunion n° 142",
+  "12,847",
+  "12 847",
+  "/explorer/result/",
+  "Witness testimony referenced Brookfield",
+  "showing showcase data",
+];
+for (const rel of ["signal.html", "fr/signal.html", "explorer.html", "fr/explorer.html"]) {
+  const html = read(rel);
+  if (!html) {
+    fail(`${rel} missing from dist`);
+    continue;
+  }
+  const hit = inventedSamples.find((phrase) => html.includes(phrase));
+  if (hit) fail(`${rel} still renders invented sample "${hit}"`);
+  else pass(`${rel} has no invented sample records`);
+}
+const signalHtml = read("signal.html") ?? "";
+const explorerHtml = read("explorer.html") ?? "";
+if (signalHtml.includes('data-signal-state="empty"') && signalHtml.includes("No signals to show"))
+  pass("signal.html default state is empty");
+else fail("signal.html is missing the empty default state");
+if (explorerHtml.includes('data-explorer-state="empty"') && explorerHtml.includes("No results yet"))
+  pass("explorer.html default state is empty");
+else fail("explorer.html is missing the empty default state");
+try {
+  const pipeline = JSON.parse(readFileSync(resolve(__dirname, "../assets/pipeline-data.json"), "utf8"));
+  const block = JSON.stringify(pipeline.crossReference ?? null);
+  if (pipeline.crossReference?.matches?.length === 0 && !/https?:\/\//.test(block) && !block.includes("Brookfield"))
+    pass("pipeline-data.json crossReference has no invented testimony or real URLs");
+  else fail("pipeline-data.json crossReference still contains invented sample data");
+} catch (e) {
+  fail(`could not read pipeline-data.json crossReference: ${e.message}`);
+}
+
 // ── Report ────────────────────────────────────────────────────────
 console.log("smoke-test-dist:" );
 console.log(checks.join("\n"));
