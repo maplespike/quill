@@ -1140,7 +1140,7 @@ describe('createCheckoutSession ui_mode', () => {
       customerId: 'cus_test_ui',
       amountCents: 5000,
       currency: 'cad',
-      productName: 'MapleSpike Pro',
+      productName: 'Quill by Maplespike Pro',
       planId: 'pro',
       tenantId: 'tenant_ui',
       orderId: 'MS-UI-1',

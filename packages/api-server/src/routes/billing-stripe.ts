@@ -23,6 +23,37 @@ import { nanoid } from 'nanoid';
 import * as stripe from '../services/stripe.js';
 import { recordTaxEvent, computeHst } from '../tax-ledger.js';
 import type { StripeOrder } from '../types.js';
+import { stripePriceLookupForPlan } from './billing.js';
+
+/**
+ * Resolve the catalog Price for a plan by lookup_key (STRIPE_USE_LOOKUP_KEYS).
+ * Fails closed — returns an error code, never an inline fallback — when no
+ * active price exists or it doesn't match the plan's currency/amount/interval.
+ */
+export async function resolveLookupPrice(
+  planId: string,
+  expectedAmountCents: number,
+): Promise<{ ok: true; priceId: string } | { ok: false; reason: string }> {
+  const lookup = stripePriceLookupForPlan(planId);
+  if (!lookup) return { ok: false, reason: 'no_lookup_key_for_plan' };
+  if (lookup.amount_cents !== expectedAmountCents) return { ok: false, reason: 'plan_catalog_drift' };
+  const prices = await stripe.listPricesByLookupKeys([lookup.lookup_key]);
+  const candidates = prices.filter((p) => p && p.lookup_key === lookup.lookup_key && p.active === true);
+  if (candidates.length === 0) return { ok: false, reason: 'no_active_price' };
+  if (candidates.length > 1) return { ok: false, reason: 'ambiguous_price' };
+  const price = candidates[0];
+  if (String(price.currency).toLowerCase() !== lookup.currency) return { ok: false, reason: 'currency_mismatch' };
+  if (price.unit_amount !== lookup.amount_cents) return { ok: false, reason: 'amount_mismatch' };
+  if (
+    !price.recurring ||
+    price.recurring.interval !== lookup.interval ||
+    price.recurring.interval_count !== lookup.interval_count
+  ) {
+    return { ok: false, reason: 'interval_mismatch' };
+  }
+  if (typeof price.id !== 'string' || !price.id.startsWith('price_')) return { ok: false, reason: 'invalid_price_id' };
+  return { ok: true, priceId: price.id };
+}
 
 // ──────────────────────────────────────────────────────────────────────────
 // Plan catalog (Stripe-purchasable tiers only — community/free are no-cost)
@@ -35,7 +66,7 @@ const STRIPE_PLANS: Record<
   pro: {
     amount_cents: 5000,
     currency: 'cad',
-    product_name: 'MapleSpike Pro',
+    product_name: 'Quill by Maplespike Pro',
     description: 'For independent researchers, journalists, and small teams',
     tier: 'pro',
     interval_months: 1,
@@ -43,7 +74,7 @@ const STRIPE_PLANS: Record<
   business: {
     amount_cents: 20000,
     currency: 'cad',
-    product_name: 'MapleSpike Business',
+    product_name: 'Quill by Maplespike Business',
     description: 'For think tanks, NGOs, newsrooms, and lobbying firms',
     tier: 'business',
     interval_months: 1,
@@ -217,7 +248,29 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
     // While unregistered the charged amount is exactly the plan price — charging
     // tax unregistered is non-compliant (CRA small-supplier rules).
     const tax = computeHst(plan.amount_cents);
+
+    // STRIPE_USE_LOOKUP_KEYS (default OFF): use the catalog Price for this plan.
+    // Fail closed — no inline fallback — if it's missing or doesn't match.
+    let priceId: string | undefined;
+    if (stripe.useLookupKeys()) {
+      // A fixed catalog Price can't carry the manual computeHst surcharge, so
+      // refuse rather than undercharge tax once GST_HST_REGISTERED flips.
+      const resolved =
+        tax.taxCents !== 0
+          ? ({ ok: false, reason: 'tax_requires_inline_price' } as const)
+          : await resolveLookupPrice(plan.tier, plan.amount_cents);
+      if (!resolved.ok) {
+        webhookLog.error({ planId: plan.tier, reason: resolved.reason }, 'checkout: lookup_key price unavailable; failing closed');
+        return jsonResponse(
+          buildError('PRICE_UNAVAILABLE', 'Checkout is temporarily unavailable for this plan. Please try again later.', bc),
+          503,
+        );
+      }
+      priceId = resolved.priceId;
+    }
+
     const session = await stripe.createCheckoutSession({
+      ...(priceId ? { priceId } : {}),
       customerId,
       amountCents: tax.totalCents,
       currency: plan.currency,
