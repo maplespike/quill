@@ -87,7 +87,7 @@ api:
     size: 5Gi
     # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
     # the single-nexus failure domain for the API's SQLite volume.
-    storageClass: longhorn
+    storageClass: local-path
     # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
     nodeName: ""
   affinityHosts: *quillHeavyHosts
@@ -144,7 +144,7 @@ database:
     limits:
       cpu: 500m
       memory: 512Mi
-  storageClass: longhorn
+  storageClass: local-path
   nodeName: ""
 portal:
   enabled: true
@@ -298,7 +298,7 @@ search:
   # Durable class. The claim is quill-search-data. The old local-path
   # quill-search-index claim is rendered only while migrateLegacyIndex is
   # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
-  storageClass: longhorn
+  storageClass: local-path
   migrateLegacyIndex: false
   # Serve process idles near 2Mi (operator sample). This pod runs
   # `quill-search serve` only. Index build (32MiB tantivy writer) and the
@@ -360,7 +360,7 @@ backups:
   retentionDays: 3
   maxAgeHours: 26
   storage: 30Gi
-  storageClass: longhorn
+  storageClass: local-path
   accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:
