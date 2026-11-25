@@ -56,6 +56,48 @@ export function resolvePublishableKey(args: {
   return runtimePublishableKey(args.runtimeWindow) || publishableKey(args.buildEnv ?? {});
 }
 
+/**
+ * Where the browser actually keeps the visitor's credential, per
+ * `SignupForm` / `auth/callback.astro` / `workspace.astro`:
+ *   - `quill-api-key` — a `quill_` tenant key minted at signup or in the workspace
+ *   - `maplespike_token` — the session JWT for an OAuth/sign-in user
+ * Both are accepted by the api's auth layer (`Authorization: Bearer`), which
+ * treats a 3-part dotted token as a JWT and anything else as an API key.
+ */
+export const API_KEY_STORAGE = "quill-api-key";
+export const SESSION_TOKEN_STORAGE = "maplespike_token";
+
+type StorageLike = { getItem(key: string): string | null } | null | undefined;
+
+/**
+ * Resolve the credential for a billing call.
+ *
+ * `window.MAPLESPIKE.apiKey` is deliberately EMPTY in every shipped config
+ * (`config.prod.js`, the k8s ConfigMaps, SECURITY.md's "portal is token-free"
+ * rule), so reading it alone made embedded checkout tell a signed-in visitor to
+ * "sign in first" — the key was in localStorage the whole time, just never
+ * looked at. Injected config still wins when a deployment really does set it.
+ */
+export function resolveCredential(args: {
+  runtimeWindow?: unknown;
+  storage?: StorageLike;
+}): string {
+  const injected = (args.runtimeWindow as { MAPLESPIKE?: { apiKey?: unknown } } | undefined)
+    ?.MAPLESPIKE?.apiKey;
+  if (typeof injected === "string" && injected.trim()) return injected.trim();
+
+  const read = (name: string): string => {
+    try {
+      const value = args.storage?.getItem(name);
+      return typeof value === "string" ? value.trim() : "";
+    } catch {
+      // Safari private mode and hardened browsers throw on storage access.
+      return "";
+    }
+  };
+  return read(API_KEY_STORAGE) || read(SESSION_TOKEN_STORAGE);
+}
+
 export type EmbeddedSessionResult =
   | { ok: true; clientSecret: string }
   | { ok: false; error: string; status?: number };
