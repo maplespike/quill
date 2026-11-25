@@ -23,7 +23,7 @@
  * NEVER hits the real Stripe API. NEVER logs key values.
  */
 
-import { describe, it, beforeEach, before } from 'node:test';
+import { describe, it, beforeEach, afterEach, before } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -1094,5 +1094,80 @@ describe('Restart-survival (NodeSqliteStorage; simulates k3s pod eviction)', () 
       db.close();
       try { fs.unlinkSync(dbPath2); } catch { /* ignore */ }
     });
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────
+// 9. Embedded Checkout wire value
+//
+// Stripe retired `ui_mode=embedded`: the live account answers "The ui_mode
+// value `embedded` is no longer supported. Use `embedded_page` instead."
+// (checked 2026-11-23 under our own Stripe-Version pin, so the pin does not
+// rescue it). Embedded sessions would 400 before the browser ever saw a
+// client_secret.
+// ──────────────────────────────────────────────────────────────────
+describe('createCheckoutSession ui_mode', () => {
+  let originalFetch: typeof global.fetch;
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  async function captureBody(uiMode?: 'hosted' | 'embedded') {
+    let url = '';
+    let body = '';
+    global.fetch = (async (input: any, init: any) => {
+      url = String(input);
+      body = String(init?.body ?? '');
+      return new Response(
+        JSON.stringify({
+          id: 'cs_test_ui',
+          object: 'checkout.session',
+          url: 'https://checkout.stripe.com/c/pay/cs_test_ui',
+          status: 'open',
+          client_secret: 'cs_test_ui_secret',
+          metadata: {},
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      );
+    }) as typeof fetch;
+
+    await stripe.createCheckoutSession({
+      customerId: 'cus_test_ui',
+      amountCents: 5000,
+      currency: 'cad',
+      productName: 'MapleSpike Pro',
+      planId: 'pro',
+      tenantId: 'tenant_ui',
+      orderId: 'MS-UI-1',
+      intervalMonths: 1,
+      successUrl: 'https://quill.maplespike.ca/checkout/thanks',
+      cancelUrl: 'https://quill.maplespike.ca/pricing',
+      expiresAtUnix: Math.floor(Date.now() / 1000) + 1800,
+      uiMode,
+      returnUrl: 'https://quill.maplespike.ca/checkout/return',
+    });
+
+    return { url, body };
+  }
+
+  it('sends embedded_page, never the retired embedded value', async () => {
+    const { url, body } = await captureBody('embedded');
+    assert.equal(url, 'https://api.stripe.com/v1/checkout/sessions');
+    assert.ok(body.includes('ui_mode=embedded_page'), `expected ui_mode=embedded_page, got: ${body}`);
+    assert.ok(!/(^|&)ui_mode=embedded(&|$)/.test(body), 'must not send the retired `embedded` value');
+    assert.ok(body.includes('return_url='), 'embedded sessions take return_url');
+    assert.ok(!body.includes('success_url='), 'embedded sessions reject success_url');
+    assert.ok(!body.includes('cancel_url='), 'embedded sessions reject cancel_url');
+  });
+
+  it('omits ui_mode for the hosted redirect', async () => {
+    const { body } = await captureBody('hosted');
+    assert.ok(!body.includes('ui_mode='), `hosted sessions must not send ui_mode, got: ${body}`);
+    assert.ok(body.includes('success_url=') && body.includes('cancel_url='));
   });
 });

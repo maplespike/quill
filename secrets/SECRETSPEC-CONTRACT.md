@@ -9,7 +9,7 @@ and the deployment's `secretKeyRef`s.
 
 | File | Contains |
 |------|----------|
-| `secrets/billing.yaml` | `STRIPE_SECRET_KEY`, `STRIPE_TEST_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_ACCOUNT_ID`, `STRIPE_ENV`, `QUILL_BILLING_SECRET`, `MAPLESPIKE_BILLING_EMAIL`, treasury keys |
+| `secrets/billing.yaml` | `STRIPE_SECRET_KEY`, `STRIPE_TEST_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_ACCOUNT_ID`, `QUILL_BILLING_SECRET`, `MAPLESPIKE_BILLING_EMAIL`, treasury keys |
 | `secrets/runtime.yaml` | `JWT_SECRET`, `QUILL_BILLING_SECRET`, `ASTRAL_KEY_URL`, `MAPLESPIKE_BILLING_EMAIL` |
 
 All sops-encrypted (age, dual-recipient: nexus-prod + homelab-dev).
@@ -64,6 +64,22 @@ kubectl -n maplespike get deploy quill-api \
 
 Go-live requires `STRIPE_SECRET_KEY` to be `sk_live_…` and `STRIPE_ENV=live`. See
 `docs/go-live-runbook.md`.
+
+`STRIPE_ENV` is deliberately **not** stored in this file. It is not a secret: the Deployment
+takes it as a plain env from `charts/quill/values-prod.yaml`, and no chart template or sync
+script ever read the sops copy. That copy still said `test` five weeks after the cluster went
+live, which `config.ts:validateStripeEnv` would have turned into a boot failure the moment
+anything mounted the file wholesale — it arrived here rather than at boot only because nothing
+did. Removed 2026-11-23; the live mode now has exactly one source of truth.
+
+## Test keys (`STRIPE_TEST_*`) — audited 2026-11-23, both stay
+
+| Key | Where it can reach | Verdict |
+|-----|--------------------|---------|
+| `STRIPE_TEST_SECRET_KEY` | one code path: `packages/api-server/src/config.ts:validateStripeEnv`, as the guard that a live key was not pasted into the drill slot. No Deployment mounts it (`quill-api`'s env has no `STRIPE_TEST_*`), no values file references it. | **Keep.** It cannot reach a running production process, and the guard is the reason a `sk_live_` key can never sit in the test slot. |
+| `STRIPE_TEST_PUBLISHABLE_KEY` | nothing in the repo and no deployment. | **Keep.** Publishable keys are public by construction; local portal work needs the matching pair. If it ever appears in a deployed bundle, that is a build bug, not a leak. |
+
+The audit question was whether either is dead weight worth deleting. Deleting them would remove the only local way to exercise the checkout flow without live keys, and the secret key's presence is what makes the boot-time mode guard meaningful. What must never happen is a live key occupying the test slot — already enforced at startup.
 
 ## Legacy fallback
 
