@@ -4,11 +4,12 @@
 // which that image already has. No extra package and no secret material.
 
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { closeSync, copyFileSync, existsSync, mkdirSync, openSync, readSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const STAMPED = /^.+-\d{8}T\d{6}Z\.(?:db|counts\.json|tar\.gz|meta\.json|dump)$/;
+const STAMPED = /^.+-\d{8}T\d{6}Z\.(?:db|counts\.json|tar\.gz|meta\.json|dump)(?:\.sha256)?$/;
 
 export function quoteSqlitePath(file) {
   if (file.includes("'")) {
@@ -75,20 +76,79 @@ export function pruneExpired(dir, retentionDays, nowMs = Date.now()) {
   return removed.sort();
 }
 
-export function backupSqliteFile({ sourcePath, destDir, retentionDays = 14, label = 'maplespike' }) {
+export function assertBackupsMountWritable(mountPath) {
+  if (!mountPath) throw new Error('backup: backups mount path is empty');
+  if (!existsSync(mountPath)) throw new Error(`backup: backups mount missing: ${mountPath}`);
+  const st = statSync(mountPath);
+  if (!st.isDirectory()) throw new Error(`backup: backups mount is not a directory: ${mountPath}`);
+  const probe = path.join(mountPath, `.write-probe-${process.pid}-${Date.now()}`);
+  try {
+    writeFileSync(probe, 'ok\n', { flag: 'wx' });
+    const read = readFileSync(probe, 'utf8');
+    if (read !== 'ok\n') {
+      throw new Error(`backup: backups mount write probe readback mismatch: ${mountPath}`);
+    }
+  } catch (err) {
+    const msg = err && err.message ? err.message : String(err);
+    if (msg.startsWith('backup:')) throw err;
+    throw new Error(`backup: backups mount not writable: ${mountPath}: ${msg}`);
+  } finally {
+    try { unlinkSync(probe); } catch {
+      // The probe file is best-effort cleanup.
+    }
+  }
+}
+
+export function sha256File(file) {
+  const hash = createHash('sha256');
+  const fd = openSync(file, 'r');
+  try {
+    const buf = Buffer.alloc(1024 * 1024);
+    let n;
+    while ((n = readSync(fd, buf, 0, buf.length, null)) > 0) {
+      hash.update(buf.subarray(0, n));
+    }
+  } finally {
+    closeSync(fd);
+  }
+  return hash.digest('hex');
+}
+
+export function writeSha256Sidecar(file, hex) {
+  writeFileSync(`${file}.sha256`, `${hex}  ${path.basename(file)}\n`);
+}
+
+function copyVerified(src, dest) {
+  copyFileSync(src, dest);
+  const expected = sha256File(src);
+  const actual = sha256File(dest);
+  if (actual !== expected) {
+    try { unlinkSync(dest); } catch {
+      // Leave a bad dest only if unlink fails; the hash mismatch still throws.
+    }
+    throw new Error(`backup: sha256 mismatch after copy to ${dest}: scratch ${expected} dest ${actual}`);
+  }
+  writeSha256Sidecar(dest, actual);
+  return actual;
+}
+
+export function backupSqliteFile({ sourcePath, destDir, scratchDir, backupsMount, retentionDays = 14, label = 'maplespike' }) {
   if (!sourcePath) throw new Error('sqlite backup: QUILL_DB_PATH is empty');
   if (!existsSync(sourcePath)) throw new Error(`sqlite backup: source missing: ${sourcePath}`);
+  if (!scratchDir) throw new Error('sqlite backup: SCRATCH_DIR is empty');
+  assertBackupsMountWritable(backupsMount || path.dirname(destDir));
+  mkdirSync(scratchDir, { recursive: true });
   mkdirSync(destDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
-  const dest = path.join(destDir, `${label}-${stamp}.db`);
+  const scratchDest = path.join(scratchDir, `${label}-${stamp}.db`);
   const src = new DatabaseSync(sourcePath);
   try {
     src.exec('PRAGMA busy_timeout = 60000');
-    src.exec(`VACUUM INTO '${quoteSqlitePath(dest)}'`);
+    src.exec(`VACUUM INTO '${quoteSqlitePath(scratchDest)}'`);
   } finally {
     src.close();
   }
-  const opened = new DatabaseSync(dest, { readOnly: true });
+  const opened = new DatabaseSync(scratchDest, { readOnly: true });
   let counts;
   try {
     const integrity = opened.prepare('PRAGMA integrity_check').all().map((row) => row.integrity_check);
@@ -99,14 +159,20 @@ export function backupSqliteFile({ sourcePath, destDir, retentionDays = 14, labe
   } finally {
     opened.close();
   }
-  const sidecar = dest.replace(/\.db$/, '.counts.json');
-  writeFileSync(sidecar, `${JSON.stringify({
+  const scratchSidecar = scratchDest.replace(/\.db$/, '.counts.json');
+  writeFileSync(scratchSidecar, `${JSON.stringify({
     stamp,
     source: path.basename(sourcePath),
     counts,
   }, null, 2)}\n`);
+  const sha256 = sha256File(scratchDest);
+  writeSha256Sidecar(scratchDest, sha256);
+  const dest = path.join(destDir, path.basename(scratchDest));
+  const sidecar = path.join(destDir, path.basename(scratchSidecar));
+  copyVerified(scratchDest, dest);
+  copyFileSync(scratchSidecar, sidecar);
   const removed = pruneExpired(destDir, retentionDays);
-  return { dest, sidecar, counts, removed };
+  return { dest, sidecar, counts, removed, sha256 };
 }
 
 export function freshness(dir, suffix, maxAgeHours, nowMs = Date.now()) {

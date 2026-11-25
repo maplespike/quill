@@ -46,27 +46,25 @@ affinityHosts: &quillHeavyHosts
   - sentry
 preferredHost: &quillPreferredHost nexus
 
-# Side-by-side local-path copies of quill-api-data, quill-search-data, and
-# quill-backups. Workloads keep the existing Longhorn claims until
-# useLocalPathCopies is flipped (default false). The flag both creates the
-# three *-local PVCs and switches workloads; the original Longhorn PVCs
-# are never deleted by this flag.
+# Cutover claims, rendered only when useLocalPathCopies is flipped
+# (default false). api/search get local-path copies; backups gets a
+# static-bind PVC (quill-backups-local, RWX, storageClassName empty)
+# that binds to the Infra NFS PersistentVolume named in
+# backupsVolumeName. The flag also switches workloads onto those claims.
+# The original Longhorn PVCs are never deleted by this flag.
 #
-# Sizing (media-k8s #671 currently caps local-path at 15Gi / 3 claims;
-# that cap must be raised to at least 40Gi before this flag is enabled):
-#   quill-api-data-local    5Gi   (actual 2.46 GiB; sentry)
-#   quill-search-data-local 5Gi   (actual 0.16 GiB; sentry)
-#   quill-backups-local    30Gi   (actual 17.25 GiB; node unset)
-#   total                  40Gi / 3 PVCs
-# Live usage 2026-11-24 11:31 PM America/Winnipeg (#671; Bound sizes
-# re-checked 11:40 PM CT). backupsNodeName is left empty on purpose:
-# backups must not land on sentry or the api-data node. Infra picks the
-# node; the runbook must set this value before enabling the flag.
-# local-path WaitForFirstConsumer binds the volume where the first
-# backup/copy pod schedules.
+# media-k8s #671 (383ade63) caps Longhorn at 40Gi / 3 claims and
+# local-path at 50Gi / 4 claims. This cutover's local-path copies are
+# only api + search (10Gi / 2), which fits. backups is NFS, not
+# local-path, sized to match the existing 30Gi claim (17.25 GiB used
+# 2026-11-24 11:31 PM America/Winnipeg; Bound sizes re-checked 11:40 PM
+# CT). Leave backupsVolumeName empty in git until Infra provides the PV
+# name; enabling the flag with an empty name fails the render. No node
+# pin on the backups claim. The backup job stays co-located with
+# api-data and mounts the NFS claim there (RWX).
 storageCutover:
   useLocalPathCopies: false
-  backupsNodeName: ""
+  backupsVolumeName: ""
   api:
     size: 5Gi
     storageClass: local-path
@@ -77,7 +75,6 @@ storageCutover:
     node: sentry
   backups:
     size: 30Gi
-    storageClass: local-path
 
 api:
   replicas: 1

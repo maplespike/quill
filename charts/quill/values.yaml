@@ -11,12 +11,14 @@ priorityClass:
   batch: fleet-batch
 
 # Keep existing Longhorn claims unless an environment flips this after a
-# verified copy onto the local-path PVCs. See docs/ops/STORAGE-CUTOVER.md.
-# backupsNodeName must stay empty until Infra picks a node; do not default
-# it to sentry or the api-data node.
+# verified copy. See docs/ops/STORAGE-CUTOVER.md.
+# api/search get local-path copies. backups binds to an Infra NFS PV
+# (RWX, static). backupsVolumeName must be set to that PV name before the
+# flag is enabled; an empty name fails the render. Do not put a node pin
+# on the backups claim.
 storageCutover:
   useLocalPathCopies: false
-  backupsNodeName: ""
+  backupsVolumeName: ""
 
 # Image configuration
 image:

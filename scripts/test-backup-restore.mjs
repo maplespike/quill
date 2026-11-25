@@ -26,11 +26,18 @@ test('sqlite backup restores the same row counts while a writer is open', () => 
     live.exec('PRAGMA journal_mode = WAL');
     live.exec('CREATE TABLE tenants (id TEXT PRIMARY KEY, name TEXT)');
     live.prepare('INSERT INTO tenants (id, name) VALUES (?, ?)').run('t1', 'Ada');
+    const destDir = path.join(dir, 'backups');
+    const scratchDir = path.join(dir, 'write-scratch');
     const result = backupSqliteFile({
       sourcePath: source,
-      destDir: path.join(dir, 'backups'),
+      destDir,
+      scratchDir,
+      backupsMount: dir,
       retentionDays: 14,
     });
+    assert.ok(result.dest.startsWith(destDir + '/'), result.dest);
+    assert.ok(result.sha256 && /^[0-9a-f]{64}$/.test(result.sha256), result.sha256);
+    assert.equal(existsSync(`${result.dest}.sha256`), true);
     live.prepare('INSERT INTO tenants (id, name) VALUES (?, ?)').run('t2', 'Lin');
     const restored = checkSqliteRestore(result.dest, path.join(dir, 'scratch', 'restored.db'));
     assert.equal(restored.ok, true, restored.problems.join('; '));
@@ -94,10 +101,18 @@ test('search backup script drops an archive older than retention', () => {
     spawnSync('mkdir', ['-p', index], { encoding: 'utf8' });
     writeFileSync(path.join(index, 'quill-meta.json'), '{"docs":1,"kinds":{},"built_at":"2026-10-26T00:00:00Z"}\n');
     writeFileSync(path.join(index, 'segment'), 'seg\n');
+    const searchEnv = {
+      ...process.env,
+      INDEX_DIR: index,
+      DEST_DIR: dest,
+      SCRATCH_DIR: path.join(dir, 'scratch'),
+      BACKUPS_MOUNT: dir,
+      RETENTION_DAYS: '14',
+    };
     const first = spawnSync('sh', ['charts/quill/files/search-backup.sh'], {
       cwd: root,
       encoding: 'utf8',
-      env: { ...process.env, INDEX_DIR: index, DEST_DIR: dest, RETENTION_DAYS: '14' },
+      env: searchEnv,
     });
     assert.equal(first.status, 0, first.stderr);
     const old = path.join(dest, 'index-20200101T000000Z.tar.gz');
@@ -110,7 +125,7 @@ test('search backup script drops an archive older than retention', () => {
     const second = spawnSync('sh', ['charts/quill/files/search-backup.sh'], {
       cwd: root,
       encoding: 'utf8',
-      env: { ...process.env, INDEX_DIR: index, DEST_DIR: dest, RETENTION_DAYS: '14' },
+      env: searchEnv,
     });
     assert.equal(second.status, 0, second.stderr);
     assert.equal(existsSync(old), false);
@@ -162,7 +177,7 @@ test('chart backup contract', (t) => {
   assert.match(backups, /name: quill-db-secret/);
   assert.match(backups, /key: postgres-password/);
   assert.doesNotMatch(backups, /sk_live_|postgres-password: [^{\s]/);
-  assert.match(searchDeploy, /search-data/);
+  assert.match(searchDeploy, /quill\.searchDataClaim/);
   assert.match(searchDeploy, /type: Recreate/);
   assert.match(searchDeploy, /image: \{\{ \.Values\.redis\.image \| quote \}\}/);
   assert.match(searchDeploy, /imagePullPolicy: \{\{ \.Values\.redis\.pullPolicy \| default "IfNotPresent" \}\}/);
@@ -195,15 +210,11 @@ test('chart backup contract', (t) => {
     }
     assert.match(
       rendered.stdout,
-      /nodeAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?key: kubernetes\.io\/hostname[\s\S]*?operator: In[\s\S]*?- "nexus"[\s\S]*?- "sentry"/,
+      /podAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?app: quill-api[\s\S]*?topologyKey: kubernetes\.io\/hostname/,
     );
     assert.doesNotMatch(
       rendered.stdout,
       /requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?kubernetes\.io\/hostname[\s\S]*?- "forge"/,
-    );
-    assert.match(
-      rendered.stdout,
-      /preferredDuringSchedulingIgnoredDuringExecution:[\s\S]*?weight: 100[\s\S]*?- "nexus"/,
     );
   }
 });

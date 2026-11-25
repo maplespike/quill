@@ -131,6 +131,10 @@ spec:
               value: /data/quill/maplespike.db
             - name: BACKUP_DIR
               value: /backups/sqlite
+            - name: SCRATCH_DIR
+              value: /scratch
+            - name: BACKUPS_MOUNT
+              value: /backups
             - name: BACKUP_LABEL
               value: maplespike
             - name: RETENTION_DAYS
@@ -148,6 +152,8 @@ spec:
               mountPath: /data/quill
             - name: backups
               mountPath: /backups
+            - name: scratch
+              mountPath: /scratch
             - name: scripts
               mountPath: /scripts
               readOnly: true
@@ -158,6 +164,8 @@ spec:
           - name: backups
             persistentVolumeClaim:
               claimName: {{ include "quill.backupsClaim" . }}
+          - name: scratch
+            emptyDir: {}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -222,6 +230,10 @@ spec:
               value: /search/index
             - name: DEST_DIR
               value: /backups/search
+            - name: SCRATCH_DIR
+              value: /scratch
+            - name: BACKUPS_MOUNT
+              value: /backups
             - name: RETENTION_DAYS
               value: {{ $backups.retentionDays | default 14 | quote }}
             securityContext:
@@ -238,6 +250,8 @@ spec:
               readOnly: true
             - name: backups
               mountPath: /backups
+            - name: scratch
+              mountPath: /scratch
             - name: scripts
               mountPath: /scripts
               readOnly: true
@@ -249,6 +263,8 @@ spec:
           - name: backups
             persistentVolumeClaim:
               claimName: {{ include "quill.backupsClaim" . }}
+          - name: scratch
+            emptyDir: {}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts

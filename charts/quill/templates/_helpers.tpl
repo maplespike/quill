@@ -145,9 +145,11 @@ affinity:
 {{/*
   Claim names for the API SQLite, search index, and backups volumes.
   storageCutover.useLocalPathCopies defaults to false, so workloads keep the
-  existing Longhorn PVCs and the local-path copies are not rendered. Flipping
-  the flag both creates the three *-local claims and switches workloads onto
-  them. The original Longhorn PVCs are never renamed or deleted by this flag.
+  existing Longhorn PVCs and the cutover claims are not rendered. Flipping
+  the flag creates the api/search local-path copies and the backups static-bind
+  PVC (quill-backups-local, RWX, bound to storageCutover.backupsVolumeName)
+  and switches workloads onto them. An empty backupsVolumeName fails the
+  render. The original Longhorn PVCs are never renamed or deleted by this flag.
 */}}
 {{- define "quill.apiDataClaim" -}}
 {{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
@@ -166,7 +168,11 @@ affinity:
 {{- end }}
 
 {{- define "quill.backupsClaim" -}}
-{{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
+{{- $cutover := .Values.storageCutover | default dict -}}
+{{- if ($cutover.useLocalPathCopies | default false) -}}
+{{- if not ($cutover.backupsVolumeName | default "") -}}
+{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies" -}}
+{{- end -}}
 {{- printf "%s-backups-local" (include "quill.fullname" .) -}}
 {{- else -}}
 {{- printf "%s-backups" (include "quill.fullname" .) -}}

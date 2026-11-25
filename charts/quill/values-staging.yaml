@@ -11,9 +11,10 @@ portal:
 
 # Staging is applied on top of values-prod.yaml, so it would otherwise
 # inherit a prod cutover flip. There is no storageClass override in this
-# file (no Longhorn key of its own). Pin the flag off here; a staging
-# cutover is a separate, explicit change.
+# file (no Longhorn key of its own). Pin the flag off here; staging
+# leaving Longhorn is a later, separate pass with its own node, size,
+# and claim from Infra (TBD).
 storageCutover:
   useLocalPathCopies: false
-  backupsNodeName: ""
+  backupsVolumeName: ""
 

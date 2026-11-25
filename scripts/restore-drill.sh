@@ -44,13 +44,18 @@ db.close();
 EOF
   QUILL_DB_PATH="$tmp/maplespike.db" \
     BACKUP_DIR="$tmp/backups/sqlite" \
+    SCRATCH_DIR="$tmp/write-scratch" \
+    BACKUPS_MOUNT="$tmp" \
     RETENTION_DAYS=14 \
     BACKUP_LABEL=maplespike \
     node "$ROOT/charts/quill/files/sqlite-backup.mjs"
   mkdir -p "$tmp/index"
   printf '%s\n' '{"docs":2,"kinds":{"tenant":2},"built_at":"2026-10-26T00:00:00Z"}' > "$tmp/index/quill-meta.json"
   printf '%s\n' 'segment' > "$tmp/index/segment"
-  INDEX_DIR="$tmp/index" DEST_DIR="$tmp/backups/search" RETENTION_DAYS=14 \
+  INDEX_DIR="$tmp/index" DEST_DIR="$tmp/backups/search" \
+    SCRATCH_DIR="$tmp/write-scratch-search" \
+    BACKUPS_MOUNT="$tmp" \
+    RETENTION_DAYS=14 \
     sh "$ROOT/charts/quill/files/search-backup.sh"
   BACKUP_ROOT="$tmp/backups" \
     SCRATCH_DIR="$tmp/scratch" \
