@@ -54,15 +54,93 @@ function assertAnalyticsHosts(value: string) {
   expect(connect).not.toMatch(/https:\/\/\*\.(?:plausible\.io|cloudflareinsights\.com|cloudflare\.com)/);
 }
 
-describe('alternate portal CSP copies', () => {
-  test('nginx.conf and _headers allow the same analytics hosts', () => {
-    const nginx = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
-    const headers = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
-    const nginxCsp = nginx.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? '';
-    const headersCsp = headers.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? '';
-    expect(nginxCsp.length).toBeGreaterThan(0);
-    expect(headersCsp.length).toBeGreaterThan(0);
-    assertAnalyticsHosts(nginxCsp);
-    assertAnalyticsHosts(headersCsp);
+function parsePolicy(value: string): Map<string, string[]> {
+  const policy = new Map<string, string[]>();
+  for (const part of value.split(';')) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const [name, ...sources] = trimmed.split(/\s+/);
+    policy.set(name, sources);
+  }
+  return policy;
+}
+
+const nginxConf = readFileSync(join(__dirname, '..', 'nginx.conf'), 'utf8');
+const headersFile = readFileSync(join(__dirname, '..', 'public', '_headers'), 'utf8');
+const nginxCsp = nginxConf.match(/Content-Security-Policy "([^"]+)"/)?.[1] ?? '';
+const headersCsp = headersFile.match(/Content-Security-Policy: ([^\n]+)/)?.[1] ?? '';
+
+// There is one policy served by three servers. Comparing only the analytics hosts
+// is what let the served copy ship without js.stripe.com or frame-src at all, so
+// the live checkout could not load its payment form while these tests passed.
+// Now the copies must be identical directive-for-directive: any future edit that
+// touches one file and not the others fails here, by name.
+describe('the three portal CSP copies are one policy', () => {
+  const copies: Array<[string, Map<string, string[]>]> = [
+    ['server.py', parsePolicy(csp)],
+    ['nginx.conf', parsePolicy(nginxCsp)],
+    ['public/_headers', parsePolicy(headersCsp)],
+  ];
+
+  test.each([
+    ['nginx.conf', parsePolicy(nginxCsp)],
+    ['public/_headers', parsePolicy(headersCsp)],
+  ] as Array<[string, Map<string, string[]>]>)('%s matches server.py exactly', (name, parsed) => {
+    const reference = copies[0][1];
+    expect(parsed.size, `${name} directive count`).toBeGreaterThan(5);
+    expect([...parsed.keys()].sort()).toEqual([...reference.keys()].sort());
+    for (const [directiveName, sources] of reference) {
+      expect(parsed.get(directiveName), `${name} → ${directiveName}`).toEqual(sources);
+    }
+  });
+
+  test('every copy carries the hardening directives, quoted correctly', () => {
+    for (const [name, parsed] of copies) {
+      expect(parsed.get('object-src'), name).toEqual(["'none'"]);
+      expect(parsed.get('base-uri'), name).toEqual(["'self'"]);
+      expect(parsed.get('form-action'), name).toEqual(["'self'"]);
+      // `frame-ancestors none` (unquoted) is an invalid source expression and the
+      // directive is discarded. nginx.conf shipped exactly that until today.
+      expect(parsed.get('frame-ancestors'), name).toEqual(["'none'"]);
+      expect(parsed.has('upgrade-insecure-requests'), name).toBe(true);
+      expect(parsed.get('default-src'), name).toEqual(["'self'"]);
+    }
+  });
+
+  test('script-src grants eval only because /api-reference needs it, and never data:', () => {
+    // Measured 2026-11-23 with e2e/csp-audit.mjs: removing 'unsafe-eval' left
+    // exactly one violating route — /api-reference, where Scalar's chunk calls
+    // new Function. It came back with that reason attached rather than silently.
+    // 'data:' was removed the same day and no route asked for it back.
+    for (const [name, parsed] of copies) {
+      const scriptSrc = parsed.get('script-src') ?? [];
+      expect(scriptSrc, name).toContain("'unsafe-eval'");
+      expect(scriptSrc, name).not.toContain('data:');
+    }
+  });
+
+  test("'unsafe-inline' in script-src is deliberate, and the config does not try to hash around it", () => {
+    // Measured 2026-11-23: Astro's security.csp emitted a meta CSP with SHA-384
+    // hashes and the site broke with 83 securitypolicyviolations — inline event
+    // handlers (script-src-attr) cannot be hashed at all, and several `is:inline`
+    // blocks never got a hash. It was reverted within the hour. The meta policy
+    // only tightens, so the page's own scripts stopped running.
+    //
+    // This test exists so nobody re-enables it believing it is free hardening:
+    // the audit (e2e/csp-audit.mjs) is what shows the difference, and removing
+    // 'unsafe-inline' for real starts with deleting the inline handlers.
+    const astroConfig = readFileSync(join(__dirname, '..', 'astro.config.mjs'), 'utf8');
+    expect(astroConfig).not.toContain('security:');
+    expect(directive(csp, 'script-src')).toContain("'unsafe-inline'");
+  });
+
+  test('no copy allows a host nothing in the portal uses', () => {
+    for (const [name, parsed] of copies) {
+      const flat = [...parsed.values()].flat().join(' ');
+      expect(flat, name).not.toContain('fonts.googleapis.com');
+      expect(flat, name).not.toContain('fonts.gstatic.com');
+      expect(flat, name).not.toContain('googleusercontent.com');
+      expect(flat, name).not.toContain('https://www.google.com');
+    }
   });
 });
