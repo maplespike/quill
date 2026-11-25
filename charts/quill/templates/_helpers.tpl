@@ -143,11 +143,11 @@ affinity:
 {{- end }}
 
 {{/*
-  Claim names for the API SQLite volume and the search index volume.
+  Claim names for the API SQLite, search index, and backups volumes.
   storageCutover.useLocalPathCopies defaults to false, so workloads keep the
-  existing Longhorn PVCs. The local-path copies are rendered beside them;
-  flipping the flag is the only switch. quill-backups is not part of this
-  cutover and always uses the Longhorn claim.
+  existing Longhorn PVCs and the local-path copies are not rendered. Flipping
+  the flag both creates the three *-local claims and switches workloads onto
+  them. The original Longhorn PVCs are never renamed or deleted by this flag.
 */}}
 {{- define "quill.apiDataClaim" -}}
 {{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
@@ -162,5 +162,13 @@ affinity:
 {{- printf "%s-search-data-local" (include "quill.fullname" .) -}}
 {{- else -}}
 {{- printf "%s-search-data" (include "quill.fullname" .) -}}
+{{- end -}}
+{{- end }}
+
+{{- define "quill.backupsClaim" -}}
+{{- if ((.Values.storageCutover | default dict).useLocalPathCopies | default false) -}}
+{{- printf "%s-backups-local" (include "quill.fullname" .) -}}
+{{- else -}}
+{{- printf "%s-backups" (include "quill.fullname" .) -}}
 {{- end -}}
 {{- end }}

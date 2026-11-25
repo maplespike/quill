@@ -1,13 +1,22 @@
 {{/*
-  Side-by-side local-path copies of the API SQLite and search index claims.
-  These are ADDED next to the existing Longhorn PVCs (quill-api-data,
-  quill-search-data). They are never a replacement and must not share those
-  names. Workloads keep the old claims until storageCutover.useLocalPathCopies
-  is flipped. quill-backups is intentionally not copied here.
+  Side-by-side local-path copies of the API SQLite, search index, and
+  backups claims. These are ADDED next to the existing Longhorn PVCs and
+  must not reuse those names. They render only when
+  storageCutover.useLocalPathCopies is true; the default is false, so a
+  merge of this chart does not create the copies or move workloads.
+
+  api-data and search-data copies are intended for sentry.
+  backups is NOT placed on sentry or the api-data node. backupsNodeName
+  defaults to empty and renders no pin; local-path WaitForFirstConsumer
+  then binds the volume on whichever node first mounts it. The cutover
+  runbook must set backupsNodeName before enabling the flag.
 */}}
 {{- $cutover := .Values.storageCutover | default dict }}
+{{- if $cutover.useLocalPathCopies }}
 {{- $apiCopy := $cutover.api | default dict }}
 {{- $searchCopy := $cutover.search | default dict }}
+{{- $backupsCopy := $cutover.backups | default dict }}
+{{- $backupsNode := $cutover.backupsNodeName | default "" }}
 {{- if $apiCopy.size }}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -18,8 +27,10 @@ metadata:
     app: quill-api
     component: api
     storage-cutover: local-path-copy
+  {{- with $apiCopy.node }}
   annotations:
-    volume.kubernetes.io/selected-node: {{ $apiCopy.node | default "sentry" | quote }}
+    volume.kubernetes.io/selected-node: {{ . | quote }}
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -39,8 +50,10 @@ metadata:
     app: quill-search
     component: search
     storage-cutover: local-path-copy
+  {{- with $searchCopy.node }}
   annotations:
-    volume.kubernetes.io/selected-node: {{ $searchCopy.node | default "sentry" | quote }}
+    volume.kubernetes.io/selected-node: {{ . | quote }}
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -48,4 +61,28 @@ spec:
   resources:
     requests:
       storage: {{ $searchCopy.size | quote }}
+{{- end }}
+{{- if $backupsCopy.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-backups-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    storage-cutover: local-path-copy
+  {{- if $backupsNode }}
+  annotations:
+    volume.kubernetes.io/selected-node: {{ $backupsNode | quote }}
+  {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $backupsCopy.storageClass | default "local-path" | quote }}
+  resources:
+    requests:
+      storage: {{ $backupsCopy.size | quote }}
+{{- end }}
 {{- end }}

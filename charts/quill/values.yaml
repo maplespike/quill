@@ -12,8 +12,11 @@ priorityClass:
 
 # Keep existing Longhorn claims unless an environment flips this after a
 # verified copy onto the local-path PVCs. See docs/ops/STORAGE-CUTOVER.md.
+# backupsNodeName must stay empty until Infra picks a node; do not default
+# it to sentry or the api-data node.
 storageCutover:
   useLocalPathCopies: false
+  backupsNodeName: ""
 
 # Image configuration
 image:

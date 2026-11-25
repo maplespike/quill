@@ -8,3 +8,12 @@ mcp:
   nodePort: 31746
 portal:
   nodePort: 30965
+
+# Staging is applied on top of values-prod.yaml, so it would otherwise
+# inherit a prod cutover flip. There is no storageClass override in this
+# file (no Longhorn key of its own). Pin the flag off here; a staging
+# cutover is a separate, explicit change.
+storageCutover:
+  useLocalPathCopies: false
+  backupsNodeName: ""
+

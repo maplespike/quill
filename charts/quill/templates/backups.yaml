@@ -157,7 +157,7 @@ spec:
               claimName: {{ include "quill.apiDataClaim" . }}
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -248,7 +248,7 @@ spec:
               readOnly: true
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -351,7 +351,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -448,7 +448,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
               readOnly: true
           - name: scripts
             configMap:
@@ -542,7 +542,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
               readOnly: true
           - name: scratch
             emptyDir: {}

@@ -46,25 +46,27 @@ affinityHosts: &quillHeavyHosts
   - sentry
 preferredHost: &quillPreferredHost nexus
 
-# Side-by-side local-path copies of quill-api-data and quill-search-data on
-# sentry. Workloads keep the existing Longhorn claims until
-# useLocalPathCopies is flipped. quill-backups stays on Longhorn; an
-# archive-disk move is a later, separate PR.
+# Side-by-side local-path copies of quill-api-data, quill-search-data, and
+# quill-backups. Workloads keep the existing Longhorn claims until
+# useLocalPathCopies is flipped (default false). The flag both creates the
+# three *-local PVCs and switches workloads; the original Longhorn PVCs
+# are never deleted by this flag.
 #
-# Sizing (fits Infra's local-path cap of 15Gi / 3 claims, media-k8s #671
-# adjusted now that backups are not copied):
-#   quill-api-data-local    5Gi
-#   quill-search-data-local 5Gi
-#   total                   10Gi / 2 PVCs
-#   remaining headroom      5Gi / 1 claim
-# Live usage 2026-11-24 11:31 PM America/Winnipeg (#671, still current
-# Bound sizes at 2026-11-24 11:40 PM): api actual 2.46 GiB, search 0.16 GiB
-# (2.62 GiB combined). sentry / was 237G, 172G used, 56G avail, 76% full.
-# After a thin-provisioned copy of the actual data: ~175G used, ~53G avail,
-# ~77%, well under the 85% ceiling (~22G of headroom remained to 85%).
-# Even a thick 10Gi write would stay around 77–78%.
+# Sizing (media-k8s #671 currently caps local-path at 15Gi / 3 claims;
+# that cap must be raised to at least 40Gi before this flag is enabled):
+#   quill-api-data-local    5Gi   (actual 2.46 GiB; sentry)
+#   quill-search-data-local 5Gi   (actual 0.16 GiB; sentry)
+#   quill-backups-local    30Gi   (actual 17.25 GiB; node unset)
+#   total                  40Gi / 3 PVCs
+# Live usage 2026-11-24 11:31 PM America/Winnipeg (#671; Bound sizes
+# re-checked 11:40 PM CT). backupsNodeName is left empty on purpose:
+# backups must not land on sentry or the api-data node. Infra picks the
+# node; the runbook must set this value before enabling the flag.
+# local-path WaitForFirstConsumer binds the volume where the first
+# backup/copy pod schedules.
 storageCutover:
   useLocalPathCopies: false
+  backupsNodeName: ""
   api:
     size: 5Gi
     storageClass: local-path
@@ -73,6 +75,9 @@ storageCutover:
     size: 5Gi
     storageClass: local-path
     node: sentry
+  backups:
+    size: 30Gi
+    storageClass: local-path
 
 api:
   replicas: 1

@@ -1,71 +1,71 @@
-# Prod storage cutover: local-path copies on sentry
+# Prod storage cutover: off Longhorn, onto local-path
 
 Production runs SQLite on the `quill-api-data` volume (not a SQL dump and
-restore). This runbook copies that volume and `quill-search-data` onto new
-local-path claims on sentry, then flips a Helm flag so workloads mount the
-copies. `quill-backups` stays on Longhorn; an archive-disk move is a later,
-separate PR.
+restore). The end state is that api-data, search-data, and backups all live
+on local-path copies, with no remaining Longhorn PVCs in use. The existing
+Longhorn PVCs are never deleted or replaced in this procedure. Rollback is
+flipping `storageCutover.useLocalPathCopies` back to `false`. Deleting the
+old Longhorn PVCs is a separate later step and needs Reverb's explicit yes.
 
-The existing Longhorn PVCs are never deleted or replaced in this procedure.
-Rollback is flipping the flag back. Deleting the old PVCs is a separate later
-step and needs Reverb's yes.
+`storageCutover.useLocalPathCopies` defaults to `false`. While it is false,
+the three `*-local` PVCs are not rendered and workloads keep the Longhorn
+claims. Flipping it to `true` both creates the three new claims and points
+workloads at them. Because of that, raise the quota, set the backups node,
+and freeze (scale api and search to 0, suspend CronJobs) **before** enabling
+the flag, then copy the volumes, then scale back up.
 
-## Sizing
+## Sizing and quota
 
-Infra local-path cap (media-k8s #671, adjusted now that backups are not
-copied): **15Gi / 3 claims**.
+media-k8s #671 currently caps local-path in `maplespike` at **15Gi / 3
+claims**. These three copies need **at least 40Gi / 3 claims** before the
+flag can be enabled:
 
-| new claim | size | of cap |
-| --- | ---: | ---: |
-| quill-api-data-local | 5Gi | |
-| quill-search-data-local | 5Gi | |
-| **total** | **10Gi / 2 PVCs** | **5Gi / 1 claim remaining** |
+| new claim | size | actual (2026-11-24 11:31 PM CT) | placement |
+| --- | ---: | ---: | --- |
+| quill-api-data-local | 5Gi | 2.46 GiB | sentry |
+| quill-search-data-local | 5Gi | 0.16 GiB | sentry |
+| quill-backups-local | 30Gi | 17.25 GiB | **unset** — not sentry, not the api-data node |
+| **total** | **40Gi / 3** | **19.87 GiB** | |
 
-Live usage measured in media-k8s #671 at 2026-11-24 11:31 PM
-America/Winnipeg (Bound claim sizes still 5Gi + 5Gi + 30Gi Longhorn as of
-11:40 PM CT):
-
-- quill-api-data actual: 2,642,993,152 B (2.46 GiB)
-- quill-search-data actual: 166,879,232 B (0.16 GiB)
-- combined actual: 2.62 GiB
-- sentry `/`: 237G size, 172G used, 56G avail, **76%**
-
-After a thin-provisioned copy of the actual data: about 175G used, 53G
-avail, **~77%**, well under the 85% ceiling (about 22G of headroom remained
-to 85%). A thick 10Gi write would still be around 77–78%.
+`storageCutover.backupsNodeName` is left empty in git on purpose. Do not
+push a placement value until Infra picks a node. local-path uses
+WaitForFirstConsumer: with no pin, the backups volume binds on whichever
+node first mounts it. **The runbook must set `backupsNodeName` before
+enabling the flag**, otherwise the first backup or copy pod decides the
+node, and that must not be sentry or the api-data node.
 
 ## Runbook (in order)
 
-1. **Freeze**
+1. **Raise the local-path quota** in media-k8s #671 (or a follow-up) to at
+   least 40Gi / 3 claims. Do not enable the flag against the 15Gi cap.
+
+2. **Set `storageCutover.backupsNodeName`** to the node Infra chooses (not
+   sentry, not the api-data node). Leave api/search copies on sentry.
+
+3. **Freeze**
    - Pause Argo CD `selfHeal` on the quill application.
    - Suspend the `quill-backup-*` and `quill-ingest-*` CronJobs.
    - Scale `quill-api` and `quill-search` to 0.
 
-2. **Copy the volumes off**, with:
-   - a sha256 manifest of every file (path + size + digest) on the source
-     and the destination, and a comparison before declaring the copy good;
-   - Longhorn snapshots and Longhorn backups of `quill-api-data` and
-     `quill-search-data` taken before the copy, so the Longhorn claims stay
-     a complete rollback target.
+4. **Enable the flag** (`storageCutover.useLocalPathCopies: true`) and
+   sync, with replicas still at 0, so the three new PVCs exist but running
+   workloads do not mount empty volumes.
 
-   Bind the new local-path claims on sentry (they are annotated for that
-   node). Do not copy `quill-backups`.
+5. **Copy the volumes off**, in this order, with a sha256 manifest of every
+   file (path + size + digest) on the source and the destination, and a
+   comparison before declaring each copy good. Take Longhorn snapshots and
+   Longhorn backups of each source volume before copying it.
+   1. **backups first** (`quill-backups` → `quill-backups-local`), on the
+      node in `backupsNodeName`;
+   2. then **api-data** (`quill-api-data` → `quill-api-data-local`) on sentry;
+   3. then **search** (`quill-search-data` → `quill-search-data-local`) on sentry.
 
-3. **Switch api-data**, set `storageCutover.useLocalPathCopies` still false
-   until the api-data copy is verified, then flip workloads that mount
-   `quill-api-data` by setting the flag only after both copies are verified.
-   The flag switches api-data and search together; verify api-data first,
-   then search, then flip once.
+6. **Scale api then search back up**, confirm 1/1 and a health probe, then
+   unsuspend CronJobs and re-enable selfHeal only after that.
 
-   Practical order once both copies verify:
-   - confirm api-data copy (manifest + spot-check the SQLite file);
-   - confirm search-data copy (manifest + tantivy index);
-   - set `storageCutover.useLocalPathCopies: true`, sync, scale api then
-     search back up, confirm 1/1 and a health probe;
-   - unsuspend CronJobs and re-enable selfHeal only after that.
-
-4. **Rollback** is setting `storageCutover.useLocalPathCopies` back to
+7. **Rollback** is setting `storageCutover.useLocalPathCopies` back to
    `false` and syncing. The original Longhorn PVCs are untouched.
 
-5. **Do not delete** the old Longhorn PVCs in this change. That is a
-   separate later step and needs Reverb's yes.
+8. **Do not delete** the old Longhorn PVCs in this change. The end state of
+   the cutover is that nothing still *uses* them. Deleting them is a
+   separate later step and needs Reverb's explicit yes.
