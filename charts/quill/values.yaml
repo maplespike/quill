@@ -10,6 +10,16 @@ priorityClass:
   critical: fleet-critical
   batch: fleet-batch
 
+# Keep existing Longhorn claims unless an environment flips this after a
+# verified copy. See docs/ops/STORAGE-CUTOVER.md.
+# api/search get local-path copies. backups binds to an Infra NFS PV
+# (RWX, static). backupsVolumeName must be set to that PV name before the
+# flag is enabled; an empty name fails the render. Do not put a node pin
+# on the backups claim.
+storageCutover:
+  useLocalPathCopies: false
+  backupsVolumeName: ""
+
 # Image configuration
 image:
   registry: nexus:5000
@@ -233,6 +243,10 @@ backups:
   storage: 30Gi
   storageClass: longhorn
   accessMode: ReadWriteOnce
+  # Caps the emptyDir the sqlite and search backup jobs (and the drill) write
+  # into before copying onto the backups mount. 8Gi covers the live SQLite
+  # snapshot (~2.5Gi) plus the search archive with headroom.
+  scratchSizeLimit: 8Gi
   timeZone: Etc/UTC
   resources:
     requests:

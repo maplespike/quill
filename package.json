@@ -47,6 +47,7 @@
     "test:chart-reloader": "pnpm exec tsx --test scripts/test-chart-reloader.mts",
     "test:chart-ingest-deadlines": "pnpm exec tsx --test scripts/test-chart-ingest-deadlines.mts",
     "test:chart-priority-classes": "pnpm exec tsx --test scripts/test-chart-priority-classes.mts",
+    "test:chart-storage-cutover": "pnpm exec tsx --test scripts/test-chart-storage-cutover.mts",
     "test:lockstep": "pnpm exec tsx --test scripts/test-secret-lockstep.mts",
     "test:stall-watchdog": "pnpm exec tsx --test scripts/test-stall-watchdog.mts",
     "test:isolation-timeout": "pnpm exec tsx --test scripts/test-isolation-timeout.mts",

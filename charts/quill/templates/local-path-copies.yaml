@@ -1,0 +1,85 @@
+{{/*
+  Cutover claims, rendered only when storageCutover.useLocalPathCopies is
+  true. The default is false, so a merge of this chart does not create the
+  copies or move workloads. These are ADDED next to the existing Longhorn
+  PVCs and must not reuse those names.
+
+  api-data and search-data are local-path copies (pinned in values when a
+  node is set). backups is not a local-path volume: quill-backups-local is
+  a static-bind RWX PVC that binds to the Infra NFS PersistentVolume named
+  in storageCutover.backupsVolumeName (storageClassName empty, no node
+  pin). An empty volumeName fails the render rather than emitting a PVC
+  that cannot bind.
+*/}}
+{{- $cutover := .Values.storageCutover | default dict }}
+{{- if $cutover.useLocalPathCopies }}
+{{- if not ($cutover.backupsVolumeName | default "") }}
+{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies" }}
+{{- end }}
+{{- $apiCopy := $cutover.api | default dict }}
+{{- $searchCopy := $cutover.search | default dict }}
+{{- $backupsCopy := $cutover.backups | default dict }}
+{{- if $apiCopy.size }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-api-data-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-api
+    component: api
+    storage-cutover: local-path-copy
+  {{- with $apiCopy.node }}
+  annotations:
+    volume.kubernetes.io/selected-node: {{ . | quote }}
+  {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $apiCopy.storageClass | default "local-path" | quote }}
+  resources:
+    requests:
+      storage: {{ $apiCopy.size | quote }}
+{{- end }}
+{{- if $searchCopy.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-search-data-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-search
+    component: search
+    storage-cutover: local-path-copy
+  {{- with $searchCopy.node }}
+  annotations:
+    volume.kubernetes.io/selected-node: {{ . | quote }}
+  {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $searchCopy.storageClass | default "local-path" | quote }}
+  resources:
+    requests:
+      storage: {{ $searchCopy.size | quote }}
+{{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quill.fullname" . }}-backups-local
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quill-backup
+    component: backup
+    storage-cutover: nfs-static-bind
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: {{ $cutover.backupsVolumeName | quote }}
+  resources:
+    requests:
+      storage: {{ $backupsCopy.size | default "30Gi" | quote }}
+{{- end }}

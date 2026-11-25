@@ -131,6 +131,10 @@ spec:
               value: /data/quill/maplespike.db
             - name: BACKUP_DIR
               value: /backups/sqlite
+            - name: SCRATCH_DIR
+              value: /scratch
+            - name: BACKUPS_MOUNT
+              value: /backups
             - name: BACKUP_LABEL
               value: maplespike
             - name: RETENTION_DAYS
@@ -148,16 +152,21 @@ spec:
               mountPath: /data/quill
             - name: backups
               mountPath: /backups
+            - name: scratch
+              mountPath: /scratch
             - name: scripts
               mountPath: /scripts
               readOnly: true
           volumes:
           - name: data
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-api-data
+              claimName: {{ include "quill.apiDataClaim" . }}
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
+          - name: scratch
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -209,10 +218,8 @@ spec:
           nodeName: {{ .Values.api.storage.nodeName }}
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
-          {{- else if and .Values.search .Values.search.nodeName }}
-          nodeName: {{ .Values.search.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: search-backup
@@ -224,6 +231,10 @@ spec:
               value: /search/index
             - name: DEST_DIR
               value: /backups/search
+            - name: SCRATCH_DIR
+              value: /scratch
+            - name: BACKUPS_MOUNT
+              value: /backups
             - name: RETENTION_DAYS
               value: {{ $backups.retentionDays | default 14 | quote }}
             securityContext:
@@ -240,17 +251,22 @@ spec:
               readOnly: true
             - name: backups
               mountPath: /backups
+            - name: scratch
+              mountPath: /scratch
             - name: scripts
               mountPath: /scripts
               readOnly: true
           volumes:
           - name: index
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-search-data
+              claimName: {{ include "quill.searchDataClaim" . }}
               readOnly: true
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
+          - name: scratch
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -353,7 +369,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -409,7 +425,7 @@ spec:
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: freshness
@@ -450,7 +466,7 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
               readOnly: true
           - name: scripts
             configMap:
@@ -506,7 +522,7 @@ spec:
           {{- else if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
           {{- else }}
-          {{- include "quill.nodeAffinity" (dict "affinityHosts" ($backups.affinityHosts | default $.Values.api.affinityHosts | default list) "preferredHost" ($backups.preferredHost | default $.Values.api.preferredHost | default "")) | nindent 10 }}
+          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: drill
@@ -544,10 +560,11 @@ spec:
           volumes:
           - name: backups
             persistentVolumeClaim:
-              claimName: {{ include "quill.fullname" . }}-backups
+              claimName: {{ include "quill.backupsClaim" . }}
               readOnly: true
           - name: scratch
-            emptyDir: {}
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts

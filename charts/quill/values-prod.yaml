@@ -46,6 +46,38 @@ affinityHosts: &quillHeavyHosts
   - sentry
 preferredHost: &quillPreferredHost nexus
 
+# Cutover claims, rendered only when useLocalPathCopies is flipped
+# (default false). api/search get local-path copies; backups gets a
+# static-bind PVC (quill-backups-local, RWX, storageClassName empty)
+# that binds to the Infra NFS PersistentVolume named in
+# backupsVolumeName. The flag also switches workloads onto those claims.
+# The original Longhorn PVCs are never deleted by this flag.
+#
+# media-k8s #671 (383ade63) caps Longhorn at 40Gi / 3 claims and
+# local-path at 50Gi / 4 claims. This cutover's local-path copies are
+# only api + search (10Gi / 2), which fits. backups is NFS, not
+# local-path: Infra's PersistentVolume quill-backups-nfs is 40Gi, RWX,
+# Retain, storageClassName empty, with claimRef
+# maplespike/quill-backups-local. The PVC request stays 30Gi (17.25 GiB
+# used 2026-11-24 11:31 PM America/Winnipeg; Bound sizes re-checked
+# 11:40 PM CT) so it is <= 40Gi and can bind. No node pin on the
+# backups claim. The backup job stays co-located with api-data and
+# mounts the NFS claim there (RWX). Staging keeps backupsVolumeName
+# empty; a staging cutover is a later pass.
+storageCutover:
+  useLocalPathCopies: false
+  backupsVolumeName: quill-backups-nfs
+  api:
+    size: 5Gi
+    storageClass: local-path
+    node: sentry
+  search:
+    size: 5Gi
+    storageClass: local-path
+    node: sentry
+  backups:
+    size: 30Gi
+
 api:
   replicas: 1
   port: 8082
@@ -89,7 +121,9 @@ api:
     # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
     nodeName: ""
   affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
+  # Pin to sentry for the local-path cutover (the new claims bind there).
+  # Longhorn can still attach the existing claim on sentry until the flip.
+  preferredHost: sentry
 mcp:
   replicas: 1
   port: 3001
@@ -317,7 +351,7 @@ search:
   # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
-  preferredHost: *quillPreferredHost
+  preferredHost: sentry
 
 # Daily backups of the SQLite file and the search index, plus a freshness
 # check and a weekly restore drill. The claim is longhorn, same class as the
