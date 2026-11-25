@@ -490,6 +490,22 @@ function signAndPost(event: any): Promise<Response> {
 }
 
 describe('stripeWebhookHandler', () => {
+  // checkout.session.completed now reads the subscription's period end with a
+  // GET /subscriptions/:id. Never let that reach the real Stripe API: answer
+  // every outbound call with a 404 so the handler takes its non-fatal path.
+  let webhookOriginalFetch: typeof global.fetch;
+  beforeEach(() => {
+    webhookOriginalFetch = global.fetch;
+    global.fetch = (async () =>
+      new Response(JSON.stringify({ error: { type: 'invalid_request_error', message: 'offline test' } }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })) as typeof fetch;
+  });
+  afterEach(() => {
+    global.fetch = webhookOriginalFetch;
+  });
+
   it('rejects an unsigned request with 400', async () => {
     const body = JSON.stringify({ id: 'evt_2', type: 'ping', data: { object: {} } });
     const req = makeRequest('http://localhost/v1/billing/stripe/webhook', {
