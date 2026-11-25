@@ -164,19 +164,7 @@ jobs:
     # refuse self-hosted runners. This job stays on ubuntu-24.04. It does
     # not start unless the ARC build's probe said enabled, so a free-plan
     # private repo (the current state) spends no hosted minutes here.
-    #
-    # Manual dispatch only (2026-11-24). Since the repo went public, Pages is
-    # enabled and deploy-demo-pages.yml owns the site on every portal push: it
-    # builds with the /quill/ base the github.io URL needs. This job publishes a
-    # root-base build to that same site, so on push the two raced and this one
-    # lost (runs 45520713675, 45530345927). On push the build above still runs
-    # and is verified; dispatch this workflow to publish the docs build on
-    # purpose. Both deploy jobs share one concurrency group so they never
-    # overlap.
-    if: github.event_name == 'workflow_dispatch' && needs.build.result == 'success' && needs.build.outputs.verdict == 'enabled'
-    concurrency:
-      group: github-pages-site
-      cancel-in-progress: false
+    if: needs.build.result == 'success' && needs.build.outputs.verdict == 'enabled'
     runs-on: ubuntu-24.04
     environment:
       name: github-pages
