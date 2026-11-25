@@ -867,6 +867,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestTorontobudget'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'toronto-police',
@@ -876,6 +877,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestTorontopolice'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'toronto-building-permits',
@@ -885,6 +887,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestTorontobuildingpermits'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'vancouver-council',
@@ -894,6 +897,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestVancouvercouncil'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'montreal-council',
@@ -903,6 +907,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestMontrealcouncil'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'calgary-transit',
@@ -912,6 +917,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCalgarytransit'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'ottawa-oc-transpo',
@@ -921,6 +927,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestOttawaoctranspo'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
   {
     name: 'bc-translink',
@@ -930,6 +937,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestBctranslink'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'bc-corporate-registry',
@@ -939,6 +947,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestBccorporateregistry'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'ab-energy-regulator',
@@ -948,6 +957,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAbenergyregulator'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'federal-procurement',
@@ -957,6 +967,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalprocurement'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'federal-grants',
@@ -966,6 +977,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalgrants'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'federal-auditor-general',
@@ -975,6 +987,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalauditorgeneral'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'federal-parliamentary-budget',
@@ -984,6 +997,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalparliamentarybudget'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'federal-privacy-commissioner',
@@ -993,6 +1007,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalprivacycommissioner'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'federal-immigration-irb',
@@ -1002,6 +1017,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalimmigrationirb'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://open.canada.ca/data',
   },
   {
     name: 'municipal-portals',
@@ -1011,6 +1027,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestMunicipalPortals'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
   },
 
   // ── Media ────────────────────────────────────────────────
@@ -1748,6 +1765,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://gtfs-static.translink.ca/gtfs/google_transit.zip',
   },
   {
     name: 'library',
@@ -1912,6 +1930,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.edmonton.ca/api/id/c6f4-cgw5.json',
   },
 
   // ── International Indicators ─────────────────────────────────────

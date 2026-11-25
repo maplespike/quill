@@ -14,7 +14,7 @@ import { createHash } from 'node:crypto';
 
 import { globalCache } from '../cache.js';
 import type { RouteHandler } from '../types.js';
-import { applySecurityHeaders } from './security-headers.js';
+import { applyCorsAndSecurityHeaders } from '../response.js';
 
 /**
  * Scope a caller's credential to a short, non-reversible suffix.
@@ -90,13 +90,14 @@ export function withRouteCache(
           },
         });
 
-        // Apply security headers
-        const secureResponse = new Response(response.body, {
+        // Same CORS and security headers as a cache miss. finalizeResponse
+        // applies the helper again; the second call does not change the values.
+        const headers = new Headers(response.headers);
+        applyCorsAndSecurityHeaders(headers, request.headers.get('Origin'), ctx.env.ENVIRONMENT);
+        return new Response(response.body, {
           status: response.status,
-          headers: applySecurityHeaders(new Headers(response.headers), ctx.env.ENVIRONMENT),
+          headers,
         });
-
-        return secureResponse;
       } catch {
         // Malformed cache entry — fall through to handler
         globalCache.delete(cacheKey);

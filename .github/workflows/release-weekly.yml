@@ -62,6 +62,11 @@ on:
     - cron: "0 14 * * 5"  # Every Friday at 2 PM
   workflow_dispatch:
 
+concurrency:
+  # Pushes a release branch. Do not cancel a run mid-push.
+  group: release-weekly
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write

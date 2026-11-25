@@ -129,49 +129,74 @@
   }
 
   // ── Dark/Light Theme Toggle ──────────────────────────────────
+  //
+  // `data-theme` names the DESIGN theme and must stay "ink-and-paper" (the
+  // browser design check and design-system test assert it). The light/dark
+  // switch is the `.dark` class on <html>: globals.css declares
+  // `@custom-variant dark (&:where(.dark, .dark *))` and
+  // ink-and-paper.css remaps its tokens under `.theme-ink-and-paper.dark`.
+  // Never write "dark"/"light" into data-theme — that produced a half-dark
+  // page (dark body, light cards) and failed the design contract.
+
+  function currentTheme() {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  }
+
+  function syncThemeControls(theme) {
+    const dark = theme === 'dark';
+    // Legacy emoji buttons (class .theme-toggle).
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = dark ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+    // BaseLayout's nav button is `#theme-toggle` — its SVG icons flip via the
+    // .dark class, so only the accessible name and state change here.
+    const navToggle = document.getElementById('theme-toggle');
+    if (navToggle) {
+      const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+      navToggle.setAttribute('aria-pressed', String(dark));
+      navToggle.setAttribute('aria-label', label);
+      navToggle.setAttribute('title', label);
+    }
+    // Mobile browser chrome follows the page plane.
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#161614' : '#f4f2ec');
+  }
 
   function applyTheme(theme) {
-    // The portal's Tailwind v4 CSS uses a CLASS-based dark variant
-    // (@custom-variant dark (&:where(.dark, .dark *))), so the data-theme
-    // attribute alone does not change colors — the `.dark` class on <html>
-    // is the switch that matters. Keep both in sync.
-    document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    syncThemeControls(theme);
   }
 
   function initTheme() {
-    const saved = localStorage.getItem(LS_THEME);
+    let saved = null;
+    try { saved = localStorage.getItem(LS_THEME); } catch (e) { /* storage unavailable */ }
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = saved || (prefersDark ? 'dark' : 'light');
+    const initial = saved === 'dark' || saved === 'light' ? saved : (prefersDark ? 'dark' : 'light');
     applyTheme(initial);
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
-    const next = current === 'dark' ? 'light' : 'dark';
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
     applyTheme(next);
-    localStorage.setItem(LS_THEME, next);
-
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-    });
+    try { localStorage.setItem(LS_THEME, next); } catch (e) { /* storage unavailable */ }
+    const announce = document.getElementById('theme-announce');
+    if (announce) announce.textContent = next === 'dark' ? 'Dark mode on' : 'Light mode on';
   }
 
   function setupThemeToggle() {
-    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
-    // Legacy emoji buttons (class .theme-toggle).
+    // Runs on init and on every astro:page-load. A view transition can replace
+    // both the header node and <html>'s class attribute, so re-apply the saved
+    // theme before (re)binding; syncThemeControls labels the fresh button.
+    initTheme();
+    // dataset guard: astro:page-load fires on initial load AND every SPA
+    // navigation; without it each navigation stacks another listener. The
+    // header is re-rendered per navigation so a fresh node re-binds once.
     document.querySelectorAll('.theme-toggle').forEach(btn => {
-      // dataset guard: astro:page-load fires on initial load AND every SPA
-      // navigation; without it each navigation stacks another listener. The
-      // header is re-rendered per navigation so a fresh node re-binds once.
       if (btn.dataset.themeBound) return;
       btn.dataset.themeBound = '1';
-      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
       btn.addEventListener('click', toggleTheme);
     });
-    // BaseLayout's nav button is `#theme-toggle` (SVG icons that flip via
-    // the .dark class — dark:hidden / hidden dark:block). Wire the click
-    // WITHOUT clobbering its innerHTML.
+    // BaseLayout's nav button — wire the click WITHOUT clobbering its innerHTML.
     const navToggle = document.getElementById('theme-toggle');
     if (navToggle && !navToggle.dataset.themeBound) {
       navToggle.dataset.themeBound = '1';
@@ -737,7 +762,6 @@
 
   async function init() {
     console.log('[Init] Starting...');
-    initTheme();
     setupThemeToggle();
     initTicker();
     setupMobileMenu();

@@ -168,10 +168,10 @@ export interface ExecutiveStatement {
   /** Title / headline */
   title: string;
 
-  /** Full text of statement */
+  /** Plain excerpt of the statement. Capped at the source-policy excerpt limit. */
   text: string;
 
-  /** Context / excerpt */
+  /** Same excerpt, for callers that read the short field. */
   excerpt: string | null;
 
   /** Source URL */

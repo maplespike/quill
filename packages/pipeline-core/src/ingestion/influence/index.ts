@@ -29,6 +29,7 @@ import {
   searchCommitteeMentions,
 } from './db.js';
 import { upsertOrganization, upsertGacProject } from '../../shared-db.js';
+import { applySourcePolicy } from '../../shared/source-policy.js';
 import type {
   InfluenceIngestionResult,
   InfluenceActor,
@@ -193,10 +194,10 @@ export async function ingestActors(
     const unverified = statuses.filter(s => s.status === 'unverified').length;
     log(`[Influence] ${unverified} actors need verification`);
 
-    // Populate return data when db is null
+    // Populate return data when db is null. Stored rows are unchanged.
     if (!db) {
-      result.enrichedActors = enrichedActors;
-      result.connections = realConnections;
+      result.enrichedActors = applySourcePolicy('influence', enrichedActors).records as InfluenceActor[];
+      result.connections = applySourcePolicy('influence', realConnections).records as InfluenceConnection[];
     }
 
   } catch (err) {
@@ -320,9 +321,9 @@ export async function detectFundingFlows(
     result.fundingFlowsFound = allFundingRecords.length;
     log(`[Funding] ${allFundingRecords.length} funding flow(s) detected from CKAN`);
 
-    // Populate return data when db is null
+    // Populate return data when db is null. Stored rows are unchanged.
     if (!db) {
-      result.fundingFlows = allFundingRecords;
+      result.fundingFlows = applySourcePolicy('influence', allFundingRecords).records as GovernmentFunding[];
     }
 
   } catch (err) {

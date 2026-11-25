@@ -454,7 +454,7 @@ test('search — Federal/Fédéral jurisdiction prefers correct form under ?lang
 // 4. Cursor pagination round-trip
 // ============================================================================
 
-test('search — cursor with base64url offset continues from where previous page stopped', async () => {
+test('search — keyset cursor continues from where previous page stopped', async () => {
   const file = makeDbFile();
 
   seedCache(file, SEED);
@@ -467,10 +467,14 @@ test('search — cursor with base64url offset continues from where previous page
   const b1 = (await (r1 as Response).json()) as any;
   assert.equal(b1.data.records.length, 2);
   assert.equal(b1.data.pagination.has_more, true);
+  assert.equal(b1.data.pagination.cursor_kind, 'keyset');
   assert.ok(typeof b1.data.pagination.next_cursor === 'string');
   const cursor = b1.data.pagination.next_cursor;
-  const decoded = Buffer.from(cursor, 'base64url').toString('utf8');
-  assert.equal(decoded, '2');
+  // Keyset token (gh #794): opaque JSON carrying the last record's sort key —
+  // NOT a base64url offset integer.
+  const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
+  assert.equal(decoded.v, 2);
+  assert.deepEqual(decoded.k, ['toronto', '311-calls', 1]);
 
   // Page 2 with the cursor
   const r2 = await municipalSearchHandler(

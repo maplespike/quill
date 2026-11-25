@@ -16,6 +16,7 @@
 import { getRawDb } from '@maplespike/database';
 import type { Database } from '@maplespike/database';
 import { aggregateOnlySources } from '../shared/source-policy.js';
+import { bilingualEntityCandidates } from './bilingual.js';
 
 /* ------------------------------------------------------------------ */
 /*  Canonical Entity URI scheme (WS-2)                                 */
@@ -424,11 +425,35 @@ interface EntityRow {
   confidence: number;
 }
 
+/**
+ * Find matching entity rows for a name.
+ *
+ * The name is looked up in both official languages: a French query
+ * ("Ministère des Finances Canada") must resolve to the entity stored under
+ * its English canonical name (and vice versa). `bilingualEntityCandidates()`
+ * supplies the other-language forms for the known public institutions; the
+ * candidate list starts with the caller's own normalized name so existing
+ * behaviour is unchanged for names that are not in the bilingual registry.
+ */
 function findMatchingEntities(
   db: Database,
   normalizedName: string,
   typeHint: string,
   threshold: number,
+): EntityRow[] {
+  const candidates = [normalizedName, ...bilingualEntityCandidates(normalizedName)];
+  for (const candidate of [...new Set(candidates.filter(Boolean))]) {
+    const rows = lookupEntities(db, candidate, typeHint, threshold);
+    if (rows.length > 0) return rows;
+  }
+  return [];
+}
+
+function lookupEntities(
+  db: Database,
+  normalizedName: string,
+  typeHint: string,
+  _threshold: number,
 ): EntityRow[] {
   // 1. Exact match on canonical name
   const exact = db

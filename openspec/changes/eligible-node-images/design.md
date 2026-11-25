@@ -39,8 +39,8 @@ with `imagePullPolicy: IfNotPresent`.
 ## Redis
 
 Unchanged from the probe fix: `timeoutSeconds: 5`, liveness
-`failureThreshold: 5`, and a startupProbe. Requests and limits stay at
-the 128mb cache budget.
+`failureThreshold: 5`, and a startupProbe. Limits and maxmemory stay at
+the 128mb cache ceiling. Request sizes are production values.
 
 ## Rollback
 

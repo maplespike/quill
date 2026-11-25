@@ -102,26 +102,59 @@ jobs:
       # explicit file. The live suite sits one level deeper, at
       # src/ingestion/__tests__/live/endpoint-smoke.test.ts, so `pnpm test`
       # never matched it — 1135 tests ran and zero of them were live probes
-      # (UPSTREAM-OUTAGES.md §5.1). This step runs that file by path, so the
-      # only workflow whose job is upstream health actually probes upstreams.
+      # (UPSTREAM-OUTAGES.md §5.1). This step runs that file by path.
+      #
+      # Do not switch this step back to runModule(). Runs 2026-11-06 through
+      # 2026-11-09 (latest: 42638195165) were cancelled at the 20 minute job
+      # limit inside this step. runModule() starts a full ingest. httpGet()
+      # then waits for a per-host token in a loop that has no deadline, and
+      # undici's headersTimeout does not start until that wait ends. One
+      # module spent about five minutes only logging "Throttled
+      # open.canada.ca". node:test's default timeout is Infinity, and this
+      # step had no timeout-minutes, so the job was cancelled while the next
+      # module was still queued. No `not ok` line named that endpoint.
+      # The suite now sends one GET per healthCheckUrl via AbortSignal.timeout
+      # with two attempts. This step's timeout is the backstop: on SIGTERM it
+      # records the URL written to LIVE_SMOKE_ENDPOINT_FILE.
       - name: Run live endpoint smoke tests
         id: live-tests
+        timeout-minutes: 8
         run: |
-          cd packages/pipeline-core
+          set +e
+          set -o pipefail
+          touch /tmp/live-test-output.txt
+          ENDPOINT_FILE=/tmp/live-smoke-endpoint.txt
+          echo "unknown endpoint" > "$ENDPOINT_FILE"
+          export LIVE_SMOKE_ENDPOINT_FILE="$ENDPOINT_FILE"
+          on_timeout() {
+            url=$(cat "$ENDPOINT_FILE" 2>/dev/null || echo "unknown endpoint")
+            echo "::error::Live endpoint smoke timed out waiting on ${url}"
+            echo "not ok - timed out waiting on ${url}" >> /tmp/live-test-output.txt
+            exit 1
+          }
+          trap on_timeout TERM INT
+          cd packages/pipeline-core || exit 1
           LIVE_DATA_TEST=true pnpm exec tsx --test \
+            --test-timeout=25000 \
+            --test-force-exit \
+            --test-concurrency=1 \
             "src/ingestion/__tests__/live/endpoint-smoke.test.ts" \
             2>&1 | tee /tmp/live-test-output.txt
+          status=${PIPESTATUS[0]}
+          trap - TERM INT
+          exit "$status"
         continue-on-error: true
 
       - name: Check for failures
         id: check-failures
+        if: always()
         run: |
-          # Failures can arrive as TAP `not ok` (spec reporter) or as the
-          # `# fail N` summary line (both node:test reporters). Either one
-          # opens the issue.
-          if grep -qE '^not ok|^# fail [1-9]' /tmp/live-test-output.txt; then
+          # Failures can arrive as TAP `not ok` (spec reporter), as the
+          # `# fail N` summary line, or as the step-timeout line that names
+          # the URL. Any one of those opens the issue.
+          if [ -f /tmp/live-test-output.txt ] && grep -qE '^not ok|^# fail [1-9]|timed out waiting on|timed out after' /tmp/live-test-output.txt; then
             echo "failures<<EOF" >> $GITHUB_ENV
-            grep -E '^not ok|^# fail [1-9]' /tmp/live-test-output.txt | head -20 >> $GITHUB_ENV
+            grep -E '^not ok|^# fail [1-9]|timed out waiting on|timed out after' /tmp/live-test-output.txt | head -20 >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
             echo "has_failures=true" >> $GITHUB_ENV
           else
@@ -129,7 +162,7 @@ jobs:
           fi
 
       - name: Create issue on failure
-        if: env.has_failures == 'true'
+        if: always() && env.has_failures == 'true'
         uses: actions/github-script@v9
         with:
           script: |
@@ -142,6 +175,13 @@ jobs:
               body: summary,
               labels: ['bug', 'p2']
             })
+
+      - name: Fail the check when an endpoint failed
+        if: always() && (env.has_failures == 'true' || steps.live-tests.outcome == 'failure' || steps.live-tests.outcome == 'cancelled')
+        run: |
+          url=$(cat /tmp/live-smoke-endpoint.txt 2>/dev/null || echo "unknown endpoint")
+          echo "::error::Live endpoint smoke failed. Last endpoint: ${url}"
+          exit 1
 
       - name: Stop API server
         if: always()

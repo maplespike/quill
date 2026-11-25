@@ -198,6 +198,65 @@ function rgbHex(rgb: [number, number, number]): string {
     .join("")}`;
 }
 
+// ── 4. dark variant ──────────────────────────────────────────────────────
+// The toggle flips the `.dark` class. If this block only re-maps the raw
+// --iap-* roles, the Tailwind semantic vars stay paper-light and the page is
+// half dark (dark body, light cards) — the bug this guards against.
+
+const darkBlock = css.slice(css.indexOf(".theme-ink-and-paper.dark"));
+function darkToken(name: string): string | undefined {
+  const m = darkBlock.match(new RegExp(`--${name}:\\s*([^;}]+)`, "m"));
+  return m?.[1]?.trim();
+}
+
+describe("ink-and-paper dark variant", () => {
+  test("declares the dark scheme and remaps every semantic role", () => {
+    expect(darkBlock).toContain("color-scheme: dark");
+    for (const name of [
+      ...SEMANTIC,
+      "card-foreground",
+      "muted-foreground",
+      "popover",
+      "secondary",
+      "accent",
+      "destructive",
+      "input",
+      "sidebar-background",
+    ]) {
+      const v = darkToken(name);
+      expect(v, `--${name} missing from .theme-ink-and-paper.dark`).toBeDefined();
+      expect(() => parseTriplet(v!), `--${name} is not an hsl triplet`).not.toThrow();
+    }
+  });
+
+  test("the dark page plane is ink, not paper", () => {
+    expect(rgbHex(tripletToRgb(darkToken("background")!))).toBe("#161614");
+    expect(rgbHex(tripletToRgb(darkToken("foreground")!))).toBe("#f4f2ec");
+    expect(rgbHex(tripletToRgb(darkToken("card")!))).toBe("#1d1d1b");
+  });
+
+  test("reversed-plane text stays light so the console remains readable", () => {
+    // on-ink roles describe text on a plane that is dark in both schemes.
+    expect(darkToken("iap-on-ink")).toBe(token("iap-on-ink"));
+    expect(darkToken("iap-on-ink-muted")).toBe(token("iap-on-ink-muted"));
+    // the page roles do invert
+    expect(darkToken("iap-ink")).not.toBe(token("iap-ink"));
+    expect(darkToken("iap-paper")).not.toBe(token("iap-paper"));
+  });
+
+  test("dark text pairs keep the 4.5:1 floor", () => {
+    const ink = hx2rgb("#161614");
+    const pairs: Array<[string, [number, number, number], [number, number, number]]> = [
+      ["paper on ink", hx2rgb("#f4f2ec"), ink],
+      ["muted-foreground on ink", tripletToRgb(darkToken("muted-foreground")!), ink],
+      ["brand red on ink", hx2rgb("#e84545"), ink],
+    ];
+    for (const [label, fg, bg] of pairs) {
+      expect(contrastRatio(fg, bg), label).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
 // ── 3. contrast floor across every declared pair ─────────────────────────
 
 describe("WCAG contrast floor", () => {

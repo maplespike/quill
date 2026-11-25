@@ -157,6 +157,10 @@ describe('RateLimiter', () => {
       assert.equal(res.statusCode, 429);
       assert.ok(res.headers['Retry-After'] !== undefined);
       assert.match(String(res.body), /rate_limit_exceeded/);
+      assert.equal(res.headers['x-content-type-options'], 'nosniff');
+      assert.equal(res.headers['x-frame-options'], 'DENY');
+      assert.equal(res.headers['access-control-allow-origin'], 'null');
+      assert.equal(res.headers['access-control-allow-methods'], 'GET, POST, PATCH, DELETE, OPTIONS');
     });
   });
 });

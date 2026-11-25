@@ -2,6 +2,11 @@ name: Issue Auto-Triage
 on:
   issues:
     types: [opened]
+
+concurrency:
+  group: triage-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+
 permissions:
   issues: write
   contents: read

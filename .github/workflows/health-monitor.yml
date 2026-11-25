@@ -3,6 +3,12 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+
+concurrency:
+  # A newer half-hour run replaces a stuck check. Not a deploy.
+  group: health-monitor
+  cancel-in-progress: true
+
 permissions:
   issues: write
   contents: read

@@ -34,8 +34,11 @@ freed only by a server-side registry garbage-collect.
 The rendered `quill-redis` Deployment MUST set `timeoutSeconds: 5` on
 startup, readiness, and liveness. Liveness MUST set `failureThreshold: 5`.
 A startupProbe MUST run `redis-cli ping` before liveness can kill the
-container. Requests and limits MUST stay at the cache budget
-(`50m`/`64Mi` request, `200m`/`192Mi` limit).
+container. Limits MUST stay `200m`/`192Mi` and maxmemory MUST stay
+`128mb`. Request sizes live in `values-prod.yaml`. The historical request
+pair (`50m`/`64Mi`) is checked against
+`scripts/fixtures/values-prod-redis-budget.yaml`, so a production request
+change does not fail this gate.
 
 #### Scenario: Helm render
 - **Given** `helm template` renders `charts/quill` with `values-prod.yaml`

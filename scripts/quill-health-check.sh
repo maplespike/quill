@@ -179,14 +179,24 @@ check_ingestion() {
   # completing" — flagging it would be a false positive for up to one full
   # period after the chart ships (6h for `0 */6 * * *`).
   local cjs
-  cjs=$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.lastScheduleTime}{"\n"}{end}' 2>/dev/null || true)
+  # QUILL_HEALTH_CRONJOBS is a test seam (one "name lastScheduleTime" line
+  # per CronJob). Unset, the probe reads the live namespace.
+  if [ -n "${QUILL_HEALTH_CRONJOBS+x}" ]; then
+    cjs=$QUILL_HEALTH_CRONJOBS
+  else
+    cjs=$(kubectl -n maplespike get cronjobs -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.lastScheduleTime}{"\n"}{end}' 2>/dev/null || true)
+  fi
   if [ -z "$cjs" ]; then
     ISSUES="${ISSUES}No ingestion CronJobs in namespace maplespike — no data is being ingested (gate A1-INGEST)\n"
     return 0
   fi
 
   local body
-  body=$(curl -s --connect-timeout 5 --max-time 20 "https://api.maplespike.ca/v1/ingest/status" 2>/dev/null || true)
+  if [ -n "${QUILL_HEALTH_INGEST_BODY+x}" ]; then
+    body=$QUILL_HEALTH_INGEST_BODY
+  else
+    body=$(curl -s --connect-timeout 5 --max-time 20 "https://api.maplespike.ca/v1/ingest/status" 2>/dev/null || true)
+  fi
   if [ -z "$body" ]; then
     ISSUES="${ISSUES}/v1/ingest/status unreachable — ingestion liveness unknown (gate A1-INGEST)\n"
     return 0
@@ -209,9 +219,19 @@ check_ingestion() {
   local stale
   stale=$(printf '%s' "$flat" | sed -n 's/.*"stalePipelines":\[\([^]]*\)\].*/\1/p')
 
-  local name pipeline last
+  local name pipeline last saw_ingest=0
   while read -r name last; do
     [ -n "$name" ] || continue
+    # Ingest CronJobs are named quill-ingest-<pipeline>. Backup jobs
+    # (quill-backup-sqlite, quill-backup-search, quill-backup-freshness,
+    # quill-backup-postgres, quill-backup-drill) and the engine sweep
+    # (quill-engine-sweep) do not write ingest_runs. Counting them here
+    # reports "never reported a run" for jobs that are not feeds.
+    case "$name" in
+      *-ingest-*) ;;
+      *) continue ;;
+    esac
+    saw_ingest=1
     pipeline=${name##*-ingest-}
     # Never scheduled yet → not due → nothing to report.
     [ -n "$last" ] || continue
@@ -225,7 +245,23 @@ check_ingestion() {
   done <<EOF
 $cjs
 EOF
+
+  if [ "$saw_ingest" -eq 0 ]; then
+    ISSUES="${ISSUES}No ingestion CronJobs in namespace maplespike — no data is being ingested (gate A1-INGEST)\n"
+  fi
 }
+
+# Test seam. Not a production mode. Set QUILL_HEALTH_CRONJOBS and
+# QUILL_HEALTH_INGEST_BODY, then pass --ingestion-only, to run the
+# ingest filter without kubectl or the public API.
+if [ "${1:-}" = "--ingestion-only" ]; then
+  check_ingestion || true
+  printf '%b' "$ISSUES"
+  if [ -n "$ISSUES" ]; then
+    exit 1
+  fi
+  exit 0
+fi
 
 # Only ever match the monitor's own issue, by exact title.
 find_monitor_issue() {

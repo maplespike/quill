@@ -198,6 +198,13 @@ export async function createCheckoutSession(args: {
    * 'embedded' mounts Stripe's payment form inside our own page (needs the
    * publishable key in the browser). Embedded sessions take `return_url` and
    * reject `success_url`/`cancel_url`, so the three are mutually exclusive.
+   *
+   * The wire value is `embedded_page`, not `embedded`: Stripe retired the old
+   * enum and now answers "The ui_mode value `embedded` is no longer supported.
+   * Use `embedded_page` instead." — checked against the live account on
+   * 2026-11-23 *under our own Stripe-Version pin*, so the pin does not rescue
+   * it. The option keeps the local name 'embedded' because it describes what
+   * the portal does, not which API enum Stripe currently accepts.
    */
   uiMode?: 'hosted' | 'embedded';
   returnUrl?: string;
@@ -206,7 +213,7 @@ export async function createCheckoutSession(args: {
   return stripeFetch<StripeCheckoutSession>('POST', '/checkout/sessions', {
     mode: 'subscription',
     ...(embedded
-      ? { ui_mode: 'embedded', return_url: args.returnUrl ?? args.successUrl }
+      ? { ui_mode: 'embedded_page', return_url: args.returnUrl ?? args.successUrl }
       : { success_url: args.successUrl, cancel_url: args.cancelUrl }),
     customer: args.customerId,
     'line_items[0][quantity]': 1,

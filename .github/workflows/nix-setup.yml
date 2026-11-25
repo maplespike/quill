@@ -21,6 +21,12 @@ name: Nix Setup
 on:
   workflow_call:
 
+concurrency:
+  # Reusable workflow. Keyed by the caller run so two callers do not cancel
+  # each other. Not a pull_request or deploy cancel group.
+  group: nix-setup-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
 jobs:
   # Informational job — tools are already on the runner
   show-tools:
