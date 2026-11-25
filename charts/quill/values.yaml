@@ -238,6 +238,10 @@ backups:
   storage: 30Gi
   storageClass: longhorn
   accessMode: ReadWriteOnce
+  # Caps the emptyDir the sqlite and search backup jobs (and the drill) write
+  # into before copying onto the backups mount. 8Gi covers the live SQLite
+  # snapshot (~2.5Gi) plus the search archive with headroom.
+  scratchSizeLimit: 8Gi
   timeZone: Etc/UTC
   resources:
     requests:

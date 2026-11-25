@@ -165,7 +165,8 @@ spec:
             persistentVolumeClaim:
               claimName: {{ include "quill.backupsClaim" . }}
           - name: scratch
-            emptyDir: {}
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -264,7 +265,8 @@ spec:
             persistentVolumeClaim:
               claimName: {{ include "quill.backupsClaim" . }}
           - name: scratch
-            emptyDir: {}
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts
@@ -561,7 +563,8 @@ spec:
               claimName: {{ include "quill.backupsClaim" . }}
               readOnly: true
           - name: scratch
-            emptyDir: {}
+            emptyDir:
+              sizeLimit: {{ $backups.scratchSizeLimit | default "8Gi" | quote }}
           - name: scripts
             configMap:
               name: {{ include "quill.fullname" . }}-backup-scripts

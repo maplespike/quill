@@ -170,7 +170,7 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
     const chunk = cronDoc(rendered, job);
     assert.match(chunk, /activeDeadlineSeconds:\s*3600/, `${job} must set activeDeadlineSeconds`);
     assert.match(chunk, /name:\s*scratch/, `${job} must mount scratch`);
-    assert.match(chunk, /emptyDir:\s*\{\}/, `${job} scratch must be emptyDir`);
+    assert.match(chunk, /emptyDir:[\s\S]*?sizeLimit:\s*"?8Gi"?/, `${job} scratch must set sizeLimit 8Gi`);
     assert.match(chunk, /mountPath:\s*\/scratch/, `${job} must mount scratch at /scratch`);
     assert.match(chunk, /name:\s*SCRATCH_DIR/, `${job} must set SCRATCH_DIR`);
     assert.match(chunk, /name:\s*BACKUPS_MOUNT/, `${job} must set BACKUPS_MOUNT`);
