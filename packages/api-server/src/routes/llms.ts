@@ -44,7 +44,7 @@ const ENDPOINTS: EndpointEntry[] = [
   { method: 'POST', path: '/v1/keys/{id}/rotate', description: 'Rotate an API key' },
   { method: 'POST', path: '/v1/ai/ask', description: 'Ask a question about Canadian government data' },
   { method: 'POST', path: '/v1/ai/analyze', description: 'Analyze data for bias, trends, or narratives' },
-  { method: 'POST', path: '/v1/billing/checkout', description: 'Create a checkout session' },
+  { method: 'POST', path: '/v1/billing/stripe/checkout', description: 'Create a Stripe Checkout session (body: { plan_id: "pro" | "business" })' },
   { method: 'GET', path: '/v1/billing/plans', description: 'List pricing plans' },
   { method: 'GET', path: '/v1/auth/oauth/providers', description: 'List OAuth providers' },
   { method: 'GET', path: '/v1/auth/oauth/{provider}', description: 'Initiate OAuth login' },

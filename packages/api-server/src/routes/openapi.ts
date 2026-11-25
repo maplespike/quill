@@ -424,22 +424,21 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           responses: { '200': { description: 'List of plans' } },
         },
       },
-      '/v1/billing/checkout': {
+      '/v1/billing/stripe/checkout': {
         post: {
           tags: ['Billing'],
-          summary: 'Create a checkout session',
-          description: 'Initiates a payment checkout for a plan upgrade.',
+          summary: 'Create a Stripe Checkout session',
+          description: 'Creates a Stripe Checkout session for the authenticated tenant (Pro $50 CAD/month, Business $200 CAD/month). Return URLs are set server-side.',
           security: [{ BearerAuth: [] }],
           requestBody: {
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['planId'],
+                  required: ['plan_id'],
                   properties: {
-                    planId: { type: 'string', description: 'Plan to subscribe to' },
-                    successUrl: { type: 'string' },
-                    cancelUrl: { type: 'string' },
+                    plan_id: { type: 'string', enum: ['pro', 'business'], description: 'Plan to subscribe to' },
+                    embedded: { type: 'boolean', description: 'Return an embedded Checkout client secret instead of a hosted URL' },
                   },
                 },
               },

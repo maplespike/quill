@@ -7,9 +7,22 @@ import ManageSubscriptionButton from "@/components/billing/ManageSubscriptionBut
 import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
+import plansData from "@/data/plans.json";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+
+// Plan copy comes from src/data/plans.json (generated from /v1/billing/plans);
+// never hardcode prices or credit allowances here.
+const planById = new Map(plansData.plans.map((p) => [p.plan_id, p]));
+const planLine = (id: "pro" | "business") => {
+  const p = planById.get(id)!;
+  const dollars = p.price_cents / 100;
+  const credits = Number(p.credits_per_month);
+  return lang === "fr"
+    ? `${dollars.toLocaleString("fr-CA")} $ CA/mois · ${credits.toLocaleString("fr-CA")} crédits API/mois`
+    : `$${dollars.toLocaleString("en-CA")} CAD/mo · ${credits.toLocaleString("en-CA")} API credits/mo`;
+};
 
 // URL query reflects where the user came from so we can brighten the
 // "Portal session has been cancelled/closed" banner.
@@ -128,7 +141,7 @@ const portalReturn = url.searchParams.get("portal") === "return";
           <div class="rounded-lg border border-border/60 p-4 transition-colors duration-200 ease-out hover:border-primary/40">
             <h3 class="font-semibold">Pro</h3>
             <p class="mt-1 text-sm text-muted-foreground">
-              {lang === "fr" ? "50 $/mois · 100 000 appels API" : "$50 CAD/mo · 100,000 API calls"}
+              {planLine("pro")}
             </p>
             <div class="mt-3">
               <StripeCheckoutButton planId="pro" client:load label={{
@@ -140,7 +153,7 @@ const portalReturn = url.searchParams.get("portal") === "return";
           <div class="rounded-lg border border-border/60 p-4 transition-colors duration-200 ease-out hover:border-primary/40">
             <h3 class="font-semibold">Business</h3>
             <p class="mt-1 text-sm text-muted-foreground">
-              {lang === "fr" ? "200 $/mois · appels illimités" : "$200 CAD/mo · unlimited calls"}
+              {planLine("business")}
             </p>
             <div class="mt-3">
               <StripeCheckoutButton planId="business" client:load label={{
