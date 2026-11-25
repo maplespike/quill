@@ -103,6 +103,13 @@ jobs:
     needs: build
     # deploy-pages must run on a GitHub-hosted runner.
     runs-on: ubuntu-latest
+    # One GitHub Pages site per repo. This job and deploy-docs.yml's deploy job
+    # share this group so two deployments never overlap: a second deployment
+    # created mid-flight supersedes the first, which then times out red
+    # (run 45530345927 lost to this job's run 45531953164 that way).
+    concurrency:
+      group: github-pages-site
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
