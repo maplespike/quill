@@ -1,0 +1,107 @@
+{{/*
+  Quill — billing operator CronJobs. ALL DISABLED BY DEFAULT.
+
+  Each job is a tiny curl pod that calls an operator route on the API Service
+  with the X-Billing-Secret shared secret (maplespike-secrets/quill-billing-secret,
+  the same key the API reads). The API exempts operator routes from bearer auth
+  only when that secret is correct.
+
+    reconcileExpiry         POST /v1/billing/reconcile-expiry       (was legacy k8s/maplespike/quill-reconcile-expiry-cron.yaml)
+    taxStatus               GET  /v1/billing/tax/status             (docs/billing-tax-ledger.md: keeps escalation alerts armed)
+    subscriptionReconcile   GET  /v1/billing/reconcile-subscriptions (READ-ONLY Stripe drift check; fails the Job on drift)
+
+  Enable per job via billing.cronJobs.<name>.enabled.
+*/}}
+{{- $root := . }}
+{{- $cfg := .Values.billing.cronJobs | default dict }}
+{{- $base := printf "http://%s-api.%s.svc.cluster.local:%v" (include "quill.fullname" .) .Release.Namespace .Values.api.port }}
+{{- $jobs := list
+  (dict "key" "reconcileExpiry" "name" "reconcile-expiry" "method" "POST" "path" "/v1/billing/reconcile-expiry" "failOnDrift" false)
+  (dict "key" "taxStatus" "name" "tax-status" "method" "GET" "path" "/v1/billing/tax/status" "failOnDrift" false)
+  (dict "key" "subscriptionReconcile" "name" "reconcile-subscriptions" "method" "GET" "path" "/v1/billing/reconcile-subscriptions" "failOnDrift" true)
+}}
+{{- range $job := $jobs }}
+{{- $c := get $cfg $job.key | default dict }}
+{{- if $c.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quill.fullname" $root }}-{{ $job.name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    app: quill-billing-cron
+    component: billing-{{ $job.name }}
+    app.kubernetes.io/part-of: quill
+spec:
+  schedule: {{ required (printf "billing.cronJobs.%s.schedule is required" $job.key) $c.schedule | quote }}
+  {{- with $cfg.timeZone }}
+  timeZone: {{ . | quote }}
+  {{- end }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: {{ $cfg.startingDeadlineSeconds | default 300 }}
+  successfulJobsHistoryLimit: {{ $cfg.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ $cfg.failedJobsHistoryLimit | default 3 }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ $cfg.backoffLimit | default 2 }}
+      activeDeadlineSeconds: {{ $cfg.activeDeadlineSeconds | default 600 }}
+      template:
+        metadata:
+          labels:
+            app: quill-billing-cron
+            component: billing-{{ $job.name }}
+        spec:
+          {{- with ($root.Values.priorityClass | default dict).batch }}
+          priorityClassName: {{ . }}
+          {{- end }}
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+          - name: {{ $job.name }}
+            image: {{ required "billing.cronJobs.image is required" $cfg.image | quote }}
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            env:
+            - name: QUILL_BILLING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cfg.secretName | default "maplespike-secrets" }}
+                  key: {{ $cfg.secretKey | default "quill-billing-secret" }}
+                  optional: false
+            - name: TARGET_URL
+              value: {{ printf "%s%s" $base $job.path | quote }}
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              # The secret goes in a header only; it is never echoed.
+              out="$(curl -fsS --max-time 120 -X {{ $job.method }} \
+                -H "X-Billing-Secret: ${QUILL_BILLING_SECRET}" \
+                -H "Content-Type: application/json" \
+                "${TARGET_URL}")"
+              printf '%s\n' "$out"
+              {{- if $job.failOnDrift }}
+              # Fail the Job (→ failed-Job alerting) on any drift or truncation.
+              printf '%s' "$out" | grep -q '"drift_count":0' || { echo "subscription drift detected" >&2; exit 1; }
+              printf '%s' "$out" | grep -q '"truncated":false' || { echo "subscription listing truncated" >&2; exit 1; }
+              {{- end }}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
+{{- end }}
+{{- end }}

@@ -216,6 +216,25 @@ cloudflared:
 # accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
 # that mounts the claim has a working NFS client. Backup pods follow
 # api.storage.nodeName, the same pin as the API pod.
+# Billing operator CronJobs (templates/billing-cronjobs.yaml). All OFF by
+# default: enabling one is a deliberate prod change. They curl operator
+# routes on the API Service with X-Billing-Secret from maplespike-secrets.
+billing:
+  cronJobs:
+    image: curlimages/curl:8.11.1
+    secretName: maplespike-secrets
+    secretKey: quill-billing-secret
+    # timeZone: America/Winnipeg
+    reconcileExpiry:
+      enabled: false
+      schedule: "17 3 * * *"     # daily 03:17 — downgrade tiers past stripe_current_period_end
+    taxStatus:
+      enabled: false
+      schedule: "7 * * * *"      # hourly — keeps GST/HST threshold alerts armed (#811)
+    subscriptionReconcile:
+      enabled: false
+      schedule: "41 4 * * *"     # daily 04:41 — READ-ONLY Stripe ↔ tenant drift check; Job fails on drift
+
 backups:
   enabled: false
   schedule: "15 1 * * *"

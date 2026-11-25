@@ -753,6 +753,114 @@ export const reconcileExpiryHandler: RouteHandler = async (request, ctx) => {
   return jsonResponse(buildSuccess({ processed: expired.length, downgraded }, bc));
 };
 
+// ──────────────────────────────────────────────────────────────────────────
+// GET /v1/billing/reconcile-subscriptions — daily, READ-ONLY drift check
+// between Stripe subscriptions and tenant billing state. X-Billing-Secret
+// (operator/cron). Never writes to Stripe or the DB; reports drift and emits
+// [BILLING-ALERT][subscription_drift] so log-based alerting pages on it.
+// ──────────────────────────────────────────────────────────────────────────
+
+const PAYING_STATUSES = new Set(['active', 'trialing', 'past_due']);
+/** Period-end disagreement tolerated before flagging (clock/renewal skew). */
+const PERIOD_END_TOLERANCE_SEC = 6 * 3600;
+
+function subPeriodEnd(sub: Record<string, any>): number | undefined {
+  const item = Array.isArray(sub.items?.data) ? sub.items.data[0] : undefined;
+  if (item && typeof item.current_period_end === 'number') return item.current_period_end;
+  return typeof sub.current_period_end === 'number' ? sub.current_period_end : undefined;
+}
+
+export type SubscriptionDrift = {
+  kind:
+    | 'stripe_sub_without_tenant'
+    | 'customer_mismatch'
+    | 'stripe_paying_tenant_not_paid'
+    | 'tier_mismatch'
+    | 'period_end_mismatch'
+    | 'tenant_paid_without_stripe_sub';
+  tenant_id: string | null;
+  subscription_id: string | null;
+};
+
+export const subscriptionReconcileHandler: RouteHandler = async (request, ctx) => {
+  const bc = buildBc(ctx);
+  const secret = request.headers.get('X-Billing-Secret');
+  const expected = process.env.QUILL_BILLING_SECRET;
+  if (!expected || secret !== expected) {
+    return jsonResponse(buildError('FORBIDDEN', 'Invalid or missing X-Billing-Secret', bc), 403);
+  }
+  if (!stripe.getStripeStatus().configured) {
+    return jsonResponse(buildError('STRIPE_NOT_CONFIGURED', 'Stripe is not configured on this server.', bc), 503);
+  }
+
+  let listed: Awaited<ReturnType<typeof stripe.listAllSubscriptions>>;
+  try {
+    listed = await stripe.listAllSubscriptions();
+  } catch (e) {
+    webhookLog.error({ err: (e as Error).message }, 'reconcile-subscriptions: Stripe list failed');
+    return jsonResponse(buildError('PAYMENT_PROVIDER_ERROR', 'Could not list Stripe subscriptions.', bc), 502);
+  }
+
+  // Paid tenants as the DB sees them (tier != free, period end recorded).
+  const paid = await ctx.db.findTenantsForTierExpiry(Number.MAX_SAFE_INTEGER);
+  const paidById = new Map(paid.map((p) => [p.tenant_id, p]));
+  const tenantsWithPayingSub = new Set<string>();
+  const drift: SubscriptionDrift[] = [];
+
+  for (const sub of listed.subscriptions) {
+    const subId = typeof sub.id === 'string' ? sub.id : null;
+    const status = String(sub.status ?? '');
+    const paying = PAYING_STATUSES.has(status);
+    const tenantId = stripe.tenantIdFromMetadata(sub.metadata);
+    if (!tenantId) {
+      if (paying) drift.push({ kind: 'stripe_sub_without_tenant', tenant_id: null, subscription_id: subId });
+      continue;
+    }
+    if (!paying) continue;
+    tenantsWithPayingSub.add(tenantId);
+    const bound = await ctx.db.getTenantStripeCustomerId(tenantId);
+    if (bound !== extractCustomerId(sub.customer)) {
+      drift.push({ kind: 'customer_mismatch', tenant_id: tenantId, subscription_id: subId });
+      continue;
+    }
+    const row = paidById.get(tenantId);
+    if (!row) {
+      drift.push({ kind: 'stripe_paying_tenant_not_paid', tenant_id: tenantId, subscription_id: subId });
+      continue;
+    }
+    const plan = stripe.planIdFromMetadata(sub.metadata);
+    if (plan && row.tier !== plan) drift.push({ kind: 'tier_mismatch', tenant_id: tenantId, subscription_id: subId });
+    const end = subPeriodEnd(sub);
+    if (end !== undefined && Math.abs(end - row.stripe_current_period_end) > PERIOD_END_TOLERANCE_SEC) {
+      drift.push({ kind: 'period_end_mismatch', tenant_id: tenantId, subscription_id: subId });
+    }
+  }
+  for (const p of paid) {
+    if (!tenantsWithPayingSub.has(p.tenant_id) && (p.tier === 'pro' || p.tier === 'business')) {
+      drift.push({ kind: 'tenant_paid_without_stripe_sub', tenant_id: p.tenant_id, subscription_id: null });
+    }
+  }
+
+  if (drift.length > 0 || listed.truncated) {
+    const fields = { drift_count: drift.length, truncated: listed.truncated, kinds: [...new Set(drift.map((d) => d.kind))] };
+    webhookLog.error(fields, 'billing alert: subscription_drift');
+    console.error(`[BILLING-ALERT][subscription_drift] ${JSON.stringify(fields)}`);
+  }
+
+  return jsonResponse(
+    buildSuccess(
+      {
+        checked_subscriptions: listed.subscriptions.length,
+        checked_paid_tenants: paid.length,
+        truncated: listed.truncated,
+        drift_count: drift.length,
+        drift,
+      },
+      bc,
+    ),
+  );
+};
+
 export const stripeStatusHandler: RouteHandler = async (_request, ctx) => {
   const bc = buildBc(ctx);
   const s = stripe.getStripeStatus();

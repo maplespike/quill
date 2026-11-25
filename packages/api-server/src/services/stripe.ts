@@ -237,6 +237,29 @@ export async function createCheckoutSession(args: {
 }
 
 /**
+ * Read-only page through every subscription (status=all) for drift checks.
+ * Bounded by maxPages so a runaway account can't pin the API.
+ */
+export async function listAllSubscriptions(opts: { maxPages?: number } = {}): Promise<{
+  subscriptions: Array<Record<string, any>>;
+  truncated: boolean;
+}> {
+  const maxPages = opts.maxPages ?? 20;
+  const out: Array<Record<string, any>> = [];
+  let startingAfter: string | undefined;
+  for (let page = 0; page < maxPages; page++) {
+    const q = new URLSearchParams({ status: 'all', limit: '100' });
+    if (startingAfter) q.set('starting_after', startingAfter);
+    const res = await stripeFetch<{ data?: Array<Record<string, any>>; has_more?: boolean }>('GET', `/subscriptions?${q.toString()}`);
+    const data = Array.isArray(res.data) ? res.data : [];
+    out.push(...data);
+    if (!res.has_more || data.length === 0) return { subscriptions: out, truncated: false };
+    startingAfter = String(data[data.length - 1].id);
+  }
+  return { subscriptions: out, truncated: true };
+}
+
+/**
  * Customer Portal session — lets users manage subscription, update card,
  * cancel, download invoices. Requires `customer` and at least one configured
  * portal feature in the Stripe dashboard.

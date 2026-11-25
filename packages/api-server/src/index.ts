@@ -77,6 +77,7 @@ import {
   stripeOrderStatusHandler,
   stripeStatusHandler,
   reconcileExpiryHandler,
+  subscriptionReconcileHandler,
 } from './routes/billing-stripe.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
@@ -201,6 +202,8 @@ export const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/stripe\/status\/?$/, method: 'GET', params: [], handler: stripeStatusHandler },
   // STRIPE-1: cron reconciler — shared-secret auth (X-Billing-Secret); route-level authExempt false; handler enforces secret.
   { pattern: /^\/v1\/billing\/reconcile-expiry\/?$/, method: 'POST', params: [], handler: reconcileExpiryHandler },
+  // Daily read-only Stripe ↔ tenant drift check (X-Billing-Secret; cron only).
+  { pattern: /^\/v1\/billing\/reconcile-subscriptions\/?$/, method: 'GET', params: [], handler: subscriptionReconcileHandler },
 
   // #811 GST/HST tracker — operator routes (X-Billing-Secret enforced in-handler; bypass Free-tier gate via isOperatorRoute)
   { pattern: /^\/v1\/billing\/tax\/status\/?$/, method: 'GET', params: [], handler: taxStatusHandler },
@@ -555,6 +558,26 @@ function finalizeResponse(
   });
 }
 
+/** Constant-time string compare (Workers-safe; no node:crypto). */
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/** True when an operator route is called with the correct, non-empty billing secret. */
+export function operatorSecretPresented(
+  path: string,
+  request: Request,
+  env: Record<string, unknown> | undefined,
+): boolean {
+  if (!isOperatorRoute(path)) return false;
+  const expected = String((env as Record<string, unknown> | undefined)?.QUILL_BILLING_SECRET ?? process.env.QUILL_BILLING_SECRET ?? '');
+  const presented = request.headers.get('X-Billing-Secret') ?? '';
+  return expected.length > 0 && presented.length > 0 && constantTimeEqual(presented, expected);
+}
+
 export async function handleRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -672,7 +695,12 @@ export async function handleRequest(
   // because withRouteCache wraps handlers and breaks === comparison)
   const path = url.pathname;
   const authExempt =
-    path.startsWith('/v1/health')
+    // Operator/cron routes (X-Billing-Secret) carry no API key: the k8s
+    // CronJobs (reconcile-expiry, tax/status, reconcile-subscriptions) call
+    // with the shared secret only. Exempt them from bearer auth ONLY when a
+    // correct, non-empty secret is presented; the handlers re-check it.
+    operatorSecretPresented(path, request, env)
+    || path.startsWith('/v1/health')
     // Fixture payloads are invented and the handler refuses them unless
     // QUILL_FIXTURES=1. Keep the off-switch message reachable with no key.
     || path.startsWith('/v1/fixtures')
