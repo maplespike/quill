@@ -41,7 +41,7 @@ curl -s -X POST https://api.maplespike.ca/v1/billing/tax/adjustment \
 
 | Env var | Meaning |
 |---|---|
-| `GST_HST_REGISTERED=true` | Flip **only after** CRA registration. Checkout then adds 13% ON HST to new sessions and the tax status reports `registered: true`. |
+| `GST_HST_REGISTERED=true` | Flip **only after** CRA registration. Checkout then adds 13% ON HST to new sessions and the tax status reports `registered: true`. **Do not flip as-is:** 13% is Ontario HST; a Manitoba supplier's customers owe tax by their own province (MB is GST 5% + RST 7%). See [billing-stripe-automatic-tax-proposal.md](billing-stripe-automatic-tax-proposal.md). |
 | `QUILL_BILLING_SECRET` | Existing shared secret; also gates the tax endpoints. |
 
 ## Alerting
