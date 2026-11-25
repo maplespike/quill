@@ -33,7 +33,14 @@ function embedded(text: string, name: string): string {
 
 type Decision = { allow: boolean; kind: string; grouped: boolean; reason: string };
 
-function decide(pull: { author: string; title: string; body?: string }): Decision {
+type CommitIn = { message?: string; commit?: { message?: string } };
+
+function decide(pull: {
+  author: string;
+  title: string;
+  body?: string;
+  commits?: CommitIn[];
+}): Decision {
   const normalized = execFileSync('jq', ['-c', '-f', NORMALIZE_JQ], {
     encoding: 'utf8',
     input: JSON.stringify({
@@ -46,6 +53,7 @@ function decide(pull: { author: string; title: string; body?: string }): Decisio
       user: { login: pull.author },
       title: pull.title,
       body: pull.body ?? '',
+      commits: pull.commits ?? [],
     }),
   });
   const out = execFileSync('jq', ['-c', '-f', DEPENDABOT_JQ], {
@@ -70,7 +78,7 @@ test('allows single-package Dependabot semver-patch updates', () => {
   assert.equal(res.grouped, false);
 });
 
-test('allows single-package Dependabot semver-minor updates (including 0.x and app/dependabot)', () => {
+test('allows single-package Dependabot semver-minor updates (including app/dependabot)', () => {
   const res = decide({
     author: 'app/dependabot',
     title: 'chore(deps): bump fast-xml-parser from 5.11.2 to 5.12.0',
@@ -80,19 +88,36 @@ test('allows single-package Dependabot semver-minor updates (including 0.x and a
   assert.equal(res.kind, 'minor');
   assert.equal(res.grouped, false);
 
-  const zeroX = decide({
-    author: 'dependabot[bot]',
-    title: 'chore(deps): bump @hono/zod-validator from 0.7.6 to 0.9.1',
-  });
-  assert.equal(zeroX.allow, true);
-  assert.equal(zeroX.kind, 'minor');
-
   const tagMinor = decide({
     author: 'dependabot[bot]',
     title: 'chore(deps): bump actions/checkout from v4 to v4.2.0',
   });
   assert.equal(tagMinor.allow, true);
   assert.equal(tagMinor.kind, 'minor');
+});
+
+test('treats 0.x minor bumps as semver-major', () => {
+  const zeroX = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump @hono/zod-validator from 0.7.6 to 0.9.1',
+  });
+  assert.equal(zeroX.allow, false);
+  assert.equal(zeroX.kind, 'major');
+
+  const groupedZeroX = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump the npm-minor-patch group across 1 directory with 1 update',
+    body: [
+      'Bumps the npm-minor-patch group with 1 update in the / directory:',
+      '',
+      '| Package | From | To |',
+      '| --- | --- | --- |',
+      '| [@hono/zod-validator](https://example.com) | `0.7.6` | `0.9.1` |',
+    ].join('\n'),
+  });
+  assert.equal(groupedZeroX.allow, false);
+  assert.equal(groupedZeroX.kind, 'major');
+  assert.equal(groupedZeroX.grouped, true);
 });
 
 test('skips single-package Dependabot semver-major updates (#1388, #1392, single-component tags, body-only)', () => {
@@ -253,6 +278,72 @@ test('handles grouped Dependabot PRs: allows all patch/minor, rejects if any maj
   assert.equal(groupedNoTable.allow, false);
   assert.equal(groupedNoTable.kind, 'unknown');
   assert.equal(groupedNoTable.grouped, true);
+
+  // Regression for the jq `or ... as $is_grouped` precedence bug: a grouped
+  // title used to bind $is_grouped to boolean true, and `jq -r '.allow'`
+  // then failed with "Cannot index boolean with string allow".
+  assert.equal(typeof groupedPatch, 'object');
+  assert.notEqual(groupedPatch, true);
+  assert.equal(groupedPatch.allow, true);
+});
+
+test('commit update-type highest wins and must agree with the title or body', () => {
+  const patchMsg =
+    'Bump hono from 4.13.11 to 4.13.16\n\nupdate-type: version-update:semver-patch';
+  const agrees = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump hono from 4.13.11 to 4.13.16',
+    body: 'Bumps [hono](https://github.com/honojs/hono) from 4.13.11 to 4.13.16.',
+    commits: [{ commit: { message: patchMsg } }],
+  });
+  assert.equal(agrees.allow, true);
+  assert.equal(agrees.kind, 'patch');
+
+  const disagrees = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump hono from 4.13.11 to 4.13.16',
+    body: 'Bumps [hono](https://github.com/honojs/hono) from 4.13.11 to 4.13.16.',
+    commits: [
+      { commit: { message: 'Bump hono\n\nupdate-type: version-update:semver-minor' } },
+    ],
+  });
+  assert.equal(disagrees.allow, false);
+  assert.equal(disagrees.kind, 'unknown');
+
+  const highestMajor = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump the npm-minor-patch group across 1 directory with 2 updates',
+    body: [
+      'Bumps the npm-minor-patch group with 2 updates in the / directory:',
+      '',
+      '| Package | From | To |',
+      '| --- | --- | --- |',
+      '| [hono](https://github.com/honojs/hono) | `4.13.11` | `4.13.16` |',
+      '| [marked](https://github.com/markedjs/marked) | `18.2.0` | `18.2.1` |',
+    ].join('\n'),
+    commits: [
+      { commit: { message: 'update-type: version-update:semver-patch' } },
+      { message: 'update-type: version-update:semver-major' },
+    ],
+  });
+  assert.equal(highestMajor.allow, false);
+  assert.equal(highestMajor.kind, 'unknown');
+
+  const noType = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump hono from 4.13.11 to 4.13.16',
+    commits: [{ commit: { message: 'Bump hono from 4.13.11 to 4.13.16' } }],
+  });
+  assert.equal(noType.allow, false);
+  assert.equal(noType.kind, 'unknown');
+
+  const emptyCommitsKeepTitle = decide({
+    author: 'dependabot[bot]',
+    title: 'chore(deps): bump hono from 4.13.11 to 4.13.16',
+    commits: [],
+  });
+  assert.equal(emptyCommitsKeepTitle.allow, true);
+  assert.equal(emptyCommitsKeepTitle.kind, 'patch');
 });
 
 test('passes non-Dependabot PRs unaffected regardless of title or body', () => {

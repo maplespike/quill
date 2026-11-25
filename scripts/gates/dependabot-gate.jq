@@ -3,7 +3,10 @@
 # Non-Dependabot PRs pass unaffected (controlled by ready-to-merge / hold).
 # Dependabot PRs (`dependabot[bot]` or `app/dependabot`) auto-merge ONLY when
 # every parsed update is semver-patch or semver-minor; major, downgrade,
-# prerelease, or unparseable updates are skipped (allow: false).
+# prerelease, 0.x minor (semver-breaking), or unparseable updates are
+# skipped (allow: false). Commit messages' "update-type:
+# version-update:semver-*" lines are parsed when present: the highest
+# kind wins, and a disagreement with the title or body is denied.
 def clean_ver:
   tostring
   | sub("^[ \\t\\r\\n`\"\u0027(\\[]+"; "")
@@ -38,6 +41,8 @@ def classify_pair($from_raw; $to_raw):
       "major"
     elif $t.major < $f.major then
       "unknown"
+    elif $t.major == 0 and $f.major == 0 and $t.minor > $f.minor then
+      "major"
     elif $t.minor > $f.minor then
       "minor"
     elif $t.minor < $f.minor then
@@ -81,13 +86,48 @@ def extract_grouped_rows($preamble):
     | { from: (.f1 // .f2), to: (.t1 // .t2) }
   ];
 
+
+def extract_commit_kinds:
+  [
+    ((.commits // [])[]
+      | ((.commit.message // .message // "") | tostring)
+      | [scan("update-type:[ \t]*version-update:semver-(major|minor|patch)"; "i")][]
+      | if type == "array" then .[0] else . end
+    )
+  ];
+
+def highest_kind($kinds):
+  if ($kinds | any(. == "major")) then "major"
+  elif ($kinds | any(. == "minor")) then "minor"
+  elif ($kinds | any(. == "patch")) then "patch"
+  else
+    null
+  end;
+
+def disagree($a; $b):
+  if ($a == null or $b == null) then
+    false
+  else
+    $a != $b
+  end;
+
+def finalize($decision):
+  highest_kind(extract_commit_kinds) as $commit_kind
+  | if ((.commits // []) | length) > 0 and ($commit_kind == null) then
+      { allow: false, kind: "unknown", grouped: $decision.grouped, reason: "Dependabot commits are present but have no parseable update-type: version-update:semver-* lines" }
+    elif disagree($commit_kind; $decision.kind) then
+      { allow: false, kind: "unknown", grouped: $decision.grouped, reason: "Dependabot commit update-type disagrees with the title or body classification" }
+    else
+      $decision
+    end;
+
 ((.author.login // "") | (. == "dependabot[bot]" or . == "app/dependabot")) as $is_dependabot
 | if ($is_dependabot | not) then
     { allow: true, kind: "non-dependabot", grouped: false, reason: "author is not Dependabot" }
   else
-    body_preamble as $preamble
-    | ((.title // "") | test("bump the [^\\n]+ group"; "i"))
-      or ($preamble | test("^[ \\t]*(?:bumps|updates) the [^\\n]+ group"; "i")) as $is_grouped
+    (body_preamble as $preamble
+    | (((.title // "") | test("bump the [^\\n]+ group"; "i"))
+      or ($preamble | test("^[ \\t]*(?:bumps|updates) the [^\\n]+ group"; "i"))) as $is_grouped
     | if $is_grouped then
         extract_grouped_rows($preamble) as $rows
         | if ($rows | length) == 0 then
@@ -132,5 +172,6 @@ def extract_grouped_rows($preamble):
               end
           end
       end
+    ) as $decision | finalize($decision)
   end
 # END dependabot-gate.jq

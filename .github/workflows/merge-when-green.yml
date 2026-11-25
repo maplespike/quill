@@ -411,7 +411,8 @@ jobs:
                 labels: (if (.labels | type) == "array" then .labels else [] end),
                 author: { login: (.user.login // "") },
                 title: (.title // ""),
-                body: (.body // "")
+                body: (.body // ""),
+                commits: (if (.commits | type) == "array" then .commits else [] end)
               }
               # END normalize-pull.jq
             ' <<<"$PULL")"
@@ -456,19 +457,35 @@ jobs:
             echo "::notice::PR #${PR_NUMBER} does not have the ready-to-merge label — nothing to do."
             exit 0
           fi
+          # Dependabot commit messages carry "update-type: version-update:semver-*".
+          # Attach them to META so the gate can deny a disagreement with the
+          # title or body. Fail closed if the list cannot be read; an empty
+          # list would skip the commit check.
+          case "$AUTHOR" in
+            "dependabot[bot]"|"app/dependabot")
+              if ! COMMITS="$(GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/pulls/${PR_NUMBER}/commits?per_page=100" | jq -s 'add')"; then
+                echo "::error::PR #${PR_NUMBER} pull commits read failed. The gate did not merge."
+                exit 1
+              fi
+              META="$(jq -c --argjson commits "$COMMITS" '. + {commits: $commits}' <<<"$META")"
+              ;;
+          esac
           DEPENDABOT_DECISION="$(jq -c '
             # BEGIN dependabot-gate.jq
             # Decide whether a pull request passes the Dependabot semver-patch/minor gate.
             # Non-Dependabot PRs pass unaffected (controlled by ready-to-merge / hold).
             # Dependabot PRs (`dependabot[bot]` or `app/dependabot`) auto-merge ONLY when
             # every parsed update is semver-patch or semver-minor; major, downgrade,
-            # prerelease, or unparseable updates are skipped (allow: false).
+            # prerelease, 0.x minor (semver-breaking), or unparseable updates are
+            # skipped (allow: false). Commit messages' "update-type:
+            # version-update:semver-*" lines are parsed when present: the highest
+            # kind wins, and a disagreement with the title or body is denied.
             def clean_ver:
               tostring
               | sub("^[ \\t\\r\\n`\"\u0027(\\[]+"; "")
               | sub("[ \\t\\r\\n`\"\u0027.,;:)\\]]+$"; "")
               | sub("^[vV](?=[0-9])"; "");
-
+            
             def parse_ver:
               clean_ver
               | if test("^[0-9]+(\\.[0-9]+){0,3}$") then
@@ -487,7 +504,7 @@ jobs:
                 else
                   null
                 end;
-
+            
             def classify_pair($from_raw; $to_raw):
               ($from_raw | parse_ver) as $f
               | ($to_raw | parse_ver) as $t
@@ -497,6 +514,8 @@ jobs:
                   "major"
                 elif $t.major < $f.major then
                   "unknown"
+                elif $t.major == 0 and $f.major == 0 and $t.minor > $f.minor then
+                  "major"
                 elif $t.minor > $f.minor then
                   "minor"
                 elif $t.minor < $f.minor then
@@ -506,17 +525,17 @@ jobs:
                 else
                   "unknown"
                 end;
-
+            
             def body_preamble:
               (.body // "")
               | gsub("\r\n"; "\n")
               | (split("\n<details")[0] // "")
               | (split("\n---")[0] // "");
-
+            
             def extract_from_to_title:
               (.title // "")
               | capture("(?:^|\\s)from\\s+(?<from>\\S+)\\s+to\\s+(?<to>\\S+)(?:\\s|$)"; "i")?;
-
+            
             def extract_from_to_body($preamble):
               (
                 $preamble
@@ -528,7 +547,7 @@ jobs:
                 $preamble
                 | capture("previous-version=(?<from>[^&\\s)]+)&new-version=(?<to>[^&\\s)]+)"; "i")?
               );
-
+            
             def extract_grouped_rows($preamble):
               [
                 $preamble
@@ -539,14 +558,49 @@ jobs:
                 | capture("^\\s*\\|[^|]+\\|\\s*(?:`(?<f1>[^`]+)`|(?<f2>[^|\\s]+))\\s*\\|\\s*(?:`(?<t1>[^`]+)`|(?<t2>[^|\\s]+))\\s*\\|")
                 | { from: (.f1 // .f2), to: (.t1 // .t2) }
               ];
-
+            
+            
+            def extract_commit_kinds:
+              [
+                ((.commits // [])[]
+                  | ((.commit.message // .message // "") | tostring)
+                  | [scan("update-type:[ \t]*version-update:semver-(major|minor|patch)"; "i")][]
+                  | if type == "array" then .[0] else . end
+                )
+              ];
+            
+            def highest_kind($kinds):
+              if ($kinds | any(. == "major")) then "major"
+              elif ($kinds | any(. == "minor")) then "minor"
+              elif ($kinds | any(. == "patch")) then "patch"
+              else
+                null
+              end;
+            
+            def disagree($a; $b):
+              if ($a == null or $b == null) then
+                false
+              else
+                $a != $b
+              end;
+            
+            def finalize($decision):
+              highest_kind(extract_commit_kinds) as $commit_kind
+              | if ((.commits // []) | length) > 0 and ($commit_kind == null) then
+                  { allow: false, kind: "unknown", grouped: $decision.grouped, reason: "Dependabot commits are present but have no parseable update-type: version-update:semver-* lines" }
+                elif disagree($commit_kind; $decision.kind) then
+                  { allow: false, kind: "unknown", grouped: $decision.grouped, reason: "Dependabot commit update-type disagrees with the title or body classification" }
+                else
+                  $decision
+                end;
+            
             ((.author.login // "") | (. == "dependabot[bot]" or . == "app/dependabot")) as $is_dependabot
             | if ($is_dependabot | not) then
                 { allow: true, kind: "non-dependabot", grouped: false, reason: "author is not Dependabot" }
               else
-                body_preamble as $preamble
-                | ((.title // "") | test("bump the [^\\n]+ group"; "i"))
-                  or ($preamble | test("^[ \\t]*(?:bumps|updates) the [^\\n]+ group"; "i")) as $is_grouped
+                (body_preamble as $preamble
+                | (((.title // "") | test("bump the [^\\n]+ group"; "i"))
+                  or ($preamble | test("^[ \\t]*(?:bumps|updates) the [^\\n]+ group"; "i"))) as $is_grouped
                 | if $is_grouped then
                     extract_grouped_rows($preamble) as $rows
                     | if ($rows | length) == 0 then
@@ -591,6 +645,7 @@ jobs:
                           end
                       end
                   end
+                ) as $decision | finalize($decision)
               end
             # END dependabot-gate.jq
           ' <<<"$META")"
