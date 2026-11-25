@@ -219,6 +219,12 @@ export class D1Storage implements QuillStorage {
     return row?.stripe_customer_id ?? null;
   }
 
+  async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
+    const row = await this.db.prepare('SELECT stripe_subscription_status FROM tenants WHERE id = ?1')
+      .bind(tenantId).first<{ stripe_subscription_status: string | null }>();
+    return row?.stripe_subscription_status ?? null;
+  }
+
   /** D1 sqlite row → StripeOrder canonicalisation */
   private mapStripeOrderD1(row: Record<string, unknown>): StripeOrder {
     return {
@@ -784,6 +790,10 @@ export class MemoryStorage implements QuillStorage {
 
   async getTenantStripeCustomerId(tenantId: string): Promise<string | null> {
     return this.tenants.get(tenantId)?.stripeCustomerId ?? null;
+  }
+
+  async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
+    return this.tenants.get(tenantId)?.stripeSubscriptionStatus ?? null;
   }
 
   /* ── AUDIT-LOG-3 + STRIPE-1 (MemoryStorage) ── */

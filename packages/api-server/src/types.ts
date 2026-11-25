@@ -34,7 +34,7 @@ export interface Tenant {
    */
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete' | 'incomplete_expired' | 'paused';
+  stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete' | 'incomplete_expired' | 'paused' | 'disputed';
   /**
    * Unix-seconds. Used to gate tier expiry on next request.
    */
@@ -458,6 +458,8 @@ export interface QuillStorage {
   updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void>;
   /** Look up a tenant's Stripe customer id (cross-tenant defense-in-depth check in authorizeEvent). */
   getTenantStripeCustomerId(tenantId: string): Promise<string | null>;
+  /** Tenant's stored Stripe subscription status (e.g. 'disputed' entitlement hold). */
+  getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null>;
 
   /* ── AUDIT-LOG-3: payment_reconciliations persistence ── */
   /** Insert a payment reconciliation row. Throws on UNIQUE(transactionUid) violation. */

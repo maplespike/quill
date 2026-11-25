@@ -237,6 +237,17 @@ export async function createCheckoutSession(args: {
 }
 
 /**
+ * GET /v1/charges/:id?expand[]=customer (read-only). Used to map a dispute
+ * (which carries only a charge id) back to the tenant bound to its customer.
+ */
+export async function retrieveChargeWithCustomer(chargeId: string): Promise<Record<string, any>> {
+  if (!/^(ch|py)_[A-Za-z0-9_]+$/.test(chargeId)) {
+    throw new StripeError('INVALID_CHARGE_ID', 'Invalid Stripe charge id');
+  }
+  return stripeFetch<Record<string, any>>('GET', `/charges/${encodeURIComponent(chargeId)}?expand[]=customer`);
+}
+
+/**
  * Customer Portal session — lets users manage subscription, update card,
  * cancel, download invoices. Requires `customer` and at least one configured
  * portal feature in the Stripe dashboard.
@@ -267,7 +278,7 @@ export async function createPortalSession(args: {
 export type VerifiedStripeEvent = {
   id: string;
   type: string;
-  data: { object: Record<string, unknown> };
+  data: { object: Record<string, unknown>; previous_attributes?: Record<string, unknown> };
   created: number;
   livemode: boolean;
   api_version?: string;

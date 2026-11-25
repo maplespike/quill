@@ -429,6 +429,11 @@ export class NodeSqliteStorage implements QuillStorage {
     return row?.stripe_customer_id ?? null;
   }
 
+  async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
+    const row = this.db.prepare('SELECT stripe_subscription_status FROM tenants WHERE id = ?').get(tenantId) as { stripe_subscription_status: string | null } | undefined;
+    return row?.stripe_subscription_status ?? null;
+  }
+
   /** Map raw sqlite row -> StripeOrder (camel → snake canonicalisation). */
   private mapStripeOrder(row: Record<string, unknown>): StripeOrder {
     return {

@@ -423,6 +423,12 @@ export class SqliteStorage implements QuillStorage {
     return row?.stripe_customer_id ?? null;
   }
 
+  async getTenantStripeSubscriptionStatus(tenantId: string): Promise<string | null> {
+    this.ensureStripeSchema();
+    const row = this.db.prepare('SELECT stripe_subscription_status FROM tenants WHERE id = ?').get(tenantId) as { stripe_subscription_status: string | null } | undefined;
+    return row?.stripe_subscription_status ?? null;
+  }
+
   /* ── AUDIT-LOG-3 + STRIPE-1 (SqliteStorage) ── */
 
   private ensureReconciliationsSchema(): void {
