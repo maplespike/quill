@@ -36,7 +36,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
 
 const DIST = resolve(process.env.AUDIT_DIST || "dist");
-const HEADERS_FILE = resolve(process.env.AUDIT_HEADERS || "public/_headers");
+const HEADERS_FILE = resolve(process.env.AUDIT_HEADERS || new URL("../public/_headers", import.meta.url).pathname);
 const PORT = Number(process.env.AUDIT_PORT || 8099);
 const MAX = Number(process.env.AUDIT_MAX || 0);
 
