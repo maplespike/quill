@@ -379,7 +379,12 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         const planId = stripe.planIdFromMetadata(obj.metadata);
         const orderId = stripe.orderIdFromMetadata(obj.metadata);
         const customerId = extractCustomerId(obj.customer);
-        const subscriptionId = typeof obj.subscription === 'string' ? obj.subscription : undefined;
+        const subscriptionId =
+          typeof obj.subscription === 'string'
+            ? obj.subscription
+            : typeof obj.subscription?.id === 'string'
+              ? (obj.subscription.id as string)
+              : undefined;
 
         if (tenantId && planId) {
           const validTier = toTier(planId);
@@ -389,11 +394,31 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
             webhookLog.warn({ tenantId, planId, type: event.type }, 'rejected: invalid planId');
             break;
           }
+          // stripe_current_period_end drives reconcile-expiry downgrades; the
+          // session itself has no period, so read it from the subscription
+          // (expanded object if present, otherwise one read-only GET). A
+          // failure here is non-fatal: customer.subscription.* sets it too.
+          let currentPeriodEnd: number | undefined;
+          if (obj.subscription && typeof obj.subscription === 'object') {
+            currentPeriodEnd = stripe.subscriptionCurrentPeriodEnd(obj.subscription);
+          }
+          if (currentPeriodEnd === undefined && subscriptionId) {
+            try {
+              currentPeriodEnd = stripe.subscriptionCurrentPeriodEnd(await stripe.retrieveSubscription(subscriptionId));
+            } catch (e) {
+              webhookLog.warn(
+                { err: (e as Error).message, tenantId, subscriptionId },
+                'checkout.session.completed: could not read subscription period end',
+              );
+            }
+          }
+
           // Persist the binding so future subscription.* events pass strict auth.
           await _ctx.db.updateTenantStripe(tenantId, {
             tier: validTier,
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscriptionId,
+            ...(currentPeriodEnd !== undefined ? { stripeCurrentPeriodEnd: currentPeriodEnd } : {}),
           });
 
           if (orderId) {
@@ -446,8 +471,8 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         const status = obj.status as stripe.StripeSubscriptionStatus;
         const customerId = extractCustomerId(obj.customer);
         const orderId = stripe.orderIdFromMetadata(obj.metadata);
-        const currentPeriodEnd =
-          typeof obj.current_period_end === 'number' ? obj.current_period_end : undefined;
+        // 2026-06-24.dahlia: period end lives on items.data[0] (see helper).
+        const currentPeriodEnd = stripe.subscriptionCurrentPeriodEnd(obj);
 
         // Defense-in-depth + delivery-reorder tolerance: see authorizeEvent.
         if (!tenantId || !planId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db))) {

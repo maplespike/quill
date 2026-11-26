@@ -237,6 +237,44 @@ export async function createCheckoutSession(args: {
 }
 
 /**
+ * Billing-period end of a subscription object.
+ *
+ * We pin Stripe-Version 2026-06-24.dahlia. Since 2025-03-31.basil the period
+ * fields live on each subscription item (`items.data[0].current_period_end`),
+ * not the subscription root. Webhook endpoints use the account-default
+ * version (api_version: null), so the legacy root field is kept as a fallback
+ * for older payloads only. Returns undefined when neither is a positive int.
+ */
+export function subscriptionCurrentPeriodEnd(sub: unknown): number | undefined {
+  if (!sub || typeof sub !== 'object') return undefined;
+  const o = sub as Record<string, any>;
+  const item = Array.isArray(o.items?.data) ? o.items.data[0] : undefined;
+  const fromItem = item && typeof item.current_period_end === 'number' ? item.current_period_end : undefined;
+  if (fromItem !== undefined && Number.isInteger(fromItem) && fromItem > 0) return fromItem;
+  const legacy = typeof o.current_period_end === 'number' ? o.current_period_end : undefined;
+  if (legacy !== undefined && Number.isInteger(legacy) && legacy > 0) return legacy;
+  return undefined;
+}
+
+export interface StripeSubscription {
+  id: string;
+  object: 'subscription';
+  status: string;
+  customer: string | { id: string };
+  metadata?: Record<string, string>;
+  items?: { data: Array<{ current_period_end?: number; current_period_start?: number }> };
+  current_period_end?: number;
+}
+
+/** GET /v1/subscriptions/:id (read-only). */
+export async function retrieveSubscription(subscriptionId: string): Promise<StripeSubscription> {
+  if (!/^sub_[A-Za-z0-9_]+$/.test(subscriptionId)) {
+    throw new StripeError('INVALID_SUBSCRIPTION_ID', 'Invalid Stripe subscription id');
+  }
+  return stripeFetch<StripeSubscription>('GET', `/subscriptions/${encodeURIComponent(subscriptionId)}`);
+}
+
+/**
  * Customer Portal session — lets users manage subscription, update card,
  * cancel, download invoices. Requires `customer` and at least one configured
  * portal feature in the Stripe dashboard.
