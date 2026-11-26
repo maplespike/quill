@@ -31,6 +31,16 @@ const CACHE_ROUTES: CacheRouteConfig[] = [
 
 const NO_CACHE_PREFIXES = ['/v1/auth/', '/v1/billing/'];
 
+/**
+ * Stripe's webhook deliveries come from Stripe's IP pool, not a tenant, so the
+ * per-IP FREE limit would 429 legitimate bursts (and Stripe then retries for
+ * days). HMAC signature verification in stripeWebhookHandler is the guard
+ * for this route. Exact method + path only.
+ */
+export function isRateLimitExempt(method: string | undefined, pathname: string): boolean {
+  return method === 'POST' && (pathname === '/v1/billing/stripe/webhook' || pathname === '/v1/billing/stripe/webhook/');
+}
+
 function isNoCachePath(pathname: string): boolean {
   return NO_CACHE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
@@ -160,7 +170,7 @@ export function createNodeRequestListener(deps: NodeListenerDeps): http.RequestL
       // There is no 304 path. This server does not answer conditional
       // requests with Not Modified. OPTIONS preflight is not cached; it
       // falls through to handleRequest and is written below.
-      if (!pathname.startsWith('/v1/health')) {
+      if (!pathname.startsWith('/v1/health') && !isRateLimitExempt(req.method, pathname)) {
         const ip = rateLimiter.extractIP(req);
         const tier = rateLimiter.extractTier(req);
         const rlResult = await rateLimiter.check(ip, tier);

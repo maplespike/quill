@@ -449,6 +449,16 @@ export const ERROR_CODES: Record<string, BilingualError> = {
     en: 'Webhook processing error',
     fr: 'Erreur de traitement du webhook',
   },
+  WEBHOOK_PERSIST_ERROR: {
+    code: 'WEBHOOK_PERSIST_ERROR',
+    en: 'Webhook event could not be recorded',
+    fr: "L'événement du webhook n'a pas pu être enregistré",
+  },
+  LIVEMODE_MISMATCH: {
+    code: 'LIVEMODE_MISMATCH',
+    en: 'Event mode does not match this deployment',
+    fr: 'Le mode de l’événement ne correspond pas à ce déploiement',
+  },
   INVALID_PLAN: {
     code: 'INVALID_PLAN',
     en: 'Invalid plan',

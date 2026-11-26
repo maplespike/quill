@@ -86,7 +86,22 @@ export function stripeKeyMode(value: string | undefined | null): StripeKeyMode {
  */
 export function validateStripeEnv(env: Record<string, string | undefined>): void {
   const declared = (env.STRIPE_ENV ?? '').trim().toLowerCase();
-  if (!declared) return; // not declared: nothing to disagree with (dev, tests)
+  if (!declared) {
+    // Production with Stripe credentials MUST declare its money mode: without
+    // STRIPE_ENV nothing proves the key's mode, and webhooks can't check
+    // event.livemode. Fail closed. Dev/tests (or a production build with no
+    // Stripe credentials at all, which can't bill) stay permissive.
+    const isProd = (env.ENVIRONMENT ?? '').trim().toLowerCase() === 'production';
+    const hasStripeCreds =
+      stripeKeyMode(env.STRIPE_SECRET_KEY) !== 'absent' || (env.STRIPE_WEBHOOK_SECRET ?? '').trim().length > 0;
+    if (isProd && hasStripeCreds) {
+      throw new Error(
+        'STRIPE_ENV is unset in production while Stripe credentials are configured. ' +
+          'Set STRIPE_ENV to "live" or "test"; refusing to guess a money mode.',
+      );
+    }
+    return; // not declared: nothing to disagree with (dev, tests)
+  }
 
   if (declared !== 'live' && declared !== 'test') {
     throw new Error(

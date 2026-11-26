@@ -61,8 +61,17 @@ const STRIPE_PLANS: Record<
 const processedStripeEvents = new Set<string>();
 const MAX_PROCESSED_EVENTS = 10_000;
 
+/** True only for events this pod already processed AND committed. */
 function isDuplicateEvent(eventId: string): boolean {
-  if (processedStripeEvents.has(eventId)) return true;
+  return processedStripeEvents.has(eventId);
+}
+
+/**
+ * Remember an event as processed. Called only AFTER the handler's DB writes
+ * and the payment_reconciliations row have committed — marking earlier meant
+ * a 500 on the first attempt turned Stripe's retry into a silent 'duplicate'.
+ */
+function markEventProcessed(eventId: string): void {
   if (processedStripeEvents.size >= MAX_PROCESSED_EVENTS) {
     // FIFO rotation: drop oldest half so we don't grow forever.
     const dropCount = Math.floor(MAX_PROCESSED_EVENTS / 2);
@@ -73,7 +82,29 @@ function isDuplicateEvent(eventId: string): boolean {
     }
   }
   processedStripeEvents.add(eventId);
-  return false;
+}
+
+/** Test hook: forget in-memory dedupe state (simulates a fresh pod). */
+export function _resetProcessedStripeEventsForTests(): void {
+  processedStripeEvents.clear();
+}
+
+/**
+ * Operator alert sink for billing incidents. Error-level, tagged line so
+ * k8s log-based alerting (same path as [TAX-ALERT]) pages on it. Ids and
+ * amounts only — no customer PII.
+ */
+function billingAlert(kind: string, fields: Record<string, unknown>): void {
+  webhookLog.error({ alert: kind, ...fields }, `billing alert: ${kind}`);
+  console.error(`[BILLING-ALERT][${kind}] ${JSON.stringify(fields)}`);
+}
+
+/** STRIPE_ENV → expected event.livemode, or null when undeclared (dev/tests). */
+function expectedLivemode(): boolean | null {
+  const declared = (process.env.STRIPE_ENV ?? '').trim().toLowerCase();
+  if (declared === 'live') return true;
+  if (declared === 'test') return false;
+  return null;
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -129,11 +160,21 @@ async function authorizeEvent(
   customerId: string | undefined,
   orderId: string | null,
   db: import('../types.js').QuillStorage,
+  subscriptionId?: string,
 ): Promise<boolean> {
-  if (!tenantId || !customerId) return false;
-  const bound = await db.getTenantStripeCustomerId(tenantId);
-  if (bound === customerId) return true;
-  if (orderId) {
+  if (!tenantId) return false;
+  // A bound customer id is the usual proof. After customer.deleted unbinds
+  // the cus_ (so checkout can create a fresh one) the subscription id is
+  // left in place so a later customer.subscription.deleted can still match.
+  if (customerId) {
+    const bound = await db.getTenantStripeCustomerId(tenantId);
+    if (bound && bound === customerId) return true;
+  }
+  if (subscriptionId) {
+    const boundSub = await db.getTenantStripeSubscriptionId(tenantId);
+    if (boundSub && boundSub === subscriptionId) return true;
+  }
+  if (orderId && customerId) {
     const order = await db.getStripeOrderById(orderId);
     if (order && order.tenant_id === tenantId && order.stripe_customer_id === customerId) {
       // Persist the binding for future strict-path checks.
@@ -328,9 +369,21 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
     return jsonResponse(buildError('WEBHOOK_IDENTITY_ERROR', (e as Error).message, bc), 400);
   }
 
-  // Idempotency: short-circuit replays (Stripe retries on 5xx, but also
-  // for at-least-once semantics). DB writes below are idempotent via
-  // UPSERT semantics so a cache miss after pod restart is safe.
+  // Mode separation: a test-mode event must never mutate a live deployment
+  // (and vice versa). Only enforced when STRIPE_ENV is declared.
+  const wantLive = expectedLivemode();
+  if (wantLive !== null && event.livemode !== wantLive) {
+    webhookLog.warn(
+      { eventId: event.id, type: event.type, livemode: event.livemode, expected: wantLive },
+      'rejected webhook: event.livemode does not match STRIPE_ENV',
+    );
+    return jsonResponse(
+      buildError('LIVEMODE_MISMATCH', 'Event mode does not match this deployment (STRIPE_ENV).', bc),
+      400,
+    );
+  }
+
+  // Fast path: this pod already processed AND committed this event.
   if (isDuplicateEvent(event.id)) {
     return jsonResponse(
       buildSuccess(
@@ -338,29 +391,6 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         bc,
       ),
     );
-  }
-
-  // AUDIT-LOG-3 — write a durable payment_reconciliations row for the
-  // event id BEFORE handler dispatch. UNIQUE(transaction_uid) protects
-  // against duplicate writes from concurrent retries; DB-layer
-  // dedupe supersedes the in-memory Set above.
-  try {
-    const objForReconciliation = event.data.object as Record<string, any>;
-    const reconciliation: PaymentReconciliationInsert = {
-      transactionUid: event.id,
-      channel: 'stripe',
-      orderId: stripe.orderIdFromMetadata(objForReconciliation?.metadata) ?? undefined,
-      amountCents: typeof objForReconciliation?.amount_total === 'number' ? objForReconciliation.amount_total : undefined,
-      reference: typeof objForReconciliation?.id === 'string' ? objForReconciliation.id : undefined,
-    };
-    await _ctx.db.createPaymentReconciliation(reconciliation);
-  } catch (e) {
-    if (e instanceof Error && /UNIQUE|unique/i.test(e.message)) {
-      return jsonResponse(
-        buildSuccess({ event_id: event.id, type: event.type, processed: true, action: 'duplicate_db' }, bc),
-      );
-    }
-    webhookLog.warn({ err: (e as Error).message, eventId: event.id }, 'createPaymentReconciliation failed; continuing');
   }
 
   const result: { event_id: string; type: string; processed: boolean; action: string | null } = {
@@ -450,7 +480,8 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
           typeof obj.current_period_end === 'number' ? obj.current_period_end : undefined;
 
         // Defense-in-depth + delivery-reorder tolerance: see authorizeEvent.
-        if (!tenantId || !planId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db))) {
+        const subscriptionId = typeof obj.id === 'string' ? obj.id : undefined;
+        if (!tenantId || !planId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db, subscriptionId))) {
           result.processed = true;
           result.action = 'rejected_cross_tenant';
           webhookLog.warn(
@@ -465,6 +496,16 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
           result.processed = true;
           result.action = 'rejected_invalid_plan';
           webhookLog.warn({ tenantId, planId, type: event.type }, 'rejected: invalid planId');
+          break;
+        }
+
+        // Entitlements frozen by charge.dispute.created stay frozen until the
+        // dispute closes in our favour — a renewal/update must not re-upgrade.
+        if (typeof _ctx.db.getTenantStripeSubscriptionStatus === 'function'
+          && (await _ctx.db.getTenantStripeSubscriptionStatus(tenantId)) === 'disputed') {
+          result.processed = true;
+          result.action = 'held_disputed';
+          webhookLog.warn({ tenantId, type: event.type }, 'subscription event ignored: tenant entitlements frozen by dispute');
           break;
         }
 
@@ -500,11 +541,12 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         const customerId = extractCustomerId(obj.customer);
         const orderId = stripe.orderIdFromMetadata(obj.metadata);
 
-        if (!tenantId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db))) {
+        const subscriptionId = typeof obj.id === 'string' ? obj.id : undefined;
+        if (!tenantId || !(await authorizeEvent(tenantId, customerId, orderId, _ctx.db, subscriptionId))) {
           result.processed = true;
           result.action = 'rejected_cross_tenant';
           webhookLog.warn(
-            { tenantId, customerId, orderId, type: event.type },
+            { tenantId, customerId, orderId, subscriptionId, type: event.type },
             'rejected subscription.deleted: customer not bound to tenant',
           );
           break;
@@ -513,7 +555,7 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
         await _ctx.db.updateTenantStripe(tenantId, {
           tier: 'free',
           stripeSubscriptionStatus: 'canceled',
-          stripeSubscriptionId: undefined,
+          stripeSubscriptionId: '', // '' clears; undefined would be skipped
         });
         if (orderId) {
           const order = await _ctx.db.getStripeOrderById(orderId);
@@ -564,22 +606,156 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
 
       case 'charge.refunded': {
         // #811: net refunds out of taxable revenue. Idempotent by event ID.
+        // obj.amount_refunded is CUMULATIVE for the charge; a second partial
+        // refund must record only its own increment. Stripe sends the prior
+        // cumulative value in data.previous_attributes.amount_refunded.
         try {
-          const refundedCents = typeof obj.amount_refunded === 'number' ? obj.amount_refunded : undefined;
-          if (refundedCents !== undefined && refundedCents > 0) {
-            const ledgerResult = await recordTaxEvent(_ctx.db, {
-              eventId: event.id,
-              entryType: 'refund',
-              amountCents: -refundedCents,
-              currency: (obj.currency ?? 'cad').toUpperCase(),
-            });
-            result.action = `refund_${ledgerResult}`;
-          } else {
+          const cumulative = typeof obj.amount_refunded === 'number' ? obj.amount_refunded : undefined;
+          const prev = event.data.previous_attributes;
+          const prevCumulative =
+            prev && typeof prev.amount_refunded === 'number' ? (prev.amount_refunded as number) : undefined;
+          if (cumulative === undefined || cumulative <= 0) {
             result.action = 'refund_skipped';
+          } else if (prevCumulative === undefined) {
+            // Without the prior cumulative we cannot tell this refund's size;
+            // recording the cumulative would double-subtract. Flag for review.
+            billingAlert('refund_delta_unknown', { eventId: event.id, chargeId: obj.id, cumulativeCents: cumulative });
+            result.action = 'refund_needs_review';
+          } else {
+            const delta = cumulative - prevCumulative;
+            if (delta <= 0) {
+              result.action = 'refund_skipped';
+            } else {
+              const ledgerResult = await recordTaxEvent(_ctx.db, {
+                eventId: event.id,
+                entryType: 'refund',
+                amountCents: -delta,
+                currency: (obj.currency ?? 'cad').toUpperCase(),
+              });
+              result.action = `refund_${ledgerResult}`;
+            }
           }
         } catch (e) {
           webhookLog.warn({ err: (e as Error).message, eventId: event.id }, 'tax ledger refund recording failed');
           result.action = 'refund_error';
+        }
+        result.processed = true;
+        break;
+      }
+
+      case 'charge.dispute.created': {
+        // A chargeback: freeze paid entitlements and page the operator. The
+        // dispute carries only a charge id; resolve charge → customer →
+        // tenant and require the customer to be bound to that tenant.
+        const chargeRef = obj.charge;
+        let charge: Record<string, any> | undefined =
+          chargeRef && typeof chargeRef === 'object' ? (chargeRef as Record<string, any>) : undefined;
+        if (!charge && typeof chargeRef === 'string') {
+          charge = await stripe.retrieveChargeWithCustomer(chargeRef); // throws → 500 → Stripe retries
+        }
+        const customerId = extractCustomerId(charge?.customer);
+        const customerObj = charge?.customer && typeof charge.customer === 'object' ? charge.customer : undefined;
+        const tenantId =
+          stripe.tenantIdFromMetadata(customerObj?.metadata) ?? stripe.tenantIdFromMetadata(charge?.metadata) ?? null;
+        const alertFields = {
+          disputeId: obj.id,
+          chargeId: typeof chargeRef === 'string' ? chargeRef : charge?.id,
+          amountCents: obj.amount,
+          currency: obj.currency,
+          reason: obj.reason,
+          tenantId,
+        };
+        if (!tenantId || !(await authorizeEvent(tenantId, customerId, null, _ctx.db))) {
+          billingAlert('dispute_unmatched', alertFields);
+          result.processed = true;
+          result.action = 'dispute_unmatched';
+          break;
+        }
+        await _ctx.db.updateTenantStripe(tenantId, { tier: 'free', stripeSubscriptionStatus: 'disputed' });
+        await _ctx.db.logAudit({
+          tenantId,
+          operation: 'billing_dispute_freeze',
+          endpoint: '/v1/billing/stripe/webhook',
+          inputPreview: `dispute=${obj.id}`,
+          outputSummary: 'tier->free;status=disputed',
+          success: true,
+          durationMs: 0,
+        });
+        billingAlert('dispute_created', alertFields);
+        result.processed = true;
+        result.action = 'entitlements_frozen';
+        break;
+      }
+
+      case 'charge.dispute.closed': {
+        // Lift the freeze only when the dispute closed in our favour. The tier
+        // stays 'free' until the next subscription.* event (or an operator)
+        // restores it; status 'active' re-enables that path.
+        const won = obj.status === 'won' || obj.status === 'warning_closed';
+        const chargeRef = obj.charge;
+        let charge: Record<string, any> | undefined =
+          chargeRef && typeof chargeRef === 'object' ? (chargeRef as Record<string, any>) : undefined;
+        if (!charge && typeof chargeRef === 'string') charge = await stripe.retrieveChargeWithCustomer(chargeRef);
+        const customerId = extractCustomerId(charge?.customer);
+        const customerObj = charge?.customer && typeof charge.customer === 'object' ? charge.customer : undefined;
+        const tenantId =
+          stripe.tenantIdFromMetadata(customerObj?.metadata) ?? stripe.tenantIdFromMetadata(charge?.metadata) ?? null;
+        if (!tenantId || !(await authorizeEvent(tenantId, customerId, null, _ctx.db))) {
+          result.processed = true;
+          result.action = 'dispute_unmatched';
+          break;
+        }
+        if (won && (await _ctx.db.getTenantStripeSubscriptionStatus(tenantId)) === 'disputed') {
+          await _ctx.db.updateTenantStripe(tenantId, { stripeSubscriptionStatus: 'active' });
+          billingAlert('dispute_won_restore_tier', { disputeId: obj.id, tenantId });
+          result.action = 'dispute_hold_lifted';
+        } else {
+          billingAlert('dispute_closed', { disputeId: obj.id, tenantId, status: obj.status });
+          result.action = won ? 'dispute_closed' : 'dispute_lost_kept_frozen';
+        }
+        result.processed = true;
+        break;
+      }
+
+      case 'customer.deleted': {
+        // Unbind the deleted customer so checkout creates a fresh one and the
+        // portal stops pointing at a dead cus_. Only if it is still the
+        // tenant's bound customer.
+        //
+        // Also drop the tenant to free immediately. Stripe may deliver
+        // customer.deleted before customer.subscription.deleted; if we left
+        // the paid tier in place the later event would fail authorizeEvent
+        // (the cus_ is already gone) and the tenant would keep paid access.
+        // The subscription id is deliberately left bound so a later
+        // subscription.* event can still authorize via getTenantStripeSubscriptionId.
+        const tenantId = stripe.tenantIdFromMetadata(obj.metadata);
+        const customerId = typeof obj.id === 'string' ? obj.id : undefined;
+        if (!tenantId || !customerId || (await _ctx.db.getTenantStripeCustomerId(tenantId)) !== customerId) {
+          result.processed = true;
+          result.action = 'customer_not_bound';
+          break;
+        }
+        // '' clears the customer binding (storage skips undefined fields).
+        await _ctx.db.updateTenantStripe(tenantId, {
+          tier: 'free',
+          stripeCustomerId: '',
+          stripeSubscriptionStatus: 'canceled',
+        });
+        result.processed = true;
+        result.action = 'customer_unbound';
+        break;
+      }
+
+      case 'checkout.session.expired': {
+        // Abandoned checkout: close the pending order so it doesn't sit in
+        // 'pending' forever. Only our own order for this exact session.
+        const orderId = stripe.orderIdFromMetadata(obj.metadata);
+        const order = orderId ? await _ctx.db.getStripeOrderById(orderId) : null;
+        if (order && order.status === 'pending' && order.stripe_checkout_session_id === obj.id) {
+          await _ctx.db.updateStripeOrder(order.order_id, { status: 'expired' });
+          result.action = 'order_expired';
+        } else {
+          result.action = 'order_not_pending';
         }
         result.processed = true;
         break;
@@ -600,6 +776,7 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
       }
     }
   } catch (e) {
+    // Nothing is marked processed: Stripe's retry runs the handler again.
     webhookLog.error({ err: (e as Error).message, eventId: event.id }, 'webhook processing error');
     return jsonResponse(
       buildError('WEBHOOK_PROCESSING_ERROR', `Failed to process ${event.type}: ${(e as Error).message}`, bc),
@@ -607,6 +784,36 @@ export const stripeWebhookHandler: RouteHandler = async (request, _ctx) => {
     );
   }
 
+  // AUDIT-LOG-3 — the durable "processed" marker. Written only AFTER the
+  // handler's DB writes succeeded; UNIQUE(transaction_uid) on event.id is the
+  // cross-pod dedupe (a concurrent or replayed delivery lands here as
+  // duplicate_db — its handler writes are idempotent upserts / ledger-deduped).
+  // Any other DB failure is a 500 so Stripe retries instead of being dropped.
+  try {
+    const objForReconciliation = event.data.object as Record<string, any>;
+    const reconciliation: PaymentReconciliationInsert = {
+      transactionUid: event.id,
+      channel: 'stripe',
+      orderId: stripe.orderIdFromMetadata(objForReconciliation?.metadata) ?? undefined,
+      amountCents: typeof objForReconciliation?.amount_total === 'number' ? objForReconciliation.amount_total : undefined,
+      reference: typeof objForReconciliation?.id === 'string' ? objForReconciliation.id : undefined,
+    };
+    await _ctx.db.createPaymentReconciliation(reconciliation);
+  } catch (e) {
+    if (e instanceof Error && /UNIQUE|unique|duplicate key/i.test(e.message)) {
+      markEventProcessed(event.id);
+      return jsonResponse(
+        buildSuccess({ event_id: event.id, type: event.type, processed: true, action: 'duplicate_db' }, bc),
+      );
+    }
+    webhookLog.error({ err: (e as Error).message, eventId: event.id }, 'createPaymentReconciliation failed; not marking processed');
+    return jsonResponse(
+      buildError('WEBHOOK_PERSIST_ERROR', `Failed to record ${event.type}; Stripe will retry.`, bc),
+      500,
+    );
+  }
+
+  markEventProcessed(event.id);
   return jsonResponse(buildSuccess(result, bc));
 };
 
