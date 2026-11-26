@@ -27,6 +27,7 @@ data/
 .freebuff/
 .hermes/
 .unlazy/
+.opencode/
 # Internal audit / ops reports (kept out of the public repo)
 CODEBASE_AUDIT_REPORT.md
 SECURITY-AUDIT.md
