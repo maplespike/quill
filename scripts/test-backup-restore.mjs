@@ -208,10 +208,31 @@ test('chart backup contract', (t) => {
     ]) {
       assert.match(rendered.stdout, new RegExp(`name: ${job}`));
     }
+    // Each backup job must follow the pod that holds the volume it mounts.
+    // The search index is ReadWriteOnce and held by quill-search, so the search
+    // backup follows quill-search; the other three mount quill-api-data and
+    // follow quill-api. Anchoring on app=quill-api put the search backup on the
+    // node that did NOT hold the index (2026-11-26 01:45Z: nexus while the
+    // index was on sentry), where it hung in ContainerCreating for the full
+    // activeDeadlineSeconds and never updated lastSuccessfulTime.
+    const docs = rendered.stdout.split(/^---$/m);
+    const docFor = (name) => {
+      const doc = docs.find((d) => d.includes(`name: ${name}\n`));
+      assert.ok(doc, `rendered chart has no ${name} document`);
+      return doc;
+    };
+    const searchBackup = docFor('quill-backup-search');
     assert.match(
-      rendered.stdout,
-      /podAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?app: quill-api[\s\S]*?topologyKey: kubernetes\.io\/hostname/,
+      searchBackup,
+      /podAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?app: quill-search[\s\S]*?topologyKey: kubernetes\.io\/hostname/,
     );
+    assert.doesNotMatch(searchBackup, /app: quill-api/);
+    for (const job of ['quill-backup-sqlite', 'quill-backup-freshness', 'quill-backup-drill']) {
+      assert.match(
+        docFor(job),
+        /podAffinity:[\s\S]*?requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?app: quill-api[\s\S]*?topologyKey: kubernetes\.io\/hostname/,
+      );
+    }
     assert.doesNotMatch(
       rendered.stdout,
       /requiredDuringSchedulingIgnoredDuringExecution:[\s\S]*?kubernetes\.io\/hostname[\s\S]*?- "forge"/,

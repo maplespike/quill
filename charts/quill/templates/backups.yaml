@@ -214,12 +214,11 @@ spec:
             fsGroup: 1001
             seccompProfile:
               type: RuntimeDefault
-          {{- if .Values.api.storage.nodeName }}
-          nodeName: {{ .Values.api.storage.nodeName }}
-          {{- else if $backups.nodeName }}
+          {{/* the index volume is held by quill-search, so follow that pod */}}
+          {{- if $backups.nodeName }}
           nodeName: {{ $backups.nodeName }}
           {{- else }}
-          {{- include "quill.rwoApiCoLocate" $ | nindent 10 }}
+          {{- include "quill.rwoSearchCoLocate" $ | nindent 10 }}
           {{- end }}
           containers:
           - name: search-backup
