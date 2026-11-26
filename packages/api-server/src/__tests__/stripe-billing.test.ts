@@ -461,6 +461,32 @@ describe('stripeCheckoutHandler', () => {
     assert.equal(res.status, 200);
     assert.equal(calls, 1, 'should not call customer endpoint when binding exists');
   });
+
+  it('hosted success_url lands on /dashboard/checkout-success with session + order ids', async () => {
+    const tenantId = 'tenant_success_url';
+    registerTestTenant(tenantId);
+    await _testDb.updateTenantStripe(tenantId, { stripeCustomerId: 'cus_success_url' });
+    let sessionBody = '';
+    global.fetch = (async (_url: unknown, init?: RequestInit) => {
+      sessionBody = String(init?.body ?? '');
+      return new Response(JSON.stringify({ id: 'cs_test_success_url', object: 'checkout.session', url: 'https://example/cs', customer: 'cus_success_url', status: 'open', expires_at: Math.floor(Date.now() / 1000) + 1800, metadata: { tenant_id: tenantId, plan_id: 'pro', order_id: 'fill' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }) as typeof fetch;
+    const req = makeRequest('http://localhost/v1/billing/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan_id: 'pro' }),
+    });
+    const res = await stripeCheckoutHandler(req, ctxWithTenant(tenantId), {});
+    global.fetch = originalFetch;
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    const successUrl = new URLSearchParams(sessionBody).get('success_url') ?? '';
+    const u = new URL(successUrl.replace('{CHECKOUT_SESSION_ID}', 'cs_placeholder'));
+    assert.equal(u.pathname, '/dashboard/checkout-success');
+    assert.ok(successUrl.includes('session_id={CHECKOUT_SESSION_ID}'), 'Stripe template var preserved');
+    assert.equal(u.searchParams.get('order'), body.data.order_id);
+    assert.equal(u.searchParams.get('checkout'), null, 'legacy /dashboard?checkout=success shape is gone');
+  });
 });
 
 // ──────────────────────────────────────────────────────────────────
