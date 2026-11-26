@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchParliamentVotes } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_votes',
@@ -20,11 +20,11 @@ export async function runSearchVotes(
 ): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '');
   const limit = Math.min(args.limit ?? 10, 50);
-  if (!query.trim()) return { content: { tool: 'search_votes', error: 'No query' }, isError: true };
+  if (!query.trim()) return presentParliamentaryToolResult({ content: { tool: 'search_votes', error: 'No query' }, isError: true }, { chamber: 'commons' });
   try {
     const { results, total } = await fetchFn(query, limit);
     const applied = applySourcePolicy('openparliament', results);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_votes',
         query,
@@ -33,9 +33,9 @@ export async function runSearchVotes(
         totalCount: total,
         policy: applied.policy,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return { content: { tool: 'search_votes', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'search_votes', status: 'error', error: (error as Error).message }, isError: true }, { chamber: 'commons' });
   }
 }
 

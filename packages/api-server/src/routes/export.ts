@@ -36,7 +36,9 @@ import {
   applySourcePolicy,
   policyForModule,
   DISCOVERY_ONLY_BULK_EXPORT_REASON,
+  presentParliamentary,
   type ModuleInfo,
+  type ParliamentaryChamber,
 } from '@maplespike/pipeline-core';
 
 interface ModuleExportEntry {
@@ -119,6 +121,12 @@ export const listModulesHandler: RouteHandler = async (_req, ctx) => {
 export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
   const moduleName = params.module ?? '';
   const recordId = params.id;
+  const parliamentaryChamber: ParliamentaryChamber | null =
+    moduleName === 'parliamentary-voting' ? 'commons'
+    : moduleName === 'committees' ? 'both'
+    : null;
+  const shape = <T extends Record<string, unknown>>(data: T): T =>
+    parliamentaryChamber ? presentParliamentary(data, { chamber: parliamentaryChamber }) : data;
   const url = new URL(req.url);
   const limit = Math.min(
     parseInt(url.searchParams.get('limit') ?? '50', 10),
@@ -146,7 +154,7 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
     const applied = applySourcePolicy(moduleName, []);
     return jsonResponse(
       buildSuccess(
-        {
+        shape({
           module: moduleName,
           module_info: {
             description: moduleInfo.description,
@@ -169,7 +177,7 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
             module_status: moduleInfo.status ?? 'active',
             reason: DISCOVERY_ONLY_BULK_EXPORT_REASON,
           },
-        },
+        }),
         ctx,
       ),
     );
@@ -243,12 +251,12 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
     const applied = applySourcePolicy(moduleName, [record]);
     return jsonResponse(
       buildSuccess(
-        {
+        shape({
           module: moduleName,
           record: applied.records[0],
           policy: applied.policy,
           provenance,
-        },
+        }),
         ctx,
       ),
     );
@@ -258,7 +266,7 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
   const applied = applySourcePolicy(moduleName, paginatedRecords);
   return jsonResponse(
     buildSuccess(
-      {
+      shape({
         module: moduleName,
         module_info: {
           description: moduleInfo.description,
@@ -273,7 +281,7 @@ export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
         policy: applied.policy,
         exportUrl: `${url.origin}/v1/export/${moduleName}`,
         provenance,
-      },
+      }),
       ctx,
     ),
   );

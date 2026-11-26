@@ -278,6 +278,11 @@ jobs:
       - name: Source compliance gate unit tests
         run: node --test scripts/test-source-compliance.mjs
 
+      # Owner decision 2026-11-09: parliamentary tools and routes stay free,
+      # and public excerpts carry the reuse line. Pure Node — no cluster.
+      - name: Parliamentary free-tier gate
+        run: pnpm exec tsx --test scripts/test-parliamentary-free.mts
+
       # Gate A6-LICENCE (#1044): every manifest, source header, package licence
       # copy, and the Python/Rust manifests must agree on AGPL-3.0-only, and the
       # NOTICE must carry the OGL/Crown/parliamentary statements. This is the

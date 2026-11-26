@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchPoliticians, fetchParliamentVotes, fetchEntityCrossReference } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { fetchPoliticians, fetchEntityCrossReference } from './upstream-fetcher.js';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_politician_influence',
@@ -25,7 +25,7 @@ export async function runGetPoliticianInfluence(
   } = {},
 ): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const name = String(args.name ?? '').trim();
-  if (!name) return { content: { tool: 'get_politician_influence', error: 'No name provided' }, isError: true };
+  if (!name) return presentParliamentaryToolResult({ content: { tool: 'get_politician_influence', error: 'No name provided' }, isError: true }, { chamber: 'commons' });
 
   const fetchPoliticiansFn = fetchers.politicians ?? fetchPoliticians;
   const fetchCrossReferenceFn = fetchers.crossReference ?? fetchEntityCrossReference;
@@ -46,7 +46,7 @@ export async function runGetPoliticianInfluence(
     } : null;
     const applied = applySourcePolicy('openparliament', mpDetails ? [mpDetails] : []);
 
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_politician_influence',
         query: name,
@@ -60,9 +60,9 @@ export async function runGetPoliticianInfluence(
         openParliamentUrl: mp?.url ? `https://api.openparliament.ca${mp.url}` : null,
         sources: ['api.openparliament.ca', 'ouvert.canada.ca'],
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return { content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'get_politician_influence', status: 'error', error: (error as Error).message }, isError: true }, { chamber: 'commons' });
   }
 }
 

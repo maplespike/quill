@@ -4,7 +4,16 @@ import type { ToolDefinition, ToolHandler } from './types.js';
 import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 import { fetchParliamentBills, fetchParliamentDebates, fetchParliamentVotes } from './upstream-fetcher.js';
 import { withClaims } from './claims-helper.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult, type ParliamentaryChamber } from '@maplespike/pipeline-core';
+
+
+function chamberForBillQuery(query: string): ParliamentaryChamber {
+  const senate = /\bS-\d/i.test(query);
+  const commons = /\bC-\d/i.test(query);
+  if (senate && !commons) return 'senate';
+  if (commons && !senate) return 'commons';
+  return 'both';
+}
 
 export const definition: ToolDefinition = {
   name: 'track_bill',
@@ -28,7 +37,8 @@ export async function runTrackBill(
   } = {},
 ): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '').trim();
-  if (!query) return { content: { tool: 'track_bill', error: 'No bill query provided' }, isError: true };
+  const chamber = chamberForBillQuery(query);
+  if (!query) return presentParliamentaryToolResult({ content: { tool: 'track_bill', error: 'No bill query provided' }, isError: true }, { chamber: chamber });
 
   const fetchBills = fetchers.bills ?? fetchParliamentBills;
   const fetchDebates = fetchers.debates ?? fetchParliamentDebates;
@@ -60,7 +70,7 @@ export async function runTrackBill(
     const servedDebates = debatesApplied.records as typeof relatedDebates;
     const servedVotes = votesApplied.records as typeof votes;
 
-    return {
+    return presentParliamentaryToolResult({
       content: await withClaims({
         tool: 'track_bill',
         query,
@@ -97,9 +107,9 @@ export async function runTrackBill(
           transformations: ['cross-reference'],
         })),
       ]),
-    };
+    }, { chamber: chamber });
   } catch (error) {
-    return { content: { tool: 'track_bill', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'track_bill', status: 'error', error: (error as Error).message }, isError: true }, { chamber: chamber });
   }
 }
 

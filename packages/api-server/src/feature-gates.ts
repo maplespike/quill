@@ -15,6 +15,7 @@
  */
 
 import type { Tier } from './types.js';
+import { isParliamentaryApiPath } from '@maplespike/pipeline-core';
 
 // ─── Feature Gate Definitions ────────────────────────────────────────────
 
@@ -144,6 +145,10 @@ export function isHostedTier(_tier: Tier): boolean {
 // financial-regulation, municipal, audit/query, watcher, extraction,
 // annotations, AI, ai-settings), API-key management (keys), export, modules
 // data — these require Pro+.
+//
+// Exception (owner decision 2026-11-09): /v1/export/committees and
+// /v1/export/parliamentary-voting are free and are not metered. See
+// isParliamentaryApiPath. Other export modules stay Pro+.
 
 export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/health',
@@ -200,7 +205,16 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
  * Anything not on the discovery/metadata whitelist is Pro+.
  */
 export function isFreeTierRoute(path: string): boolean {
-  return FREE_TIER_ALLOWED_PREFIXES.some((p) => path.startsWith(p));
+  return FREE_TIER_ALLOWED_PREFIXES.some((p) => path.startsWith(p)) || isParliamentaryApiPath(path);
+}
+
+/**
+ * False for House of Commons and Senate export paths. Those calls are free
+ * and must not increment the paid-plan daily or monthly counters.
+ * Every other path still counts.
+ */
+export function countsTowardPaidQuota(path: string): boolean {
+  return !isParliamentaryApiPath(path);
 }
 
 // ─── Operator routes (shared-secret, not tenant surface) ────────────────
@@ -228,7 +242,7 @@ export function isOperatorRoute(path: string): boolean {
 export const TIER_METADATA: Record<Tier, { name: string; description: string; isSelfHosted: boolean }> = {
   free: {
     name: 'Free',
-    description: 'Hosted API — 1,000 calls/month. Discovery & metadata only (catalog, citations, compliance). Data queries + AI require Pro.',
+    description: 'Hosted API — 1,000 calls/month for paid modules. House of Commons and Senate debates, committees, Hansard, and votes are free and are not counted toward that quota. Other data queries and AI require Pro.',
     isSelfHosted: false,
   },
   pro: {

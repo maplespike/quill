@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchPoliticians } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'get_member_info',
@@ -25,12 +25,12 @@ export async function runGetMemberInfo(
   const query = String(args.query ?? '');
   const limit = Math.min(args.limit ?? 10, 50);
   if (!query.trim()) {
-    return { content: { tool: 'get_member_info', error: 'No query provided' }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'get_member_info', error: 'No query provided' }, isError: true }, { chamber: 'commons' });
   }
   try {
     const { results, total } = await fetchFn(query, limit);
     const applied = applySourcePolicy('openparliament', results);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'get_member_info',
         query,
@@ -39,9 +39,9 @@ export async function runGetMemberInfo(
         totalCount: total,
         policy: applied.policy,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return { content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'get_member_info', status: 'error', error: (error as Error).message }, isError: true }, { chamber: 'commons' });
   }
 }
 

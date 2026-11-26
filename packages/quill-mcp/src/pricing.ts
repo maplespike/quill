@@ -1,3 +1,5 @@
+import { isParliamentaryTool } from '@maplespike/pipeline-core';
+
 /**
  * Quill MCP tool pricing configuration for x402 (Solana USDC) micropayments.
  *
@@ -36,6 +38,19 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'searxng-health':       { tier: 'free', priceUsd: 0 },
   'qa-schema':            { tier: 'free', priceUsd: 0 },
   'qa-validate-module':   { tier: 'free', priceUsd: 0 },
+  // House of Commons and Senate proceedings stay free (owner decision 2026-11-09).
+  // getToolPrice also short-circuits these names so a paid map entry cannot gate them.
+  'search-committees':    { tier: 'free', priceUsd: 0 },
+  'search-committees-op': { tier: 'free', priceUsd: 0 },
+  'search-debates':       { tier: 'free', priceUsd: 0 },
+  'search-votes':         { tier: 'free', priceUsd: 0 },
+  'search-bills':         { tier: 'free', priceUsd: 0 },
+  'get-member-info':      { tier: 'free', priceUsd: 0 },
+  'get-politician-influence': { tier: 'free', priceUsd: 0 },
+  'track-bill':           { tier: 'free', priceUsd: 0 },
+  'get-voting-record':    { tier: 'free', priceUsd: 0 },
+  'get-mp-voting-pattern': { tier: 'free', priceUsd: 0 },
+  'compare-party-voting': { tier: 'free', priceUsd: 0 },
 
   // ── Micro ($0.001) — single entity lookups ─────────────────────
   'get-entity-profile':   { tier: 'micro', priceUsd: 0.001 },
@@ -47,8 +62,6 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'linked-entities':      { tier: 'premium', priceUsd: 0.10 },
   'linked_entities':      { tier: 'premium', priceUsd: 0.10 },
   'get-annotations':      { tier: 'micro', priceUsd: 0.001 },
-  'get-member-info':      { tier: 'micro', priceUsd: 0.001 },
-  'get-politician-influence': { tier: 'micro', priceUsd: 0.001 },
 
   // ── Standard ($0.01) — searches and queries ────────────────────
   'query-gov-data':       { tier: 'standard', priceUsd: 0.01 },
@@ -56,8 +69,6 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'search-gazette':       { tier: 'standard', priceUsd: 0.01 },
   'search-legislation':   { tier: 'standard', priceUsd: 0.01 },
   'search-statcan':       { tier: 'standard', priceUsd: 0.01 },
-  'search-debates':       { tier: 'standard', priceUsd: 0.01 },
-  'search-committees':    { tier: 'standard', priceUsd: 0.01 },
   'search-corporate':     { tier: 'standard', priceUsd: 0.01 },
   'search-influence':     { tier: 'standard', priceUsd: 0.01 },
   'search-gic':           { tier: 'standard', priceUsd: 0.01 },
@@ -99,10 +110,8 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'search-ab-data':       { tier: 'standard', priceUsd: 0.01 },
   'search-arcgis-layers': { tier: 'standard', priceUsd: 0.01 },
   'search-bc-data':       { tier: 'standard', priceUsd: 0.01 },
-  'search-bills':         { tier: 'standard', priceUsd: 0.01 },
   'search-cipo':          { tier: 'standard', priceUsd: 0.01 },
   'search-cmhc':          { tier: 'standard', priceUsd: 0.01 },
-  'search-committees-op': { tier: 'standard', priceUsd: 0.01 },
   'search-corporate-filings': { tier: 'standard', priceUsd: 0.01 },
   'search-cra-charity':   { tier: 'standard', priceUsd: 0.01 },
   'search-crtc':          { tier: 'standard', priceUsd: 0.01 },
@@ -161,7 +170,6 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'search-who-gho':       { tier: 'standard', priceUsd: 0.01 },
   'search-eurostat':      { tier: 'standard', priceUsd: 0.01 },
   'search-utilities':     { tier: 'standard', priceUsd: 0.01 },
-  'search-votes':         { tier: 'standard', priceUsd: 0.01 },
   'query-bridges':        { tier: 'standard', priceUsd: 0.01 },
   'query-cpi':            { tier: 'standard', priceUsd: 0.01 },
   'query-gdp':            { tier: 'standard', priceUsd: 0.01 },
@@ -219,7 +227,6 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'cache-clear':          { tier: 'premium', priceUsd: 0.10 },
 
   // ── Enterprise ($1.00) — bulk / pipeline ────────────────────────
-  'track-bill':           { tier: 'enterprise', priceUsd: 1.00 },
   'signal-check':         { tier: 'enterprise', priceUsd: 1.00 },
 };
 
@@ -238,6 +245,10 @@ const DEFAULT_PRICE: ToolPrice = { tier: 'standard', priceUsd: 0.01 };
  * to DEFAULT_PRICE. Exact match wins; normalized match second.
  */
 export function getToolPrice(toolName: string): ToolPrice {
+  // Parliamentary tools are free even if a later edit puts a price back in
+  // PRICE_MAP. The quota meter uses the same name list and does not count them.
+  if (isParliamentaryTool(toolName)) return { tier: 'free', priceUsd: 0 };
+
   // 1. Exact match
   const exact = PRICE_MAP[toolName];
   if (exact) return exact;

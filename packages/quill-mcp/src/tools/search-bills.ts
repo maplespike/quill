@@ -2,7 +2,16 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchParliamentBills } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult, type ParliamentaryChamber } from '@maplespike/pipeline-core';
+
+
+function chamberForBillQuery(query: string): ParliamentaryChamber {
+  const senate = /\bS-\d/i.test(query);
+  const commons = /\bC-\d/i.test(query);
+  if (senate && !commons) return 'senate';
+  if (commons && !senate) return 'commons';
+  return 'both';
+}
 
 export const definition: ToolDefinition = {
   name: 'search_bills',
@@ -23,14 +32,15 @@ export async function runSearchBills(
   fetchFn: typeof fetchParliamentBills = fetchParliamentBills,
 ): Promise<{ content: Record<string, unknown>; isError?: boolean }> {
   const query = String(args.query ?? '');
+  const chamber = chamberForBillQuery(query);
   const limit = Math.min(args.limit ?? 10, 50);
   if (!query.trim()) {
-    return { content: { tool: 'search_bills', error: 'No query provided' }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'search_bills', error: 'No query provided' }, isError: true }, { chamber: chamber });
   }
   try {
     const { results, total } = await fetchFn(query, limit);
     const applied = applySourcePolicy('openparliament', results);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_bills',
         query,
@@ -39,9 +49,9 @@ export async function runSearchBills(
         totalCount: total,
         policy: applied.policy,
       },
-    };
+    }, { chamber: chamber });
   } catch (error) {
-    return { content: { tool: 'search_bills', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'search_bills', status: 'error', error: (error as Error).message }, isError: true }, { chamber: chamber });
   }
 }
 

@@ -2,7 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { ingestParliamentaryVotes } from '@maplespike/pipeline-core/parliamentary-voting';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const getVotingRecordDefinition: ToolDefinition = {
   name: 'get_voting_record',
@@ -65,23 +65,23 @@ export async function runParliamentaryVoteTool(
   try {
     const result = await ingest();
     const applied = applySourcePolicy('parliamentary-voting', [result]);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool,
         ...fields,
         data: applied.records[0],
         policy: applied.policy,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool,
         ...fields,
         error: (error as Error).message,
       },
       isError: true,
-    };
+    }, { chamber: 'commons' });
   }
 }
 

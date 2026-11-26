@@ -12,6 +12,7 @@ import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js
 import { validatePayment, extractPaymentFromArgs } from './x402-middleware.js';
 import type { PaymentProof } from './x402-middleware.js';
 import { getToolPrice } from './pricing.js';
+import { parliamentaryToolMetersQuota } from '@maplespike/pipeline-core';
 import { getQuotaTracker, type QuotaIdentity, type QuotaTracker } from './quota.js';
 import { runWithIdentity } from './context.js';
 import { mcpMetrics, registerMetricTool } from './metrics.js';
@@ -1046,7 +1047,9 @@ export class McpServer {
       // Quota accounting happens on successful calls only — errors and
       // timeouts do not consume the user's monthly budget. Underspending is
       // a feature; we don't want charger anxiety from retries.
-      if (this.quota && identity && !result.isError) {
+      // Parliamentary tools are free and do not consume the hosted quota.
+      // Other successful calls still count, including other free tools.
+      if (this.quota && identity && !result.isError && parliamentaryToolMetersQuota(toolName)) {
         this.quota.recordCall(identity);
       }
 

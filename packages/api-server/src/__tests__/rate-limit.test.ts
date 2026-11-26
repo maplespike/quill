@@ -70,6 +70,26 @@ describe('Rate Limiting', () => {
     assert.ok(result.remaining >= 0);
   });
 
+  it('meterQuota false skips the paid-plan counter and the monthly cap', async () => {
+    let increments = 0;
+    const db = {
+      getDailyUsage: async () => 0,
+      getMonthlyUsage: async () => 1000,
+      incrementUsage: async () => { increments += 1; },
+    } as unknown as MemoryStorage;
+    const result = await enforceRateLimit(
+      db,
+      'parliamentary',
+      'pro',
+      true,
+      'parliamentary-burst',
+      { meterQuota: false },
+    );
+    assert.equal(result.allowed, true);
+    assert.equal(result.reason, undefined);
+    assert.equal(increments, 0);
+  });
+
   it('enforceRateLimit only applies burst limits to anonymous traffic', async () => {
     const db = new MemoryStorage();
     const key = 'anon:127.0.0.1';

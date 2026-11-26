@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchParliamentDebates, fetchPoliticians, fetchParliamentBills } from './upstream-fetcher.js';
-import { applySourcePolicy } from '@maplespike/pipeline-core';
+import { fetchParliamentDebates } from './upstream-fetcher.js';
+import { applySourcePolicy, presentParliamentaryToolResult } from '@maplespike/pipeline-core';
 
 export const definition: ToolDefinition = {
   name: 'search_debates',
@@ -25,12 +25,12 @@ export async function runSearchDebates(
   const query = String(args.query ?? '');
   const limit = Math.min(args.limit ?? 10, 50);
   if (!query.trim()) {
-    return { content: { tool: 'search_debates', error: 'No query provided' }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'search_debates', error: 'No query provided' }, isError: true }, { chamber: 'commons' });
   }
   try {
     const { results, total } = await fetchFn(query, limit);
     const applied = applySourcePolicy('openparliament', results);
-    return {
+    return presentParliamentaryToolResult({
       content: {
         tool: 'search_debates',
         query,
@@ -39,9 +39,9 @@ export async function runSearchDebates(
         totalCount: total,
         policy: applied.policy,
       },
-    };
+    }, { chamber: 'commons' });
   } catch (error) {
-    return { content: { tool: 'search_debates', status: 'error', error: (error as Error).message }, isError: true };
+    return presentParliamentaryToolResult({ content: { tool: 'search_debates', status: 'error', error: (error as Error).message }, isError: true }, { chamber: 'commons' });
   }
 }
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
+import { presentParliamentary } from './parliamentary-public.js';
 import { LOBBYING_ODLA_ATTRIBUTION_STATEMENT } from './attribution.js';
 
 /**
@@ -460,6 +461,16 @@ export function applySourcePolicy(sourceId: string, records: unknown[]): Applied
       const existing = typeof r.notice === "string" && r.notice.trim();
       if (existing) return r;
       return { ...r, notice: NOT_OFFICIAL_VERSION_NOTICE };
+    });
+  }
+  if (familyId === 'committees' || familyId === 'parliamentary-voting') {
+    // Same public helper the parliamentary tools and routes call. A source-policy
+    // wrap (including a later openparliament family that aliases here) keeps the
+    // excerpt cap and the non-commercial line.
+    const chamber = familyId === 'parliamentary-voting' ? 'commons' : 'both';
+    out = out.map((record) => {
+      if (!record || typeof record !== 'object' || Array.isArray(record)) return record;
+      return presentParliamentary(record as Record<string, unknown>, { chamber });
     });
   }
   return {
