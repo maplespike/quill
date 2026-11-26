@@ -55,7 +55,7 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: {{ .Values.search.storageClass | default "longhorn" | quote }}
+  storageClassName: {{ .Values.search.storageClass | default "local-path" | quote }}
   resources:
     requests:
       storage: {{ .Values.search.indexStorage }}

@@ -62,7 +62,7 @@ metadata:
 spec:
   accessModes:
     - {{ $backups.accessMode | default "ReadWriteOnce" }}
-  storageClassName: {{ $backups.storageClass | default "longhorn" | quote }}
+  storageClassName: {{ $backups.storageClass | default "local-path" | quote }}
   resources:
     requests:
       storage: {{ $backups.storage | default "30Gi" | quote }}
