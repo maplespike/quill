@@ -225,9 +225,13 @@ cloudflared:
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Backups. Off unless an environment opts in (values-prod.yaml does).
-# The claim uses longhorn, the same durable class as the API SQLite volume.
-# A cluster without that class sets backups.storageClass and search.storageClass
-# to a class that survives the node. local-path does not. See docs/ops/BACKUPS.md.
+# No chart default names longhorn any more (2026-11-26, gate G4 of
+# media-k8s docs/retiring-longhorn.md): a chart default can mint a new Longhorn
+# claim on any install that forgets to override it, which is how the class keeps
+# spreading. The default is local-path, which does NOT survive the node — an
+# environment that needs durability sets backups.storageClass and
+# search.storageClass explicitly. maplespike still does, to longhorn, until the
+# Phase 1 migration moves those claims. See docs/ops/BACKUPS.md.
 # accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
 # that mounts the claim has a working NFS client. Backup pods follow
 # api.storage.nodeName, the same pin as the API pod.
