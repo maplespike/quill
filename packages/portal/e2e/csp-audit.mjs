@@ -34,9 +34,21 @@ import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DIST = resolve(process.env.AUDIT_DIST || new URL("../../dist", import.meta.url).pathname);
-const HEADERS_FILE = resolve(process.env.AUDIT_HEADERS || new URL("../public/_headers", import.meta.url).pathname);
+// Both the built portal and the Pages header file live next to this script.
+// Resolving them from process.cwd() broke the moment the workflow ran the
+// audit from the repository root ("node packages/portal/e2e/csp-audit.mjs"):
+// it looked for <repo>/public/_headers and died with ENOENT. Resolve relative
+// to this file so the audit works from any working directory; the
+// AUDIT_DIST / AUDIT_HEADERS overrides still win.
+const DIST = process.env.AUDIT_DIST
+  ? resolve(process.env.AUDIT_DIST)
+  : resolve(fileURLToPath(new URL("../dist", import.meta.url)));
+// The Pages header file lives with the portal, next to this script.
+const HEADERS_FILE = process.env.AUDIT_HEADERS
+  ? resolve(process.env.AUDIT_HEADERS)
+  : resolve(fileURLToPath(new URL("../public/_headers", import.meta.url)));
 const PORT = Number(process.env.AUDIT_PORT || 8099);
 const MAX = Number(process.env.AUDIT_MAX || 0);
 
