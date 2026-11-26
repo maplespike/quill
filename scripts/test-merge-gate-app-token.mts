@@ -43,8 +43,8 @@ test('the merge gate reads same-repo metadata with the App token and still exclu
 
 test('reverting the pulls read to the ambient token fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
-    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+    'GH_TOKEN="$READ_TOKEN" "$GH" api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+    '"$GH" api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
   );
   assert.ok(codes(text).includes('metadata-app-token'));
 });
@@ -64,16 +64,16 @@ test('pointing READ_TOKEN at GITHUB_TOKEN fails the metadata read', () => {
 
 test('dropping the App token off the check-runs read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
-    'gh api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
+    'GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
+    '"$GH" api --paginate "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs',
   );
   assert.ok(codes(text).includes('metadata-app-token'));
 });
 
 test('dropping the App token off the statuses read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
-    'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
+    'GH_TOKEN="$READ_TOKEN" "$GH" api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
+    '"$GH" api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"',
   );
   assert.notEqual(text, workflow());
   assert.ok(codes(text).includes('metadata-app-token'));
@@ -81,8 +81,8 @@ test('dropping the App token off the statuses read fails', () => {
 
 test('dropping the App token off the follow-up status Link read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --include "$status_url"',
-    'gh api --include "$status_url"',
+    'GH_TOKEN="$READ_TOKEN" "$GH" api --include "$status_url"',
+    '"$GH" api --include "$status_url"',
   );
   assert.notEqual(text, workflow());
   assert.ok(codes(text).includes('metadata-app-token'));
@@ -90,16 +90,16 @@ test('dropping the App token off the follow-up status Link read fails', () => {
 
 test('dropping the App token off the workflow-run read fails', () => {
   const text = workflow().replace(
-    'GH_TOKEN="$READ_TOKEN" gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
-    'gh api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
+    'GH_TOKEN="$READ_TOKEN" "$GH" api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
+    '"$GH" api --paginate "repos/${GH_REPO}/actions/runs?head_sha=${HEAD_SHA}',
   );
   assert.ok(codes(text).includes('metadata-app-token'));
 });
 
 test('swallowing a pulls API error fails', () => {
   const text = workflow().replace(
-    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
-    'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}" || true',
+    '"$GH" api "repos/${GH_REPO}/pulls/${PR_NUMBER}"',
+    '"$GH" api "repos/${GH_REPO}/pulls/${PR_NUMBER}" || true',
   );
   assert.ok(codes(text).includes('metadata-app-token'));
 });

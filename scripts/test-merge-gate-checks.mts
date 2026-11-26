@@ -767,6 +767,7 @@ test('status Link pagination fetches every next page and fails closed', () => {
         encoding: 'utf8',
         env: {
           ...process.env,
+          GH: gh,
           PATH: `${bin}:${process.env.PATH ?? ''}`,
           GH_REPO: 'maplespike/quill',
           HEAD_SHA: 'sha1',

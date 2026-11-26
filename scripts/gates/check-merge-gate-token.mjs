@@ -29,7 +29,7 @@ const EVENT_MISMATCH_IF = /if\s+\[\[\s+-n\s+"\$\{EVENT_HEAD_REPO:-}"\s+&&\s+"\$E
 const UNKNOWN_MERGEABLE_IF = /if\s+\[\[\s+"\$MERGEABLE"\s+==\s+"UNKNOWN"\s+\]\]/;
 const HOLD_IF = /if\s+\[\[\s+"\$\(jq -r 'any\(\.labels\[\]; \.name == "hold"\)'/;
 const READY_IF = /if\s+\[\[\s+"\$\(jq -r 'any\(\.labels\[\]; \.name == "ready-to-merge"\)'/;
-const PULLS_READ = 'gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}"';
+const PULLS_READ_RE = /(?:gh|"\$GH") api "repos\/\$\{GH_REPO\}\/pulls\/\$\{PR_NUMBER\}"/;
 
 function foldedBlock(text, key) {
   const re = new RegExp(`^ {4}${key}:\\s*>-\\n((?: {6}.*\\n)*)`, 'm');
@@ -79,7 +79,7 @@ function ifBodyExits(code, regex, status) {
 }
 
 function ghIndex(code, command) {
-  const match = new RegExp(`\\bgh\\s+${command}\\b`).exec(code);
+  const match = new RegExp(`(?:\\bgh|"?\\$GH"?)\\s+${command}\\b`).exec(code);
   return match ? match.index : -1;
 }
 
@@ -132,7 +132,7 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
     }
   }
 
-  if (/uses:\s*actions\/checkout\b/.test(text) || /\bgh\s+pr\s+checkout\b/.test(text)) {
+  if (/uses:\s*actions\/checkout\b/.test(text) || /(?:\bgh|"?\$GH"?)\s+pr\s+checkout\b/.test(text)) {
     fail('fork-checkout', 'merge-when-green checks out or runs pull-request head code');
   }
 
@@ -142,7 +142,8 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
     return violations;
   }
   const code = stripBashComments(script);
-  const pullsAt = code.indexOf(PULLS_READ);
+  const pullsMatch = PULLS_READ_RE.exec(code);
+  const pullsAt = pullsMatch ? pullsMatch.index : -1;
   const mergeAt = ghIndex(code, 'pr merge');
   if (pullsAt < 0) {
     fail('metadata-app-token', 'REST pulls read for head.repo is missing');
@@ -154,7 +155,7 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   if (!commandUsesAppToken(code, pullsAt)) {
     fail('metadata-app-token', 'REST pulls read does not use the fleet-merge-gate App token');
   }
-  if (code.includes('headRepository') || code.includes('gh pr view')) {
+  if (code.includes('headRepository') || /(?:\bgh|"?\$GH"?)\s+pr\s+view\b/.test(code)) {
     fail('graphql-head', 'head repository must be read from REST head.repo, not GraphQL headRepository');
   }
   if (!code.includes('.head.repo')) {
@@ -162,8 +163,8 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   }
 
   const checksAt = code.indexOf('/check-runs');
-  const statusesAt = code.indexOf('gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"');
-  const statusFollowAt = code.indexOf('gh api --include "$status_url"');
+  const statusesAt = code.search(/(?:gh|"\$GH") api --include "repos\/\$\{GH_REPO\}\/commits\/\$\{HEAD_SHA\}\/statuses\?per_page=100"/);
+  const statusFollowAt = code.search(/(?:gh|"\$GH") api --include "\$status_url"/);
   const runsAt = code.indexOf('actions/runs?head_sha=');
   if (checksAt < 0 || !commandUsesAppToken(code, checksAt)) {
     fail('metadata-app-token', 'check-runs read does not use the fleet-merge-gate App token');
@@ -177,11 +178,17 @@ export function auditMergeGate(text, file = 'merge-when-green.yml') {
   if (runsAt < 0 || !commandUsesAppToken(code, runsAt)) {
     fail('metadata-app-token', 'workflow run read does not use the fleet-merge-gate App token');
   }
-  for (const needle of [PULLS_READ, '/check-runs', 'gh api --include "repos/${GH_REPO}/commits/${HEAD_SHA}/statuses?per_page=100"', 'gh api --include "$status_url"', 'actions/runs?head_sha=']) {
-    const at = code.indexOf(needle);
+  for (const [label, needle] of [
+    ['pulls read', PULLS_READ_RE],
+    ['/check-runs', '/check-runs'],
+    ['statuses read', /(?:gh|"\$GH") api --include "repos\/\$\{GH_REPO\}\/commits\/\$\{HEAD_SHA\}\/statuses\?per_page=100"/],
+    ['follow-up status Link read', /(?:gh|"\$GH") api --include "\$status_url"/],
+    ['actions/runs?head_sha=', 'actions/runs?head_sha='],
+  ]) {
+    const at = typeof needle === 'string' ? code.indexOf(needle) : code.search(needle);
     const line = code.slice(at, code.indexOf('\n', at) === -1 ? code.length : code.indexOf('\n', at));
     if (at >= 0 && line.includes('|| true')) {
-      fail('metadata-app-token', `${needle} read swallows API errors`);
+      fail('metadata-app-token', `${label} read swallows API errors`);
     }
   }
 

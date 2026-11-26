@@ -17,6 +17,8 @@
   headRefOid: (.head.sha // ""),
   labels: (if (.labels | type) == "array" then .labels else [] end),
   author: { login: (.user.login // "") },
-  body: (.body // "")
+  title: (.title // ""),
+  body: (.body // ""),
+  commits: (if (.commits | type) == "array" then .commits else [] end)
 }
 # END normalize-pull.jq
