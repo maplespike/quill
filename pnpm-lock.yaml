@@ -440,8 +440,8 @@ importers:
         specifier: ^1.76.4
         version: 1.78.1(@oxc-project/types@0.156.0)(esbuild@0.28.1)(lightningcss@1.33.0)(rolldown@1.2.19)(rollup@4.60.1)(tailwindcss@4.3.3)(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))(zod@4.6.7)
       '@simplewebauthn/browser':
-        specifier: ^13.3.0
-        version: 13.3.0
+        specifier: ^14.0.0
+        version: 14.0.0
       '@stripe/react-stripe-js':
         specifier: ^7.1.0
         version: 7.1.0(@stripe/stripe-js@9.17.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -3066,8 +3066,8 @@ packages:
       viem:
         optional: true
 
-  '@simplewebauthn/browser@13.3.0':
-    resolution: {integrity: sha512-BE/UWv6FOToAdVk0EokzkqQQDOWtNydYlY6+OrmiZ5SCNmb41VehttboTetUM3T/fr6EAFYVXjz4My2wg230rQ==}
+  '@simplewebauthn/browser@14.0.0':
+    resolution: {integrity: sha512-1odWVqeEBTl7lJ9zMKLEsmTlnyrDO5iRcTvfMKKk1WThUnp/i8JJdffdj2icP+tty159s4PgwE3BiMoEW9NFow==}
 
   '@simplewebauthn/server@13.3.3':
     resolution: {integrity: sha512-LelX/lcy5cjc15A86i/aNxHhB5eU7dd20QsbP0VLAf9e38+SLlsnqCCyecx3xqfGofhmX05h1J9fKRYWxw+luA==}
@@ -10457,7 +10457,7 @@ snapshots:
     optionalDependencies:
       viem: 2.57.19(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)(zod@4.6.7)
 
-  '@simplewebauthn/browser@13.3.0': {}
+  '@simplewebauthn/browser@14.0.0': {}
 
   '@simplewebauthn/server@13.3.3':
     dependencies:
