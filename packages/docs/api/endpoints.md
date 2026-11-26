@@ -87,7 +87,7 @@ http://localhost:8082/v1/
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/v1/billing/plans` | No | List all billing plans |
-| POST | `/v1/billing/checkout` | Yes | Create a checkout session |
+| POST | `/v1/billing/stripe/checkout` | Yes | Create a Stripe Checkout session (`{ "plan_id": "pro" \| "business" }`) |
 
 ### Authentication
 

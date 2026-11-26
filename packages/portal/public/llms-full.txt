@@ -1,7 +1,7 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-10-16
+> Auto-generated: 2026-11-25
 > Software and source-data terms vary by package, dataset, and publisher. Consult repository license notices and original source terms.
 > API Base URL: https://api.maplespike.ca/v1
 > HTML API reference: https://quill.maplespike.ca/api-reference
@@ -72,8 +72,8 @@ Refresh JWT token
 #### POST /v1/auth/logout
 Clear session
 
-#### POST /v1/billing/checkout
-Create checkout session
+#### POST /v1/billing/stripe/checkout
+Create a Stripe Checkout session (body: { plan_id: "pro" | "business" })
 
 #### GET /v1/billing/plans
 Available pricing plans
@@ -105,7 +105,16 @@ Get cached browser extraction results
 #### GET /v1/data/quality
 Module health, freshness, and error tracking
 
-## MCP Tools (184 total)
+## Plans
+Prices in CAD, billed monthly through Stripe. Live data: GET /v1/billing/plans
+- Community — free, self-hosted (you run the infrastructure)
+- Free — $0 — 1,000 API credits/month, no credit card
+- Pro — $50 CAD/month — 50,000 API credits/month
+- Business — $200 CAD/month — 250,000 API credits/month
+- Enterprise — custom pricing (contact sales)
+There is no free trial on paid plans.
+
+## MCP Tools (186 total)
 
 The MCP server exposes the following tools:
 
@@ -154,6 +163,8 @@ The MCP server exposes the following tools:
 - `search_bank_of_canada`
 - `datastore_query`
 - `discover_tools`
+- `getting_started`
+- `check_tier`
 - `search_weather`
 - `search_nutrient_file`
 - `search_valet_api`

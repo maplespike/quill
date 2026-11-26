@@ -70,7 +70,9 @@ const tiers: {
     badgeVariant: "outline",
     features: [
       callsFeature(freePlan),
-      modulesToolsBi(),
+      // Backend Free plan (routes/billing.ts): public data modules + basic MCP
+      // tools only; the full catalog is Pro and up (see FAQ below).
+      { en: "Public data modules + basic MCP tools", fr: "Modules de données publics + outils MCP de base" },
       { en: "Works with any AI chatbot (Claude, ChatGPT, Gemini, etc.)", fr: "Fonctionne avec tout chatbot IA (Claude, ChatGPT, Gemini, etc.)" },
       { en: "7-day historical data window", fr: "Fenêtre de données historiques de 7 jours" },
       { en: "REST API access (rate-limited)", fr: "Accès à l'API REST (limité)" },
@@ -94,6 +96,7 @@ const tiers: {
     badgeVariant: "default",
     features: [
       callsFeature(proPlan),
+      modulesToolsBi(),
       { en: "Real-time signal detection via engine", fr: "Détection de signaux en temps réel via le moteur" },
       { en: "Full historical data access (all years)", fr: "Accès complet aux données historiques (toutes années)" },
       { en: "MCP server integration for AI agents", fr: "Intégration du serveur MCP pour les agents IA" },
@@ -145,7 +148,7 @@ const allFeatures: Bi[] = [
   { en: "Record-integrity metadata", fr: "Métadonnées d'intégrité des enregistrements" },
 ];
 const featureValues: Record<string, Bi[]> = {
-  "Data modules": [{ en: `${statsData.modules} modules`, fr: `${statsData.modules} modules` }, { en: `${statsData.modules} modules`, fr: `${statsData.modules} modules` }, { en: `${statsData.modules} + custom`, fr: `${statsData.modules} + sur mesure` }],
+  "Data modules": [{ en: "Public modules", fr: "Modules publics" }, { en: `${statsData.modules} modules`, fr: `${statsData.modules} modules` }, { en: `${statsData.modules} + custom`, fr: `${statsData.modules} + sur mesure` }],
   "API calls": [
     { en: `${fmtInt(freePlan.credits_per_month, false)}/mo`, fr: `${fmtInt(freePlan.credits_per_month, true)}/mois` },
     { en: `${fmtInt(proPlan.credits_per_month, false)}/mo`, fr: `${fmtInt(proPlan.credits_per_month, true)}/mois` },
@@ -392,8 +395,8 @@ const featureValues: Record<string, Bi[]> = {
           <h3 class="mb-2 font-semibold">{t("Is there a free trial for Pro?", "Y a-t-il un essai gratuit pour Pro?")}</h3>
           <p class="text-sm text-muted-foreground">
             {t(
-              "Absolutely. 14-day free trial with full Pro access. No credit card required.",
-              "Absolument. Essai gratuit de 14 jours avec accès Pro complet. Sans carte de crédit.",
+              `No. Paid plans don't include a trial, but the Free plan gives you ${fmtInt(freePlan.credits_per_month, false)} API calls per month with no credit card, so you can try Quill before upgrading.`,
+              `Non. Les forfaits payants n'incluent pas d'essai, mais le forfait Gratuit offre ${fmtInt(freePlan.credits_per_month, true)} appels API par mois sans carte de crédit, pour essayer Quill avant de passer à un forfait supérieur.`,
             )}
           </p>
         </div>

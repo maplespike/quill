@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Generate llms.txt and llms-full.txt from built Quill catalogs. */
 
-import { writeFileSync, existsSync } from 'fs';
+import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { buildTimestamp } from './lib/build-timestamp.mjs';
@@ -71,7 +71,7 @@ const endpoints = [
   { method: 'POST', path: '/v1/ai/analyze', desc: 'Analyze text for bias, sentiment, or claims' },
   { method: 'POST', path: '/v1/auth/refresh', desc: 'Refresh JWT token' },
   { method: 'POST', path: '/v1/auth/logout', desc: 'Clear session' },
-  { method: 'POST', path: '/v1/billing/checkout', desc: 'Create checkout session' },
+  { method: 'POST', path: '/v1/billing/stripe/checkout', desc: 'Create a Stripe Checkout session (body: { plan_id: "pro" | "business" })' },
   { method: 'GET', path: '/v1/billing/plans', desc: 'Available pricing plans' },
   { method: 'GET', path: '/v1/keys', desc: 'List API keys' },
   { method: 'POST', path: '/v1/keys', desc: 'Create API key' },
@@ -108,6 +108,26 @@ const categories = [
   { id: 'extraction', desc: 'Some browser-extracted data from portals without APIs' },
 ];
 
+// Plan copy comes from src/data/plans.json (generated from /v1/billing/plans by
+// generate-plans.mjs) so llms.txt can't drift from the backend catalog.
+const plansData = JSON.parse(readFileSync(resolve(PORTAL_DIR, 'src/data/plans.json'), 'utf8'));
+const planById = new Map(plansData.plans.map(plan => [plan.plan_id, plan]));
+const fmtInt = n => Number(n).toLocaleString('en-CA');
+function plansSection(heading) {
+  const free = planById.get('free');
+  const pro = planById.get('pro');
+  const business = planById.get('business');
+  let out = `${heading} Plans\n`;
+  out += 'Prices in CAD, billed monthly through Stripe. Live data: GET /v1/billing/plans\n';
+  out += '- Community — free, self-hosted (you run the infrastructure)\n';
+  if (free) out += `- Free — $0 — ${fmtInt(free.credits_per_month)} API credits/month, no credit card\n`;
+  if (pro) out += `- Pro — $${pro.price_cents / 100} CAD/month — ${fmtInt(pro.credits_per_month)} API credits/month\n`;
+  if (business) out += `- Business — $${business.price_cents / 100} CAD/month — ${fmtInt(business.credits_per_month)} API credits/month\n`;
+  out += '- Enterprise — custom pricing (contact sales)\n';
+  out += 'There is no free trial on paid plans.\n';
+  return out;
+}
+
 function buildLlmsTxt() {
   let out = '# MapleSpike — Canadian Public-Sector Data API\n';
   out += '> Coverage, response fields, and publisher terms vary by endpoint and source.\n\n';
@@ -123,6 +143,7 @@ function buildLlmsTxt() {
   out += 'Repository licence inventory: https://github.com/maplespike/quill/blob/main/DATA-LICENSES.md\n\n';
   out += '### Endpoints\n';
   for (const endpoint of endpoints) out += `- ${endpoint.method} ${endpoint.path} — ${endpoint.desc}\n`;
+  out += `\n${plansSection('###')}`;
   out += '\n### Data Categories\n';
   for (const category of categories) out += `- ${category.id} — ${category.desc}\n`;
   if (tools.length) out += `\n## MCP Tools (${tools.length} tools)\nTool names: ${tools.join(', ')}\n`;
@@ -145,6 +166,7 @@ function buildLlmsFull() {
   out += 'Responses use a common envelope; payload and citation fields vary by endpoint and source.\n\n';
   out += '### Endpoints\n\n';
   for (const endpoint of endpoints) out += `#### ${endpoint.method} ${endpoint.path}\n${endpoint.desc}\n\n`;
+  out += `${plansSection('##')}\n`;
   if (tools.length) {
     out += `## MCP Tools (${tools.length} total)\n\nThe MCP server exposes the following tools:\n\n`;
     for (const tool of tools) out += `- \`${tool}\`\n`;
