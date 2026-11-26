@@ -75,7 +75,7 @@ Verified 2026-08-11 — these are **not** gaps, do not re-file:
 | D4: building-on-quill guide | 🟢 `docs/building-on-quill.md` with worked composition example |
 | D5: reliability/sovereign ops | 🟢 Registry systemd-managed, seed-neighbors timer reboot-validated, PVC-backed `/data`, canonical `nix build .#saas-manifests`, VAP + PSA hardening |
 | D5: informal SLA | 🟢 `/v1/status` (99% best-effort, freshness windows, endpoint map, claim-store count) |
-| D6: influence/parliament depth | 🟢 182 MCP tools / 0 dupes, `get_politician_influence`, `track_bill`, `signal_check` |
+| D6: influence/parliament depth | 🟢 186 MCP tools / 0 dupes, `get_politician_influence`, `track_bill`, `signal_check` |
 | Near-term: go-live reliability | 🟢 Live sweep 200s across quill/api/mcp; claims 7/7 post-rollout |
 
 ## Priority order (suggested execution)

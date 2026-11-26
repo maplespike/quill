@@ -35,6 +35,13 @@ class HealthMonitor {
   private events: Map<string, IngestionEvent[]> = new Map();
   private upstreamCache: Map<string, { healthy: boolean; checkedAt: string }> = new Map();
   private static readonly MAX_EVENTS_PER_MODULE = 100;
+  // 208 of 209 modules declare a healthCheckUrl. Probing them serially at the
+  // old 5s per-probe timeout meant up to ~17 minutes for one summary, so the
+  // MCP tool always hit its 55s handler timeout. Probe in bounded parallel
+  // batches with a tighter per-probe budget and a short cache instead.
+  private static readonly UPSTREAM_PROBE_CONCURRENCY = 16;
+  private static readonly UPSTREAM_PROBE_TIMEOUT_MS = 2000;
+  private static readonly UPSTREAM_CACHE_TTL_MS = 60_000;
 
   constructor(config: Partial<HealthMonitorConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -119,7 +126,10 @@ class HealthMonitor {
   async getModuleHealthWithUpstream(moduleName: string): Promise<ModuleHealthRecord> {
     const mod = getAllModules().find(m => m.name === moduleName);
     if (mod) {
-      const healthy = await healthCheckModule(mod);
+      const healthy = await healthCheckModule(
+        mod,
+        HealthMonitor.UPSTREAM_PROBE_TIMEOUT_MS,
+      );
       this.upstreamCache.set(moduleName, {
         healthy,
         checkedAt: new Date().toISOString(),
@@ -128,25 +138,53 @@ class HealthMonitor {
     return this.getModuleHealth(moduleName);
   }
 
-  async getSystemHealth(): Promise<SystemHealthSummary> {
-    const modules = getAllModules();
-    const records: ModuleHealthRecord[] = [];
+  /**
+   * Probe every module's upstream in bounded parallel batches, skipping
+   * modules checked within UPSTREAM_CACHE_TTL_MS. Serial probing is what used
+   * to blow past the MCP tool handler timeout.
+   */
+  private async refreshUpstreamHealth(modules: ModuleInfo[]): Promise<void> {
+    const now = Date.now();
+    const stale = modules.filter(mod => {
+      if (!mod.healthCheckUrl) return false;
+      const cached = this.upstreamCache.get(mod.name);
+      if (!cached) return true;
+      return now - new Date(cached.checkedAt).getTime() >= HealthMonitor.UPSTREAM_CACHE_TTL_MS;
+    });
 
-    for (const mod of modules) {
-      let healthy = true;
-      if (mod.healthCheckUrl) {
+    let next = 0;
+    const worker = async (): Promise<void> => {
+      while (next < stale.length) {
+        const mod = stale[next++];
         try {
-          healthy = await healthCheckModule(mod);
+          const healthy = await healthCheckModule(
+            mod,
+            HealthMonitor.UPSTREAM_PROBE_TIMEOUT_MS,
+          );
+          this.upstreamCache.set(mod.name, {
+            healthy,
+            checkedAt: new Date().toISOString(),
+          });
         } catch {
-          healthy = false;
+          this.upstreamCache.set(mod.name, {
+            healthy: false,
+            checkedAt: new Date().toISOString(),
+          });
         }
       }
-      this.upstreamCache.set(mod.name, {
-        healthy,
-        checkedAt: new Date().toISOString(),
-      });
-      records.push(this.getModuleHealth(mod.name));
-    }
+    };
+
+    const workers = Math.min(HealthMonitor.UPSTREAM_PROBE_CONCURRENCY, stale.length);
+    await Promise.all(Array.from({ length: workers }, () => worker()));
+  }
+
+  async getSystemHealth(): Promise<SystemHealthSummary> {
+    const modules = getAllModules();
+
+    await this.refreshUpstreamHealth(modules);
+    const records: ModuleHealthRecord[] = modules.map(mod =>
+      this.getModuleHealth(mod.name),
+    );
 
     const healthy = records.filter(r => r.status === 'healthy').length;
     const degraded = records.filter(r => r.status === 'degraded').length;

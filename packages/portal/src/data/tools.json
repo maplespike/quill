@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-10-16T19:56:26.000Z",
+    "generatedAt": "2026-11-24T01:02:39.000Z",
     "sources": [
       "quill-mcp getAllTools() (authoritative)",
       "tools-base.json (categories)",
@@ -366,6 +366,22 @@
       "desc": {
         "en": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits.",
         "fr": "Search all available Quill MCP tools by intent or topic. Returns ranked tool names and descriptions so you know which tool to call next. Use this FIRST when unsure which tool fits."
+      }
+    },
+    {
+      "cat": "General",
+      "name": "getting_started",
+      "desc": {
+        "en": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where to begin.",
+        "fr": "New to Quill? Start here. Returns a quick-start guide with example queries, recommended first tools, and tips for getting the most out of Canadian government data. Call this when you are unsure where to begin."
+      }
+    },
+    {
+      "cat": "General",
+      "name": "check_tier",
+      "desc": {
+        "en": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what you can access before calling Pro-gated tools.",
+        "fr": "Check your current API tier and available features. Returns your tier (free/pro/business/enterprise), daily and monthly usage limits, and which tools require a paid plan. Use this to understand what you can access before calling Pro-gated tools."
       }
     },
     {
