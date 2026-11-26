@@ -47,8 +47,9 @@ spec:
       securityContext:
         runAsNonRoot: true
         fsGroup: 1001
-      {{- if .Values.search.migrateLegacyIndex }}
+      {{- if or .Values.search.migrateLegacyIndex .Values.search.bootstrapEmptyIndex }}
       initContainers:
+      {{- if .Values.search.migrateLegacyIndex }}
       - name: migrate-legacy-index
         # Same reference as the Redis Deployment (redis.image). Production
         # sets public.ecr.aws/docker/library/redis:8.2.3-alpine, which is
@@ -80,6 +81,50 @@ spec:
         - name: scripts
           mountPath: /scripts
           readOnly: true
+      {{- end }}
+      {{- if .Values.search.bootstrapEmptyIndex }}
+      # 2026-11-13: a freshly provisioned index claim mounts EMPTY, and
+      # `quill-search serve` opens the tantivy directory before it binds the
+      # listener, so it exits 1 with "cannot open index at `/data/index`".
+      # quill-staging crash-looped 252 times on exactly that. Build a valid,
+      # empty index once when no index is present; the next ingest run rebuilds
+      # it with real documents. Guarded on meta.json, so restarts never
+      # overwrite a populated index.
+      - name: bootstrap-empty-index
+        image: {{ include "quill.image" (dict "svc" "search" "ctx" $) | quote }}
+        imagePullPolicy: {{ include "quill.pullPolicy" (dict "svc" "search" "ctx" $) }}
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            set -eu
+            if [ -f /data/index/meta.json ]; then
+              echo "index already present; skipping bootstrap"
+              exit 0
+            fi
+            tmp="$(mktemp -d)"
+            # `index` rejects an EMPTY corpus ("contains no documents"), so
+            # write one placeholder document rather than an empty file. It is
+            # replaced by the first real corpus build.
+            printf '%s\n' '{"id":"quill:search:bootstrap","kind":"system","title":"Search index bootstrap","text":"Placeholder written because the index claim mounted empty. Replaced by the next corpus build.","url":"","source":"quill-search","published":"","updated":"","meta":{}}' > "$tmp/bootstrap.jsonl"
+            quill-search index --corpus "$tmp/bootstrap.jsonl" --out /data/index
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: index
+          mountPath: /data
+      {{- end }}
       {{- end }}
       containers:
       - name: search

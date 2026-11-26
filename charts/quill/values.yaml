@@ -269,6 +269,11 @@ secrets:
 search:
   replicas: 0
   migrateLegacyIndex: false
+  # A fresh Longhorn index claim mounts empty, and `serve` opens the tantivy
+  # directory before it binds the listener, so it exits 1 instead of starting.
+  # When true, an init container builds a valid empty index once (guarded on
+  # meta.json) so the pod can start before the first ingest run.
+  bootstrapEmptyIndex: false
   resources:
     requests:
       cpu: 50m
