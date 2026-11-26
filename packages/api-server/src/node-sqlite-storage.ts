@@ -20,7 +20,11 @@ export class NodeSqliteStorage implements QuillStorage {
 
   constructor(dbPath?: string) {
     const path = dbPath || process.env.QUILL_DB_PATH || './quill.db';
-    this.db = new DatabaseSync(path);
+    // timeout is the connection busy_timeout. The municipal cache opens a
+    // second connection on this same file; the default of 0 throws
+    // SQLITE_BUSY the instant the other connection holds the write lock.
+    this.db = new DatabaseSync(path, { timeout: 5_000 });
+    this.db.exec('PRAGMA busy_timeout = 5000');
     this.db.exec('PRAGMA journal_mode = WAL');
     this.db.exec('PRAGMA foreign_keys = ON');
     this.migrate();
