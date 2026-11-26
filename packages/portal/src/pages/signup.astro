@@ -211,6 +211,15 @@ const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi
         <!-- Right: Signup form -->
         <div id="signup-form">
           <SignupForm client:load />
+          <p class="mt-4 text-xs text-muted-foreground">
+            {t(
+              "Passkeys are stored on the device that creates them. Already have an account? Sign in with GitHub or your wallet to use it on a new device — ",
+              "Les clés d'accès sont stockées sur l'appareil qui les crée. Vous avez déjà un compte? Connectez-vous avec GitHub ou votre portefeuille pour l'utiliser sur un nouvel appareil — "
+            )}
+            <a href="/docs/guide/identity-model.html" class="text-primary underline underline-offset-2 hover:no-underline">
+              {t("how identity works", "comment fonctionne l'identité")}
+            </a>.
+          </p>
         </div>
       </div>
     </div>

@@ -178,4 +178,47 @@ describe('SignupForm', () => {
     expect(screen.getByText(/\/v1\/llms\.txt/)).toBeInTheDocument()
     expect(localStorageMock.setItem).toHaveBeenCalledWith('quill-api-key', key)
   })
+
+  test('fresh-device passkey sign-in points at the second-key path (#892)', async () => {
+    // No providers, no stored auth state → this is a fresh device for the user.
+    fetchMock.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
+    const user = userEvent.setup()
+
+    render(<SignupForm />)
+
+    await waitFor(() => {
+      return !screen.queryByText(/loading sign-in options/i)
+    })
+
+    await user.click(screen.getByRole('button', { name: /sign in with passkey/i }))
+
+    // The copy must explain passkeys are device-bound and offer GitHub/wallet
+    // as the way back onto an existing account. Reverting the copy fails here.
+    expect(await screen.findByText(/passkeys are stored on the device/i)).toBeInTheDocument()
+    expect(screen.getByText(/sign in with GitHub or a wallet/i)).toBeInTheDocument()
+    expect(screen.getByText(/creating a passkey instead starts a new account/i)).toBeInTheDocument()
+
+    // A link to the identity-model docs page must be present.
+    const docLink = screen.getByRole('link', { name: /account identity and device linking/i })
+    expect(docLink).toHaveAttribute('href', '/docs/guide/identity-model.html')
+  })
+
+  test('fresh-device passkey sign-in shows the French no-passkey error', async () => {
+    const prev = (window as any).__LANG
+    ;(window as any).__LANG = 'fr'
+    try {
+      fetchMock.mockResolvedValueOnce({ json: async () => ({ data: { providers: [] } }) })
+      const user = userEvent.setup()
+      render(<SignupForm />)
+      await waitFor(() => {
+        return !screen.queryByText(/loading sign-in options/i)
+      })
+      await user.click(screen.getByRole('button', { name: /sign in with passkey/i }))
+      expect(await screen.findByText(/Aucune clé d'accès n'a été trouvée sur cet appareil/i)).toBeInTheDocument()
+      expect(screen.getByText(/connectez-vous avec GitHub ou un portefeuille/i)).toBeInTheDocument()
+      expect(screen.getByText(/en créer une nouvelle commence plutôt un nouveau compte/i)).toBeInTheDocument()
+    } finally {
+      (window as any).__LANG = prev
+    }
+  })
 })

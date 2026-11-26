@@ -95,6 +95,7 @@ export default function SignupForm() {
   const [authState, setAuth] = useState<AuthState>({ token: null, userId: null, method: null });
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showIdentityHelp, setShowIdentityHelp] = useState(false);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
   const [hasSolanaWallet, setHasSolanaWallet] = useState(false);
@@ -212,12 +213,24 @@ export default function SignupForm() {
   async function handlePasskeyLogin() {
     setBusy("passkey-login");
     setError(null);
+    setShowIdentityHelp(false);
     // login/begin REQUIRES a userId (api-server validateBody marks it
     // required) and the UI never collects one — for a fresh visitor there is
     // no credential to assert. Fail with a clear instruction instead of a
-    // server error, and point them at registration (which auto-logs-in).
+    // server error. Passkeys are device-bound, so the instruction names the
+    // second-key path (GitHub / wallet) rather than only "create another
+    // passkey", which would silently fork the account (see #892).
     if (!authState.userId) {
-      setError("No passkey account found on this device. Create a passkey first to get your API key.");
+      const lang =
+        (typeof window !== "undefined" ? (window as any).__LANG : "en") === "fr"
+          ? "fr"
+          : "en";
+      setError(
+        lang === "fr"
+          ? "Aucune clé d'accès n'a été trouvée sur cet appareil. Les clés d'accès sont stockées sur l'appareil qui les a créées. Si vous avez déjà un compte, connectez-vous avec GitHub ou un portefeuille pour l'utiliser ici — en créer une nouvelle commence plutôt un nouveau compte."
+          : "No passkey found on this device. Passkeys are stored on the device that created them. If you already have an account, sign in with GitHub or a wallet to use it here — creating a passkey instead starts a new account."
+      );
+      setShowIdentityHelp(true);
       setBusy(null);
       return;
     }
@@ -473,6 +486,14 @@ export default function SignupForm() {
         {error && (
           <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
+            {showIdentityHelp && (
+              <a
+                href="/docs/guide/identity-model.html"
+                className="mt-2 block font-medium text-primary underline underline-offset-2 hover:no-underline"
+              >
+                Learn how account identity and device linking work
+              </a>
+            )}
           </div>
         )}
 
