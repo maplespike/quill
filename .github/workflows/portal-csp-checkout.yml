@@ -37,6 +37,10 @@ concurrency:
 
 permissions:
   contents: read
+  # actions/cache needs this to save the Playwright browser cache. Restore
+  # works with read, but a missing write permission would make every ARC run
+  # re-download Chromium (~190 MiB) and still look like a cache miss.
+  actions: write
 
 jobs:
   csp-and-checkout:
@@ -80,19 +84,69 @@ jobs:
         run: pnpm build
 
       - name: The portal output exists
+        # Fail here, before the browser steps, with a message that names the
+        # missing file. Run 45550425692 built dist/index.html successfully, so
+        # a missing portal output is a separate failure mode from the Chrome
+        # channel bug this workflow also guards against.
         run: |
           set -euo pipefail
-          test -f packages/portal/dist/index.html || {
+          if [ ! -f packages/portal/dist/index.html ]; then
             echo "::error::pnpm build did not produce packages/portal/dist/index.html"
+            echo "Root pnpm build must write packages/portal/dist/index.html before the CSP and checkout e2e can run."
+            if [ -d packages/portal/dist ]; then
+              echo "packages/portal/dist exists; first entries:"
+              find packages/portal/dist -maxdepth 1 -printf '%M %u %s %p\n' | head -50
+            else
+              echo "packages/portal/dist does not exist at all."
+            fi
             exit 1
-          }
+          fi
+          echo "ok  packages/portal/dist/index.html is present"
 
       - name: Static CSP contract — three copies, one policy
         run: pnpm --filter ./packages/portal exec vitest run tests/server-csp.test.ts
 
+      # arc-tools points Playwright at /ms-playwright or a runner tool-cache
+      # path, which is not what actions/cache can restore. Override to the
+      # standard user cache so the next two steps share one tree.
+      - name: Use a cacheable Playwright browser path
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/ms-playwright"
+          echo "PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright" >> "$GITHUB_ENV"
+          echo "Playwright browsers: $HOME/.cache/ms-playwright"
+
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+
       - name: Chromium for the audit
-        if: runner.environment == 'github-hosted'
-        run: pnpm --filter ./packages/portal exec playwright install --with-deps chromium
+        # Install the repo-pinned Playwright Chromium (root devDependency,
+        # currently 1.64.x via pnpm-lock.yaml). --with-deps needs apt/sudo,
+        # which GitHub-hosted runners have and ARC may not; fall back to a
+        # browser-only install plus a launch check for OS libraries. No
+        # runner image change, no paid runners.
+        run: |
+          set -euo pipefail
+          if pnpm exec playwright install --with-deps chromium; then
+            echo "Installed Playwright Chromium with OS deps"
+          else
+            echo "::warning::playwright install --with-deps chromium failed (likely no sudo/apt on this runner). Falling back to a browser-only install."
+            pnpm exec playwright install chromium
+            node --input-type=module -e '
+              import { chromium } from "playwright";
+              const browser = await chromium.launch({ args: ["--no-sandbox"] });
+              await browser.close();
+              console.log("Bundled Chromium launched; OS libraries look present.");
+            ' || {
+              echo "::error::Bundled Chromium failed to launch after a browser-only install. OS libraries are probably missing, and this job cannot apt-install them on this runner."
+              exit 1
+            }
+          fi
 
       - name: Every route under the policy it ships with
         # Serves dist/ with the real Content-Security-Policy from public/_headers

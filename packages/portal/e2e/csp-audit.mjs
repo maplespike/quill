@@ -34,9 +34,17 @@ import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DIST = resolve(process.env.AUDIT_DIST || new URL("../../dist", import.meta.url).pathname);
-const HEADERS_FILE = resolve(process.env.AUDIT_HEADERS || new URL("../public/_headers", import.meta.url).pathname);
+// pnpm build writes packages/portal/dist. This file lives in packages/portal/e2e/,
+// so the default is ../dist. #1415 used ../../dist, which resolved to
+// packages/dist and made csp-and-checkout fail after a successful build.
+const DIST = process.env.AUDIT_DIST
+  ? resolve(process.env.AUDIT_DIST)
+  : resolve(fileURLToPath(new URL("../dist", import.meta.url)));
+const HEADERS_FILE = process.env.AUDIT_HEADERS
+  ? resolve(process.env.AUDIT_HEADERS)
+  : resolve(fileURLToPath(new URL("../public/_headers", import.meta.url)));
 const PORT = Number(process.env.AUDIT_PORT || 8099);
 const MAX = Number(process.env.AUDIT_MAX || 0);
 
@@ -162,10 +170,11 @@ const routes = REMOTE && !existsSync(DIST) ? await routesFromRemote() : routesFr
 if (!REMOTE) console.log(`policy: ${policy}\n`);
 
 const server = REMOTE ? null : await serveWithPolicy(policy);
+// Bundled Chromium, same as checkout-embedded.mjs. Do not use the `chrome`
+// channel: ARC runners have no Google Chrome at /opt/google/chrome.
+const EXEC = (process.env.E2E_EXECUTABLE_PATH || "").trim();
 const browser = await chromium.launch(
-  existsSync("/usr/bin/chromium")
-    ? { executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] }
-    : { channel: process.env.E2E_BROWSER_CHANNEL || "chrome", args: ["--no-sandbox"] },
+  EXEC ? { executablePath: EXEC, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
 );
 
 const problems = [];
