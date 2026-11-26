@@ -179,7 +179,12 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
 
   // `embedded: true` asks for Stripe Embedded Checkout (the portal mounts the
   // form in-page and receives client_secret) instead of the hosted redirect.
-  let body: { plan_id?: string; customer_id?: string; embedded?: boolean } = {};
+  // SECURITY: the request body deliberately has NO customer field. The Stripe
+  // customer is always resolved from the authenticated tenant (DB binding, or
+  // a freshly created customer tagged with this tenant's id). Accepting a
+  // caller-supplied `customer_id` let tenant A bind tenant B's cus_... and then
+  // open B's Customer Portal (IDOR). Any such field is ignored.
+  let body: { plan_id?: string; embedded?: boolean } & Record<string, unknown> = {};
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -204,8 +209,12 @@ export const stripeCheckoutHandler: RouteHandler = async (request, ctx) => {
   const expiresAt = nowUnix + 30 * 60; // 30 min to complete checkout
 
   try {
+    if ('customer_id' in body || 'customer' in body) {
+      webhookLog.warn({ tenantId }, 'checkout: ignoring client-supplied customer id (resolved from tenant)');
+    }
     // Reuse the tenant's existing Stripe customer if one is bound (DB-sourced).
-    let customerId = body.customer_id || (await getCustomerIdForTenant(tenantId, ctx.db));
+    // Never taken from the request — see the SECURITY note above.
+    let customerId = await getCustomerIdForTenant(tenantId, ctx.db);
     if (!customerId) {
       const customer = await stripe.findOrCreateCustomer({ tenantId });
       customerId = customer.id;

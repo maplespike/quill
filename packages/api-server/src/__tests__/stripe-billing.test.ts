@@ -908,6 +908,177 @@ describe('stripePortalHandler', () => {
 });
 
 // ──────────────────────────────────────────────────────────────────
+// 7b. SECURITY (IDOR): a tenant can never bind or open another tenant's
+//     Stripe customer. The customer is resolved from the authenticated
+//     tenant only; a client-supplied customer_id is ignored.
+// ──────────────────────────────────────────────────────────────────
+
+describe('checkout/portal tenant isolation (customer_id IDOR)', () => {
+  type Captured = { url: string; body: URLSearchParams };
+
+  function captureFetch(captured: Captured[]) {
+    return (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const body = new URLSearchParams(typeof init?.body === 'string' ? init.body : '');
+      captured.push({ url, body });
+      const json = (o: unknown) =>
+        new Response(JSON.stringify(o), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      if (url.endsWith('/customers')) {
+        return json({ id: 'cus_test_FAKE_tenant_a_fresh', object: 'customer', metadata: {} });
+      }
+      if (url.endsWith('/checkout/sessions')) {
+        return json({
+          id: `cs_test_FAKE_idor_${captured.length}_${Date.now()}`,
+          object: 'checkout.session',
+          url: 'https://checkout.stripe.com/c/pay/cs_test_FAKE',
+          customer: body.get('customer'),
+          status: 'open',
+          expires_at: Math.floor(Date.now() / 1000) + 1800,
+          metadata: {},
+        });
+      }
+      if (url.endsWith('/billing_portal/sessions')) {
+        return json({ id: 'bps_test_FAKE', url: 'https://billing.stripe.com/p/session/test_FAKE' });
+      }
+      return new Response('{}', { status: 404 });
+    }) as typeof fetch;
+  }
+
+  const VICTIM_CUS = 'cus_test_FAKE_tenant_b_victim';
+
+  it('tenant A cannot bind tenant B\'s cus_ via body.customer_id (fresh tenant)', async () => {
+    const victim = 'tenant_idor_victim_b1';
+    const attacker = 'tenant_idor_attacker_a1';
+    ctxWithTenant(victim, 'pro');
+    await _testDb.updateTenantStripe(victim, { stripeCustomerId: VICTIM_CUS });
+
+    const captured: Captured[] = [];
+    const originalFetch = global.fetch;
+    global.fetch = captureFetch(captured);
+    try {
+      const req = makeRequest('http://localhost/v1/billing/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan_id: 'pro', customer_id: VICTIM_CUS }),
+      });
+      const res = await stripeCheckoutHandler(req, ctxWithTenant(attacker), {});
+      assert.equal(res.status, 200);
+    } finally {
+      global.fetch = originalFetch;
+    }
+
+    const session = captured.find((c) => c.url.endsWith('/checkout/sessions'));
+    assert.ok(session, 'checkout session was requested');
+    assert.notEqual(session!.body.get('customer'), VICTIM_CUS, 'victim customer must never reach Stripe');
+    assert.equal(session!.body.get('customer'), 'cus_test_FAKE_tenant_a_fresh');
+    // A fresh customer was created for the attacker, tagged with the attacker's tenant id.
+    const created = captured.find((c) => c.url.endsWith('/customers'));
+    assert.equal(created?.body.get('metadata[tenant_id]'), attacker);
+    // DB bindings: attacker got its own customer; victim untouched.
+    assert.equal(await _testDb.getTenantStripeCustomerId(attacker), 'cus_test_FAKE_tenant_a_fresh');
+    assert.equal(await _testDb.getTenantStripeCustomerId(victim), VICTIM_CUS);
+  });
+
+  it('tenant A with its own bound customer still uses its own, not body.customer_id', async () => {
+    const victim = 'tenant_idor_victim_b2';
+    const attacker = 'tenant_idor_attacker_a2';
+    ctxWithTenant(victim, 'pro');
+    await _testDb.updateTenantStripe(victim, { stripeCustomerId: VICTIM_CUS });
+    ctxWithTenant(attacker);
+    await _testDb.updateTenantStripe(attacker, { stripeCustomerId: 'cus_test_FAKE_tenant_a_own' });
+
+    const captured: Captured[] = [];
+    const originalFetch = global.fetch;
+    global.fetch = captureFetch(captured);
+    try {
+      const req = makeRequest('http://localhost/v1/billing/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan_id: 'business', customer_id: VICTIM_CUS, customer: VICTIM_CUS }),
+      });
+      const res = await stripeCheckoutHandler(req, ctxWithTenant(attacker), {});
+      assert.equal(res.status, 200);
+    } finally {
+      global.fetch = originalFetch;
+    }
+    assert.equal(captured.filter((c) => c.url.endsWith('/customers')).length, 0, 'no new customer needed');
+    const session = captured.find((c) => c.url.endsWith('/checkout/sessions'));
+    assert.equal(session!.body.get('customer'), 'cus_test_FAKE_tenant_a_own');
+    assert.equal(await _testDb.getTenantStripeCustomerId(attacker), 'cus_test_FAKE_tenant_a_own');
+  });
+
+  it('tenant A cannot open tenant B\'s billing portal', async () => {
+    const victim = 'tenant_idor_victim_b3';
+    const attacker = 'tenant_idor_attacker_a3';
+    ctxWithTenant(victim, 'pro');
+    await _testDb.updateTenantStripe(victim, { stripeCustomerId: VICTIM_CUS });
+
+    const captured: Captured[] = [];
+    const originalFetch = global.fetch;
+    global.fetch = captureFetch(captured);
+    try {
+      // Attacker tries to smuggle the victim's customer in the portal body too.
+      const req = makeRequest('http://localhost/v1/billing/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id: VICTIM_CUS }),
+      });
+      const res = await stripePortalHandler(req, ctxWithTenant(attacker), {});
+      assert.equal(res.status, 404);
+      const body = await res.json();
+      assert.equal(body.error.code, 'NO_STRIPE_CUSTOMER');
+
+      // The victim opening their own portal gets a session for their own customer.
+      const own = await stripePortalHandler(
+        makeRequest('http://localhost/v1/billing/stripe/portal', { method: 'POST' }),
+        ctxWithTenant(victim, 'pro'),
+        {},
+      );
+      assert.equal(own.status, 200);
+    } finally {
+      global.fetch = originalFetch;
+    }
+    const portalCalls = captured.filter((c) => c.url.endsWith('/billing_portal/sessions'));
+    assert.equal(portalCalls.length, 1, 'only the victim\'s own request reached Stripe');
+    assert.equal(portalCalls[0].body.get('customer'), VICTIM_CUS);
+  });
+
+  it('after a body.customer_id attempt, tenant A\'s portal opens A\'s customer, never B\'s', async () => {
+    const victim = 'tenant_idor_victim_b4';
+    const attacker = 'tenant_idor_attacker_a4';
+    ctxWithTenant(victim, 'pro');
+    await _testDb.updateTenantStripe(victim, { stripeCustomerId: VICTIM_CUS });
+
+    const captured: Captured[] = [];
+    const originalFetch = global.fetch;
+    global.fetch = captureFetch(captured);
+    try {
+      await stripeCheckoutHandler(
+        makeRequest('http://localhost/v1/billing/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan_id: 'pro', customer_id: VICTIM_CUS }),
+        }),
+        ctxWithTenant(attacker),
+        {},
+      );
+      const res = await stripePortalHandler(
+        makeRequest('http://localhost/v1/billing/stripe/portal', { method: 'POST' }),
+        ctxWithTenant(attacker),
+        {},
+      );
+      assert.equal(res.status, 200);
+    } finally {
+      global.fetch = originalFetch;
+    }
+    const portalCalls = captured.filter((c) => c.url.endsWith('/billing_portal/sessions'));
+    assert.equal(portalCalls.length, 1);
+    assert.notEqual(portalCalls[0].body.get('customer'), VICTIM_CUS);
+    assert.equal(portalCalls[0].body.get('customer'), 'cus_test_FAKE_tenant_a_fresh');
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────
 // 8. order status + status endpoints
 // ──────────────────────────────────────────────────────────────────
 
