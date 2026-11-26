@@ -143,6 +143,27 @@ affinity:
 {{- end }}
 
 {{/*
+  quill.rwoSearchCoLocate — required podAffinity for the search backup CronJob,
+  which mounts the ReadWriteOnce search index PVC. It must follow the pod that
+  holds that volume (quill-search), not the api pod.
+  2026-11-26 01:45Z: the api rollout was mid-deadlock (old pod on nexus, new
+  pod on sentry), so the app=quill-api selector matched both nodes; the backup
+  scheduled onto nexus while quill-search held the index on sentry. It sat in
+  ContainerCreating until activeDeadlineSeconds (3600) killed the job, so
+  lastSuccessfulTime went stale and the freshness CronJob failed every run
+  after it — surfacing as a Degraded quill Application.
+*/}}
+{{- define "quill.rwoSearchCoLocate" -}}
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: quill-search
+        topologyKey: kubernetes.io/hostname
+{{- end }}
+
+{{/*
   Claim names for the API SQLite, search index, and backups volumes.
   storageCutover.useLocalPathCopies defaults to false, so workloads keep the
   existing Longhorn PVCs and the cutover claims are not rendered. Flipping
