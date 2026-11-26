@@ -15,6 +15,14 @@ MapleSpike is a unified data pipeline that discovers, ingests, verifies, and sur
 
 The platform currently maintains 184 registered MCP tools, 207 modules in the registry (203 ingestion directories), and approximately 220,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
 
+## SEC Schedule 13D/G (disabled)
+
+Quill by Maplespike does not ingest SEC Schedule 13D or Schedule 13G filings. The code in `packages/pipeline-core/src/disclosures/schedule-13dg/` is a disabled foundation. It is not an ingestion module. It has no scheduler and no live route. The kill switch starts engaged. No environment variable turns live ingestion on. Live ingestion is not implemented.
+
+Enablement stays blocked until a later review admits every gate in [docs/sources/sec-schedule-13dg.md](./sources/sec-schedule-13dg.md). This section is not a legal clearance. A reporting-person type code does not prove privacy eligibility. A 13F-manager flag does not prove privacy eligibility. An entity-type screen is not an admitted count. Unknown, missing, or ambiguous eligibility fails closed. A filing with an individual, a mixed group, or an unknown reporting person is rejected as a whole.
+
+The foundation does not store CUSIP, ISIN, narrative text, raw filing bodies, individual names, or hashes of source bytes or persons. It does not implement Form 13F, SEDI, SEDAR+, or Section 16. French labels are not reviewed. No monitored contact address is recorded.
+
 ```
                            Upstream Government APIs
                               (Federal, Provincial, Municipal)
