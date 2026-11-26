@@ -33,8 +33,8 @@ import {
 import type { BuildContext } from './response.js';
 import { detectLocale, buildBilingualError } from './error-codes.js';
 import { loadConfig, validateConfig } from './config.js';
-import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { QuillStorage, QuillCache } from './types.js';
+import { openStorage } from './cf-data/select-storage.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
@@ -911,36 +911,11 @@ export async function handleRequest(
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    // Support both Workers D1 and Node.js PG/SQLite backends
-    const storageMode = (env.QUILL_STORAGE || process.env.QUILL_STORAGE || '').toLowerCase();
-    const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
-
-    let db: QuillStorage;
-    let cache: QuillCache;
-
-    if (storageMode === 'postgres' || databaseUrl || env.QUILL_DB_HOST || process.env.QUILL_DB_HOST) {
-      // PostgreSQL mode — used in Node.js or when DATABASE_URL is provided
-      const { PgStorage, PgCache } = await import('./pg-storage.js');
-      const pgDb = new PgStorage(databaseUrl);
-      await pgDb.init();
-      db = pgDb;
-      cache = new PgCache();
-    } else if (storageMode === 'sqlite' || storageMode === 'node-sqlite' || process.env.QUILL_DB_PATH) {
-      // Node built-in SQLite mode (no native compilation needed)
-      const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
-      db = new NodeSqliteStorage();
-      cache = new NodeSqliteCache();
-    } else if (env.DB) {
-      // Cloudflare Workers D1 mode
-      db = new D1Storage(env.DB);
-      cache = new KVCache(env.CACHE);
-    } else {
-      // Fallback to in-memory
-      db = new MemoryStorage();
-      cache = new MemoryCache();
-    }
-
-    initAnnotationStore(env.DB);
+    // Postgres and SQLite stay in-cluster. D1/KV run only when quota:<service> is ok.
+    const opened = await openStorage({ env, processEnv: process.env });
+    const db: QuillStorage = opened.db;
+    const cache: QuillCache = opened.cache;
+    initAnnotationStore(opened.annotationDb);
     const envVars: Record<string, string | undefined> = {
       ENVIRONMENT: env.ENVIRONMENT,
       QUILL_VERSION: env.QUILL_VERSION,

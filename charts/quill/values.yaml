@@ -51,6 +51,9 @@ api:
     # In-process probe behind /v1/upstream/status (UPSTREAM-OUTAGES.md §6).
     # "0" disables probing; the API then reports unknown states, no banner.
     QUILL_UPSTREAM_PROBE: "1"
+    # How long a process reuses Infra's quota:<service> flag. 60 seconds.
+    # Account id, namespace id, and API token are not set in this file.
+    CF_QUOTA_FLAG_TTL_MS: "60000"
   ingress:
     host: api.maplespike.ca
     tls: true

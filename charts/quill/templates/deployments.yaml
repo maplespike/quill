@@ -94,6 +94,8 @@ spec:
         # (UPSTREAM-OUTAGES.md §6). "0" serves the route with no probes.
         - name: QUILL_UPSTREAM_PROBE
           value: "{{ .Values.api.env.QUILL_UPSTREAM_PROBE | default "1" }}"
+        - name: CF_QUOTA_FLAG_TTL_MS
+          value: "{{ .Values.api.env.CF_QUOTA_FLAG_TTL_MS | default "60000" }}"
         - name: ENVIRONMENT
           value: "{{ .Values.api.env.ENVIRONMENT | default "production" }}"
         - name: QUILL_STORAGE

@@ -27,15 +27,34 @@
  *
  * Auth: Bearer token or X-API-Key header (validated against KV)
  * Rate limit: 10 req/min free, 60 req/min pro (stored in KV per tenant)
+ *
+ * D1 and KV writes go through the free-tier quota guard. Infra's
+ * `quota:<service>` key must be `ok`. Otherwise the write stays in-process.
  */
+
+import {
+  CF_NEURON_COUNTER_TTL_SECONDS,
+  clampAuditRetentionDays,
+  edgeAiAllowed,
+  guardD1Binding,
+  guardForEnv,
+  guardKvBinding,
+  sharedMemoryD1,
+  sharedMemoryKv,
+  type CfD1Like,
+  type CfKvLike,
+} from '../../api-server/src/cf-data/quota-store.js';
 
 export interface Env {
   // Cloudflare bindings
   AI: Ai;
   API_KEYS: KVNamespace;
-  RATE_LIMIT: KVNamespace;
-  NEURON_BUDGET: KVNamespace;
-  AUDIT_DB: D1Database;
+  RATE_LIMIT: CfKvLike;
+  NEURON_BUDGET: CfKvLike;
+  AUDIT_DB: CfD1Like;
+  /** Infra binding for `quota:<service>`. Missing means writes stay in-process. */
+  QUOTA_FLAGS?: { get(key: string): Promise<string | null> };
+  CF_QUOTA_FLAG_TTL_MS?: string;
   AI_GATEWAY_ID: string;
 
   // Secrets (set via wrangler secret put)
@@ -145,21 +164,35 @@ function validateApiKeyFormat(key: string): boolean {
  * neuron accounting is not exposed per-call, so we count requests as a
  * proxy). Reset happens naturally: a new UTC date creates a new KV key.
  */
+function guardedKv(env: Env, namespace: CfKvLike): CfKvLike {
+  return guardKvBinding(namespace, sharedMemoryKv(), guardForEnv(env));
+}
+
+function guardedAudit(env: Env): CfD1Like {
+  return guardD1Binding(env.AUDIT_DB, sharedMemoryD1(), guardForEnv(env));
+}
+
 async function checkNeuronBudget(env: Env): Promise<{ withinBudget: boolean; used: number; limit: number }> {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
   const budgetKey = `neurons:${today}`;
   const limit = parseInt(env.NEURON_DAILY_LIMIT ?? '8000', 10);
+  const kvOpen = await guardForEnv(env).allows('kv');
+  if (!kvOpen) {
+    // The counter cannot be stored. Do not call Workers AI.
+    return { withinBudget: false, used: limit, limit };
+  }
 
-  const current = parseInt(await env.NEURON_BUDGET.get(budgetKey) ?? '0', 10);
-  return { withinBudget: current < limit, used: current, limit };
+  const current = parseInt(await guardedKv(env, env.NEURON_BUDGET).get(budgetKey) ?? '0', 10);
+  return { withinBudget: edgeAiAllowed(kvOpen, current < limit), used: current, limit };
 }
 
 async function incrementNeuronUsage(env: Env): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
   const budgetKey = `neurons:${today}`;
-  const current = parseInt(await env.NEURON_BUDGET.get(budgetKey) ?? '0', 10);
-  // TTL: 2 days to auto-clean stale date keys
-  await env.NEURON_BUDGET.put(budgetKey, String(current + 1), { expirationTtl: 172_800 });
+  const budget = guardedKv(env, env.NEURON_BUDGET);
+  const current = parseInt(await budget.get(budgetKey) ?? '0', 10);
+  // 48h TTL. The named cap cleans the previous UTC day without resetting today's count.
+  await budget.put(budgetKey, String(current + 1), { expirationTtl: CF_NEURON_COUNTER_TTL_SECONDS });
 }
 
 // ─── Auth: API Key Validation via KV ────────────────────────────────────
@@ -198,15 +231,16 @@ async function validateApiKey(request: Request, env: Env): Promise<Tenant | null
 async function checkRateLimit(tenantId: string, limitPerMin: number, env: Env): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   const now = Date.now();
   const windowKey = `rl:${tenantId}:${Math.floor(now / 60_000)}`;
+  const limits = guardedKv(env, env.RATE_LIMIT);
 
-  const current = parseInt(await env.RATE_LIMIT.get(windowKey) ?? '0', 10);
+  const current = parseInt(await limits.get(windowKey) ?? '0', 10);
 
   if (current >= limitPerMin) {
     return { allowed: false, remaining: 0, resetAt: (Math.floor(now / 60_000) + 1) * 60_000 };
   }
 
-  // Increment counter (expires in 120s — covers 2 windows for sliding)
-  await env.RATE_LIMIT.put(windowKey, String(current + 1), { expirationTtl: 120 });
+  // 120s covers two minute windows. The guard clamps this into the free-plan TTL range.
+  await limits.put(windowKey, String(current + 1), { expirationTtl: 120 });
 
   return { allowed: true, remaining: limitPerMin - current - 1, resetAt: (Math.floor(now / 60_000) + 1) * 60_000 };
 }
@@ -215,7 +249,7 @@ async function checkRateLimit(tenantId: string, limitPerMin: number, env: Env): 
 
 async function auditLog(env: Env, entry: Omit<AuditEntry, 'timestamp'>): Promise<void> {
   try {
-    await env.AUDIT_DB.prepare(
+    await guardedAudit(env).prepare(
       'INSERT INTO ai_audit (tenant_id, api_key_hash, endpoint, model, prompt_tokens, completion_tokens, cache_hit, source, client_ip, user_agent, request_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     ).bind(
       entry.tenant_id,
@@ -245,13 +279,14 @@ async function auditLog(env: Env, entry: Omit<AuditEntry, 'timestamp'>): Promise
  * Summary table: ai_audit_summary (one row per tenant per day)
  */
 async function runAuditRetention(env: Env): Promise<void> {
-  const retentionDays = parseInt(env.AUDIT_RETENTION_DAYS ?? '30', 10);
+  const retentionDays = clampAuditRetentionDays(parseInt(env.AUDIT_RETENTION_DAYS ?? '30', 10));
   const cutoffDate = new Date(Date.now() - retentionDays * 86_400_000)
     .toISOString().slice(0, 10);
+  const audit = guardedAudit(env);
 
   try {
     // 1. Create summary table if it doesn't exist (idempotent)
-    await env.AUDIT_DB.prepare(`
+    await audit.prepare(`
       CREATE TABLE IF NOT EXISTS ai_audit_summary (
         day TEXT NOT NULL,
         tenant_id TEXT NOT NULL,
@@ -267,7 +302,7 @@ async function runAuditRetention(env: Env): Promise<void> {
     `).run();
 
     // 2. Roll up old raw rows into the summary
-    await env.AUDIT_DB.prepare(`
+    await audit.prepare(`
       INSERT OR REPLACE INTO ai_audit_summary
         (day, tenant_id, total_requests, edge_requests, homelab_requests, byok_requests,
          total_prompt_tokens, total_completion_tokens, cache_hits)
@@ -287,7 +322,7 @@ async function runAuditRetention(env: Env): Promise<void> {
     `).bind(cutoffDate).run();
 
     // 3. Delete the rolled-up raw rows
-    await env.AUDIT_DB.prepare(
+    await audit.prepare(
       'DELETE FROM ai_audit WHERE date(timestamp) < ?'
     ).bind(cutoffDate).run();
 

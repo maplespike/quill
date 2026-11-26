@@ -10,6 +10,8 @@ binding = "DB"
 database_name = "maplespike"
 database_id = "local"
 
+# Quota flags (quota:<service> = ok or over) come from the QUOTA_FLAGS binding.
+# Infra sets that namespace id at deploy time. It is not stored here.
 # KV Namespace for caching
 [[kv_namespaces]]
 binding = "CACHE"

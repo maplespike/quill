@@ -32,6 +32,10 @@ binding = "AI"
 [ai_gateway]
 gateway_id = "maplespike"
 
+# Infra owns the quota flag. Bind it as QUOTA_FLAGS at deploy time.
+# Key: quota:<service>  (d1, kv, r2). Value: ok or over.
+# Do not put the namespace id in this file.
+#
 # ── KV Namespaces ───────────────────────────────────────────────────────
 [[kv_namespaces]]
 binding = "API_KEYS"

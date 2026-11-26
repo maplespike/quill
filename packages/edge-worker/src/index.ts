@@ -1,3 +1,11 @@
+import {
+  guardForEnv,
+  guardKvBinding,
+  sharedMemoryKv,
+  type CfD1Like,
+  type CfKvLike,
+} from '../../api-server/src/cf-data/quota-store.js';
+
 /**
  * MapleSpike Edge Worker (Proxy)
  *
@@ -18,8 +26,11 @@
 interface Env {
   HOMELAB_API: string;
   CACHE_TTL: string;
-  RATE_LIMIT: KVNamespace;
-  CACHE_DB: D1Database;
+  RATE_LIMIT: CfKvLike;
+  CACHE_DB: CfD1Like;
+  /** Infra binding for `quota:<service>`. Missing means KV/D1 writes stay in-process. */
+  QUOTA_FLAGS?: { get(key: string): Promise<string | null> };
+  CF_QUOTA_FLAG_TTL_MS?: string;
 }
 
 export default {
@@ -63,14 +74,17 @@ export default {
       return response;
     }
 
-    // Rate limit check for write operations (KV-based, free tier)
+    // Rate limit for write operations. KV is used only when quota:kv is ok.
+    // CACHE_DB is bound and has no writer here. A D1 write on it must call guardD1Binding.
     const clientIP = request.headers.get('CF-Connecting-IP');
     if (clientIP && ['POST', 'PUT', 'DELETE'].includes(method)) {
+      const quota = guardForEnv(env);
+      const rateKv = guardKvBinding(env.RATE_LIMIT, sharedMemoryKv(), quota);
       const rateLimitKey = `ip:${clientIP}`;
-      const rateLimitData = await env.RATE_LIMIT.get(rateLimitKey, { type: 'json' });
+      const rateLimitData = await readRateCounter(await rateKv.get(rateLimitKey, { type: 'json' }));
 
       if (rateLimitData) {
-        const { count, resetAt } = rateLimitData as { count: number; resetAt: number };
+        const { count, resetAt } = rateLimitData;
         const now = Date.now();
 
         if (now < resetAt && count > 1000) {
@@ -78,16 +92,16 @@ export default {
         }
 
         if (now >= resetAt) {
-          await env.RATE_LIMIT.put(rateLimitKey, JSON.stringify({ count: 1, resetAt: now + 3600000 }), {
+          await rateKv.put(rateLimitKey, JSON.stringify({ count: 1, resetAt: now + 3600000 }), {
             expirationTtl: 3600,
           });
         } else {
-          await env.RATE_LIMIT.put(rateLimitKey, JSON.stringify({ count: count + 1, resetAt }), {
+          await rateKv.put(rateLimitKey, JSON.stringify({ count: count + 1, resetAt }), {
             expirationTtl: 3600,
           });
         }
       } else {
-        await env.RATE_LIMIT.put(rateLimitKey, JSON.stringify({ count: 1, resetAt: Date.now() + 3600000 }), {
+        await rateKv.put(rateLimitKey, JSON.stringify({ count: 1, resetAt: Date.now() + 3600000 }), {
           expirationTtl: 3600,
         });
       }
@@ -97,6 +111,13 @@ export default {
     return proxyToHomelab(request, env, pathname, url.search);
   },
 };
+
+function readRateCounter(value: unknown): { count: number; resetAt: number } | null {
+  if (!value || typeof value !== 'object') return null;
+  const record = value as Record<string, unknown>;
+  if (typeof record.count !== 'number' || typeof record.resetAt !== 'number') return null;
+  return { count: record.count, resetAt: record.resetAt };
+}
 
 function isCacheable(path: string): boolean {
   return path === '/v1/billing/plans' ||
