@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@maplespike/database": "workspace:*",
-    "better-sqlite3": "^12.11.1",
+    "better-sqlite3": "^13.2.0",
     "drizzle-orm": "^0.45.4",
     "fuse.js": "^7.5.0",
     "pg": "^8.23.1",
