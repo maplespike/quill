@@ -16,13 +16,31 @@ import {
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
 import type {
-  AuthenticatorTransportFuture,
+  AuthenticatorTransport,
   GenerateRegistrationOptionsOpts,
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
 } from '@simplewebauthn/server';
 import { generateToken } from './jwt.js';
 import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
+
+/**
+ * @simplewebauthn/server 14 types the browser's reported transports as
+ * string[] and AuthenticatorTransport as the five values the spec defines.
+ * Keep only those, so a stored credential never carries a value the
+ * library would reject when it builds allowCredentials.
+ */
+const KNOWN_TRANSPORTS: ReadonlySet<string> = new Set<AuthenticatorTransport>([
+  'ble',
+  'hybrid',
+  'internal',
+  'nfc',
+  'usb',
+]);
+
+function knownTransports(raw: readonly string[] | undefined): AuthenticatorTransport[] {
+  return (raw ?? []).filter((t): t is AuthenticatorTransport => KNOWN_TRANSPORTS.has(t));
+}
 
 /* ------------------------------------------------------------------ */
 /*  Configuration                                                     */
@@ -48,7 +66,7 @@ interface PasskeyCredential {
   id: string;
   publicKey: Uint8Array;
   counter: number;
-  transports: AuthenticatorTransportFuture[];
+  transports: AuthenticatorTransport[];
   userId: string;
   deviceName: string;
   createdAt: string;
@@ -91,7 +109,7 @@ export async function beginRegistration(
         .filter(c => c.userId === req.userId)
         .map(c => ({
           id: c.id,
-          transports: c.transports as AuthenticatorTransportFuture[],
+          transports: c.transports as AuthenticatorTransport[],
         }))
     : [];
 
@@ -151,7 +169,7 @@ export async function completeRegistration(
     id: credentialId,
     publicKey: new Uint8Array(credentialPubKey),
     counter,
-    transports: reqCred.response.transports || [],
+    transports: knownTransports(reqCred.response.transports),
     userId: stored.address || 'anon',
     deviceName: req.deviceName || 'Passkey',
     createdAt: new Date().toISOString(),
@@ -194,7 +212,7 @@ export async function beginLogin(
         .filter(c => c.userId === req.userId)
         .map(c => ({
           id: c.id,
-          transports: c.transports as AuthenticatorTransportFuture[],
+          transports: c.transports as AuthenticatorTransport[],
         }))
     : [];
 
