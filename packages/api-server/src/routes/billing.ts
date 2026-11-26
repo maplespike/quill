@@ -131,6 +131,41 @@ const PLANS: Record<string, Plan> = {
   },
 };
 
+// ─── Stripe Price lookup keys ─────────────────────────────────────────────
+//
+// When STRIPE_USE_LOOKUP_KEYS=true, Stripe Checkout uses a catalog Price found
+// by lookup_key instead of inline price_data. The expected amount/currency come
+// from PLANS above, so a catalog Price that drifts from the advertised plan
+// fails closed. No price_... ids live in code: the lookup_key is the contract.
+
+export type StripePriceLookup = {
+  plan_id: 'pro' | 'business';
+  lookup_key: string;
+  amount_cents: number;
+  currency: 'cad';
+  interval: 'month';
+  interval_count: 1;
+};
+
+export const STRIPE_PRICE_LOOKUP_KEYS: Readonly<Record<'pro' | 'business', string>> = Object.freeze({
+  pro: 'quill_pro_monthly',
+  business: 'quill_business_monthly',
+});
+
+/** Lookup-key contract for a Stripe-purchasable plan, or null for free/custom plans. */
+export function stripePriceLookupForPlan(planId: string): StripePriceLookup | null {
+  if (planId !== 'pro' && planId !== 'business') return null;
+  const plan = PLANS[planId];
+  return {
+    plan_id: planId,
+    lookup_key: STRIPE_PRICE_LOOKUP_KEYS[planId],
+    amount_cents: plan.price_cents,
+    currency: 'cad',
+    interval: 'month',
+    interval_count: 1,
+  };
+}
+
 // ─── Verified Order Store (in-memory; pending IMAP poller integration) ───
 //
 // Phase 1 (Stripe migration): the tenant tier is no longer mirrored here.

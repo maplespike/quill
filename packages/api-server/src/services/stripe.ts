@@ -181,7 +181,41 @@ export interface StripeCheckoutSession {
   client_secret?: string | null;
 }
 
+/**
+ * STRIPE_USE_LOOKUP_KEYS — when 'true', Checkout uses catalog Prices resolved
+ * by lookup_key (prices.list). Default OFF: inline price_data, unchanged.
+ */
+export function useLookupKeys(): boolean {
+  return (process.env.STRIPE_USE_LOOKUP_KEYS ?? '').trim().toLowerCase() === 'true';
+}
+
+export interface StripePrice {
+  id: string;
+  object: 'price';
+  active: boolean;
+  currency: string;
+  unit_amount: number | null;
+  lookup_key: string | null;
+  type?: 'one_time' | 'recurring';
+  recurring?: { interval: string; interval_count: number } | null;
+}
+
+/** GET /v1/prices?lookup_keys[]=…&active=true (read-only). */
+export async function listPricesByLookupKeys(lookupKeys: string[]): Promise<StripePrice[]> {
+  const q = new URLSearchParams();
+  for (const k of lookupKeys) q.append('lookup_keys[]', k);
+  q.set('active', 'true');
+  q.set('limit', '10');
+  const res = await stripeFetch<{ data?: StripePrice[] }>('GET', `/prices?${q.toString()}`);
+  return Array.isArray(res.data) ? res.data : [];
+}
+
 export async function createCheckoutSession(args: {
+  /**
+   * Catalog Price id (from listPricesByLookupKeys). When set, the line item is
+   * `price` and the inline price_data fields below are not sent.
+   */
+  priceId?: string;
   customerId: string;
   amountCents: number;
   currency: string; // ISO 4217 lower-case, e.g. "cad"
@@ -217,14 +251,18 @@ export async function createCheckoutSession(args: {
       : { success_url: args.successUrl, cancel_url: args.cancelUrl }),
     customer: args.customerId,
     'line_items[0][quantity]': 1,
-    'line_items[0][price_data][currency]': args.currency,
-    'line_items[0][price_data][unit_amount]': args.amountCents,
-    'line_items[0][price_data][recurring][interval]': 'month',
-    'line_items[0][price_data][recurring][interval_count]': args.intervalMonths,
-    'line_items[0][price_data][product_data][name]': args.productName,
-    ...(args.description
-      ? { 'line_items[0][price_data][product_data][description]': args.description }
-      : {}),
+    ...(args.priceId
+      ? { 'line_items[0][price]': args.priceId }
+      : {
+          'line_items[0][price_data][currency]': args.currency,
+          'line_items[0][price_data][unit_amount]': args.amountCents,
+          'line_items[0][price_data][recurring][interval]': 'month',
+          'line_items[0][price_data][recurring][interval_count]': args.intervalMonths,
+          'line_items[0][price_data][product_data][name]': args.productName,
+          ...(args.description
+            ? { 'line_items[0][price_data][product_data][description]': args.description }
+            : {}),
+        }),
     expires_at: args.expiresAtUnix,
     'metadata[tenant_id]': args.tenantId,
     'metadata[plan_id]': args.planId,
