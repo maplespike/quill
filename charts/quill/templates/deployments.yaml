@@ -12,12 +12,22 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.api.replicas }}
+  {{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+  # The SQLite volume is ReadWriteOnce. A RollingUpdate with maxSurge 1 asks
+  # for a second pod that cannot attach until the old pod releases the claim;
+  # on 2026-11-26 that left quill-api Pending for 22h while the old pod kept
+  # serving. Recreate stops the old pod first, so the claim is always free.
+  # api.replicas must stay 1 while storage is SQLite.
+  strategy:
+    type: Recreate
+  {{- else }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
       # #816: zero-downtime rollouts keep the tunnel origin healthy.
       maxSurge: 1
       maxUnavailable: 0
+  {{- end }}
   selector:
     matchLabels:
       app: quill-api
