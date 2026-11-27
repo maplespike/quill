@@ -1,4 +1,4 @@
-export { getDb, getRawDb, closeDb, runMigrations, createDb } from "./connection.js";
+export { getDb, getRawDb, closeDb, checkpointIfPossible, runMigrations, createDb } from "./connection.js";
 export type { DbClient, DbConfig } from "./connection.js";
 
 export { migrateDomainTables, PG_DOMAIN_MIGRATION_SQL } from "./migrate-pg.js";

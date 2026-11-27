@@ -5,6 +5,7 @@ export {
  getDb,
  getRawDb,
  closeDb,
+ checkpointIfPossible,
 } from '@maplespike/database';
 export type { DbClient, DbConfig } from '@maplespike/database';
 

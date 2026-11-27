@@ -508,11 +508,28 @@ export function runMigrations(db?: DbClient): void {
 }
 
 /**
+ * Run the WAL checkpoint during cleanup.
+ *
+ * A readonly connection can still report SQLITE_READONLY here even when the
+ * sweep itself completed. Cleanup must not turn a successful job into a
+ * failed CronJob. Every other checkpoint error stays fatal.
+ */
+export function checkpointIfPossible(sqlite: Database.Database): void {
+  try {
+    sqlite.pragma("wal_checkpoint(TRUNCATE)");
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    if (code === "SQLITE_READONLY") return;
+    throw err;
+  }
+}
+
+/**
  * Close the shared database connection and reset the singleton.
  */
 export function closeDb(): void {
   if (sqliteInstance) {
-    sqliteInstance.pragma("wal_checkpoint(TRUNCATE)");
+    checkpointIfPossible(sqliteInstance);
     sqliteInstance.close();
     sqliteInstance = null;
     dbInstance = null;
