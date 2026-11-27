@@ -1,8 +1,8 @@
 {
   "name": "@maplespike/portal",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "MapleSpike \u2014 Developer Portal (Astro + Tailwind v4 + shadcn/ui)",
+  "description": "MapleSpike — Developer Portal (Astro + Tailwind v4 + shadcn/ui)",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
