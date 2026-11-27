@@ -105,6 +105,8 @@ ingestion:
   # deadline, so it gets twice the headroom rather than a fifth of the chart.
   deadlines:
     influence: 3600
+  # Pipelines whose CronJob renders with suspend: true. Everything else runs.
+  suspended: []
   backoffLimit: 1
   startingDeadlineSeconds: 600
   successfulJobsHistoryLimit: 3

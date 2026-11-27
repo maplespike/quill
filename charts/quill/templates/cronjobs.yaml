@@ -26,6 +26,9 @@ metadata:
     pipeline: {{ $name }}
 spec:
   schedule: "{{ $schedule }}"
+  # Suspension lives in git (ingestion.suspended), not in a kubectl patch.
+  # Always rendered so Argo owns the field and can clear an old live patch.
+  suspend: {{ has $name ($.Values.ingestion.suspended | default list) }}
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: {{ $.Values.ingestion.successfulJobsHistoryLimit | default 3 }}
   failedJobsHistoryLimit: {{ $.Values.ingestion.failedJobsHistoryLimit | default 3 }}
