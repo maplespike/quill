@@ -96,6 +96,10 @@ redis:
 # packages/pipeline-core/src/cli/run-pipeline.ts (PIPELINE_CONFIG).
 ingestion:
   enabled: false
+  # Freeze switch for a storage cutover: renders `suspend: true` on every
+  # ingest CronJob instead of relying on a kubectl patch, which selfHeal would
+  # revert. Default false, so an ordinary render is unchanged.
+  suspend: false
   # Node holding the api pod's SQLite volume (RWO PVC) when QUILL_STORAGE=sqlite.
   nodeName: ""
   activeDeadlineSeconds: 1800
@@ -145,6 +149,7 @@ ingestion:
 # the api image, which already contains packages/engine/dist.
 engine:
   enabled: false
+  suspend: false
   replicas: 1
   schedule: "*/15 * * * *"
   resources:
@@ -238,6 +243,8 @@ cloudflared:
 # api.storage.nodeName, the same pin as the API pod.
 backups:
   enabled: false
+  # Same freeze switch, for the sqlite/search/postgres/freshness/drill jobs.
+  suspend: false
   schedule: "15 1 * * *"
   searchSchedule: "45 1 * * *"
   postgresSchedule: "15 1 * * *"

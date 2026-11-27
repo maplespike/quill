@@ -13,8 +13,8 @@
 */}}
 {{- $cutover := .Values.storageCutover | default dict }}
 {{- if $cutover.useLocalPathCopies }}
-{{- if not ($cutover.backupsVolumeName | default "") }}
-{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies" }}
+{{- if and .Values.backups.enabled (not ($cutover.backupsVolumeName | default "")) }}
+{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies with backups.enabled" }}
 {{- end }}
 {{- $apiCopy := $cutover.api | default dict }}
 {{- $searchCopy := $cutover.search | default dict }}
@@ -64,6 +64,7 @@ spec:
     requests:
       storage: {{ $searchCopy.size | quote }}
 {{- end }}
+{{- if .Values.backups.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -82,4 +83,5 @@ spec:
   resources:
     requests:
       storage: {{ $backupsCopy.size | default "30Gi" | quote }}
+{{- end }}
 {{- end }}

@@ -190,9 +190,9 @@ affinity:
 
 {{- define "quill.backupsClaim" -}}
 {{- $cutover := .Values.storageCutover | default dict -}}
-{{- if ($cutover.useLocalPathCopies | default false) -}}
+{{- if and ($cutover.useLocalPathCopies | default false) (.Values.backups.enabled | default false) -}}
 {{- if not ($cutover.backupsVolumeName | default "") -}}
-{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies" -}}
+{{- fail "storageCutover.backupsVolumeName must be set to the Infra NFS PersistentVolume name before enabling storageCutover.useLocalPathCopies with backups.enabled" -}}
 {{- end -}}
 {{- printf "%s-backups-local" (include "quill.fullname" .) -}}
 {{- else -}}

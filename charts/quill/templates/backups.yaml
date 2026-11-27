@@ -78,6 +78,9 @@ metadata:
     component: backup
     store: sqlite
 spec:
+  {{- if $backups.suspend }}
+  suspend: true
+  {{- end }}
   schedule: {{ $backups.schedule | default "15 1 * * *" | quote }}
   timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
   concurrencyPolicy: Forbid
@@ -183,6 +186,9 @@ metadata:
     component: backup
     store: search
 spec:
+  {{- if $backups.suspend }}
+  suspend: true
+  {{- end }}
   schedule: {{ $backups.searchSchedule | default "45 1 * * *" | quote }}
   timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
   concurrencyPolicy: Forbid
@@ -282,6 +288,9 @@ metadata:
     component: backup
     store: postgres
 spec:
+  {{- if $backups.suspend }}
+  suspend: true
+  {{- end }}
   schedule: {{ $backups.postgresSchedule | default "15 1 * * *" | quote }}
   timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
   concurrencyPolicy: Forbid
@@ -385,6 +394,9 @@ metadata:
     component: backup
     store: freshness
 spec:
+  {{- if $backups.suspend }}
+  suspend: true
+  {{- end }}
   schedule: {{ $backups.freshnessSchedule | default "20 */6 * * *" | quote }}
   timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
   concurrencyPolicy: Forbid
@@ -482,6 +494,9 @@ metadata:
     component: backup
     store: drill
 spec:
+  {{- if $backups.suspend }}
+  suspend: true
+  {{- end }}
   schedule: {{ $backups.drillSchedule | default "30 3 * * 0" | quote }}
   timeZone: {{ $backups.timeZone | default "Etc/UTC" | quote }}
   concurrencyPolicy: Forbid

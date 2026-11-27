@@ -25,6 +25,9 @@ metadata:
     component: ingestion
     pipeline: {{ $name }}
 spec:
+  {{- if $.Values.ingestion.suspend }}
+  suspend: true
+  {{- end }}
   schedule: "{{ $schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: {{ $.Values.ingestion.successfulJobsHistoryLimit | default 3 }}
