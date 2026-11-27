@@ -1,8 +1,9 @@
 #!/usr/bin/env tsx
 /**
  * Prod storage cutover: local-path api/search copies and a static-bind
- * NFS backups PVC render only when the flag is on. Default stays on the
- * old Longhorn PVCs. An empty backupsVolumeName fails the render.
+ * NFS backups PVC render only when the flag is on. The original claim names
+ * stay put; new claims bind local-path under Longhorn-retirement gate G4.
+ * An empty backupsVolumeName fails the render.
  */
 
 import { test } from "node:test";
@@ -87,10 +88,10 @@ function cronHasRwo(doc: string, name: string): boolean {
 
 const LOCAL_PATH = ["quill-api-data-local", "quill-search-data-local"];
 const BACKUPS_LOCAL = "quill-backups-local";
-const LONGHORN = ["quill-api-data", "quill-search-data", "quill-backups"];
+const ORIGINAL_CLAIMS = ["quill-api-data", "quill-search-data", "quill-backups"];
 const NFS_PV = "quill-backups-nfs";
 
-test("chart: flag off means no new PVCs and workloads keep the Longhorn claims", (t) => {
+test("chart: flag off means no new PVCs and workloads keep the original claim names", (t) => {
   if (!haveHelm()) {
     t.skip("helm is not installed on this runner");
     return;
@@ -101,13 +102,16 @@ test("chart: flag off means no new PVCs and workloads keep the Longhorn claims",
     for (const n of [...LOCAL_PATH, BACKUPS_LOCAL]) {
       assert.ok(!names.includes(n), `${n} must not render when the flag is off`);
     }
-    for (const n of LONGHORN) {
+    for (const n of ORIGINAL_CLAIMS) {
       assert.ok(names.includes(n), `${n} must still render`);
     }
     const byName = Object.fromEntries(pvcs.map((p) => [p.name, p.doc]));
-    assert.match(byName["quill-api-data"], /storageClassName:\s*"?longhorn"?/);
-    assert.match(byName["quill-search-data"], /storageClassName:\s*"?longhorn"?/);
-    assert.match(byName["quill-backups"], /storageClassName:\s*"?longhorn"?/);
+    // Gate G4: no chart value may render a new longhorn claim. Bound claims
+    // keep their immutable class in the cluster; only new claims use this value.
+    for (const n of ORIGINAL_CLAIMS) {
+      assert.match(byName[n], /storageClassName:\s*"?(local-path)"?/);
+      assert.doesNotMatch(byName[n], /storageClassName:\s*"?longhorn"?/);
+    }
 
     assert.deepEqual(claimNamesIn(rendered, "Deployment", "quill-api"), ["quill-api-data"]);
     assert.ok(claimNamesIn(rendered, "Deployment", "quill-search").includes("quill-search-data"));
@@ -129,7 +133,7 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
   const rendered = render(["--set", "storageCutover.useLocalPathCopies=true"]);
   const pvcs = pvcDocs(rendered);
   const names = pvcs.map((p) => p.name);
-  for (const n of [...LONGHORN, ...LOCAL_PATH, BACKUPS_LOCAL]) {
+  for (const n of [...ORIGINAL_CLAIMS, ...LOCAL_PATH, BACKUPS_LOCAL]) {
     assert.ok(names.includes(n), `${n} must render when the flag is on`);
   }
 
