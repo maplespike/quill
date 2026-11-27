@@ -225,14 +225,13 @@ cloudflared:
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Backups. Off unless an environment opts in (values-prod.yaml does).
-# No chart value names longhorn any more (2026-11-26, gate G4 of
-# media-k8s docs/retiring-longhorn.md): a hardcoded longhorn class can mint a
-# new claim on any install that forgets to override it, which keeps the class
-# spreading. The default is local-path, which does NOT survive the node; an
-# environment that needs durability must name its own class explicitly.
-# Existing bound claims keep their class — storageClass is immutable, so this
-# change does not rewrite them. Moving data off an old claim is the explicit
-# storageCutover path above. See docs/ops/BACKUPS.md.
+# No chart default names longhorn any more (2026-11-26, gate G4 of
+# media-k8s docs/retiring-longhorn.md): a chart default can mint a new Longhorn
+# claim on any install that forgets to override it, which is how the class keeps
+# spreading. The default is local-path, which does NOT survive the node — an
+# environment that needs durability sets backups.storageClass and
+# search.storageClass explicitly. maplespike still does, to longhorn, until the
+# Phase 1 migration moves those claims. See docs/ops/BACKUPS.md.
 # accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
 # that mounts the claim has a working NFS client. Backup pods follow
 # api.storage.nodeName, the same pin as the API pod.
@@ -246,7 +245,7 @@ backups:
   retentionDays: 14
   maxAgeHours: 26
   storage: 30Gi
-  storageClass: local-path
+  storageClass: longhorn
   accessMode: ReadWriteOnce
   # Caps the emptyDir the sqlite and search backup jobs (and the drill) write
   # into before copying onto the backups mount. 8Gi covers the live SQLite
