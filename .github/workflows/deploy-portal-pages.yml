@@ -30,9 +30,20 @@ on:
   push:
     branches:
       - main
+    # The publish job runs `pnpm build` over the workspace. Portal's gen:all
+    # loads quill-mcp's tool registry, which imports pipeline-core and
+    # @maplespike/database. Filter omission left Pages stale after upstream-only
+    # merges while deploy-prod updated the cluster (2026-11-27 audit, P1).
     paths:
       - "packages/portal/**"
       - "packages/i18n/**"
+      - "packages/quill-mcp/**"
+      - "packages/pipeline-core/**"
+      - "packages/database/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
       - ".github/workflows/deploy-portal-pages.yml"
   workflow_dispatch:
 

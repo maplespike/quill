@@ -206,13 +206,14 @@ jobs:
       - name: Typecheck quill-mcp
         run: pnpm --filter @maplespike/quill-mcp typecheck
 
+      # Blocking. These steps are named lint checks in the gate's check list;
+      # continue-on-error here rendered a lint regression as a green required
+      # check (2026-11-27 workflow audit, P1).
       - name: Lint api-server
         run: pnpm --filter @maplespike/api-server lint
-        continue-on-error: true
 
       - name: Lint quill-mcp
         run: pnpm --filter @maplespike/quill-mcp lint
-        continue-on-error: true
 
       - name: Build all packages
         run: pnpm build
@@ -481,7 +482,9 @@ jobs:
     # failed/missing filter runs it rather than skipping it.
     if: ${{ !cancelled() && needs.build-and-test.result == 'success' && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.api == 'true') }}
     runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
-    continue-on-error: true
+    # Blocking: both steps below enforce a numeric floor. continue-on-error on
+    # this job made a red floor render as a green required check (2026-11-27
+    # workflow audit, P1).
     timeout-minutes: 60
 
     steps:
@@ -570,11 +573,13 @@ jobs:
   search-dockerfile:
     needs: changes
     if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.search == 'true') }}
-    # Same-repo on arc-maplespike. Forks stay on ubuntu-latest, which already
-    # has a Docker engine. The pre-baked ARC image has node, pnpm, git, gh,
-    # and the arc-tools packages; it does not guarantee a Docker daemon, so
-    # the step below installs docker.io + buildx when `docker info` fails.
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
+    # Always use a GitHub-hosted runner: `docker buildx build --check` needs a
+    # live Docker engine. The arc-maplespike runners are containers without
+    # systemd as PID 1, so apt-installing docker.io there leaves no reachable
+    # daemon (measured on main 2026-11-27 01:32Z and 01:46Z, and on PR #1442
+    # run 45941965133). ubuntu-latest ships a running engine + buildx. All
+    # other jobs in this workflow stay on ARC unchanged.
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
