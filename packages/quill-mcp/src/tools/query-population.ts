@@ -17,6 +17,18 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const { rows, header } = await fetchStatCanTable('17100009');
     return { content: { tool: 'query_population', data: rows.slice(0, limit), total: rows.length, source: 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=17100009' } };  
   } catch (error) {
-    return { content: { tool: 'query_population', error: (error instanceof Error && error.message) || String(error) }, isError: true };
+    // A TypeError thrown by DecompressionStream has an empty `message`, so the
+    // old handler reported the bare string "TypeError" and hid the cause for
+    // weeks. Name the error type, keep the message or stack, and log it.
+    const name = error instanceof Error ? error.name : 'Error';
+    const detail = error instanceof Error ? (error.message || error.stack || '') : String(error);
+    console.error(`[query_population] StatCan table 17100009 failed — ${name}: ${detail || '(no message)'}`);
+    return {
+      content: {
+        tool: 'query_population',
+        error: `StatCan table 17100009 could not be read — ${name}${detail ? `: ${detail.split('\n')[0]}` : ' (no message)'}`,
+      },
+      isError: true,
+    };
   }
 };
