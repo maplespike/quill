@@ -19,6 +19,9 @@ metadata:
     app: quill-engine
     component: engine
 spec:
+  {{- if .Values.engine.suspend }}
+  suspend: true
+  {{- end }}
   schedule: "{{ .Values.engine.schedule }}"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
