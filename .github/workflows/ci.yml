@@ -573,11 +573,13 @@ jobs:
   search-dockerfile:
     needs: changes
     if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.result != 'success' || needs.changes.outputs.search == 'true') }}
-    # Same-repo on arc-maplespike. Forks stay on ubuntu-latest, which already
-    # has a Docker engine. The pre-baked ARC image has node, pnpm, git, gh,
-    # and the arc-tools packages; it does not guarantee a Docker daemon, so
-    # the step below installs docker.io + buildx when `docker info` fails.
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'arc-maplespike' || 'ubuntu-latest' }}
+    # Always use a GitHub-hosted runner: `docker buildx build --check` needs a
+    # live Docker engine. The arc-maplespike runners are containers without
+    # systemd as PID 1, so apt-installing docker.io there leaves no reachable
+    # daemon (measured on main 2026-11-27 01:32Z and 01:46Z, and on PR #1442
+    # run 45941965133). ubuntu-latest ships a running engine + buildx. All
+    # other jobs in this workflow stay on ARC unchanged.
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
