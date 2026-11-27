@@ -146,9 +146,8 @@ test('chart backup contract', (t) => {
   const redis = readFileSync(path.join(root, 'charts/quill/templates/redis.yaml'), 'utf8');
   const netpol = readFileSync(path.join(root, 'charts/quill/templates/networkpolicy.yaml'), 'utf8');
   const pg = readFileSync(path.join(root, 'charts/quill/files/postgres-backup.sh'), 'utf8');
-  // Gate G4: no chart value may name longhorn. Existing bound claims keep
-  // their immutable class; new claims from this file bind local-path.
-  assert.doesNotMatch(values, /storageClass:\s*longhorn/);
+  // Existing bound claims must keep their immutable class until cutover.
+  assert.match(values, /storageClass:\s*longhorn/);
   assert.match(values, /storageClass:\s*local-path/);
   // One-time copy finished on 2026-10-26; prod keeps the flag off.
   assert.match(values, /migrateLegacyIndex: false/);

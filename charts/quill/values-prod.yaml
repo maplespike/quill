@@ -115,12 +115,10 @@ api:
     tls: true
   storage:
     size: 5Gi
-    # Longhorn retirement gate G4: no chart value may mint a new longhorn
-    # claim. The already-bound quill-api-data claim keeps its immutable class;
-    # a new claim from this value binds local-path. Use storageCutover for the
-    # explicit data move off the old claim.
-    storageClass: local-path
-    # Schedule via affinityHosts (not forge); local-path is node-local.
+    # Migrated from local-path to longhorn (t_9dfeef39): 2 replicas, removing
+    # the single-nexus failure domain for the API's SQLite volume.
+    storageClass: longhorn
+    # 2026-10-28: longhorn RWO; schedule via affinityHosts (not forge).
     nodeName: ""
   affinityHosts: *quillHeavyHosts
   # Pin to sentry for the local-path cutover (the new claims bind there).
@@ -178,8 +176,7 @@ database:
     limits:
       cpu: 500m
       memory: 512Mi
-  # database is disabled in prod. Its class is local-path under gate G4 so
-  # enabling it cannot mint a Longhorn claim; no existing claim is rewritten.
+  # Disabled in production; keep future claims off Longhorn.
   storageClass: local-path
   nodeName: ""
 portal:
@@ -331,11 +328,10 @@ search:
   metricsPort: 9466
   logLevel: info
   indexStorage: 5Gi
-  # The claim is quill-search-data. New claims bind local-path under gate G4;
-  # the already-bound claim keeps its immutable class. The old local-path
+  # Durable class. The claim is quill-search-data. The old local-path
   # quill-search-index claim is rendered only while migrateLegacyIndex is
   # true; with it false Argo CD prunes it. See docs/ops/BACKUPS.md.
-  storageClass: local-path
+  storageClass: longhorn
   migrateLegacyIndex: false
   # Serve process idles near 2Mi (operator sample). This pod runs
   # `quill-search serve` only. Index build (32MiB tantivy writer) and the
@@ -353,7 +349,7 @@ search:
   # nodeName from this value and ignores nodeSelector for the copy.
   # After the copy, set migrateLegacyIndex to false and leave nodeName set.
   # The backup claim is ReadWriteOnce, so search and its backup must stay
-  # 2026-11-27: node-local class; schedule via affinityHosts (not forge).
+  # 2026-10-28: nexus|sentry only; longhorn RWO attaches on chosen node.
   nodeName: ""
   affinityHosts: *quillHeavyHosts
   preferredHost: sentry
@@ -387,19 +383,17 @@ backups:
   #   - verify-freshness needs the newest backup younger than maxAgeHours: 26;
   #     a daily job against a 3-day window can lose two runs and still pass.
   #   - the weekly drill (Sunday) restores whatever is current; it does not
-  #     need history. The old Longhorn backupstore still holds historical
-  #     volume-level snapshots (weekly-backup, retain: 1); new claims use
-  #     local-path.
+  #     need history, and Longhorn's S3 backupstore holds the volume-level
+  #     snapshots separately (weekly-backup, retain: 1).
   # The search index is derived data — rebuildable from the SQLite dump by the
   # ingest pipelines — so long index history has no recovery value that the
   # dump does not already provide.
   # Archives age out via `-mtime +RETENTION_DAYS` on the next run; no PVC
-  # surgery. storageClass is immutable on a bound claim, so this value only
-  # applies to claims created from now on.
+  # surgery, and storageClass stays put (immutable on a bound claim anyway).
   retentionDays: 3
   maxAgeHours: 26
   storage: 30Gi
-  storageClass: local-path
+  storageClass: longhorn
   accessMode: ReadWriteOnce
   timeZone: Etc/UTC
   resources:

@@ -2,7 +2,7 @@
 /**
  * Prod storage cutover: local-path api/search copies and a static-bind
  * NFS backups PVC render only when the flag is on. The original claim names
- * stay put; new claims bind local-path under Longhorn-retirement gate G4.
+ * retain their immutable Longhorn class until the explicit cutover.
  * An empty backupsVolumeName fails the render.
  */
 
@@ -83,7 +83,8 @@ function cronDoc(doc: string, name: string): string {
 
 function cronHasRwo(doc: string, name: string): boolean {
   const chunk = cronDoc(doc, name);
-  return /app:\s*quill-api/.test(chunk) && /topologyKey:\s*kubernetes.io\/hostname/.test(chunk);
+  const target = name === "quill-backup-search" ? "quill-search" : "quill-api";
+  return new RegExp(`app:\\s*${target}\\b`).test(chunk) && /topologyKey:\s*kubernetes.io\/hostname/.test(chunk);
 }
 
 const LOCAL_PATH = ["quill-api-data-local", "quill-search-data-local"];
@@ -106,11 +107,9 @@ test("chart: flag off means no new PVCs and workloads keep the original claim na
       assert.ok(names.includes(n), `${n} must still render`);
     }
     const byName = Object.fromEntries(pvcs.map((p) => [p.name, p.doc]));
-    // Gate G4: no chart value may render a new longhorn claim. Bound claims
-    // keep their immutable class in the cluster; only new claims use this value.
+    // Existing PVCs must continue to render their immutable bound class.
     for (const n of ORIGINAL_CLAIMS) {
-      assert.match(byName[n], /storageClassName:\s*"?(local-path)"?/);
-      assert.doesNotMatch(byName[n], /storageClassName:\s*"?longhorn"?/);
+      assert.match(byName[n], /storageClassName:\s*"?longhorn"?/);
     }
 
     assert.deepEqual(claimNamesIn(rendered, "Deployment", "quill-api"), ["quill-api-data"]);
@@ -120,7 +119,7 @@ test("chart: flag off means no new PVCs and workloads keep the original claim na
     assert.ok(claimNamesIn(rendered, "CronJob", "quill-backup-search").includes("quill-search-data"));
     assert.ok(claimNamesIn(rendered, "CronJob", "quill-backup-search").includes("quill-backups"));
     for (const job of ["quill-backup-search", "quill-backup-freshness", "quill-backup-drill"]) {
-      assert.ok(cronHasRwo(rendered, job), `${job} must use rwoApiCoLocate`);
+      assert.ok(cronHasRwo(rendered, job), `${job} must co-locate with its RWO volume owner`);
     }
   }
 });
@@ -166,7 +165,7 @@ test("chart: flag on renders the static-bind backups PVC plus api/search local c
   assert.ok(claimNamesIn(rendered, "CronJob", "quill-backup-freshness").includes("quill-backups-local"));
   assert.ok(claimNamesIn(rendered, "CronJob", "quill-backup-drill").includes("quill-backups-local"));
   for (const job of ["quill-backup-search", "quill-backup-freshness", "quill-backup-drill"]) {
-    assert.ok(cronHasRwo(rendered, job), `${job} must stay co-located with api-data`);
+    assert.ok(cronHasRwo(rendered, job), `${job} must co-locate with its RWO volume owner`);
   }
 
   for (const job of ["quill-backup-sqlite", "quill-backup-search"]) {

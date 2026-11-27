@@ -90,8 +90,8 @@ jobs:
             echo "⏭️  Label '$LABEL_NAME' is not agent-ready, skipping auto-import"
             echo "Issue will be imported when labeled 'agent-ready'"
           elif [ -n "$ISSUE_NUMBER" ]; then
-            HAS_LABEL=$(gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels[].name' | grep -c "agent-ready" || echo "0")
-            if [ "$HAS_LABEL" -gt 0 ]; then
+            HAS_LABEL=$(gh issue view "$ISSUE_NUMBER" --json labels --jq 'any(.labels[]; .name == "agent-ready")')
+            if [ "$HAS_LABEL" = "true" ]; then
               echo "✅ New issue #$ISSUE_NUMBER has agent-ready label, importing..."
               ./scripts/import-github-issues.sh maplespike/quill single "$ISSUE_NUMBER"
               outcome=imported

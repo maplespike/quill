@@ -225,14 +225,11 @@ cloudflared:
       service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Backups. Off unless an environment opts in (values-prod.yaml does).
-# No chart value names longhorn any more (2026-11-26, gate G4 of
-# media-k8s docs/retiring-longhorn.md): a hardcoded longhorn class can mint a
-# new claim on any install that forgets to override it, which keeps the class
-# spreading. The default is local-path, which does NOT survive the node; an
-# environment that needs durability must name its own class explicitly.
-# Existing bound claims keep their class — storageClass is immutable, so this
-# change does not rewrite them. Moving data off an old claim is the explicit
-# storageCutover path above. See docs/ops/BACKUPS.md.
+# The backup default is local-path and does NOT survive the node; environments
+# needing durability must name their own class. Production temporarily retains
+# Longhorn on existing bound claims because their class is immutable. Move data
+# to separately named storageCutover claims before retiring the originals.
+# See docs/ops/BACKUPS.md.
 # accessMode defaults to ReadWriteOnce. Set ReadWriteMany only when every node
 # that mounts the claim has a working NFS client. Backup pods follow
 # api.storage.nodeName, the same pin as the API pod.
