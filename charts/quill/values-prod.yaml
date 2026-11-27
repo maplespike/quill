@@ -176,7 +176,8 @@ database:
     limits:
       cpu: 500m
       memory: 512Mi
-  storageClass: longhorn
+  # Disabled in production; keep future claims off Longhorn.
+  storageClass: local-path
   nodeName: ""
 portal:
   enabled: true
