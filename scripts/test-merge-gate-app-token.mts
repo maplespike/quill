@@ -15,6 +15,8 @@
  *   - a foreign event head can reach that read, or a known foreign resolved
  *     head can reach the merge
  *   - a `hold` label is no longer a skip
+ *   - the post-merge main dispatch stops re-arming the gate, or the gate
+ *     stops watching the Portal CSP completion event
  *
  * `ready-to-merge` stays required. Checkout of pull-request head code fails
  * the guard. Runs as `tsx --test` via `pnpm run test:merge-gate`.
@@ -188,4 +190,27 @@ test('removing the ready-to-merge requirement fails', () => {
   const text = workflow().replace(block, '');
   assert.notEqual(text, workflow(), 'the ready-to-merge requirement must be present to remove');
   assert.ok(codes(text).includes('ready-to-merge'));
+});
+
+test('the gate watches the Portal CSP completion event', () => {
+  const text = workflow();
+  const start = text.indexOf('  workflow_run:');
+  const end = text.indexOf('  check_suite:', start);
+  assert.ok(start > 0 && end > start, 'workflow_run trigger block is missing');
+  assert.match(text.slice(start, end), /- "Portal CSP \+ checkout"/);
+
+  const csp = fs.readFileSync(path.join(REPO, '.github/workflows/portal-csp-checkout.yml'), 'utf8');
+  assert.match(csp, /^  pull_request:$/m, 'Portal CSP must still run on pull_request');
+});
+
+test('the workflow_run guard accepts a same-repo main dispatch, not a plain push', () => {
+  const text = workflow();
+  assert.match(text, /github\.event\.workflow_run\.event == 'workflow_dispatch'/);
+  assert.match(text, /github\.event\.workflow_run\.head_branch == 'main'/);
+  assert.match(text, /github\.event\.workflow_run\.head_repository\.full_name == github\.repository/);
+  assert.match(text, /github\.event\.workflow_run\.pull_requests\[0\]\.number != null/);
+  assert.match(text, /branches-ignore: \[prod\]/);
+  // The re-arm must resolve a PR, not judge main's SHA as if it were a PR head.
+  assert.match(text, /--label ready-to-merge --limit 100/);
+  assert.match(text, /HEAD_SHA=""/);
 });

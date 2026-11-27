@@ -38,14 +38,17 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          if [[ "$BRANCH" =~ ^(issue|feat|fix|chore|dependabot)/[a-z0-9._-]+$ ]]; then
+          failed=false
+          if [[ "$BRANCH" =~ ^(issue|feat|fix|chore|refactor|docs|test|ci|dependabot)/[a-z0-9._-]+$ ]]; then
             echo "✅ Branch name: $BRANCH"
           elif [[ "$BRANCH" =~ ^dependabot/ ]]; then
             echo "✅ Dependabot branch: $BRANCH"
           else
-            echo "::warning::Branch '$BRANCH' doesn't follow convention."
+            echo "::error::Branch '$BRANCH' does not follow convention."
             echo "Expected: issue-NNN-desc, feat/NNN-desc, fix/NNN-desc"
+            failed=true
           fi
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       # ── Check 2: PR has linked issue ──────────────────────────────
       - name: "Linked issue check"
@@ -53,11 +56,14 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          failed=false
           if echo "$PR_BODY" | grep -qiE "(Closes|Fixes|Resolves|Related to) #[0-9]+"; then
             echo "✅ PR references an issue"
           else
-            echo "::warning::PR body should contain 'Closes #NNN' or 'Related to #NNN'"
+            echo "::error::PR body must contain 'Closes #NNN' or 'Related to #NNN'"
+            failed=true
           fi
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       # ── Check 3: Commit messages reference issue numbers ───────────
       - name: "Commit message check"
@@ -86,7 +92,13 @@ jobs:
               FAILED=$((FAILED + 1))
             fi
           done <<< "$COMMITS"
-          echo "count=$FAILED" >> $GITHUB_OUTPUT
+          echo "count=$FAILED" >> "$GITHUB_OUTPUT"
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::$FAILED commit(s) do not reference an issue number."
+            echo "failed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "failed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # ── Check 4: Title starts with conventional commit type ───────
       - name: "Conventional commit title check"
@@ -94,22 +106,29 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
+          failed=false
           if echo "$PR_TITLE" | grep -qiE "^(feat|fix|chore|refactor|docs|test|ci)(\([a-z]+\))?:"; then
             echo "✅ Title follows conventional commits"
           else
-            echo "::warning::PR title should start with type: e.g. 'feat: add X (#NNN)'"
+            echo "::error::PR title must start with type: e.g. 'feat: add X (#NNN)'"
+            failed=true
           fi
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       # ── Check 5: No direct pushes to main ─────────────────────────
       - name: "Target branch check"
+        id: target-branch
         env:
           BASE: ${{ github.base_ref }}
         run: |
+          failed=false
           if [ "$BASE" = "main" ] || [ "$BASE" = "prod" ]; then
             echo "✅ PR targets $BASE — correct"
           else
-            echo "::warning::PR targets '$BASE' — should be main or prod"
+            echo "::error::PR targets '$BASE' — must be main or prod"
+            failed=true
           fi
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       # ── Check 6: WORKFLOW_NAME rename guard ────────────────────────
       # dependabot-auto-merge.yml hardcodes a `WORKFLOW_NAME: "..."` env var
@@ -139,20 +158,34 @@ jobs:
       # ── Summary ────────────────────────────────────────────────────
       - name: "PR validation summary"
         if: always()
+        env:
+          BRANCH_FAILED: ${{ steps['branch-name'].outputs.failed }}
+          LINKED_FAILED: ${{ steps['linked-issue'].outputs.failed }}
+          COMMIT_FAILED: ${{ steps['commit-msgs'].outputs.failed }}
+          TITLE_FAILED: ${{ steps['title-check'].outputs.failed }}
+          TARGET_FAILED: ${{ steps['target-branch'].outputs.failed }}
         run: |
-          echo "## PR Validation Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch name | ✅ Convention checked |" >> $GITHUB_STEP_SUMMARY
-          echo "| Issue linked | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit references | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
-          echo "| Conventional title | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target branch | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
-          # Use a hard-coded ✅ rather than the step's outputs.match_count: if
-          # the rename guard exited 1, we'd render a blank cell and the visual
-          # signal would be lost. The job's overall pass/fail surfaces the
-          # failure elsewhere.
-          echo "| WORKFLOW_NAME guard | ✅ Matched |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Warnings do not block merge but should be addressed." >> $GITHUB_STEP_SUMMARY
+          set -euo pipefail
+          mark() { if [ "$1" = "true" ]; then printf '❌ Failed'; else printf '✅ Passed'; fi; }
+          echo "## PR Validation Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch name | $(mark "$BRANCH_FAILED") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Issue linked | $(mark "$LINKED_FAILED") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit references | $(mark "$COMMIT_FAILED") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Conventional title | $(mark "$TITLE_FAILED") |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Target branch | $(mark "$TARGET_FAILED") |" >> "$GITHUB_STEP_SUMMARY"
+          # The rename guard exits 1 in its own step, so it has no output to
+          # summarise. The job's overall status surfaces that failure.
+          echo "| WORKFLOW_NAME guard | ✅ Matched |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Policy violations block merge (2026-11-27 audit, P1)." >> "$GITHUB_STEP_SUMMARY"
+          FAILED=0
+          for value in "$BRANCH_FAILED" "$LINKED_FAILED" "$COMMIT_FAILED" "$TITLE_FAILED" "$TARGET_FAILED"; do
+            if [ "$value" = "true" ]; then FAILED=1; fi
+          done
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::PR policy validation failed — see the failing checks above."
+            exit 1
+          fi
