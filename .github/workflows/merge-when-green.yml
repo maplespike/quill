@@ -51,6 +51,10 @@ on:
       - "Docs Validation"
       - "README Lint"
       - "NetworkPolicy validation"
+      # Runs on portal / quill-mcp / pipeline-core PR paths. If CSP finishes
+      # last, a gate that does not watch it judges with that check pending and
+      # no later event wakes the gate (2026-11-27 audit, P1).
+      - "Portal CSP + checkout"
       - "Portal generated-artifact drift"
       - "Metrics Drift Check"
       - "Open-source facts audit"
@@ -69,13 +73,20 @@ on:
     # the PR head branch, and pull_request_target (labeled/synchronize) remains
     # the primary trigger.
     #
-    # MEASURED 2026-11-23: branches-ignore alone did NOT stop these. After
-    # e977aa54 landed with exactly this filter, 17 main-branch workflow_run gate
-    # runs were created in 12 minutes (13:54:43Z-13:58:59Z), i.e. the filter was
-    # accepted but did not exclude push runs on main. It is kept as a cheap
-    # pre-dispatch guard; the enforcement is the job condition below, which
-    # reads the same payload field and cannot be silently ignored.
-    branches-ignore: [main, prod]
+    # MEASURED 2026-11-23: branches-ignore alone did NOT stop main-branch runs.
+    # After e977aa54 landed with `branches-ignore: [main, prod]`, 17 main-branch
+    # workflow_run gate runs were created in 12 minutes (13:54:43Z-13:58:59Z).
+    # The filter was accepted but did not exclude those payloads, so the job
+    # condition below is the enforcement, not this list.
+    #
+    # 2026-11-27: `main` is no longer ignored here. The gate squashes with
+    # GITHUB_TOKEN, which starts no push workflows, so after a merge it
+    # dispatches CI on main to re-arm waiting labelled PRs. That dispatched run
+    # carries head_branch=main and pull_requests=[]; ignoring main drops the
+    # only event that wakes the gate for the next PR. Push runs on main still
+    # arrive, but the job condition below skips them: without a PR number only
+    # a same-repo workflow_dispatch on main is accepted.
+    branches-ignore: [prod]
     types: [completed]
   check_suite:
     types: [completed]
@@ -133,9 +144,14 @@ jobs:
     #     passed and each run still claimed the single gate runner.
     # So gate on the field the concurrency group already trusts: pull_requests is
     # populated for a PR-branch run and empty for a push, and a run with no PR
-    # number has nothing to merge. This condition is one folded scalar -- keep
-    # prose OUT of it. #1403 put `#` comments in here and GitHub rejected the
-    # whole workflow file ("workflow file issue", zero jobs, main went red).
+    # number has nothing to merge.
+    #
+    # 2026-11-27 exception: the post-merge `gh workflow run CI --ref main` has
+    # no PR in its payload. Accept that one same-repo main dispatch as a re-arm;
+    # the script then selects the next ready-to-merge PR and re-applies every
+    # guard below. A plain push on main has no PR number and stays skipped.
+    # This condition is one folded scalar -- keep prose OUT of it. #1403 put
+    # `#` comments in here and GitHub rejected the whole workflow file.
     if: >-
       (
         github.event_name != 'pull_request_target'
@@ -146,6 +162,10 @@ jobs:
       ) && (
         github.event_name != 'workflow_run'
         || github.event.workflow_run.pull_requests[0].number != null
+        || (
+          github.event.workflow_run.event == 'workflow_dispatch'
+          && github.event.workflow_run.head_branch == 'main'
+        )
       )
     runs-on: >-
       ${{
@@ -215,6 +235,8 @@ jobs:
           PR_SHA_EVENT: ${{ github.event.pull_request.head.sha }}
           DISPATCH_PR: ${{ github.event.inputs.pr }}
           WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_RUN_EVENT: ${{ github.event.workflow_run.event }}
+          WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
           CHECK_SUITE_SHA: ${{ github.event.check_suite.head_sha }}
           WORKFLOW_RUN_PRS: ${{ toJson(github.event.workflow_run.pull_requests) }}
           CHECK_SUITE_PRS: ${{ toJson(github.event.check_suite.pull_requests) }}
@@ -345,6 +367,24 @@ jobs:
             READ_TOKEN="$GATE_TOKEN"
           else
             echo "::warning::MERGE_GATE_APP_ID/PRIVATE_KEY did not mint a token. Pull metadata will be read with GITHUB_TOKEN."
+          fi
+
+          # A CI dispatch on main is the post-merge re-arm: its payload has no
+          # PR. Select a ready-to-merge open PR so this run judges something.
+          # Every guard below (label, author, draft, head repo, SHA, checks)
+          # still applies to the PR selected here.
+          if [[ "$EVENT_NAME" == "workflow_run" && -z "${PR_NUMBER:-}" \
+                && "${WORKFLOW_RUN_EVENT:-}" == "workflow_dispatch" \
+                && "${WORKFLOW_RUN_BRANCH:-}" == "main" ]]; then
+            if ! PR_NUMBER="$(GH_TOKEN="$READ_TOKEN" gh pr list --repo "$GH_REPO" \
+              --state open --label ready-to-merge --limit 100 \
+              --json number --jq '.[0].number // empty')"; then
+              echo "::error::could not list ready-to-merge PRs for the main re-arm. The gate did not merge."
+              exit 1
+            fi
+            # The dispatch SHA is main's head, not the PR head. Bind to the
+            # PR's live head later in this script.
+            HEAD_SHA=""
           fi
 
           if [[ -z "${PR_NUMBER:-}" && -n "${HEAD_SHA:-}" ]]; then
