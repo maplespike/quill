@@ -236,16 +236,46 @@ export async function fetchOversight(query: string, limit = 10): Promise<{ resul
 
 // ── Generic CKAN Search ────────────────────────────────────────────
 
-export async function searchCkan(query: string, limit = 10, lang?: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
-  return cached('ckan', { query, limit, lang }, async () => {
+// Record shaping lives in ckan-projection.ts (pure, unit-tested).
+import { budgetedProjection } from './ckan-projection.js';
+
+export {
+  CKAN_NOTES_MAX,
+  CKAN_RESULT_BYTE_BUDGET,
+  projectCkanRecord,
+  budgetedProjection,
+} from './ckan-projection.js';
+
+export interface CkanSearchResult {
+  results: Record<string, unknown>[];
+  total: number;
+  returned: number;
+  offset: number;
+  truncated: boolean;
+}
+
+export async function searchCkan(
+  query: string,
+  limit = 10,
+  lang?: string,
+  offset = 0,
+  detail: 'compact' | 'full' = 'compact',
+): Promise<CkanSearchResult> {
+  return cached('ckan', { query, limit, lang, offset, detail }, async () => {
     // When lang=fr, use the French CKAN portal
     const baseUrl = lang === 'fr'
       ? 'https://ouvert.canada.ca/fr/data/api/3/action/package_search'
       : 'https://ouvert.canada.ca/data/api/3/action/package_search';
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `${baseUrl}?q=${encodeURIComponent(query)}&rows=${limit}`,
+      `${baseUrl}?q=${encodeURIComponent(query)}&rows=${limit}&start=${offset}`,
     );
-    return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
+    const raw = json.result?.results ?? [];
+    const total = json.result?.total ?? 0;
+    if (detail === 'full') {
+      return { results: raw, total, returned: raw.length, offset, truncated: false };
+    }
+    const { results, truncated } = budgetedProjection(raw);
+    return { results, total, returned: results.length, offset, truncated };
   });
 }
 
