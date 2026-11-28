@@ -31,7 +31,7 @@ describe('personal-information minimization in lobbying/charity tools', () => {
   it('provincial lobbying results strip personal contact fields and tag the policy', async () => {
     const { content } = await runSearchProvincialLobbying(
       { query: 'acme', limit: 5 },
-      async () => ({ results: FIXTURE, total: 1 }),
+      async () => ({ results: FIXTURE, total: 1, returned: 1, offset: 0, truncated: false }),
     );
     const results = content.results as Record<string, any>[];
     assert.equal(results.length, 1);
@@ -47,7 +47,7 @@ describe('personal-information minimization in lobbying/charity tools', () => {
   it('cra charity search applies the same policy', async () => {
     const { content } = await runSearchCraCharity(
       { query: 'united way', limit: 5 },
-      async () => ({ results: FIXTURE, total: 1 }),
+      async () => ({ results: FIXTURE, total: 1, returned: 1, offset: 0, truncated: false }),
     );
     const results = content.results as Record<string, any>[];
     assert.equal(results[0].registrant.email, undefined);
@@ -62,7 +62,7 @@ describe('personal-information minimization in lobbying/charity tools', () => {
       { query: 'salvation army', limit: 5 },
       async (query: string) => {
         seenQuery = query;
-        return { results: FIXTURE, total: 1 };
+        return { results: FIXTURE, total: 1, returned: 1, offset: 0, truncated: false };
       },
     );
     assert.ok(seenQuery.startsWith('charity t3010'));

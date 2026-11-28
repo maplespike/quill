@@ -48,6 +48,9 @@ describe('search_legislation applies the not-official-version policy', () => {
         searchCkanFn: async () => ({
           results: [{ title: 'Canada Elections Act', url: 'https://laws-lois.justice.gc.ca/eng/acts/e-2.01/' }],
           total: 1,
+          returned: 1,
+          offset: 0,
+          truncated: false,
         }),
       },
     );

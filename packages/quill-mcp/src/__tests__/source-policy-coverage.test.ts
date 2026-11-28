@@ -93,6 +93,9 @@ describe('source-policy coverage for previously unwrapped tools', () => {
       async () => ({
         results: [{ title: 'Ownership', text: 'full article', url: 'https://crtc.gc.ca/x' }],
         total: 1,
+        returned: 1,
+        offset: 0,
+        truncated: false,
       }),
     );
     const results = content.results as Record<string, unknown>[];
@@ -108,6 +111,9 @@ describe('source-policy coverage for previously unwrapped tools', () => {
       async () => ({
         results: [{ name: 'Ada Lovelace', email: 'ada@example.com', role: 'director' }],
         total: 1,
+        returned: 1,
+        offset: 0,
+        truncated: false,
       }),
     );
     const results = content.results as Record<string, unknown>[];
