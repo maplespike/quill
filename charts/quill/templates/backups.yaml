@@ -49,7 +49,7 @@ data:
   migrate-search-index.sh: |
 {{ .Files.Get "files/migrate-search-index.sh" | indent 4 }}
 {{- end }}
-{{- if $backups.enabled }}
+{{- if and $backups.enabled (not (.Values.storageCutover | default dict).useLocalPathCopies) }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
