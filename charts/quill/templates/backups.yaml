@@ -50,6 +50,7 @@ data:
 {{ .Files.Get "files/migrate-search-index.sh" | indent 4 }}
 {{- end }}
 {{- if $backups.enabled }}
+{{- if not (.Values.storageCutover | default dict).useLocalPathCopies }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -66,6 +67,7 @@ spec:
   resources:
     requests:
       storage: {{ $backups.storage | default "30Gi" | quote }}
+{{- end }}
 {{- if $sqlite }}
 ---
 apiVersion: batch/v1

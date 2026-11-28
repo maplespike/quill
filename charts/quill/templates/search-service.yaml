@@ -43,6 +43,7 @@ spec:
     requests:
       storage: {{ .Values.search.indexStorage }}
 {{- end }}
+{{- if not (.Values.storageCutover | default dict).useLocalPathCopies }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -59,3 +60,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.search.indexStorage }}
+{{- end }}

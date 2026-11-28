@@ -2,7 +2,7 @@
   Quill — API SQLite persistence (PVC)
   Only rendered when QUILL_STORAGE=sqlite and api.storage is configured.
 */}}
-{{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") }}
+{{- if and .Values.api.storage (eq (.Values.api.env.QUILL_STORAGE | default "memory") "sqlite") (not (.Values.storageCutover | default dict).useLocalPathCopies) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
