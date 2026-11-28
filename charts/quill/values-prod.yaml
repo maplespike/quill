@@ -65,7 +65,7 @@ preferredHost: &quillPreferredHost nexus
 # mounts the NFS claim there (RWX). Staging keeps backupsVolumeName
 # empty; a staging cutover is a later pass.
 storageCutover:
-  useLocalPathCopies: false
+  useLocalPathCopies: true
   backupsVolumeName: quill-backups-nfs
   api:
     size: 5Gi
