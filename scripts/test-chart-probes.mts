@@ -202,7 +202,7 @@ test('chart: live values-prod renders every quill image from the in-cluster regi
   }
 });
 
-test("chart: live values-prod matches main's image refs and pull policy", (t) => {
+test("chart: live values-prod matches main's image repositories and pull policy", (t) => {
   if (skipOrFail(t)) return;
   const mainDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quill-main-'));
   execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main'], { cwd: ROOT, stdio: 'pipe' });
@@ -215,7 +215,14 @@ test("chart: live values-prod matches main's image refs and pull policy", (t) =>
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
-    assert.deepEqual(imagePolicyLines(render()), imagePolicyLines(main));
+    // Digests advance on purpose in pin PRs: comparing them to main makes
+    // every rebuild fail CI until it is already merged. The live pins are
+    // verified against the containerd store by check-image-pins.mjs and
+    // check-node-images.mjs --check; this gate catches accidental drift in
+    // the registry/repository or pull policy, which those gates do not own.
+    const repoAndPolicy = (lines: string[]) =>
+      lines.map((line) => line.replace(/@sha256:[0-9a-f]{64}/, '@sha256:<pin>'));
+    assert.deepEqual(repoAndPolicy(imagePolicyLines(render())), repoAndPolicy(imagePolicyLines(main)));
   } finally {
     execFileSync('git', ['worktree', 'remove', '--force', mainDir], { cwd: ROOT });
   }
