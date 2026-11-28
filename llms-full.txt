@@ -62,7 +62,7 @@ cd packages/quill-mcp
 pnpm start
 ```
 
-All 184 MCP tools return real data — committees, corporate, influence, and
+All 186 MCP tools return real data — committees, corporate, influence, and
 government data are all searchable via the SQLite database. No external
 database configuration required for MCP tools.
 

@@ -58,5 +58,5 @@ municipal, economic, international, environment, corporate, housing, extraction
 ## MCP Server
 
 - Endpoint: https://mcp.maplespike.ca/sse
-- 184 MCP tools across all data categories, including x402-deposit
+- 186 MCP tools across all data categories, including x402-deposit
 - Every record includes SHA-256 citation hashes, source provenance, and audit trails
