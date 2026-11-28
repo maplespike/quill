@@ -165,10 +165,18 @@ const routes = REMOTE && !existsSync(DIST) ? await routesFromRemote() : routesFr
 if (!REMOTE) console.log(`policy: ${policy}\n`);
 
 const server = REMOTE ? null : await serveWithPolicy(policy);
+// ARC runners carry Playwright's managed Chromium in /ms-playwright but no
+// system chrome/chromium (workflow run 46126774960). Prefer an explicit system
+// binary, then a requested channel, then the browser Playwright itself
+// installed; the audit still fails closed on any violation.
+const SYSTEM_CHROMIUM = existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : "";
+const CHANNEL = process.env.E2E_BROWSER_CHANNEL || "";
 const browser = await chromium.launch(
-  existsSync("/usr/bin/chromium")
-    ? { executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] }
-    : { channel: process.env.E2E_BROWSER_CHANNEL || "chrome", args: ["--no-sandbox"] },
+  SYSTEM_CHROMIUM
+    ? { executablePath: SYSTEM_CHROMIUM, args: ["--no-sandbox"] }
+    : CHANNEL
+      ? { channel: CHANNEL, args: ["--no-sandbox"] }
+      : { args: ["--no-sandbox"] },
 );
 
 const problems = [];
