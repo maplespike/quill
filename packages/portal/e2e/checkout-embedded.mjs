@@ -38,8 +38,9 @@
  *                            bundle carries the live key, and Stripe refuses to
  *                            mount a test-mode client_secret with it.
  *   E2E_SCREENSHOT           default /tmp/quill-checkout-embedded.png
- *   E2E_BROWSER_CHANNEL      default `chrome` (system Chrome); set to `chromium`
- *                            to use Playwright's own download.
+ *   E2E_BROWSER_CHANNEL      optional system channel (`chrome`, `chromium`);
+ *                            when unset and no system binary exists, the
+ *                            Playwright-managed browser is used.
  *   E2E_EXECUTABLE_PATH      explicit browser binary; otherwise /usr/bin/chromium
  *                            is used when present.
  *
@@ -56,7 +57,7 @@ const STRIPE_KEY_FILE = process.env.E2E_STRIPE_SECRET_KEY_FILE || "";
 const STRIPE_KEY = (process.env.E2E_STRIPE_SECRET_KEY || "").trim();
 const PUBLISHABLE = (process.env.E2E_PUBLISHABLE_KEY || "").trim();
 const OUT = process.env.E2E_SCREENSHOT || "/tmp/quill-checkout-embedded.png";
-const CHANNEL = process.env.E2E_BROWSER_CHANNEL || "chrome";
+const CHANNEL = process.env.E2E_BROWSER_CHANNEL || "";
 const API_PATTERN = "**/v1/billing/stripe/checkout";
 const STORAGE_KEY = "quill-api-key";
 const FIXTURE_KEY = "quill_e2e_fixture_key";
@@ -149,8 +150,15 @@ if (PUBLISHABLE && secretIsTest !== PUBLISHABLE.startsWith("pk_test_")) {
 // host has /usr/bin/chromium and no /opt/google/chrome). Prefer an explicit
 // path, then the system chromium, then the channel.
 const EXEC = process.env.E2E_EXECUTABLE_PATH || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : "");
+// On ARC runners there is no system chrome; Playwright's own browser lives in
+// /ms-playwright. Falling back to it keeps the checkout check running on a
+// real browser instead of failing before the first page load.
 const browser = await chromium.launch(
-  EXEC ? { executablePath: EXEC, args: ["--no-sandbox"] } : { channel: CHANNEL, args: ["--no-sandbox"] },
+  EXEC
+    ? { executablePath: EXEC, args: ["--no-sandbox"] }
+    : CHANNEL
+      ? { channel: CHANNEL, args: ["--no-sandbox"] }
+      : { args: ["--no-sandbox"] },
 );
 try {
   const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });

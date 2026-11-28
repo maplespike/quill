@@ -15,8 +15,6 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
 <canvas id="c"></canvas>
 <div id="title"></div>
 <script type="module">
-import { prepareWithSegments, layoutWithLines } from "https://esm.sh/@chenglou/pretext@0.0.6";
-
 // ─── Canvas Setup ────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -30,17 +28,14 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// ─── Pretext Title ───────────────────────────────────────────
-(async () => {
-  const prepared = prepareWithSegments('MAPLESPIKE', '900 42px Georgia,Palatino,"Times New Roman",serif');
-  const { lines } = layoutWithLines(prepared, W * 0.7, 52);
-  const div = document.getElementById('title');
-  if (lines?.length) {
-    div.textContent = lines[0].text;
-    div.style.font = '900 42px Georgia,Palatino,"Times New Roman",serif';
-    div.style.letterSpacing = '0.25em';
-  }
-})();
+// ─── Title ─────────────────────────────────────────────────────
+// This single-word title used to import @chenglou/pretext from esm.sh, which
+// the portal CSP correctly blocks (script-src-elem). Only lines[0].text was
+// ever used, so render the same string directly and keep script-src strict.
+const title = document.getElementById('title');
+title.textContent = 'MAPLESPIKE';
+title.style.font = '900 42px Georgia,Palatino,"Times New Roman",serif';
+title.style.letterSpacing = '0.25em';
 
 // ─── Constants ───────────────────────────────────────────────
 const COLS = 120, ROWS = 50, WATER = 36;

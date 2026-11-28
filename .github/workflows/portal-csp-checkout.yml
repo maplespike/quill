@@ -90,9 +90,16 @@ jobs:
       - name: Static CSP contract — three copies, one policy
         run: pnpm --filter ./packages/portal exec vitest run tests/server-csp.test.ts
 
-      - name: Chromium for the audit
+      - name: Chromium for the audit (GitHub-hosted)
         if: runner.environment == 'github-hosted'
         run: pnpm --filter ./packages/portal exec playwright install --with-deps chromium
+
+      # ARC runners pre-bake an older Playwright browser set in /ms-playwright;
+      # the lockfile's revision is not there, so the audit exits before any
+      # page loads. Install the pinned revision into the same persistent cache.
+      - name: Chromium for the audit (ARC)
+        if: runner.environment != 'github-hosted'
+        run: pnpm --filter ./packages/portal exec playwright install chromium
 
       - name: Every route under the policy it ships with
         # Serves dist/ with the real Content-Security-Policy from public/_headers

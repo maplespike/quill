@@ -35,7 +35,10 @@ import { createServer } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
 
-const DIST = resolve(process.env.AUDIT_DIST || new URL("../../dist", import.meta.url).pathname);
+// From packages/portal/e2e/, ../dist is the portal build output. The old
+// ../../dist pointed at packages/dist and made the gate fail on every PR
+// touching quill-mcp (workflow run 46042307591); keep the audit strict.
+const DIST = resolve(process.env.AUDIT_DIST || new URL("../dist", import.meta.url).pathname);
 const HEADERS_FILE = resolve(process.env.AUDIT_HEADERS || new URL("../public/_headers", import.meta.url).pathname);
 const PORT = Number(process.env.AUDIT_PORT || 8099);
 const MAX = Number(process.env.AUDIT_MAX || 0);
@@ -162,10 +165,18 @@ const routes = REMOTE && !existsSync(DIST) ? await routesFromRemote() : routesFr
 if (!REMOTE) console.log(`policy: ${policy}\n`);
 
 const server = REMOTE ? null : await serveWithPolicy(policy);
+// ARC runners carry Playwright's managed Chromium in /ms-playwright but no
+// system chrome/chromium (workflow run 46126774960). Prefer an explicit system
+// binary, then a requested channel, then the browser Playwright itself
+// installed; the audit still fails closed on any violation.
+const SYSTEM_CHROMIUM = existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : "";
+const CHANNEL = process.env.E2E_BROWSER_CHANNEL || "";
 const browser = await chromium.launch(
-  existsSync("/usr/bin/chromium")
-    ? { executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] }
-    : { channel: process.env.E2E_BROWSER_CHANNEL || "chrome", args: ["--no-sandbox"] },
+  SYSTEM_CHROMIUM
+    ? { executablePath: SYSTEM_CHROMIUM, args: ["--no-sandbox"] }
+    : CHANNEL
+      ? { channel: CHANNEL, args: ["--no-sandbox"] }
+      : { args: ["--no-sandbox"] },
 );
 
 const problems = [];

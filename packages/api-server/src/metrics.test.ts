@@ -83,3 +83,36 @@ test('API duration metrics normalize invalid durations and unregistered routes',
   assert.match(output, /route="unmatched"/);
   assert.doesNotMatch(output, /NaN|Infinity|private-customer-id/);
 });
+
+test('API active tenants are distinct, bounded, and expire from the window', () => {
+  let now = 1_000_000;
+  const metrics = new ApiMetrics({ now: () => now, windowMs: 1000, maxTenants: 2 });
+  metrics.recordTenant('tenant-alpha', 'pro');
+  metrics.recordTenant('tenant-alpha', 'pro');
+  metrics.recordTenant('tenant-beta', 'free');
+
+  let output = metrics.render();
+  assert.match(output, /quill_api_active_tenants 2/);
+  assert.match(output, /quill_api_active_tenants_by_tier\{tier="free"\} 1/);
+  assert.match(output, /quill_api_active_tenants_by_tier\{tier="pro"\} 1/);
+
+  // The bounded set evicts the oldest identity rather than growing without limit.
+  metrics.recordTenant('tenant-gamma', 'business');
+  output = metrics.render();
+  assert.match(output, /quill_api_active_tenants 2/);
+  assert.doesNotMatch(output, /quill_api_active_tenants_by_tier\{tier="pro"\} /);
+
+  now += 1001;
+  assert.match(metrics.render(), /quill_api_active_tenants 0/);
+  assert.doesNotMatch(metrics.render(), /tenant-alpha|tenant-beta|tenant-gamma/);
+});
+
+test('API active tenant tiers are normalized and never expose tenant IDs', () => {
+  const metrics = new ApiMetrics();
+  metrics.recordTenant('', 'pro');
+  metrics.recordTenant('tenant-secret-id', 'customer-controlled-label');
+  const output = metrics.render();
+  assert.match(output, /quill_api_active_tenants 1/);
+  assert.match(output, /quill_api_active_tenants_by_tier\{tier="other"\} 1/);
+  assert.doesNotMatch(output, /tenant-secret-id|customer-controlled-label/);
+});
