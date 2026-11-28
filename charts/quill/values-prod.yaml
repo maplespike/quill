@@ -11,14 +11,14 @@ images:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/api"
     pullPolicy: IfNotPresent
-    digest: "sha256:42846d14ae8287cfe01ae44e0453b3363a778d61b72a548f3e8d2de4788ad84e"
-    tag: "9f3a48d6ae9982f0adf3f637f8c7d9dedf0a680b"
+    digest: "sha256:beaaf53c5649a187183461a62ed32bd5eea42350b5f387f8d48850b1c8ac9cd0"
+    tag: "0f24898b78067d65cc85ee497003ce0c48fdf61e"
   mcp:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/mcp"
     pullPolicy: IfNotPresent
-    digest: "sha256:081bab0cd640e5412d56c887269f877b1a21c93cd103399e0ed53e2645ccbade"
-    tag: "bd65fcbe5ee40911a173b08dc5b90ce7db07ff83"
+    digest: "sha256:29576152ac0b592c0a231fe89126421df691ee15013d06fbe2f848a700abaead"
+    tag: "0f24898b78067d65cc85ee497003ce0c48fdf61e"
   portal:
     registry: "registry.registry.svc.cluster.local:5000"
     repository: "quill/portal"
