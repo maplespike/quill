@@ -1,7 +1,7 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-10-16
+> Auto-generated: 2026-11-28
 > Software and source-data terms vary by package, dataset, and publisher. Consult repository license notices and original source terms.
 > API Base URL: https://api.maplespike.ca/v1
 > HTML API reference: https://quill.maplespike.ca/api-reference
@@ -105,7 +105,7 @@ Get cached browser extraction results
 #### GET /v1/data/quality
 Module health, freshness, and error tracking
 
-## MCP Tools (184 total)
+## MCP Tools (186 total)
 
 The MCP server exposes the following tools:
 
@@ -154,6 +154,8 @@ The MCP server exposes the following tools:
 - `search_bank_of_canada`
 - `datastore_query`
 - `discover_tools`
+- `getting_started`
+- `check_tier`
 - `search_weather`
 - `search_nutrient_file`
 - `search_valet_api`

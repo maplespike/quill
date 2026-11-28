@@ -61,13 +61,12 @@ export const handler: ToolHandler = async (args) => {
   const source = (args.source as string) ?? 'all';
   const year = args.year as number | undefined;
 
-  // Map source filter to pipeline data keys
-  const sourceKeys: string[] = [];
-  if (source === 'ircc' || source === 'all') sourceKeys.push('immigration');
-  if (source === 'irb' || source === 'all') sourceKeys.push('immigration'); // same key for v0
-  if (source === 'cbsa' || source === 'all') sourceKeys.push('immigration');
-
-  const q = query + (year ? ` ${year}` : '');
+  // CKAN package_search has no field filter here, so the source is applied as
+  // a query term — "ircc"/"irb"/"cbsa" all appear in the dataset titles. The
+  // previous version built a `sourceKeys` array and never read it, so `source`
+  // silently did nothing while the schema advertised it.
+  const sourceTerm = source !== 'all' ? source : undefined;
+  const q = [query, sourceTerm, year ? String(year) : undefined].filter(Boolean).join(' ');
   const result = await searchCkan(q, limit);
   let results = result.results;
   let total = result.total;

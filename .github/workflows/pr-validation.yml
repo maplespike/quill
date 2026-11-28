@@ -80,7 +80,12 @@ jobs:
           # 35684897034 on forge-quill-runner). `github.token` is minted per
           # run and exists everywhere. Guard: scripts/gates/check-workflow-gh-auth.mjs
         run: |
-          COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageHeadline')
+          # gh pr view truncates messageHeadline at ~72 chars with an ellipsis
+          # (measured 2026-11-28 on PR #1453: "… ZIP reader …" lost the "for
+          # #1453" suffix), so a valid long headline failed this gate. The REST
+          # API returns the full commit message; take its first line.
+          REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+          COMMITS=$(gh api "repos/$REPO/pulls/$PR_NUMBER/commits" --jq '.[].commit.message | split("\n")[0]')
           FAILED=0
           while IFS= read -r msg; do
             if echo "$msg" | grep -qiE '#[0-9]+'; then
