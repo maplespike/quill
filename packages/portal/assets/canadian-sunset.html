@@ -15,8 +15,6 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
 <canvas id="c"></canvas>
 <div id="title"></div>
 <script type="module">
-import { prepareWithSegments, layoutWithLines } from "https://esm.sh/@chenglou/pretext@0.0.6";
-
 // ─── Canvas ──────────────────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -30,22 +28,17 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-// ─── Pretext Title ───────────────────────────────────────────
-(async () => {
-  const txt = 'CANADA';
-  const fnt = '700 56px Georgia,Palatino,"Times New Roman",serif';
-  const prepared = prepareWithSegments(txt, fnt);
-  const { lines } = layoutWithLines(prepared, W * 0.7, 64);
-  const div = document.getElementById('title');
-  if (lines?.length) {
-    div.textContent = lines[0].text;
-    div.style.font = fnt;
-    div.style.letterSpacing = '0.2em';
-    div.style.opacity = '0';
-    div.style.transition = 'opacity 2s ease';
-    requestAnimationFrame(() => { div.style.opacity = '0.04'; });
-  }
-})();
+// ─── Title ─────────────────────────────────────────────────────
+// This single-word title used to import @chenglou/pretext from esm.sh, which
+// the portal CSP correctly blocks (script-src-elem). Only lines[0].text was
+// ever used, so render the same string directly and keep script-src strict.
+const title = document.getElementById('title');
+title.textContent = 'CANADA';
+title.style.font = '700 56px Georgia,Palatino,"Times New Roman",serif';
+title.style.letterSpacing = '0.2em';
+title.style.opacity = '0';
+title.style.transition = 'opacity 2s ease';
+requestAnimationFrame(() => { title.style.opacity = '0.04'; });
 
 // ─── Constants ───────────────────────────────────────────────
 const COLS = 140, ROWS = 60, WATER = 43;
