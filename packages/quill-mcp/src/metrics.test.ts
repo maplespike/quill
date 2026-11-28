@@ -31,3 +31,38 @@ test('MCP metrics do not expose arbitrary names, identities, arguments, or error
   assert.match(output, /quill_mcp_tool_call_duration_seconds_sum\{tool="search_gazette",outcome="success"\} 3600/);
   assert.match(output, /quill_mcp_tool_call_duration_seconds_bucket\{tool="search_gazette",outcome="success",le="\+Inf"\} 1/);
 });
+
+test('MCP active identities count hosted callers once and expire from the window', () => {
+  let now = 2_000_000;
+  const metrics = new McpMetrics({ now: () => now, windowMs: 1000, maxIdentities: 2 });
+  const apiKey = { hashed: 'api-key:secret-hash', mode: 'api-key' };
+  const anonymous = { hashed: 'anonymous-ip:hashed-ip', mode: 'anonymous-ip' };
+
+  metrics.recordIdentity(apiKey);
+  metrics.recordIdentity(apiKey);
+  metrics.recordIdentity(anonymous);
+  assert.match(metrics.render(), /quill_mcp_active_identities 2/);
+
+  // Local stdio callers are not hosted identities.
+  metrics.recordIdentity({ hashed: 'self-hosted:session', mode: 'self-hosted' });
+  assert.match(metrics.render(), /quill_mcp_active_identities 2/);
+
+  now += 1001;
+  const output = metrics.render();
+  assert.match(output, /quill_mcp_active_identities 0/);
+  assert.doesNotMatch(output, /secret-hash|hashed-ip|self-hosted/);
+});
+
+test('MCP quota and payment counters are always present and never carry identities', () => {
+  const metrics = new McpMetrics();
+  assert.match(metrics.render(), /quill_mcp_quota_hits_total 0/);
+  assert.match(metrics.render(), /quill_mcp_payment_hits_total 0/);
+
+  metrics.recordQuotaDenied();
+  metrics.recordPaymentAttempt();
+  metrics.recordPaymentAttempt();
+  const output = metrics.render();
+  assert.match(output, /quill_mcp_quota_hits_total 1/);
+  assert.match(output, /quill_mcp_payment_hits_total 2/);
+  assert.doesNotMatch(output, /api-key|hashed|session|token|customer/);
+});

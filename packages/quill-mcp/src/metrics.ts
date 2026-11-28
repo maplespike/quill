@@ -1,4 +1,11 @@
+import { createHash } from 'node:crypto';
+
 export type Outcome = 'success' | 'error' | 'rejected';
+export type HostedIdentityMode = 'api-key' | 'anonymous-ip';
+export interface MetricIdentity {
+  hashed: string;
+  mode: string;
+}
 
 type Sample = {
   tool: string;
@@ -12,6 +19,9 @@ type Sample = {
 const BUCKETS = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60];
 const REGISTERED_TOOLS = new Set<string>();
 const MAX_REGISTERED_TOOLS = 256;
+const IDENTITY_WINDOW_MS = 5 * 60 * 1000;
+const MAX_TRACKED_IDENTITIES = 4096;
+const HOSTED_MODES: readonly string[] = ['api-key', 'anonymous-ip'];
 
 export function registerMetricTool(name: string): void {
   if (REGISTERED_TOOLS.has(name)) return;
@@ -31,6 +41,18 @@ function labels(tool: string, outcome: Outcome, le?: string): string {
 
 export class McpMetrics {
   private readonly samples = new Map<string, Sample>();
+  private readonly identities = new Map<string, number>();
+  private readonly windowMs: number;
+  private readonly maxIdentities: number;
+  private readonly now: () => number;
+  private quotaHits = 0;
+  private paymentHits = 0;
+
+  constructor(options: { windowMs?: number; maxIdentities?: number; now?: () => number } = {}) {
+    this.windowMs = options.windowMs ?? IDENTITY_WINDOW_MS;
+    this.maxIdentities = options.maxIdentities ?? MAX_TRACKED_IDENTITIES;
+    this.now = options.now ?? Date.now;
+  }
 
   record(tool: string, outcome: Outcome, durationSeconds?: number): void {
     const safeTool = REGISTERED_TOOLS.has(tool) ? tool : 'unregistered';
@@ -54,6 +76,39 @@ export class McpMetrics {
     }
   }
 
+  /** Count a hosted MCP identity once per message; self-hosted stdio is excluded. */
+  recordIdentity(identity?: MetricIdentity): void {
+    if (!identity || !HOSTED_MODES.includes(identity.mode)) return;
+    if (typeof identity.hashed !== 'string' || identity.hashed.length === 0) return;
+    const now = this.now();
+    this.pruneIdentities(now);
+    const key = createHash('sha256').update(identity.hashed).digest('hex');
+    if (!this.identities.has(key) && this.identities.size >= this.maxIdentities) {
+      const oldest = this.identities.keys().next().value;
+      if (oldest !== undefined) this.identities.delete(oldest);
+    }
+    this.identities.set(key, now + this.windowMs);
+  }
+
+  recordQuotaDenied(): void {
+    this.quotaHits++;
+  }
+
+  recordPaymentAttempt(): void {
+    this.paymentHits++;
+  }
+
+  private pruneIdentities(now: number): void {
+    for (const [key, expires] of this.identities) {
+      if (expires <= now) this.identities.delete(key);
+    }
+  }
+
+  private activeIdentityCount(): number {
+    this.pruneIdentities(this.now());
+    return this.identities.size;
+  }
+
   render(): string {
     const lines = [
       '# HELP quill_mcp_tool_calls_total MCP tool call outcomes.',
@@ -71,6 +126,17 @@ export class McpMetrics {
       lines.push(`quill_mcp_tool_call_duration_seconds_sum${labels(sample.tool, sample.outcome)} ${sample.durationSum}`);
       lines.push(`quill_mcp_tool_call_duration_seconds_count${labels(sample.tool, sample.outcome)} ${sample.durationCount}`);
     }
+    lines.push(
+      '# HELP quill_mcp_active_identities Distinct hosted MCP identities seen in the last five minutes.',
+      '# TYPE quill_mcp_active_identities gauge',
+      `quill_mcp_active_identities ${this.activeIdentityCount()}`,
+      '# HELP quill_mcp_quota_hits_total MCP tool calls denied by the free quota.',
+      '# TYPE quill_mcp_quota_hits_total counter',
+      `quill_mcp_quota_hits_total ${this.quotaHits}`,
+      '# HELP quill_mcp_payment_hits_total MCP tool calls carrying an x402 payment attempt.',
+      '# TYPE quill_mcp_payment_hits_total counter',
+      `quill_mcp_payment_hits_total ${this.paymentHits}`,
+    );
     return `${lines.join('\n')}\n`;
   }
 }

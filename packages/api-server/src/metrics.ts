@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 type Labels = Record<string, string>;
 
 type Sample = {
@@ -9,6 +11,9 @@ type Sample = {
 
 const BUCKETS = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
 const REGISTERED_ROUTES = new Set<string>();
+const IDENTITY_WINDOW_MS = 5 * 60 * 1000;
+const MAX_TRACKED_TENANTS = 4096;
+const TIERS = ['free', 'pro', 'business', 'enterprise', 'internal'] as const;
 // Mirrors the canonical alias map in pipeline-core. The parity test below
 // keeps this bounded metric allowlist aligned without adding CLI code to the
 // API process's runtime dependency graph.
@@ -54,6 +59,16 @@ function renderLabels(labels: Labels, extra?: Labels): string {
 
 export class ApiMetrics {
   private readonly samples = new Map<string, Sample>();
+  private readonly tenants = new Map<string, { expires: number; tier: string }>();
+  private readonly windowMs: number;
+  private readonly maxTenants: number;
+  private readonly now: () => number;
+
+  constructor(options: { windowMs?: number; maxTenants?: number; now?: () => number } = {}) {
+    this.windowMs = options.windowMs ?? IDENTITY_WINDOW_MS;
+    this.maxTenants = options.maxTenants ?? MAX_TRACKED_TENANTS;
+    this.now = options.now ?? Date.now;
+  }
 
   record(route: string, method: string, statusClass: string, durationSeconds: number): void {
     const safeRoute = REGISTERED_ROUTES.has(route) ? route : 'unmatched';
@@ -73,6 +88,39 @@ export class ApiMetrics {
     });
   }
 
+  /** Count an authenticated tenant once per request; the raw ID never leaves this object. */
+  recordTenant(tenantId: string, tier: string): void {
+    if (typeof tenantId !== 'string' || tenantId.length === 0) return;
+    const now = this.now();
+    this.pruneTenants(now);
+    const key = createHash('sha256').update(tenantId).digest('hex');
+    // Map preserves insertion order, so evicting the first key drops the
+    // oldest tenant when the bounded set is full.
+    if (!this.tenants.has(key) && this.tenants.size >= this.maxTenants) {
+      const oldest = this.tenants.keys().next().value;
+      if (oldest !== undefined) this.tenants.delete(oldest);
+    }
+    this.tenants.set(key, {
+      expires: now + this.windowMs,
+      tier: (TIERS as readonly string[]).includes(tier) ? tier : 'other',
+    });
+  }
+
+  private pruneTenants(now: number): void {
+    for (const [key, value] of this.tenants) {
+      if (value.expires <= now) this.tenants.delete(key);
+    }
+  }
+
+  private activeTenantCounts(): Map<string, number> {
+    this.pruneTenants(this.now());
+    const counts = new Map<string, number>();
+    for (const { tier } of this.tenants.values()) {
+      counts.set(tier, (counts.get(tier) ?? 0) + 1);
+    }
+    return counts;
+  }
+
   render(): string {
     const lines = [
       '# HELP quill_api_http_requests_total Completed HTTP requests.',
@@ -88,6 +136,18 @@ export class ApiMetrics {
       lines.push(`quill_api_http_request_duration_seconds_bucket${renderLabels(sample.labels, { le: '+Inf' })} ${sample.count}`);
       lines.push(`quill_api_http_request_duration_seconds_sum${renderLabels(sample.labels)} ${sample.sum}`);
       lines.push(`quill_api_http_request_duration_seconds_count${renderLabels(sample.labels)} ${sample.count}`);
+    }
+    const active = this.activeTenantCounts();
+    const activeTotal = [...active.values()].reduce((sum, count) => sum + count, 0);
+    lines.push(
+      '# HELP quill_api_active_tenants Distinct authenticated tenants seen in the last five minutes.',
+      '# TYPE quill_api_active_tenants gauge',
+      `quill_api_active_tenants ${activeTotal}`,
+      '# HELP quill_api_active_tenants_by_tier Active tenants by normalized billing tier.',
+      '# TYPE quill_api_active_tenants_by_tier gauge',
+    );
+    for (const [tier, count] of [...active.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+      lines.push(`quill_api_active_tenants_by_tier{tier="${tier}"} ${count}`);
     }
     return `${lines.join('\n')}\n`;
   }

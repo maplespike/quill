@@ -205,6 +205,10 @@ export class McpServer {
     const msg = this.parseMessage(raw, send);
     if (!msg) return;
 
+    // One observation per JSON-RPC message across SSE, hosted HTTP and stdio.
+    // McpMetrics ignores self-hosted identities, so local CLI use is excluded.
+    mcpMetrics.recordIdentity(identity);
+
     const { method, id, params } = msg;
 
     switch (method) {
@@ -929,6 +933,7 @@ export class McpServer {
     // whether the caller has already graduated to a paying tier.
     const resolvedProof = paymentProof ?? extractPaymentFromArgs(args);
     const callerIsPaying = Boolean(resolvedProof) && process.env.X402_ENABLED === 'true';
+    if (callerIsPaying) mcpMetrics.recordPaymentAttempt();
 
     // ── Quota preflight (when an identity is provided and tracker enabled) ─
     // Free-tier policy: 1000 calls/month per identity, then x402 per-call.
@@ -945,6 +950,7 @@ export class McpServer {
         // gate is narrowed to the denied variant — toFixed works on toolPriceUsd.
         const cost = gate.toolPriceUsd;
         mcpMetrics.record(toolName, 'rejected');
+        mcpMetrics.recordQuotaDenied();
         send(this.error(id ?? null, -402, 'Payment Required', {
           ...this.quota.getStatus(identity),
           tool: toolName,

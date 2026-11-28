@@ -40,7 +40,7 @@ export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 import { initEmailConfig } from './email.js';
 import logger from './logger.js';
-import { registerApiMetricRoute } from './metrics.js';
+import { apiMetrics, registerApiMetricRoute } from './metrics.js';
 
 interface Route {
   pattern: RegExp;
@@ -770,6 +770,11 @@ export async function handleRequest(
     db,
     cache,
   };
+
+  // Active-tenant gauge: count only real authenticated tenants. Anonymous
+  // callers share the synthetic `anon` tenant and are deliberately excluded;
+  // the raw tenant ID is hashed inside ApiMetrics and never reaches exposition.
+  if (tenant) apiMetrics.recordTenant(ctx.tenant.id, ctx.tenant.tier);
 
   // ── Free-tier boundary (decision #803) ──
   // Free = discovery/metadata only. Data queries + AI + tool execution are Pro+.
