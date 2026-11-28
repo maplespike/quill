@@ -29,12 +29,20 @@
  * Rate limit: 10 req/min free, 60 req/min pro (stored in KV per tenant)
  */
 
+import { NEURON_OBJECT_NAME, rateObjectName, TenantCounters } from './counters.js';
+
+// Cloudflare requires the Durable Object class to be exported from the entry
+// module named in wrangler.toml (`main`).
+export { TenantCounters };
+
 export interface Env {
   // Cloudflare bindings
   AI: Ai;
   API_KEYS: KVNamespace;
-  RATE_LIMIT: KVNamespace;
-  NEURON_BUDGET: KVNamespace;
+  // Counters moved to Durable Objects: KV allows 1,000 writes/day and the
+  // rate limiter plus neuron budget made two writes per AI call (see
+  // counters.ts). API keys stay in KV — they are read-mostly.
+  COUNTERS: DurableObjectNamespace;
   AUDIT_DB: D1Database;
   AI_GATEWAY_ID: string;
 
@@ -47,6 +55,7 @@ export interface Env {
   // Vars (set in wrangler.toml [vars] section)
   HOMELAB_MODEL: string;             // e.g. "qwen3.5-27b" — must match homelab's /v1/models
   NEURON_DAILY_LIMIT: string;        // e.g. "8000" — stop using edge AI when exceeded
+  AI_DAILY_CALL_CAP: string;         // e.g. "20000" — hard stop under the free-tier request caps
   AUDIT_RETENTION_DAYS: string;      // e.g. "30" — raw rows older than this get rolled up
 }
 
@@ -145,21 +154,33 @@ function validateApiKeyFormat(key: string): boolean {
  * neuron accounting is not exposed per-call, so we count requests as a
  * proxy). Reset happens naturally: a new UTC date creates a new KV key.
  */
-async function checkNeuronBudget(env: Env): Promise<{ withinBudget: boolean; used: number; limit: number }> {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
-  const budgetKey = `neurons:${today}`;
-  const limit = parseInt(env.NEURON_DAILY_LIMIT ?? '8000', 10);
-
-  const current = parseInt(await env.NEURON_BUDGET.get(budgetKey) ?? '0', 10);
-  return { withinBudget: current < limit, used: current, limit };
+async function counterStub(env: Env, name: string): Promise<DurableObjectStub> {
+  return env.COUNTERS.get(env.COUNTERS.idFromName(name));
 }
 
-async function incrementNeuronUsage(env: Env): Promise<void> {
-  const today = new Date().toISOString().slice(0, 10);
-  const budgetKey = `neurons:${today}`;
-  const current = parseInt(await env.NEURON_BUDGET.get(budgetKey) ?? '0', 10);
-  // TTL: 2 days to auto-clean stale date keys
-  await env.NEURON_BUDGET.put(budgetKey, String(current + 1), { expirationTtl: 172_800 });
+async function checkNeuronBudget(env: Env): Promise<{ withinBudget: boolean; used: number; limit: number }> {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+  const limit = parseInt(env.NEURON_DAILY_LIMIT ?? '8000', 10);
+  // Hard stop well inside the 100,000 Workers requests/day free allowance, and
+  // low enough that 2 Durable Object requests per AI call stay inside the
+  // 100,000/day Durable Object allowance. See docs/CLOUDFLARE-FREE-TIER.md.
+  const cap = parseInt(env.AI_DAILY_CALL_CAP ?? '20000', 10);
+  try {
+    const stub = await counterStub(env, NEURON_OBJECT_NAME);
+    const res = await stub.fetch('https://counters/neurons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ day: today, limit, cap }),
+    });
+    if (!res.ok) throw new Error(`counter status ${res.status}`);
+    const data = (await res.json()) as { allowed: boolean; used: number; limit: number };
+    return { withinBudget: data.allowed, used: data.used, limit: data.limit || limit };
+  } catch (err) {
+    // Fail closed: an unreachable counter must not spend an uncounted Workers
+    // AI Neurons. Traffic degrades to the homelab, which has no free-tier cap.
+    console.error(`[counters] neuron budget check failed: ${(err as Error).message}`);
+    return { withinBudget: false, used: 0, limit };
+  }
 }
 
 // ─── Auth: API Key Validation via KV ────────────────────────────────────
@@ -197,18 +218,29 @@ async function validateApiKey(request: Request, env: Env): Promise<Tenant | null
 
 async function checkRateLimit(tenantId: string, limitPerMin: number, env: Env): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   const now = Date.now();
-  const windowKey = `rl:${tenantId}:${Math.floor(now / 60_000)}`;
+  const fallback = () => ({
+    allowed: false,
+    remaining: 0,
+    resetAt: (Math.floor(now / 60_000) + 1) * 60_000,
+  });
 
-  const current = parseInt(await env.RATE_LIMIT.get(windowKey) ?? '0', 10);
-
-  if (current >= limitPerMin) {
-    return { allowed: false, remaining: 0, resetAt: (Math.floor(now / 60_000) + 1) * 60_000 };
+  try {
+    // One Durable Object per tenant: atomic, so two concurrent requests cannot
+    // both read `count` and both write `count + 1` (the KV version could).
+    const stub = await counterStub(env, rateObjectName(tenantId));
+    const res = await stub.fetch('https://counters/rate-limit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit: limitPerMin }),
+    });
+    if (!res.ok) throw new Error(`counter status ${res.status}`);
+    return (await res.json()) as { allowed: boolean; remaining: number; resetAt: number };
+  } catch (err) {
+    // Fail closed: this is abuse protection, and the previous KV failure mode
+    // already rejected the request.
+    console.error(`[counters] rate limit check failed: ${(err as Error).message}`);
+    return fallback();
   }
-
-  // Increment counter (expires in 120s — covers 2 windows for sliding)
-  await env.RATE_LIMIT.put(windowKey, String(current + 1), { expirationTtl: 120 });
-
-  return { allowed: true, remaining: limitPerMin - current - 1, resetAt: (Math.floor(now / 60_000) + 1) * 60_000 };
 }
 
 // ─── Audit Logging to D1 ────────────────────────────────────────────────
@@ -366,7 +398,6 @@ async function runInference(
     if (budget.withinBudget) {
       const edgeResult = await callEdgeAI(messages, model, env, maxTokens);
       if (edgeResult) {
-        await incrementNeuronUsage(env);
         return { ...edgeResult, source: 'edge', cacheHit: false };
       }
     }
@@ -377,7 +408,6 @@ async function runInference(
   if (budget.withinBudget) {
     const edgeResult = await callEdgeAI(messages, model, env, maxTokens);
     if (edgeResult) {
-      await incrementNeuronUsage(env);
       return { ...edgeResult, source: 'edge', cacheHit: false };
     }
   }

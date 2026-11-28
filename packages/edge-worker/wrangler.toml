@@ -5,18 +5,23 @@
 #   Homelab k3s (Qwen3.5-27B)         -> primary for pro/business, fallback for free
 #   Enterprise BYOK                   -> BYOK endpoint if configured in KV tenant
 #   KV (api-keys)                      -> hashed API key -> tenant lookup
-#   KV (rate-limit)                    -> sliding window per-tenant throttling
-#   KV (neuron-budget)                 -> daily UTC neuron budget counter
+#   Durable Objects (counters)         -> per-tenant rate window + daily neuron budget
 #   D1 (audit)                         -> full request audit log with PII redaction
 #   AI Gateway                         -> response caching + usage analytics
 #   Scheduled (cron)                   -> daily D1 audit retention at 01:00 UTC
 #
 # Free tier limits (all within Cloudflare free plan):
 #   Workers AI:   ~10,000 neurons/day (covers ~5K small chat queries)
-#   KV:           100K reads/day, 1K writes/day
+#   KV:           100K reads/day, 1K writes/day — read-mostly only, API keys
+#   Durable Obj:  100K requests/day (counters: 2 per AI call)
 #   D1:           5M reads/day, 100K writes/day (audit logging)
 #   Workers:      100K requests/day
 #   Cron:         5 scheduled invocations/day (1 used for retention)
+#
+# 2026-11-27: the rate limiter and neuron budget were KV counters written once
+# per AI call. KV allows 1,000 writes/day, so the counter path died after ~500
+# requests and every later write surfaced as a 500. They are now Durable
+# Objects (atomic, no per-write quota). See src/counters.ts.
 
 name = "quill-ai"
 main = "src/ai-worker.ts"
@@ -37,13 +42,15 @@ gateway_id = "maplespike"
 binding = "API_KEYS"
 id = "8c0ef6ea32e2410197bf489a83b98c07"
 
-[[kv_namespaces]]
-binding = "RATE_LIMIT"
-id = "c7022478939e475da7d217cd4f36b766"
+# ── Durable Objects: rate limit + neuron budget counters ────────────────
+# One class, one instance per counter: `rate:<tenantId>` and `neurons:global`.
+[[durable_objects.bindings]]
+name = "COUNTERS"
+class_name = "TenantCounters"
 
-[[kv_namespaces]]
-binding = "NEURON_BUDGET"
-id = "73309fa7752641fbaf32ae4a5b5b47fd"
+[[migrations]]
+tag = "v1-counters"
+new_sqlite_classes = ["TenantCounters"]
 
 # ── D1 Database ─────────────────────────────────────────────────────────
 [[d1_databases]]
@@ -55,6 +62,11 @@ database_id = "a9579d19-39da-454c-a65d-a7d83f0ee080"
 [vars]
 HOMELAB_MODEL = "qwen3.5-27b"
 NEURON_DAILY_LIMIT = "8000"
+# Hard stop below the Workers free cap (100,000 requests/day). With 2 Durable
+# Object requests per AI call this keeps the counter path under the 100,000/day
+# Durable Object allowance too. Do not raise without redoing the arithmetic in
+# docs/CLOUDFLARE-FREE-TIER.md.
+AI_DAILY_CALL_CAP = "20000"
 AUDIT_RETENTION_DAYS = "30"
 
 # ── Scheduled handler: D1 audit retention (daily at 01:00 UTC) ──────────
